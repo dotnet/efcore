@@ -8,15 +8,11 @@ internal readonly struct SharedStopwatch
 {
     private static readonly Stopwatch Stopwatch = Stopwatch.StartNew();
 
-    private readonly TimeSpan _started;
-
     private SharedStopwatch(TimeSpan started)
-    {
-        _started = started;
-    }
+        => Elapsed = started;
 
     public TimeSpan Elapsed
-        => Stopwatch.Elapsed - _started;
+        => Stopwatch.Elapsed - field;
 
     public static SharedStopwatch StartNew()
     {

@@ -687,13 +687,13 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             [
                 await context.Set<GenericComparableIntStructKeyRequiredDependent>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneTwelve })),
+                await context.Set<GenericComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneTwelve })),
                 await context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
                 await context.Set<GenericComparableIntStructKeyRequiredDependent>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 114 })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })),
+                await context.Set<GenericComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })),
                 await context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
             ];
 
@@ -1358,8 +1358,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await principalQuery.SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 1 } })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey(two))),
                 await principalQuery.SingleAsync(e => e.Id.Equals(three)),
-                await principalQuery.SingleAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
+                await principalQuery.SingleAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
             ];
 
             if (!Fixture.UseInclude)
@@ -1377,15 +1377,15 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<StructuralComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 101 } })),
-                await context.Set<StructuralComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey(oneOhTwo))),
+                await context.Set<StructuralComparableBytesStructKeyOptionalDependent>().SingleAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 101 } })),
+                await context.Set<StructuralComparableBytesStructKeyOptionalDependent>()
+                    .SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey(oneOhTwo))),
                 await context.Set<StructuralComparableBytesStructKeyOptionalDependent>().SingleAsync(e => e.Id.Equals(oneOhThree)),
-                await context.Set<StructuralComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 104 } })),
-                await context.Set<StructuralComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey(oneOhFive))),
+                await context.Set<StructuralComparableBytesStructKeyOptionalDependent>().SingleAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 104 } })),
+                await context.Set<StructuralComparableBytesStructKeyOptionalDependent>()
+                    .SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey(oneOhFive))),
                 await context.Set<StructuralComparableBytesStructKeyOptionalDependent>().SingleAsync(e => e.Id.Equals(oneOhSix))
             ];
 
@@ -1506,13 +1506,13 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<ComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 101 } })),
+                await context.Set<ComparableBytesStructKeyOptionalDependent>()
+                    .SingleAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 101 } })),
                 await context.Set<ComparableBytesStructKeyOptionalDependent>()
                     .SingleAsync(e => e.Id.Equals(new ComparableBytesStructKey(oneOhTwo))),
                 await context.Set<ComparableBytesStructKeyOptionalDependent>().SingleAsync(e => e.Id.Equals(oneOhThree)),
-                await context.Set<ComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 104 } })),
+                await context.Set<ComparableBytesStructKeyOptionalDependent>()
+                    .SingleAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 104 } })),
                 await context.Set<ComparableBytesStructKeyOptionalDependent>()
                     .SingleAsync(e => e.Id.Equals(new ComparableBytesStructKey(oneOhFive))),
                 await context.Set<ComparableBytesStructKeyOptionalDependent>().SingleAsync(e => e.Id.Equals(oneOhSix))
@@ -1630,15 +1630,15 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<GenericComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 101 } })),
-                await context.Set<GenericComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey(oneOhTwo))),
+                await context.Set<GenericComparableBytesStructKeyOptionalDependent>().SingleAsync(e
+                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 101 } })),
+                await context.Set<GenericComparableBytesStructKeyOptionalDependent>()
+                    .SingleAsync(e => e.Id.Equals(new GenericComparableBytesStructKey(oneOhTwo))),
                 await context.Set<GenericComparableBytesStructKeyOptionalDependent>().SingleAsync(e => e.Id.Equals(oneOhThree)),
-                await context.Set<GenericComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 104 } })),
-                await context.Set<GenericComparableBytesStructKeyOptionalDependent>().SingleAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey(oneOhFive))),
+                await context.Set<GenericComparableBytesStructKeyOptionalDependent>().SingleAsync(e
+                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 104 } })),
+                await context.Set<GenericComparableBytesStructKeyOptionalDependent>()
+                    .SingleAsync(e => e.Id.Equals(new GenericComparableBytesStructKey(oneOhFive))),
                 await context.Set<GenericComparableBytesStructKeyOptionalDependent>().SingleAsync(e => e.Id.Equals(oneOhSix))
             ];
 
@@ -1875,13 +1875,13 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })),
+                await context.Set<ComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })),
                 await context.Set<ComparableBytesStructKeyRequiredDependent>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneTwelve })),
                 await context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 114 } })),
+                await context.Set<ComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 114 } })),
                 await context.Set<ComparableBytesStructKeyRequiredDependent>()
                     .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneFifteeen })),
                 await context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
@@ -1986,8 +1986,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await principalQuery.SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 11 } })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = twelve })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(thirteen)),
-                await principalQuery.SingleAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
+                await principalQuery.SingleAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
             ];
 
             if (!Fixture.UseInclude)
@@ -2005,15 +2005,15 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneTwelve })),
+                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })),
+                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneTwelve })),
                 await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })),
+                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 114 } })),
+                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })),
                 await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
             ];
 
@@ -2116,8 +2116,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await principalQuery.SingleAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 11 } })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = twelve })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(thirteen)),
-                await principalQuery.SingleAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
+                await principalQuery.SingleAsync(e
+                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
             ];
 
             if (!Fixture.UseInclude)
@@ -2135,15 +2135,15 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneTwelve })),
+                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
+                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })),
+                await context.Set<GenericComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneTwelve })),
                 await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })),
+                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
+                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 114 } })),
+                await context.Set<GenericComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })),
                 await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
             ];
 
@@ -2399,8 +2399,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         using (var context = CreateContext())
         {
-            var owner = await context.Set<OwnerStructuralComparableBytesStructKey>().SingleAsync(
-                o => o.Id.Equals(new StructuralComparableBytesStructKey(new byte[] { 1, 5, 7, 1 })));
+            var owner = await context.Set<OwnerStructuralComparableBytesStructKey>()
+                .SingleAsync(o => o.Id.Equals(new StructuralComparableBytesStructKey(new byte[] { 1, 5, 7, 1 })));
             Assert.Equal(77, owner.Owned.Position);
 
             owner.Owned = new OwnedStructuralComparableBytesStructKey(88);
@@ -4308,8 +4308,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await principalQuery.SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 1 } })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey(two))),
                 (await principalQuery.Where(e => e.Id.Equals(three)).ToListAsync()).Single(),
-                await principalQuery.SingleAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
+                await principalQuery.SingleAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
             ];
 
             if (!Fixture.UseInclude)
@@ -5263,8 +5263,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await principalQuery.SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 11 } })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = twelve })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(thirteen)),
-                await principalQuery.SingleAsync(
-                    e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
+                await principalQuery.SingleAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
             ];
 
             if (!Fixture.UseInclude)
@@ -5469,8 +5469,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 await principalQuery.SingleAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 11 } })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = twelve })),
                 await principalQuery.SingleAsync(e => e.Id.Equals(thirteen)),
-                await principalQuery.SingleAsync(
-                    e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
+                await principalQuery.SingleAsync(e
+                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
             ];
 
             if (!Fixture.UseInclude)
@@ -7288,402 +7288,423 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<IntStructKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
-
-            modelBuilder.Entity<IntStructKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(IntStructKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<IntStructKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(IntStructKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<IntClassKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
-
-            modelBuilder.Entity<IntClassKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(IntClassKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(IntClassKey.Converter);
-                });
-
-            modelBuilder.Entity<IntClassKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(IntClassKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(IntClassKey.Converter);
-                });
-
-            modelBuilder.Entity<EnumerableClassKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter); });
-
-            modelBuilder.Entity<EnumerableClassKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<EnumerableClassKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<BareIntClassKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer); });
-
-            modelBuilder.Entity<BareIntClassKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-                    b.Property(e => e.PrincipalId).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-                });
-
-            modelBuilder.Entity<BareIntClassKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-                    b.Property(e => e.PrincipalId).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-                });
-
-            modelBuilder.Entity<ComparableIntStructKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter); });
-
-            modelBuilder.Entity<ComparableIntStructKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<ComparableIntStructKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<GenericComparableIntStructKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableIntStructKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntStructKey.Converter);
-                });
-
-            modelBuilder.Entity<GenericComparableIntStructKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntStructKey.Converter);
-                });
-
-            modelBuilder.Entity<StructuralComparableBytesStructKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<StructuralComparableBytesStructKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<StructuralComparableBytesStructKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<BytesStructKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(BytesStructKey.Converter); });
-
-            modelBuilder.Entity<BytesStructKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(BytesStructKey.Converter);
-                });
-
-            modelBuilder.Entity<BytesStructKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(BytesStructKey.Converter);
-                });
-
-            modelBuilder.Entity<ComparableBytesStructKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<ComparableBytesStructKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<ComparableBytesStructKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<GenericComparableBytesStructKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableBytesStructKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(GenericComparableBytesStructKey.Converter);
-                });
-
-            modelBuilder.Entity<GenericComparableBytesStructKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(GenericComparableBytesStructKey.Converter);
-                });
-
-            modelBuilder.Entity<ComparableIntClassKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter); });
-
-            modelBuilder.Entity<ComparableIntClassKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<ComparableIntClassKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-                    b.Property(e => e.PrincipalId);
-                });
-
-            modelBuilder.Entity<GenericComparableIntClassKeyPrincipal>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableIntClassKeyOptionalDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntClassKey.Converter);
-                });
-
-            modelBuilder.Entity<GenericComparableIntClassKeyRequiredDependent>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntClassKey.Converter);
-                });
-
-            modelBuilder.Entity<BaseEntity>(
-                entity =>
-                {
-                    entity.HasKey(e => e.Name);
-
-                    entity.Property(p => p.Name)
-                        .HasConversion(
-                            p => p.Value,
-                            p => new Key(p),
-                            new ValueComparer<Key>(
-                                (l, r) => (l == null && r == null) || (l != null && r != null && l.Value == r.Value),
-                                v => v == null ? 0 : v.Value.GetHashCode()));
-
-                    entity.OwnsOne(p => p.Text);
-                    entity.Navigation(p => p.Text).IsRequired();
-                });
-
-            modelBuilder.Entity<IntStructKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
-
-            modelBuilder.Entity<IntStructKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
-
-            modelBuilder.Entity<IntStructKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
-
-            modelBuilder.Entity<IntClassKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
-
-            modelBuilder.Entity<IntClassKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
-
-            modelBuilder.Entity<IntClassKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
-
-            modelBuilder.Entity<BareIntClassKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer); });
-
-            modelBuilder.Entity<BareIntClassKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer); });
-
-            modelBuilder.Entity<BareIntClassKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer); });
-
-            modelBuilder.Entity<ComparableIntStructKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter); });
-
-            modelBuilder.Entity<ComparableIntStructKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter); });
-
-            modelBuilder.Entity<ComparableIntStructKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableIntStructKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableIntStructKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableIntStructKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter); });
-
-            modelBuilder.Entity<StructuralComparableBytesStructKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<StructuralComparableBytesStructKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<StructuralComparableBytesStructKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<BytesStructKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(BytesStructKey.Converter); });
-
-            modelBuilder.Entity<BytesStructKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(BytesStructKey.Converter); });
-
-            modelBuilder.Entity<BytesStructKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(BytesStructKey.Converter); });
-
-            modelBuilder.Entity<ComparableBytesStructKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<ComparableBytesStructKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<ComparableBytesStructKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableBytesStructKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableBytesStructKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableBytesStructKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter); });
-
-            modelBuilder.Entity<ComparableIntClassKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter); });
-
-            modelBuilder.Entity<ComparableIntClassKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter); });
-
-            modelBuilder.Entity<ComparableIntClassKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableIntClassKeyPrincipalShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableIntClassKeyOptionalDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter); });
-
-            modelBuilder.Entity<GenericComparableIntClassKeyRequiredDependentShadow>(
-                b => { b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter); });
-
-            modelBuilder.Entity<OwnerIntStructKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(IntStructKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerBytesStructKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerComparableIntStructKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerComparableBytesStructKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerGenericComparableIntStructKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerGenericComparableBytesStructKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerStructuralComparableBytesStructKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerIntClassKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(IntClassKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerBareIntClassKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerComparableIntClassKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
-
-            modelBuilder.Entity<OwnerGenericComparableIntClassKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
-                    b.OwnsOne(e => e.Owned);
-                });
+            modelBuilder.Entity<IntStructKeyPrincipal>(b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
+
+            modelBuilder.Entity<IntStructKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(IntStructKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<IntStructKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(IntStructKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<IntClassKeyPrincipal>(b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
+
+            modelBuilder.Entity<IntClassKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(IntClassKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(IntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<IntClassKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(IntClassKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(IntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<EnumerableClassKeyPrincipal>(b => { b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter); });
+
+            modelBuilder.Entity<EnumerableClassKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<EnumerableClassKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<BareIntClassKeyPrincipal>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+            });
+
+            modelBuilder.Entity<BareIntClassKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+                b.Property(e => e.PrincipalId).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+            });
+
+            modelBuilder.Entity<BareIntClassKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+                b.Property(e => e.PrincipalId).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+            });
+
+            modelBuilder.Entity<ComparableIntStructKeyPrincipal>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableIntStructKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<ComparableIntStructKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<GenericComparableIntStructKeyPrincipal>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntStructKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntStructKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<StructuralComparableBytesStructKeyPrincipal>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<StructuralComparableBytesStructKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<StructuralComparableBytesStructKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<BytesStructKeyPrincipal>(b => { b.Property(e => e.Id).HasConversion(BytesStructKey.Converter); });
+
+            modelBuilder.Entity<BytesStructKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(BytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<BytesStructKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(BytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableBytesStructKeyPrincipal>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableBytesStructKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<ComparableBytesStructKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<GenericComparableBytesStructKeyPrincipal>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableBytesStructKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(GenericComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableBytesStructKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(GenericComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableIntClassKeyPrincipal>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableIntClassKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<ComparableIntClassKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
+                b.Property(e => e.PrincipalId);
+            });
+
+            modelBuilder.Entity<GenericComparableIntClassKeyPrincipal>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntClassKeyOptionalDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntClassKeyRequiredDependent>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<BaseEntity>(entity =>
+            {
+                entity.HasKey(e => e.Name);
+
+                entity.Property(p => p.Name)
+                    .HasConversion(
+                        p => p.Value,
+                        p => new Key(p),
+                        new ValueComparer<Key>(
+                            (l, r) => (l == null && r == null) || (l != null && r != null && l.Value == r.Value),
+                            v => v == null ? 0 : v.Value.GetHashCode()));
+
+                entity.OwnsOne(p => p.Text);
+                entity.Navigation(p => p.Text).IsRequired();
+            });
+
+            modelBuilder.Entity<IntStructKeyPrincipalShadow>(b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
+
+            modelBuilder.Entity<IntStructKeyOptionalDependentShadow>(b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
+
+            modelBuilder.Entity<IntStructKeyRequiredDependentShadow>(b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
+
+            modelBuilder.Entity<IntClassKeyPrincipalShadow>(b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
+
+            modelBuilder.Entity<IntClassKeyOptionalDependentShadow>(b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
+
+            modelBuilder.Entity<IntClassKeyRequiredDependentShadow>(b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
+
+            modelBuilder.Entity<BareIntClassKeyPrincipalShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+            });
+
+            modelBuilder.Entity<BareIntClassKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+            });
+
+            modelBuilder.Entity<BareIntClassKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+            });
+
+            modelBuilder.Entity<ComparableIntStructKeyPrincipalShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableIntStructKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableIntStructKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntStructKeyPrincipalShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntStructKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntStructKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
+            });
+
+            modelBuilder.Entity<StructuralComparableBytesStructKeyPrincipalShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<StructuralComparableBytesStructKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<StructuralComparableBytesStructKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<BytesStructKeyPrincipalShadow>(b => { b.Property(e => e.Id).HasConversion(BytesStructKey.Converter); });
+
+            modelBuilder.Entity<BytesStructKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<BytesStructKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableBytesStructKeyPrincipalShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableBytesStructKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableBytesStructKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableBytesStructKeyPrincipalShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableBytesStructKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableBytesStructKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableIntClassKeyPrincipalShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableIntClassKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<ComparableIntClassKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntClassKeyPrincipalShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntClassKeyOptionalDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<GenericComparableIntClassKeyRequiredDependentShadow>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
+            });
+
+            modelBuilder.Entity<OwnerIntStructKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(IntStructKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerBytesStructKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerComparableIntStructKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerComparableBytesStructKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerGenericComparableIntStructKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerGenericComparableBytesStructKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerStructuralComparableBytesStructKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerIntClassKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(IntClassKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerBareIntClassKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerComparableIntClassKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
+
+            modelBuilder.Entity<OwnerGenericComparableIntClassKey>(b =>
+            {
+                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
+                b.OwnsOne(e => e.Owned);
+            });
         }
     }
 }

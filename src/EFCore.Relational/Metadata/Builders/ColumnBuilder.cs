@@ -57,7 +57,7 @@ public class ColumnBuilder : IInfrastructure<PropertyBuilder>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual ColumnBuilder HasColumnName(string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         InternalOverrides.SetColumnName(name, ConfigurationSource.Explicit);
 
@@ -74,7 +74,7 @@ public class ColumnBuilder : IInfrastructure<PropertyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ColumnBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         InternalOverrides.Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

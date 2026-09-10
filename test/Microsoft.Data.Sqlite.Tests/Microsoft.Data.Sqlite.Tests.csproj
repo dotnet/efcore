@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(DefaultNetCoreTargetFramework);net462</TargetFrameworks>
+    <TargetFrameworks>$(DefaultNetCoreTargetFramework);$(NetFrameworkCurrent)</TargetFrameworks>
     <DefineConstants>$(DefineConstants);E_SQLITE3</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net462'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == '$(NetFrameworkCurrent)'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 

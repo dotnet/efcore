@@ -29,7 +29,7 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
 
     private void Process(IConventionPropertyBuilder propertyBuilder)
     {
-        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
+        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is { } memberInfo
             && TryGetNullabilityInfo(propertyBuilder.ModelBuilder, memberInfo, out var nullabilityInfo))
         {
             if (nullabilityInfo.ReadState == NullabilityState.NotNull)
@@ -38,7 +38,7 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
             }
 
             // If there's an element type, this is a primitive collection; check and apply the element's nullability as well.
-            if (propertyBuilder.Metadata.GetElementType() is IConventionElementType elementType
+            if (propertyBuilder.Metadata.GetElementType() is { } elementType
                 && nullabilityInfo is
                     { ElementType.ReadState: NullabilityState.NotNull } or
                     { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] })
@@ -50,7 +50,7 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
 
     private void Process(IConventionComplexPropertyBuilder propertyBuilder)
     {
-        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
+        if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is { } memberInfo
             && TryGetNullabilityInfo(propertyBuilder.ModelBuilder, memberInfo, out var nullabilityInfo)
             && nullabilityInfo.ReadState == NullabilityState.NotNull)
         {

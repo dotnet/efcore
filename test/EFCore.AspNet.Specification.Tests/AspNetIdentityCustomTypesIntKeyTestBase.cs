@@ -43,7 +43,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
     protected override List<EntityTypeMapping> ExpectedMappings
         =>
         [
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimInt",
                 TableName = "AspNetRoleClaims",
@@ -58,7 +58,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
                 Indexes = HasForeignKeyIndexes ? ["{'RoleId'} "] : [],
                 FKs = { "ForeignKey: CustomRoleClaimInt {'RoleId'} -> CustomRoleInt {'Id'} Required Cascade", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomRoleInt",
                 TableName = "AspNetRoles",
@@ -72,7 +72,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
                 },
                 Indexes = { "{'NormalizedName'} Unique", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserClaimInt",
                 TableName = "AspNetUserClaims",
@@ -87,7 +87,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
                 Indexes = HasForeignKeyIndexes ? ["{'UserId'} "] : [],
                 FKs = { "ForeignKey: CustomUserClaimInt {'UserId'} -> CustomUserInt {'Id'} Required Cascade ToDependent: Claims", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserInt",
                 TableName = "AspNetUsers",
@@ -123,7 +123,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
                     "Navigation: CustomUserInt.UserRoles (ICollection<CustomUserRoleInt>) Collection ToDependent CustomUserRoleInt",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserLoginInt",
                 TableName = "AspNetUserLogins",
@@ -138,7 +138,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
                 Indexes = HasForeignKeyIndexes ? ["{'UserId'} "] : [],
                 FKs = { "ForeignKey: CustomUserLoginInt {'UserId'} -> CustomUserInt {'Id'} Required Cascade ToDependent: Logins", },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserRoleInt",
                 TableName = "AspNetUserRoles",
@@ -155,7 +155,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
                     "ForeignKey: CustomUserRoleInt {'UserId'} -> CustomUserInt {'Id'} Required Cascade ToDependent: UserRoles",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomUserTokenInt",
                 TableName = "AspNetUserTokens",
@@ -180,14 +180,13 @@ public class CustomTypesIdentityContextInt(DbContextOptions options)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<CustomUserInt>(
-            b =>
-            {
-                b.HasMany(e => e.Claims).WithOne().HasForeignKey(uc => uc.UserId).IsRequired();
-                b.HasMany(e => e.Logins).WithOne().HasForeignKey(ul => ul.UserId).IsRequired();
-                b.HasMany(e => e.Tokens).WithOne().HasForeignKey(ut => ut.UserId).IsRequired();
-                b.HasMany(e => e.UserRoles).WithOne().HasForeignKey(ur => ur.UserId).IsRequired();
-            });
+        modelBuilder.Entity<CustomUserInt>(b =>
+        {
+            b.HasMany(e => e.Claims).WithOne().HasForeignKey(uc => uc.UserId).IsRequired();
+            b.HasMany(e => e.Logins).WithOne().HasForeignKey(ul => ul.UserId).IsRequired();
+            b.HasMany(e => e.Tokens).WithOne().HasForeignKey(ut => ut.UserId).IsRequired();
+            b.HasMany(e => e.UserRoles).WithOne().HasForeignKey(ur => ur.UserId).IsRequired();
+        });
     }
 }
 

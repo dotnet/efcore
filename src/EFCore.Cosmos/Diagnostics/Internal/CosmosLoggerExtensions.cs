@@ -205,19 +205,18 @@ public static class CosmosLoggerExtensions
     {
         var d = (FallbackEventDefinition)definition;
         var p = (CosmosQueryExecutedEventData)payload;
-        return d.GenerateMessage(
-            l => l.Log(
-                d.Level,
-                d.EventId,
-                d.MessageFormat,
-                p.Elapsed.TotalMilliseconds,
-                p.RequestCharge,
-                p.ActivityId,
-                p.ContainerId,
-                p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?",
-                FormatParameters(p.Parameters, p is { LogSensitiveData: true, Parameters.Count: > 0 }),
-                Environment.NewLine,
-                p.QuerySql));
+        return d.GenerateMessage(l => l.Log(
+            d.Level,
+            d.EventId,
+            d.MessageFormat,
+            p.Elapsed.TotalMilliseconds,
+            p.RequestCharge,
+            p.ActivityId,
+            p.ContainerId,
+            p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?",
+            FormatParameters(p.Parameters, p is { LogSensitiveData: true, Parameters.Count: > 0 }),
+            Environment.NewLine,
+            p.QuerySql));
     }
 
     /// <summary>

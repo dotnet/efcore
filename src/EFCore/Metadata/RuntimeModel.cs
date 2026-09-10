@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -47,8 +46,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
-    [Obsolete("Use a constructor with parameters")]
+    [EntityFrameworkInternal, Obsolete("Use a constructor with parameters")]
     public RuntimeModel()
     {
         _entityTypes = new Dictionary<string, RuntimeEntityType>(StringComparer.Ordinal);
@@ -87,8 +85,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
-    [Obsolete("This is set in the constructor now")]
+    [EntityFrameworkInternal, Obsolete("This is set in the constructor now")]
     public virtual Guid ModelId { get => _modelId; set => _modelId = value; }
 
     /// <summary>
@@ -98,13 +95,13 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     /// <param name="type">The CLR class that is used to represent instances of this type.</param>
     /// <param name="sharedClrType">Whether this entity type can share its ClrType with other entities.</param>
     /// <param name="baseType">The base type of this entity type.</param>
-    /// <param name="discriminatorProperty">The name of the property that will be used for storing a discriminator value.</param>
     /// <param name="changeTrackingStrategy">The change tracking strategy for this entity type.</param>
     /// <param name="indexerPropertyInfo">The <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists.</param>
     /// <param name="propertyBag">
     ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
     ///     and a method that can be used to determine whether a given indexer property contains a value.
     /// </param>
+    /// <param name="discriminatorProperty">The name of the property that will be used for storing a discriminator value.</param>
     /// <param name="discriminatorValue">The discriminator value for this entity type.</param>
     /// <param name="derivedTypesCount">The expected number of directly derived entity types.</param>
     /// <param name="propertyCount">The expected number of declared properties for this entity type.</param>
@@ -123,10 +120,10 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         RuntimeEntityType? baseType = null,
         bool sharedClrType = false,
-        string? discriminatorProperty = null,
         ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
         PropertyInfo? indexerPropertyInfo = null,
         bool propertyBag = false,
+        string? discriminatorProperty = null,
         object? discriminatorValue = null,
         int derivedTypesCount = 0,
         int propertyCount = 0,
@@ -146,10 +143,10 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
             sharedClrType,
             this,
             baseType,
-            discriminatorProperty,
             changeTrackingStrategy,
             indexerPropertyInfo,
             propertyBag,
+            discriminatorProperty,
             discriminatorValue,
             derivedTypesCount: derivedTypesCount,
             propertyCount: propertyCount,
@@ -258,7 +255,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     /// </summary>
     /// <param name="clrType">The type of value the property will hold.</param>
     /// <param name="maxLength">The maximum length of data that is allowed in this property type.</param>
-    /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
+    /// <param name="unicode">A value indicating whether the property can persist Unicode characters.</param>
     /// <param name="precision">The precision of data that is allowed in this property type.</param>
     /// <param name="scale">The scale of data that is allowed in this property type.</param>
     /// <param name="providerPropertyType">
@@ -293,7 +290,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
     private PropertyInfo? FindIndexerPropertyInfo([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
-        => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
+        => _indexerPropertyInfoMap.GetOrAdd(type, static t => t.FindIndexerProperty());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -353,7 +350,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     bool IModel.IsIndexerMethod(MethodInfo methodInfo)
         => !methodInfo.IsStatic
             && methodInfo is { IsSpecialName: true, DeclaringType: not null }
-            && FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
+            && FindIndexerPropertyInfo(methodInfo.DeclaringType) is { } indexerProperty
             && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 
     /// <inheritdoc />

@@ -11,9 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 [Collection(nameof(MetricsDataCollection))]
 public class EntityFrameworkMetricsTest
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Validate_active_dbcontexts_created_disposed(bool async)
     {
         var initial = EntityFrameworkMetricsData.GetActiveDbContexts();
@@ -53,9 +51,7 @@ public class EntityFrameworkMetricsTest
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Validate_query_executed(bool async)
     {
         var initial = EntityFrameworkMetricsData.GetTotalQueriesExecuted();
@@ -77,9 +73,7 @@ public class EntityFrameworkMetricsTest
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Validate_savechanges(bool async)
     {
         var initial = EntityFrameworkMetricsData.GetTotalSaveChanges();
@@ -103,9 +97,7 @@ public class EntityFrameworkMetricsTest
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Validate_query_cache_hits(bool async)
     {
         var (initial, _, _) = EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate();
@@ -129,9 +121,7 @@ public class EntityFrameworkMetricsTest
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Validate_query_cache_misses(bool async)
     {
         var (_, initial, _) = EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate();
@@ -161,9 +151,7 @@ public class EntityFrameworkMetricsTest
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Validate_optimistic_concurrency(bool async)
     {
         var initial = EntityFrameworkMetricsData.GetTotalOptimisticConcurrencyFailures();
@@ -204,9 +192,7 @@ public class EntityFrameworkMetricsTest
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Counts_when_execution_strategy_retries(bool async)
     {
         var initial = EntityFrameworkMetricsData.GetTotalExecutionStrategyOperationFailures();
@@ -227,36 +213,32 @@ public class EntityFrameworkMetricsTest
                 if (async)
                 {
                     Assert.IsType<ArgumentOutOfRangeException>(
-                        (await Assert.ThrowsAsync<RetryLimitExceededException>(
-                            () =>
-                                executionStrategyMock.ExecuteAsync(
-                                    () =>
-                                    {
-                                        if (executionCount++ < 3)
-                                        {
-                                            throw new ArgumentOutOfRangeException();
-                                        }
+                        (await Assert.ThrowsAsync<RetryLimitExceededException>(() =>
+                            executionStrategyMock.ExecuteAsync(() =>
+                            {
+                                if (executionCount++ < 3)
+                                {
+                                    throw new ArgumentOutOfRangeException();
+                                }
 
-                                        Assert.True(false);
-                                        return Task.FromResult(1);
-                                    }))).InnerException);
+                                Assert.True(false);
+                                return Task.FromResult(1);
+                            }))).InnerException);
                 }
                 else
                 {
                     Assert.IsType<ArgumentOutOfRangeException>(
-                        Assert.Throws<RetryLimitExceededException>(
-                            () =>
-                                executionStrategyMock.Execute(
-                                    () =>
-                                    {
-                                        if (executionCount++ < 3)
-                                        {
-                                            throw new ArgumentOutOfRangeException();
-                                        }
+                        Assert.Throws<RetryLimitExceededException>(() =>
+                            executionStrategyMock.Execute(() =>
+                            {
+                                if (executionCount++ < 3)
+                                {
+                                    throw new ArgumentOutOfRangeException();
+                                }
 
-                                        Assert.True(false);
-                                        return 0;
-                                    })).InnerException);
+                                Assert.True(false);
+                                return 0;
+                            })).InnerException);
                 }
 
                 metricsProvider.ForceFlush();

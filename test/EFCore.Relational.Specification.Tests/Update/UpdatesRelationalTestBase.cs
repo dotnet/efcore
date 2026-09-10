@@ -47,23 +47,22 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
 
     [ConditionalFact]
     public virtual Task SaveChanges_throws_for_entities_only_mapped_to_view()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var category = await context.Categories.SingleAsync();
-                context.Add(
-                    new ProductTableView
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Pear Cider",
-                        Price = 1.39M,
-                        DependentId = category.Id
-                    });
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var category = await context.Categories.SingleAsync();
+            context.Add(
+                new ProductTableView
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Pear Cider",
+                    Price = 1.39M,
+                    DependentId = category.Id
+                });
 
-                Assert.Equal(
-                    RelationalStrings.ReadonlyEntitySaved(nameof(ProductTableView)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
-            });
+            Assert.Equal(
+                RelationalStrings.ReadonlyEntitySaved(nameof(ProductTableView)),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+        });
 
     [ConditionalFact]
     public virtual Task Save_with_shared_foreign_key()
@@ -288,34 +287,31 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique();
 
-            modelBuilder.Entity<Person>(
-                pb =>
-                {
-                    pb.Property(p => p.Country)
-                        .HasColumnName("Country");
-                    pb.Property(p => p.ZipCode)
-                        .HasColumnName("ZipCode");
-                    pb.OwnsOne(p => p.Address)
-                        .Property(p => p.Country)
-                        .HasColumnName("Country");
-                    pb.OwnsOne(p => p.Address)
-                        .Property(p => p.ZipCode)
-                        .HasColumnName("ZipCode");
-                });
+            modelBuilder.Entity<Person>(pb =>
+            {
+                pb.Property(p => p.Country)
+                    .HasColumnName("Country");
+                pb.Property(p => p.ZipCode)
+                    .HasColumnName("ZipCode");
+                pb.OwnsOne(p => p.Address)
+                    .Property(p => p.Country)
+                    .HasColumnName("Country");
+                pb.OwnsOne(p => p.Address)
+                    .Property(p => p.ZipCode)
+                    .HasColumnName("ZipCode");
+            });
 
             modelBuilder
                 .Entity<
                     LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails
-                >(
-                    eb =>
-                    {
-                        eb.HasKey(
-                                l => new { l.ProfileId })
-                            .HasName("PK_LoginDetails");
+                >(eb =>
+                {
+                    eb.HasKey(l => new { l.ProfileId })
+                        .HasName("PK_LoginDetails");
 
-                        eb.HasOne(d => d.Login).WithOne()
-                            .HasConstraintName("FK_LoginDetails_Login");
-                    });
+                    eb.HasOne(d => d.Login).WithOne()
+                        .HasConstraintName("FK_LoginDetails_Login");
+                });
         }
     }
 }

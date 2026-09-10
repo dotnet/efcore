@@ -36,13 +36,13 @@ public class AnnotatableTest
     {
         var annotatable = new Annotatable();
 
-        annotatable.AddAnnotations(new[] { new ConventionAnnotation("Foo", "Bar", ConfigurationSource.Convention) });
+        annotatable.AddAnnotations([new ConventionAnnotation("Foo", "Bar", ConfigurationSource.Convention)]);
 
         Assert.Equal(typeof(Annotation), annotatable.FindAnnotation("Foo").GetType());
 
         var conventionAnnotatable = new Model();
 
-        conventionAnnotatable.AddAnnotations(new[] { new Annotation("Foo", "Bar") });
+        conventionAnnotatable.AddAnnotations([new Annotation("Foo", "Bar")]);
 
         Assert.Equal(typeof(ConventionAnnotation), conventionAnnotatable.FindAnnotation("Foo").GetType());
     }
@@ -113,7 +113,7 @@ public class AnnotatableTest
         Assert.Same(annotation, annotatable.FindRuntimeAnnotation("Foo"));
 
         var annotation2 = annotatable.SetRuntimeAnnotation("A", "Foo");
-        Assert.Equal(new[] { annotation2, annotation }, annotatable.GetRuntimeAnnotations());
+        Assert.Equal([annotation2, annotation], annotatable.GetRuntimeAnnotations());
         Assert.Empty(annotatable.GetAnnotations());
 
         Assert.Same(annotation, annotatable.RemoveRuntimeAnnotation(annotation.Name));

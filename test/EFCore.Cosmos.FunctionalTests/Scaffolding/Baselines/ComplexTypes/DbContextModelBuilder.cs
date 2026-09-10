@@ -11,19 +11,17 @@ namespace TestNamespace
     public partial class DbContextModel
     {
         private DbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 2)
+            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 1)
         {
         }
 
         partial void Initialize()
         {
             var principalBase = PrincipalBaseEntityType.Create(this);
-            var principalDerived = PrincipalDerivedEntityType.Create(this, principalBase);
 
             PrincipalBaseEntityType.CreateForeignKey1(principalBase, principalBase);
 
             PrincipalBaseEntityType.CreateAnnotations(principalBase);
-            PrincipalDerivedEntityType.CreateAnnotations(principalDerived);
 
             AddAnnotation("Cosmos:ContainerName", "DbContext");
         }

@@ -727,6 +727,5 @@ public class NumberToStringConverterTest
                 typeof(StringNumberConverter<Guid, string, Guid>).ShortDisplayName(),
                 "Guid",
                 "'int', 'long', 'short', 'byte', 'uint', 'ulong', 'ushort', 'sbyte', 'decimal', 'float', 'double'"),
-            Assert.Throws<InvalidOperationException>(
-                () => new NumberToStringConverter<Guid>()).Message);
+            Assert.Throws<InvalidOperationException>(() => new NumberToStringConverter<Guid>()).Message);
 }

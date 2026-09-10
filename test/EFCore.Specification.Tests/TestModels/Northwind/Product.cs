@@ -20,8 +20,7 @@ public class Product
         set => _productId = value;
     }
 
-    [MaxLength(40)]
-    [Required]
+    [MaxLength(40), Required]
     public string ProductName { get; set; }
 
     public int? SupplierID { get; set; }

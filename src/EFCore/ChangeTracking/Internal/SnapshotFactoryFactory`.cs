@@ -19,8 +19,8 @@ public abstract class SnapshotFactoryFactory<TInput> : SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<TInput, ISnapshot> Create(IRuntimeEntityType entityType)
-        => CreateExpression(entityType).Compile();
+    public virtual Func<TInput, ISnapshot> Create(IRuntimeTypeBase structuralType)
+        => CreateExpression(structuralType).Compile();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,12 +28,12 @@ public abstract class SnapshotFactoryFactory<TInput> : SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression<Func<TInput, ISnapshot>> CreateExpression(IRuntimeEntityType entityType)
+    public virtual Expression<Func<TInput, ISnapshot>> CreateExpression(IRuntimeTypeBase structuralType)
     {
         var parameter = Expression.Parameter(typeof(TInput), "source");
 
         return Expression.Lambda<Func<TInput, ISnapshot>>(
-            CreateConstructorExpression(entityType, parameter),
+            CreateConstructorExpression(structuralType, parameter),
             parameter);
     }
 }

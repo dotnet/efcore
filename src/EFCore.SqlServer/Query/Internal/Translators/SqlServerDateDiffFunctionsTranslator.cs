@@ -558,9 +558,9 @@ public class SqlServerDateDiffFunctionsTranslator : IMethodCallTranslator
 
             return _sqlExpressionFactory.Function(
                 "DATEDIFF",
-                new[] { _sqlExpressionFactory.Fragment(datePart), startDate, endDate },
+                [_sqlExpressionFactory.Fragment(datePart), startDate, endDate],
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true, true },
+                argumentsPropagateNullability: [false, true, true],
                 typeof(int));
         }
 

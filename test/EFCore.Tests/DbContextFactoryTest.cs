@@ -8,17 +8,11 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DbContextFactoryTest
 {
-    [ConditionalTheory]
-    [InlineData(ServiceLifetime.Singleton)]
-    [InlineData(ServiceLifetime.Scoped)]
-    [InlineData(ServiceLifetime.Transient)]
+    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Factory_creates_new_context_instance(ServiceLifetime lifetime)
         => ContextFactoryTest<WoolacombeContext>(lifetime);
 
-    [ConditionalTheory]
-    [InlineData(ServiceLifetime.Singleton)]
-    [InlineData(ServiceLifetime.Scoped)]
-    [InlineData(ServiceLifetime.Transient)]
+    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Factory_creates_new_context_instance_with_additional_parameterless_constructor(ServiceLifetime lifetime)
         => ContextFactoryTest<GruntaContext>(lifetime);
 
@@ -80,12 +74,42 @@ public class DbContextFactoryTest
         Assert.Throws<ObjectDisposedException>(() => context2.Model);
     }
 
+    [ConditionalTheory, InlineData(true), InlineData(false)]
+    public void Registering_factory_also_registers_a_scoped_context(bool pooled)
+    {
+        using var serviceProvider = RegisterContextFactory<WoolacombeContext>(new ServiceCollection(), pooled).BuildServiceProvider();
+
+        WoolacombeContext context1;
+
+        using (var scope1 = serviceProvider.CreateScope())
+        {
+            context1 = scope1.ServiceProvider.GetRequiredService<WoolacombeContext>();
+            var context2 = scope1.ServiceProvider.GetRequiredService<WoolacombeContext>();
+
+            Assert.Same(context1, context2); // Assert not transient
+        }
+
+        Assert.Throws<ObjectDisposedException>(() => context1.Model); // Assert not singleton
+    }
+
+    [ConditionalTheory, InlineData(true), InlineData(false)]
+    public async Task Implicitly_registered_context_gets_created_via_user_factory_type(bool pooled)
+    {
+        await using var serviceProvider = new ServiceCollection()
+            .AddDbContextFactory<WoolacombeContext, WoolacombeContextFactory>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
+            .BuildServiceProvider();
+
+        var factory = (WoolacombeContextFactory)serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>();
+        using var scope = serviceProvider.CreateScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<WoolacombeContext>();
+        Assert.True(factory.WasCalled);
+    }
+
     [ConditionalFact]
     public void Factory_can_use_pool()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
-            .AddPooledDbContextFactory<WoolacombeContext>(
-                b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
+            .AddPooledDbContextFactory<WoolacombeContext>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
             .BuildServiceProvider(validateScopes: true);
 
         var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
@@ -116,8 +140,7 @@ public class DbContextFactoryTest
         var serviceProvider = (IServiceProvider)new ServiceCollection()
             .AddDbContext<WoolacombeContext>(
                 b => b.UseInMemoryDatabase(nameof(WoolacombeContext)), ServiceLifetime.Scoped, ServiceLifetime.Singleton)
-            .AddPooledDbContextFactory<WoolacombeContext>(
-                b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
+            .AddPooledDbContextFactory<WoolacombeContext>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
             .BuildServiceProvider(validateScopes: true);
 
         var scope = serviceProvider.CreateScope();
@@ -153,10 +176,27 @@ public class DbContextFactoryTest
         Assert.NotSame(context2b, context3b);
     }
 
-    [ConditionalTheory]
-    [InlineData(ServiceLifetime.Singleton)]
-    [InlineData(ServiceLifetime.Scoped)]
-    [InlineData(ServiceLifetime.Transient)]
+    [ConditionalFact]
+    public void Implicitly_registered_context_gets_pooled()
+    {
+        var serviceProvider = RegisterContextFactory<WoolacombeContext>(new ServiceCollection(), pooled: true).BuildServiceProvider();
+
+        WoolacombeContext context1, context2;
+
+        using (var scope = serviceProvider.CreateScope())
+        {
+            context1 = scope.ServiceProvider.GetRequiredService<WoolacombeContext>();
+        }
+
+        using (var scope = serviceProvider.CreateScope())
+        {
+            context2 = scope.ServiceProvider.GetRequiredService<WoolacombeContext>();
+        }
+
+        Assert.Same(context1, context2);
+    }
+
+    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Factory_and_options_have_the_same_lifetime(ServiceLifetime lifetime)
     {
         var serviceCollection = new ServiceCollection()
@@ -172,8 +212,7 @@ public class DbContextFactoryTest
     public void Default_lifetime_is_singleton()
     {
         var serviceCollection = new ServiceCollection()
-            .AddDbContextFactory<WoolacombeContext>(
-                b => b.UseInMemoryDatabase(nameof(WoolacombeContext)));
+            .AddDbContextFactory<WoolacombeContext>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)));
 
         Assert.Equal(
             ServiceLifetime.Singleton,
@@ -188,8 +227,7 @@ public class DbContextFactoryTest
     public void Lifetime_is_singleton_when_pooling()
     {
         var serviceCollection = new ServiceCollection()
-            .AddPooledDbContextFactory<WoolacombeContext>(
-                b => b.UseInMemoryDatabase(nameof(WoolacombeContext)));
+            .AddPooledDbContextFactory<WoolacombeContext>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)));
 
         Assert.Equal(
             ServiceLifetime.Singleton,
@@ -222,8 +260,7 @@ public class DbContextFactoryTest
     public void Factory_can_use_constructor_with_non_generic_builder()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
-            .AddDbContextFactory<CroydeContext>(
-                b => b.UseInMemoryDatabase(nameof(CroydeContext)))
+            .AddDbContextFactory<CroydeContext>(b => b.UseInMemoryDatabase(nameof(CroydeContext)))
             .BuildServiceProvider(validateScopes: true);
 
         using var context = serviceProvider.GetService<IDbContextFactory<CroydeContext>>().CreateDbContext();
@@ -273,10 +310,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(DbContext), GetStoreName(context));
     }
 
-    [ConditionalTheory]
-    [InlineData(ServiceLifetime.Singleton)]
-    [InlineData(ServiceLifetime.Scoped)]
-    [InlineData(ServiceLifetime.Transient)]
+    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Can_always_inject_singleton_and_transient_services(ServiceLifetime lifetime)
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -400,10 +434,7 @@ public class DbContextFactoryTest
         public TransientService TransientService { get; } = transientService;
     }
 
-    [ConditionalTheory]
-    [InlineData(ServiceLifetime.Singleton)]
-    [InlineData(ServiceLifetime.Scoped)]
-    [InlineData(ServiceLifetime.Transient)]
+    [ConditionalTheory, InlineData(ServiceLifetime.Singleton), InlineData(ServiceLifetime.Scoped), InlineData(ServiceLifetime.Transient)]
     public void Can_resolve_from_the_service_provider_in_options_action(ServiceLifetime lifetime)
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
@@ -447,14 +478,13 @@ public class DbContextFactoryTest
         var serviceProvider = (IServiceProvider)new ServiceCollection()
             .AddSingleton<SingletonService>()
             .AddTransient<TransientService>()
-            .AddDbContextFactory<WoolacombeContext>(
-                (p, b) =>
-                {
-                    Assert.NotNull(p.GetService<SingletonService>());
-                    Assert.NotNull(p.GetService<TransientService>());
+            .AddDbContextFactory<WoolacombeContext>((p, b) =>
+            {
+                Assert.NotNull(p.GetService<SingletonService>());
+                Assert.NotNull(p.GetService<TransientService>());
 
-                    b.UseInMemoryDatabase(nameof(WoolacombeContext));
-                })
+                b.UseInMemoryDatabase(nameof(WoolacombeContext));
+            })
             .BuildServiceProvider(validateScopes: true);
 
         var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
@@ -471,8 +501,7 @@ public class DbContextFactoryTest
     public void Throws_if_dependencies_are_not_in_DI()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
-            .AddDbContextFactory<WestwardHoContext>(
-                b => b.UseInMemoryDatabase(nameof(WestwardHoContext)))
+            .AddDbContextFactory<WestwardHoContext>(b => b.UseInMemoryDatabase(nameof(WestwardHoContext)))
             .BuildServiceProvider(validateScopes: true);
 
         var factory = serviceProvider.GetService<IDbContextFactory<WestwardHoContext>>();
@@ -490,10 +519,8 @@ public class DbContextFactoryTest
     public void Can_register_factories_for_multiple_contexts_even_with_non_generic_options()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
-            .AddDbContextFactory<CroydeContext>(
-                b => b.UseInMemoryDatabase(nameof(CroydeContext)))
-            .AddDbContextFactory<ClovellyContext>(
-                b => b.UseInMemoryDatabase(nameof(ClovellyContext)))
+            .AddDbContextFactory<CroydeContext>(b => b.UseInMemoryDatabase(nameof(CroydeContext)))
+            .AddDbContextFactory<ClovellyContext>(b => b.UseInMemoryDatabase(nameof(ClovellyContext)))
             .BuildServiceProvider(validateScopes: true);
 
         using var context1 = serviceProvider.GetService<IDbContextFactory<CroydeContext>>().CreateDbContext();
@@ -509,10 +536,8 @@ public class DbContextFactoryTest
     public void Can_register_factories_for_multiple_contexts()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
-            .AddDbContextFactory<WidemouthBayContext>(
-                b => b.UseInMemoryDatabase(nameof(WidemouthBayContext)))
-            .AddDbContextFactory<WoolacombeContext>(
-                b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
+            .AddDbContextFactory<WidemouthBayContext>(b => b.UseInMemoryDatabase(nameof(WidemouthBayContext)))
+            .AddDbContextFactory<WoolacombeContext>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
             .BuildServiceProvider(validateScopes: true);
 
         using var context1 = serviceProvider.GetService<IDbContextFactory<WidemouthBayContext>>().CreateDbContext();
@@ -548,8 +573,7 @@ public class DbContextFactoryTest
     public void Application_can_register_factory_implementation_in_AddDbContextFactory()
     {
         var serviceProvider = (IServiceProvider)new ServiceCollection()
-            .AddDbContextFactory<WoolacombeContext, WoolacombeContextFactory>(
-                b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
+            .AddDbContextFactory<WoolacombeContext, WoolacombeContextFactory>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
             .BuildServiceProvider(validateScopes: true);
 
         var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
@@ -566,17 +590,19 @@ public class DbContextFactoryTest
 
     private class WoolacombeContextFactory(DbContextOptions<WoolacombeContext> options) : IDbContextFactory<WoolacombeContext>
     {
-        private readonly DbContextOptions<WoolacombeContext> _options = options;
+        public bool WasCalled { get; private set; }
 
         public WoolacombeContext CreateDbContext()
-            => new(_options);
+        {
+            WasCalled = true;
+            return new WoolacombeContext(options);
+        }
     }
 
-    [ConditionalTheory]
-    [MemberData(
-        nameof(DataGenerator.GetCombinations),
-        [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
-        MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(
+         nameof(DataGenerator.GetCombinations),
+         [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
+         MemberType = typeof(DataGenerator))]
     public void Add_factory_and_then_context_using_scope(
         bool validateScopes,
         ServiceLifetime factoryLifetime,
@@ -641,11 +667,10 @@ public class DbContextFactoryTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(
-        nameof(DataGenerator.GetCombinations),
-        [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
-        MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(
+         nameof(DataGenerator.GetCombinations),
+         [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
+         MemberType = typeof(DataGenerator))]
     public void Add_factory_and_then_context_using_root_provider(
         bool validateScopes,
         ServiceLifetime factoryLifetime,
@@ -706,11 +731,10 @@ public class DbContextFactoryTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(
-        nameof(DataGenerator.GetCombinations),
-        [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
-        MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(
+         nameof(DataGenerator.GetCombinations),
+         [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
+         MemberType = typeof(DataGenerator))]
     public void Add_context_and_then_factory_using_scope(
         bool validateScopes,
         ServiceLifetime factoryLifetime,
@@ -778,11 +802,10 @@ public class DbContextFactoryTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(
-        nameof(DataGenerator.GetCombinations),
-        [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
-        MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(
+         nameof(DataGenerator.GetCombinations),
+         [new[] { typeof(bool), typeof(ServiceLifetime), typeof(ServiceLifetime), typeof(ServiceLifetime) }],
+         MemberType = typeof(DataGenerator))]
     public void Add_context_and_then_factory_using_root_provider(
         bool validateScopes,
         ServiceLifetime factoryLifetime,
@@ -850,6 +873,21 @@ public class DbContextFactoryTest
     private class CustomModelCustomizer(ModelCustomizerDependencies dependencies) : ModelCustomizer(dependencies);
 
     private class FactoryModelCustomizer(ModelCustomizerDependencies dependencies) : ModelCustomizer(dependencies);
+
+    private IServiceCollection RegisterContextFactory<TContext>(IServiceCollection serviceCollection, bool pooled)
+        where TContext : DbContext
+    {
+        if (pooled)
+        {
+            serviceCollection.AddPooledDbContextFactory<TContext>(b => b.UseInMemoryDatabase(nameof(TContext)));
+        }
+        else
+        {
+            serviceCollection.AddDbContextFactory<TContext>(b => b.UseInMemoryDatabase(nameof(TContext)));
+        }
+
+        return serviceCollection;
+    }
 
     private static string GetStoreName(DbContext context1)
         => context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName;

@@ -22,7 +22,7 @@ public class TestServiceFactory
     private readonly IReadOnlyList<(Type Type, object Implementation)> _wellKnownExceptions
         = new List<(Type, object)>
         {
-            (typeof(IRegisteredServices), new RegisteredServices(Enumerable.Empty<Type>())),
+            (typeof(IRegisteredServices), new RegisteredServices([])),
             (typeof(ServiceParameterBindingFactory), new ServiceParameterBindingFactory(typeof(IStateManager))),
             (typeof(IDiagnosticsLogger<DbLoggerCategory.Model>), new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>()),
             (typeof(IDiagnosticsLogger<DbLoggerCategory.Model.Validation>),
@@ -91,7 +91,7 @@ public class TestServiceFactory
     {
         if (!serviceType.IsInterface)
         {
-            return new[] { (serviceType, serviceType) };
+            return [(serviceType, serviceType)];
         }
 
         var elementType = TryGetEnumerableType(serviceType);
@@ -110,7 +110,7 @@ public class TestServiceFactory
                     $"Cannot use 'TestServiceFactory' for '{serviceType.ShortDisplayName()}': no single implementation type in same assembly.");
             }
 
-            return new[] { (serviceType, implementationTypes[0]) };
+            return [(serviceType, implementationTypes[0])];
         }
 
         return implementationTypes.Select(t => (elementType, t)).ToList();

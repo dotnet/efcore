@@ -32,7 +32,7 @@ public static class SqlServerEventId
         ConflictingValueGenerationStrategiesWarning,
         DecimalTypeKeyWarning,
         SavepointsDisabledBecauseOfMARS,
-        JsonTypeExperimental,
+        JsonTypeExperimental, // No longer used
 
         // Scaffolding events
         ColumnFound = CoreEventId.ProviderDesignBaseId,
@@ -114,20 +114,6 @@ public static class SqlServerEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ByteIdentityColumnWarning = MakeValidationId(Id.ByteIdentityColumnWarning);
-
-    /// <summary>
-    ///     An entity type makes use of the SQL Server native 'json' type. Please note that support for this type in EF Core 9 is
-    ///     experimental and may change in future releases.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
-    ///     </para>
-    ///     <para>
-    ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-    ///     </para>
-    /// </remarks>
-    public static readonly EventId JsonTypeExperimental = MakeValidationId(Id.JsonTypeExperimental);
 
     /// <summary>
     ///     There are conflicting value generation methods for a property.

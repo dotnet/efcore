@@ -70,7 +70,7 @@ public class CheckConstraintBuilder : IInfrastructure<IConventionCheckConstraint
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual CheckConstraintBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

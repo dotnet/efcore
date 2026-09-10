@@ -892,6 +892,121 @@ public class RelationalConnectionDiagnosticsLogger
 
     #endregion ConnectionError
 
+    #region ConnectionCanceled
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ConnectionCanceled(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration)
+    {
+        var definition = RelationalResources.LogConnectionCanceled(this);
+
+        LogConnectionCanceled(connection, definition);
+
+        if (NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = BroadcastConnectionCanceled(
+                connection,
+                startTime,
+                duration,
+                async: false,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled);
+
+            interceptor?.ConnectionCanceled(connection.DbConnection, eventData);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Task ConnectionCanceledAsync(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CancellationToken cancellationToken = default)
+    {
+        var definition = RelationalResources.LogConnectionCanceled(this);
+
+        LogConnectionCanceled(connection, definition);
+
+        if (NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = BroadcastConnectionCanceled(
+                connection,
+                startTime,
+                duration,
+                async: true,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled);
+
+            interceptor?.ConnectionCanceled(connection.DbConnection, eventData);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private ConnectionEndEventData BroadcastConnectionCanceled(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        bool async,
+        EventDefinition<string, string> definition,
+        bool diagnosticSourceEnabled,
+        bool simpleLogEnabled)
+    {
+        var eventData = new ConnectionEndEventData(
+            definition,
+            ConnectionCanceled,
+            connection.DbConnection,
+            connection.Context,
+            connection.ConnectionId,
+            async,
+            startTime,
+            duration);
+
+        DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+        return eventData;
+
+        static string ConnectionCanceled(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ConnectionEndEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
+        }
+    }
+
+    private void LogConnectionCanceled(
+        IRelationalConnection connection,
+        EventDefinition<string, string> definition)
+    {
+        if (ShouldLog(definition))
+        {
+            definition.Log(
+                this,
+                connection.DbConnection.Database,
+                connection.DbConnection.DataSource);
+        }
+    }
+
+    #endregion ConnectionCanceled
+
     #region ConnectionCreating
 
     /// <summary>

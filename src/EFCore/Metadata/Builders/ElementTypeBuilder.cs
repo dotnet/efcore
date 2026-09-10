@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -31,7 +30,7 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
     [EntityFrameworkInternal]
     public ElementTypeBuilder(IMutableElementType elementType)
     {
-        Check.NotNull(elementType, nameof(elementType));
+        Check.NotNull(elementType);
 
         Builder = ((ElementType)elementType).Builder;
     }
@@ -59,7 +58,7 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ElementTypeBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -200,7 +199,7 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
         Type conversionType,
         ValueComparer? valueComparer)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {
@@ -259,7 +258,7 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         Type? comparerType)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {

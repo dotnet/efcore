@@ -18,13 +18,12 @@ public class GearsOfWarQuerySqlServerFixture : GearsOfWarQueryRelationalFixture
 
         modelBuilder.Entity<City>().Property(g => g.Location).HasColumnType("varchar(100)");
 
-        modelBuilder.Entity<Mission>(
-            b =>
-            {
-                // Full-text binary search
-                b.Property<byte[]>("BriefingDocument");
-                b.Property<string>("BriefingDocumentFileExtension").HasColumnType("nvarchar(16)");
-            });
+        modelBuilder.Entity<Mission>(b =>
+        {
+            // Full-text binary search
+            b.Property<byte[]>("BriefingDocument");
+            b.Property<string>("BriefingDocumentFileExtension").HasColumnType("nvarchar(16)");
+        });
     }
 
     protected override async Task SeedAsync(GearsOfWarContext context)

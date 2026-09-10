@@ -324,14 +324,13 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
 
     private bool HasMultidimensionalArray(IEnumerable<MigrationOperation> operations)
     {
-        return operations.Any(
-            o =>
-                (o is InsertDataOperation insertDataOperation
-                    && IsMultidimensional(insertDataOperation.Values))
-                || (o is UpdateDataOperation updateDataOperation
-                    && (IsMultidimensional(updateDataOperation.Values) || IsMultidimensional(updateDataOperation.KeyValues)))
-                || (o is DeleteDataOperation deleteDataOperation
-                    && IsMultidimensional(deleteDataOperation.KeyValues)));
+        return operations.Any(o =>
+            (o is InsertDataOperation insertDataOperation
+                && IsMultidimensional(insertDataOperation.Values))
+            || (o is UpdateDataOperation updateDataOperation
+                && (IsMultidimensional(updateDataOperation.Values) || IsMultidimensional(updateDataOperation.KeyValues)))
+            || (o is DeleteDataOperation deleteDataOperation
+                && IsMultidimensional(deleteDataOperation.KeyValues)));
 
         static bool IsMultidimensional(Array array)
             => array.GetLength(0) > 1 && array.GetLength(1) > 1;

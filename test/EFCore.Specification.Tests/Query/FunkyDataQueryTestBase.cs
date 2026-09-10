@@ -14,8 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : FunkyDataQueryTestBase<TFixture>.FunkyDataQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_contains_on_argument_with_wildcard_constant(bool async)
     {
         await AssertQuery(
@@ -61,8 +60,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             ss => ss.Set<FunkyCustomer>().Where(c => true).Select(c => c.FirstName));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_contains_on_argument_with_wildcard_parameter(bool async)
     {
         var prm1 = "%B";
@@ -116,8 +114,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             ss => ss.Set<FunkyCustomer>().Where(c => true).Select(c => c.FirstName));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_contains_on_argument_with_wildcard_column(bool async)
         => AssertQuery(
             async,
@@ -134,8 +131,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 Assert.Equal(e.ln, a.ln);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_contains_on_argument_with_wildcard_column_negated(bool async)
         => AssertQuery(
             async,
@@ -147,8 +143,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 .Where(r => r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.Contains(xx))) != true));
     // .Where(r => r.ln != "" && !r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.Contains(xx))) == true));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_starts_with_on_argument_with_wildcard_constant(bool async)
     {
         await AssertQuery(
@@ -195,8 +190,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             ss => ss.Set<FunkyCustomer>().Where(c => true).Select(c => c.FirstName));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_starts_with_on_argument_with_wildcard_parameter(bool async)
     {
         var prm1 = "%B";
@@ -250,8 +244,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             ss => ss.Set<FunkyCustomer>().Where(c => true).Select(c => c.FirstName));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_starts_with_on_argument_with_bracket(bool async)
     {
         await AssertQuery(
@@ -293,8 +286,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.MaybeScalar(x => c.LastName.MaybeScalar(xx => x.StartsWith(xx))) == true));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_starts_with_on_argument_with_wildcard_column(bool async)
         => AssertQuery(
             async,
@@ -311,8 +303,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 Assert.Equal(e.ln, a.ln);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_starts_with_on_argument_with_wildcard_column_negated(bool async)
         => AssertQuery(
             async,
@@ -323,8 +314,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                 .Where(r => !(r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.StartsWith(xx))) == true)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_ends_with_on_argument_with_wildcard_constant(bool async)
     {
         await AssertQuery(
@@ -369,8 +359,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             ss => ss.Set<FunkyCustomer>().Where(c => true).Select(c => c.FirstName));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_ends_with_on_argument_with_wildcard_parameter(bool async)
     {
         var prm1 = "%r";
@@ -423,8 +412,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             ss => ss.Set<FunkyCustomer>().Where(c => true).Select(c => c.FirstName));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_ends_with_on_argument_with_wildcard_column(bool async)
         => AssertQuery(
             async,
@@ -441,8 +429,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 Assert.Equal(e.ln, a.ln);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_ends_with_on_argument_with_wildcard_column_negated(bool async)
         => AssertQuery(
             async,
@@ -453,8 +440,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                 .Where(r => !(r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_ends_with_inside_conditional(bool async)
         => AssertQuery(
             async,
@@ -471,8 +457,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 Assert.Equal(e.ln, a.ln);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_ends_with_inside_conditional_negated(bool async)
         => AssertQuery(
             async,
@@ -481,21 +466,19 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 .Where(r => !r.fn.EndsWith(r.ln) ? true : false),
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                .Where(
-                    r => !(r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true)
-                        ? true
-                        : false));
+                .Where(r => !(r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true)
+                    ? true
+                    : false));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_ends_with_equals_nullable_column(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                 .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value),
             ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
-                .Where(
-                    r => (r.c1.FirstName != null && r.c2.LastName != null && r.c1.FirstName.EndsWith(r.c2.LastName)) == r.c1.NullableBool),
+                .Where(r => (r.c1.FirstName != null && r.c2.LastName != null && r.c1.FirstName.EndsWith(r.c2.LastName))
+                    == r.c1.NullableBool),
             elementSorter: e => (e.c1.Id, e.c2.Id),
             elementAsserter: (e, a) =>
             {
@@ -503,16 +486,15 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 AssertEqual(e.c2, a.c2);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_ends_with_not_equals_nullable_column(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                 .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value),
             ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
-                .Where(
-                    r => (r.c1.FirstName != null && r.c2.LastName != null && r.c1.FirstName.EndsWith(r.c2.LastName)) != r.c1.NullableBool),
+                .Where(r => (r.c1.FirstName != null && r.c2.LastName != null && r.c1.FirstName.EndsWith(r.c2.LastName))
+                    != r.c1.NullableBool),
             elementSorter: e => (e.c1.Id, e.c2.Id),
             elementAsserter: (e, a) =>
             {
@@ -520,18 +502,16 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 AssertEqual(e.c2, a.c2);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_FirstOrDefault_and_LastOrDefault(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(
-                e => new { first = (char?)e.FirstName.FirstOrDefault(), last = (char?)e.FirstName.LastOrDefault() }),
-            ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(
-                e => new
-                {
-                    first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()), last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
-                }),
+            ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e
+                => new { first = (char?)e.FirstName.FirstOrDefault(), last = (char?)e.FirstName.LastOrDefault() }),
+            ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
+            {
+                first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()), last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
+            }),
             assertOrder: true,
             elementAsserter: (e, a) =>
             {
@@ -539,18 +519,16 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 AssertEqual(e.last, a.last);
             });
 
-    [ConditionalTheory] // #32432
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #32432
     public virtual Task String_Contains_and_StartsWith_with_same_parameter(bool async)
     {
         var s = "B";
 
         return AssertQuery(
             async,
-            ss => ss.Set<FunkyCustomer>().Where(
-                c => c.FirstName.Contains(s) || c.LastName.StartsWith(s)),
-            ss => ss.Set<FunkyCustomer>().Where(
-                c => c.FirstName.MaybeScalar(f => f.Contains(s)) == true || c.LastName.MaybeScalar(l => l.StartsWith(s)) == true));
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(s) || c.LastName.StartsWith(s)),
+            ss => ss.Set<FunkyCustomer>().Where(c
+                => c.FirstName.MaybeScalar(f => f.Contains(s)) == true || c.LastName.MaybeScalar(l => l.StartsWith(s)) == true));
     }
 
     protected FunkyDataContext CreateContext()

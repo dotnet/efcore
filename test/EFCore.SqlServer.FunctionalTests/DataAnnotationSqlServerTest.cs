@@ -47,12 +47,11 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         var modelBuilder = CreateModelBuilder();
 
         modelBuilder.Entity<PrincipalA>();
-        modelBuilder.Entity<DependantA>(
-            b =>
-            {
-                b.HasKey(e => new { e.Id, e.PrincipalId });
-                b.Property(e => e.PrincipalId).HasDefaultValue(77);
-            });
+        modelBuilder.Entity<DependantA>(b =>
+        {
+            b.HasKey(e => new { e.Id, e.PrincipalId });
+            b.Property(e => e.PrincipalId).HasDefaultValue(77);
+        });
 
         Validate(modelBuilder);
     }
@@ -62,12 +61,11 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
     {
         var modelBuilder = CreateModelBuilder();
 
-        modelBuilder.Entity<PrincipalB>(
-            b =>
-            {
-                b.HasKey(e => new { e.Id1, e.Id2 });
-                b.Property(e => e.Id1).HasDefaultValue(77);
-            });
+        modelBuilder.Entity<PrincipalB>(b =>
+        {
+            b.HasKey(e => new { e.Id1, e.Id2 });
+            b.Property(e => e.Id1).HasDefaultValue(77);
+        });
 
         Validate(modelBuilder);
     }
@@ -77,13 +75,12 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
     {
         var modelBuilder = CreateModelBuilder();
 
-        modelBuilder.Entity<PrincipalB>(
-            b =>
-            {
-                b.HasKey(e => new { e.Id1, e.Id2 });
-                b.Property(e => e.Id1).HasDefaultValue(77);
-                b.Property(e => e.Id2).HasDefaultValue(78);
-            });
+        modelBuilder.Entity<PrincipalB>(b =>
+        {
+            b.HasKey(e => new { e.Id1, e.Id2 });
+            b.Property(e => e.Id1).HasDefaultValue(77);
+            b.Property(e => e.Id2).HasDefaultValue(78);
+        });
 
         Assert.Equal(
             CoreStrings.WarningAsErrorTemplate(

@@ -651,12 +651,11 @@ public abstract partial class ModelBuilding101TestBase
                 => modelBuilder.Entity<Post>()
                     .HasMany(e => e.Tags)
                     .WithMany(e => e.Posts)
-                    .UsingEntity(
-                        j =>
-                        {
-                            j.IndexerProperty<int>("Id");
-                            j.HasKey("Id");
-                        });
+                    .UsingEntity(j =>
+                    {
+                        j.IndexerProperty<int>("Id");
+                        j.HasKey("Id");
+                    });
         }
 
         public class Context1 : Context0

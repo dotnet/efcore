@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Transactions;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -42,7 +43,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         IRelationalConnection connection,
         MigrationExecutionState executionState,
         bool commitTransaction,
-        System.Data.IsolationLevel? isolationLevel = null)
+        IsolationLevel? isolationLevel = null)
     {
         var inUserTransaction = connection.CurrentTransaction is not null && executionState.Transaction == null;
         if (inUserTransaction
@@ -71,11 +72,12 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         MigrationExecutionState executionState,
         bool beginTransaction,
         bool commitTransaction,
-        System.Data.IsolationLevel? isolationLevel)
+        IsolationLevel? isolationLevel)
     {
         var result = 0;
         var connectionOpened = connection.Open();
-        Check.DebugAssert(!connectionOpened || executionState.Transaction == null,
+        Check.DebugAssert(
+            !connectionOpened || executionState.Transaction == null,
             "executionState.Transaction should be null");
 
         try
@@ -155,7 +157,8 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         IRelationalConnection connection,
         CancellationToken cancellationToken = default)
         => ExecuteNonQueryAsync(
-            migrationCommands.ToList(), connection, new MigrationExecutionState(), commitTransaction: true, System.Data.IsolationLevel.Unspecified, cancellationToken);
+            migrationCommands.ToList(), connection, new MigrationExecutionState(), commitTransaction: true, IsolationLevel.Unspecified,
+            cancellationToken);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,7 +171,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         IRelationalConnection connection,
         MigrationExecutionState executionState,
         bool commitTransaction,
-        System.Data.IsolationLevel? isolationLevel = null,
+        IsolationLevel? isolationLevel = null,
         CancellationToken cancellationToken = default)
     {
         var inUserTransaction = connection.CurrentTransaction is not null && executionState.Transaction == null;
@@ -200,12 +203,13 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
         MigrationExecutionState executionState,
         bool beginTransaction,
         bool commitTransaction,
-        System.Data.IsolationLevel? isolationLevel,
+        IsolationLevel? isolationLevel,
         CancellationToken cancellationToken)
     {
         var result = 0;
         var connectionOpened = await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-        Check.DebugAssert(!connectionOpened || executionState.Transaction == null,
+        Check.DebugAssert(
+            !connectionOpened || executionState.Transaction == null,
             "executionState.Transaction should be null");
 
         try
@@ -219,14 +223,14 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                     && beginTransaction)
                 {
                     executionState.Transaction = await (isolationLevel == null
-                        ? connection.BeginTransactionAsync(cancellationToken)
-                        : connection.BeginTransactionAsync(isolationLevel.Value, cancellationToken))
+                            ? connection.BeginTransactionAsync(cancellationToken)
+                            : connection.BeginTransactionAsync(isolationLevel.Value, cancellationToken))
                         .ConfigureAwait(false);
 
                     if (executionState.DatabaseLock != null)
                     {
                         executionState.DatabaseLock = await executionState.DatabaseLock.ReacquireIfNeededAsync(
-                            connectionOpened, transactionRestarted: true, cancellationToken)
+                                connectionOpened, transactionRestarted: true, cancellationToken)
                             .ConfigureAwait(false);
                         lockReacquired = true;
                     }
@@ -245,7 +249,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                         && !lockReacquired)
                     {
                         executionState.DatabaseLock = await executionState.DatabaseLock.ReacquireIfNeededAsync(
-                            connectionOpened, transactionRestarted: null, cancellationToken)
+                                connectionOpened, transactionRestarted: null, cancellationToken)
                             .ConfigureAwait(false);
                     }
                 }
@@ -275,6 +279,7 @@ public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IM
                 await executionState.Transaction.DisposeAsync().ConfigureAwait(false);
                 executionState.Transaction = null;
             }
+
             await connection.CloseAsync().ConfigureAwait(false);
             throw;
         }

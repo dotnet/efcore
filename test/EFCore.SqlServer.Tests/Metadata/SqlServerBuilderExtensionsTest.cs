@@ -533,13 +533,12 @@ public class SqlServerBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder
-            .Entity<Customer>(
-                eb =>
-                {
-                    eb.Property(e => e.Id).HasDefaultValue(1);
-                    eb.Property(e => e.Name).HasComputedColumnSql("Default");
-                    eb.Property(e => e.Offset).HasDefaultValueSql("Now");
-                });
+            .Entity<Customer>(eb =>
+            {
+                eb.Property(e => e.Id).HasDefaultValue(1);
+                eb.Property(e => e.Name).HasComputedColumnSql("Default");
+                eb.Property(e => e.Offset).HasDefaultValueSql("Now");
+            });
 
         modelBuilder.UseIdentityColumns();
 
@@ -1091,38 +1090,32 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(90, index.GetFillFactor());
     }
 
-    [ConditionalTheory]
-    [InlineData(0)]
-    [InlineData(101)]
+    [ConditionalTheory, InlineData(0), InlineData(101)]
     public void Throws_if_attempt_to_set_key_fillfactor_with_argument_out_of_range(int fillFactor)
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () =>
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .HasKey("Id")
-                    .HasFillFactor(fillFactor);
-            });
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasKey("Id")
+                .HasFillFactor(fillFactor);
+        });
     }
 
-    [ConditionalTheory]
-    [InlineData(0)]
-    [InlineData(101)]
+    [ConditionalTheory, InlineData(0), InlineData(101)]
     public void Throws_if_attempt_to_set_fillfactor_with_argument_out_of_range(int fillFactor)
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () =>
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .HasIndex("Name")
-                    .HasFillFactor(fillFactor);
-            });
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+        {
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasIndex("Name")
+                .HasFillFactor(fillFactor);
+        });
     }
 
     [ConditionalFact]
@@ -1155,10 +1148,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.True(index.GetSortInTempDb());
     }
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None)]
-    [InlineData(DataCompressionType.Row)]
-    [InlineData(DataCompressionType.Page)]
+    [ConditionalTheory, InlineData(DataCompressionType.None), InlineData(DataCompressionType.Row), InlineData(DataCompressionType.Page)]
     public void Can_set_index_with_datacompression(DataCompressionType dataCompression)
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1173,10 +1163,7 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(dataCompression, index.GetDataCompression());
     }
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None)]
-    [InlineData(DataCompressionType.Row)]
-    [InlineData(DataCompressionType.Page)]
+    [ConditionalTheory, InlineData(DataCompressionType.None), InlineData(DataCompressionType.Row), InlineData(DataCompressionType.Page)]
     public void Can_set_index_with_datacompression_non_generic(DataCompressionType dataCompression)
     {
         var modelBuilder = CreateConventionModelBuilder();

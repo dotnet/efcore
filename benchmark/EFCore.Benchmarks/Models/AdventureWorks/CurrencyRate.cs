@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class CurrencyRate
 {
     public CurrencyRate()
-    {
-        SalesOrderHeader = new HashSet<SalesOrderHeader>();
-    }
+        => SalesOrderHeader = new HashSet<SalesOrderHeader>();
 
     public int CurrencyRateID { get; set; }
     public decimal AverageRate { get; set; }

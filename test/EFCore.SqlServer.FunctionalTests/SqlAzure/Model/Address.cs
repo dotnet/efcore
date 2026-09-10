@@ -16,23 +16,20 @@ public class Address
 
     public int AddressID { get; set; }
 
-    [Required]
-    [MaxLength(60)]
+    [Required, MaxLength(60)]
     public string AddressLine1 { get; set; }
 
     [MaxLength(60)]
     public string AddressLine2 { get; set; }
 
-    [Required]
-    [MaxLength(30)]
+    [Required, MaxLength(30)]
     public string City { get; set; }
 
     public DateTime ModifiedDate { get; set; }
     public string CountryRegion { get; set; }
     public string StateProvince { get; set; }
 
-    [Required]
-    [MaxLength(15)]
+    [Required, MaxLength(15)]
     public string PostalCode { get; set; }
 
     public Guid rowguid { get; set; }

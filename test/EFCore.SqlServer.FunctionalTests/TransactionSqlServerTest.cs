@@ -31,9 +31,7 @@ public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlSer
             ? Task.CompletedTask
             : base.SaveChanges_uses_explicit_transaction_with_failure_behavior(async, autoTransactionBehavior);
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Savepoints_are_disabled_with_MARS(bool async)
     {
         await using var context = CreateContextWithConnectionString(

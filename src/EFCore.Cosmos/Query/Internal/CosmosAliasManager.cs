@@ -51,7 +51,7 @@ public class CosmosAliasManager
         => GenerateSourceAlias(
             expression switch
             {
-                IAccessExpression { PropertyName: string propertyName } => propertyName,
+                IAccessExpression { PropertyName: { } propertyName } => propertyName,
                 FromSqlExpression => "sql",
                 SqlFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var array, ..] } => GenerateSourceAlias(array),
                 ObjectFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var array, ..] } => GenerateSourceAlias(array),
@@ -185,7 +185,7 @@ public class CosmosAliasManager
 
     private sealed class SourceAliasCollector : ExpressionVisitor
     {
-        private readonly HashSet<string> _sourceAliases = new();
+        private readonly HashSet<string> _sourceAliases = [];
 
         internal static HashSet<string> Collect(Expression expression)
         {
@@ -201,7 +201,7 @@ public class CosmosAliasManager
                 case ShapedQueryExpression shapedQuery:
                     return shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression));
 
-                case SourceExpression { Alias: string alias }:
+                case SourceExpression { Alias: { } alias }:
                     _sourceAliases.Add(alias);
                     return base.VisitExtension(node);
 
@@ -221,7 +221,7 @@ public class CosmosAliasManager
             {
                 ShapedQueryExpression shapedQuery => shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression)),
 
-                SourceExpression { Alias: string alias } source when aliasRewritingMap.TryGetValue(alias, out var newAlias)
+                SourceExpression { Alias: { } alias } source when aliasRewritingMap.TryGetValue(alias, out var newAlias)
                     => base.VisitExtension(new SourceExpression(source.Expression, newAlias, source.WithIn)),
                 ScalarReferenceExpression reference when aliasRewritingMap.TryGetValue(reference.Name, out var newAlias)
                     => new ScalarReferenceExpression(newAlias, reference.Type, reference.TypeMapping),

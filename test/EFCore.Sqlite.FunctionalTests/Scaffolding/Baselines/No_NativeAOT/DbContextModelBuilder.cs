@@ -11,12 +11,13 @@ namespace TestNamespace
     public partial class DbContextModel
     {
         private DbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 9)
+            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 10)
         {
         }
 
         partial void Initialize()
         {
+            var autoIncrementEntity = AutoIncrementEntityEntityType.Create(this);
             var data = DataEntityType.Create(this);
             var dependentBase = DependentBaseEntityType.Create(this);
             var manyTypes = ManyTypesEntityType.Create(this);
@@ -39,6 +40,7 @@ namespace TestNamespace
             PrincipalBaseEntityType.CreateSkipNavigation1(principalBase, principalDerived, principalBasePrincipalDerivedDependentBasebyte);
             PrincipalDerivedEntityType.CreateSkipNavigation1(principalDerived, principalBase, principalBasePrincipalDerivedDependentBasebyte);
 
+            AutoIncrementEntityEntityType.CreateAnnotations(autoIncrementEntity);
             DataEntityType.CreateAnnotations(data);
             DependentBaseEntityType.CreateAnnotations(dependentBase);
             ManyTypesEntityType.CreateAnnotations(manyTypes);

@@ -28,7 +28,7 @@ public class RowValueExpression : SqlExpression
     public RowValueExpression(IReadOnlyList<SqlExpression> values)
         : base(typeof(ValueTuple<object>), RowValueTypeMapping.Default)
     {
-        Check.NotEmpty(values, nameof(values));
+        Check.NotEmpty(values);
 
         Values = values;
     }

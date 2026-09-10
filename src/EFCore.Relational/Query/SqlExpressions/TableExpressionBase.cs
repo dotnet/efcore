@@ -103,9 +103,11 @@ public abstract class TableExpressionBase : Expression, IRelationalQuotableExpre
     protected virtual void PrintAnnotations(ExpressionPrinter expressionPrinter)
     {
         var annotations = GetAnnotations();
+        // ReSharper disable once PossibleMultipleEnumeration
         if (annotations.Any())
         {
             expressionPrinter.Append("[");
+            // ReSharper disable once PossibleMultipleEnumeration
             expressionPrinter.Append(annotations.Select(a => a.Name + "=" + a.Value).Join(" | "));
             expressionPrinter.Append("]");
         }
@@ -177,7 +179,7 @@ public abstract class TableExpressionBase : Expression, IRelationalQuotableExpre
     ///     Gets all annotations on the current object.
     /// </summary>
     public virtual IEnumerable<IAnnotation> GetAnnotations()
-        => Annotations?.Values ?? Enumerable.Empty<IAnnotation>();
+        => Annotations?.Values ?? [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

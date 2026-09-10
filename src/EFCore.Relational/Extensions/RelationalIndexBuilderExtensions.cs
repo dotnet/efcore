@@ -116,7 +116,7 @@ public static class RelationalIndexBuilderExtensions
     /// <returns>A builder to further configure the index.</returns>
     public static IndexBuilder HasFilter(this IndexBuilder indexBuilder, string? sql)
     {
-        Check.NullButNotEmpty(sql, nameof(sql));
+        Check.NullButNotEmpty(sql);
 
         indexBuilder.Metadata.SetFilter(sql);
 

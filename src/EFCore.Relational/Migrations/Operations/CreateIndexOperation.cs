@@ -81,7 +81,7 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
     /// <returns>The operation.</returns>
     public static CreateIndexOperation CreateFrom(ITableIndex index)
     {
-        Check.NotNull(index, nameof(index));
+        Check.NotNull(index);
 
         var operation = new CreateIndexOperation
         {

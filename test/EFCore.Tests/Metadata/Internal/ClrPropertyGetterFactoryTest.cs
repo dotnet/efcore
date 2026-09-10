@@ -22,13 +22,13 @@ public class ClrPropertyGetterFactoryTest
         public object GetClrValueUsingContainingEntity(object entity)
             => throw new NotImplementedException();
 
-        public bool HasSentinelUsingContainingEntity(object entity)
+        public bool HasSentinelValueUsingContainingEntity(object entity)
             => throw new NotImplementedException();
 
         public object GetClrValue(object structuralObject)
             => throw new NotImplementedException();
 
-        public bool HasSentinel(object structuralObject)
+        public bool HasSentinelValue(object structuralObject)
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetContainingForeignKeys()
@@ -120,6 +120,12 @@ public class ClrPropertyGetterFactoryTest
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
+        public object GetClrValueUsingContainingEntity(object entity, IReadOnlyList<int> indices)
+            => throw new NotImplementedException();
+
+        public bool HasSentinelValueUsingContainingEntity(object entity, IReadOnlyList<int> indices)
+            => throw new NotImplementedException();
+
         public string Name { get; }
         public ITypeBase DeclaringType { get; }
         public Type ClrType { get; }
@@ -134,6 +140,9 @@ public class ClrPropertyGetterFactoryTest
             => throw new NotImplementedException();
 
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
+            => throw new NotImplementedException();
+
+        public bool IsCollection
             => throw new NotImplementedException();
     }
 
@@ -201,12 +210,11 @@ public class ClrPropertyGetterFactoryTest
     public void Delegate_getter_is_returned_for_IProperty_complex_property()
     {
         var modelBuilder = CreateModelBuilder();
-        modelBuilder.Entity<Customer>(
-            b =>
-            {
-                b.Property(e => e.Id);
-                b.ComplexProperty(e => e.Fuel).Property(e => e.Volume);
-            });
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.Property(e => e.Id);
+            b.ComplexProperty(e => e.Fuel).Property(e => e.Volume);
+        });
 
         var model = modelBuilder.FinalizeModel();
 

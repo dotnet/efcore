@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class Illustration
 {
     public Illustration()
-    {
-        ProductModelIllustration = new HashSet<ProductModelIllustration>();
-    }
+        => ProductModelIllustration = new HashSet<ProductModelIllustration>();
 
     public int IllustrationID { get; set; }
     public DateTime ModifiedDate { get; set; }

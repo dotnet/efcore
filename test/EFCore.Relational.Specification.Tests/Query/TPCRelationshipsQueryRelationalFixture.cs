@@ -13,8 +13,7 @@ public abstract class TPCRelationshipsQueryRelationalFixture : InheritanceRelati
         => "TPCRelationships";
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            w => w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

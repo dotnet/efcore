@@ -55,7 +55,7 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     /// <inheritdoc />
     public virtual bool TrySelect(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator)
     {
-        valueGenerator = Cache.GetOrAdd(property, typeBase, (p, t) => Find(p, t));
+        valueGenerator = Cache.GetOrAdd(property, typeBase, Find);
         return valueGenerator != null;
     }
 

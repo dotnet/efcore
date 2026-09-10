@@ -20,8 +20,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_invalid_cast_key(bool async)
     {
         using var context = CreateContext();
@@ -37,8 +36,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_invalid_cast(bool async)
     {
         using var context = CreateContext();
@@ -54,8 +52,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_invalid_cast_projection(bool async)
     {
         using var context = CreateContext();
@@ -72,8 +69,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_invalid_cast_no_tracking(bool async)
     {
         using var context = CreateContext();
@@ -90,8 +86,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_null(bool async)
     {
         using var context = CreateContext();
@@ -107,8 +102,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_null_projection(bool async)
     {
         using var context = CreateContext();
@@ -126,8 +120,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bad_data_error_handling_null_no_tracking(bool async)
     {
         using var context = CreateContext();
@@ -144,8 +137,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple(bool async)
         => AssertQuery(
             async,
@@ -153,8 +145,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'")),
             ss => ss.Set<Customer>().Where(x => x.ContactName.Contains("z")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_columns_out_of_order(bool async)
         => AssertQuery(
             async,
@@ -163,8 +154,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     "SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]")),
             ss => ss.Set<Customer>());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_columns_out_of_order_and_extra_columns(bool async)
         => AssertQuery(
             async,
@@ -173,8 +163,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     "SELECT [Region], [PostalCode], [PostalCode] AS [Foo], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]")),
             ss => ss.Set<Customer>());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_simple_columns_out_of_order_and_not_enough_columns_throws(bool async)
     {
         using var context = CreateContext();
@@ -189,8 +178,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_simple_different_cased_columns_and_not_enough_columns_throws(bool async)
     {
         using var context = CreateContext();
@@ -205,8 +193,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_composed(bool async)
         => AssertQuery(
             async,
@@ -214,8 +201,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .Where(c => c.ContactName.Contains("z")),
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_composed_after_removing_whitespaces(bool async)
         => AssertQuery(
             async,
@@ -225,16 +211,14 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .Where(c => c.ContactName.Contains("z")),
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_composed_compiled(bool async)
     {
         if (async)
         {
-            var query = EF.CompileAsyncQuery(
-                (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                    .Where(c => c.ContactName.Contains("z")));
+            var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
+                .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -245,10 +229,9 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
         else
         {
-            var query = EF.CompileQuery(
-                (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                    .Where(c => c.ContactName.Contains("z")));
+            var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
+                .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -259,17 +242,15 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_composed_compiled_with_parameter(bool async)
     {
         if (async)
         {
-            var query = EF.CompileAsyncQuery(
-                (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
-                    .Where(c => c.ContactName.Contains("z")));
+            var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
+                .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -280,11 +261,10 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
         else
         {
-            var query = EF.CompileQuery(
-                (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
-                    .Where(c => c.ContactName.Contains("z")));
+            var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
+                .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -295,18 +275,16 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_composed_compiled_with_DbParameter(bool async)
     {
         if (async)
         {
-            var query = EF.CompileAsyncQuery(
-                (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
-                        CreateDbParameter("customer", "CONSH"))
-                    .Where(c => c.ContactName.Contains("z")));
+            var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
+                    CreateDbParameter("customer", "CONSH"))
+                .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -317,12 +295,11 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
         else
         {
-            var query = EF.CompileQuery(
-                (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
-                        CreateDbParameter("customer", "CONSH"))
-                    .Where(c => c.ContactName.Contains("z")));
+            var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
+                    CreateDbParameter("customer", "CONSH"))
+                .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -333,18 +310,16 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_composed_compiled_with_nameless_DbParameter(bool async)
     {
         if (async)
         {
-            var query = EF.CompileAsyncQuery(
-                (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
-                        CreateDbParameter(null!, "CONSH"))
-                    .Where(c => c.ContactName.Contains("z")));
+            var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
+                    CreateDbParameter(null!, "CONSH"))
+                .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -355,12 +330,11 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
         else
         {
-            var query = EF.CompileQuery(
-                (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
-                        CreateDbParameter(null!, "CONSH"))
-                    .Where(c => c.ContactName.Contains("z")));
+            var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
+                    CreateDbParameter(null!, "CONSH"))
+                .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -371,8 +345,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_composed_contains(bool async)
         => AssertQuery(
             async,
@@ -387,8 +360,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                       .Contains(c.CustomerID)
                   select c);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_composed_contains2(bool async)
         => AssertQuery(
             async,
@@ -403,8 +375,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                   where c.CustomerID == "ALFKI" && ss.Set<Order>().Select(o => o.CustomerID).Contains(c.CustomerID)
                   select c);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_multiple_composed(bool async)
         => AssertQuery(
             async,
@@ -417,8 +388,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                   where c.CustomerID == o.CustomerID
                   select new { c, o });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_multiple_composed_with_closure_parameters(bool async)
     {
         var startDate = new DateTime(1997, 1, 1);
@@ -439,8 +409,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                   select new { c, o });
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_multiple_composed_with_parameters_and_closure_parameters(bool async)
     {
         var city = "London";
@@ -482,8 +451,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                   select new { c, o });
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_multiple_line_query(bool async)
         => AssertQuery(
             async,
@@ -494,8 +462,7 @@ FROM [Customers]
 WHERE [City] = 'London'")),
             ss => ss.Set<Customer>().Where(x => x.City == "London"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_composed_multiple_line_query(bool async)
         => AssertQuery(
             async,
@@ -506,8 +473,7 @@ FROM [Customers]"))
                 .Where(c => c.City == "London"),
             ss => ss.Set<Customer>().Where(x => x.City == "London"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_with_parameters(bool async)
     {
         var city = "London";
@@ -521,8 +487,7 @@ FROM [Customers]"))
             ss => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == contactTitle));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_with_parameters_inline(bool async)
         => AssertQuery(
             async,
@@ -531,8 +496,7 @@ FROM [Customers]"))
                 "Sales Representative"),
             ss => ss.Set<Customer>().Where(x => x.City == "London" && x.ContactTitle == "Sales Representative"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlInterpolated_queryable_with_parameters_interpolated(bool async)
     {
         var city = "London";
@@ -546,8 +510,7 @@ FROM [Customers]"))
             ss => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == contactTitle));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_queryable_with_parameters_interpolated(bool async)
     {
         var city = "London";
@@ -561,8 +524,7 @@ FROM [Customers]"))
             ss => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == contactTitle));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlInterpolated_queryable_with_parameters_inline_interpolated(bool async)
         => AssertQuery(
             async,
@@ -571,8 +533,7 @@ FROM [Customers]"))
                     $"SELECT * FROM [Customers] WHERE [City] = {"London"} AND [ContactTitle] = {"Sales Representative"}")),
             ss => ss.Set<Customer>().Where(x => x.City == "London" && x.ContactTitle == "Sales Representative"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_queryable_with_parameters_inline_interpolated(bool async)
         => AssertQuery(
             async,
@@ -581,8 +542,7 @@ FROM [Customers]"))
                     $"SELECT * FROM [Customers] WHERE [City] = {"London"} AND [ContactTitle] = {"Sales Representative"}")),
             ss => ss.Set<Customer>().Where(x => x.City == "London" && x.ContactTitle == "Sales Representative"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(
         bool async)
     {
@@ -623,8 +583,7 @@ FROM [Customers]"))
                   select new { c, o });
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(
         bool async)
     {
@@ -665,8 +624,7 @@ FROM [Customers]"))
                   select new { c, o });
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_with_null_parameter(bool async)
     {
         uint? reportsTo = null;
@@ -680,8 +638,7 @@ FROM [Customers]"))
             ss => ss.Set<Employee>().Where(x => x.ReportsTo == reportsTo));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task<string?> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
     {
         var city = "London";
@@ -704,8 +661,7 @@ FROM [Customers]"))
         return queryString;
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_simple_cache_key_includes_query_string(bool async)
     {
         await AssertQuery(
@@ -721,8 +677,7 @@ FROM [Customers]"))
             ss => ss.Set<Customer>().Where(x => x.City == "Seattle"));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_with_parameters_cache_key_includes_parameters(bool async)
     {
         var city = "London";
@@ -743,8 +698,7 @@ FROM [Customers]"))
             ss => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == contactTitle));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_as_no_tracking_not_composed(bool async)
         => AssertQuery(
             async,
@@ -753,8 +707,7 @@ FROM [Customers]"))
                 .AsNoTracking(),
             ss => ss.Set<Customer>());
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_simple_projection_composed(bool async)
     {
         using var context = CreateContext();
@@ -777,8 +730,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 .Select(x => x.ProductName));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_include(bool async)
         => AssertQuery(
             async,
@@ -788,8 +740,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>(),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(x => x.Orders)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_composed_include(bool async)
         => AssertQuery(
             async,
@@ -800,8 +751,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(c => c.City == "London"),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(x => x.Orders)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_annotations_do_not_affect_successive_calls(bool async)
     {
         using var context = CreateContext();
@@ -822,8 +772,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         Assert.Equal(91, actual.Length);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_composed_with_nullable_predicate(bool async)
         => AssertQuery(
             async,
@@ -833,8 +782,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(c => c.ContactName == c.CompanyName),
             assertEmpty: true);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_with_dbParameter(bool async)
     {
         var parameter = CreateDbParameter("@city", "London");
@@ -846,8 +794,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.City == "London"));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_with_dbParameter_without_name_prefix(bool async)
     {
         var parameter = CreateDbParameter("city", "London");
@@ -859,8 +806,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.City == "London"));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_with_dbParameter_mixed(bool async)
     {
         var city = "London";
@@ -885,8 +831,23 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == title));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSqlRaw_with_dbParameter_and_regular_parameter_with_same_name(bool async)
+    {
+        var city = "London";
+        var foo = "Sales Representative";
+
+        var cityParameter = CreateDbParameter("@foo", city);
+
+        await AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), cityParameter)
+                .Where(c => c.ContactTitle == foo),
+            ss => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == foo));
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_does_not_close_user_opened_connection_for_empty_result(bool async)
     {
         Fixture.TestStore.CloseConnection();
@@ -919,8 +880,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         Fixture.TestStore.OpenConnection();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_with_db_parameters_called_multiple_times(bool async)
     {
         using var context = CreateContext();
@@ -944,8 +904,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         Assert.Single(result2);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_with_SelectMany_and_include(bool async)
         => AssertQuery(
             async,
@@ -964,8 +923,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 AssertInclude(e.c2, a.c2, new ExpectedInclude<Customer>(x => x.Orders));
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_with_join_and_include(bool async)
         => AssertQuery(
             async,
@@ -987,8 +945,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 AssertInclude(e.o, a.o, new ExpectedInclude<Order>(x => x.OrderDetails));
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_closed_connection_opened_by_it_when_buffering(bool async)
     {
         Fixture.TestStore.CloseConnection();
@@ -1009,8 +966,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         Assert.Equal(ConnectionState.Closed, connection.State);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_with_inlined_db_parameter(bool async)
     {
         var parameter = CreateDbParameter("@somename", "ALFKI");
@@ -1023,8 +979,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI"));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSql_with_inlined_db_parameter(bool async)
     {
         var parameter = CreateDbParameter("@somename", "ALFKI");
@@ -1037,8 +992,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI"));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix(bool async)
     {
         var parameter = CreateDbParameter("somename", "ALFKI");
@@ -1051,8 +1005,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI"));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSql_with_inlined_db_parameter_without_name_prefix(bool async)
     {
         var parameter = CreateDbParameter("somename", "ALFKI");
@@ -1065,8 +1018,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI"));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_parameterization_issue_12213(bool async)
     {
         using var context = CreateContext();
@@ -1090,13 +1042,12 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             : query2.ToArray();
 
         var query3 = context.Orders
-            .Where(
-                o => o.OrderID <= max
-                    && context.Orders
-                        .FromSqlInterpolated(
-                            NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
-                        .Select(i => i.OrderID)
-                        .Contains(o.OrderID))
+            .Where(o => o.OrderID <= max
+                && context.Orders
+                    .FromSqlInterpolated(
+                        NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+                    .Select(i => i.OrderID)
+                    .Contains(o.OrderID))
             .Select(o => o.OrderID);
 
         var actual3 = async
@@ -1104,8 +1055,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             : query3.ToArray();
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_does_not_parameterize_interpolated_string(bool async)
     {
         var tableName = "Orders";
@@ -1118,8 +1068,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Order>().Where(x => x.OrderID < max));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Entity_equality_through_fromsql(bool async)
         => AssertQuery(
             async,
@@ -1128,8 +1077,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 .Where(o => o.Customer == new Customer { CustomerID = "VINET" }),
             ss => ss.Set<Order>().Where(o => o.Customer == new Customer { CustomerID = "VINET" }));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_with_set_operation(bool async)
         => AssertQuery(
             async,
@@ -1141,8 +1089,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.City == "London")
                 .Concat(ss.Set<Customer>().Where(x => x.City == "Berlin")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Keyless_entity_with_all_nulls(bool async)
         => AssertQuery(
             async,
@@ -1151,8 +1098,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 .IgnoreQueryFilters(),
             ss => ss.Set<Customer>().Where(x => x.City == "Berlin").Select(x => new OrderQuery(null)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSql_used_twice_without_parameters(bool async)
     {
         await AssertAny(
@@ -1170,8 +1116,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI").Select(x => new OrderQuery(x.CustomerID)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSql_used_twice_with_parameters(bool async)
     {
         await AssertAny(
@@ -1189,8 +1134,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI").Select(x => new OrderQuery(x.CustomerID)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSql_Count_used_twice_without_parameters(bool async)
     {
         await AssertCount(
@@ -1208,8 +1152,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI").Select(x => new OrderQuery(x.CustomerID)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSql_Count_used_twice_with_parameters(bool async)
     {
         await AssertCount(
@@ -1227,8 +1170,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI").Select(x => new OrderQuery(x.CustomerID)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Line_endings_after_Select(bool async)
         => AssertQuery(
             async,
@@ -1237,8 +1179,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 .Where(e => e.City == "Seattle"),
             ss => ss.Set<Customer>().Where(x => x.City == "Seattle"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_with_db_parameter_in_split_query(bool async)
         => AssertQuery(
             async,
@@ -1256,8 +1197,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 new ExpectedInclude<Customer>(x => x.Orders),
                 new ExpectedInclude<Order>(x => x.OrderDetails, "Orders")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_projection_not_composed(bool async)
         => AssertQuery(
             async,
@@ -1273,61 +1213,51 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 Assert.Equal(e.City, a.City);
             });
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_in_subquery_with_dbParameter(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(
-                o => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                        NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = @city"),
-                        // ReSharper disable once FormatStringProblem
-                        CreateDbParameter("@city", "London"))
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)),
-            ss => ss.Set<Order>().Where(
-                o => ss.Set<Customer>().Where(x => x.City == "London")
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)));
+            ss => ss.Set<Order>().Where(o => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
+                    NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = @city"),
+                    // ReSharper disable once FormatStringProblem
+                    CreateDbParameter("@city", "London"))
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)),
+            ss => ss.Set<Order>().Where(o => ss.Set<Customer>().Where(x => x.City == "London")
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_in_subquery_with_positional_dbParameter_without_name(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(
-                o => ((DbSet<Customer>)ss.Set<Customer>())
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
-                        // ReSharper disable once FormatStringProblem
-                        CreateDbParameter(null!, "London"))
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)),
-            ss => ss.Set<Order>().Where(
-                o => ss.Set<Customer>().Where(x => x.City == "London")
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)));
+            ss => ss.Set<Order>().Where(o => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
+                    // ReSharper disable once FormatStringProblem
+                    CreateDbParameter(null!, "London"))
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)),
+            ss => ss.Set<Order>().Where(o => ss.Set<Customer>().Where(x => x.City == "London")
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_in_subquery_with_positional_dbParameter_with_name(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(
-                o => ((DbSet<Customer>)ss.Set<Customer>())
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
-                        // ReSharper disable once FormatStringProblem
-                        CreateDbParameter("@city", "London"))
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)),
-            ss => ss.Set<Order>().Where(
-                o => ss.Set<Customer>().Where(x => x.City == "London")
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)));
+            ss => ss.Set<Order>().Where(o => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
+                    // ReSharper disable once FormatStringProblem
+                    CreateDbParameter("@city", "London"))
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)),
+            ss => ss.Set<Order>().Where(o => ss.Set<Customer>().Where(x => x.City == "London")
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_with_dbParameter_mixed_in_subquery(bool async)
     {
         const string city = "London";
@@ -1335,39 +1265,34 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(
-                o => ((DbSet<Customer>)ss.Set<Customer>())
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = @title"),
-                        city,
-                        // ReSharper disable once FormatStringProblem
-                        CreateDbParameter("@title", title))
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)),
-            ss => ss.Set<Order>().Where(
-                o => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == title)
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)));
+            ss => ss.Set<Order>().Where(o => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = @title"),
+                    city,
+                    // ReSharper disable once FormatStringProblem
+                    CreateDbParameter("@title", title))
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)),
+            ss => ss.Set<Order>().Where(o => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == title)
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)));
 
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(
-                o => ((DbSet<Customer>)ss.Set<Customer>())
-                    .FromSqlRaw(
-                        NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = @city AND [ContactTitle] = {1}"),
-                        // ReSharper disable once FormatStringProblem
-                        CreateDbParameter("@city", city),
-                        title)
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)),
-            ss => ss.Set<Order>().Where(
-                o => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == title)
-                    .Select(c => c.CustomerID)
-                    .Contains(o.CustomerID)));
+            ss => ss.Set<Order>().Where(o => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = @city AND [ContactTitle] = {1}"),
+                    // ReSharper disable once FormatStringProblem
+                    CreateDbParameter("@city", city),
+                    title)
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)),
+            ss => ss.Set<Order>().Where(o => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == title)
+                .Select(c => c.CustomerID)
+                .Contains(o.CustomerID)));
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_composed_with_common_table_expression(bool async)
         => AssertQuery(
             async,
@@ -1381,23 +1306,54 @@ SELECT * FROM [Customers2]"))
                 .Where(c => c.ContactName.Contains("z")),
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_parameter_only_once(bool async)
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_two_parameters(bool async)
     {
         using var context = CreateContext();
         var city = "Seattle";
-        var fromSqlQuery = context.Customers.FromSqlRaw(
-            NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
-            CreateDbParameter("city", city));
 
-        var query = fromSqlQuery.Intersect(fromSqlQuery);
+        var dbParameter1 = CreateDbParameter("city", city);
+        dbParameter1.Size = 7;
+        var subquery1 = context.Database.SqlQueryRaw<UnmappedCustomer>(
+            NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+            dbParameter1);
+
+        var dbParameter2 = CreateDbParameter("city", city);
+        dbParameter2.Size = 3;
+        var subquery2 = context.Database.SqlQueryRaw<UnmappedCustomer>(
+            NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+            dbParameter2);
+
+        var query = subquery1.Intersect(subquery2);
 
         var actual = async
             ? await query.ToArrayAsync()
             : query.ToArray();
 
-        Assert.Single(actual);
+        Assert.Empty(actual);
+    }
+
+    // The GroupBy followed by a non-reducing Select causes the base FromSql to get duplicated in the SQL, and so the same DbParameter
+    // to get referenced from multiple FromSqlExpressions. Ensure we only process the DbParameter once. See #37409.
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_GroupBy_non_reducing_Select(bool async)
+    {
+        using var context = CreateContext();
+
+        var dbParameter = CreateDbParameter("city", "Seattle");
+
+        await AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+                    dbParameter)
+                .GroupBy(c => c.CustomerID)
+                .Select(g => g.FirstOrDefault()),
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "Seattle")
+                .GroupBy(c => c.CustomerID)
+                .Select(g => g.FirstOrDefault()));
     }
 
     protected string NormalizeDelimitersInRawString(string sql)

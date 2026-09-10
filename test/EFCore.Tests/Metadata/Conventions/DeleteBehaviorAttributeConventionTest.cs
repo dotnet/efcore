@@ -91,9 +91,8 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(
             CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty(
                 nameof(Post_On_FK_Property), nameof(Post_On_FK_Property.Blog_On_FK_PropertyId)),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Entity<Post_On_FK_Property>()
-                    .Property(e => e.Blog_On_FK_PropertyId)).Message
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Post_On_FK_Property>()
+                .Property(e => e.Blog_On_FK_PropertyId)).Message
         );
     }
 
@@ -105,9 +104,8 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(
             CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty(
                 nameof(Post_On_Property), nameof(Post_On_Property.Id)),
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Entity<Post_On_Property>()
-                    .Property(e => e.Blog_On_PropertyId)).Message
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Post_On_Property>()
+                .Property(e => e.Blog_On_PropertyId)).Message
         );
     }
 
@@ -189,12 +187,10 @@ public class DeleteBehaviorAttributeConventionTest
 
     private class Blog_Compound
     {
-        [Key]
-        [Column(Order = 0)]
+        [Key, Column(Order = 0)]
         public int Id { get; set; }
 
-        [Key]
-        [Column(Order = 1)]
+        [Key, Column(Order = 1)]
         public int Id2 { get; set; }
 
         public ICollection<Post_Compound> Posts { get; set; }
@@ -204,8 +200,7 @@ public class DeleteBehaviorAttributeConventionTest
     {
         public int Id { get; set; }
 
-        [ForeignKey("BlogId, BlogId2")]
-        [DeleteBehavior(DeleteBehavior.Cascade)]
+        [ForeignKey("BlogId, BlogId2"), DeleteBehavior(DeleteBehavior.Cascade)]
         public Blog_Compound Blog_Compound { get; set; }
 
         [Column(Order = 0)]

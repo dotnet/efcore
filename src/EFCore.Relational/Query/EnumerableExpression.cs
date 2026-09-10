@@ -68,11 +68,12 @@ public class EnumerableExpression : Expression, IPrintableExpression
         => new(expression, IsDistinct, Predicate, Orderings);
 
     /// <summary>
-    ///     Applies DISTINCT operator to the selector of the <see cref="EnumerableExpression" />.
+    ///     Sets whether the DISTINCT operator should be applied to the selector
+    ///     of the <see cref="EnumerableExpression" />.
     /// </summary>
     /// <returns>The new expression with specified component updated.</returns>
-    public virtual EnumerableExpression ApplyDistinct()
-        => new(Selector, distinct: true, Predicate, Orderings);
+    public virtual EnumerableExpression SetDistinct(bool value)
+        => new(Selector, distinct: value, Predicate, Orderings);
 
     /// <summary>
     ///     Applies filter predicate to the <see cref="EnumerableExpression" />.

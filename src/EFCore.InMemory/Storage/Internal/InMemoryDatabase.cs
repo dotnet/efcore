@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 /// </summary>
 public class InMemoryDatabase : Database, IInMemoryDatabase
 {
-    private readonly IInMemoryStore _store;
+    private readonly IInMemoryStoreProvider _storeProvider;
     private readonly IUpdateAdapterFactory _updateAdapterFactory;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
     private readonly IDesignTimeModel _designTimeModel;
@@ -24,14 +24,13 @@ public class InMemoryDatabase : Database, IInMemoryDatabase
     /// </summary>
     public InMemoryDatabase(
         DatabaseDependencies dependencies,
-        IInMemoryStoreCache storeCache,
-        IDbContextOptions options,
+        IInMemoryStoreProvider storeProvider,
         IDesignTimeModel designTimeModel,
         IUpdateAdapterFactory updateAdapterFactory,
         IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         : base(dependencies)
     {
-        _store = storeCache.GetStore(options);
+        _storeProvider = storeProvider;
         _designTimeModel = designTimeModel;
         _updateAdapterFactory = updateAdapterFactory;
         _updateLogger = updateLogger;
@@ -44,7 +43,7 @@ public class InMemoryDatabase : Database, IInMemoryDatabase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IInMemoryStore Store
-        => _store;
+        => _storeProvider.Store;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,7 +52,7 @@ public class InMemoryDatabase : Database, IInMemoryDatabase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int SaveChanges(IList<IUpdateEntry> entries)
-        => _store.ExecuteTransaction(entries, _updateLogger);
+        => Store.ExecuteTransaction(entries, _updateLogger);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,7 +65,7 @@ public class InMemoryDatabase : Database, IInMemoryDatabase
         CancellationToken cancellationToken = default)
         => cancellationToken.IsCancellationRequested
             ? Task.FromCanceled<int>(cancellationToken)
-            : Task.FromResult(_store.ExecuteTransaction(entries, _updateLogger));
+            : Task.FromResult(Store.ExecuteTransaction(entries, _updateLogger));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,5 +74,5 @@ public class InMemoryDatabase : Database, IInMemoryDatabase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool EnsureDatabaseCreated()
-        => _store.EnsureCreated(_updateAdapterFactory, _designTimeModel.Model, _updateLogger);
+        => Store.EnsureCreated(_updateAdapterFactory, _designTimeModel.Model, _updateLogger);
 }

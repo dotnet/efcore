@@ -172,6 +172,8 @@ public class RelationalEventIdTest : EventIdTestBase
     {
         public string CommandText { get; } = "";
 
+        public string LogCommandText { get; } = "";
+
         public IReadOnlyList<IRelationalParameter> Parameters { get; } = [];
 
         public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)

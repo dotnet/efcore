@@ -3,53 +3,52 @@
 
 #nullable enable
 
-namespace Microsoft.EntityFrameworkCore.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities;
+
+internal sealed class IDictionaryDebugView<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
 {
-    internal sealed class IDictionaryDebugView<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
-    {
-        private readonly IDictionary<TKey, TValue> _dict = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
+    private readonly IDictionary<TKey, TValue> _dict = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
 
-        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public KeyValuePair<TKey, TValue>[] Items
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public KeyValuePair<TKey, TValue>[] Items
+    {
+        get
         {
-            get
-            {
-                var items = new KeyValuePair<TKey, TValue>[_dict.Count];
-                _dict.CopyTo(items, 0);
-                return items;
-            }
+            var items = new KeyValuePair<TKey, TValue>[_dict.Count];
+            _dict.CopyTo(items, 0);
+            return items;
         }
     }
+}
 
-    internal sealed class DictionaryKeyCollectionDebugView<TKey, TValue>(ICollection<TKey> collection)
+internal sealed class DictionaryKeyCollectionDebugView<TKey, TValue>(ICollection<TKey> collection)
+{
+    private readonly ICollection<TKey> _collection = collection ?? throw new ArgumentNullException(nameof(collection));
+
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public TKey[] Items
     {
-        private readonly ICollection<TKey> _collection = collection ?? throw new ArgumentNullException(nameof(collection));
-
-        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public TKey[] Items
+        get
         {
-            get
-            {
-                var items = new TKey[_collection.Count];
-                _collection.CopyTo(items, 0);
-                return items;
-            }
+            var items = new TKey[_collection.Count];
+            _collection.CopyTo(items, 0);
+            return items;
         }
     }
+}
 
-    internal sealed class DictionaryValueCollectionDebugView<TKey, TValue>(ICollection<TValue> collection)
+internal sealed class DictionaryValueCollectionDebugView<TKey, TValue>(ICollection<TValue> collection)
+{
+    private readonly ICollection<TValue> _collection = collection ?? throw new ArgumentNullException(nameof(collection));
+
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public TValue[] Items
     {
-        private readonly ICollection<TValue> _collection = collection ?? throw new ArgumentNullException(nameof(collection));
-
-        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public TValue[] Items
+        get
         {
-            get
-            {
-                var items = new TValue[_collection.Count];
-                _collection.CopyTo(items, 0);
-                return items;
-            }
+            var items = new TValue[_collection.Count];
+            _collection.CopyTo(items, 0);
+            return items;
         }
     }
 }

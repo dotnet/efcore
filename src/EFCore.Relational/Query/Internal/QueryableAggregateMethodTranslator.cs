@@ -60,17 +60,17 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         ? _sqlExpressionFactory.Convert(
                             _sqlExpressionFactory.Function(
                                 "AVG",
-                                new[] { averageSqlExpression },
+                                [averageSqlExpression],
                                 nullable: true,
-                                argumentsPropagateNullability: new[] { false },
+                                argumentsPropagateNullability: Statics.FalseArrays[1],
                                 typeof(double)),
                             averageSqlExpression.Type,
                             averageSqlExpression.TypeMapping)
                         : _sqlExpressionFactory.Function(
                             "AVG",
-                            new[] { averageSqlExpression },
+                            [averageSqlExpression],
                             nullable: true,
-                            argumentsPropagateNullability: new[] { false },
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
                             averageSqlExpression.Type,
                             averageSqlExpression.TypeMapping);
 
@@ -83,9 +83,9 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                     countSqlExpression = CombineTerms(source, countSqlExpression);
                     return _sqlExpressionFactory.Function(
                         "COUNT",
-                        new[] { countSqlExpression },
+                        [countSqlExpression],
                         nullable: false,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         typeof(int));
 
                 case nameof(Queryable.LongCount)
@@ -95,9 +95,9 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                     longCountSqlExpression = CombineTerms(source, longCountSqlExpression);
                     return _sqlExpressionFactory.Function(
                         "COUNT",
-                        new[] { longCountSqlExpression },
+                        [longCountSqlExpression],
                         nullable: false,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         typeof(long));
 
                 case nameof(Queryable.Max)
@@ -107,9 +107,9 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                     maxSqlExpression = CombineTerms(source, maxSqlExpression);
                     return _sqlExpressionFactory.Function(
                         "MAX",
-                        new[] { maxSqlExpression },
+                        [maxSqlExpression],
                         nullable: true,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         maxSqlExpression.Type,
                         maxSqlExpression.TypeMapping);
 
@@ -120,9 +120,9 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                     minSqlExpression = CombineTerms(source, minSqlExpression);
                     return _sqlExpressionFactory.Function(
                         "MIN",
-                        new[] { minSqlExpression },
+                        [minSqlExpression],
                         nullable: true,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         minSqlExpression.Type,
                         minSqlExpression.TypeMapping);
 
@@ -136,17 +136,17 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         ? _sqlExpressionFactory.Convert(
                             _sqlExpressionFactory.Function(
                                 "SUM",
-                                new[] { sumSqlExpression },
+                                [sumSqlExpression],
                                 nullable: true,
-                                argumentsPropagateNullability: new[] { false },
+                                argumentsPropagateNullability: Statics.FalseArrays[1],
                                 typeof(double)),
                             sumInputType,
                             sumSqlExpression.TypeMapping)
                         : _sqlExpressionFactory.Function(
                             "SUM",
-                            new[] { sumSqlExpression },
+                            [sumSqlExpression],
                             nullable: true,
-                            argumentsPropagateNullability: new[] { false },
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
                             sumInputType,
                             sumSqlExpression.TypeMapping);
             }

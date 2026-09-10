@@ -21,11 +21,7 @@ public static class InMemoryEntityTypeExtensions
     /// <param name="entityType">The entity type to get the in-memory query for.</param>
     /// <returns>The LINQ query used as the default source.</returns>
     public static LambdaExpression? GetInMemoryQuery(this IReadOnlyEntityType entityType)
-#pragma warning disable EF1001 // Internal EF Core API usage.
-#pragma warning disable CS0612 // Type or member is obsolete
-        => (LambdaExpression?)entityType[CoreAnnotationNames.DefiningQuery];
-#pragma warning restore CS0612 // Type or member is obsolete
-#pragma warning restore EF1001 // Internal EF Core API usage.
+        => (LambdaExpression?)entityType[InMemoryAnnotationNames.DefiningQuery];
 
     /// <summary>
     ///     Sets the LINQ query used as the default source for queries of this type.
@@ -36,11 +32,7 @@ public static class InMemoryEntityTypeExtensions
         this IMutableEntityType entityType,
         LambdaExpression? inMemoryQuery)
         => entityType
-#pragma warning disable EF1001 // Internal EF Core API usage.
-#pragma warning disable CS0612 // Type or member is obsolete
-            .SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, inMemoryQuery);
-#pragma warning restore CS0612 // Type or member is obsolete
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            .SetOrRemoveAnnotation(InMemoryAnnotationNames.DefiningQuery, inMemoryQuery);
 
     /// <summary>
     ///     Sets the LINQ query used as the default source for queries of this type.
@@ -54,11 +46,7 @@ public static class InMemoryEntityTypeExtensions
         LambdaExpression? inMemoryQuery,
         bool fromDataAnnotation = false)
         => (LambdaExpression?)entityType
-#pragma warning disable EF1001 // Internal EF Core API usage.
-#pragma warning disable CS0612 // Type or member is obsolete
-            .SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, inMemoryQuery, fromDataAnnotation)
-#pragma warning restore CS0612 // Type or member is obsolete
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            .SetOrRemoveAnnotation(InMemoryAnnotationNames.DefiningQuery, inMemoryQuery, fromDataAnnotation)
             ?.Value;
 
     /// <summary>
@@ -66,10 +54,6 @@ public static class InMemoryEntityTypeExtensions
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The configuration source for <see cref="GetInMemoryQuery" />.</returns>
-    public static ConfigurationSource? GetDefiningQueryConfigurationSource(this IConventionEntityType entityType)
-#pragma warning disable EF1001 // Internal EF Core API usage.
-#pragma warning disable CS0612 // Type or member is obsolete
-        => entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery)?.GetConfigurationSource();
-#pragma warning restore CS0612 // Type or member is obsolete
-#pragma warning restore EF1001 // Internal EF Core API usage.
+    public static ConfigurationSource? GetInMemoryQueryConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(InMemoryAnnotationNames.DefiningQuery)?.GetConfigurationSource();
 }

@@ -59,12 +59,12 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
         => SeedAsync(
             new UniverseContext(
                 Fixture.CreateOptions(
-                    new[] { appInterceptor }, injectedInterceptors)));
+                    [appInterceptor], injectedInterceptors)));
 
     public Task<UniverseContext> CreateContextAsync(
         IEnumerable<IInterceptor> appInterceptors,
         IEnumerable<IInterceptor> injectedInterceptors = null)
-        => SeedAsync(new UniverseContext(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>())));
+        => SeedAsync(new UniverseContext(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? [])));
 
     public virtual Task<UniverseContext> SeedAsync(UniverseContext context)
         => Task.FromResult(context);

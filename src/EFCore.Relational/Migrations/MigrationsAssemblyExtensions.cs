@@ -29,7 +29,7 @@ public static class MigrationsAssemblyExtensions
     /// <returns>The identifier of the migration.</returns>
     public static string GetMigrationId(this IMigrationsAssembly assembly, string nameOrId)
     {
-        Check.NotEmpty(nameOrId, nameof(nameOrId));
+        Check.NotEmpty(nameOrId);
 
         var id = assembly.FindMigrationId(nameOrId);
         if (id == null)

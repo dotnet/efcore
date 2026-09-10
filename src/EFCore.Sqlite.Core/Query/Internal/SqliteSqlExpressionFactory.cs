@@ -40,7 +40,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         IEnumerable<SqlExpression>? modifiers = null,
         RelationalTypeMapping? typeMapping = null)
     {
-        modifiers ??= Enumerable.Empty<SqlExpression>();
+        modifiers ??= [];
 
         // If the inner call is another strftime then shortcut a double call
         if (timestring is SqlFunctionExpression { Name: "rtrim" } rtrimFunction
@@ -86,7 +86,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         IEnumerable<SqlExpression>? modifiers = null,
         RelationalTypeMapping? typeMapping = null)
     {
-        modifiers ??= Enumerable.Empty<SqlExpression>();
+        modifiers ??= [];
 
         if (timestring is SqlFunctionExpression { Name: "date" } dateFunction)
         {

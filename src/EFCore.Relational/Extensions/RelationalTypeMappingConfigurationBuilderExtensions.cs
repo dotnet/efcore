@@ -27,7 +27,7 @@ public static class RelationalTypeMappingConfigurationBuilderExtensions
         this TypeMappingConfigurationBuilder scalarBuilder,
         string typeName)
     {
-        Check.NotEmpty(typeName, nameof(typeName));
+        Check.NotEmpty(typeName);
 
         scalarBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, typeName);
 

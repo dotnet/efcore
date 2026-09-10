@@ -98,7 +98,7 @@ public class MethodCallCodeFragment : IMethodCallCodeFragment
     public virtual string Method { get; }
 
     IEnumerable<string> IMethodCallCodeFragment.TypeArguments
-        => Enumerable.Empty<string>();
+        => [];
 
     /// <summary>
     ///     Gets the method call's arguments.

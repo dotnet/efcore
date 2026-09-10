@@ -10,7 +10,7 @@ public partial class NorthwindData
     public static Customer[] CreateCustomers()
         =>
         [
-            new Customer
+            new()
             {
                 CustomerID = "ALFKI",
                 CompanyName = "Alfreds Futterkiste",
@@ -24,7 +24,7 @@ public partial class NorthwindData
                 Phone = "030-0074321",
                 Fax = "030-0076545"
             },
-            new Customer
+            new()
             {
                 CustomerID = "ANATR",
                 CompanyName = "Ana Trujillo Emparedados y helados",
@@ -38,7 +38,7 @@ public partial class NorthwindData
                 Phone = "(5) 555-4729",
                 Fax = "(5) 555-3745"
             },
-            new Customer
+            new()
             {
                 CustomerID = "ANTON",
                 CompanyName = "Antonio Moreno Taquería",
@@ -52,7 +52,7 @@ public partial class NorthwindData
                 Phone = "(5) 555-3932",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "AROUT",
                 CompanyName = "Around the Horn",
@@ -66,7 +66,7 @@ public partial class NorthwindData
                 Phone = "(171) 555-7788",
                 Fax = "(171) 555-6750"
             },
-            new Customer
+            new()
             {
                 CustomerID = "BERGS",
                 CompanyName = "Berglunds snabbköp",
@@ -80,7 +80,7 @@ public partial class NorthwindData
                 Phone = "0921-12 34 65",
                 Fax = "0921-12 34 67"
             },
-            new Customer
+            new()
             {
                 CustomerID = "BLAUS",
                 CompanyName = "Blauer See Delikatessen",
@@ -94,7 +94,7 @@ public partial class NorthwindData
                 Phone = "0621-08460",
                 Fax = "0621-08924"
             },
-            new Customer
+            new()
             {
                 CustomerID = "BLONP",
                 CompanyName = "Blondesddsl père et fils",
@@ -108,7 +108,7 @@ public partial class NorthwindData
                 Phone = "88.60.15.31",
                 Fax = "88.60.15.32"
             },
-            new Customer
+            new()
             {
                 CustomerID = "BOLID",
                 CompanyName = "Bólido Comidas preparadas",
@@ -122,7 +122,7 @@ public partial class NorthwindData
                 Phone = "(91) 555 22 82",
                 Fax = "(91) 555 91 99"
             },
-            new Customer
+            new()
             {
                 CustomerID = "BONAP",
                 CompanyName = "Bon app'",
@@ -136,7 +136,7 @@ public partial class NorthwindData
                 Phone = "91.24.45.40",
                 Fax = "91.24.45.41"
             },
-            new Customer
+            new()
             {
                 CustomerID = "BOTTM",
                 CompanyName = "Bottom-Dollar Markets",
@@ -150,7 +150,7 @@ public partial class NorthwindData
                 Phone = "(604) 555-4729",
                 Fax = "(604) 555-3745"
             },
-            new Customer
+            new()
             {
                 CustomerID = "BSBEV",
                 CompanyName = "B's Beverages",
@@ -164,7 +164,7 @@ public partial class NorthwindData
                 Phone = "(171) 555-1212",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "CACTU",
                 CompanyName = "Cactus Comidas para llevar",
@@ -178,7 +178,7 @@ public partial class NorthwindData
                 Phone = "(1) 135-5555",
                 Fax = "(1) 135-4892"
             },
-            new Customer
+            new()
             {
                 CustomerID = "CENTC",
                 CompanyName = "Centro comercial Moctezuma",
@@ -192,7 +192,7 @@ public partial class NorthwindData
                 Phone = "(5) 555-3392",
                 Fax = "(5) 555-7293"
             },
-            new Customer
+            new()
             {
                 CustomerID = "CHOPS",
                 CompanyName = "Chop-suey Chinese",
@@ -206,7 +206,7 @@ public partial class NorthwindData
                 Phone = "0452-076545",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "COMMI",
                 CompanyName = "Comércio Mineiro",
@@ -220,7 +220,7 @@ public partial class NorthwindData
                 Phone = "(11) 555-7647",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "CONSH",
                 CompanyName = "Consolidated Holdings",
@@ -234,7 +234,7 @@ public partial class NorthwindData
                 Phone = "(171) 555-2282",
                 Fax = "(171) 555-9199"
             },
-            new Customer
+            new()
             {
                 CustomerID = "DRACD",
                 CompanyName = "Drachenblut Delikatessen",
@@ -248,7 +248,7 @@ public partial class NorthwindData
                 Phone = "0241-039123",
                 Fax = "0241-059428"
             },
-            new Customer
+            new()
             {
                 CustomerID = "DUMON",
                 CompanyName = "Du monde entier",
@@ -262,7 +262,7 @@ public partial class NorthwindData
                 Phone = "40.67.88.88",
                 Fax = "40.67.89.89"
             },
-            new Customer
+            new()
             {
                 CustomerID = "EASTC",
                 CompanyName = "Eastern Connection",
@@ -276,7 +276,7 @@ public partial class NorthwindData
                 Phone = "(171) 555-0297",
                 Fax = "(171) 555-3373"
             },
-            new Customer
+            new()
             {
                 CustomerID = "ERNSH",
                 CompanyName = "Ernst Handel",
@@ -290,7 +290,7 @@ public partial class NorthwindData
                 Phone = "7675-3425",
                 Fax = "7675-3426"
             },
-            new Customer
+            new()
             {
                 CustomerID = "FAMIA",
                 CompanyName = "Familia Arquibaldo",
@@ -304,7 +304,7 @@ public partial class NorthwindData
                 Phone = "(11) 555-9857",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "FISSA",
                 CompanyName = "FISSA Fabrica Inter. Salchichas S.A.",
@@ -318,7 +318,7 @@ public partial class NorthwindData
                 Phone = "(91) 555 94 44",
                 Fax = "(91) 555 55 93"
             },
-            new Customer
+            new()
             {
                 CustomerID = "FOLIG",
                 CompanyName = "Folies gourmandes",
@@ -332,7 +332,7 @@ public partial class NorthwindData
                 Phone = "20.16.10.16",
                 Fax = "20.16.10.17"
             },
-            new Customer
+            new()
             {
                 CustomerID = "FOLKO",
                 CompanyName = "Folk och fä HB",
@@ -346,7 +346,7 @@ public partial class NorthwindData
                 Phone = "0695-34 67 21",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "FRANK",
                 CompanyName = "Frankenversand",
@@ -360,7 +360,7 @@ public partial class NorthwindData
                 Phone = "089-0877310",
                 Fax = "089-0877451"
             },
-            new Customer
+            new()
             {
                 CustomerID = "FRANR",
                 CompanyName = "France restauration",
@@ -374,7 +374,7 @@ public partial class NorthwindData
                 Phone = "40.32.21.21",
                 Fax = "40.32.21.20"
             },
-            new Customer
+            new()
             {
                 CustomerID = "FRANS",
                 CompanyName = "Franchi S.p.A.",
@@ -388,7 +388,7 @@ public partial class NorthwindData
                 Phone = "011-4988260",
                 Fax = "011-4988261"
             },
-            new Customer
+            new()
             {
                 CustomerID = "FURIB",
                 CompanyName = "Furia Bacalhau e Frutos do Mar",
@@ -402,7 +402,7 @@ public partial class NorthwindData
                 Phone = "(1) 354-2534",
                 Fax = "(1) 354-2535"
             },
-            new Customer
+            new()
             {
                 CustomerID = "GALED",
                 CompanyName = "Galería del gastrónomo",
@@ -416,7 +416,7 @@ public partial class NorthwindData
                 Phone = "(93) 203 4560",
                 Fax = "(93) 203 4561"
             },
-            new Customer
+            new()
             {
                 CustomerID = "GODOS",
                 CompanyName = "Godos Cocina Típica",
@@ -430,7 +430,7 @@ public partial class NorthwindData
                 Phone = "(95) 555 82 82",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "GOURL",
                 CompanyName = "Gourmet Lanchonetes",
@@ -444,7 +444,7 @@ public partial class NorthwindData
                 Phone = "(11) 555-9482",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "GREAL",
                 CompanyName = "Great Lakes Food Market",
@@ -458,7 +458,7 @@ public partial class NorthwindData
                 Phone = "(503) 555-7555",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "GROSR",
                 CompanyName = "GROSELLA-Restaurante",
@@ -472,7 +472,7 @@ public partial class NorthwindData
                 Phone = "(2) 283-2951",
                 Fax = "(2) 283-3397"
             },
-            new Customer
+            new()
             {
                 CustomerID = "HANAR",
                 CompanyName = "Hanari Carnes",
@@ -486,7 +486,7 @@ public partial class NorthwindData
                 Phone = "(21) 555-0091",
                 Fax = "(21) 555-8765"
             },
-            new Customer
+            new()
             {
                 CustomerID = "HILAA",
                 CompanyName = "HILARION-Abastos",
@@ -500,7 +500,7 @@ public partial class NorthwindData
                 Phone = "(5) 555-1340",
                 Fax = "(5) 555-1948"
             },
-            new Customer
+            new()
             {
                 CustomerID = "HUNGC",
                 CompanyName = "Hungry Coyote Import Store",
@@ -514,7 +514,7 @@ public partial class NorthwindData
                 Phone = "(503) 555-6874",
                 Fax = "(503) 555-2376"
             },
-            new Customer
+            new()
             {
                 CustomerID = "HUNGO",
                 CompanyName = "Hungry Owl All-Night Grocers",
@@ -528,7 +528,7 @@ public partial class NorthwindData
                 Phone = "2967 542",
                 Fax = "2967 3333"
             },
-            new Customer
+            new()
             {
                 CustomerID = "ISLAT",
                 CompanyName = "Island Trading",
@@ -542,7 +542,7 @@ public partial class NorthwindData
                 Phone = "(198) 555-8888",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "KOENE",
                 CompanyName = "Königlich Essen",
@@ -556,7 +556,7 @@ public partial class NorthwindData
                 Phone = "0555-09876",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "LACOR",
                 CompanyName = "La corne d'abondance",
@@ -570,7 +570,7 @@ public partial class NorthwindData
                 Phone = "30.59.84.10",
                 Fax = "30.59.85.11"
             },
-            new Customer
+            new()
             {
                 CustomerID = "LAMAI",
                 CompanyName = "La maison d'Asie",
@@ -584,7 +584,7 @@ public partial class NorthwindData
                 Phone = "61.77.61.10",
                 Fax = "61.77.61.11"
             },
-            new Customer
+            new()
             {
                 CustomerID = "LAUGB",
                 CompanyName = "Laughing Bacchus Wine Cellars",
@@ -598,7 +598,7 @@ public partial class NorthwindData
                 Phone = "(604) 555-3392",
                 Fax = "(604) 555-7293"
             },
-            new Customer
+            new()
             {
                 CustomerID = "LAZYK",
                 CompanyName = "Lazy K Kountry Store",
@@ -612,7 +612,7 @@ public partial class NorthwindData
                 Phone = "(509) 555-7969",
                 Fax = "(509) 555-6221"
             },
-            new Customer
+            new()
             {
                 CustomerID = "LEHMS",
                 CompanyName = "Lehmanns Marktstand",
@@ -626,7 +626,7 @@ public partial class NorthwindData
                 Phone = "069-0245984",
                 Fax = "069-0245874"
             },
-            new Customer
+            new()
             {
                 CustomerID = "LETSS",
                 CompanyName = "Let's Stop N Shop",
@@ -640,7 +640,7 @@ public partial class NorthwindData
                 Phone = "(415) 555-5938",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "LILAS",
                 CompanyName = "LILA-Supermercado",
@@ -654,7 +654,7 @@ public partial class NorthwindData
                 Phone = "(9) 331-6954",
                 Fax = "(9) 331-7256"
             },
-            new Customer
+            new()
             {
                 CustomerID = "LINOD",
                 CompanyName = "LINO-Delicateses",
@@ -668,7 +668,7 @@ public partial class NorthwindData
                 Phone = "(8) 34-56-12",
                 Fax = "(8) 34-93-93"
             },
-            new Customer
+            new()
             {
                 CustomerID = "LONEP",
                 CompanyName = "Lonesome Pine Restaurant",
@@ -682,7 +682,7 @@ public partial class NorthwindData
                 Phone = "(503) 555-9573",
                 Fax = "(503) 555-9646"
             },
-            new Customer
+            new()
             {
                 CustomerID = "MAGAA",
                 CompanyName = "Magazzini Alimentari Riuniti",
@@ -696,7 +696,7 @@ public partial class NorthwindData
                 Phone = "035-640230",
                 Fax = "035-640231"
             },
-            new Customer
+            new()
             {
                 CustomerID = "MAISD",
                 CompanyName = "Maison Dewey",
@@ -710,7 +710,7 @@ public partial class NorthwindData
                 Phone = "(02) 201 24 67",
                 Fax = "(02) 201 24 68"
             },
-            new Customer
+            new()
             {
                 CustomerID = "MEREP",
                 CompanyName = "Mère Paillarde",
@@ -724,7 +724,7 @@ public partial class NorthwindData
                 Phone = "(514) 555-8054",
                 Fax = "(514) 555-8055"
             },
-            new Customer
+            new()
             {
                 CustomerID = "MORGK",
                 CompanyName = "Morgenstern Gesundkost",
@@ -738,7 +738,7 @@ public partial class NorthwindData
                 Phone = "0342-023176",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "NORTS",
                 CompanyName = "North/South",
@@ -752,7 +752,7 @@ public partial class NorthwindData
                 Phone = "(171) 555-7733",
                 Fax = "(171) 555-2530"
             },
-            new Customer
+            new()
             {
                 CustomerID = "OCEAN",
                 CompanyName = "Océano Atlántico Ltda.",
@@ -766,7 +766,7 @@ public partial class NorthwindData
                 Phone = "(1) 135-5333",
                 Fax = "(1) 135-5535"
             },
-            new Customer
+            new()
             {
                 CustomerID = "OLDWO",
                 CompanyName = "Old World Delicatessen",
@@ -780,7 +780,7 @@ public partial class NorthwindData
                 Phone = "(907) 555-7584",
                 Fax = "(907) 555-2880"
             },
-            new Customer
+            new()
             {
                 CustomerID = "OTTIK",
                 CompanyName = "Ottilies Käseladen",
@@ -794,7 +794,7 @@ public partial class NorthwindData
                 Phone = "0221-0644327",
                 Fax = "0221-0765721"
             },
-            new Customer
+            new()
             {
                 CustomerID = "PARIS",
                 CompanyName = "Paris spécialités",
@@ -808,7 +808,7 @@ public partial class NorthwindData
                 Phone = "(1) 42.34.22.66",
                 Fax = "(1) 42.34.22.77"
             },
-            new Customer
+            new()
             {
                 CustomerID = "PERIC",
                 CompanyName = "Pericles Comidas clásicas",
@@ -822,7 +822,7 @@ public partial class NorthwindData
                 Phone = "(5) 552-3745",
                 Fax = "(5) 545-3745"
             },
-            new Customer
+            new()
             {
                 CustomerID = "PICCO",
                 CompanyName = "Piccolo und mehr",
@@ -836,7 +836,7 @@ public partial class NorthwindData
                 Phone = "6562-9722",
                 Fax = "6562-9723"
             },
-            new Customer
+            new()
             {
                 CustomerID = "PRINI",
                 CompanyName = "Princesa Isabel Vinhos",
@@ -850,7 +850,7 @@ public partial class NorthwindData
                 Phone = "(1) 356-5634",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "QUEDE",
                 CompanyName = "Que Delícia",
@@ -864,7 +864,7 @@ public partial class NorthwindData
                 Phone = "(21) 555-4252",
                 Fax = "(21) 555-4545"
             },
-            new Customer
+            new()
             {
                 CustomerID = "QUEEN",
                 CompanyName = "Queen Cozinha",
@@ -878,7 +878,7 @@ public partial class NorthwindData
                 Phone = "(11) 555-1189",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "QUICK",
                 CompanyName = "QUICK-Stop",
@@ -892,7 +892,7 @@ public partial class NorthwindData
                 Phone = "0372-035188",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "RANCH",
                 CompanyName = "Rancho grande",
@@ -906,7 +906,7 @@ public partial class NorthwindData
                 Phone = "(1) 123-5555",
                 Fax = "(1) 123-5556"
             },
-            new Customer
+            new()
             {
                 CustomerID = "RATTC",
                 CompanyName = "Rattlesnake Canyon Grocery",
@@ -920,7 +920,7 @@ public partial class NorthwindData
                 Phone = "(505) 555-5939",
                 Fax = "(505) 555-3620"
             },
-            new Customer
+            new()
             {
                 CustomerID = "REGGC",
                 CompanyName = "Reggiani Caseifici",
@@ -934,7 +934,7 @@ public partial class NorthwindData
                 Phone = "0522-556721",
                 Fax = "0522-556722"
             },
-            new Customer
+            new()
             {
                 CustomerID = "RICAR",
                 CompanyName = "Ricardo Adocicados",
@@ -948,7 +948,7 @@ public partial class NorthwindData
                 Phone = "(21) 555-3412",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "RICSU",
                 CompanyName = "Richter Supermarkt",
@@ -962,7 +962,7 @@ public partial class NorthwindData
                 Phone = "0897-034214",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "ROMEY",
                 CompanyName = "Romero y tomillo",
@@ -976,7 +976,7 @@ public partial class NorthwindData
                 Phone = "(91) 745 6200",
                 Fax = "(91) 745 6210"
             },
-            new Customer
+            new()
             {
                 CustomerID = "SANTG",
                 CompanyName = "Santé Gourmet",
@@ -990,7 +990,7 @@ public partial class NorthwindData
                 Phone = "07-98 92 35",
                 Fax = "07-98 92 47"
             },
-            new Customer
+            new()
             {
                 CustomerID = "SAVEA",
                 CompanyName = "Save-a-lot Markets",
@@ -1004,7 +1004,7 @@ public partial class NorthwindData
                 Phone = "(208) 555-8097",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "SEVES",
                 CompanyName = "Seven Seas Imports",
@@ -1018,7 +1018,7 @@ public partial class NorthwindData
                 Phone = "(171) 555-1717",
                 Fax = "(171) 555-5646"
             },
-            new Customer
+            new()
             {
                 CustomerID = "SIMOB",
                 CompanyName = "Simons bistro",
@@ -1032,7 +1032,7 @@ public partial class NorthwindData
                 Phone = "31 12 34 56",
                 Fax = "31 13 35 57"
             },
-            new Customer
+            new()
             {
                 CustomerID = "SPECD",
                 CompanyName = "Spécialités du monde",
@@ -1046,7 +1046,7 @@ public partial class NorthwindData
                 Phone = "(1) 47.55.60.10",
                 Fax = "(1) 47.55.60.20"
             },
-            new Customer
+            new()
             {
                 CustomerID = "SPLIR",
                 CompanyName = "Split Rail Beer & Ale",
@@ -1060,7 +1060,7 @@ public partial class NorthwindData
                 Phone = "(307) 555-4680",
                 Fax = "(307) 555-6525"
             },
-            new Customer
+            new()
             {
                 CustomerID = "SUPRD",
                 CompanyName = "Suprêmes délices",
@@ -1074,7 +1074,7 @@ public partial class NorthwindData
                 Phone = "(071) 23 67 22 20",
                 Fax = "(071) 23 67 22 21"
             },
-            new Customer
+            new()
             {
                 CustomerID = "THEBI",
                 CompanyName = "The Big Cheese",
@@ -1088,7 +1088,7 @@ public partial class NorthwindData
                 Phone = "(503) 555-3612",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "THECR",
                 CompanyName = "The Cracker Box",
@@ -1102,7 +1102,7 @@ public partial class NorthwindData
                 Phone = "(406) 555-5834",
                 Fax = "(406) 555-8083"
             },
-            new Customer
+            new()
             {
                 CustomerID = "TOMSP",
                 CompanyName = "Toms Spezialitäten",
@@ -1116,7 +1116,7 @@ public partial class NorthwindData
                 Phone = "0251-031259",
                 Fax = "0251-035695"
             },
-            new Customer
+            new()
             {
                 CustomerID = "TORTU",
                 CompanyName = "Tortuga Restaurante",
@@ -1130,7 +1130,7 @@ public partial class NorthwindData
                 Phone = "(5) 555-2933",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "TRADH",
                 CompanyName = "Tradição Hipermercados",
@@ -1144,7 +1144,7 @@ public partial class NorthwindData
                 Phone = "(11) 555-2167",
                 Fax = "(11) 555-2168"
             },
-            new Customer
+            new()
             {
                 CustomerID = "TRAIH",
                 CompanyName = "Trail's Head Gourmet Provisioners",
@@ -1158,7 +1158,7 @@ public partial class NorthwindData
                 Phone = "(206) 555-8257",
                 Fax = "(206) 555-2174"
             },
-            new Customer
+            new()
             {
                 CustomerID = "VAFFE",
                 CompanyName = "Vaffeljernet",
@@ -1172,7 +1172,7 @@ public partial class NorthwindData
                 Phone = "86 21 32 43",
                 Fax = "86 22 33 44"
             },
-            new Customer
+            new()
             {
                 CustomerID = "VICTE",
                 CompanyName = "Victuailles en stock",
@@ -1186,7 +1186,7 @@ public partial class NorthwindData
                 Phone = "78.32.54.86",
                 Fax = "78.32.54.87"
             },
-            new Customer
+            new()
             {
                 CustomerID = "VINET",
                 CompanyName = "Vins et alcools Chevalier",
@@ -1200,7 +1200,7 @@ public partial class NorthwindData
                 Phone = "26.47.15.10",
                 Fax = "26.47.15.11"
             },
-            new Customer
+            new()
             {
                 CustomerID = "WANDK",
                 CompanyName = "Die Wandernde Kuh",
@@ -1214,7 +1214,7 @@ public partial class NorthwindData
                 Phone = "0711-020361",
                 Fax = "0711-035428"
             },
-            new Customer
+            new()
             {
                 CustomerID = "WARTH",
                 CompanyName = "Wartian Herkku",
@@ -1228,7 +1228,7 @@ public partial class NorthwindData
                 Phone = "981-443655",
                 Fax = "981-443655"
             },
-            new Customer
+            new()
             {
                 CustomerID = "WELLI",
                 CompanyName = "Wellington Importadora",
@@ -1242,7 +1242,7 @@ public partial class NorthwindData
                 Phone = "(14) 555-8122",
                 Fax = null
             },
-            new Customer
+            new()
             {
                 CustomerID = "WHITC",
                 CompanyName = "White Clover Markets",
@@ -1256,7 +1256,7 @@ public partial class NorthwindData
                 Phone = "(206) 555-4112",
                 Fax = "(206) 555-4115"
             },
-            new Customer
+            new()
             {
                 CustomerID = "WILMK",
                 CompanyName = "Wilman Kala",
@@ -1270,7 +1270,7 @@ public partial class NorthwindData
                 Phone = "90-224 8858",
                 Fax = "90-224 8858"
             },
-            new Customer
+            new()
             {
                 CustomerID = "WOLZA",
                 CompanyName = "Wolski  Zajazd",
@@ -1293,7 +1293,7 @@ public partial class NorthwindData
     public static Employee[] CreateEmployees()
         =>
         [
-            new Employee
+            new()
             {
                 EmployeeID = 1,
                 LastName = "Davolio",
@@ -1318,7 +1318,7 @@ Apt. 2A",
                 ReportsTo = 2,
                 PhotoPath = "http://accweb/emmployees/davolio.bmp"
             },
-            new Employee
+            new()
             {
                 EmployeeID = 2,
                 LastName = "Fuller",
@@ -1341,7 +1341,7 @@ Apt. 2A",
                     "Andrew received his BTS commercial in 1974 and a Ph.D. in international marketing from the University of Dallas in 1981.  He is fluent in French and Italian and reads German.  He joined the company as a sales representative, was promoted to sales manager in January 1992 and to vice president of sales in March 1993.  Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.",
                 PhotoPath = "http://accweb/emmployees/fuller.bmp"
             },
-            new Employee
+            new()
             {
                 EmployeeID = 3,
                 LastName = "Leverling",
@@ -1365,7 +1365,7 @@ Apt. 2A",
                 ReportsTo = 2,
                 PhotoPath = "http://accweb/emmployees/leverling.bmp"
             },
-            new Employee
+            new()
             {
                 EmployeeID = 4,
                 LastName = "Peacock",
@@ -1389,7 +1389,7 @@ Apt. 2A",
                 ReportsTo = 2,
                 PhotoPath = "http://accweb/emmployees/peacock.bmp"
             },
-            new Employee
+            new()
             {
                 EmployeeID = 5,
                 LastName = "Buchanan",
@@ -1413,7 +1413,7 @@ Apt. 2A",
                 ReportsTo = 2,
                 PhotoPath = "http://accweb/emmployees/buchanan.bmp"
             },
-            new Employee
+            new()
             {
                 EmployeeID = 6,
                 LastName = "Suyama",
@@ -1438,7 +1438,7 @@ Miner Rd.",
                 ReportsTo = 5,
                 PhotoPath = "http://accweb/emmployees/davolio.bmp"
             },
-            new Employee
+            new()
             {
                 EmployeeID = 7,
                 LastName = "King",
@@ -1463,7 +1463,7 @@ Winchester Way",
                 ReportsTo = 5,
                 PhotoPath = "http://accweb/emmployees/davolio.bmp"
             },
-            new Employee
+            new()
             {
                 EmployeeID = 8,
                 LastName = "Callahan",
@@ -1487,7 +1487,7 @@ Winchester Way",
                 ReportsTo = 2,
                 PhotoPath = "http://accweb/emmployees/davolio.bmp"
             },
-            new Employee
+            new()
             {
                 EmployeeID = 9,
                 LastName = "Dodsworth",
@@ -1520,7 +1520,7 @@ Winchester Way",
     public static Product[] CreateProducts()
         =>
         [
-            new Product
+            new()
             {
                 ProductID = 1,
                 ProductName = "Chai",
@@ -1533,7 +1533,7 @@ Winchester Way",
                 ReorderLevel = 10,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 2,
                 ProductName = "Chang",
@@ -1546,7 +1546,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 3,
                 ProductName = "Aniseed Syrup",
@@ -1559,7 +1559,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 4,
                 ProductName = "Chef Anton's Cajun Seasoning",
@@ -1572,7 +1572,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 5,
                 ProductName = "Chef Anton's Gumbo Mix",
@@ -1585,7 +1585,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = true
             },
-            new Product
+            new()
             {
                 ProductID = 6,
                 ProductName = "Grandma's Boysenberry Spread",
@@ -1598,7 +1598,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 7,
                 ProductName = "Uncle Bob's Organic Dried Pears",
@@ -1611,7 +1611,7 @@ Winchester Way",
                 ReorderLevel = 10,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 8,
                 ProductName = "Northwoods Cranberry Sauce",
@@ -1624,7 +1624,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 9,
                 ProductName = "Mishi Kobe Niku",
@@ -1637,7 +1637,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = true
             },
-            new Product
+            new()
             {
                 ProductID = 10,
                 ProductName = "Ikura",
@@ -1650,7 +1650,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 11,
                 ProductName = "Queso Cabrales",
@@ -1663,7 +1663,7 @@ Winchester Way",
                 ReorderLevel = 30,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 12,
                 ProductName = "Queso Manchego La Pastora",
@@ -1676,7 +1676,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 13,
                 ProductName = "Konbu",
@@ -1689,7 +1689,7 @@ Winchester Way",
                 ReorderLevel = 5,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 14,
                 ProductName = "Tofu",
@@ -1702,7 +1702,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 15,
                 ProductName = "Genen Shouyu",
@@ -1715,7 +1715,7 @@ Winchester Way",
                 ReorderLevel = 5,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 16,
                 ProductName = "Pavlova",
@@ -1728,7 +1728,7 @@ Winchester Way",
                 ReorderLevel = 10,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 17,
                 ProductName = "Alice Mutton",
@@ -1741,7 +1741,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = true
             },
-            new Product
+            new()
             {
                 ProductID = 18,
                 ProductName = "Carnarvon Tigers",
@@ -1754,7 +1754,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 19,
                 ProductName = "Teatime Chocolate Biscuits",
@@ -1767,7 +1767,7 @@ Winchester Way",
                 ReorderLevel = 5,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 20,
                 ProductName = "Sir Rodney's Marmalade",
@@ -1780,7 +1780,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 21,
                 ProductName = "Sir Rodney's Scones",
@@ -1793,7 +1793,7 @@ Winchester Way",
                 ReorderLevel = 5,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 22,
                 ProductName = "Gustaf's Knäckebröd",
@@ -1806,7 +1806,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 23,
                 ProductName = "Tunnbröd",
@@ -1819,7 +1819,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 24,
                 ProductName = "Guaraná Fantástica",
@@ -1832,7 +1832,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = true
             },
-            new Product
+            new()
             {
                 ProductID = 25,
                 ProductName = "NuNuCa Nuß-Nougat-Creme",
@@ -1845,7 +1845,7 @@ Winchester Way",
                 ReorderLevel = 30,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 26,
                 ProductName = "Gumbär Gummibärchen",
@@ -1858,7 +1858,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 27,
                 ProductName = "Schoggi Schokolade",
@@ -1871,7 +1871,7 @@ Winchester Way",
                 ReorderLevel = 30,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 28,
                 ProductName = "Rössle Sauerkraut",
@@ -1884,7 +1884,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = true
             },
-            new Product
+            new()
             {
                 ProductID = 29,
                 ProductName = "Thüringer Rostbratwurst",
@@ -1897,7 +1897,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = true
             },
-            new Product
+            new()
             {
                 ProductID = 30,
                 ProductName = "Nord-Ost Matjeshering",
@@ -1910,7 +1910,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 31,
                 ProductName = "Gorgonzola Telino",
@@ -1923,7 +1923,7 @@ Winchester Way",
                 ReorderLevel = 20,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 32,
                 ProductName = "Mascarpone Fabioli",
@@ -1936,7 +1936,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 33,
                 ProductName = "Geitost",
@@ -1949,7 +1949,7 @@ Winchester Way",
                 ReorderLevel = 20,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 34,
                 ProductName = "Sasquatch Ale",
@@ -1962,7 +1962,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 35,
                 ProductName = "Steeleye Stout",
@@ -1975,7 +1975,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 36,
                 ProductName = "Inlagd Sill",
@@ -1988,7 +1988,7 @@ Winchester Way",
                 ReorderLevel = 20,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 37,
                 ProductName = "Gravad lax",
@@ -2001,7 +2001,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 38,
                 ProductName = "Côte de Blaye",
@@ -2014,7 +2014,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 39,
                 ProductName = "Chartreuse verte",
@@ -2027,7 +2027,7 @@ Winchester Way",
                 ReorderLevel = 5,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 40,
                 ProductName = "Boston Crab Meat",
@@ -2040,7 +2040,7 @@ Winchester Way",
                 ReorderLevel = 30,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 41,
                 ProductName = "Jack's New England Clam Chowder",
@@ -2053,7 +2053,7 @@ Winchester Way",
                 ReorderLevel = 10,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 42,
                 ProductName = "Singaporean Hokkien Fried Mee",
@@ -2066,7 +2066,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = true
             },
-            new Product
+            new()
             {
                 ProductID = 43,
                 ProductName = "Ipoh Coffee",
@@ -2079,7 +2079,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 44,
                 ProductName = "Gula Malacca",
@@ -2092,7 +2092,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 45,
                 ProductName = "Rogede sild",
@@ -2105,7 +2105,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 46,
                 ProductName = "Spegesild",
@@ -2118,7 +2118,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 47,
                 ProductName = "Zaanse koeken",
@@ -2131,7 +2131,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 48,
                 ProductName = "Chocolade",
@@ -2144,7 +2144,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 49,
                 ProductName = "Maxilaku",
@@ -2157,7 +2157,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 50,
                 ProductName = "Valkoinen suklaa",
@@ -2170,7 +2170,7 @@ Winchester Way",
                 ReorderLevel = 30,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 51,
                 ProductName = "Manjimup Dried Apples",
@@ -2183,7 +2183,7 @@ Winchester Way",
                 ReorderLevel = 10,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 52,
                 ProductName = "Filo Mix",
@@ -2196,7 +2196,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 53,
                 ProductName = "Perth Pasties",
@@ -2209,7 +2209,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = true
             },
-            new Product
+            new()
             {
                 ProductID = 54,
                 ProductName = "Tourtière",
@@ -2222,7 +2222,7 @@ Winchester Way",
                 ReorderLevel = 10,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 55,
                 ProductName = "Pâté chinois",
@@ -2235,7 +2235,7 @@ Winchester Way",
                 ReorderLevel = 20,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 56,
                 ProductName = "Gnocchi di nonna Alice",
@@ -2248,7 +2248,7 @@ Winchester Way",
                 ReorderLevel = 30,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 57,
                 ProductName = "Ravioli Angelo",
@@ -2261,7 +2261,7 @@ Winchester Way",
                 ReorderLevel = 20,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 58,
                 ProductName = "Escargots de Bourgogne",
@@ -2274,7 +2274,7 @@ Winchester Way",
                 ReorderLevel = 20,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 59,
                 ProductName = "Raclette Courdavault",
@@ -2287,7 +2287,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 60,
                 ProductName = "Camembert Pierrot",
@@ -2300,7 +2300,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 61,
                 ProductName = "Sirop d'érable",
@@ -2313,7 +2313,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 62,
                 ProductName = "Tarte au sucre",
@@ -2326,7 +2326,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 63,
                 ProductName = "Vegie-spread",
@@ -2339,7 +2339,7 @@ Winchester Way",
                 ReorderLevel = 5,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 64,
                 ProductName = "Wimmers gute Semmelknödel",
@@ -2352,7 +2352,7 @@ Winchester Way",
                 ReorderLevel = 30,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 65,
                 ProductName = "Louisiana Fiery Hot Pepper Sauce",
@@ -2365,7 +2365,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 66,
                 ProductName = "Louisiana Hot Spiced Okra",
@@ -2378,7 +2378,7 @@ Winchester Way",
                 ReorderLevel = 20,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 67,
                 ProductName = "Laughing Lumberjack Lager",
@@ -2391,7 +2391,7 @@ Winchester Way",
                 ReorderLevel = 10,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 68,
                 ProductName = "Scottish Longbreads",
@@ -2404,7 +2404,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 69,
                 ProductName = "Gudbrandsdalsost",
@@ -2417,7 +2417,7 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 70,
                 ProductName = "Outback Lager",
@@ -2430,7 +2430,7 @@ Winchester Way",
                 ReorderLevel = 30,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 71,
                 ProductName = "Flotemysost",
@@ -2443,7 +2443,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 72,
                 ProductName = "Mozzarella di Giovanni",
@@ -2456,7 +2456,7 @@ Winchester Way",
                 ReorderLevel = 0,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 73,
                 ProductName = "Röd Kaviar",
@@ -2469,7 +2469,7 @@ Winchester Way",
                 ReorderLevel = 5,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 74,
                 ProductName = "Longlife Tofu",
@@ -2482,7 +2482,7 @@ Winchester Way",
                 ReorderLevel = 5,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 75,
                 ProductName = "Rhönbräu Klosterbier",
@@ -2495,7 +2495,7 @@ Winchester Way",
                 ReorderLevel = 25,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 76,
                 ProductName = "Lakkalikööri",
@@ -2508,7 +2508,7 @@ Winchester Way",
                 ReorderLevel = 20,
                 Discontinued = false
             },
-            new Product
+            new()
             {
                 ProductID = 77,
                 ProductName = "Original Frankfurter grüne Soße",
@@ -2530,7 +2530,7 @@ Winchester Way",
     public static Order[] CreateOrders()
         =>
         [
-            new Order
+            new()
             {
                 OrderID = 10248,
                 CustomerID = "VINET",
@@ -2548,7 +2548,7 @@ Winchester Way",
                 ShipPostalCode = "51100",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10249,
                 CustomerID = "TOMSP",
@@ -2566,7 +2566,7 @@ Winchester Way",
                 ShipPostalCode = "44087",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10250,
                 CustomerID = "HANAR",
@@ -2584,7 +2584,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10251,
                 CustomerID = "VICTE",
@@ -2602,7 +2602,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10252,
                 CustomerID = "SUPRD",
@@ -2620,7 +2620,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10253,
                 CustomerID = "HANAR",
@@ -2638,7 +2638,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10254,
                 CustomerID = "CHOPS",
@@ -2656,7 +2656,7 @@ Winchester Way",
                 ShipPostalCode = "3012",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10255,
                 CustomerID = "RICSU",
@@ -2674,7 +2674,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10256,
                 CustomerID = "WELLI",
@@ -2692,7 +2692,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10257,
                 CustomerID = "HILAA",
@@ -2710,7 +2710,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10258,
                 CustomerID = "ERNSH",
@@ -2728,7 +2728,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10259,
                 CustomerID = "CENTC",
@@ -2746,7 +2746,7 @@ Winchester Way",
                 ShipPostalCode = "05022",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10260,
                 CustomerID = "OTTIK",
@@ -2764,7 +2764,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10261,
                 CustomerID = "QUEDE",
@@ -2782,7 +2782,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10262,
                 CustomerID = "RATTC",
@@ -2800,7 +2800,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10263,
                 CustomerID = "ERNSH",
@@ -2818,7 +2818,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10264,
                 CustomerID = "FOLKO",
@@ -2836,7 +2836,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10265,
                 CustomerID = "BLONP",
@@ -2854,7 +2854,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10266,
                 CustomerID = "WARTH",
@@ -2872,7 +2872,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10267,
                 CustomerID = "FRANK",
@@ -2890,7 +2890,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10268,
                 CustomerID = "GROSR",
@@ -2908,7 +2908,7 @@ Winchester Way",
                 ShipPostalCode = "1081",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10269,
                 CustomerID = "WHITC",
@@ -2926,7 +2926,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10270,
                 CustomerID = "WARTH",
@@ -2944,7 +2944,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10271,
                 CustomerID = "SPLIR",
@@ -2962,7 +2962,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10272,
                 CustomerID = "RATTC",
@@ -2980,7 +2980,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10273,
                 CustomerID = "QUICK",
@@ -2998,7 +2998,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10274,
                 CustomerID = "VINET",
@@ -3016,7 +3016,7 @@ Winchester Way",
                 ShipPostalCode = "51100",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10275,
                 CustomerID = "MAGAA",
@@ -3034,7 +3034,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10276,
                 CustomerID = "TORTU",
@@ -3052,7 +3052,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10277,
                 CustomerID = "MORGK",
@@ -3070,7 +3070,7 @@ Winchester Way",
                 ShipPostalCode = "04179",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10278,
                 CustomerID = "BERGS",
@@ -3088,7 +3088,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10279,
                 CustomerID = "LEHMS",
@@ -3106,7 +3106,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10280,
                 CustomerID = "BERGS",
@@ -3124,7 +3124,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10281,
                 CustomerID = "ROMEY",
@@ -3142,7 +3142,7 @@ Winchester Way",
                 ShipPostalCode = "28001",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10282,
                 CustomerID = "ROMEY",
@@ -3160,7 +3160,7 @@ Winchester Way",
                 ShipPostalCode = "28001",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10283,
                 CustomerID = "LILAS",
@@ -3178,7 +3178,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10284,
                 CustomerID = "LEHMS",
@@ -3196,7 +3196,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10285,
                 CustomerID = "QUICK",
@@ -3214,7 +3214,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10286,
                 CustomerID = "QUICK",
@@ -3232,7 +3232,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10287,
                 CustomerID = "RICAR",
@@ -3250,7 +3250,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10288,
                 CustomerID = "REGGC",
@@ -3268,7 +3268,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10289,
                 CustomerID = "BSBEV",
@@ -3286,7 +3286,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10290,
                 CustomerID = "COMMI",
@@ -3304,7 +3304,7 @@ Winchester Way",
                 ShipPostalCode = "05432-043",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10291,
                 CustomerID = "QUEDE",
@@ -3322,7 +3322,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10292,
                 CustomerID = "TRADH",
@@ -3340,7 +3340,7 @@ Winchester Way",
                 ShipPostalCode = "05634-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10293,
                 CustomerID = "TORTU",
@@ -3358,7 +3358,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10294,
                 CustomerID = "RATTC",
@@ -3376,7 +3376,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10295,
                 CustomerID = "VINET",
@@ -3394,7 +3394,7 @@ Winchester Way",
                 ShipPostalCode = "51100",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10296,
                 CustomerID = "LILAS",
@@ -3412,7 +3412,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10297,
                 CustomerID = "BLONP",
@@ -3430,7 +3430,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10298,
                 CustomerID = "HUNGO",
@@ -3448,7 +3448,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10299,
                 CustomerID = "RICAR",
@@ -3466,7 +3466,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10300,
                 CustomerID = "MAGAA",
@@ -3484,7 +3484,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10301,
                 CustomerID = "WANDK",
@@ -3502,7 +3502,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10302,
                 CustomerID = "SUPRD",
@@ -3520,7 +3520,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10303,
                 CustomerID = "GODOS",
@@ -3538,7 +3538,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10304,
                 CustomerID = "TORTU",
@@ -3556,7 +3556,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10305,
                 CustomerID = "OLDWO",
@@ -3574,7 +3574,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10306,
                 CustomerID = "ROMEY",
@@ -3592,7 +3592,7 @@ Winchester Way",
                 ShipPostalCode = "28001",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10307,
                 CustomerID = "LONEP",
@@ -3610,7 +3610,7 @@ Winchester Way",
                 ShipPostalCode = "97219",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10308,
                 CustomerID = "ANATR",
@@ -3628,7 +3628,7 @@ Winchester Way",
                 ShipPostalCode = "05021",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10309,
                 CustomerID = "HUNGO",
@@ -3646,7 +3646,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10310,
                 CustomerID = "THEBI",
@@ -3664,7 +3664,7 @@ Winchester Way",
                 ShipPostalCode = "97201",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10311,
                 CustomerID = "DUMON",
@@ -3682,7 +3682,7 @@ Winchester Way",
                 ShipPostalCode = "44000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10312,
                 CustomerID = "WANDK",
@@ -3700,7 +3700,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10313,
                 CustomerID = "QUICK",
@@ -3718,7 +3718,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10314,
                 CustomerID = "RATTC",
@@ -3736,7 +3736,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10315,
                 CustomerID = "ISLAT",
@@ -3754,7 +3754,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10316,
                 CustomerID = "RATTC",
@@ -3772,7 +3772,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10317,
                 CustomerID = "LONEP",
@@ -3790,7 +3790,7 @@ Winchester Way",
                 ShipPostalCode = "97219",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10318,
                 CustomerID = "ISLAT",
@@ -3808,7 +3808,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10319,
                 CustomerID = "TORTU",
@@ -3826,7 +3826,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10320,
                 CustomerID = "WARTH",
@@ -3844,7 +3844,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10321,
                 CustomerID = "ISLAT",
@@ -3862,7 +3862,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10322,
                 CustomerID = "PERIC",
@@ -3880,7 +3880,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10323,
                 CustomerID = "KOENE",
@@ -3898,7 +3898,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10324,
                 CustomerID = "SAVEA",
@@ -3916,7 +3916,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10325,
                 CustomerID = "KOENE",
@@ -3934,7 +3934,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10326,
                 CustomerID = "BOLID",
@@ -3952,7 +3952,7 @@ Winchester Way",
                 ShipPostalCode = "28023",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10327,
                 CustomerID = "FOLKO",
@@ -3970,7 +3970,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10328,
                 CustomerID = "FURIB",
@@ -3988,7 +3988,7 @@ Winchester Way",
                 ShipPostalCode = "1675",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10329,
                 CustomerID = "SPLIR",
@@ -4006,7 +4006,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10330,
                 CustomerID = "LILAS",
@@ -4024,7 +4024,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10331,
                 CustomerID = "BONAP",
@@ -4042,7 +4042,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10332,
                 CustomerID = "MEREP",
@@ -4060,7 +4060,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10333,
                 CustomerID = "WARTH",
@@ -4078,7 +4078,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10334,
                 CustomerID = "VICTE",
@@ -4096,7 +4096,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10335,
                 CustomerID = "HUNGO",
@@ -4114,7 +4114,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10336,
                 CustomerID = "PRINI",
@@ -4132,7 +4132,7 @@ Winchester Way",
                 ShipPostalCode = "1756",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10337,
                 CustomerID = "FRANK",
@@ -4150,7 +4150,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10338,
                 CustomerID = "OLDWO",
@@ -4168,7 +4168,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10339,
                 CustomerID = "MEREP",
@@ -4186,7 +4186,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10340,
                 CustomerID = "BONAP",
@@ -4204,7 +4204,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10341,
                 CustomerID = "SIMOB",
@@ -4222,7 +4222,7 @@ Winchester Way",
                 ShipPostalCode = "1734",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10342,
                 CustomerID = "FRANK",
@@ -4240,7 +4240,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10343,
                 CustomerID = "LEHMS",
@@ -4258,7 +4258,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10344,
                 CustomerID = "WHITC",
@@ -4276,7 +4276,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10345,
                 CustomerID = "QUICK",
@@ -4294,7 +4294,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10346,
                 CustomerID = "RATTC",
@@ -4312,7 +4312,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10347,
                 CustomerID = "FAMIA",
@@ -4330,7 +4330,7 @@ Winchester Way",
                 ShipPostalCode = "05442-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10348,
                 CustomerID = "WANDK",
@@ -4348,7 +4348,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10349,
                 CustomerID = "SPLIR",
@@ -4366,7 +4366,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10350,
                 CustomerID = "LAMAI",
@@ -4384,7 +4384,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10351,
                 CustomerID = "ERNSH",
@@ -4402,7 +4402,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10352,
                 CustomerID = "FURIB",
@@ -4420,7 +4420,7 @@ Winchester Way",
                 ShipPostalCode = "1675",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10353,
                 CustomerID = "PICCO",
@@ -4438,7 +4438,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10354,
                 CustomerID = "PERIC",
@@ -4456,7 +4456,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10355,
                 CustomerID = "AROUT",
@@ -4474,7 +4474,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10356,
                 CustomerID = "WANDK",
@@ -4492,7 +4492,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10357,
                 CustomerID = "LILAS",
@@ -4510,7 +4510,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10358,
                 CustomerID = "LAMAI",
@@ -4528,7 +4528,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10359,
                 CustomerID = "SEVES",
@@ -4546,7 +4546,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10360,
                 CustomerID = "BLONP",
@@ -4564,7 +4564,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10361,
                 CustomerID = "QUICK",
@@ -4582,7 +4582,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10362,
                 CustomerID = "BONAP",
@@ -4600,7 +4600,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10363,
                 CustomerID = "DRACD",
@@ -4618,7 +4618,7 @@ Winchester Way",
                 ShipPostalCode = "52066",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10364,
                 CustomerID = "EASTC",
@@ -4636,7 +4636,7 @@ Winchester Way",
                 ShipPostalCode = "WX3 6FW",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10365,
                 CustomerID = "ANTON",
@@ -4654,7 +4654,7 @@ Winchester Way",
                 ShipPostalCode = "05023",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10366,
                 CustomerID = "GALED",
@@ -4672,7 +4672,7 @@ Winchester Way",
                 ShipPostalCode = "8022",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10367,
                 CustomerID = "VAFFE",
@@ -4690,7 +4690,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10368,
                 CustomerID = "ERNSH",
@@ -4708,7 +4708,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10369,
                 CustomerID = "SPLIR",
@@ -4726,7 +4726,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10370,
                 CustomerID = "CHOPS",
@@ -4744,7 +4744,7 @@ Winchester Way",
                 ShipPostalCode = "3012",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10371,
                 CustomerID = "LAMAI",
@@ -4762,7 +4762,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10372,
                 CustomerID = "QUEEN",
@@ -4780,7 +4780,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10373,
                 CustomerID = "HUNGO",
@@ -4798,7 +4798,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10374,
                 CustomerID = "WOLZA",
@@ -4816,7 +4816,7 @@ Winchester Way",
                 ShipPostalCode = "01-012",
                 ShipCountry = "Poland"
             },
-            new Order
+            new()
             {
                 OrderID = 10375,
                 CustomerID = "HUNGC",
@@ -4834,7 +4834,7 @@ Winchester Way",
                 ShipPostalCode = "97827",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10376,
                 CustomerID = "MEREP",
@@ -4852,7 +4852,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10377,
                 CustomerID = "SEVES",
@@ -4870,7 +4870,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10378,
                 CustomerID = "FOLKO",
@@ -4888,7 +4888,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10379,
                 CustomerID = "QUEDE",
@@ -4906,7 +4906,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10380,
                 CustomerID = "HUNGO",
@@ -4924,7 +4924,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10381,
                 CustomerID = "LILAS",
@@ -4942,7 +4942,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10382,
                 CustomerID = "ERNSH",
@@ -4960,7 +4960,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10383,
                 CustomerID = "AROUT",
@@ -4978,7 +4978,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10384,
                 CustomerID = "BERGS",
@@ -4996,7 +4996,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10385,
                 CustomerID = "SPLIR",
@@ -5014,7 +5014,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10386,
                 CustomerID = "FAMIA",
@@ -5032,7 +5032,7 @@ Winchester Way",
                 ShipPostalCode = "05442-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10387,
                 CustomerID = "SANTG",
@@ -5050,7 +5050,7 @@ Winchester Way",
                 ShipPostalCode = "4110",
                 ShipCountry = "Norway"
             },
-            new Order
+            new()
             {
                 OrderID = 10388,
                 CustomerID = "SEVES",
@@ -5068,7 +5068,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10389,
                 CustomerID = "BOTTM",
@@ -5086,7 +5086,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10390,
                 CustomerID = "ERNSH",
@@ -5104,7 +5104,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10391,
                 CustomerID = "DRACD",
@@ -5122,7 +5122,7 @@ Winchester Way",
                 ShipPostalCode = "52066",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10392,
                 CustomerID = "PICCO",
@@ -5140,7 +5140,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10393,
                 CustomerID = "SAVEA",
@@ -5158,7 +5158,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10394,
                 CustomerID = "HUNGC",
@@ -5176,7 +5176,7 @@ Winchester Way",
                 ShipPostalCode = "97827",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10395,
                 CustomerID = "HILAA",
@@ -5194,7 +5194,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10396,
                 CustomerID = "FRANK",
@@ -5212,7 +5212,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10397,
                 CustomerID = "PRINI",
@@ -5230,7 +5230,7 @@ Winchester Way",
                 ShipPostalCode = "1756",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10398,
                 CustomerID = "SAVEA",
@@ -5248,7 +5248,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10399,
                 CustomerID = "VAFFE",
@@ -5266,7 +5266,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10400,
                 CustomerID = "EASTC",
@@ -5284,7 +5284,7 @@ Winchester Way",
                 ShipPostalCode = "WX3 6FW",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10401,
                 CustomerID = "RATTC",
@@ -5302,7 +5302,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10402,
                 CustomerID = "ERNSH",
@@ -5320,7 +5320,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10403,
                 CustomerID = "ERNSH",
@@ -5338,7 +5338,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10404,
                 CustomerID = "MAGAA",
@@ -5356,7 +5356,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10405,
                 CustomerID = "LINOD",
@@ -5374,7 +5374,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10406,
                 CustomerID = "QUEEN",
@@ -5392,7 +5392,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10407,
                 CustomerID = "OTTIK",
@@ -5410,7 +5410,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10408,
                 CustomerID = "FOLIG",
@@ -5428,7 +5428,7 @@ Winchester Way",
                 ShipPostalCode = "59000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10409,
                 CustomerID = "OCEAN",
@@ -5446,7 +5446,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10410,
                 CustomerID = "BOTTM",
@@ -5464,7 +5464,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10411,
                 CustomerID = "BOTTM",
@@ -5482,7 +5482,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10412,
                 CustomerID = "WARTH",
@@ -5500,7 +5500,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10413,
                 CustomerID = "LAMAI",
@@ -5518,7 +5518,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10414,
                 CustomerID = "FAMIA",
@@ -5536,7 +5536,7 @@ Winchester Way",
                 ShipPostalCode = "05442-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10415,
                 CustomerID = "HUNGC",
@@ -5554,7 +5554,7 @@ Winchester Way",
                 ShipPostalCode = "97827",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10416,
                 CustomerID = "WARTH",
@@ -5572,7 +5572,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10417,
                 CustomerID = "SIMOB",
@@ -5590,7 +5590,7 @@ Winchester Way",
                 ShipPostalCode = "1734",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10418,
                 CustomerID = "QUICK",
@@ -5608,7 +5608,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10419,
                 CustomerID = "RICSU",
@@ -5626,7 +5626,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10420,
                 CustomerID = "WELLI",
@@ -5644,7 +5644,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10421,
                 CustomerID = "QUEDE",
@@ -5662,7 +5662,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10422,
                 CustomerID = "FRANS",
@@ -5680,7 +5680,7 @@ Winchester Way",
                 ShipPostalCode = "10100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10423,
                 CustomerID = "GOURL",
@@ -5698,7 +5698,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10424,
                 CustomerID = "MEREP",
@@ -5716,7 +5716,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10425,
                 CustomerID = "LAMAI",
@@ -5734,7 +5734,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10426,
                 CustomerID = "GALED",
@@ -5752,7 +5752,7 @@ Winchester Way",
                 ShipPostalCode = "8022",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10427,
                 CustomerID = "PICCO",
@@ -5770,7 +5770,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10428,
                 CustomerID = "REGGC",
@@ -5788,7 +5788,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10429,
                 CustomerID = "HUNGO",
@@ -5806,7 +5806,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10430,
                 CustomerID = "ERNSH",
@@ -5824,7 +5824,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10431,
                 CustomerID = "BOTTM",
@@ -5842,7 +5842,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10432,
                 CustomerID = "SPLIR",
@@ -5860,7 +5860,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10433,
                 CustomerID = "PRINI",
@@ -5878,7 +5878,7 @@ Winchester Way",
                 ShipPostalCode = "1756",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10434,
                 CustomerID = "FOLKO",
@@ -5896,7 +5896,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10435,
                 CustomerID = "CONSH",
@@ -5914,7 +5914,7 @@ Winchester Way",
                 ShipPostalCode = "WX1 6LT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10436,
                 CustomerID = "BLONP",
@@ -5932,7 +5932,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10437,
                 CustomerID = "WARTH",
@@ -5950,7 +5950,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10438,
                 CustomerID = "TOMSP",
@@ -5968,7 +5968,7 @@ Winchester Way",
                 ShipPostalCode = "44087",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10439,
                 CustomerID = "MEREP",
@@ -5986,7 +5986,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10440,
                 CustomerID = "SAVEA",
@@ -6004,7 +6004,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10441,
                 CustomerID = "OLDWO",
@@ -6022,7 +6022,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10442,
                 CustomerID = "ERNSH",
@@ -6040,7 +6040,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10443,
                 CustomerID = "REGGC",
@@ -6058,7 +6058,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10444,
                 CustomerID = "BERGS",
@@ -6076,7 +6076,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10445,
                 CustomerID = "BERGS",
@@ -6094,7 +6094,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10446,
                 CustomerID = "TOMSP",
@@ -6112,7 +6112,7 @@ Winchester Way",
                 ShipPostalCode = "44087",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10447,
                 CustomerID = "RICAR",
@@ -6130,7 +6130,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10448,
                 CustomerID = "RANCH",
@@ -6148,7 +6148,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10449,
                 CustomerID = "BLONP",
@@ -6166,7 +6166,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10450,
                 CustomerID = "VICTE",
@@ -6184,7 +6184,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10451,
                 CustomerID = "QUICK",
@@ -6202,7 +6202,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10452,
                 CustomerID = "SAVEA",
@@ -6220,7 +6220,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10453,
                 CustomerID = "AROUT",
@@ -6238,7 +6238,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10454,
                 CustomerID = "LAMAI",
@@ -6256,7 +6256,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10455,
                 CustomerID = "WARTH",
@@ -6274,7 +6274,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10456,
                 CustomerID = "KOENE",
@@ -6292,7 +6292,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10457,
                 CustomerID = "KOENE",
@@ -6310,7 +6310,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10458,
                 CustomerID = "SUPRD",
@@ -6328,7 +6328,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10459,
                 CustomerID = "VICTE",
@@ -6346,7 +6346,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10460,
                 CustomerID = "FOLKO",
@@ -6364,7 +6364,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10461,
                 CustomerID = "LILAS",
@@ -6382,7 +6382,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10462,
                 CustomerID = "CONSH",
@@ -6400,7 +6400,7 @@ Winchester Way",
                 ShipPostalCode = "WX1 6LT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10463,
                 CustomerID = "SUPRD",
@@ -6418,7 +6418,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10464,
                 CustomerID = "FURIB",
@@ -6436,7 +6436,7 @@ Winchester Way",
                 ShipPostalCode = "1675",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10465,
                 CustomerID = "VAFFE",
@@ -6454,7 +6454,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10466,
                 CustomerID = "COMMI",
@@ -6472,7 +6472,7 @@ Winchester Way",
                 ShipPostalCode = "05432-043",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10467,
                 CustomerID = "MAGAA",
@@ -6490,7 +6490,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10468,
                 CustomerID = "KOENE",
@@ -6508,7 +6508,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10469,
                 CustomerID = "WHITC",
@@ -6526,7 +6526,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10470,
                 CustomerID = "BONAP",
@@ -6544,7 +6544,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10471,
                 CustomerID = "BSBEV",
@@ -6562,7 +6562,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10472,
                 CustomerID = "SEVES",
@@ -6580,7 +6580,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10473,
                 CustomerID = "ISLAT",
@@ -6598,7 +6598,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10474,
                 CustomerID = "PERIC",
@@ -6616,7 +6616,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10475,
                 CustomerID = "SUPRD",
@@ -6634,7 +6634,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10476,
                 CustomerID = "HILAA",
@@ -6652,7 +6652,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10477,
                 CustomerID = "PRINI",
@@ -6670,7 +6670,7 @@ Winchester Way",
                 ShipPostalCode = "1756",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10478,
                 CustomerID = "VICTE",
@@ -6688,7 +6688,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10479,
                 CustomerID = "RATTC",
@@ -6706,7 +6706,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10480,
                 CustomerID = "FOLIG",
@@ -6724,7 +6724,7 @@ Winchester Way",
                 ShipPostalCode = "59000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10481,
                 CustomerID = "RICAR",
@@ -6742,7 +6742,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10482,
                 CustomerID = "LAZYK",
@@ -6760,7 +6760,7 @@ Winchester Way",
                 ShipPostalCode = "99362",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10483,
                 CustomerID = "WHITC",
@@ -6778,7 +6778,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10484,
                 CustomerID = "BSBEV",
@@ -6796,7 +6796,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10485,
                 CustomerID = "LINOD",
@@ -6814,7 +6814,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10486,
                 CustomerID = "HILAA",
@@ -6832,7 +6832,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10487,
                 CustomerID = "QUEEN",
@@ -6850,7 +6850,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10488,
                 CustomerID = "FRANK",
@@ -6868,7 +6868,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10489,
                 CustomerID = "PICCO",
@@ -6886,7 +6886,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10490,
                 CustomerID = "HILAA",
@@ -6904,7 +6904,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10491,
                 CustomerID = "FURIB",
@@ -6922,7 +6922,7 @@ Winchester Way",
                 ShipPostalCode = "1675",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10492,
                 CustomerID = "BOTTM",
@@ -6940,7 +6940,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10493,
                 CustomerID = "LAMAI",
@@ -6958,7 +6958,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10494,
                 CustomerID = "COMMI",
@@ -6976,7 +6976,7 @@ Winchester Way",
                 ShipPostalCode = "05432-043",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10495,
                 CustomerID = "LAUGB",
@@ -6994,7 +6994,7 @@ Winchester Way",
                 ShipPostalCode = "V3F 2K1",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10496,
                 CustomerID = "TRADH",
@@ -7012,7 +7012,7 @@ Winchester Way",
                 ShipPostalCode = "05634-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10497,
                 CustomerID = "LEHMS",
@@ -7030,7 +7030,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10498,
                 CustomerID = "HILAA",
@@ -7048,7 +7048,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10499,
                 CustomerID = "LILAS",
@@ -7066,7 +7066,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10500,
                 CustomerID = "LAMAI",
@@ -7084,7 +7084,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10501,
                 CustomerID = "BLAUS",
@@ -7102,7 +7102,7 @@ Winchester Way",
                 ShipPostalCode = "68306",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10502,
                 CustomerID = "PERIC",
@@ -7120,7 +7120,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10503,
                 CustomerID = "HUNGO",
@@ -7138,7 +7138,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10504,
                 CustomerID = "WHITC",
@@ -7156,7 +7156,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10505,
                 CustomerID = "MEREP",
@@ -7174,7 +7174,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10506,
                 CustomerID = "KOENE",
@@ -7192,7 +7192,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10507,
                 CustomerID = "ANTON",
@@ -7210,7 +7210,7 @@ Winchester Way",
                 ShipPostalCode = "05023",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10508,
                 CustomerID = "OTTIK",
@@ -7228,7 +7228,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10509,
                 CustomerID = "BLAUS",
@@ -7246,7 +7246,7 @@ Winchester Way",
                 ShipPostalCode = "68306",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10510,
                 CustomerID = "SAVEA",
@@ -7264,7 +7264,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10511,
                 CustomerID = "BONAP",
@@ -7282,7 +7282,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10512,
                 CustomerID = "FAMIA",
@@ -7300,7 +7300,7 @@ Winchester Way",
                 ShipPostalCode = "05442-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10513,
                 CustomerID = "WANDK",
@@ -7318,7 +7318,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10514,
                 CustomerID = "ERNSH",
@@ -7336,7 +7336,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10515,
                 CustomerID = "QUICK",
@@ -7354,7 +7354,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10516,
                 CustomerID = "HUNGO",
@@ -7372,7 +7372,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10517,
                 CustomerID = "NORTS",
@@ -7390,7 +7390,7 @@ Winchester Way",
                 ShipPostalCode = "SW7 1RZ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10518,
                 CustomerID = "TORTU",
@@ -7408,7 +7408,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10519,
                 CustomerID = "CHOPS",
@@ -7426,7 +7426,7 @@ Winchester Way",
                 ShipPostalCode = "3012",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10520,
                 CustomerID = "SANTG",
@@ -7444,7 +7444,7 @@ Winchester Way",
                 ShipPostalCode = "4110",
                 ShipCountry = "Norway"
             },
-            new Order
+            new()
             {
                 OrderID = 10521,
                 CustomerID = "CACTU",
@@ -7462,7 +7462,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10522,
                 CustomerID = "LEHMS",
@@ -7480,7 +7480,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10523,
                 CustomerID = "SEVES",
@@ -7498,7 +7498,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10524,
                 CustomerID = "BERGS",
@@ -7516,7 +7516,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10525,
                 CustomerID = "BONAP",
@@ -7534,7 +7534,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10526,
                 CustomerID = "WARTH",
@@ -7552,7 +7552,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10527,
                 CustomerID = "QUICK",
@@ -7570,7 +7570,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10528,
                 CustomerID = "GREAL",
@@ -7588,7 +7588,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10529,
                 CustomerID = "MAISD",
@@ -7606,7 +7606,7 @@ Winchester Way",
                 ShipPostalCode = "B-1180",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10530,
                 CustomerID = "PICCO",
@@ -7624,7 +7624,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10531,
                 CustomerID = "OCEAN",
@@ -7642,7 +7642,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10532,
                 CustomerID = "EASTC",
@@ -7660,7 +7660,7 @@ Winchester Way",
                 ShipPostalCode = "WX3 6FW",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10533,
                 CustomerID = "FOLKO",
@@ -7678,7 +7678,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10534,
                 CustomerID = "LEHMS",
@@ -7696,7 +7696,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10535,
                 CustomerID = "ANTON",
@@ -7714,7 +7714,7 @@ Winchester Way",
                 ShipPostalCode = "05023",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10536,
                 CustomerID = "LEHMS",
@@ -7732,7 +7732,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10537,
                 CustomerID = "RICSU",
@@ -7750,7 +7750,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10538,
                 CustomerID = "BSBEV",
@@ -7768,7 +7768,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10539,
                 CustomerID = "BSBEV",
@@ -7786,7 +7786,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10540,
                 CustomerID = "QUICK",
@@ -7804,7 +7804,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10541,
                 CustomerID = "HANAR",
@@ -7822,7 +7822,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10542,
                 CustomerID = "KOENE",
@@ -7840,7 +7840,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10543,
                 CustomerID = "LILAS",
@@ -7858,7 +7858,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10544,
                 CustomerID = "LONEP",
@@ -7876,7 +7876,7 @@ Winchester Way",
                 ShipPostalCode = "97219",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10545,
                 CustomerID = "LAZYK",
@@ -7894,7 +7894,7 @@ Winchester Way",
                 ShipPostalCode = "99362",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10546,
                 CustomerID = "VICTE",
@@ -7912,7 +7912,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10547,
                 CustomerID = "SEVES",
@@ -7930,7 +7930,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10548,
                 CustomerID = "TOMSP",
@@ -7948,7 +7948,7 @@ Winchester Way",
                 ShipPostalCode = "44087",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10549,
                 CustomerID = "QUICK",
@@ -7966,7 +7966,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10550,
                 CustomerID = "GODOS",
@@ -7984,7 +7984,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10551,
                 CustomerID = "FURIB",
@@ -8002,7 +8002,7 @@ Winchester Way",
                 ShipPostalCode = "1675",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10552,
                 CustomerID = "HILAA",
@@ -8020,7 +8020,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10553,
                 CustomerID = "WARTH",
@@ -8038,7 +8038,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10554,
                 CustomerID = "OTTIK",
@@ -8056,7 +8056,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10555,
                 CustomerID = "SAVEA",
@@ -8074,7 +8074,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10556,
                 CustomerID = "SIMOB",
@@ -8092,7 +8092,7 @@ Winchester Way",
                 ShipPostalCode = "1734",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10557,
                 CustomerID = "LEHMS",
@@ -8110,7 +8110,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10558,
                 CustomerID = "AROUT",
@@ -8128,7 +8128,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10559,
                 CustomerID = "BLONP",
@@ -8146,7 +8146,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10560,
                 CustomerID = "FRANK",
@@ -8164,7 +8164,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10561,
                 CustomerID = "FOLKO",
@@ -8182,7 +8182,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10562,
                 CustomerID = "REGGC",
@@ -8200,7 +8200,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10563,
                 CustomerID = "RICAR",
@@ -8218,7 +8218,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10564,
                 CustomerID = "RATTC",
@@ -8236,7 +8236,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10565,
                 CustomerID = "MEREP",
@@ -8254,7 +8254,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10566,
                 CustomerID = "BLONP",
@@ -8272,7 +8272,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10567,
                 CustomerID = "HUNGO",
@@ -8290,7 +8290,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10568,
                 CustomerID = "GALED",
@@ -8308,7 +8308,7 @@ Winchester Way",
                 ShipPostalCode = "8022",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10569,
                 CustomerID = "RATTC",
@@ -8326,7 +8326,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10570,
                 CustomerID = "MEREP",
@@ -8344,7 +8344,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10571,
                 CustomerID = "ERNSH",
@@ -8362,7 +8362,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10572,
                 CustomerID = "BERGS",
@@ -8380,7 +8380,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10573,
                 CustomerID = "ANTON",
@@ -8398,7 +8398,7 @@ Winchester Way",
                 ShipPostalCode = "05023",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10574,
                 CustomerID = "TRAIH",
@@ -8416,7 +8416,7 @@ Winchester Way",
                 ShipPostalCode = "98034",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10575,
                 CustomerID = "MORGK",
@@ -8434,7 +8434,7 @@ Winchester Way",
                 ShipPostalCode = "04179",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10576,
                 CustomerID = "TORTU",
@@ -8452,7 +8452,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10577,
                 CustomerID = "TRAIH",
@@ -8470,7 +8470,7 @@ Winchester Way",
                 ShipPostalCode = "98034",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10578,
                 CustomerID = "BSBEV",
@@ -8488,7 +8488,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10579,
                 CustomerID = "LETSS",
@@ -8506,7 +8506,7 @@ Winchester Way",
                 ShipPostalCode = "94117",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10580,
                 CustomerID = "OTTIK",
@@ -8524,7 +8524,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10581,
                 CustomerID = "FAMIA",
@@ -8542,7 +8542,7 @@ Winchester Way",
                 ShipPostalCode = "05442-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10582,
                 CustomerID = "BLAUS",
@@ -8560,7 +8560,7 @@ Winchester Way",
                 ShipPostalCode = "68306",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10583,
                 CustomerID = "WARTH",
@@ -8578,7 +8578,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10584,
                 CustomerID = "BLONP",
@@ -8596,7 +8596,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10585,
                 CustomerID = "WELLI",
@@ -8614,7 +8614,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10586,
                 CustomerID = "REGGC",
@@ -8632,7 +8632,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10587,
                 CustomerID = "QUEDE",
@@ -8650,7 +8650,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10588,
                 CustomerID = "QUICK",
@@ -8668,7 +8668,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10589,
                 CustomerID = "GREAL",
@@ -8686,7 +8686,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10590,
                 CustomerID = "MEREP",
@@ -8704,7 +8704,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10591,
                 CustomerID = "VAFFE",
@@ -8722,7 +8722,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10592,
                 CustomerID = "LEHMS",
@@ -8740,7 +8740,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10593,
                 CustomerID = "LEHMS",
@@ -8758,7 +8758,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10594,
                 CustomerID = "OLDWO",
@@ -8776,7 +8776,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10595,
                 CustomerID = "ERNSH",
@@ -8794,7 +8794,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10596,
                 CustomerID = "WHITC",
@@ -8812,7 +8812,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10597,
                 CustomerID = "PICCO",
@@ -8830,7 +8830,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10598,
                 CustomerID = "RATTC",
@@ -8848,7 +8848,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10599,
                 CustomerID = "BSBEV",
@@ -8866,7 +8866,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10600,
                 CustomerID = "HUNGC",
@@ -8884,7 +8884,7 @@ Winchester Way",
                 ShipPostalCode = "97827",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10601,
                 CustomerID = "HILAA",
@@ -8902,7 +8902,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10602,
                 CustomerID = "VAFFE",
@@ -8920,7 +8920,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10603,
                 CustomerID = "SAVEA",
@@ -8938,7 +8938,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10604,
                 CustomerID = "FURIB",
@@ -8956,7 +8956,7 @@ Winchester Way",
                 ShipPostalCode = "1675",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10605,
                 CustomerID = "MEREP",
@@ -8974,7 +8974,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10606,
                 CustomerID = "TRADH",
@@ -8992,7 +8992,7 @@ Winchester Way",
                 ShipPostalCode = "05634-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10607,
                 CustomerID = "SAVEA",
@@ -9010,7 +9010,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10608,
                 CustomerID = "TOMSP",
@@ -9028,7 +9028,7 @@ Winchester Way",
                 ShipPostalCode = "44087",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10609,
                 CustomerID = "DUMON",
@@ -9046,7 +9046,7 @@ Winchester Way",
                 ShipPostalCode = "44000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10610,
                 CustomerID = "LAMAI",
@@ -9064,7 +9064,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10611,
                 CustomerID = "WOLZA",
@@ -9082,7 +9082,7 @@ Winchester Way",
                 ShipPostalCode = "01-012",
                 ShipCountry = "Poland"
             },
-            new Order
+            new()
             {
                 OrderID = 10612,
                 CustomerID = "SAVEA",
@@ -9100,7 +9100,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10613,
                 CustomerID = "HILAA",
@@ -9118,7 +9118,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10614,
                 CustomerID = "BLAUS",
@@ -9136,7 +9136,7 @@ Winchester Way",
                 ShipPostalCode = "68306",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10615,
                 CustomerID = "WILMK",
@@ -9154,7 +9154,7 @@ Winchester Way",
                 ShipPostalCode = "21240",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10616,
                 CustomerID = "GREAL",
@@ -9172,7 +9172,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10617,
                 CustomerID = "GREAL",
@@ -9190,7 +9190,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10618,
                 CustomerID = "MEREP",
@@ -9208,7 +9208,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10619,
                 CustomerID = "MEREP",
@@ -9226,7 +9226,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10620,
                 CustomerID = "LAUGB",
@@ -9244,7 +9244,7 @@ Winchester Way",
                 ShipPostalCode = "V3F 2K1",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10621,
                 CustomerID = "ISLAT",
@@ -9262,7 +9262,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10622,
                 CustomerID = "RICAR",
@@ -9280,7 +9280,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10623,
                 CustomerID = "FRANK",
@@ -9298,7 +9298,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10624,
                 CustomerID = "THECR",
@@ -9316,7 +9316,7 @@ Winchester Way",
                 ShipPostalCode = "59801",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10625,
                 CustomerID = "ANATR",
@@ -9334,7 +9334,7 @@ Winchester Way",
                 ShipPostalCode = "05021",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10626,
                 CustomerID = "BERGS",
@@ -9352,7 +9352,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10627,
                 CustomerID = "SAVEA",
@@ -9370,7 +9370,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10628,
                 CustomerID = "BLONP",
@@ -9388,7 +9388,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10629,
                 CustomerID = "GODOS",
@@ -9406,7 +9406,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10630,
                 CustomerID = "KOENE",
@@ -9424,7 +9424,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10631,
                 CustomerID = "LAMAI",
@@ -9442,7 +9442,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10632,
                 CustomerID = "WANDK",
@@ -9460,7 +9460,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10633,
                 CustomerID = "ERNSH",
@@ -9478,7 +9478,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10634,
                 CustomerID = "FOLIG",
@@ -9496,7 +9496,7 @@ Winchester Way",
                 ShipPostalCode = "59000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10635,
                 CustomerID = "MAGAA",
@@ -9514,7 +9514,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10636,
                 CustomerID = "WARTH",
@@ -9532,7 +9532,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10637,
                 CustomerID = "QUEEN",
@@ -9550,7 +9550,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10638,
                 CustomerID = "LINOD",
@@ -9568,7 +9568,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10639,
                 CustomerID = "SANTG",
@@ -9586,7 +9586,7 @@ Winchester Way",
                 ShipPostalCode = "4110",
                 ShipCountry = "Norway"
             },
-            new Order
+            new()
             {
                 OrderID = 10640,
                 CustomerID = "WANDK",
@@ -9604,7 +9604,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10641,
                 CustomerID = "HILAA",
@@ -9622,7 +9622,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10642,
                 CustomerID = "SIMOB",
@@ -9640,7 +9640,7 @@ Winchester Way",
                 ShipPostalCode = "1734",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10643,
                 CustomerID = "ALFKI",
@@ -9658,7 +9658,7 @@ Winchester Way",
                 ShipPostalCode = "12209",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10644,
                 CustomerID = "WELLI",
@@ -9676,7 +9676,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10645,
                 CustomerID = "HANAR",
@@ -9694,7 +9694,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10646,
                 CustomerID = "HUNGO",
@@ -9712,7 +9712,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10647,
                 CustomerID = "QUEDE",
@@ -9730,7 +9730,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10648,
                 CustomerID = "RICAR",
@@ -9748,7 +9748,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10649,
                 CustomerID = "MAISD",
@@ -9766,7 +9766,7 @@ Winchester Way",
                 ShipPostalCode = "B-1180",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10650,
                 CustomerID = "FAMIA",
@@ -9784,7 +9784,7 @@ Winchester Way",
                 ShipPostalCode = "05442-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10651,
                 CustomerID = "WANDK",
@@ -9802,7 +9802,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10652,
                 CustomerID = "GOURL",
@@ -9820,7 +9820,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10653,
                 CustomerID = "FRANK",
@@ -9838,7 +9838,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10654,
                 CustomerID = "BERGS",
@@ -9856,7 +9856,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10655,
                 CustomerID = "REGGC",
@@ -9874,7 +9874,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10656,
                 CustomerID = "GREAL",
@@ -9892,7 +9892,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10657,
                 CustomerID = "SAVEA",
@@ -9910,7 +9910,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10658,
                 CustomerID = "QUICK",
@@ -9928,7 +9928,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10659,
                 CustomerID = "QUEEN",
@@ -9946,7 +9946,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10660,
                 CustomerID = "HUNGC",
@@ -9964,7 +9964,7 @@ Winchester Way",
                 ShipPostalCode = "97827",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10661,
                 CustomerID = "HUNGO",
@@ -9982,7 +9982,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10662,
                 CustomerID = "LONEP",
@@ -10000,7 +10000,7 @@ Winchester Way",
                 ShipPostalCode = "97219",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10663,
                 CustomerID = "BONAP",
@@ -10018,7 +10018,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10664,
                 CustomerID = "FURIB",
@@ -10036,7 +10036,7 @@ Winchester Way",
                 ShipPostalCode = "1675",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10665,
                 CustomerID = "LONEP",
@@ -10054,7 +10054,7 @@ Winchester Way",
                 ShipPostalCode = "97219",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10666,
                 CustomerID = "RICSU",
@@ -10072,7 +10072,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10667,
                 CustomerID = "ERNSH",
@@ -10090,7 +10090,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10668,
                 CustomerID = "WANDK",
@@ -10108,7 +10108,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10669,
                 CustomerID = "SIMOB",
@@ -10126,7 +10126,7 @@ Winchester Way",
                 ShipPostalCode = "1734",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10670,
                 CustomerID = "FRANK",
@@ -10144,7 +10144,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10671,
                 CustomerID = "FRANR",
@@ -10162,7 +10162,7 @@ Winchester Way",
                 ShipPostalCode = "44000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10672,
                 CustomerID = "BERGS",
@@ -10180,7 +10180,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10673,
                 CustomerID = "WILMK",
@@ -10198,7 +10198,7 @@ Winchester Way",
                 ShipPostalCode = "21240",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10674,
                 CustomerID = "ISLAT",
@@ -10216,7 +10216,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10675,
                 CustomerID = "FRANK",
@@ -10234,7 +10234,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10676,
                 CustomerID = "TORTU",
@@ -10252,7 +10252,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10677,
                 CustomerID = "ANTON",
@@ -10270,7 +10270,7 @@ Winchester Way",
                 ShipPostalCode = "05023",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10678,
                 CustomerID = "SAVEA",
@@ -10288,7 +10288,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10679,
                 CustomerID = "BLONP",
@@ -10306,7 +10306,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10680,
                 CustomerID = "OLDWO",
@@ -10324,7 +10324,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10681,
                 CustomerID = "GREAL",
@@ -10342,7 +10342,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10682,
                 CustomerID = "ANTON",
@@ -10360,7 +10360,7 @@ Winchester Way",
                 ShipPostalCode = "05023",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10683,
                 CustomerID = "DUMON",
@@ -10378,7 +10378,7 @@ Winchester Way",
                 ShipPostalCode = "44000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10684,
                 CustomerID = "OTTIK",
@@ -10396,7 +10396,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10685,
                 CustomerID = "GOURL",
@@ -10414,7 +10414,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10686,
                 CustomerID = "PICCO",
@@ -10432,7 +10432,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10687,
                 CustomerID = "HUNGO",
@@ -10450,7 +10450,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10688,
                 CustomerID = "VAFFE",
@@ -10468,7 +10468,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10689,
                 CustomerID = "BERGS",
@@ -10486,7 +10486,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10690,
                 CustomerID = "HANAR",
@@ -10504,7 +10504,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10691,
                 CustomerID = "QUICK",
@@ -10522,7 +10522,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10692,
                 CustomerID = "ALFKI",
@@ -10540,7 +10540,7 @@ Winchester Way",
                 ShipPostalCode = "12209",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10693,
                 CustomerID = "WHITC",
@@ -10558,7 +10558,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10694,
                 CustomerID = "QUICK",
@@ -10576,7 +10576,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10695,
                 CustomerID = "WILMK",
@@ -10594,7 +10594,7 @@ Winchester Way",
                 ShipPostalCode = "21240",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10696,
                 CustomerID = "WHITC",
@@ -10612,7 +10612,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10697,
                 CustomerID = "LINOD",
@@ -10630,7 +10630,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10698,
                 CustomerID = "ERNSH",
@@ -10648,7 +10648,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10699,
                 CustomerID = "MORGK",
@@ -10666,7 +10666,7 @@ Winchester Way",
                 ShipPostalCode = "04179",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10700,
                 CustomerID = "SAVEA",
@@ -10684,7 +10684,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10701,
                 CustomerID = "HUNGO",
@@ -10702,7 +10702,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10702,
                 CustomerID = "ALFKI",
@@ -10720,7 +10720,7 @@ Winchester Way",
                 ShipPostalCode = "12209",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10703,
                 CustomerID = "FOLKO",
@@ -10738,7 +10738,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10704,
                 CustomerID = "QUEEN",
@@ -10756,7 +10756,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10705,
                 CustomerID = "HILAA",
@@ -10774,7 +10774,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10706,
                 CustomerID = "OLDWO",
@@ -10792,7 +10792,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10707,
                 CustomerID = "AROUT",
@@ -10810,7 +10810,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10708,
                 CustomerID = "THEBI",
@@ -10828,7 +10828,7 @@ Winchester Way",
                 ShipPostalCode = "97201",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10709,
                 CustomerID = "GOURL",
@@ -10846,7 +10846,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10710,
                 CustomerID = "FRANS",
@@ -10864,7 +10864,7 @@ Winchester Way",
                 ShipPostalCode = "10100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10711,
                 CustomerID = "SAVEA",
@@ -10882,7 +10882,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10712,
                 CustomerID = "HUNGO",
@@ -10900,7 +10900,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10713,
                 CustomerID = "SAVEA",
@@ -10918,7 +10918,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10714,
                 CustomerID = "SAVEA",
@@ -10936,7 +10936,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10715,
                 CustomerID = "BONAP",
@@ -10954,7 +10954,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10716,
                 CustomerID = "RANCH",
@@ -10972,7 +10972,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10717,
                 CustomerID = "FRANK",
@@ -10990,7 +10990,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10718,
                 CustomerID = "KOENE",
@@ -11008,7 +11008,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10719,
                 CustomerID = "LETSS",
@@ -11026,7 +11026,7 @@ Winchester Way",
                 ShipPostalCode = "94117",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10720,
                 CustomerID = "QUEDE",
@@ -11044,7 +11044,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10721,
                 CustomerID = "QUICK",
@@ -11062,7 +11062,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10722,
                 CustomerID = "SAVEA",
@@ -11080,7 +11080,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10723,
                 CustomerID = "WHITC",
@@ -11098,7 +11098,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10724,
                 CustomerID = "MEREP",
@@ -11116,7 +11116,7 @@ Winchester Way",
                 ShipPostalCode = "H1J 1C3",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10725,
                 CustomerID = "FAMIA",
@@ -11134,7 +11134,7 @@ Winchester Way",
                 ShipPostalCode = "05442-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10726,
                 CustomerID = "EASTC",
@@ -11152,7 +11152,7 @@ Winchester Way",
                 ShipPostalCode = "WX3 6FW",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10727,
                 CustomerID = "REGGC",
@@ -11170,7 +11170,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10728,
                 CustomerID = "QUEEN",
@@ -11188,7 +11188,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10729,
                 CustomerID = "LINOD",
@@ -11206,7 +11206,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10730,
                 CustomerID = "BONAP",
@@ -11224,7 +11224,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10731,
                 CustomerID = "CHOPS",
@@ -11242,7 +11242,7 @@ Winchester Way",
                 ShipPostalCode = "3012",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10732,
                 CustomerID = "BONAP",
@@ -11260,7 +11260,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10733,
                 CustomerID = "BERGS",
@@ -11278,7 +11278,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10734,
                 CustomerID = "GOURL",
@@ -11296,7 +11296,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10735,
                 CustomerID = "LETSS",
@@ -11314,7 +11314,7 @@ Winchester Way",
                 ShipPostalCode = "94117",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10736,
                 CustomerID = "HUNGO",
@@ -11332,7 +11332,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10737,
                 CustomerID = "VINET",
@@ -11350,7 +11350,7 @@ Winchester Way",
                 ShipPostalCode = "51100",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10738,
                 CustomerID = "SPECD",
@@ -11368,7 +11368,7 @@ Winchester Way",
                 ShipPostalCode = "75016",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10739,
                 CustomerID = "VINET",
@@ -11386,7 +11386,7 @@ Winchester Way",
                 ShipPostalCode = "51100",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10740,
                 CustomerID = "WHITC",
@@ -11404,7 +11404,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10741,
                 CustomerID = "AROUT",
@@ -11422,7 +11422,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10742,
                 CustomerID = "BOTTM",
@@ -11440,7 +11440,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10743,
                 CustomerID = "AROUT",
@@ -11458,7 +11458,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10744,
                 CustomerID = "VAFFE",
@@ -11476,7 +11476,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10745,
                 CustomerID = "QUICK",
@@ -11494,7 +11494,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10746,
                 CustomerID = "CHOPS",
@@ -11512,7 +11512,7 @@ Winchester Way",
                 ShipPostalCode = "3012",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10747,
                 CustomerID = "PICCO",
@@ -11530,7 +11530,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10748,
                 CustomerID = "SAVEA",
@@ -11548,7 +11548,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10749,
                 CustomerID = "ISLAT",
@@ -11566,7 +11566,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10750,
                 CustomerID = "WARTH",
@@ -11584,7 +11584,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10751,
                 CustomerID = "RICSU",
@@ -11602,7 +11602,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10752,
                 CustomerID = "NORTS",
@@ -11620,7 +11620,7 @@ Winchester Way",
                 ShipPostalCode = "SW7 1RZ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10753,
                 CustomerID = "FRANS",
@@ -11638,7 +11638,7 @@ Winchester Way",
                 ShipPostalCode = "10100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10754,
                 CustomerID = "MAGAA",
@@ -11656,7 +11656,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10755,
                 CustomerID = "BONAP",
@@ -11674,7 +11674,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10756,
                 CustomerID = "SPLIR",
@@ -11692,7 +11692,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10757,
                 CustomerID = "SAVEA",
@@ -11710,7 +11710,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10758,
                 CustomerID = "RICSU",
@@ -11728,7 +11728,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10759,
                 CustomerID = "ANATR",
@@ -11746,7 +11746,7 @@ Winchester Way",
                 ShipPostalCode = "05021",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10760,
                 CustomerID = "MAISD",
@@ -11764,7 +11764,7 @@ Winchester Way",
                 ShipPostalCode = "B-1180",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10761,
                 CustomerID = "RATTC",
@@ -11782,7 +11782,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10762,
                 CustomerID = "FOLKO",
@@ -11800,7 +11800,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10763,
                 CustomerID = "FOLIG",
@@ -11818,7 +11818,7 @@ Winchester Way",
                 ShipPostalCode = "59000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10764,
                 CustomerID = "ERNSH",
@@ -11836,7 +11836,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10765,
                 CustomerID = "QUICK",
@@ -11854,7 +11854,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10766,
                 CustomerID = "OTTIK",
@@ -11872,7 +11872,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10767,
                 CustomerID = "SUPRD",
@@ -11890,7 +11890,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10768,
                 CustomerID = "AROUT",
@@ -11908,7 +11908,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10769,
                 CustomerID = "VAFFE",
@@ -11926,7 +11926,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10770,
                 CustomerID = "HANAR",
@@ -11944,7 +11944,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10771,
                 CustomerID = "ERNSH",
@@ -11962,7 +11962,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10772,
                 CustomerID = "LEHMS",
@@ -11980,7 +11980,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10773,
                 CustomerID = "ERNSH",
@@ -11998,7 +11998,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10774,
                 CustomerID = "FOLKO",
@@ -12016,7 +12016,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10775,
                 CustomerID = "THECR",
@@ -12034,7 +12034,7 @@ Winchester Way",
                 ShipPostalCode = "59801",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10776,
                 CustomerID = "ERNSH",
@@ -12052,7 +12052,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10777,
                 CustomerID = "GOURL",
@@ -12070,7 +12070,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10778,
                 CustomerID = "BERGS",
@@ -12088,7 +12088,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10779,
                 CustomerID = "MORGK",
@@ -12106,7 +12106,7 @@ Winchester Way",
                 ShipPostalCode = "04179",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10780,
                 CustomerID = "LILAS",
@@ -12124,7 +12124,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10781,
                 CustomerID = "WARTH",
@@ -12142,7 +12142,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10782,
                 CustomerID = "CACTU",
@@ -12160,7 +12160,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10783,
                 CustomerID = "HANAR",
@@ -12178,7 +12178,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10784,
                 CustomerID = "MAGAA",
@@ -12196,7 +12196,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10785,
                 CustomerID = "GROSR",
@@ -12214,7 +12214,7 @@ Winchester Way",
                 ShipPostalCode = "1081",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10786,
                 CustomerID = "QUEEN",
@@ -12232,7 +12232,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10787,
                 CustomerID = "LAMAI",
@@ -12250,7 +12250,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10788,
                 CustomerID = "QUICK",
@@ -12268,7 +12268,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10789,
                 CustomerID = "FOLIG",
@@ -12286,7 +12286,7 @@ Winchester Way",
                 ShipPostalCode = "59000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10790,
                 CustomerID = "GOURL",
@@ -12304,7 +12304,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10791,
                 CustomerID = "FRANK",
@@ -12322,7 +12322,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10792,
                 CustomerID = "WOLZA",
@@ -12340,7 +12340,7 @@ Winchester Way",
                 ShipPostalCode = "01-012",
                 ShipCountry = "Poland"
             },
-            new Order
+            new()
             {
                 OrderID = 10793,
                 CustomerID = "AROUT",
@@ -12358,7 +12358,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10794,
                 CustomerID = "QUEDE",
@@ -12376,7 +12376,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10795,
                 CustomerID = "ERNSH",
@@ -12394,7 +12394,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10796,
                 CustomerID = "HILAA",
@@ -12412,7 +12412,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10797,
                 CustomerID = "DRACD",
@@ -12430,7 +12430,7 @@ Winchester Way",
                 ShipPostalCode = "52066",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10798,
                 CustomerID = "ISLAT",
@@ -12448,7 +12448,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10799,
                 CustomerID = "KOENE",
@@ -12466,7 +12466,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10800,
                 CustomerID = "SEVES",
@@ -12484,7 +12484,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10801,
                 CustomerID = "BOLID",
@@ -12502,7 +12502,7 @@ Winchester Way",
                 ShipPostalCode = "28023",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10802,
                 CustomerID = "SIMOB",
@@ -12520,7 +12520,7 @@ Winchester Way",
                 ShipPostalCode = "1734",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10803,
                 CustomerID = "WELLI",
@@ -12538,7 +12538,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10804,
                 CustomerID = "SEVES",
@@ -12556,7 +12556,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10805,
                 CustomerID = "THEBI",
@@ -12574,7 +12574,7 @@ Winchester Way",
                 ShipPostalCode = "97201",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10806,
                 CustomerID = "VICTE",
@@ -12592,7 +12592,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10807,
                 CustomerID = "FRANS",
@@ -12610,7 +12610,7 @@ Winchester Way",
                 ShipPostalCode = "10100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10808,
                 CustomerID = "OLDWO",
@@ -12628,7 +12628,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10809,
                 CustomerID = "WELLI",
@@ -12646,7 +12646,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10810,
                 CustomerID = "LAUGB",
@@ -12664,7 +12664,7 @@ Winchester Way",
                 ShipPostalCode = "V3F 2K1",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10811,
                 CustomerID = "LINOD",
@@ -12682,7 +12682,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10812,
                 CustomerID = "REGGC",
@@ -12700,7 +12700,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10813,
                 CustomerID = "RICAR",
@@ -12718,7 +12718,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10814,
                 CustomerID = "VICTE",
@@ -12736,7 +12736,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10815,
                 CustomerID = "SAVEA",
@@ -12754,7 +12754,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10816,
                 CustomerID = "GREAL",
@@ -12772,7 +12772,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10817,
                 CustomerID = "KOENE",
@@ -12790,7 +12790,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10818,
                 CustomerID = "MAGAA",
@@ -12808,7 +12808,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10819,
                 CustomerID = "CACTU",
@@ -12826,7 +12826,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10820,
                 CustomerID = "RATTC",
@@ -12844,7 +12844,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10821,
                 CustomerID = "SPLIR",
@@ -12862,7 +12862,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10822,
                 CustomerID = "TRAIH",
@@ -12880,7 +12880,7 @@ Winchester Way",
                 ShipPostalCode = "98034",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10823,
                 CustomerID = "LILAS",
@@ -12898,7 +12898,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10824,
                 CustomerID = "FOLKO",
@@ -12916,7 +12916,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10825,
                 CustomerID = "DRACD",
@@ -12934,7 +12934,7 @@ Winchester Way",
                 ShipPostalCode = "52066",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10826,
                 CustomerID = "BLONP",
@@ -12952,7 +12952,7 @@ Winchester Way",
                 ShipPostalCode = "67000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10827,
                 CustomerID = "BONAP",
@@ -12970,7 +12970,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10828,
                 CustomerID = "RANCH",
@@ -12988,7 +12988,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10829,
                 CustomerID = "ISLAT",
@@ -13006,7 +13006,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10830,
                 CustomerID = "TRADH",
@@ -13024,7 +13024,7 @@ Winchester Way",
                 ShipPostalCode = "05634-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10831,
                 CustomerID = "SANTG",
@@ -13042,7 +13042,7 @@ Winchester Way",
                 ShipPostalCode = "4110",
                 ShipCountry = "Norway"
             },
-            new Order
+            new()
             {
                 OrderID = 10832,
                 CustomerID = "LAMAI",
@@ -13060,7 +13060,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10833,
                 CustomerID = "OTTIK",
@@ -13078,7 +13078,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10834,
                 CustomerID = "TRADH",
@@ -13096,7 +13096,7 @@ Winchester Way",
                 ShipPostalCode = "05634-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10835,
                 CustomerID = "ALFKI",
@@ -13114,7 +13114,7 @@ Winchester Way",
                 ShipPostalCode = "12209",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10836,
                 CustomerID = "ERNSH",
@@ -13132,7 +13132,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10837,
                 CustomerID = "BERGS",
@@ -13150,7 +13150,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10838,
                 CustomerID = "LINOD",
@@ -13168,7 +13168,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10839,
                 CustomerID = "TRADH",
@@ -13186,7 +13186,7 @@ Winchester Way",
                 ShipPostalCode = "05634-030",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10840,
                 CustomerID = "LINOD",
@@ -13204,7 +13204,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10841,
                 CustomerID = "SUPRD",
@@ -13222,7 +13222,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10842,
                 CustomerID = "TORTU",
@@ -13240,7 +13240,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10843,
                 CustomerID = "VICTE",
@@ -13258,7 +13258,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10844,
                 CustomerID = "PICCO",
@@ -13276,7 +13276,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10845,
                 CustomerID = "QUICK",
@@ -13294,7 +13294,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10846,
                 CustomerID = "SUPRD",
@@ -13312,7 +13312,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10847,
                 CustomerID = "SAVEA",
@@ -13330,7 +13330,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10848,
                 CustomerID = "CONSH",
@@ -13348,7 +13348,7 @@ Winchester Way",
                 ShipPostalCode = "WX1 6LT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10849,
                 CustomerID = "KOENE",
@@ -13366,7 +13366,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10850,
                 CustomerID = "VICTE",
@@ -13384,7 +13384,7 @@ Winchester Way",
                 ShipPostalCode = "69004",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10851,
                 CustomerID = "RICAR",
@@ -13402,7 +13402,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10852,
                 CustomerID = "RATTC",
@@ -13420,7 +13420,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10853,
                 CustomerID = "BLAUS",
@@ -13438,7 +13438,7 @@ Winchester Way",
                 ShipPostalCode = "68306",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10854,
                 CustomerID = "ERNSH",
@@ -13456,7 +13456,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10855,
                 CustomerID = "OLDWO",
@@ -13474,7 +13474,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10856,
                 CustomerID = "ANTON",
@@ -13492,7 +13492,7 @@ Winchester Way",
                 ShipPostalCode = "05023",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10857,
                 CustomerID = "BERGS",
@@ -13510,7 +13510,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10858,
                 CustomerID = "LACOR",
@@ -13528,7 +13528,7 @@ Winchester Way",
                 ShipPostalCode = "78000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10859,
                 CustomerID = "FRANK",
@@ -13546,7 +13546,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10860,
                 CustomerID = "FRANR",
@@ -13564,7 +13564,7 @@ Winchester Way",
                 ShipPostalCode = "44000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10861,
                 CustomerID = "WHITC",
@@ -13582,7 +13582,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10862,
                 CustomerID = "LEHMS",
@@ -13600,7 +13600,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10863,
                 CustomerID = "HILAA",
@@ -13618,7 +13618,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10864,
                 CustomerID = "AROUT",
@@ -13636,7 +13636,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10865,
                 CustomerID = "QUICK",
@@ -13654,7 +13654,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10866,
                 CustomerID = "BERGS",
@@ -13672,7 +13672,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10867,
                 CustomerID = "LONEP",
@@ -13690,7 +13690,7 @@ Winchester Way",
                 ShipPostalCode = "97219",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10868,
                 CustomerID = "QUEEN",
@@ -13708,7 +13708,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10869,
                 CustomerID = "SEVES",
@@ -13726,7 +13726,7 @@ Winchester Way",
                 ShipPostalCode = "OX15 4NB",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10870,
                 CustomerID = "WOLZA",
@@ -13744,7 +13744,7 @@ Winchester Way",
                 ShipPostalCode = "01-012",
                 ShipCountry = "Poland"
             },
-            new Order
+            new()
             {
                 OrderID = 10871,
                 CustomerID = "BONAP",
@@ -13762,7 +13762,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10872,
                 CustomerID = "GODOS",
@@ -13780,7 +13780,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10873,
                 CustomerID = "WILMK",
@@ -13798,7 +13798,7 @@ Winchester Way",
                 ShipPostalCode = "21240",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10874,
                 CustomerID = "GODOS",
@@ -13816,7 +13816,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10875,
                 CustomerID = "BERGS",
@@ -13834,7 +13834,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10876,
                 CustomerID = "BONAP",
@@ -13852,7 +13852,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10877,
                 CustomerID = "RICAR",
@@ -13870,7 +13870,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10878,
                 CustomerID = "QUICK",
@@ -13888,7 +13888,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10879,
                 CustomerID = "WILMK",
@@ -13906,7 +13906,7 @@ Winchester Way",
                 ShipPostalCode = "21240",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10880,
                 CustomerID = "FOLKO",
@@ -13924,7 +13924,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10881,
                 CustomerID = "CACTU",
@@ -13942,7 +13942,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10882,
                 CustomerID = "SAVEA",
@@ -13960,7 +13960,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10883,
                 CustomerID = "LONEP",
@@ -13978,7 +13978,7 @@ Winchester Way",
                 ShipPostalCode = "97219",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10884,
                 CustomerID = "LETSS",
@@ -13996,7 +13996,7 @@ Winchester Way",
                 ShipPostalCode = "94117",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10885,
                 CustomerID = "SUPRD",
@@ -14014,7 +14014,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10886,
                 CustomerID = "HANAR",
@@ -14032,7 +14032,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10887,
                 CustomerID = "GALED",
@@ -14050,7 +14050,7 @@ Winchester Way",
                 ShipPostalCode = "8022",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10888,
                 CustomerID = "GODOS",
@@ -14068,7 +14068,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10889,
                 CustomerID = "RATTC",
@@ -14086,7 +14086,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10890,
                 CustomerID = "DUMON",
@@ -14104,7 +14104,7 @@ Winchester Way",
                 ShipPostalCode = "44000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10891,
                 CustomerID = "LEHMS",
@@ -14122,7 +14122,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10892,
                 CustomerID = "MAISD",
@@ -14140,7 +14140,7 @@ Winchester Way",
                 ShipPostalCode = "B-1180",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10893,
                 CustomerID = "KOENE",
@@ -14158,7 +14158,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10894,
                 CustomerID = "SAVEA",
@@ -14176,7 +14176,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10895,
                 CustomerID = "ERNSH",
@@ -14194,7 +14194,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10896,
                 CustomerID = "MAISD",
@@ -14212,7 +14212,7 @@ Winchester Way",
                 ShipPostalCode = "B-1180",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10897,
                 CustomerID = "HUNGO",
@@ -14230,7 +14230,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10898,
                 CustomerID = "OCEAN",
@@ -14248,7 +14248,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10899,
                 CustomerID = "LILAS",
@@ -14266,7 +14266,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10900,
                 CustomerID = "WELLI",
@@ -14284,7 +14284,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10901,
                 CustomerID = "HILAA",
@@ -14302,7 +14302,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10902,
                 CustomerID = "FOLKO",
@@ -14320,7 +14320,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10903,
                 CustomerID = "HANAR",
@@ -14338,7 +14338,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10904,
                 CustomerID = "WHITC",
@@ -14356,7 +14356,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10905,
                 CustomerID = "WELLI",
@@ -14374,7 +14374,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10906,
                 CustomerID = "WOLZA",
@@ -14392,7 +14392,7 @@ Winchester Way",
                 ShipPostalCode = "01-012",
                 ShipCountry = "Poland"
             },
-            new Order
+            new()
             {
                 OrderID = 10907,
                 CustomerID = "SPECD",
@@ -14410,7 +14410,7 @@ Winchester Way",
                 ShipPostalCode = "75016",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10908,
                 CustomerID = "REGGC",
@@ -14428,7 +14428,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10909,
                 CustomerID = "SANTG",
@@ -14446,7 +14446,7 @@ Winchester Way",
                 ShipPostalCode = "4110",
                 ShipCountry = "Norway"
             },
-            new Order
+            new()
             {
                 OrderID = 10910,
                 CustomerID = "WILMK",
@@ -14464,7 +14464,7 @@ Winchester Way",
                 ShipPostalCode = "21240",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 10911,
                 CustomerID = "GODOS",
@@ -14482,7 +14482,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10912,
                 CustomerID = "HUNGO",
@@ -14500,7 +14500,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10913,
                 CustomerID = "QUEEN",
@@ -14518,7 +14518,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10914,
                 CustomerID = "QUEEN",
@@ -14536,7 +14536,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10915,
                 CustomerID = "TORTU",
@@ -14554,7 +14554,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10916,
                 CustomerID = "RANCH",
@@ -14572,7 +14572,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10917,
                 CustomerID = "ROMEY",
@@ -14590,7 +14590,7 @@ Winchester Way",
                 ShipPostalCode = "28001",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10918,
                 CustomerID = "BOTTM",
@@ -14608,7 +14608,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10919,
                 CustomerID = "LINOD",
@@ -14626,7 +14626,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10920,
                 CustomerID = "AROUT",
@@ -14644,7 +14644,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10921,
                 CustomerID = "VAFFE",
@@ -14662,7 +14662,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10922,
                 CustomerID = "HANAR",
@@ -14680,7 +14680,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10923,
                 CustomerID = "LAMAI",
@@ -14698,7 +14698,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10924,
                 CustomerID = "BERGS",
@@ -14716,7 +14716,7 @@ Winchester Way",
                 ShipPostalCode = "S-958 22",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10925,
                 CustomerID = "HANAR",
@@ -14734,7 +14734,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10926,
                 CustomerID = "ANATR",
@@ -14752,7 +14752,7 @@ Winchester Way",
                 ShipPostalCode = "05021",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10927,
                 CustomerID = "LACOR",
@@ -14770,7 +14770,7 @@ Winchester Way",
                 ShipPostalCode = "78000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10928,
                 CustomerID = "GALED",
@@ -14788,7 +14788,7 @@ Winchester Way",
                 ShipPostalCode = "8022",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10929,
                 CustomerID = "FRANK",
@@ -14806,7 +14806,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10930,
                 CustomerID = "SUPRD",
@@ -14824,7 +14824,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10931,
                 CustomerID = "RICSU",
@@ -14842,7 +14842,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10932,
                 CustomerID = "BONAP",
@@ -14860,7 +14860,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10933,
                 CustomerID = "ISLAT",
@@ -14878,7 +14878,7 @@ Winchester Way",
                 ShipPostalCode = "PO31 7PJ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10934,
                 CustomerID = "LEHMS",
@@ -14896,7 +14896,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10935,
                 CustomerID = "WELLI",
@@ -14914,7 +14914,7 @@ Winchester Way",
                 ShipPostalCode = "08737-363",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10936,
                 CustomerID = "GREAL",
@@ -14932,7 +14932,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10937,
                 CustomerID = "CACTU",
@@ -14950,7 +14950,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10938,
                 CustomerID = "QUICK",
@@ -14968,7 +14968,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10939,
                 CustomerID = "MAGAA",
@@ -14986,7 +14986,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10940,
                 CustomerID = "BONAP",
@@ -15004,7 +15004,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10941,
                 CustomerID = "SAVEA",
@@ -15022,7 +15022,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10942,
                 CustomerID = "REGGC",
@@ -15040,7 +15040,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10943,
                 CustomerID = "BSBEV",
@@ -15058,7 +15058,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10944,
                 CustomerID = "BOTTM",
@@ -15076,7 +15076,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10945,
                 CustomerID = "MORGK",
@@ -15094,7 +15094,7 @@ Winchester Way",
                 ShipPostalCode = "04179",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10946,
                 CustomerID = "VAFFE",
@@ -15112,7 +15112,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10947,
                 CustomerID = "BSBEV",
@@ -15130,7 +15130,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10948,
                 CustomerID = "GODOS",
@@ -15148,7 +15148,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10949,
                 CustomerID = "BOTTM",
@@ -15166,7 +15166,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10950,
                 CustomerID = "MAGAA",
@@ -15184,7 +15184,7 @@ Winchester Way",
                 ShipPostalCode = "24100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 10951,
                 CustomerID = "RICSU",
@@ -15202,7 +15202,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10952,
                 CustomerID = "ALFKI",
@@ -15220,7 +15220,7 @@ Winchester Way",
                 ShipPostalCode = "12209",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10953,
                 CustomerID = "AROUT",
@@ -15238,7 +15238,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10954,
                 CustomerID = "LINOD",
@@ -15256,7 +15256,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10955,
                 CustomerID = "FOLKO",
@@ -15274,7 +15274,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10956,
                 CustomerID = "BLAUS",
@@ -15292,7 +15292,7 @@ Winchester Way",
                 ShipPostalCode = "68306",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10957,
                 CustomerID = "HILAA",
@@ -15310,7 +15310,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10958,
                 CustomerID = "OCEAN",
@@ -15328,7 +15328,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10959,
                 CustomerID = "GOURL",
@@ -15346,7 +15346,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10960,
                 CustomerID = "HILAA",
@@ -15364,7 +15364,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10961,
                 CustomerID = "QUEEN",
@@ -15382,7 +15382,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10962,
                 CustomerID = "QUICK",
@@ -15400,7 +15400,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10963,
                 CustomerID = "FURIB",
@@ -15418,7 +15418,7 @@ Winchester Way",
                 ShipPostalCode = "1675",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 10964,
                 CustomerID = "SPECD",
@@ -15436,7 +15436,7 @@ Winchester Way",
                 ShipPostalCode = "75016",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10965,
                 CustomerID = "OLDWO",
@@ -15454,7 +15454,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10966,
                 CustomerID = "CHOPS",
@@ -15472,7 +15472,7 @@ Winchester Way",
                 ShipPostalCode = "3012",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 10967,
                 CustomerID = "TOMSP",
@@ -15490,7 +15490,7 @@ Winchester Way",
                 ShipPostalCode = "44087",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10968,
                 CustomerID = "ERNSH",
@@ -15508,7 +15508,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10969,
                 CustomerID = "COMMI",
@@ -15526,7 +15526,7 @@ Winchester Way",
                 ShipPostalCode = "05432-043",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10970,
                 CustomerID = "BOLID",
@@ -15544,7 +15544,7 @@ Winchester Way",
                 ShipPostalCode = "28023",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 10971,
                 CustomerID = "FRANR",
@@ -15562,7 +15562,7 @@ Winchester Way",
                 ShipPostalCode = "44000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10972,
                 CustomerID = "LACOR",
@@ -15580,7 +15580,7 @@ Winchester Way",
                 ShipPostalCode = "78000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10973,
                 CustomerID = "LACOR",
@@ -15598,7 +15598,7 @@ Winchester Way",
                 ShipPostalCode = "78000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 10974,
                 CustomerID = "SPLIR",
@@ -15616,7 +15616,7 @@ Winchester Way",
                 ShipPostalCode = "82520",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10975,
                 CustomerID = "BOTTM",
@@ -15634,7 +15634,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10976,
                 CustomerID = "HILAA",
@@ -15652,7 +15652,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10977,
                 CustomerID = "FOLKO",
@@ -15670,7 +15670,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10978,
                 CustomerID = "MAISD",
@@ -15688,7 +15688,7 @@ Winchester Way",
                 ShipPostalCode = "B-1180",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 10979,
                 CustomerID = "ERNSH",
@@ -15706,7 +15706,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10980,
                 CustomerID = "FOLKO",
@@ -15724,7 +15724,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10981,
                 CustomerID = "HANAR",
@@ -15742,7 +15742,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10982,
                 CustomerID = "BOTTM",
@@ -15760,7 +15760,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 10983,
                 CustomerID = "SAVEA",
@@ -15778,7 +15778,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10984,
                 CustomerID = "SAVEA",
@@ -15796,7 +15796,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10985,
                 CustomerID = "HUNGO",
@@ -15814,7 +15814,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 10986,
                 CustomerID = "OCEAN",
@@ -15832,7 +15832,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 10987,
                 CustomerID = "EASTC",
@@ -15850,7 +15850,7 @@ Winchester Way",
                 ShipPostalCode = "WX3 6FW",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 10988,
                 CustomerID = "RATTC",
@@ -15868,7 +15868,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10989,
                 CustomerID = "QUEDE",
@@ -15886,7 +15886,7 @@ Winchester Way",
                 ShipPostalCode = "02389-673",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 10990,
                 CustomerID = "ERNSH",
@@ -15904,7 +15904,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 10991,
                 CustomerID = "QUICK",
@@ -15922,7 +15922,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10992,
                 CustomerID = "THEBI",
@@ -15940,7 +15940,7 @@ Winchester Way",
                 ShipPostalCode = "97201",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 10993,
                 CustomerID = "FOLKO",
@@ -15958,7 +15958,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 10994,
                 CustomerID = "VAFFE",
@@ -15976,7 +15976,7 @@ Winchester Way",
                 ShipPostalCode = "8200",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 10995,
                 CustomerID = "PERIC",
@@ -15994,7 +15994,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 10996,
                 CustomerID = "QUICK",
@@ -16012,7 +16012,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 10997,
                 CustomerID = "LILAS",
@@ -16030,7 +16030,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 10998,
                 CustomerID = "WOLZA",
@@ -16048,7 +16048,7 @@ Winchester Way",
                 ShipPostalCode = "01-012",
                 ShipCountry = "Poland"
             },
-            new Order
+            new()
             {
                 OrderID = 10999,
                 CustomerID = "OTTIK",
@@ -16066,7 +16066,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11000,
                 CustomerID = "RATTC",
@@ -16084,7 +16084,7 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11001,
                 CustomerID = "FOLKO",
@@ -16102,7 +16102,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 11002,
                 CustomerID = "SAVEA",
@@ -16120,7 +16120,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11003,
                 CustomerID = "THECR",
@@ -16138,7 +16138,7 @@ Winchester Way",
                 ShipPostalCode = "59801",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11004,
                 CustomerID = "MAISD",
@@ -16156,7 +16156,7 @@ Winchester Way",
                 ShipPostalCode = "B-1180",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 11005,
                 CustomerID = "WILMK",
@@ -16174,7 +16174,7 @@ Winchester Way",
                 ShipPostalCode = "21240",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 11006,
                 CustomerID = "GREAL",
@@ -16192,7 +16192,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11007,
                 CustomerID = "PRINI",
@@ -16210,7 +16210,7 @@ Winchester Way",
                 ShipPostalCode = "1756",
                 ShipCountry = "Portugal"
             },
-            new Order
+            new()
             {
                 OrderID = 11008,
                 CustomerID = "ERNSH",
@@ -16228,7 +16228,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 11009,
                 CustomerID = "GODOS",
@@ -16246,7 +16246,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 11010,
                 CustomerID = "REGGC",
@@ -16264,7 +16264,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 11011,
                 CustomerID = "ALFKI",
@@ -16282,7 +16282,7 @@ Winchester Way",
                 ShipPostalCode = "12209",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11012,
                 CustomerID = "FRANK",
@@ -16300,7 +16300,7 @@ Winchester Way",
                 ShipPostalCode = "80805",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11013,
                 CustomerID = "ROMEY",
@@ -16318,7 +16318,7 @@ Winchester Way",
                 ShipPostalCode = "28001",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 11014,
                 CustomerID = "LINOD",
@@ -16336,7 +16336,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 11015,
                 CustomerID = "SANTG",
@@ -16354,7 +16354,7 @@ Winchester Way",
                 ShipPostalCode = "4110",
                 ShipCountry = "Norway"
             },
-            new Order
+            new()
             {
                 OrderID = 11016,
                 CustomerID = "AROUT",
@@ -16372,7 +16372,7 @@ Winchester Way",
                 ShipPostalCode = "CO7 6JX",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 11017,
                 CustomerID = "ERNSH",
@@ -16390,7 +16390,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 11018,
                 CustomerID = "LONEP",
@@ -16408,7 +16408,7 @@ Winchester Way",
                 ShipPostalCode = "97219",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11019,
                 CustomerID = "RANCH",
@@ -16426,7 +16426,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 11020,
                 CustomerID = "OTTIK",
@@ -16444,7 +16444,7 @@ Winchester Way",
                 ShipPostalCode = "50739",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11021,
                 CustomerID = "QUICK",
@@ -16462,7 +16462,7 @@ Winchester Way",
                 ShipPostalCode = "01307",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11022,
                 CustomerID = "HANAR",
@@ -16480,7 +16480,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 11023,
                 CustomerID = "BSBEV",
@@ -16498,7 +16498,7 @@ Winchester Way",
                 ShipPostalCode = "EC2 5NT",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 11024,
                 CustomerID = "EASTC",
@@ -16516,7 +16516,7 @@ Winchester Way",
                 ShipPostalCode = "WX3 6FW",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 11025,
                 CustomerID = "WARTH",
@@ -16534,7 +16534,7 @@ Winchester Way",
                 ShipPostalCode = "90110",
                 ShipCountry = "Finland"
             },
-            new Order
+            new()
             {
                 OrderID = 11026,
                 CustomerID = "FRANS",
@@ -16552,7 +16552,7 @@ Winchester Way",
                 ShipPostalCode = "10100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 11027,
                 CustomerID = "BOTTM",
@@ -16570,7 +16570,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 11028,
                 CustomerID = "KOENE",
@@ -16588,7 +16588,7 @@ Winchester Way",
                 ShipPostalCode = "14776",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11029,
                 CustomerID = "CHOPS",
@@ -16606,7 +16606,7 @@ Winchester Way",
                 ShipPostalCode = "3012",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 11030,
                 CustomerID = "SAVEA",
@@ -16624,7 +16624,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11031,
                 CustomerID = "SAVEA",
@@ -16642,7 +16642,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11032,
                 CustomerID = "WHITC",
@@ -16660,7 +16660,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11033,
                 CustomerID = "RICSU",
@@ -16678,7 +16678,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 11034,
                 CustomerID = "OLDWO",
@@ -16696,7 +16696,7 @@ Winchester Way",
                 ShipPostalCode = "99508",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11035,
                 CustomerID = "SUPRD",
@@ -16714,7 +16714,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 11036,
                 CustomerID = "DRACD",
@@ -16732,7 +16732,7 @@ Winchester Way",
                 ShipPostalCode = "52066",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11037,
                 CustomerID = "GODOS",
@@ -16750,7 +16750,7 @@ Winchester Way",
                 ShipPostalCode = "41101",
                 ShipCountry = "Spain"
             },
-            new Order
+            new()
             {
                 OrderID = 11038,
                 CustomerID = "SUPRD",
@@ -16768,7 +16768,7 @@ Winchester Way",
                 ShipPostalCode = "B-6000",
                 ShipCountry = "Belgium"
             },
-            new Order
+            new()
             {
                 OrderID = 11039,
                 CustomerID = "LINOD",
@@ -16786,7 +16786,7 @@ Winchester Way",
                 ShipPostalCode = "4980",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 11040,
                 CustomerID = "GREAL",
@@ -16804,7 +16804,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11041,
                 CustomerID = "CHOPS",
@@ -16822,7 +16822,7 @@ Winchester Way",
                 ShipPostalCode = "3012",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 11042,
                 CustomerID = "COMMI",
@@ -16840,7 +16840,7 @@ Winchester Way",
                 ShipPostalCode = "05432-043",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 11043,
                 CustomerID = "SPECD",
@@ -16858,7 +16858,7 @@ Winchester Way",
                 ShipPostalCode = "75016",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 11044,
                 CustomerID = "WOLZA",
@@ -16876,7 +16876,7 @@ Winchester Way",
                 ShipPostalCode = "01-012",
                 ShipCountry = "Poland"
             },
-            new Order
+            new()
             {
                 OrderID = 11045,
                 CustomerID = "BOTTM",
@@ -16894,7 +16894,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 11046,
                 CustomerID = "WANDK",
@@ -16912,7 +16912,7 @@ Winchester Way",
                 ShipPostalCode = "70563",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11047,
                 CustomerID = "EASTC",
@@ -16930,7 +16930,7 @@ Winchester Way",
                 ShipPostalCode = "WX3 6FW",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 11048,
                 CustomerID = "BOTTM",
@@ -16948,7 +16948,7 @@ Winchester Way",
                 ShipPostalCode = "T2F 8M4",
                 ShipCountry = "Canada"
             },
-            new Order
+            new()
             {
                 OrderID = 11049,
                 CustomerID = "GOURL",
@@ -16966,7 +16966,7 @@ Winchester Way",
                 ShipPostalCode = "04876-786",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 11050,
                 CustomerID = "FOLKO",
@@ -16984,7 +16984,7 @@ Winchester Way",
                 ShipPostalCode = "S-844 67",
                 ShipCountry = "Sweden"
             },
-            new Order
+            new()
             {
                 OrderID = 11051,
                 CustomerID = "LAMAI",
@@ -17002,7 +17002,7 @@ Winchester Way",
                 ShipPostalCode = "31000",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 11052,
                 CustomerID = "HANAR",
@@ -17020,7 +17020,7 @@ Winchester Way",
                 ShipPostalCode = "05454-876",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 11053,
                 CustomerID = "PICCO",
@@ -17038,7 +17038,7 @@ Winchester Way",
                 ShipPostalCode = "5020",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 11054,
                 CustomerID = "CACTU",
@@ -17056,7 +17056,7 @@ Winchester Way",
                 ShipPostalCode = "1010",
                 ShipCountry = "Argentina"
             },
-            new Order
+            new()
             {
                 OrderID = 11055,
                 CustomerID = "HILAA",
@@ -17074,7 +17074,7 @@ Winchester Way",
                 ShipPostalCode = "5022",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 11056,
                 CustomerID = "EASTC",
@@ -17092,7 +17092,7 @@ Winchester Way",
                 ShipPostalCode = "WX3 6FW",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 11057,
                 CustomerID = "NORTS",
@@ -17110,7 +17110,7 @@ Winchester Way",
                 ShipPostalCode = "SW7 1RZ",
                 ShipCountry = "UK"
             },
-            new Order
+            new()
             {
                 OrderID = 11058,
                 CustomerID = "BLAUS",
@@ -17128,7 +17128,7 @@ Winchester Way",
                 ShipPostalCode = "68306",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11059,
                 CustomerID = "RICAR",
@@ -17146,7 +17146,7 @@ Winchester Way",
                 ShipPostalCode = "02389-890",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 11060,
                 CustomerID = "FRANS",
@@ -17164,7 +17164,7 @@ Winchester Way",
                 ShipPostalCode = "10100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 11061,
                 CustomerID = "GREAL",
@@ -17182,7 +17182,7 @@ Winchester Way",
                 ShipPostalCode = "97403",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11062,
                 CustomerID = "REGGC",
@@ -17200,7 +17200,7 @@ Winchester Way",
                 ShipPostalCode = "42100",
                 ShipCountry = "Italy"
             },
-            new Order
+            new()
             {
                 OrderID = 11063,
                 CustomerID = "HUNGO",
@@ -17218,7 +17218,7 @@ Winchester Way",
                 ShipPostalCode = null,
                 ShipCountry = "Ireland"
             },
-            new Order
+            new()
             {
                 OrderID = 11064,
                 CustomerID = "SAVEA",
@@ -17236,7 +17236,7 @@ Winchester Way",
                 ShipPostalCode = "83720",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11065,
                 CustomerID = "LILAS",
@@ -17254,7 +17254,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 11066,
                 CustomerID = "WHITC",
@@ -17272,7 +17272,7 @@ Winchester Way",
                 ShipPostalCode = "98124",
                 ShipCountry = "USA"
             },
-            new Order
+            new()
             {
                 OrderID = 11067,
                 CustomerID = "DRACD",
@@ -17290,7 +17290,7 @@ Winchester Way",
                 ShipPostalCode = "52066",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11068,
                 CustomerID = "QUEEN",
@@ -17308,7 +17308,7 @@ Winchester Way",
                 ShipPostalCode = "05487-020",
                 ShipCountry = "Brazil"
             },
-            new Order
+            new()
             {
                 OrderID = 11069,
                 CustomerID = "TORTU",
@@ -17326,7 +17326,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 11070,
                 CustomerID = "LEHMS",
@@ -17344,7 +17344,7 @@ Winchester Way",
                 ShipPostalCode = "60528",
                 ShipCountry = "Germany"
             },
-            new Order
+            new()
             {
                 OrderID = 11071,
                 CustomerID = "LILAS",
@@ -17362,7 +17362,7 @@ Winchester Way",
                 ShipPostalCode = "3508",
                 ShipCountry = "Venezuela"
             },
-            new Order
+            new()
             {
                 OrderID = 11072,
                 CustomerID = "ERNSH",
@@ -17380,7 +17380,7 @@ Winchester Way",
                 ShipPostalCode = "8010",
                 ShipCountry = "Austria"
             },
-            new Order
+            new()
             {
                 OrderID = 11073,
                 CustomerID = "PERIC",
@@ -17398,7 +17398,7 @@ Winchester Way",
                 ShipPostalCode = "05033",
                 ShipCountry = "Mexico"
             },
-            new Order
+            new()
             {
                 OrderID = 11074,
                 CustomerID = "SIMOB",
@@ -17416,7 +17416,7 @@ Winchester Way",
                 ShipPostalCode = "1734",
                 ShipCountry = "Denmark"
             },
-            new Order
+            new()
             {
                 OrderID = 11075,
                 CustomerID = "RICSU",
@@ -17434,7 +17434,7 @@ Winchester Way",
                 ShipPostalCode = "1204",
                 ShipCountry = "Switzerland"
             },
-            new Order
+            new()
             {
                 OrderID = 11076,
                 CustomerID = "BONAP",
@@ -17452,7 +17452,7 @@ Winchester Way",
                 ShipPostalCode = "13008",
                 ShipCountry = "France"
             },
-            new Order
+            new()
             {
                 OrderID = 11077,
                 CustomerID = "RATTC",
@@ -17479,7 +17479,7 @@ Winchester Way",
     public static OrderDetail[] CreateOrderDetails()
         =>
         [
-            new OrderDetail
+            new()
             {
                 OrderID = 10248,
                 ProductID = 11,
@@ -17487,7 +17487,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10248,
                 ProductID = 42,
@@ -17495,7 +17495,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10248,
                 ProductID = 72,
@@ -17503,7 +17503,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10249,
                 ProductID = 14,
@@ -17511,7 +17511,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10249,
                 ProductID = 51,
@@ -17519,7 +17519,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10250,
                 ProductID = 41,
@@ -17527,7 +17527,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10250,
                 ProductID = 51,
@@ -17535,7 +17535,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10250,
                 ProductID = 65,
@@ -17543,7 +17543,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10251,
                 ProductID = 22,
@@ -17551,7 +17551,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10251,
                 ProductID = 57,
@@ -17559,7 +17559,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10251,
                 ProductID = 65,
@@ -17567,7 +17567,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10252,
                 ProductID = 20,
@@ -17575,7 +17575,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10252,
                 ProductID = 33,
@@ -17583,7 +17583,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10252,
                 ProductID = 60,
@@ -17591,7 +17591,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10253,
                 ProductID = 31,
@@ -17599,7 +17599,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10253,
                 ProductID = 39,
@@ -17607,7 +17607,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10253,
                 ProductID = 49,
@@ -17615,7 +17615,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10254,
                 ProductID = 24,
@@ -17623,7 +17623,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10254,
                 ProductID = 55,
@@ -17631,7 +17631,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10254,
                 ProductID = 74,
@@ -17639,7 +17639,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10255,
                 ProductID = 2,
@@ -17647,7 +17647,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10255,
                 ProductID = 16,
@@ -17655,7 +17655,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10255,
                 ProductID = 36,
@@ -17663,7 +17663,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10255,
                 ProductID = 59,
@@ -17671,7 +17671,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10256,
                 ProductID = 53,
@@ -17679,7 +17679,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10256,
                 ProductID = 77,
@@ -17687,7 +17687,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10257,
                 ProductID = 27,
@@ -17695,7 +17695,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10257,
                 ProductID = 39,
@@ -17703,7 +17703,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10257,
                 ProductID = 77,
@@ -17711,7 +17711,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10258,
                 ProductID = 2,
@@ -17719,7 +17719,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10258,
                 ProductID = 5,
@@ -17727,7 +17727,7 @@ Winchester Way",
                 Quantity = 65,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10258,
                 ProductID = 32,
@@ -17735,7 +17735,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10259,
                 ProductID = 21,
@@ -17743,7 +17743,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10259,
                 ProductID = 37,
@@ -17751,7 +17751,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10260,
                 ProductID = 41,
@@ -17759,7 +17759,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10260,
                 ProductID = 57,
@@ -17767,7 +17767,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10260,
                 ProductID = 62,
@@ -17775,7 +17775,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10260,
                 ProductID = 70,
@@ -17783,7 +17783,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10261,
                 ProductID = 21,
@@ -17791,7 +17791,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10261,
                 ProductID = 35,
@@ -17799,7 +17799,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10262,
                 ProductID = 5,
@@ -17807,7 +17807,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10262,
                 ProductID = 7,
@@ -17815,7 +17815,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10262,
                 ProductID = 56,
@@ -17823,7 +17823,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10263,
                 ProductID = 16,
@@ -17831,7 +17831,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10263,
                 ProductID = 24,
@@ -17839,7 +17839,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10263,
                 ProductID = 30,
@@ -17847,7 +17847,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10263,
                 ProductID = 74,
@@ -17855,7 +17855,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10264,
                 ProductID = 2,
@@ -17863,7 +17863,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10264,
                 ProductID = 41,
@@ -17871,7 +17871,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10265,
                 ProductID = 17,
@@ -17879,7 +17879,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10265,
                 ProductID = 70,
@@ -17887,7 +17887,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10266,
                 ProductID = 12,
@@ -17895,7 +17895,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10267,
                 ProductID = 40,
@@ -17903,7 +17903,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10267,
                 ProductID = 59,
@@ -17911,7 +17911,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10267,
                 ProductID = 76,
@@ -17919,7 +17919,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10268,
                 ProductID = 29,
@@ -17927,7 +17927,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10268,
                 ProductID = 72,
@@ -17935,7 +17935,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10269,
                 ProductID = 33,
@@ -17943,7 +17943,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10269,
                 ProductID = 72,
@@ -17951,7 +17951,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10270,
                 ProductID = 36,
@@ -17959,7 +17959,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10270,
                 ProductID = 43,
@@ -17967,7 +17967,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10271,
                 ProductID = 33,
@@ -17975,7 +17975,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10272,
                 ProductID = 20,
@@ -17983,7 +17983,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10272,
                 ProductID = 31,
@@ -17991,7 +17991,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10272,
                 ProductID = 72,
@@ -17999,7 +17999,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10273,
                 ProductID = 10,
@@ -18007,7 +18007,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10273,
                 ProductID = 31,
@@ -18015,7 +18015,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10273,
                 ProductID = 33,
@@ -18023,7 +18023,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10273,
                 ProductID = 40,
@@ -18031,7 +18031,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10273,
                 ProductID = 76,
@@ -18039,7 +18039,7 @@ Winchester Way",
                 Quantity = 33,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10274,
                 ProductID = 71,
@@ -18047,7 +18047,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10274,
                 ProductID = 72,
@@ -18055,7 +18055,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10275,
                 ProductID = 24,
@@ -18063,7 +18063,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10275,
                 ProductID = 59,
@@ -18071,7 +18071,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10276,
                 ProductID = 10,
@@ -18079,7 +18079,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10276,
                 ProductID = 13,
@@ -18087,7 +18087,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10277,
                 ProductID = 28,
@@ -18095,7 +18095,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10277,
                 ProductID = 62,
@@ -18103,7 +18103,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10278,
                 ProductID = 44,
@@ -18111,7 +18111,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10278,
                 ProductID = 59,
@@ -18119,7 +18119,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10278,
                 ProductID = 63,
@@ -18127,7 +18127,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10278,
                 ProductID = 73,
@@ -18135,7 +18135,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10279,
                 ProductID = 17,
@@ -18143,7 +18143,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10280,
                 ProductID = 24,
@@ -18151,7 +18151,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10280,
                 ProductID = 55,
@@ -18159,7 +18159,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10280,
                 ProductID = 75,
@@ -18167,7 +18167,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10281,
                 ProductID = 19,
@@ -18175,7 +18175,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10281,
                 ProductID = 24,
@@ -18183,7 +18183,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10281,
                 ProductID = 35,
@@ -18191,7 +18191,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10282,
                 ProductID = 30,
@@ -18199,7 +18199,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10282,
                 ProductID = 57,
@@ -18207,7 +18207,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10283,
                 ProductID = 15,
@@ -18215,7 +18215,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10283,
                 ProductID = 19,
@@ -18223,7 +18223,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10283,
                 ProductID = 60,
@@ -18231,7 +18231,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10283,
                 ProductID = 72,
@@ -18239,7 +18239,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10284,
                 ProductID = 27,
@@ -18247,7 +18247,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10284,
                 ProductID = 44,
@@ -18255,7 +18255,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10284,
                 ProductID = 60,
@@ -18263,7 +18263,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10284,
                 ProductID = 67,
@@ -18271,7 +18271,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10285,
                 ProductID = 1,
@@ -18279,7 +18279,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10285,
                 ProductID = 40,
@@ -18287,7 +18287,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10285,
                 ProductID = 53,
@@ -18295,7 +18295,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10286,
                 ProductID = 35,
@@ -18303,7 +18303,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10286,
                 ProductID = 62,
@@ -18311,7 +18311,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10287,
                 ProductID = 16,
@@ -18319,7 +18319,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10287,
                 ProductID = 34,
@@ -18327,7 +18327,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10287,
                 ProductID = 46,
@@ -18335,7 +18335,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10288,
                 ProductID = 54,
@@ -18343,7 +18343,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10288,
                 ProductID = 68,
@@ -18351,7 +18351,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10289,
                 ProductID = 3,
@@ -18359,7 +18359,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10289,
                 ProductID = 64,
@@ -18367,7 +18367,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10290,
                 ProductID = 5,
@@ -18375,7 +18375,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10290,
                 ProductID = 29,
@@ -18383,7 +18383,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10290,
                 ProductID = 49,
@@ -18391,7 +18391,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10290,
                 ProductID = 77,
@@ -18399,7 +18399,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10291,
                 ProductID = 13,
@@ -18407,7 +18407,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10291,
                 ProductID = 44,
@@ -18415,7 +18415,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10291,
                 ProductID = 51,
@@ -18423,7 +18423,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10292,
                 ProductID = 20,
@@ -18431,7 +18431,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10293,
                 ProductID = 18,
@@ -18439,7 +18439,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10293,
                 ProductID = 24,
@@ -18447,7 +18447,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10293,
                 ProductID = 63,
@@ -18455,7 +18455,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10293,
                 ProductID = 75,
@@ -18463,7 +18463,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10294,
                 ProductID = 1,
@@ -18471,7 +18471,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10294,
                 ProductID = 17,
@@ -18479,7 +18479,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10294,
                 ProductID = 43,
@@ -18487,7 +18487,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10294,
                 ProductID = 60,
@@ -18495,7 +18495,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10294,
                 ProductID = 75,
@@ -18503,7 +18503,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10295,
                 ProductID = 56,
@@ -18511,7 +18511,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10296,
                 ProductID = 11,
@@ -18519,7 +18519,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10296,
                 ProductID = 16,
@@ -18527,7 +18527,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10296,
                 ProductID = 69,
@@ -18535,7 +18535,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10297,
                 ProductID = 39,
@@ -18543,7 +18543,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10297,
                 ProductID = 72,
@@ -18551,7 +18551,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10298,
                 ProductID = 2,
@@ -18559,7 +18559,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10298,
                 ProductID = 36,
@@ -18567,7 +18567,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10298,
                 ProductID = 59,
@@ -18575,7 +18575,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10298,
                 ProductID = 62,
@@ -18583,7 +18583,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10299,
                 ProductID = 19,
@@ -18591,7 +18591,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10299,
                 ProductID = 70,
@@ -18599,7 +18599,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10300,
                 ProductID = 66,
@@ -18607,7 +18607,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10300,
                 ProductID = 68,
@@ -18615,7 +18615,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10301,
                 ProductID = 40,
@@ -18623,7 +18623,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10301,
                 ProductID = 56,
@@ -18631,7 +18631,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10302,
                 ProductID = 17,
@@ -18639,7 +18639,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10302,
                 ProductID = 28,
@@ -18647,7 +18647,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10302,
                 ProductID = 43,
@@ -18655,7 +18655,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10303,
                 ProductID = 40,
@@ -18663,7 +18663,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10303,
                 ProductID = 65,
@@ -18671,7 +18671,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10303,
                 ProductID = 68,
@@ -18679,7 +18679,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10304,
                 ProductID = 49,
@@ -18687,7 +18687,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10304,
                 ProductID = 59,
@@ -18695,7 +18695,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10304,
                 ProductID = 71,
@@ -18703,7 +18703,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10305,
                 ProductID = 18,
@@ -18711,7 +18711,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10305,
                 ProductID = 29,
@@ -18719,7 +18719,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10305,
                 ProductID = 39,
@@ -18727,7 +18727,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10306,
                 ProductID = 30,
@@ -18735,7 +18735,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10306,
                 ProductID = 53,
@@ -18743,7 +18743,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10306,
                 ProductID = 54,
@@ -18751,7 +18751,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10307,
                 ProductID = 62,
@@ -18759,7 +18759,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10307,
                 ProductID = 68,
@@ -18767,7 +18767,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10308,
                 ProductID = 69,
@@ -18775,7 +18775,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10308,
                 ProductID = 70,
@@ -18783,7 +18783,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10309,
                 ProductID = 4,
@@ -18791,7 +18791,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10309,
                 ProductID = 6,
@@ -18799,7 +18799,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10309,
                 ProductID = 42,
@@ -18807,7 +18807,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10309,
                 ProductID = 43,
@@ -18815,7 +18815,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10309,
                 ProductID = 71,
@@ -18823,7 +18823,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10310,
                 ProductID = 16,
@@ -18831,7 +18831,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10310,
                 ProductID = 62,
@@ -18839,7 +18839,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10311,
                 ProductID = 42,
@@ -18847,7 +18847,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10311,
                 ProductID = 69,
@@ -18855,7 +18855,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10312,
                 ProductID = 28,
@@ -18863,7 +18863,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10312,
                 ProductID = 43,
@@ -18871,7 +18871,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10312,
                 ProductID = 53,
@@ -18879,7 +18879,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10312,
                 ProductID = 75,
@@ -18887,7 +18887,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10313,
                 ProductID = 36,
@@ -18895,7 +18895,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10314,
                 ProductID = 32,
@@ -18903,7 +18903,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10314,
                 ProductID = 58,
@@ -18911,7 +18911,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10314,
                 ProductID = 62,
@@ -18919,7 +18919,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10315,
                 ProductID = 34,
@@ -18927,7 +18927,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10315,
                 ProductID = 70,
@@ -18935,7 +18935,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10316,
                 ProductID = 41,
@@ -18943,7 +18943,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10316,
                 ProductID = 62,
@@ -18951,7 +18951,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10317,
                 ProductID = 1,
@@ -18959,7 +18959,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10318,
                 ProductID = 41,
@@ -18967,7 +18967,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10318,
                 ProductID = 76,
@@ -18975,7 +18975,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10319,
                 ProductID = 17,
@@ -18983,7 +18983,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10319,
                 ProductID = 28,
@@ -18991,7 +18991,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10319,
                 ProductID = 76,
@@ -18999,7 +18999,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10320,
                 ProductID = 71,
@@ -19007,7 +19007,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10321,
                 ProductID = 35,
@@ -19015,7 +19015,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10322,
                 ProductID = 52,
@@ -19023,7 +19023,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10323,
                 ProductID = 15,
@@ -19031,7 +19031,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10323,
                 ProductID = 25,
@@ -19039,7 +19039,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10323,
                 ProductID = 39,
@@ -19047,7 +19047,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10324,
                 ProductID = 16,
@@ -19055,7 +19055,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10324,
                 ProductID = 35,
@@ -19063,7 +19063,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10324,
                 ProductID = 46,
@@ -19071,7 +19071,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10324,
                 ProductID = 59,
@@ -19079,7 +19079,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10324,
                 ProductID = 63,
@@ -19087,7 +19087,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10325,
                 ProductID = 6,
@@ -19095,7 +19095,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10325,
                 ProductID = 13,
@@ -19103,7 +19103,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10325,
                 ProductID = 14,
@@ -19111,7 +19111,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10325,
                 ProductID = 31,
@@ -19119,7 +19119,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10325,
                 ProductID = 72,
@@ -19127,7 +19127,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10326,
                 ProductID = 4,
@@ -19135,7 +19135,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10326,
                 ProductID = 57,
@@ -19143,7 +19143,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10326,
                 ProductID = 75,
@@ -19151,7 +19151,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10327,
                 ProductID = 2,
@@ -19159,7 +19159,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10327,
                 ProductID = 11,
@@ -19167,7 +19167,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10327,
                 ProductID = 30,
@@ -19175,7 +19175,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10327,
                 ProductID = 58,
@@ -19183,7 +19183,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10328,
                 ProductID = 59,
@@ -19191,7 +19191,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10328,
                 ProductID = 65,
@@ -19199,7 +19199,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10328,
                 ProductID = 68,
@@ -19207,7 +19207,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10329,
                 ProductID = 19,
@@ -19215,7 +19215,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10329,
                 ProductID = 30,
@@ -19223,7 +19223,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10329,
                 ProductID = 38,
@@ -19231,7 +19231,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10329,
                 ProductID = 56,
@@ -19239,7 +19239,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10330,
                 ProductID = 26,
@@ -19247,7 +19247,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10330,
                 ProductID = 72,
@@ -19255,7 +19255,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10331,
                 ProductID = 54,
@@ -19263,7 +19263,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10332,
                 ProductID = 18,
@@ -19271,7 +19271,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10332,
                 ProductID = 42,
@@ -19279,7 +19279,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10332,
                 ProductID = 47,
@@ -19287,7 +19287,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10333,
                 ProductID = 14,
@@ -19295,7 +19295,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10333,
                 ProductID = 21,
@@ -19303,7 +19303,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10333,
                 ProductID = 71,
@@ -19311,7 +19311,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10334,
                 ProductID = 52,
@@ -19319,7 +19319,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10334,
                 ProductID = 68,
@@ -19327,7 +19327,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10335,
                 ProductID = 2,
@@ -19335,7 +19335,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10335,
                 ProductID = 31,
@@ -19343,7 +19343,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10335,
                 ProductID = 32,
@@ -19351,7 +19351,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10335,
                 ProductID = 51,
@@ -19359,7 +19359,7 @@ Winchester Way",
                 Quantity = 48,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10336,
                 ProductID = 4,
@@ -19367,7 +19367,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10337,
                 ProductID = 23,
@@ -19375,7 +19375,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10337,
                 ProductID = 26,
@@ -19383,7 +19383,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10337,
                 ProductID = 36,
@@ -19391,7 +19391,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10337,
                 ProductID = 37,
@@ -19399,7 +19399,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10337,
                 ProductID = 72,
@@ -19407,7 +19407,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10338,
                 ProductID = 17,
@@ -19415,7 +19415,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10338,
                 ProductID = 30,
@@ -19423,7 +19423,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10339,
                 ProductID = 4,
@@ -19431,7 +19431,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10339,
                 ProductID = 17,
@@ -19439,7 +19439,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10339,
                 ProductID = 62,
@@ -19447,7 +19447,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10340,
                 ProductID = 18,
@@ -19455,7 +19455,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10340,
                 ProductID = 41,
@@ -19463,7 +19463,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10340,
                 ProductID = 43,
@@ -19471,7 +19471,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10341,
                 ProductID = 33,
@@ -19479,7 +19479,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10341,
                 ProductID = 59,
@@ -19487,7 +19487,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10342,
                 ProductID = 2,
@@ -19495,7 +19495,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10342,
                 ProductID = 31,
@@ -19503,7 +19503,7 @@ Winchester Way",
                 Quantity = 56,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10342,
                 ProductID = 36,
@@ -19511,7 +19511,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10342,
                 ProductID = 55,
@@ -19519,7 +19519,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10343,
                 ProductID = 64,
@@ -19527,7 +19527,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10343,
                 ProductID = 68,
@@ -19535,7 +19535,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10343,
                 ProductID = 76,
@@ -19543,7 +19543,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10344,
                 ProductID = 4,
@@ -19551,7 +19551,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10344,
                 ProductID = 8,
@@ -19559,7 +19559,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10345,
                 ProductID = 8,
@@ -19567,7 +19567,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10345,
                 ProductID = 19,
@@ -19575,7 +19575,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10345,
                 ProductID = 42,
@@ -19583,7 +19583,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10346,
                 ProductID = 17,
@@ -19591,7 +19591,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10346,
                 ProductID = 56,
@@ -19599,7 +19599,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10347,
                 ProductID = 25,
@@ -19607,7 +19607,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10347,
                 ProductID = 39,
@@ -19615,7 +19615,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10347,
                 ProductID = 40,
@@ -19623,7 +19623,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10347,
                 ProductID = 75,
@@ -19631,7 +19631,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10348,
                 ProductID = 1,
@@ -19639,7 +19639,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10348,
                 ProductID = 23,
@@ -19647,7 +19647,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10349,
                 ProductID = 54,
@@ -19655,7 +19655,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10350,
                 ProductID = 50,
@@ -19663,7 +19663,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10350,
                 ProductID = 69,
@@ -19671,7 +19671,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10351,
                 ProductID = 38,
@@ -19679,7 +19679,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10351,
                 ProductID = 41,
@@ -19687,7 +19687,7 @@ Winchester Way",
                 Quantity = 13,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10351,
                 ProductID = 44,
@@ -19695,7 +19695,7 @@ Winchester Way",
                 Quantity = 77,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10351,
                 ProductID = 65,
@@ -19703,7 +19703,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10352,
                 ProductID = 24,
@@ -19711,7 +19711,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10352,
                 ProductID = 54,
@@ -19719,7 +19719,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10353,
                 ProductID = 11,
@@ -19727,7 +19727,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10353,
                 ProductID = 38,
@@ -19735,7 +19735,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10354,
                 ProductID = 1,
@@ -19743,7 +19743,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10354,
                 ProductID = 29,
@@ -19751,7 +19751,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10355,
                 ProductID = 24,
@@ -19759,7 +19759,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10355,
                 ProductID = 57,
@@ -19767,7 +19767,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10356,
                 ProductID = 31,
@@ -19775,7 +19775,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10356,
                 ProductID = 55,
@@ -19783,7 +19783,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10356,
                 ProductID = 69,
@@ -19791,7 +19791,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10357,
                 ProductID = 10,
@@ -19799,7 +19799,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10357,
                 ProductID = 26,
@@ -19807,7 +19807,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10357,
                 ProductID = 60,
@@ -19815,7 +19815,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10358,
                 ProductID = 24,
@@ -19823,7 +19823,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10358,
                 ProductID = 34,
@@ -19831,7 +19831,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10358,
                 ProductID = 36,
@@ -19839,7 +19839,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10359,
                 ProductID = 16,
@@ -19847,7 +19847,7 @@ Winchester Way",
                 Quantity = 56,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10359,
                 ProductID = 31,
@@ -19855,7 +19855,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10359,
                 ProductID = 60,
@@ -19863,7 +19863,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10360,
                 ProductID = 28,
@@ -19871,7 +19871,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10360,
                 ProductID = 29,
@@ -19879,7 +19879,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10360,
                 ProductID = 38,
@@ -19887,7 +19887,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10360,
                 ProductID = 49,
@@ -19895,7 +19895,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10360,
                 ProductID = 54,
@@ -19903,7 +19903,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10361,
                 ProductID = 39,
@@ -19911,7 +19911,7 @@ Winchester Way",
                 Quantity = 54,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10361,
                 ProductID = 60,
@@ -19919,7 +19919,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10362,
                 ProductID = 25,
@@ -19927,7 +19927,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10362,
                 ProductID = 51,
@@ -19935,7 +19935,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10362,
                 ProductID = 54,
@@ -19943,7 +19943,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10363,
                 ProductID = 31,
@@ -19951,7 +19951,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10363,
                 ProductID = 75,
@@ -19959,7 +19959,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10363,
                 ProductID = 76,
@@ -19967,7 +19967,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10364,
                 ProductID = 69,
@@ -19975,7 +19975,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10364,
                 ProductID = 71,
@@ -19983,7 +19983,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10365,
                 ProductID = 11,
@@ -19991,7 +19991,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10366,
                 ProductID = 65,
@@ -19999,7 +19999,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10366,
                 ProductID = 77,
@@ -20007,7 +20007,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10367,
                 ProductID = 34,
@@ -20015,7 +20015,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10367,
                 ProductID = 54,
@@ -20023,7 +20023,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10367,
                 ProductID = 65,
@@ -20031,7 +20031,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10367,
                 ProductID = 77,
@@ -20039,7 +20039,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10368,
                 ProductID = 21,
@@ -20047,7 +20047,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10368,
                 ProductID = 28,
@@ -20055,7 +20055,7 @@ Winchester Way",
                 Quantity = 13,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10368,
                 ProductID = 57,
@@ -20063,7 +20063,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10368,
                 ProductID = 64,
@@ -20071,7 +20071,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10369,
                 ProductID = 29,
@@ -20079,7 +20079,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10369,
                 ProductID = 56,
@@ -20087,7 +20087,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10370,
                 ProductID = 1,
@@ -20095,7 +20095,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10370,
                 ProductID = 64,
@@ -20103,7 +20103,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10370,
                 ProductID = 74,
@@ -20111,7 +20111,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10371,
                 ProductID = 36,
@@ -20119,7 +20119,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10372,
                 ProductID = 20,
@@ -20127,7 +20127,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10372,
                 ProductID = 38,
@@ -20135,7 +20135,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10372,
                 ProductID = 60,
@@ -20143,7 +20143,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10372,
                 ProductID = 72,
@@ -20151,7 +20151,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10373,
                 ProductID = 58,
@@ -20159,7 +20159,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10373,
                 ProductID = 71,
@@ -20167,7 +20167,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10374,
                 ProductID = 31,
@@ -20175,7 +20175,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10374,
                 ProductID = 58,
@@ -20183,7 +20183,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10375,
                 ProductID = 14,
@@ -20191,7 +20191,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10375,
                 ProductID = 54,
@@ -20199,7 +20199,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10376,
                 ProductID = 31,
@@ -20207,7 +20207,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10377,
                 ProductID = 28,
@@ -20215,7 +20215,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10377,
                 ProductID = 39,
@@ -20223,7 +20223,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10378,
                 ProductID = 71,
@@ -20231,7 +20231,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10379,
                 ProductID = 41,
@@ -20239,7 +20239,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10379,
                 ProductID = 63,
@@ -20247,7 +20247,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10379,
                 ProductID = 65,
@@ -20255,7 +20255,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10380,
                 ProductID = 30,
@@ -20263,7 +20263,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10380,
                 ProductID = 53,
@@ -20271,7 +20271,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10380,
                 ProductID = 60,
@@ -20279,7 +20279,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10380,
                 ProductID = 70,
@@ -20287,7 +20287,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10381,
                 ProductID = 74,
@@ -20295,7 +20295,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10382,
                 ProductID = 5,
@@ -20303,7 +20303,7 @@ Winchester Way",
                 Quantity = 32,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10382,
                 ProductID = 18,
@@ -20311,7 +20311,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10382,
                 ProductID = 29,
@@ -20319,7 +20319,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10382,
                 ProductID = 33,
@@ -20327,7 +20327,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10382,
                 ProductID = 74,
@@ -20335,7 +20335,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10383,
                 ProductID = 13,
@@ -20343,7 +20343,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10383,
                 ProductID = 50,
@@ -20351,7 +20351,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10383,
                 ProductID = 56,
@@ -20359,7 +20359,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10384,
                 ProductID = 20,
@@ -20367,7 +20367,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10384,
                 ProductID = 60,
@@ -20375,7 +20375,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10385,
                 ProductID = 7,
@@ -20383,7 +20383,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10385,
                 ProductID = 60,
@@ -20391,7 +20391,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10385,
                 ProductID = 68,
@@ -20399,7 +20399,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10386,
                 ProductID = 24,
@@ -20407,7 +20407,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10386,
                 ProductID = 34,
@@ -20415,7 +20415,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10387,
                 ProductID = 24,
@@ -20423,7 +20423,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10387,
                 ProductID = 28,
@@ -20431,7 +20431,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10387,
                 ProductID = 59,
@@ -20439,7 +20439,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10387,
                 ProductID = 71,
@@ -20447,7 +20447,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10388,
                 ProductID = 45,
@@ -20455,7 +20455,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10388,
                 ProductID = 52,
@@ -20463,7 +20463,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10388,
                 ProductID = 53,
@@ -20471,7 +20471,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10389,
                 ProductID = 10,
@@ -20479,7 +20479,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10389,
                 ProductID = 55,
@@ -20487,7 +20487,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10389,
                 ProductID = 62,
@@ -20495,7 +20495,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10389,
                 ProductID = 70,
@@ -20503,7 +20503,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10390,
                 ProductID = 31,
@@ -20511,7 +20511,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10390,
                 ProductID = 35,
@@ -20519,7 +20519,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10390,
                 ProductID = 46,
@@ -20527,7 +20527,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10390,
                 ProductID = 72,
@@ -20535,7 +20535,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10391,
                 ProductID = 13,
@@ -20543,7 +20543,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10392,
                 ProductID = 69,
@@ -20551,7 +20551,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10393,
                 ProductID = 2,
@@ -20559,7 +20559,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10393,
                 ProductID = 14,
@@ -20567,7 +20567,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10393,
                 ProductID = 25,
@@ -20575,7 +20575,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10393,
                 ProductID = 26,
@@ -20583,7 +20583,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10393,
                 ProductID = 31,
@@ -20591,7 +20591,7 @@ Winchester Way",
                 Quantity = 32,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10394,
                 ProductID = 13,
@@ -20599,7 +20599,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10394,
                 ProductID = 62,
@@ -20607,7 +20607,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10395,
                 ProductID = 46,
@@ -20615,7 +20615,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10395,
                 ProductID = 53,
@@ -20623,7 +20623,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10395,
                 ProductID = 69,
@@ -20631,7 +20631,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10396,
                 ProductID = 23,
@@ -20639,7 +20639,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10396,
                 ProductID = 71,
@@ -20647,7 +20647,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10396,
                 ProductID = 72,
@@ -20655,7 +20655,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10397,
                 ProductID = 21,
@@ -20663,7 +20663,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10397,
                 ProductID = 51,
@@ -20671,7 +20671,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10398,
                 ProductID = 35,
@@ -20679,7 +20679,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10398,
                 ProductID = 55,
@@ -20687,7 +20687,7 @@ Winchester Way",
                 Quantity = 120,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10399,
                 ProductID = 68,
@@ -20695,7 +20695,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10399,
                 ProductID = 71,
@@ -20703,7 +20703,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10399,
                 ProductID = 76,
@@ -20711,7 +20711,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10399,
                 ProductID = 77,
@@ -20719,7 +20719,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10400,
                 ProductID = 29,
@@ -20727,7 +20727,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10400,
                 ProductID = 35,
@@ -20735,7 +20735,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10400,
                 ProductID = 49,
@@ -20743,7 +20743,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10401,
                 ProductID = 30,
@@ -20751,7 +20751,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10401,
                 ProductID = 56,
@@ -20759,7 +20759,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10401,
                 ProductID = 65,
@@ -20767,7 +20767,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10401,
                 ProductID = 71,
@@ -20775,7 +20775,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10402,
                 ProductID = 23,
@@ -20783,7 +20783,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10402,
                 ProductID = 63,
@@ -20791,7 +20791,7 @@ Winchester Way",
                 Quantity = 65,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10403,
                 ProductID = 16,
@@ -20799,7 +20799,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10403,
                 ProductID = 48,
@@ -20807,7 +20807,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10404,
                 ProductID = 26,
@@ -20815,7 +20815,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10404,
                 ProductID = 42,
@@ -20823,7 +20823,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10404,
                 ProductID = 49,
@@ -20831,7 +20831,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10405,
                 ProductID = 3,
@@ -20839,7 +20839,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10406,
                 ProductID = 1,
@@ -20847,7 +20847,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10406,
                 ProductID = 21,
@@ -20855,7 +20855,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10406,
                 ProductID = 28,
@@ -20863,7 +20863,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10406,
                 ProductID = 36,
@@ -20871,7 +20871,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10406,
                 ProductID = 40,
@@ -20879,7 +20879,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10407,
                 ProductID = 11,
@@ -20887,7 +20887,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10407,
                 ProductID = 69,
@@ -20895,7 +20895,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10407,
                 ProductID = 71,
@@ -20903,7 +20903,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10408,
                 ProductID = 37,
@@ -20911,7 +20911,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10408,
                 ProductID = 54,
@@ -20919,7 +20919,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10408,
                 ProductID = 62,
@@ -20927,7 +20927,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10409,
                 ProductID = 14,
@@ -20935,7 +20935,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10409,
                 ProductID = 21,
@@ -20943,7 +20943,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10410,
                 ProductID = 33,
@@ -20951,7 +20951,7 @@ Winchester Way",
                 Quantity = 49,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10410,
                 ProductID = 59,
@@ -20959,7 +20959,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10411,
                 ProductID = 41,
@@ -20967,7 +20967,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10411,
                 ProductID = 44,
@@ -20975,7 +20975,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10411,
                 ProductID = 59,
@@ -20983,7 +20983,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10412,
                 ProductID = 14,
@@ -20991,7 +20991,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10413,
                 ProductID = 1,
@@ -20999,7 +20999,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10413,
                 ProductID = 62,
@@ -21007,7 +21007,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10413,
                 ProductID = 76,
@@ -21015,7 +21015,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10414,
                 ProductID = 19,
@@ -21023,7 +21023,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10414,
                 ProductID = 33,
@@ -21031,7 +21031,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10415,
                 ProductID = 17,
@@ -21039,7 +21039,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10415,
                 ProductID = 33,
@@ -21047,7 +21047,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10416,
                 ProductID = 19,
@@ -21055,7 +21055,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10416,
                 ProductID = 53,
@@ -21063,7 +21063,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10416,
                 ProductID = 57,
@@ -21071,7 +21071,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10417,
                 ProductID = 38,
@@ -21079,7 +21079,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10417,
                 ProductID = 46,
@@ -21087,7 +21087,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10417,
                 ProductID = 68,
@@ -21095,7 +21095,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10417,
                 ProductID = 77,
@@ -21103,7 +21103,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10418,
                 ProductID = 2,
@@ -21111,7 +21111,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10418,
                 ProductID = 47,
@@ -21119,7 +21119,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10418,
                 ProductID = 61,
@@ -21127,7 +21127,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10418,
                 ProductID = 74,
@@ -21135,7 +21135,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10419,
                 ProductID = 60,
@@ -21143,7 +21143,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10419,
                 ProductID = 69,
@@ -21151,7 +21151,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10420,
                 ProductID = 9,
@@ -21159,7 +21159,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10420,
                 ProductID = 13,
@@ -21167,7 +21167,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10420,
                 ProductID = 70,
@@ -21175,7 +21175,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10420,
                 ProductID = 73,
@@ -21183,7 +21183,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10421,
                 ProductID = 19,
@@ -21191,7 +21191,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10421,
                 ProductID = 26,
@@ -21199,7 +21199,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10421,
                 ProductID = 53,
@@ -21207,7 +21207,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10421,
                 ProductID = 77,
@@ -21215,7 +21215,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10422,
                 ProductID = 26,
@@ -21223,7 +21223,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10423,
                 ProductID = 31,
@@ -21231,7 +21231,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10423,
                 ProductID = 59,
@@ -21239,7 +21239,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10424,
                 ProductID = 35,
@@ -21247,7 +21247,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10424,
                 ProductID = 38,
@@ -21255,7 +21255,7 @@ Winchester Way",
                 Quantity = 49,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10424,
                 ProductID = 68,
@@ -21263,7 +21263,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10425,
                 ProductID = 55,
@@ -21271,7 +21271,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10425,
                 ProductID = 76,
@@ -21279,7 +21279,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10426,
                 ProductID = 56,
@@ -21287,7 +21287,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10426,
                 ProductID = 64,
@@ -21295,7 +21295,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10427,
                 ProductID = 14,
@@ -21303,7 +21303,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10428,
                 ProductID = 46,
@@ -21311,7 +21311,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10429,
                 ProductID = 50,
@@ -21319,7 +21319,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10429,
                 ProductID = 63,
@@ -21327,7 +21327,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10430,
                 ProductID = 17,
@@ -21335,7 +21335,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10430,
                 ProductID = 21,
@@ -21343,7 +21343,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10430,
                 ProductID = 56,
@@ -21351,7 +21351,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10430,
                 ProductID = 59,
@@ -21359,7 +21359,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10431,
                 ProductID = 17,
@@ -21367,7 +21367,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10431,
                 ProductID = 40,
@@ -21375,7 +21375,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10431,
                 ProductID = 47,
@@ -21383,7 +21383,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10432,
                 ProductID = 26,
@@ -21391,7 +21391,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10432,
                 ProductID = 54,
@@ -21399,7 +21399,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10433,
                 ProductID = 56,
@@ -21407,7 +21407,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10434,
                 ProductID = 11,
@@ -21415,7 +21415,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10434,
                 ProductID = 76,
@@ -21423,7 +21423,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10435,
                 ProductID = 2,
@@ -21431,7 +21431,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10435,
                 ProductID = 22,
@@ -21439,7 +21439,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10435,
                 ProductID = 72,
@@ -21447,7 +21447,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10436,
                 ProductID = 46,
@@ -21455,7 +21455,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10436,
                 ProductID = 56,
@@ -21463,7 +21463,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10436,
                 ProductID = 64,
@@ -21471,7 +21471,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10436,
                 ProductID = 75,
@@ -21479,7 +21479,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10437,
                 ProductID = 53,
@@ -21487,7 +21487,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10438,
                 ProductID = 19,
@@ -21495,7 +21495,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10438,
                 ProductID = 34,
@@ -21503,7 +21503,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10438,
                 ProductID = 57,
@@ -21511,7 +21511,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10439,
                 ProductID = 12,
@@ -21519,7 +21519,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10439,
                 ProductID = 16,
@@ -21527,7 +21527,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10439,
                 ProductID = 64,
@@ -21535,7 +21535,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10439,
                 ProductID = 74,
@@ -21543,7 +21543,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10440,
                 ProductID = 2,
@@ -21551,7 +21551,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10440,
                 ProductID = 16,
@@ -21559,7 +21559,7 @@ Winchester Way",
                 Quantity = 49,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10440,
                 ProductID = 29,
@@ -21567,7 +21567,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10440,
                 ProductID = 61,
@@ -21575,7 +21575,7 @@ Winchester Way",
                 Quantity = 90,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10441,
                 ProductID = 27,
@@ -21583,7 +21583,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10442,
                 ProductID = 11,
@@ -21591,7 +21591,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10442,
                 ProductID = 54,
@@ -21599,7 +21599,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10442,
                 ProductID = 66,
@@ -21607,7 +21607,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10443,
                 ProductID = 11,
@@ -21615,7 +21615,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10443,
                 ProductID = 28,
@@ -21623,7 +21623,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10444,
                 ProductID = 17,
@@ -21631,7 +21631,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10444,
                 ProductID = 26,
@@ -21639,7 +21639,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10444,
                 ProductID = 35,
@@ -21647,7 +21647,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10444,
                 ProductID = 41,
@@ -21655,7 +21655,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10445,
                 ProductID = 39,
@@ -21663,7 +21663,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10445,
                 ProductID = 54,
@@ -21671,7 +21671,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10446,
                 ProductID = 19,
@@ -21679,7 +21679,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10446,
                 ProductID = 24,
@@ -21687,7 +21687,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10446,
                 ProductID = 31,
@@ -21695,7 +21695,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10446,
                 ProductID = 52,
@@ -21703,7 +21703,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10447,
                 ProductID = 19,
@@ -21711,7 +21711,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10447,
                 ProductID = 65,
@@ -21719,7 +21719,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10447,
                 ProductID = 71,
@@ -21727,7 +21727,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10448,
                 ProductID = 26,
@@ -21735,7 +21735,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10448,
                 ProductID = 40,
@@ -21743,7 +21743,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10449,
                 ProductID = 10,
@@ -21751,7 +21751,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10449,
                 ProductID = 52,
@@ -21759,7 +21759,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10449,
                 ProductID = 62,
@@ -21767,7 +21767,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10450,
                 ProductID = 10,
@@ -21775,7 +21775,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10450,
                 ProductID = 54,
@@ -21783,7 +21783,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10451,
                 ProductID = 55,
@@ -21791,7 +21791,7 @@ Winchester Way",
                 Quantity = 120,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10451,
                 ProductID = 64,
@@ -21799,7 +21799,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10451,
                 ProductID = 65,
@@ -21807,7 +21807,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10451,
                 ProductID = 77,
@@ -21815,7 +21815,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10452,
                 ProductID = 28,
@@ -21823,7 +21823,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10452,
                 ProductID = 44,
@@ -21831,7 +21831,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10453,
                 ProductID = 48,
@@ -21839,7 +21839,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10453,
                 ProductID = 70,
@@ -21847,7 +21847,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10454,
                 ProductID = 16,
@@ -21855,7 +21855,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10454,
                 ProductID = 33,
@@ -21863,7 +21863,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10454,
                 ProductID = 46,
@@ -21871,7 +21871,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10455,
                 ProductID = 39,
@@ -21879,7 +21879,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10455,
                 ProductID = 53,
@@ -21887,7 +21887,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10455,
                 ProductID = 61,
@@ -21895,7 +21895,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10455,
                 ProductID = 71,
@@ -21903,7 +21903,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10456,
                 ProductID = 21,
@@ -21911,7 +21911,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10456,
                 ProductID = 49,
@@ -21919,7 +21919,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10457,
                 ProductID = 59,
@@ -21927,7 +21927,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10458,
                 ProductID = 26,
@@ -21935,7 +21935,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10458,
                 ProductID = 28,
@@ -21943,7 +21943,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10458,
                 ProductID = 43,
@@ -21951,7 +21951,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10458,
                 ProductID = 56,
@@ -21959,7 +21959,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10458,
                 ProductID = 71,
@@ -21967,7 +21967,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10459,
                 ProductID = 7,
@@ -21975,7 +21975,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10459,
                 ProductID = 46,
@@ -21983,7 +21983,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10459,
                 ProductID = 72,
@@ -21991,7 +21991,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10460,
                 ProductID = 68,
@@ -21999,7 +21999,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10460,
                 ProductID = 75,
@@ -22007,7 +22007,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10461,
                 ProductID = 21,
@@ -22015,7 +22015,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10461,
                 ProductID = 30,
@@ -22023,7 +22023,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10461,
                 ProductID = 55,
@@ -22031,7 +22031,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10462,
                 ProductID = 13,
@@ -22039,7 +22039,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10462,
                 ProductID = 23,
@@ -22047,7 +22047,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10463,
                 ProductID = 19,
@@ -22055,7 +22055,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10463,
                 ProductID = 42,
@@ -22063,7 +22063,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10464,
                 ProductID = 4,
@@ -22071,7 +22071,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10464,
                 ProductID = 43,
@@ -22079,7 +22079,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10464,
                 ProductID = 56,
@@ -22087,7 +22087,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10464,
                 ProductID = 60,
@@ -22095,7 +22095,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10465,
                 ProductID = 24,
@@ -22103,7 +22103,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10465,
                 ProductID = 29,
@@ -22111,7 +22111,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10465,
                 ProductID = 40,
@@ -22119,7 +22119,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10465,
                 ProductID = 45,
@@ -22127,7 +22127,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10465,
                 ProductID = 50,
@@ -22135,7 +22135,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10466,
                 ProductID = 11,
@@ -22143,7 +22143,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10466,
                 ProductID = 46,
@@ -22151,7 +22151,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10467,
                 ProductID = 24,
@@ -22159,7 +22159,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10467,
                 ProductID = 25,
@@ -22167,7 +22167,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10468,
                 ProductID = 30,
@@ -22175,7 +22175,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10468,
                 ProductID = 43,
@@ -22183,7 +22183,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10469,
                 ProductID = 2,
@@ -22191,7 +22191,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10469,
                 ProductID = 16,
@@ -22199,7 +22199,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10469,
                 ProductID = 44,
@@ -22207,7 +22207,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10470,
                 ProductID = 18,
@@ -22215,7 +22215,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10470,
                 ProductID = 23,
@@ -22223,7 +22223,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10470,
                 ProductID = 64,
@@ -22231,7 +22231,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10471,
                 ProductID = 7,
@@ -22239,7 +22239,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10471,
                 ProductID = 56,
@@ -22247,7 +22247,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10472,
                 ProductID = 24,
@@ -22255,7 +22255,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10472,
                 ProductID = 51,
@@ -22263,7 +22263,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10473,
                 ProductID = 33,
@@ -22271,7 +22271,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10473,
                 ProductID = 71,
@@ -22279,7 +22279,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10474,
                 ProductID = 14,
@@ -22287,7 +22287,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10474,
                 ProductID = 28,
@@ -22295,7 +22295,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10474,
                 ProductID = 40,
@@ -22303,7 +22303,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10474,
                 ProductID = 75,
@@ -22311,7 +22311,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10475,
                 ProductID = 31,
@@ -22319,7 +22319,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10475,
                 ProductID = 66,
@@ -22327,7 +22327,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10475,
                 ProductID = 76,
@@ -22335,7 +22335,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10476,
                 ProductID = 55,
@@ -22343,7 +22343,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10476,
                 ProductID = 70,
@@ -22351,7 +22351,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10477,
                 ProductID = 1,
@@ -22359,7 +22359,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10477,
                 ProductID = 21,
@@ -22367,7 +22367,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10477,
                 ProductID = 39,
@@ -22375,7 +22375,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10478,
                 ProductID = 10,
@@ -22383,7 +22383,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10479,
                 ProductID = 38,
@@ -22391,7 +22391,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10479,
                 ProductID = 53,
@@ -22399,7 +22399,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10479,
                 ProductID = 59,
@@ -22407,7 +22407,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10479,
                 ProductID = 64,
@@ -22415,7 +22415,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10480,
                 ProductID = 47,
@@ -22423,7 +22423,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10480,
                 ProductID = 59,
@@ -22431,7 +22431,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10481,
                 ProductID = 49,
@@ -22439,7 +22439,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10481,
                 ProductID = 60,
@@ -22447,7 +22447,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10482,
                 ProductID = 40,
@@ -22455,7 +22455,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10483,
                 ProductID = 34,
@@ -22463,7 +22463,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10483,
                 ProductID = 77,
@@ -22471,7 +22471,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10484,
                 ProductID = 21,
@@ -22479,7 +22479,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10484,
                 ProductID = 40,
@@ -22487,7 +22487,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10484,
                 ProductID = 51,
@@ -22495,7 +22495,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10485,
                 ProductID = 2,
@@ -22503,7 +22503,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10485,
                 ProductID = 3,
@@ -22511,7 +22511,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10485,
                 ProductID = 55,
@@ -22519,7 +22519,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10485,
                 ProductID = 70,
@@ -22527,7 +22527,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10486,
                 ProductID = 11,
@@ -22535,7 +22535,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10486,
                 ProductID = 51,
@@ -22543,7 +22543,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10486,
                 ProductID = 74,
@@ -22551,7 +22551,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10487,
                 ProductID = 19,
@@ -22559,7 +22559,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10487,
                 ProductID = 26,
@@ -22567,7 +22567,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10487,
                 ProductID = 54,
@@ -22575,7 +22575,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10488,
                 ProductID = 59,
@@ -22583,7 +22583,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10488,
                 ProductID = 73,
@@ -22591,7 +22591,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10489,
                 ProductID = 11,
@@ -22599,7 +22599,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10489,
                 ProductID = 16,
@@ -22607,7 +22607,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10490,
                 ProductID = 59,
@@ -22615,7 +22615,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10490,
                 ProductID = 68,
@@ -22623,7 +22623,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10490,
                 ProductID = 75,
@@ -22631,7 +22631,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10491,
                 ProductID = 44,
@@ -22639,7 +22639,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10491,
                 ProductID = 77,
@@ -22647,7 +22647,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10492,
                 ProductID = 25,
@@ -22655,7 +22655,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10492,
                 ProductID = 42,
@@ -22663,7 +22663,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10493,
                 ProductID = 65,
@@ -22671,7 +22671,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10493,
                 ProductID = 66,
@@ -22679,7 +22679,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10493,
                 ProductID = 69,
@@ -22687,7 +22687,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10494,
                 ProductID = 56,
@@ -22695,7 +22695,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10495,
                 ProductID = 23,
@@ -22703,7 +22703,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10495,
                 ProductID = 41,
@@ -22711,7 +22711,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10495,
                 ProductID = 77,
@@ -22719,7 +22719,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10496,
                 ProductID = 31,
@@ -22727,7 +22727,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10497,
                 ProductID = 56,
@@ -22735,7 +22735,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10497,
                 ProductID = 72,
@@ -22743,7 +22743,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10497,
                 ProductID = 77,
@@ -22751,7 +22751,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10498,
                 ProductID = 24,
@@ -22759,7 +22759,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10498,
                 ProductID = 40,
@@ -22767,7 +22767,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10498,
                 ProductID = 42,
@@ -22775,7 +22775,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10499,
                 ProductID = 28,
@@ -22783,7 +22783,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10499,
                 ProductID = 49,
@@ -22791,7 +22791,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10500,
                 ProductID = 15,
@@ -22799,7 +22799,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10500,
                 ProductID = 28,
@@ -22807,7 +22807,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10501,
                 ProductID = 54,
@@ -22815,7 +22815,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10502,
                 ProductID = 45,
@@ -22823,7 +22823,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10502,
                 ProductID = 53,
@@ -22831,7 +22831,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10502,
                 ProductID = 67,
@@ -22839,7 +22839,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10503,
                 ProductID = 14,
@@ -22847,7 +22847,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10503,
                 ProductID = 65,
@@ -22855,7 +22855,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10504,
                 ProductID = 2,
@@ -22863,7 +22863,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10504,
                 ProductID = 21,
@@ -22871,7 +22871,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10504,
                 ProductID = 53,
@@ -22879,7 +22879,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10504,
                 ProductID = 61,
@@ -22887,7 +22887,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10505,
                 ProductID = 62,
@@ -22895,7 +22895,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10506,
                 ProductID = 25,
@@ -22903,7 +22903,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10506,
                 ProductID = 70,
@@ -22911,7 +22911,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10507,
                 ProductID = 43,
@@ -22919,7 +22919,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10507,
                 ProductID = 48,
@@ -22927,7 +22927,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10508,
                 ProductID = 13,
@@ -22935,7 +22935,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10508,
                 ProductID = 39,
@@ -22943,7 +22943,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10509,
                 ProductID = 28,
@@ -22951,7 +22951,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10510,
                 ProductID = 29,
@@ -22959,7 +22959,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10510,
                 ProductID = 75,
@@ -22967,7 +22967,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10511,
                 ProductID = 4,
@@ -22975,7 +22975,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10511,
                 ProductID = 7,
@@ -22983,7 +22983,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10511,
                 ProductID = 8,
@@ -22991,7 +22991,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10512,
                 ProductID = 24,
@@ -22999,7 +22999,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10512,
                 ProductID = 46,
@@ -23007,7 +23007,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10512,
                 ProductID = 47,
@@ -23015,7 +23015,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10512,
                 ProductID = 60,
@@ -23023,7 +23023,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10513,
                 ProductID = 21,
@@ -23031,7 +23031,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10513,
                 ProductID = 32,
@@ -23039,7 +23039,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10513,
                 ProductID = 61,
@@ -23047,7 +23047,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10514,
                 ProductID = 20,
@@ -23055,7 +23055,7 @@ Winchester Way",
                 Quantity = 39,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10514,
                 ProductID = 28,
@@ -23063,7 +23063,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10514,
                 ProductID = 56,
@@ -23071,7 +23071,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10514,
                 ProductID = 65,
@@ -23079,7 +23079,7 @@ Winchester Way",
                 Quantity = 39,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10514,
                 ProductID = 75,
@@ -23087,7 +23087,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10515,
                 ProductID = 9,
@@ -23095,7 +23095,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10515,
                 ProductID = 16,
@@ -23103,7 +23103,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10515,
                 ProductID = 27,
@@ -23111,7 +23111,7 @@ Winchester Way",
                 Quantity = 120,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10515,
                 ProductID = 33,
@@ -23119,7 +23119,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10515,
                 ProductID = 60,
@@ -23127,7 +23127,7 @@ Winchester Way",
                 Quantity = 84,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10516,
                 ProductID = 18,
@@ -23135,7 +23135,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10516,
                 ProductID = 41,
@@ -23143,7 +23143,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10516,
                 ProductID = 42,
@@ -23151,7 +23151,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10517,
                 ProductID = 52,
@@ -23159,7 +23159,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10517,
                 ProductID = 59,
@@ -23167,7 +23167,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10517,
                 ProductID = 70,
@@ -23175,7 +23175,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10518,
                 ProductID = 24,
@@ -23183,7 +23183,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10518,
                 ProductID = 38,
@@ -23191,7 +23191,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10518,
                 ProductID = 44,
@@ -23199,7 +23199,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10519,
                 ProductID = 10,
@@ -23207,7 +23207,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10519,
                 ProductID = 56,
@@ -23215,7 +23215,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10519,
                 ProductID = 60,
@@ -23223,7 +23223,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10520,
                 ProductID = 24,
@@ -23231,7 +23231,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10520,
                 ProductID = 53,
@@ -23239,7 +23239,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10521,
                 ProductID = 35,
@@ -23247,7 +23247,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10521,
                 ProductID = 41,
@@ -23255,7 +23255,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10521,
                 ProductID = 68,
@@ -23263,7 +23263,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10522,
                 ProductID = 1,
@@ -23271,7 +23271,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10522,
                 ProductID = 8,
@@ -23279,7 +23279,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10522,
                 ProductID = 30,
@@ -23287,7 +23287,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10522,
                 ProductID = 40,
@@ -23295,7 +23295,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10523,
                 ProductID = 17,
@@ -23303,7 +23303,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10523,
                 ProductID = 20,
@@ -23311,7 +23311,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10523,
                 ProductID = 37,
@@ -23319,7 +23319,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10523,
                 ProductID = 41,
@@ -23327,7 +23327,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10524,
                 ProductID = 10,
@@ -23335,7 +23335,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10524,
                 ProductID = 30,
@@ -23343,7 +23343,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10524,
                 ProductID = 43,
@@ -23351,7 +23351,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10524,
                 ProductID = 54,
@@ -23359,7 +23359,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10525,
                 ProductID = 36,
@@ -23367,7 +23367,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10525,
                 ProductID = 40,
@@ -23375,7 +23375,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10526,
                 ProductID = 1,
@@ -23383,7 +23383,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10526,
                 ProductID = 13,
@@ -23391,7 +23391,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10526,
                 ProductID = 56,
@@ -23399,7 +23399,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10527,
                 ProductID = 4,
@@ -23407,7 +23407,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10527,
                 ProductID = 36,
@@ -23415,7 +23415,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10528,
                 ProductID = 11,
@@ -23423,7 +23423,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10528,
                 ProductID = 33,
@@ -23431,7 +23431,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10528,
                 ProductID = 72,
@@ -23439,7 +23439,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10529,
                 ProductID = 55,
@@ -23447,7 +23447,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10529,
                 ProductID = 68,
@@ -23455,7 +23455,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10529,
                 ProductID = 69,
@@ -23463,7 +23463,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10530,
                 ProductID = 17,
@@ -23471,7 +23471,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10530,
                 ProductID = 43,
@@ -23479,7 +23479,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10530,
                 ProductID = 61,
@@ -23487,7 +23487,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10530,
                 ProductID = 76,
@@ -23495,7 +23495,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10531,
                 ProductID = 59,
@@ -23503,7 +23503,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10532,
                 ProductID = 30,
@@ -23511,7 +23511,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10532,
                 ProductID = 66,
@@ -23519,7 +23519,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10533,
                 ProductID = 4,
@@ -23527,7 +23527,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10533,
                 ProductID = 72,
@@ -23535,7 +23535,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10533,
                 ProductID = 73,
@@ -23543,7 +23543,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10534,
                 ProductID = 30,
@@ -23551,7 +23551,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10534,
                 ProductID = 40,
@@ -23559,7 +23559,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10534,
                 ProductID = 54,
@@ -23567,7 +23567,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10535,
                 ProductID = 11,
@@ -23575,7 +23575,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10535,
                 ProductID = 40,
@@ -23583,7 +23583,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10535,
                 ProductID = 57,
@@ -23591,7 +23591,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10535,
                 ProductID = 59,
@@ -23599,7 +23599,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10536,
                 ProductID = 12,
@@ -23607,7 +23607,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10536,
                 ProductID = 31,
@@ -23615,7 +23615,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10536,
                 ProductID = 33,
@@ -23623,7 +23623,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10536,
                 ProductID = 60,
@@ -23631,7 +23631,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10537,
                 ProductID = 31,
@@ -23639,7 +23639,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10537,
                 ProductID = 51,
@@ -23647,7 +23647,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10537,
                 ProductID = 58,
@@ -23655,7 +23655,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10537,
                 ProductID = 72,
@@ -23663,7 +23663,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10537,
                 ProductID = 73,
@@ -23671,7 +23671,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10538,
                 ProductID = 70,
@@ -23679,7 +23679,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10538,
                 ProductID = 72,
@@ -23687,7 +23687,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10539,
                 ProductID = 13,
@@ -23695,7 +23695,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10539,
                 ProductID = 21,
@@ -23703,7 +23703,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10539,
                 ProductID = 33,
@@ -23711,7 +23711,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10539,
                 ProductID = 49,
@@ -23719,7 +23719,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10540,
                 ProductID = 3,
@@ -23727,7 +23727,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10540,
                 ProductID = 26,
@@ -23735,7 +23735,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10540,
                 ProductID = 38,
@@ -23743,7 +23743,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10540,
                 ProductID = 68,
@@ -23751,7 +23751,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10541,
                 ProductID = 24,
@@ -23759,7 +23759,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10541,
                 ProductID = 38,
@@ -23767,7 +23767,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10541,
                 ProductID = 65,
@@ -23775,7 +23775,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10541,
                 ProductID = 71,
@@ -23783,7 +23783,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10542,
                 ProductID = 11,
@@ -23791,7 +23791,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10542,
                 ProductID = 54,
@@ -23799,7 +23799,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10543,
                 ProductID = 12,
@@ -23807,7 +23807,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10543,
                 ProductID = 23,
@@ -23815,7 +23815,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10544,
                 ProductID = 28,
@@ -23823,7 +23823,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10544,
                 ProductID = 67,
@@ -23831,7 +23831,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10545,
                 ProductID = 11,
@@ -23839,7 +23839,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10546,
                 ProductID = 7,
@@ -23847,7 +23847,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10546,
                 ProductID = 35,
@@ -23855,7 +23855,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10546,
                 ProductID = 62,
@@ -23863,7 +23863,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10547,
                 ProductID = 32,
@@ -23871,7 +23871,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10547,
                 ProductID = 36,
@@ -23879,7 +23879,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10548,
                 ProductID = 34,
@@ -23887,7 +23887,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10548,
                 ProductID = 41,
@@ -23895,7 +23895,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10549,
                 ProductID = 31,
@@ -23903,7 +23903,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10549,
                 ProductID = 45,
@@ -23911,7 +23911,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10549,
                 ProductID = 51,
@@ -23919,7 +23919,7 @@ Winchester Way",
                 Quantity = 48,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10550,
                 ProductID = 17,
@@ -23927,7 +23927,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10550,
                 ProductID = 19,
@@ -23935,7 +23935,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10550,
                 ProductID = 21,
@@ -23943,7 +23943,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10550,
                 ProductID = 61,
@@ -23951,7 +23951,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10551,
                 ProductID = 16,
@@ -23959,7 +23959,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10551,
                 ProductID = 35,
@@ -23967,7 +23967,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10551,
                 ProductID = 44,
@@ -23975,7 +23975,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10552,
                 ProductID = 69,
@@ -23983,7 +23983,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10552,
                 ProductID = 75,
@@ -23991,7 +23991,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10553,
                 ProductID = 11,
@@ -23999,7 +23999,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10553,
                 ProductID = 16,
@@ -24007,7 +24007,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10553,
                 ProductID = 22,
@@ -24015,7 +24015,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10553,
                 ProductID = 31,
@@ -24023,7 +24023,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10553,
                 ProductID = 35,
@@ -24031,7 +24031,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10554,
                 ProductID = 16,
@@ -24039,7 +24039,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10554,
                 ProductID = 23,
@@ -24047,7 +24047,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10554,
                 ProductID = 62,
@@ -24055,7 +24055,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10554,
                 ProductID = 77,
@@ -24063,7 +24063,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10555,
                 ProductID = 14,
@@ -24071,7 +24071,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10555,
                 ProductID = 19,
@@ -24079,7 +24079,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10555,
                 ProductID = 24,
@@ -24087,7 +24087,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10555,
                 ProductID = 51,
@@ -24095,7 +24095,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10555,
                 ProductID = 56,
@@ -24103,7 +24103,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10556,
                 ProductID = 72,
@@ -24111,7 +24111,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10557,
                 ProductID = 64,
@@ -24119,7 +24119,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10557,
                 ProductID = 75,
@@ -24127,7 +24127,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10558,
                 ProductID = 47,
@@ -24135,7 +24135,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10558,
                 ProductID = 51,
@@ -24143,7 +24143,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10558,
                 ProductID = 52,
@@ -24151,7 +24151,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10558,
                 ProductID = 53,
@@ -24159,7 +24159,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10558,
                 ProductID = 73,
@@ -24167,7 +24167,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10559,
                 ProductID = 41,
@@ -24175,7 +24175,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10559,
                 ProductID = 55,
@@ -24183,7 +24183,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10560,
                 ProductID = 30,
@@ -24191,7 +24191,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10560,
                 ProductID = 62,
@@ -24199,7 +24199,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10561,
                 ProductID = 44,
@@ -24207,7 +24207,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10561,
                 ProductID = 51,
@@ -24215,7 +24215,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10562,
                 ProductID = 33,
@@ -24223,7 +24223,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10562,
                 ProductID = 62,
@@ -24231,7 +24231,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10563,
                 ProductID = 36,
@@ -24239,7 +24239,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10563,
                 ProductID = 52,
@@ -24247,7 +24247,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10564,
                 ProductID = 17,
@@ -24255,7 +24255,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10564,
                 ProductID = 31,
@@ -24263,7 +24263,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10564,
                 ProductID = 55,
@@ -24271,7 +24271,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10565,
                 ProductID = 24,
@@ -24279,7 +24279,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10565,
                 ProductID = 64,
@@ -24287,7 +24287,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10566,
                 ProductID = 11,
@@ -24295,7 +24295,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10566,
                 ProductID = 18,
@@ -24303,7 +24303,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10566,
                 ProductID = 76,
@@ -24311,7 +24311,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10567,
                 ProductID = 31,
@@ -24319,7 +24319,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10567,
                 ProductID = 51,
@@ -24327,7 +24327,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10567,
                 ProductID = 59,
@@ -24335,7 +24335,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10568,
                 ProductID = 10,
@@ -24343,7 +24343,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10569,
                 ProductID = 31,
@@ -24351,7 +24351,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10569,
                 ProductID = 76,
@@ -24359,7 +24359,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10570,
                 ProductID = 11,
@@ -24367,7 +24367,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10570,
                 ProductID = 56,
@@ -24375,7 +24375,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10571,
                 ProductID = 14,
@@ -24383,7 +24383,7 @@ Winchester Way",
                 Quantity = 11,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10571,
                 ProductID = 42,
@@ -24391,7 +24391,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10572,
                 ProductID = 16,
@@ -24399,7 +24399,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10572,
                 ProductID = 32,
@@ -24407,7 +24407,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10572,
                 ProductID = 40,
@@ -24415,7 +24415,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10572,
                 ProductID = 75,
@@ -24423,7 +24423,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10573,
                 ProductID = 17,
@@ -24431,7 +24431,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10573,
                 ProductID = 34,
@@ -24439,7 +24439,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10573,
                 ProductID = 53,
@@ -24447,7 +24447,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10574,
                 ProductID = 33,
@@ -24455,7 +24455,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10574,
                 ProductID = 40,
@@ -24463,7 +24463,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10574,
                 ProductID = 62,
@@ -24471,7 +24471,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10574,
                 ProductID = 64,
@@ -24479,7 +24479,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10575,
                 ProductID = 59,
@@ -24487,7 +24487,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10575,
                 ProductID = 63,
@@ -24495,7 +24495,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10575,
                 ProductID = 72,
@@ -24503,7 +24503,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10575,
                 ProductID = 76,
@@ -24511,7 +24511,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10576,
                 ProductID = 1,
@@ -24519,7 +24519,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10576,
                 ProductID = 31,
@@ -24527,7 +24527,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10576,
                 ProductID = 44,
@@ -24535,7 +24535,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10577,
                 ProductID = 39,
@@ -24543,7 +24543,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10577,
                 ProductID = 75,
@@ -24551,7 +24551,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10577,
                 ProductID = 77,
@@ -24559,7 +24559,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10578,
                 ProductID = 35,
@@ -24567,7 +24567,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10578,
                 ProductID = 57,
@@ -24575,7 +24575,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10579,
                 ProductID = 15,
@@ -24583,7 +24583,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10579,
                 ProductID = 75,
@@ -24591,7 +24591,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10580,
                 ProductID = 14,
@@ -24599,7 +24599,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10580,
                 ProductID = 41,
@@ -24607,7 +24607,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10580,
                 ProductID = 65,
@@ -24615,7 +24615,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10581,
                 ProductID = 75,
@@ -24623,7 +24623,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10582,
                 ProductID = 57,
@@ -24631,7 +24631,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10582,
                 ProductID = 76,
@@ -24639,7 +24639,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10583,
                 ProductID = 29,
@@ -24647,7 +24647,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10583,
                 ProductID = 60,
@@ -24655,7 +24655,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10583,
                 ProductID = 69,
@@ -24663,7 +24663,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10584,
                 ProductID = 31,
@@ -24671,7 +24671,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10585,
                 ProductID = 47,
@@ -24679,7 +24679,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10586,
                 ProductID = 52,
@@ -24687,7 +24687,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10587,
                 ProductID = 26,
@@ -24695,7 +24695,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10587,
                 ProductID = 35,
@@ -24703,7 +24703,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10587,
                 ProductID = 77,
@@ -24711,7 +24711,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10588,
                 ProductID = 18,
@@ -24719,7 +24719,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10588,
                 ProductID = 42,
@@ -24727,7 +24727,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10589,
                 ProductID = 35,
@@ -24735,7 +24735,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10590,
                 ProductID = 1,
@@ -24743,7 +24743,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10590,
                 ProductID = 77,
@@ -24751,7 +24751,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10591,
                 ProductID = 3,
@@ -24759,7 +24759,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10591,
                 ProductID = 7,
@@ -24767,7 +24767,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10591,
                 ProductID = 54,
@@ -24775,7 +24775,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10592,
                 ProductID = 15,
@@ -24783,7 +24783,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10592,
                 ProductID = 26,
@@ -24791,7 +24791,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10593,
                 ProductID = 20,
@@ -24799,7 +24799,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10593,
                 ProductID = 69,
@@ -24807,7 +24807,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10593,
                 ProductID = 76,
@@ -24815,7 +24815,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10594,
                 ProductID = 52,
@@ -24823,7 +24823,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10594,
                 ProductID = 58,
@@ -24831,7 +24831,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10595,
                 ProductID = 35,
@@ -24839,7 +24839,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10595,
                 ProductID = 61,
@@ -24847,7 +24847,7 @@ Winchester Way",
                 Quantity = 120,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10595,
                 ProductID = 69,
@@ -24855,7 +24855,7 @@ Winchester Way",
                 Quantity = 65,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10596,
                 ProductID = 56,
@@ -24863,7 +24863,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10596,
                 ProductID = 63,
@@ -24871,7 +24871,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10596,
                 ProductID = 75,
@@ -24879,7 +24879,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10597,
                 ProductID = 24,
@@ -24887,7 +24887,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10597,
                 ProductID = 57,
@@ -24895,7 +24895,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10597,
                 ProductID = 65,
@@ -24903,7 +24903,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10598,
                 ProductID = 27,
@@ -24911,7 +24911,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10598,
                 ProductID = 71,
@@ -24919,7 +24919,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10599,
                 ProductID = 62,
@@ -24927,7 +24927,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10600,
                 ProductID = 54,
@@ -24935,7 +24935,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10600,
                 ProductID = 73,
@@ -24943,7 +24943,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10601,
                 ProductID = 13,
@@ -24951,7 +24951,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10601,
                 ProductID = 59,
@@ -24959,7 +24959,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10602,
                 ProductID = 77,
@@ -24967,7 +24967,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10603,
                 ProductID = 22,
@@ -24975,7 +24975,7 @@ Winchester Way",
                 Quantity = 48,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10603,
                 ProductID = 49,
@@ -24983,7 +24983,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10604,
                 ProductID = 48,
@@ -24991,7 +24991,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10604,
                 ProductID = 76,
@@ -24999,7 +24999,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10605,
                 ProductID = 16,
@@ -25007,7 +25007,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10605,
                 ProductID = 59,
@@ -25015,7 +25015,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10605,
                 ProductID = 60,
@@ -25023,7 +25023,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10605,
                 ProductID = 71,
@@ -25031,7 +25031,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10606,
                 ProductID = 4,
@@ -25039,7 +25039,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10606,
                 ProductID = 55,
@@ -25047,7 +25047,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10606,
                 ProductID = 62,
@@ -25055,7 +25055,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10607,
                 ProductID = 7,
@@ -25063,7 +25063,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10607,
                 ProductID = 17,
@@ -25071,7 +25071,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10607,
                 ProductID = 33,
@@ -25079,7 +25079,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10607,
                 ProductID = 40,
@@ -25087,7 +25087,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10607,
                 ProductID = 72,
@@ -25095,7 +25095,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10608,
                 ProductID = 56,
@@ -25103,7 +25103,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10609,
                 ProductID = 1,
@@ -25111,7 +25111,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10609,
                 ProductID = 10,
@@ -25119,7 +25119,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10609,
                 ProductID = 21,
@@ -25127,7 +25127,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10610,
                 ProductID = 36,
@@ -25135,7 +25135,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10611,
                 ProductID = 1,
@@ -25143,7 +25143,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10611,
                 ProductID = 2,
@@ -25151,7 +25151,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10611,
                 ProductID = 60,
@@ -25159,7 +25159,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10612,
                 ProductID = 10,
@@ -25167,7 +25167,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10612,
                 ProductID = 36,
@@ -25175,7 +25175,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10612,
                 ProductID = 49,
@@ -25183,7 +25183,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10612,
                 ProductID = 60,
@@ -25191,7 +25191,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10612,
                 ProductID = 76,
@@ -25199,7 +25199,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10613,
                 ProductID = 13,
@@ -25207,7 +25207,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10613,
                 ProductID = 75,
@@ -25215,7 +25215,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10614,
                 ProductID = 11,
@@ -25223,7 +25223,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10614,
                 ProductID = 21,
@@ -25231,7 +25231,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10614,
                 ProductID = 39,
@@ -25239,7 +25239,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10615,
                 ProductID = 55,
@@ -25247,7 +25247,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10616,
                 ProductID = 38,
@@ -25255,7 +25255,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10616,
                 ProductID = 56,
@@ -25263,7 +25263,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10616,
                 ProductID = 70,
@@ -25271,7 +25271,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10616,
                 ProductID = 71,
@@ -25279,7 +25279,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10617,
                 ProductID = 59,
@@ -25287,7 +25287,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10618,
                 ProductID = 6,
@@ -25295,7 +25295,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10618,
                 ProductID = 56,
@@ -25303,7 +25303,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10618,
                 ProductID = 68,
@@ -25311,7 +25311,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10619,
                 ProductID = 21,
@@ -25319,7 +25319,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10619,
                 ProductID = 22,
@@ -25327,7 +25327,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10620,
                 ProductID = 24,
@@ -25335,7 +25335,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10620,
                 ProductID = 52,
@@ -25343,7 +25343,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10621,
                 ProductID = 19,
@@ -25351,7 +25351,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10621,
                 ProductID = 23,
@@ -25359,7 +25359,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10621,
                 ProductID = 70,
@@ -25367,7 +25367,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10621,
                 ProductID = 71,
@@ -25375,7 +25375,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10622,
                 ProductID = 2,
@@ -25383,7 +25383,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10622,
                 ProductID = 68,
@@ -25391,7 +25391,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10623,
                 ProductID = 14,
@@ -25399,7 +25399,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10623,
                 ProductID = 19,
@@ -25407,7 +25407,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10623,
                 ProductID = 21,
@@ -25415,7 +25415,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10623,
                 ProductID = 24,
@@ -25423,7 +25423,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10623,
                 ProductID = 35,
@@ -25431,7 +25431,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10624,
                 ProductID = 28,
@@ -25439,7 +25439,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10624,
                 ProductID = 29,
@@ -25447,7 +25447,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10624,
                 ProductID = 44,
@@ -25455,7 +25455,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10625,
                 ProductID = 14,
@@ -25463,7 +25463,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10625,
                 ProductID = 42,
@@ -25471,7 +25471,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10625,
                 ProductID = 60,
@@ -25479,7 +25479,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10626,
                 ProductID = 53,
@@ -25487,7 +25487,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10626,
                 ProductID = 60,
@@ -25495,7 +25495,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10626,
                 ProductID = 71,
@@ -25503,7 +25503,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10627,
                 ProductID = 62,
@@ -25511,7 +25511,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10627,
                 ProductID = 73,
@@ -25519,7 +25519,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10628,
                 ProductID = 1,
@@ -25527,7 +25527,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10629,
                 ProductID = 29,
@@ -25535,7 +25535,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10629,
                 ProductID = 64,
@@ -25543,7 +25543,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10630,
                 ProductID = 55,
@@ -25551,7 +25551,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10630,
                 ProductID = 76,
@@ -25559,7 +25559,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10631,
                 ProductID = 75,
@@ -25567,7 +25567,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10632,
                 ProductID = 2,
@@ -25575,7 +25575,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10632,
                 ProductID = 33,
@@ -25583,7 +25583,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10633,
                 ProductID = 12,
@@ -25591,7 +25591,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10633,
                 ProductID = 13,
@@ -25599,7 +25599,7 @@ Winchester Way",
                 Quantity = 13,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10633,
                 ProductID = 26,
@@ -25607,7 +25607,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10633,
                 ProductID = 62,
@@ -25615,7 +25615,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10634,
                 ProductID = 7,
@@ -25623,7 +25623,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10634,
                 ProductID = 18,
@@ -25631,7 +25631,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10634,
                 ProductID = 51,
@@ -25639,7 +25639,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10634,
                 ProductID = 75,
@@ -25647,7 +25647,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10635,
                 ProductID = 4,
@@ -25655,7 +25655,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10635,
                 ProductID = 5,
@@ -25663,7 +25663,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10635,
                 ProductID = 22,
@@ -25671,7 +25671,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10636,
                 ProductID = 4,
@@ -25679,7 +25679,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10636,
                 ProductID = 58,
@@ -25687,7 +25687,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10637,
                 ProductID = 11,
@@ -25695,7 +25695,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10637,
                 ProductID = 50,
@@ -25703,7 +25703,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10637,
                 ProductID = 56,
@@ -25711,7 +25711,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10638,
                 ProductID = 45,
@@ -25719,7 +25719,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10638,
                 ProductID = 65,
@@ -25727,7 +25727,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10638,
                 ProductID = 72,
@@ -25735,7 +25735,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10639,
                 ProductID = 18,
@@ -25743,7 +25743,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10640,
                 ProductID = 69,
@@ -25751,7 +25751,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10640,
                 ProductID = 70,
@@ -25759,7 +25759,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10641,
                 ProductID = 2,
@@ -25767,7 +25767,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10641,
                 ProductID = 40,
@@ -25775,7 +25775,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10642,
                 ProductID = 21,
@@ -25783,7 +25783,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10642,
                 ProductID = 61,
@@ -25791,7 +25791,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10643,
                 ProductID = 28,
@@ -25799,7 +25799,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10643,
                 ProductID = 39,
@@ -25807,7 +25807,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10643,
                 ProductID = 46,
@@ -25815,7 +25815,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10644,
                 ProductID = 18,
@@ -25823,7 +25823,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10644,
                 ProductID = 43,
@@ -25831,7 +25831,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10644,
                 ProductID = 46,
@@ -25839,7 +25839,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10645,
                 ProductID = 18,
@@ -25847,7 +25847,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10645,
                 ProductID = 36,
@@ -25855,7 +25855,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10646,
                 ProductID = 1,
@@ -25863,7 +25863,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10646,
                 ProductID = 10,
@@ -25871,7 +25871,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10646,
                 ProductID = 71,
@@ -25879,7 +25879,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10646,
                 ProductID = 77,
@@ -25887,7 +25887,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10647,
                 ProductID = 19,
@@ -25895,7 +25895,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10647,
                 ProductID = 39,
@@ -25903,7 +25903,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10648,
                 ProductID = 22,
@@ -25911,7 +25911,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10648,
                 ProductID = 24,
@@ -25919,7 +25919,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10649,
                 ProductID = 28,
@@ -25927,7 +25927,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10649,
                 ProductID = 72,
@@ -25935,7 +25935,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10650,
                 ProductID = 30,
@@ -25943,7 +25943,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10650,
                 ProductID = 53,
@@ -25951,7 +25951,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10650,
                 ProductID = 54,
@@ -25959,7 +25959,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10651,
                 ProductID = 19,
@@ -25967,7 +25967,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10651,
                 ProductID = 22,
@@ -25975,7 +25975,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10652,
                 ProductID = 30,
@@ -25983,7 +25983,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10652,
                 ProductID = 42,
@@ -25991,7 +25991,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10653,
                 ProductID = 16,
@@ -25999,7 +25999,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10653,
                 ProductID = 60,
@@ -26007,7 +26007,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10654,
                 ProductID = 4,
@@ -26015,7 +26015,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10654,
                 ProductID = 39,
@@ -26023,7 +26023,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10654,
                 ProductID = 54,
@@ -26031,7 +26031,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10655,
                 ProductID = 41,
@@ -26039,7 +26039,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10656,
                 ProductID = 14,
@@ -26047,7 +26047,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10656,
                 ProductID = 44,
@@ -26055,7 +26055,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10656,
                 ProductID = 47,
@@ -26063,7 +26063,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10657,
                 ProductID = 15,
@@ -26071,7 +26071,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10657,
                 ProductID = 41,
@@ -26079,7 +26079,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10657,
                 ProductID = 46,
@@ -26087,7 +26087,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10657,
                 ProductID = 47,
@@ -26095,7 +26095,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10657,
                 ProductID = 56,
@@ -26103,7 +26103,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10657,
                 ProductID = 60,
@@ -26111,7 +26111,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10658,
                 ProductID = 21,
@@ -26119,7 +26119,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10658,
                 ProductID = 40,
@@ -26127,7 +26127,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10658,
                 ProductID = 60,
@@ -26135,7 +26135,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10658,
                 ProductID = 77,
@@ -26143,7 +26143,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10659,
                 ProductID = 31,
@@ -26151,7 +26151,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10659,
                 ProductID = 40,
@@ -26159,7 +26159,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10659,
                 ProductID = 70,
@@ -26167,7 +26167,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10660,
                 ProductID = 20,
@@ -26175,7 +26175,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10661,
                 ProductID = 39,
@@ -26183,7 +26183,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10661,
                 ProductID = 58,
@@ -26191,7 +26191,7 @@ Winchester Way",
                 Quantity = 49,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10662,
                 ProductID = 68,
@@ -26199,7 +26199,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10663,
                 ProductID = 40,
@@ -26207,7 +26207,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10663,
                 ProductID = 42,
@@ -26215,7 +26215,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10663,
                 ProductID = 51,
@@ -26223,7 +26223,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10664,
                 ProductID = 10,
@@ -26231,7 +26231,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10664,
                 ProductID = 56,
@@ -26239,7 +26239,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10664,
                 ProductID = 65,
@@ -26247,7 +26247,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10665,
                 ProductID = 51,
@@ -26255,7 +26255,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10665,
                 ProductID = 59,
@@ -26263,7 +26263,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10665,
                 ProductID = 76,
@@ -26271,7 +26271,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10666,
                 ProductID = 29,
@@ -26279,7 +26279,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10666,
                 ProductID = 65,
@@ -26287,7 +26287,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10667,
                 ProductID = 69,
@@ -26295,7 +26295,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10667,
                 ProductID = 71,
@@ -26303,7 +26303,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10668,
                 ProductID = 31,
@@ -26311,7 +26311,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10668,
                 ProductID = 55,
@@ -26319,7 +26319,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10668,
                 ProductID = 64,
@@ -26327,7 +26327,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10669,
                 ProductID = 36,
@@ -26335,7 +26335,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10670,
                 ProductID = 23,
@@ -26343,7 +26343,7 @@ Winchester Way",
                 Quantity = 32,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10670,
                 ProductID = 46,
@@ -26351,7 +26351,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10670,
                 ProductID = 67,
@@ -26359,7 +26359,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10670,
                 ProductID = 73,
@@ -26367,7 +26367,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10670,
                 ProductID = 75,
@@ -26375,7 +26375,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10671,
                 ProductID = 16,
@@ -26383,7 +26383,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10671,
                 ProductID = 62,
@@ -26391,7 +26391,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10671,
                 ProductID = 65,
@@ -26399,7 +26399,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10672,
                 ProductID = 38,
@@ -26407,7 +26407,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10672,
                 ProductID = 71,
@@ -26415,7 +26415,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10673,
                 ProductID = 16,
@@ -26423,7 +26423,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10673,
                 ProductID = 42,
@@ -26431,7 +26431,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10673,
                 ProductID = 43,
@@ -26439,7 +26439,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10674,
                 ProductID = 23,
@@ -26447,7 +26447,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10675,
                 ProductID = 14,
@@ -26455,7 +26455,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10675,
                 ProductID = 53,
@@ -26463,7 +26463,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10675,
                 ProductID = 58,
@@ -26471,7 +26471,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10676,
                 ProductID = 10,
@@ -26479,7 +26479,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10676,
                 ProductID = 19,
@@ -26487,7 +26487,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10676,
                 ProductID = 44,
@@ -26495,7 +26495,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10677,
                 ProductID = 26,
@@ -26503,7 +26503,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10677,
                 ProductID = 33,
@@ -26511,7 +26511,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10678,
                 ProductID = 12,
@@ -26519,7 +26519,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10678,
                 ProductID = 33,
@@ -26527,7 +26527,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10678,
                 ProductID = 41,
@@ -26535,7 +26535,7 @@ Winchester Way",
                 Quantity = 120,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10678,
                 ProductID = 54,
@@ -26543,7 +26543,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10679,
                 ProductID = 59,
@@ -26551,7 +26551,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10680,
                 ProductID = 16,
@@ -26559,7 +26559,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10680,
                 ProductID = 31,
@@ -26567,7 +26567,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10680,
                 ProductID = 42,
@@ -26575,7 +26575,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10681,
                 ProductID = 19,
@@ -26583,7 +26583,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10681,
                 ProductID = 21,
@@ -26591,7 +26591,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10681,
                 ProductID = 64,
@@ -26599,7 +26599,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10682,
                 ProductID = 33,
@@ -26607,7 +26607,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10682,
                 ProductID = 66,
@@ -26615,7 +26615,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10682,
                 ProductID = 75,
@@ -26623,7 +26623,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10683,
                 ProductID = 52,
@@ -26631,7 +26631,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10684,
                 ProductID = 40,
@@ -26639,7 +26639,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10684,
                 ProductID = 47,
@@ -26647,7 +26647,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10684,
                 ProductID = 60,
@@ -26655,7 +26655,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10685,
                 ProductID = 10,
@@ -26663,7 +26663,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10685,
                 ProductID = 41,
@@ -26671,7 +26671,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10685,
                 ProductID = 47,
@@ -26679,7 +26679,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10686,
                 ProductID = 17,
@@ -26687,7 +26687,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10686,
                 ProductID = 26,
@@ -26695,7 +26695,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10687,
                 ProductID = 9,
@@ -26703,7 +26703,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10687,
                 ProductID = 29,
@@ -26711,7 +26711,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10687,
                 ProductID = 36,
@@ -26719,7 +26719,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10688,
                 ProductID = 10,
@@ -26727,7 +26727,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10688,
                 ProductID = 28,
@@ -26735,7 +26735,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10688,
                 ProductID = 34,
@@ -26743,7 +26743,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10689,
                 ProductID = 1,
@@ -26751,7 +26751,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10690,
                 ProductID = 56,
@@ -26759,7 +26759,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10690,
                 ProductID = 77,
@@ -26767,7 +26767,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10691,
                 ProductID = 1,
@@ -26775,7 +26775,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10691,
                 ProductID = 29,
@@ -26783,7 +26783,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10691,
                 ProductID = 43,
@@ -26791,7 +26791,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10691,
                 ProductID = 44,
@@ -26799,7 +26799,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10691,
                 ProductID = 62,
@@ -26807,7 +26807,7 @@ Winchester Way",
                 Quantity = 48,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10692,
                 ProductID = 63,
@@ -26815,7 +26815,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10693,
                 ProductID = 9,
@@ -26823,7 +26823,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10693,
                 ProductID = 54,
@@ -26831,7 +26831,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10693,
                 ProductID = 69,
@@ -26839,7 +26839,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10693,
                 ProductID = 73,
@@ -26847,7 +26847,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10694,
                 ProductID = 7,
@@ -26855,7 +26855,7 @@ Winchester Way",
                 Quantity = 90,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10694,
                 ProductID = 59,
@@ -26863,7 +26863,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10694,
                 ProductID = 70,
@@ -26871,7 +26871,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10695,
                 ProductID = 8,
@@ -26879,7 +26879,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10695,
                 ProductID = 12,
@@ -26887,7 +26887,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10695,
                 ProductID = 24,
@@ -26895,7 +26895,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10696,
                 ProductID = 17,
@@ -26903,7 +26903,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10696,
                 ProductID = 46,
@@ -26911,7 +26911,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10697,
                 ProductID = 19,
@@ -26919,7 +26919,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10697,
                 ProductID = 35,
@@ -26927,7 +26927,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10697,
                 ProductID = 58,
@@ -26935,7 +26935,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10697,
                 ProductID = 70,
@@ -26943,7 +26943,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10698,
                 ProductID = 11,
@@ -26951,7 +26951,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10698,
                 ProductID = 17,
@@ -26959,7 +26959,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10698,
                 ProductID = 29,
@@ -26967,7 +26967,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10698,
                 ProductID = 65,
@@ -26975,7 +26975,7 @@ Winchester Way",
                 Quantity = 65,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10698,
                 ProductID = 70,
@@ -26983,7 +26983,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10699,
                 ProductID = 47,
@@ -26991,7 +26991,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10700,
                 ProductID = 1,
@@ -26999,7 +26999,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10700,
                 ProductID = 34,
@@ -27007,7 +27007,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10700,
                 ProductID = 68,
@@ -27015,7 +27015,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10700,
                 ProductID = 71,
@@ -27023,7 +27023,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10701,
                 ProductID = 59,
@@ -27031,7 +27031,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10701,
                 ProductID = 71,
@@ -27039,7 +27039,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10701,
                 ProductID = 76,
@@ -27047,7 +27047,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10702,
                 ProductID = 3,
@@ -27055,7 +27055,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10702,
                 ProductID = 76,
@@ -27063,7 +27063,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10703,
                 ProductID = 2,
@@ -27071,7 +27071,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10703,
                 ProductID = 59,
@@ -27079,7 +27079,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10703,
                 ProductID = 73,
@@ -27087,7 +27087,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10704,
                 ProductID = 4,
@@ -27095,7 +27095,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10704,
                 ProductID = 24,
@@ -27103,7 +27103,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10704,
                 ProductID = 48,
@@ -27111,7 +27111,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10705,
                 ProductID = 31,
@@ -27119,7 +27119,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10705,
                 ProductID = 32,
@@ -27127,7 +27127,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10706,
                 ProductID = 16,
@@ -27135,7 +27135,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10706,
                 ProductID = 43,
@@ -27143,7 +27143,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10706,
                 ProductID = 59,
@@ -27151,7 +27151,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10707,
                 ProductID = 55,
@@ -27159,7 +27159,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10707,
                 ProductID = 57,
@@ -27167,7 +27167,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10707,
                 ProductID = 70,
@@ -27175,7 +27175,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10708,
                 ProductID = 5,
@@ -27183,7 +27183,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10708,
                 ProductID = 36,
@@ -27191,7 +27191,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10709,
                 ProductID = 8,
@@ -27199,7 +27199,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10709,
                 ProductID = 51,
@@ -27207,7 +27207,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10709,
                 ProductID = 60,
@@ -27215,7 +27215,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10710,
                 ProductID = 19,
@@ -27223,7 +27223,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10710,
                 ProductID = 47,
@@ -27231,7 +27231,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10711,
                 ProductID = 19,
@@ -27239,7 +27239,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10711,
                 ProductID = 41,
@@ -27247,7 +27247,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10711,
                 ProductID = 53,
@@ -27255,7 +27255,7 @@ Winchester Way",
                 Quantity = 120,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10712,
                 ProductID = 53,
@@ -27263,7 +27263,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10712,
                 ProductID = 56,
@@ -27271,7 +27271,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10713,
                 ProductID = 10,
@@ -27279,7 +27279,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10713,
                 ProductID = 26,
@@ -27287,7 +27287,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10713,
                 ProductID = 45,
@@ -27295,7 +27295,7 @@ Winchester Way",
                 Quantity = 110,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10713,
                 ProductID = 46,
@@ -27303,7 +27303,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10714,
                 ProductID = 2,
@@ -27311,7 +27311,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10714,
                 ProductID = 17,
@@ -27319,7 +27319,7 @@ Winchester Way",
                 Quantity = 27,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10714,
                 ProductID = 47,
@@ -27327,7 +27327,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10714,
                 ProductID = 56,
@@ -27335,7 +27335,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10714,
                 ProductID = 58,
@@ -27343,7 +27343,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10715,
                 ProductID = 10,
@@ -27351,7 +27351,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10715,
                 ProductID = 71,
@@ -27359,7 +27359,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10716,
                 ProductID = 21,
@@ -27367,7 +27367,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10716,
                 ProductID = 51,
@@ -27375,7 +27375,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10716,
                 ProductID = 61,
@@ -27383,7 +27383,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10717,
                 ProductID = 21,
@@ -27391,7 +27391,7 @@ Winchester Way",
                 Quantity = 32,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10717,
                 ProductID = 54,
@@ -27399,7 +27399,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10717,
                 ProductID = 69,
@@ -27407,7 +27407,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10718,
                 ProductID = 12,
@@ -27415,7 +27415,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10718,
                 ProductID = 16,
@@ -27423,7 +27423,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10718,
                 ProductID = 36,
@@ -27431,7 +27431,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10718,
                 ProductID = 62,
@@ -27439,7 +27439,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10719,
                 ProductID = 18,
@@ -27447,7 +27447,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10719,
                 ProductID = 30,
@@ -27455,7 +27455,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10719,
                 ProductID = 54,
@@ -27463,7 +27463,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10720,
                 ProductID = 35,
@@ -27471,7 +27471,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10720,
                 ProductID = 71,
@@ -27479,7 +27479,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10721,
                 ProductID = 44,
@@ -27487,7 +27487,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10722,
                 ProductID = 2,
@@ -27495,7 +27495,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10722,
                 ProductID = 31,
@@ -27503,7 +27503,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10722,
                 ProductID = 68,
@@ -27511,7 +27511,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10722,
                 ProductID = 75,
@@ -27519,7 +27519,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10723,
                 ProductID = 26,
@@ -27527,7 +27527,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10724,
                 ProductID = 10,
@@ -27535,7 +27535,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10724,
                 ProductID = 61,
@@ -27543,7 +27543,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10725,
                 ProductID = 41,
@@ -27551,7 +27551,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10725,
                 ProductID = 52,
@@ -27559,7 +27559,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10725,
                 ProductID = 55,
@@ -27567,7 +27567,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10726,
                 ProductID = 4,
@@ -27575,7 +27575,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10726,
                 ProductID = 11,
@@ -27583,7 +27583,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10727,
                 ProductID = 17,
@@ -27591,7 +27591,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10727,
                 ProductID = 56,
@@ -27599,7 +27599,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10727,
                 ProductID = 59,
@@ -27607,7 +27607,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10728,
                 ProductID = 30,
@@ -27615,7 +27615,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10728,
                 ProductID = 40,
@@ -27623,7 +27623,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10728,
                 ProductID = 55,
@@ -27631,7 +27631,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10728,
                 ProductID = 60,
@@ -27639,7 +27639,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10729,
                 ProductID = 1,
@@ -27647,7 +27647,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10729,
                 ProductID = 21,
@@ -27655,7 +27655,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10729,
                 ProductID = 50,
@@ -27663,7 +27663,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10730,
                 ProductID = 16,
@@ -27671,7 +27671,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10730,
                 ProductID = 31,
@@ -27679,7 +27679,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10730,
                 ProductID = 65,
@@ -27687,7 +27687,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10731,
                 ProductID = 21,
@@ -27695,7 +27695,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10731,
                 ProductID = 51,
@@ -27703,7 +27703,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10732,
                 ProductID = 76,
@@ -27711,7 +27711,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10733,
                 ProductID = 14,
@@ -27719,7 +27719,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10733,
                 ProductID = 28,
@@ -27727,7 +27727,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10733,
                 ProductID = 52,
@@ -27735,7 +27735,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10734,
                 ProductID = 6,
@@ -27743,7 +27743,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10734,
                 ProductID = 30,
@@ -27751,7 +27751,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10734,
                 ProductID = 76,
@@ -27759,7 +27759,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10735,
                 ProductID = 61,
@@ -27767,7 +27767,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10735,
                 ProductID = 77,
@@ -27775,7 +27775,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10736,
                 ProductID = 65,
@@ -27783,7 +27783,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10736,
                 ProductID = 75,
@@ -27791,7 +27791,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10737,
                 ProductID = 13,
@@ -27799,7 +27799,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10737,
                 ProductID = 41,
@@ -27807,7 +27807,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10738,
                 ProductID = 16,
@@ -27815,7 +27815,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10739,
                 ProductID = 36,
@@ -27823,7 +27823,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10739,
                 ProductID = 52,
@@ -27831,7 +27831,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10740,
                 ProductID = 28,
@@ -27839,7 +27839,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10740,
                 ProductID = 35,
@@ -27847,7 +27847,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10740,
                 ProductID = 45,
@@ -27855,7 +27855,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10740,
                 ProductID = 56,
@@ -27863,7 +27863,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10741,
                 ProductID = 2,
@@ -27871,7 +27871,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10742,
                 ProductID = 3,
@@ -27879,7 +27879,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10742,
                 ProductID = 60,
@@ -27887,7 +27887,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10742,
                 ProductID = 72,
@@ -27895,7 +27895,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10743,
                 ProductID = 46,
@@ -27903,7 +27903,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10744,
                 ProductID = 40,
@@ -27911,7 +27911,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10745,
                 ProductID = 18,
@@ -27919,7 +27919,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10745,
                 ProductID = 44,
@@ -27927,7 +27927,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10745,
                 ProductID = 59,
@@ -27935,7 +27935,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10745,
                 ProductID = 72,
@@ -27943,7 +27943,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10746,
                 ProductID = 13,
@@ -27951,7 +27951,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10746,
                 ProductID = 42,
@@ -27959,7 +27959,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10746,
                 ProductID = 62,
@@ -27967,7 +27967,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10746,
                 ProductID = 69,
@@ -27975,7 +27975,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10747,
                 ProductID = 31,
@@ -27983,7 +27983,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10747,
                 ProductID = 41,
@@ -27991,7 +27991,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10747,
                 ProductID = 63,
@@ -27999,7 +27999,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10747,
                 ProductID = 69,
@@ -28007,7 +28007,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10748,
                 ProductID = 23,
@@ -28015,7 +28015,7 @@ Winchester Way",
                 Quantity = 44,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10748,
                 ProductID = 40,
@@ -28023,7 +28023,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10748,
                 ProductID = 56,
@@ -28031,7 +28031,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10749,
                 ProductID = 56,
@@ -28039,7 +28039,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10749,
                 ProductID = 59,
@@ -28047,7 +28047,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10749,
                 ProductID = 76,
@@ -28055,7 +28055,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10750,
                 ProductID = 14,
@@ -28063,7 +28063,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10750,
                 ProductID = 45,
@@ -28071,7 +28071,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10750,
                 ProductID = 59,
@@ -28079,7 +28079,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10751,
                 ProductID = 26,
@@ -28087,7 +28087,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10751,
                 ProductID = 30,
@@ -28095,7 +28095,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10751,
                 ProductID = 50,
@@ -28103,7 +28103,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10751,
                 ProductID = 73,
@@ -28111,7 +28111,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10752,
                 ProductID = 1,
@@ -28119,7 +28119,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10752,
                 ProductID = 69,
@@ -28127,7 +28127,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10753,
                 ProductID = 45,
@@ -28135,7 +28135,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10753,
                 ProductID = 74,
@@ -28143,7 +28143,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10754,
                 ProductID = 40,
@@ -28151,7 +28151,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10755,
                 ProductID = 47,
@@ -28159,7 +28159,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10755,
                 ProductID = 56,
@@ -28167,7 +28167,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10755,
                 ProductID = 57,
@@ -28175,7 +28175,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10755,
                 ProductID = 69,
@@ -28183,7 +28183,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10756,
                 ProductID = 18,
@@ -28191,7 +28191,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10756,
                 ProductID = 36,
@@ -28199,7 +28199,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10756,
                 ProductID = 68,
@@ -28207,7 +28207,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10756,
                 ProductID = 69,
@@ -28215,7 +28215,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10757,
                 ProductID = 34,
@@ -28223,7 +28223,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10757,
                 ProductID = 59,
@@ -28231,7 +28231,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10757,
                 ProductID = 62,
@@ -28239,7 +28239,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10757,
                 ProductID = 64,
@@ -28247,7 +28247,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10758,
                 ProductID = 26,
@@ -28255,7 +28255,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10758,
                 ProductID = 52,
@@ -28263,7 +28263,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10758,
                 ProductID = 70,
@@ -28271,7 +28271,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10759,
                 ProductID = 32,
@@ -28279,7 +28279,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10760,
                 ProductID = 25,
@@ -28287,7 +28287,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10760,
                 ProductID = 27,
@@ -28295,7 +28295,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10760,
                 ProductID = 43,
@@ -28303,7 +28303,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10761,
                 ProductID = 25,
@@ -28311,7 +28311,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10761,
                 ProductID = 75,
@@ -28319,7 +28319,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10762,
                 ProductID = 39,
@@ -28327,7 +28327,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10762,
                 ProductID = 47,
@@ -28335,7 +28335,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10762,
                 ProductID = 51,
@@ -28343,7 +28343,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10762,
                 ProductID = 56,
@@ -28351,7 +28351,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10763,
                 ProductID = 21,
@@ -28359,7 +28359,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10763,
                 ProductID = 22,
@@ -28367,7 +28367,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10763,
                 ProductID = 24,
@@ -28375,7 +28375,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10764,
                 ProductID = 3,
@@ -28383,7 +28383,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10764,
                 ProductID = 39,
@@ -28391,7 +28391,7 @@ Winchester Way",
                 Quantity = 130,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10765,
                 ProductID = 65,
@@ -28399,7 +28399,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10766,
                 ProductID = 2,
@@ -28407,7 +28407,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10766,
                 ProductID = 7,
@@ -28415,7 +28415,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10766,
                 ProductID = 68,
@@ -28423,7 +28423,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10767,
                 ProductID = 42,
@@ -28431,7 +28431,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10768,
                 ProductID = 22,
@@ -28439,7 +28439,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10768,
                 ProductID = 31,
@@ -28447,7 +28447,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10768,
                 ProductID = 60,
@@ -28455,7 +28455,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10768,
                 ProductID = 71,
@@ -28463,7 +28463,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10769,
                 ProductID = 41,
@@ -28471,7 +28471,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10769,
                 ProductID = 52,
@@ -28479,7 +28479,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10769,
                 ProductID = 61,
@@ -28487,7 +28487,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10769,
                 ProductID = 62,
@@ -28495,7 +28495,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10770,
                 ProductID = 11,
@@ -28503,7 +28503,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10771,
                 ProductID = 71,
@@ -28511,7 +28511,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10772,
                 ProductID = 29,
@@ -28519,7 +28519,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10772,
                 ProductID = 59,
@@ -28527,7 +28527,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10773,
                 ProductID = 17,
@@ -28535,7 +28535,7 @@ Winchester Way",
                 Quantity = 33,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10773,
                 ProductID = 31,
@@ -28543,7 +28543,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10773,
                 ProductID = 75,
@@ -28551,7 +28551,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10774,
                 ProductID = 31,
@@ -28559,7 +28559,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10774,
                 ProductID = 66,
@@ -28567,7 +28567,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10775,
                 ProductID = 10,
@@ -28575,7 +28575,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10775,
                 ProductID = 67,
@@ -28583,7 +28583,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10776,
                 ProductID = 31,
@@ -28591,7 +28591,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10776,
                 ProductID = 42,
@@ -28599,7 +28599,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10776,
                 ProductID = 45,
@@ -28607,7 +28607,7 @@ Winchester Way",
                 Quantity = 27,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10776,
                 ProductID = 51,
@@ -28615,7 +28615,7 @@ Winchester Way",
                 Quantity = 120,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10777,
                 ProductID = 42,
@@ -28623,7 +28623,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10778,
                 ProductID = 41,
@@ -28631,7 +28631,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10779,
                 ProductID = 16,
@@ -28639,7 +28639,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10779,
                 ProductID = 62,
@@ -28647,7 +28647,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10780,
                 ProductID = 70,
@@ -28655,7 +28655,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10780,
                 ProductID = 77,
@@ -28663,7 +28663,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10781,
                 ProductID = 54,
@@ -28671,7 +28671,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10781,
                 ProductID = 56,
@@ -28679,7 +28679,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10781,
                 ProductID = 74,
@@ -28687,7 +28687,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10782,
                 ProductID = 31,
@@ -28695,7 +28695,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10783,
                 ProductID = 31,
@@ -28703,7 +28703,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10783,
                 ProductID = 38,
@@ -28711,7 +28711,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10784,
                 ProductID = 36,
@@ -28719,7 +28719,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10784,
                 ProductID = 39,
@@ -28727,7 +28727,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10784,
                 ProductID = 72,
@@ -28735,7 +28735,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10785,
                 ProductID = 10,
@@ -28743,7 +28743,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10785,
                 ProductID = 75,
@@ -28751,7 +28751,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10786,
                 ProductID = 8,
@@ -28759,7 +28759,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10786,
                 ProductID = 30,
@@ -28767,7 +28767,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10786,
                 ProductID = 75,
@@ -28775,7 +28775,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10787,
                 ProductID = 2,
@@ -28783,7 +28783,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10787,
                 ProductID = 29,
@@ -28791,7 +28791,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10788,
                 ProductID = 19,
@@ -28799,7 +28799,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10788,
                 ProductID = 75,
@@ -28807,7 +28807,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10789,
                 ProductID = 18,
@@ -28815,7 +28815,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10789,
                 ProductID = 35,
@@ -28823,7 +28823,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10789,
                 ProductID = 63,
@@ -28831,7 +28831,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10789,
                 ProductID = 68,
@@ -28839,7 +28839,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10790,
                 ProductID = 7,
@@ -28847,7 +28847,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10790,
                 ProductID = 56,
@@ -28855,7 +28855,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10791,
                 ProductID = 29,
@@ -28863,7 +28863,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10791,
                 ProductID = 41,
@@ -28871,7 +28871,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10792,
                 ProductID = 2,
@@ -28879,7 +28879,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10792,
                 ProductID = 54,
@@ -28887,7 +28887,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10792,
                 ProductID = 68,
@@ -28895,7 +28895,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10793,
                 ProductID = 41,
@@ -28903,7 +28903,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10793,
                 ProductID = 52,
@@ -28911,7 +28911,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10794,
                 ProductID = 14,
@@ -28919,7 +28919,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10794,
                 ProductID = 54,
@@ -28927,7 +28927,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10795,
                 ProductID = 16,
@@ -28935,7 +28935,7 @@ Winchester Way",
                 Quantity = 65,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10795,
                 ProductID = 17,
@@ -28943,7 +28943,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10796,
                 ProductID = 26,
@@ -28951,7 +28951,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10796,
                 ProductID = 44,
@@ -28959,7 +28959,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10796,
                 ProductID = 64,
@@ -28967,7 +28967,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10796,
                 ProductID = 69,
@@ -28975,7 +28975,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10797,
                 ProductID = 11,
@@ -28983,7 +28983,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10798,
                 ProductID = 62,
@@ -28991,7 +28991,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10798,
                 ProductID = 72,
@@ -28999,7 +28999,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10799,
                 ProductID = 13,
@@ -29007,7 +29007,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10799,
                 ProductID = 24,
@@ -29015,7 +29015,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10799,
                 ProductID = 59,
@@ -29023,7 +29023,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10800,
                 ProductID = 11,
@@ -29031,7 +29031,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10800,
                 ProductID = 51,
@@ -29039,7 +29039,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10800,
                 ProductID = 54,
@@ -29047,7 +29047,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10801,
                 ProductID = 17,
@@ -29055,7 +29055,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10801,
                 ProductID = 29,
@@ -29063,7 +29063,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10802,
                 ProductID = 30,
@@ -29071,7 +29071,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10802,
                 ProductID = 51,
@@ -29079,7 +29079,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10802,
                 ProductID = 55,
@@ -29087,7 +29087,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10802,
                 ProductID = 62,
@@ -29095,7 +29095,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10803,
                 ProductID = 19,
@@ -29103,7 +29103,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10803,
                 ProductID = 25,
@@ -29111,7 +29111,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10803,
                 ProductID = 59,
@@ -29119,7 +29119,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10804,
                 ProductID = 10,
@@ -29127,7 +29127,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10804,
                 ProductID = 28,
@@ -29135,7 +29135,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10804,
                 ProductID = 49,
@@ -29143,7 +29143,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10805,
                 ProductID = 34,
@@ -29151,7 +29151,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10805,
                 ProductID = 38,
@@ -29159,7 +29159,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10806,
                 ProductID = 2,
@@ -29167,7 +29167,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10806,
                 ProductID = 65,
@@ -29175,7 +29175,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10806,
                 ProductID = 74,
@@ -29183,7 +29183,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10807,
                 ProductID = 40,
@@ -29191,7 +29191,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10808,
                 ProductID = 56,
@@ -29199,7 +29199,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10808,
                 ProductID = 76,
@@ -29207,7 +29207,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10809,
                 ProductID = 52,
@@ -29215,7 +29215,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10810,
                 ProductID = 13,
@@ -29223,7 +29223,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10810,
                 ProductID = 25,
@@ -29231,7 +29231,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10810,
                 ProductID = 70,
@@ -29239,7 +29239,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10811,
                 ProductID = 19,
@@ -29247,7 +29247,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10811,
                 ProductID = 23,
@@ -29255,7 +29255,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10811,
                 ProductID = 40,
@@ -29263,7 +29263,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10812,
                 ProductID = 31,
@@ -29271,7 +29271,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10812,
                 ProductID = 72,
@@ -29279,7 +29279,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10812,
                 ProductID = 77,
@@ -29287,7 +29287,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10813,
                 ProductID = 2,
@@ -29295,7 +29295,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10813,
                 ProductID = 46,
@@ -29303,7 +29303,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10814,
                 ProductID = 41,
@@ -29311,7 +29311,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10814,
                 ProductID = 43,
@@ -29319,7 +29319,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10814,
                 ProductID = 48,
@@ -29327,7 +29327,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10814,
                 ProductID = 61,
@@ -29335,7 +29335,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10815,
                 ProductID = 33,
@@ -29343,7 +29343,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10816,
                 ProductID = 38,
@@ -29351,7 +29351,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10816,
                 ProductID = 62,
@@ -29359,7 +29359,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10817,
                 ProductID = 26,
@@ -29367,7 +29367,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10817,
                 ProductID = 38,
@@ -29375,7 +29375,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10817,
                 ProductID = 40,
@@ -29383,7 +29383,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10817,
                 ProductID = 62,
@@ -29391,7 +29391,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10818,
                 ProductID = 32,
@@ -29399,7 +29399,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10818,
                 ProductID = 41,
@@ -29407,7 +29407,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10819,
                 ProductID = 43,
@@ -29415,7 +29415,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10819,
                 ProductID = 75,
@@ -29423,7 +29423,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10820,
                 ProductID = 56,
@@ -29431,7 +29431,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10821,
                 ProductID = 35,
@@ -29439,7 +29439,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10821,
                 ProductID = 51,
@@ -29447,7 +29447,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10822,
                 ProductID = 62,
@@ -29455,7 +29455,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10822,
                 ProductID = 70,
@@ -29463,7 +29463,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10823,
                 ProductID = 11,
@@ -29471,7 +29471,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10823,
                 ProductID = 57,
@@ -29479,7 +29479,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10823,
                 ProductID = 59,
@@ -29487,7 +29487,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10823,
                 ProductID = 77,
@@ -29495,7 +29495,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10824,
                 ProductID = 41,
@@ -29503,7 +29503,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10824,
                 ProductID = 70,
@@ -29511,7 +29511,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10825,
                 ProductID = 26,
@@ -29519,7 +29519,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10825,
                 ProductID = 53,
@@ -29527,7 +29527,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10826,
                 ProductID = 31,
@@ -29535,7 +29535,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10826,
                 ProductID = 57,
@@ -29543,7 +29543,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10827,
                 ProductID = 10,
@@ -29551,7 +29551,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10827,
                 ProductID = 39,
@@ -29559,7 +29559,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10828,
                 ProductID = 20,
@@ -29567,7 +29567,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10828,
                 ProductID = 38,
@@ -29575,7 +29575,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10829,
                 ProductID = 2,
@@ -29583,7 +29583,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10829,
                 ProductID = 8,
@@ -29591,7 +29591,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10829,
                 ProductID = 13,
@@ -29599,7 +29599,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10829,
                 ProductID = 60,
@@ -29607,7 +29607,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10830,
                 ProductID = 6,
@@ -29615,7 +29615,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10830,
                 ProductID = 39,
@@ -29623,7 +29623,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10830,
                 ProductID = 60,
@@ -29631,7 +29631,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10830,
                 ProductID = 68,
@@ -29639,7 +29639,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10831,
                 ProductID = 19,
@@ -29647,7 +29647,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10831,
                 ProductID = 35,
@@ -29655,7 +29655,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10831,
                 ProductID = 38,
@@ -29663,7 +29663,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10831,
                 ProductID = 43,
@@ -29671,7 +29671,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10832,
                 ProductID = 13,
@@ -29679,7 +29679,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10832,
                 ProductID = 25,
@@ -29687,7 +29687,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10832,
                 ProductID = 44,
@@ -29695,7 +29695,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10832,
                 ProductID = 64,
@@ -29703,7 +29703,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10833,
                 ProductID = 7,
@@ -29711,7 +29711,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10833,
                 ProductID = 31,
@@ -29719,7 +29719,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10833,
                 ProductID = 53,
@@ -29727,7 +29727,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10834,
                 ProductID = 29,
@@ -29735,7 +29735,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10834,
                 ProductID = 30,
@@ -29743,7 +29743,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10835,
                 ProductID = 59,
@@ -29751,7 +29751,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10835,
                 ProductID = 77,
@@ -29759,7 +29759,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10836,
                 ProductID = 22,
@@ -29767,7 +29767,7 @@ Winchester Way",
                 Quantity = 52,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10836,
                 ProductID = 35,
@@ -29775,7 +29775,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10836,
                 ProductID = 57,
@@ -29783,7 +29783,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10836,
                 ProductID = 60,
@@ -29791,7 +29791,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10836,
                 ProductID = 64,
@@ -29799,7 +29799,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10837,
                 ProductID = 13,
@@ -29807,7 +29807,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10837,
                 ProductID = 40,
@@ -29815,7 +29815,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10837,
                 ProductID = 47,
@@ -29823,7 +29823,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10837,
                 ProductID = 76,
@@ -29831,7 +29831,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10838,
                 ProductID = 1,
@@ -29839,7 +29839,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10838,
                 ProductID = 18,
@@ -29847,7 +29847,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10838,
                 ProductID = 36,
@@ -29855,7 +29855,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10839,
                 ProductID = 58,
@@ -29863,7 +29863,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10839,
                 ProductID = 72,
@@ -29871,7 +29871,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10840,
                 ProductID = 25,
@@ -29879,7 +29879,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10840,
                 ProductID = 39,
@@ -29887,7 +29887,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10841,
                 ProductID = 10,
@@ -29895,7 +29895,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10841,
                 ProductID = 56,
@@ -29903,7 +29903,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10841,
                 ProductID = 59,
@@ -29911,7 +29911,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10841,
                 ProductID = 77,
@@ -29919,7 +29919,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10842,
                 ProductID = 11,
@@ -29927,7 +29927,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10842,
                 ProductID = 43,
@@ -29935,7 +29935,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10842,
                 ProductID = 68,
@@ -29943,7 +29943,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10842,
                 ProductID = 70,
@@ -29951,7 +29951,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10843,
                 ProductID = 51,
@@ -29959,7 +29959,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10844,
                 ProductID = 22,
@@ -29967,7 +29967,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10845,
                 ProductID = 23,
@@ -29975,7 +29975,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10845,
                 ProductID = 35,
@@ -29983,7 +29983,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10845,
                 ProductID = 42,
@@ -29991,7 +29991,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10845,
                 ProductID = 58,
@@ -29999,7 +29999,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10845,
                 ProductID = 64,
@@ -30007,7 +30007,7 @@ Winchester Way",
                 Quantity = 48,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10846,
                 ProductID = 4,
@@ -30015,7 +30015,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10846,
                 ProductID = 70,
@@ -30023,7 +30023,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10846,
                 ProductID = 74,
@@ -30031,7 +30031,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10847,
                 ProductID = 1,
@@ -30039,7 +30039,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10847,
                 ProductID = 19,
@@ -30047,7 +30047,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10847,
                 ProductID = 37,
@@ -30055,7 +30055,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10847,
                 ProductID = 45,
@@ -30063,7 +30063,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10847,
                 ProductID = 60,
@@ -30071,7 +30071,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10847,
                 ProductID = 71,
@@ -30079,7 +30079,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10848,
                 ProductID = 5,
@@ -30087,7 +30087,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10848,
                 ProductID = 9,
@@ -30095,7 +30095,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10849,
                 ProductID = 3,
@@ -30103,7 +30103,7 @@ Winchester Way",
                 Quantity = 49,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10849,
                 ProductID = 26,
@@ -30111,7 +30111,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10850,
                 ProductID = 25,
@@ -30119,7 +30119,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10850,
                 ProductID = 33,
@@ -30127,7 +30127,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10850,
                 ProductID = 70,
@@ -30135,7 +30135,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10851,
                 ProductID = 2,
@@ -30143,7 +30143,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10851,
                 ProductID = 25,
@@ -30151,7 +30151,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10851,
                 ProductID = 57,
@@ -30159,7 +30159,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10851,
                 ProductID = 59,
@@ -30167,7 +30167,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10852,
                 ProductID = 2,
@@ -30175,7 +30175,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10852,
                 ProductID = 17,
@@ -30183,7 +30183,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10852,
                 ProductID = 62,
@@ -30191,7 +30191,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10853,
                 ProductID = 18,
@@ -30199,7 +30199,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10854,
                 ProductID = 10,
@@ -30207,7 +30207,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10854,
                 ProductID = 13,
@@ -30215,7 +30215,7 @@ Winchester Way",
                 Quantity = 65,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10855,
                 ProductID = 16,
@@ -30223,7 +30223,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10855,
                 ProductID = 31,
@@ -30231,7 +30231,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10855,
                 ProductID = 56,
@@ -30239,7 +30239,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10855,
                 ProductID = 65,
@@ -30247,7 +30247,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10856,
                 ProductID = 2,
@@ -30255,7 +30255,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10856,
                 ProductID = 42,
@@ -30263,7 +30263,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10857,
                 ProductID = 3,
@@ -30271,7 +30271,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10857,
                 ProductID = 26,
@@ -30279,7 +30279,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10857,
                 ProductID = 29,
@@ -30287,7 +30287,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10858,
                 ProductID = 7,
@@ -30295,7 +30295,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10858,
                 ProductID = 27,
@@ -30303,7 +30303,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10858,
                 ProductID = 70,
@@ -30311,7 +30311,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10859,
                 ProductID = 24,
@@ -30319,7 +30319,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10859,
                 ProductID = 54,
@@ -30327,7 +30327,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10859,
                 ProductID = 64,
@@ -30335,7 +30335,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10860,
                 ProductID = 51,
@@ -30343,7 +30343,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10860,
                 ProductID = 76,
@@ -30351,7 +30351,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10861,
                 ProductID = 17,
@@ -30359,7 +30359,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10861,
                 ProductID = 18,
@@ -30367,7 +30367,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10861,
                 ProductID = 21,
@@ -30375,7 +30375,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10861,
                 ProductID = 33,
@@ -30383,7 +30383,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10861,
                 ProductID = 62,
@@ -30391,7 +30391,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10862,
                 ProductID = 11,
@@ -30399,7 +30399,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10862,
                 ProductID = 52,
@@ -30407,7 +30407,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10863,
                 ProductID = 1,
@@ -30415,7 +30415,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10863,
                 ProductID = 58,
@@ -30423,7 +30423,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10864,
                 ProductID = 35,
@@ -30431,7 +30431,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10864,
                 ProductID = 67,
@@ -30439,7 +30439,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10865,
                 ProductID = 38,
@@ -30447,7 +30447,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10865,
                 ProductID = 39,
@@ -30455,7 +30455,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10866,
                 ProductID = 2,
@@ -30463,7 +30463,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10866,
                 ProductID = 24,
@@ -30471,7 +30471,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10866,
                 ProductID = 30,
@@ -30479,7 +30479,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10867,
                 ProductID = 53,
@@ -30487,7 +30487,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10868,
                 ProductID = 26,
@@ -30495,7 +30495,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10868,
                 ProductID = 35,
@@ -30503,7 +30503,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10868,
                 ProductID = 49,
@@ -30511,7 +30511,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10869,
                 ProductID = 1,
@@ -30519,7 +30519,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10869,
                 ProductID = 11,
@@ -30527,7 +30527,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10869,
                 ProductID = 23,
@@ -30535,7 +30535,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10869,
                 ProductID = 68,
@@ -30543,7 +30543,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10870,
                 ProductID = 35,
@@ -30551,7 +30551,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10870,
                 ProductID = 51,
@@ -30559,7 +30559,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10871,
                 ProductID = 6,
@@ -30567,7 +30567,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10871,
                 ProductID = 16,
@@ -30575,7 +30575,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10871,
                 ProductID = 17,
@@ -30583,7 +30583,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10872,
                 ProductID = 55,
@@ -30591,7 +30591,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10872,
                 ProductID = 62,
@@ -30599,7 +30599,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10872,
                 ProductID = 64,
@@ -30607,7 +30607,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10872,
                 ProductID = 65,
@@ -30615,7 +30615,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10873,
                 ProductID = 21,
@@ -30623,7 +30623,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10873,
                 ProductID = 28,
@@ -30631,7 +30631,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10874,
                 ProductID = 10,
@@ -30639,7 +30639,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10875,
                 ProductID = 19,
@@ -30647,7 +30647,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10875,
                 ProductID = 47,
@@ -30655,7 +30655,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10875,
                 ProductID = 49,
@@ -30663,7 +30663,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10876,
                 ProductID = 46,
@@ -30671,7 +30671,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10876,
                 ProductID = 64,
@@ -30679,7 +30679,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10877,
                 ProductID = 16,
@@ -30687,7 +30687,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10877,
                 ProductID = 18,
@@ -30695,7 +30695,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10878,
                 ProductID = 20,
@@ -30703,7 +30703,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10879,
                 ProductID = 40,
@@ -30711,7 +30711,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10879,
                 ProductID = 65,
@@ -30719,7 +30719,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10879,
                 ProductID = 76,
@@ -30727,7 +30727,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10880,
                 ProductID = 23,
@@ -30735,7 +30735,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10880,
                 ProductID = 61,
@@ -30743,7 +30743,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10880,
                 ProductID = 70,
@@ -30751,7 +30751,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10881,
                 ProductID = 73,
@@ -30759,7 +30759,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10882,
                 ProductID = 42,
@@ -30767,7 +30767,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10882,
                 ProductID = 49,
@@ -30775,7 +30775,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10882,
                 ProductID = 54,
@@ -30783,7 +30783,7 @@ Winchester Way",
                 Quantity = 32,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10883,
                 ProductID = 24,
@@ -30791,7 +30791,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10884,
                 ProductID = 21,
@@ -30799,7 +30799,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10884,
                 ProductID = 56,
@@ -30807,7 +30807,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10884,
                 ProductID = 65,
@@ -30815,7 +30815,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10885,
                 ProductID = 2,
@@ -30823,7 +30823,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10885,
                 ProductID = 24,
@@ -30831,7 +30831,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10885,
                 ProductID = 70,
@@ -30839,7 +30839,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10885,
                 ProductID = 77,
@@ -30847,7 +30847,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10886,
                 ProductID = 10,
@@ -30855,7 +30855,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10886,
                 ProductID = 31,
@@ -30863,7 +30863,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10886,
                 ProductID = 77,
@@ -30871,7 +30871,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10887,
                 ProductID = 25,
@@ -30879,7 +30879,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10888,
                 ProductID = 2,
@@ -30887,7 +30887,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10888,
                 ProductID = 68,
@@ -30895,7 +30895,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10889,
                 ProductID = 11,
@@ -30903,7 +30903,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10889,
                 ProductID = 38,
@@ -30911,7 +30911,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10890,
                 ProductID = 17,
@@ -30919,7 +30919,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10890,
                 ProductID = 34,
@@ -30927,7 +30927,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10890,
                 ProductID = 41,
@@ -30935,7 +30935,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10891,
                 ProductID = 30,
@@ -30943,7 +30943,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10892,
                 ProductID = 59,
@@ -30951,7 +30951,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10893,
                 ProductID = 8,
@@ -30959,7 +30959,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10893,
                 ProductID = 24,
@@ -30967,7 +30967,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10893,
                 ProductID = 29,
@@ -30975,7 +30975,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10893,
                 ProductID = 30,
@@ -30983,7 +30983,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10893,
                 ProductID = 36,
@@ -30991,7 +30991,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10894,
                 ProductID = 13,
@@ -30999,7 +30999,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10894,
                 ProductID = 69,
@@ -31007,7 +31007,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10894,
                 ProductID = 75,
@@ -31015,7 +31015,7 @@ Winchester Way",
                 Quantity = 120,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10895,
                 ProductID = 24,
@@ -31023,7 +31023,7 @@ Winchester Way",
                 Quantity = 110,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10895,
                 ProductID = 39,
@@ -31031,7 +31031,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10895,
                 ProductID = 40,
@@ -31039,7 +31039,7 @@ Winchester Way",
                 Quantity = 91,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10895,
                 ProductID = 60,
@@ -31047,7 +31047,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10896,
                 ProductID = 45,
@@ -31055,7 +31055,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10896,
                 ProductID = 56,
@@ -31063,7 +31063,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10897,
                 ProductID = 29,
@@ -31071,7 +31071,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10897,
                 ProductID = 30,
@@ -31079,7 +31079,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10898,
                 ProductID = 13,
@@ -31087,7 +31087,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10899,
                 ProductID = 39,
@@ -31095,7 +31095,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10900,
                 ProductID = 70,
@@ -31103,7 +31103,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10901,
                 ProductID = 41,
@@ -31111,7 +31111,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10901,
                 ProductID = 71,
@@ -31119,7 +31119,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10902,
                 ProductID = 55,
@@ -31127,7 +31127,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10902,
                 ProductID = 62,
@@ -31135,7 +31135,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10903,
                 ProductID = 13,
@@ -31143,7 +31143,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10903,
                 ProductID = 65,
@@ -31151,7 +31151,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10903,
                 ProductID = 68,
@@ -31159,7 +31159,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10904,
                 ProductID = 58,
@@ -31167,7 +31167,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10904,
                 ProductID = 62,
@@ -31175,7 +31175,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10905,
                 ProductID = 1,
@@ -31183,7 +31183,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10906,
                 ProductID = 61,
@@ -31191,7 +31191,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10907,
                 ProductID = 75,
@@ -31199,7 +31199,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10908,
                 ProductID = 7,
@@ -31207,7 +31207,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10908,
                 ProductID = 52,
@@ -31215,7 +31215,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10909,
                 ProductID = 7,
@@ -31223,7 +31223,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10909,
                 ProductID = 16,
@@ -31231,7 +31231,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10909,
                 ProductID = 41,
@@ -31239,7 +31239,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10910,
                 ProductID = 19,
@@ -31247,7 +31247,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10910,
                 ProductID = 49,
@@ -31255,7 +31255,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10910,
                 ProductID = 61,
@@ -31263,7 +31263,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10911,
                 ProductID = 1,
@@ -31271,7 +31271,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10911,
                 ProductID = 17,
@@ -31279,7 +31279,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10911,
                 ProductID = 67,
@@ -31287,7 +31287,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10912,
                 ProductID = 11,
@@ -31295,7 +31295,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10912,
                 ProductID = 29,
@@ -31303,7 +31303,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10913,
                 ProductID = 4,
@@ -31311,7 +31311,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10913,
                 ProductID = 33,
@@ -31319,7 +31319,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10913,
                 ProductID = 58,
@@ -31327,7 +31327,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10914,
                 ProductID = 71,
@@ -31335,7 +31335,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10915,
                 ProductID = 17,
@@ -31343,7 +31343,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10915,
                 ProductID = 33,
@@ -31351,7 +31351,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10915,
                 ProductID = 54,
@@ -31359,7 +31359,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10916,
                 ProductID = 16,
@@ -31367,7 +31367,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10916,
                 ProductID = 32,
@@ -31375,7 +31375,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10916,
                 ProductID = 57,
@@ -31383,7 +31383,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10917,
                 ProductID = 30,
@@ -31391,7 +31391,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10917,
                 ProductID = 60,
@@ -31399,7 +31399,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10918,
                 ProductID = 1,
@@ -31407,7 +31407,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10918,
                 ProductID = 60,
@@ -31415,7 +31415,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10919,
                 ProductID = 16,
@@ -31423,7 +31423,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10919,
                 ProductID = 25,
@@ -31431,7 +31431,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10919,
                 ProductID = 40,
@@ -31439,7 +31439,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10920,
                 ProductID = 50,
@@ -31447,7 +31447,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10921,
                 ProductID = 35,
@@ -31455,7 +31455,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10921,
                 ProductID = 63,
@@ -31463,7 +31463,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10922,
                 ProductID = 17,
@@ -31471,7 +31471,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10922,
                 ProductID = 24,
@@ -31479,7 +31479,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10923,
                 ProductID = 42,
@@ -31487,7 +31487,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10923,
                 ProductID = 43,
@@ -31495,7 +31495,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10923,
                 ProductID = 67,
@@ -31503,7 +31503,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10924,
                 ProductID = 10,
@@ -31511,7 +31511,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10924,
                 ProductID = 28,
@@ -31519,7 +31519,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10924,
                 ProductID = 75,
@@ -31527,7 +31527,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10925,
                 ProductID = 36,
@@ -31535,7 +31535,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10925,
                 ProductID = 52,
@@ -31543,7 +31543,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10926,
                 ProductID = 11,
@@ -31551,7 +31551,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10926,
                 ProductID = 13,
@@ -31559,7 +31559,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10926,
                 ProductID = 19,
@@ -31567,7 +31567,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10926,
                 ProductID = 72,
@@ -31575,7 +31575,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10927,
                 ProductID = 20,
@@ -31583,7 +31583,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10927,
                 ProductID = 52,
@@ -31591,7 +31591,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10927,
                 ProductID = 76,
@@ -31599,7 +31599,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10928,
                 ProductID = 47,
@@ -31607,7 +31607,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10928,
                 ProductID = 76,
@@ -31615,7 +31615,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10929,
                 ProductID = 21,
@@ -31623,7 +31623,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10929,
                 ProductID = 75,
@@ -31631,7 +31631,7 @@ Winchester Way",
                 Quantity = 49,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10929,
                 ProductID = 77,
@@ -31639,7 +31639,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10930,
                 ProductID = 21,
@@ -31647,7 +31647,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10930,
                 ProductID = 27,
@@ -31655,7 +31655,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10930,
                 ProductID = 55,
@@ -31663,7 +31663,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10930,
                 ProductID = 58,
@@ -31671,7 +31671,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10931,
                 ProductID = 13,
@@ -31679,7 +31679,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10931,
                 ProductID = 57,
@@ -31687,7 +31687,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10932,
                 ProductID = 16,
@@ -31695,7 +31695,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10932,
                 ProductID = 62,
@@ -31703,7 +31703,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10932,
                 ProductID = 72,
@@ -31711,7 +31711,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10932,
                 ProductID = 75,
@@ -31719,7 +31719,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10933,
                 ProductID = 53,
@@ -31727,7 +31727,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10933,
                 ProductID = 61,
@@ -31735,7 +31735,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10934,
                 ProductID = 6,
@@ -31743,7 +31743,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10935,
                 ProductID = 1,
@@ -31751,7 +31751,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10935,
                 ProductID = 18,
@@ -31759,7 +31759,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10935,
                 ProductID = 23,
@@ -31767,7 +31767,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10936,
                 ProductID = 36,
@@ -31775,7 +31775,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10937,
                 ProductID = 28,
@@ -31783,7 +31783,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10937,
                 ProductID = 34,
@@ -31791,7 +31791,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10938,
                 ProductID = 13,
@@ -31799,7 +31799,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10938,
                 ProductID = 43,
@@ -31807,7 +31807,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10938,
                 ProductID = 60,
@@ -31815,7 +31815,7 @@ Winchester Way",
                 Quantity = 49,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10938,
                 ProductID = 71,
@@ -31823,7 +31823,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10939,
                 ProductID = 2,
@@ -31831,7 +31831,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10939,
                 ProductID = 67,
@@ -31839,7 +31839,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10940,
                 ProductID = 7,
@@ -31847,7 +31847,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10940,
                 ProductID = 13,
@@ -31855,7 +31855,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10941,
                 ProductID = 31,
@@ -31863,7 +31863,7 @@ Winchester Way",
                 Quantity = 44,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10941,
                 ProductID = 62,
@@ -31871,7 +31871,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10941,
                 ProductID = 68,
@@ -31879,7 +31879,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10941,
                 ProductID = 72,
@@ -31887,7 +31887,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10942,
                 ProductID = 49,
@@ -31895,7 +31895,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10943,
                 ProductID = 13,
@@ -31903,7 +31903,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10943,
                 ProductID = 22,
@@ -31911,7 +31911,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10943,
                 ProductID = 46,
@@ -31919,7 +31919,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10944,
                 ProductID = 11,
@@ -31927,7 +31927,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10944,
                 ProductID = 44,
@@ -31935,7 +31935,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10944,
                 ProductID = 56,
@@ -31943,7 +31943,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10945,
                 ProductID = 13,
@@ -31951,7 +31951,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10945,
                 ProductID = 31,
@@ -31959,7 +31959,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10946,
                 ProductID = 10,
@@ -31967,7 +31967,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10946,
                 ProductID = 24,
@@ -31975,7 +31975,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10946,
                 ProductID = 77,
@@ -31983,7 +31983,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10947,
                 ProductID = 59,
@@ -31991,7 +31991,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10948,
                 ProductID = 50,
@@ -31999,7 +31999,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10948,
                 ProductID = 51,
@@ -32007,7 +32007,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10948,
                 ProductID = 55,
@@ -32015,7 +32015,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10949,
                 ProductID = 6,
@@ -32023,7 +32023,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10949,
                 ProductID = 10,
@@ -32031,7 +32031,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10949,
                 ProductID = 17,
@@ -32039,7 +32039,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10949,
                 ProductID = 62,
@@ -32047,7 +32047,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10950,
                 ProductID = 4,
@@ -32055,7 +32055,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10951,
                 ProductID = 33,
@@ -32063,7 +32063,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10951,
                 ProductID = 41,
@@ -32071,7 +32071,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10951,
                 ProductID = 75,
@@ -32079,7 +32079,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10952,
                 ProductID = 6,
@@ -32087,7 +32087,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10952,
                 ProductID = 28,
@@ -32095,7 +32095,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10953,
                 ProductID = 20,
@@ -32103,7 +32103,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10953,
                 ProductID = 31,
@@ -32111,7 +32111,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10954,
                 ProductID = 16,
@@ -32119,7 +32119,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10954,
                 ProductID = 31,
@@ -32127,7 +32127,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10954,
                 ProductID = 45,
@@ -32135,7 +32135,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10954,
                 ProductID = 60,
@@ -32143,7 +32143,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10955,
                 ProductID = 75,
@@ -32151,7 +32151,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10956,
                 ProductID = 21,
@@ -32159,7 +32159,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10956,
                 ProductID = 47,
@@ -32167,7 +32167,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10956,
                 ProductID = 51,
@@ -32175,7 +32175,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10957,
                 ProductID = 30,
@@ -32183,7 +32183,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10957,
                 ProductID = 35,
@@ -32191,7 +32191,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10957,
                 ProductID = 64,
@@ -32199,7 +32199,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10958,
                 ProductID = 5,
@@ -32207,7 +32207,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10958,
                 ProductID = 7,
@@ -32215,7 +32215,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10958,
                 ProductID = 72,
@@ -32223,7 +32223,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10959,
                 ProductID = 75,
@@ -32231,7 +32231,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10960,
                 ProductID = 24,
@@ -32239,7 +32239,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10960,
                 ProductID = 41,
@@ -32247,7 +32247,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10961,
                 ProductID = 52,
@@ -32255,7 +32255,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10961,
                 ProductID = 76,
@@ -32263,7 +32263,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10962,
                 ProductID = 7,
@@ -32271,7 +32271,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10962,
                 ProductID = 13,
@@ -32279,7 +32279,7 @@ Winchester Way",
                 Quantity = 77,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10962,
                 ProductID = 53,
@@ -32287,7 +32287,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10962,
                 ProductID = 69,
@@ -32295,7 +32295,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10962,
                 ProductID = 76,
@@ -32303,7 +32303,7 @@ Winchester Way",
                 Quantity = 44,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10963,
                 ProductID = 60,
@@ -32311,7 +32311,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10964,
                 ProductID = 18,
@@ -32319,7 +32319,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10964,
                 ProductID = 38,
@@ -32327,7 +32327,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10964,
                 ProductID = 69,
@@ -32335,7 +32335,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10965,
                 ProductID = 51,
@@ -32343,7 +32343,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10966,
                 ProductID = 37,
@@ -32351,7 +32351,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10966,
                 ProductID = 56,
@@ -32359,7 +32359,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10966,
                 ProductID = 62,
@@ -32367,7 +32367,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10967,
                 ProductID = 19,
@@ -32375,7 +32375,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10967,
                 ProductID = 49,
@@ -32383,7 +32383,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10968,
                 ProductID = 12,
@@ -32391,7 +32391,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10968,
                 ProductID = 24,
@@ -32399,7 +32399,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10968,
                 ProductID = 64,
@@ -32407,7 +32407,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10969,
                 ProductID = 46,
@@ -32415,7 +32415,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10970,
                 ProductID = 52,
@@ -32423,7 +32423,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10971,
                 ProductID = 29,
@@ -32431,7 +32431,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10972,
                 ProductID = 17,
@@ -32439,7 +32439,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10972,
                 ProductID = 33,
@@ -32447,7 +32447,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10973,
                 ProductID = 26,
@@ -32455,7 +32455,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10973,
                 ProductID = 41,
@@ -32463,7 +32463,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10973,
                 ProductID = 75,
@@ -32471,7 +32471,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10974,
                 ProductID = 63,
@@ -32479,7 +32479,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10975,
                 ProductID = 8,
@@ -32487,7 +32487,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10975,
                 ProductID = 75,
@@ -32495,7 +32495,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10976,
                 ProductID = 28,
@@ -32503,7 +32503,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10977,
                 ProductID = 39,
@@ -32511,7 +32511,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10977,
                 ProductID = 47,
@@ -32519,7 +32519,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10977,
                 ProductID = 51,
@@ -32527,7 +32527,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10977,
                 ProductID = 63,
@@ -32535,7 +32535,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10978,
                 ProductID = 8,
@@ -32543,7 +32543,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10978,
                 ProductID = 21,
@@ -32551,7 +32551,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10978,
                 ProductID = 40,
@@ -32559,7 +32559,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10978,
                 ProductID = 44,
@@ -32567,7 +32567,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10979,
                 ProductID = 7,
@@ -32575,7 +32575,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10979,
                 ProductID = 12,
@@ -32583,7 +32583,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10979,
                 ProductID = 24,
@@ -32591,7 +32591,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10979,
                 ProductID = 27,
@@ -32599,7 +32599,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10979,
                 ProductID = 31,
@@ -32607,7 +32607,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10979,
                 ProductID = 63,
@@ -32615,7 +32615,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10980,
                 ProductID = 75,
@@ -32623,7 +32623,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10981,
                 ProductID = 38,
@@ -32631,7 +32631,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10982,
                 ProductID = 7,
@@ -32639,7 +32639,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10982,
                 ProductID = 43,
@@ -32647,7 +32647,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10983,
                 ProductID = 13,
@@ -32655,7 +32655,7 @@ Winchester Way",
                 Quantity = 84,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10983,
                 ProductID = 57,
@@ -32663,7 +32663,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10984,
                 ProductID = 16,
@@ -32671,7 +32671,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10984,
                 ProductID = 24,
@@ -32679,7 +32679,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10984,
                 ProductID = 36,
@@ -32687,7 +32687,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10985,
                 ProductID = 16,
@@ -32695,7 +32695,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10985,
                 ProductID = 18,
@@ -32703,7 +32703,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10985,
                 ProductID = 32,
@@ -32711,7 +32711,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10986,
                 ProductID = 11,
@@ -32719,7 +32719,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10986,
                 ProductID = 20,
@@ -32727,7 +32727,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10986,
                 ProductID = 76,
@@ -32735,7 +32735,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10986,
                 ProductID = 77,
@@ -32743,7 +32743,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10987,
                 ProductID = 7,
@@ -32751,7 +32751,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10987,
                 ProductID = 43,
@@ -32759,7 +32759,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10987,
                 ProductID = 72,
@@ -32767,7 +32767,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10988,
                 ProductID = 7,
@@ -32775,7 +32775,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10988,
                 ProductID = 62,
@@ -32783,7 +32783,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10989,
                 ProductID = 6,
@@ -32791,7 +32791,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10989,
                 ProductID = 11,
@@ -32799,7 +32799,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10989,
                 ProductID = 41,
@@ -32807,7 +32807,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10990,
                 ProductID = 21,
@@ -32815,7 +32815,7 @@ Winchester Way",
                 Quantity = 65,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10990,
                 ProductID = 34,
@@ -32823,7 +32823,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10990,
                 ProductID = 55,
@@ -32831,7 +32831,7 @@ Winchester Way",
                 Quantity = 65,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10990,
                 ProductID = 61,
@@ -32839,7 +32839,7 @@ Winchester Way",
                 Quantity = 66,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10991,
                 ProductID = 2,
@@ -32847,7 +32847,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10991,
                 ProductID = 70,
@@ -32855,7 +32855,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10991,
                 ProductID = 76,
@@ -32863,7 +32863,7 @@ Winchester Way",
                 Quantity = 90,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10992,
                 ProductID = 72,
@@ -32871,7 +32871,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10993,
                 ProductID = 29,
@@ -32879,7 +32879,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10993,
                 ProductID = 41,
@@ -32887,7 +32887,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10994,
                 ProductID = 59,
@@ -32895,7 +32895,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10995,
                 ProductID = 51,
@@ -32903,7 +32903,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10995,
                 ProductID = 60,
@@ -32911,7 +32911,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10996,
                 ProductID = 42,
@@ -32919,7 +32919,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10997,
                 ProductID = 32,
@@ -32927,7 +32927,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10997,
                 ProductID = 46,
@@ -32935,7 +32935,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10997,
                 ProductID = 52,
@@ -32943,7 +32943,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10998,
                 ProductID = 24,
@@ -32951,7 +32951,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10998,
                 ProductID = 61,
@@ -32959,7 +32959,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10998,
                 ProductID = 74,
@@ -32967,7 +32967,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10998,
                 ProductID = 75,
@@ -32975,7 +32975,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10999,
                 ProductID = 41,
@@ -32983,7 +32983,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10999,
                 ProductID = 51,
@@ -32991,7 +32991,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 10999,
                 ProductID = 77,
@@ -32999,7 +32999,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11000,
                 ProductID = 4,
@@ -33007,7 +33007,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11000,
                 ProductID = 24,
@@ -33015,7 +33015,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11000,
                 ProductID = 77,
@@ -33023,7 +33023,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11001,
                 ProductID = 7,
@@ -33031,7 +33031,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11001,
                 ProductID = 22,
@@ -33039,7 +33039,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11001,
                 ProductID = 46,
@@ -33047,7 +33047,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11001,
                 ProductID = 55,
@@ -33055,7 +33055,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11002,
                 ProductID = 13,
@@ -33063,7 +33063,7 @@ Winchester Way",
                 Quantity = 56,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11002,
                 ProductID = 35,
@@ -33071,7 +33071,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11002,
                 ProductID = 42,
@@ -33079,7 +33079,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11002,
                 ProductID = 55,
@@ -33087,7 +33087,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11003,
                 ProductID = 1,
@@ -33095,7 +33095,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11003,
                 ProductID = 40,
@@ -33103,7 +33103,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11003,
                 ProductID = 52,
@@ -33111,7 +33111,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11004,
                 ProductID = 26,
@@ -33119,7 +33119,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11004,
                 ProductID = 76,
@@ -33127,7 +33127,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11005,
                 ProductID = 1,
@@ -33135,7 +33135,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11005,
                 ProductID = 59,
@@ -33143,7 +33143,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11006,
                 ProductID = 1,
@@ -33151,7 +33151,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11006,
                 ProductID = 29,
@@ -33159,7 +33159,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11007,
                 ProductID = 8,
@@ -33167,7 +33167,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11007,
                 ProductID = 29,
@@ -33175,7 +33175,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11007,
                 ProductID = 42,
@@ -33183,7 +33183,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11008,
                 ProductID = 28,
@@ -33191,7 +33191,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11008,
                 ProductID = 34,
@@ -33199,7 +33199,7 @@ Winchester Way",
                 Quantity = 90,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11008,
                 ProductID = 71,
@@ -33207,7 +33207,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11009,
                 ProductID = 24,
@@ -33215,7 +33215,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11009,
                 ProductID = 36,
@@ -33223,7 +33223,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11009,
                 ProductID = 60,
@@ -33231,7 +33231,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11010,
                 ProductID = 7,
@@ -33239,7 +33239,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11010,
                 ProductID = 24,
@@ -33247,7 +33247,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11011,
                 ProductID = 58,
@@ -33255,7 +33255,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11011,
                 ProductID = 71,
@@ -33263,7 +33263,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11012,
                 ProductID = 19,
@@ -33271,7 +33271,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11012,
                 ProductID = 60,
@@ -33279,7 +33279,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11012,
                 ProductID = 71,
@@ -33287,7 +33287,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11013,
                 ProductID = 23,
@@ -33295,7 +33295,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11013,
                 ProductID = 42,
@@ -33303,7 +33303,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11013,
                 ProductID = 45,
@@ -33311,7 +33311,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11013,
                 ProductID = 68,
@@ -33319,7 +33319,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11014,
                 ProductID = 41,
@@ -33327,7 +33327,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11015,
                 ProductID = 30,
@@ -33335,7 +33335,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11015,
                 ProductID = 77,
@@ -33343,7 +33343,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11016,
                 ProductID = 31,
@@ -33351,7 +33351,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11016,
                 ProductID = 36,
@@ -33359,7 +33359,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11017,
                 ProductID = 3,
@@ -33367,7 +33367,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11017,
                 ProductID = 59,
@@ -33375,7 +33375,7 @@ Winchester Way",
                 Quantity = 110,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11017,
                 ProductID = 70,
@@ -33383,7 +33383,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11018,
                 ProductID = 12,
@@ -33391,7 +33391,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11018,
                 ProductID = 18,
@@ -33399,7 +33399,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11018,
                 ProductID = 56,
@@ -33407,7 +33407,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11019,
                 ProductID = 46,
@@ -33415,7 +33415,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11019,
                 ProductID = 49,
@@ -33423,7 +33423,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11020,
                 ProductID = 10,
@@ -33431,7 +33431,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11021,
                 ProductID = 2,
@@ -33439,7 +33439,7 @@ Winchester Way",
                 Quantity = 11,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11021,
                 ProductID = 20,
@@ -33447,7 +33447,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11021,
                 ProductID = 26,
@@ -33455,7 +33455,7 @@ Winchester Way",
                 Quantity = 63,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11021,
                 ProductID = 51,
@@ -33463,7 +33463,7 @@ Winchester Way",
                 Quantity = 44,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11021,
                 ProductID = 72,
@@ -33471,7 +33471,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11022,
                 ProductID = 19,
@@ -33479,7 +33479,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11022,
                 ProductID = 69,
@@ -33487,7 +33487,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11023,
                 ProductID = 7,
@@ -33495,7 +33495,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11023,
                 ProductID = 43,
@@ -33503,7 +33503,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11024,
                 ProductID = 26,
@@ -33511,7 +33511,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11024,
                 ProductID = 33,
@@ -33519,7 +33519,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11024,
                 ProductID = 65,
@@ -33527,7 +33527,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11024,
                 ProductID = 71,
@@ -33535,7 +33535,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11025,
                 ProductID = 1,
@@ -33543,7 +33543,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11025,
                 ProductID = 13,
@@ -33551,7 +33551,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11026,
                 ProductID = 18,
@@ -33559,7 +33559,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11026,
                 ProductID = 51,
@@ -33567,7 +33567,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11027,
                 ProductID = 24,
@@ -33575,7 +33575,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11027,
                 ProductID = 62,
@@ -33583,7 +33583,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11028,
                 ProductID = 55,
@@ -33591,7 +33591,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11028,
                 ProductID = 59,
@@ -33599,7 +33599,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11029,
                 ProductID = 56,
@@ -33607,7 +33607,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11029,
                 ProductID = 63,
@@ -33615,7 +33615,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11030,
                 ProductID = 2,
@@ -33623,7 +33623,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11030,
                 ProductID = 5,
@@ -33631,7 +33631,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11030,
                 ProductID = 29,
@@ -33639,7 +33639,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11030,
                 ProductID = 59,
@@ -33647,7 +33647,7 @@ Winchester Way",
                 Quantity = 100,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11031,
                 ProductID = 1,
@@ -33655,7 +33655,7 @@ Winchester Way",
                 Quantity = 45,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11031,
                 ProductID = 13,
@@ -33663,7 +33663,7 @@ Winchester Way",
                 Quantity = 80,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11031,
                 ProductID = 24,
@@ -33671,7 +33671,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11031,
                 ProductID = 64,
@@ -33679,7 +33679,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11031,
                 ProductID = 71,
@@ -33687,7 +33687,7 @@ Winchester Way",
                 Quantity = 16,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11032,
                 ProductID = 36,
@@ -33695,7 +33695,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11032,
                 ProductID = 38,
@@ -33703,7 +33703,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11032,
                 ProductID = 59,
@@ -33711,7 +33711,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11033,
                 ProductID = 53,
@@ -33719,7 +33719,7 @@ Winchester Way",
                 Quantity = 70,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11033,
                 ProductID = 69,
@@ -33727,7 +33727,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11034,
                 ProductID = 21,
@@ -33735,7 +33735,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11034,
                 ProductID = 44,
@@ -33743,7 +33743,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11034,
                 ProductID = 61,
@@ -33751,7 +33751,7 @@ Winchester Way",
                 Quantity = 6,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11035,
                 ProductID = 1,
@@ -33759,7 +33759,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11035,
                 ProductID = 35,
@@ -33767,7 +33767,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11035,
                 ProductID = 42,
@@ -33775,7 +33775,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11035,
                 ProductID = 54,
@@ -33783,7 +33783,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11036,
                 ProductID = 13,
@@ -33791,7 +33791,7 @@ Winchester Way",
                 Quantity = 7,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11036,
                 ProductID = 59,
@@ -33799,7 +33799,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11037,
                 ProductID = 70,
@@ -33807,7 +33807,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11038,
                 ProductID = 40,
@@ -33815,7 +33815,7 @@ Winchester Way",
                 Quantity = 5,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11038,
                 ProductID = 52,
@@ -33823,7 +33823,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11038,
                 ProductID = 71,
@@ -33831,7 +33831,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11039,
                 ProductID = 28,
@@ -33839,7 +33839,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11039,
                 ProductID = 35,
@@ -33847,7 +33847,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11039,
                 ProductID = 49,
@@ -33855,7 +33855,7 @@ Winchester Way",
                 Quantity = 60,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11039,
                 ProductID = 57,
@@ -33863,7 +33863,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11040,
                 ProductID = 21,
@@ -33871,7 +33871,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11041,
                 ProductID = 2,
@@ -33879,7 +33879,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11041,
                 ProductID = 63,
@@ -33887,7 +33887,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11042,
                 ProductID = 44,
@@ -33895,7 +33895,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11042,
                 ProductID = 61,
@@ -33903,7 +33903,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11043,
                 ProductID = 11,
@@ -33911,7 +33911,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11044,
                 ProductID = 62,
@@ -33919,7 +33919,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11045,
                 ProductID = 33,
@@ -33927,7 +33927,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11045,
                 ProductID = 51,
@@ -33935,7 +33935,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11046,
                 ProductID = 12,
@@ -33943,7 +33943,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11046,
                 ProductID = 32,
@@ -33951,7 +33951,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11046,
                 ProductID = 35,
@@ -33959,7 +33959,7 @@ Winchester Way",
                 Quantity = 18,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11047,
                 ProductID = 1,
@@ -33967,7 +33967,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11047,
                 ProductID = 5,
@@ -33975,7 +33975,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11048,
                 ProductID = 68,
@@ -33983,7 +33983,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11049,
                 ProductID = 2,
@@ -33991,7 +33991,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11049,
                 ProductID = 12,
@@ -33999,7 +33999,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11050,
                 ProductID = 76,
@@ -34007,7 +34007,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11051,
                 ProductID = 24,
@@ -34015,7 +34015,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11052,
                 ProductID = 43,
@@ -34023,7 +34023,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11052,
                 ProductID = 61,
@@ -34031,7 +34031,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11053,
                 ProductID = 18,
@@ -34039,7 +34039,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11053,
                 ProductID = 32,
@@ -34047,7 +34047,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11053,
                 ProductID = 64,
@@ -34055,7 +34055,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11054,
                 ProductID = 33,
@@ -34063,7 +34063,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11054,
                 ProductID = 67,
@@ -34071,7 +34071,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11055,
                 ProductID = 24,
@@ -34079,7 +34079,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11055,
                 ProductID = 25,
@@ -34087,7 +34087,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11055,
                 ProductID = 51,
@@ -34095,7 +34095,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11055,
                 ProductID = 57,
@@ -34103,7 +34103,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11056,
                 ProductID = 7,
@@ -34111,7 +34111,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11056,
                 ProductID = 55,
@@ -34119,7 +34119,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11056,
                 ProductID = 60,
@@ -34127,7 +34127,7 @@ Winchester Way",
                 Quantity = 50,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11057,
                 ProductID = 70,
@@ -34135,7 +34135,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11058,
                 ProductID = 21,
@@ -34143,7 +34143,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11058,
                 ProductID = 60,
@@ -34151,7 +34151,7 @@ Winchester Way",
                 Quantity = 21,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11058,
                 ProductID = 61,
@@ -34159,7 +34159,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11059,
                 ProductID = 13,
@@ -34167,7 +34167,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11059,
                 ProductID = 17,
@@ -34175,7 +34175,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11059,
                 ProductID = 60,
@@ -34183,7 +34183,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11060,
                 ProductID = 60,
@@ -34191,7 +34191,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11060,
                 ProductID = 77,
@@ -34199,7 +34199,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11061,
                 ProductID = 60,
@@ -34207,7 +34207,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11062,
                 ProductID = 53,
@@ -34215,7 +34215,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11062,
                 ProductID = 70,
@@ -34223,7 +34223,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11063,
                 ProductID = 34,
@@ -34231,7 +34231,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11063,
                 ProductID = 40,
@@ -34239,7 +34239,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11063,
                 ProductID = 41,
@@ -34247,7 +34247,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11064,
                 ProductID = 17,
@@ -34255,7 +34255,7 @@ Winchester Way",
                 Quantity = 77,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11064,
                 ProductID = 41,
@@ -34263,7 +34263,7 @@ Winchester Way",
                 Quantity = 12,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11064,
                 ProductID = 53,
@@ -34271,7 +34271,7 @@ Winchester Way",
                 Quantity = 25,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11064,
                 ProductID = 55,
@@ -34279,7 +34279,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11064,
                 ProductID = 68,
@@ -34287,7 +34287,7 @@ Winchester Way",
                 Quantity = 55,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11065,
                 ProductID = 30,
@@ -34295,7 +34295,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11065,
                 ProductID = 54,
@@ -34303,7 +34303,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11066,
                 ProductID = 16,
@@ -34311,7 +34311,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11066,
                 ProductID = 19,
@@ -34319,7 +34319,7 @@ Winchester Way",
                 Quantity = 42,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11066,
                 ProductID = 34,
@@ -34327,7 +34327,7 @@ Winchester Way",
                 Quantity = 35,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11067,
                 ProductID = 41,
@@ -34335,7 +34335,7 @@ Winchester Way",
                 Quantity = 9,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11068,
                 ProductID = 28,
@@ -34343,7 +34343,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11068,
                 ProductID = 43,
@@ -34351,7 +34351,7 @@ Winchester Way",
                 Quantity = 36,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11068,
                 ProductID = 77,
@@ -34359,7 +34359,7 @@ Winchester Way",
                 Quantity = 28,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11069,
                 ProductID = 39,
@@ -34367,7 +34367,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11070,
                 ProductID = 1,
@@ -34375,7 +34375,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11070,
                 ProductID = 2,
@@ -34383,7 +34383,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11070,
                 ProductID = 16,
@@ -34391,7 +34391,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11070,
                 ProductID = 31,
@@ -34399,7 +34399,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11071,
                 ProductID = 7,
@@ -34407,7 +34407,7 @@ Winchester Way",
                 Quantity = 15,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11071,
                 ProductID = 13,
@@ -34415,7 +34415,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11072,
                 ProductID = 2,
@@ -34423,7 +34423,7 @@ Winchester Way",
                 Quantity = 8,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11072,
                 ProductID = 41,
@@ -34431,7 +34431,7 @@ Winchester Way",
                 Quantity = 40,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11072,
                 ProductID = 50,
@@ -34439,7 +34439,7 @@ Winchester Way",
                 Quantity = 22,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11072,
                 ProductID = 64,
@@ -34447,7 +34447,7 @@ Winchester Way",
                 Quantity = 130,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11073,
                 ProductID = 11,
@@ -34455,7 +34455,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11073,
                 ProductID = 24,
@@ -34463,7 +34463,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11074,
                 ProductID = 16,
@@ -34471,7 +34471,7 @@ Winchester Way",
                 Quantity = 14,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11075,
                 ProductID = 2,
@@ -34479,7 +34479,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11075,
                 ProductID = 46,
@@ -34487,7 +34487,7 @@ Winchester Way",
                 Quantity = 30,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11075,
                 ProductID = 76,
@@ -34495,7 +34495,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.15f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11076,
                 ProductID = 6,
@@ -34503,7 +34503,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11076,
                 ProductID = 14,
@@ -34511,7 +34511,7 @@ Winchester Way",
                 Quantity = 20,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11076,
                 ProductID = 19,
@@ -34519,7 +34519,7 @@ Winchester Way",
                 Quantity = 10,
                 Discount = 0.25f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 2,
@@ -34527,7 +34527,7 @@ Winchester Way",
                 Quantity = 24,
                 Discount = 0.2f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 3,
@@ -34535,7 +34535,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 4,
@@ -34543,7 +34543,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 6,
@@ -34551,7 +34551,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0.02f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 7,
@@ -34559,7 +34559,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 8,
@@ -34567,7 +34567,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.1f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 10,
@@ -34575,7 +34575,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 12,
@@ -34583,7 +34583,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 13,
@@ -34591,7 +34591,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 14,
@@ -34599,7 +34599,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0.03f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 16,
@@ -34607,7 +34607,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.03f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 20,
@@ -34615,7 +34615,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0.04f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 23,
@@ -34623,7 +34623,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 32,
@@ -34631,7 +34631,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 39,
@@ -34639,7 +34639,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.05f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 41,
@@ -34647,7 +34647,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 46,
@@ -34655,7 +34655,7 @@ Winchester Way",
                 Quantity = 3,
                 Discount = 0.02f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 52,
@@ -34663,7 +34663,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 55,
@@ -34671,7 +34671,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 60,
@@ -34679,7 +34679,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.06f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 64,
@@ -34687,7 +34687,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.03f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 66,
@@ -34695,7 +34695,7 @@ Winchester Way",
                 Quantity = 1,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 73,
@@ -34703,7 +34703,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0.01f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 75,
@@ -34711,7 +34711,7 @@ Winchester Way",
                 Quantity = 4,
                 Discount = 0f
             },
-            new OrderDetail
+            new()
             {
                 OrderID = 11077,
                 ProductID = 77,

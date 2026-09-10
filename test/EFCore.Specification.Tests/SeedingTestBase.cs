@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class SeedingTestBase
 {
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Seeding_does_not_leave_context_contaminated(bool async)
     {
         using var context = CreateContextWithEmptyDatabase(async ? "1A" : "1S");
@@ -30,20 +28,17 @@ public abstract class SeedingTestBase
         Assert.Equal("Orange", seeds[1].Species);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Seeding_keyless_entity_throws_exception(bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            async () =>
-            {
-                using var context = CreateKeylessContextWithEmptyDatabase();
-                await TestStore.CleanAsync(context);
-                var _ = async
-                    ? await context.Database.EnsureCreatedResilientlyAsync()
-                    : context.Database.EnsureCreatedResiliently();
-            });
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        {
+            using var context = CreateKeylessContextWithEmptyDatabase();
+            await TestStore.CleanAsync(context);
+            var _ = async
+                ? await context.Database.EnsureCreatedResilientlyAsync()
+                : context.Database.EnsureCreatedResiliently();
+        });
         Assert.Equal(CoreStrings.SeedKeylessEntity(nameof(KeylessSeed)), exception.Message);
     }
 

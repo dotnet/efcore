@@ -34,13 +34,13 @@ public class DbSetInitializerTest
         {
             var setterFactory = ClrPropertySetterFactory.Instance;
 
-            return new[]
-            {
+            return
+            [
                 new DbSetProperty("One", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("One"))),
                 new DbSetProperty("Two", typeof(object), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Two"))),
                 new DbSetProperty("Three", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Three"))),
                 new DbSetProperty("Four", typeof(string), null)
-            };
+            ];
         }
     }
 

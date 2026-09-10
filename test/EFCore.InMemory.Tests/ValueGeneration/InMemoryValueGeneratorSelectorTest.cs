@@ -91,9 +91,7 @@ public class InMemoryValueGeneratorSelectorTest
             selector.TrySelect(entityType.FindProperty("Binary")!, entityType, out generator) ? generator : null);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Can_create_factories_for_all_integer_types(bool useTry)
     {
         var model = BuildModel();

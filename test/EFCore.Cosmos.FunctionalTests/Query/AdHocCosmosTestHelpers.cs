@@ -34,7 +34,6 @@ public class AdHocCosmosTestHelpers
                 cancellationToken)
             .ConfigureAwait(false);
 
-
         if (response.StatusCode != HttpStatusCode.Created)
         {
             throw new InvalidOperationException($"Failed to create entity (status code: {response.StatusCode}) for json: {json}");

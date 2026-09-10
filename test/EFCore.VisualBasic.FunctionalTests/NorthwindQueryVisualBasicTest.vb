@@ -89,11 +89,11 @@ WHERE [p].[UnitsInStock] * CAST(1 AS smallint) = CAST(101 AS smallint)")
             Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock = units))
 
         AssertSql(
-            "@__units_0='101'
+            "@units='101'
 
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE [p].[UnitsInStock] = @__units_0")
+WHERE [p].[UnitsInStock] = @units")
     End Sub
 
     Protected Overrides Function CreateQueryAsserter(fixture As NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer)) As QueryAsserter

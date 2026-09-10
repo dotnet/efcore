@@ -84,8 +84,10 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
 
         AssertExecuteUpdateSql(
             """
+@p='Animal' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'Animal'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 WHERE [a].[Name] = N'Great spotted kiwi'
 """);
@@ -97,8 +99,10 @@ WHERE [a].[Name] = N'Great spotted kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='NewBird' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'NewBird'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
 WHERE [k].[Id] IS NOT NULL
@@ -118,8 +122,10 @@ WHERE [k].[Id] IS NOT NULL
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 4000)
+
 UPDATE [a]
-SET [a].[Name] = N'SomeOtherKiwi'
+SET [a].[Name] = @p
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
@@ -132,8 +138,10 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
 
         AssertExecuteUpdateSql(
             """
+@p='0' (Size = 1)
+
 UPDATE [k]
-SET [k].[FoundOn] = CAST(0 AS tinyint)
+SET [k].[FoundOn] = @p
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
@@ -153,8 +161,10 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -169,8 +179,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 4000)
+
 UPDATE [c]
-SET [c].[Name] = N'Monovia'
+SET [c].[Name] = @p
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -193,8 +205,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE [c]
-SET [c].[SugarGrams] = 0
+SET [c].[SugarGrams] = @p
 FROM [Drinks] AS [d]
 INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
 """);
@@ -206,8 +220,10 @@ INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE [c]
-SET [c].[SugarGrams] = 0
+SET [c].[SugarGrams] = @p
 FROM [Drinks] AS [d]
 INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
 """);

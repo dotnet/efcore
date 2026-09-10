@@ -17,7 +17,7 @@ jobs:
       - name: Start Cosmos Emulator
         run: |
           Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
-          Start-CosmosDbEmulator -Timeout 360
+          Start-CosmosDbEmulator -Timeout 540 -NoUI -NoTelemetry -NoFirewall -EnablePreview
 
       - name: Checkout
         uses: actions/checkout@v4

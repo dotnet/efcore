@@ -232,7 +232,7 @@ public class RelationshipDiscoveryConventionTest
         var modelBuilder = CreateInternalModeBuilder();
         var manyToManySelf = modelBuilder.Entity(typeof(ManyToManySelf), ConfigurationSource.Convention);
 
-        manyToManySelf.PrimaryKey(new[] { nameof(ManyToManySelf.Id) }, ConfigurationSource.Convention);
+        manyToManySelf.PrimaryKey([nameof(ManyToManySelf.Id)], ConfigurationSource.Convention);
 
         RunConvention(manyToManySelf);
 
@@ -252,8 +252,8 @@ public class RelationshipDiscoveryConventionTest
         var derivedManyToManyFirst = modelBuilder.Entity(typeof(DerivedManyToManyFirst), ConfigurationSource.Convention);
         var derivedManyToManySecond = modelBuilder.Entity(typeof(DerivedManyToManySecond), ConfigurationSource.Convention);
 
-        derivedManyToManyFirst.PrimaryKey(new[] { nameof(DerivedManyToManyFirst.Id) }, ConfigurationSource.Convention);
-        derivedManyToManySecond.PrimaryKey(new[] { nameof(DerivedManyToManySecond.Id) }, ConfigurationSource.Convention);
+        derivedManyToManyFirst.PrimaryKey([nameof(DerivedManyToManyFirst.Id)], ConfigurationSource.Convention);
+        derivedManyToManySecond.PrimaryKey([nameof(DerivedManyToManySecond.Id)], ConfigurationSource.Convention);
 
         RunConvention(derivedManyToManyFirst);
 
@@ -268,8 +268,8 @@ public class RelationshipDiscoveryConventionTest
         var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
         var manyToManySecond = modelBuilder.Entity(typeof(ManyToManySecond), ConfigurationSource.Convention);
 
-        manyToManyFirst.PrimaryKey(new[] { nameof(ManyToManyFirst.Id) }, ConfigurationSource.Convention);
-        manyToManySecond.PrimaryKey(new[] { nameof(ManyToManySecond.Id) }, ConfigurationSource.Convention);
+        manyToManyFirst.PrimaryKey([nameof(ManyToManyFirst.Id)], ConfigurationSource.Convention);
+        manyToManySecond.PrimaryKey([nameof(ManyToManySecond.Id)], ConfigurationSource.Convention);
 
         RunConvention(manyToManyFirst);
 
@@ -422,11 +422,10 @@ public class RelationshipDiscoveryConventionTest
         Assert.False(firstFK.IsRequired);
         Assert.False(firstFK.IsUnique);
         Assert.Equal(
-            new[]
-            {
+            [
                 MultipleNavigationsFirst.NonCollectionNavigationProperty.Name,
                 MultipleNavigationsFirst.CollectionNavigationProperty.Name
-            },
+            ],
             firstEntityType.GetNavigations().Select(n => n.Name));
 
         Assert.Equal(2, secondEntityType.GetProperties().Count());

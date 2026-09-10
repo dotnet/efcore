@@ -46,7 +46,7 @@ public class CosmosRegexTranslator(ISqlExpressionFactory sqlExpressionFactory)
 
         if (method == IsMatch || arguments[2] is SqlConstantExpression { Value: RegexOptions.None })
         {
-            return sqlExpressionFactory.Function("RegexMatch", new[] { input, pattern }, typeof(bool));
+            return sqlExpressionFactory.Function("RegexMatch", [input, pattern], typeof(bool));
         }
 
         if (arguments[2] is SqlConstantExpression { Value: RegexOptions regexOptions })
@@ -80,7 +80,7 @@ public class CosmosRegexTranslator(ISqlExpressionFactory sqlExpressionFactory)
             return regexOptions == 0
                 ? sqlExpressionFactory.Function(
                     "RegexMatch",
-                    new[] { input, pattern, sqlExpressionFactory.Constant(modifier) },
+                    [input, pattern, sqlExpressionFactory.Constant(modifier)],
                     typeof(bool))
                 : null; // TODO: Report unsupported RegexOption, #26410
         }

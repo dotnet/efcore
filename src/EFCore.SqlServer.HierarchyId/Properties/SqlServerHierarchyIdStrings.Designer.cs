@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerHierarchyIdStrings", typeof(SqlServerHierarchyIdStrings).Assembly);
 
         /// <summary>
-        ///     UseHierarchyId requires AddEntityFrameworkSqlServerHierarchyId to be called on the internal service provider used.
+        ///     'UseHierarchyId' requires 'AddEntityFrameworkSqlServerHierarchyId' to be called on the internal service provider used.
         /// </summary>
         public static string ServicesMissing
             => GetString("ServicesMissing");

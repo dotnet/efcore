@@ -159,8 +159,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.SingleOrDefault()?.Properties ?? Array.Empty<IReadOnlyProperty>(),
-                pickle.GetIndexes().SingleOrDefault()?.Properties ?? Array.Empty<IMutableProperty>());
+                initialIndexes.SingleOrDefault()?.Properties ?? [],
+                pickle.GetIndexes().SingleOrDefault()?.Properties ?? []);
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 pickle.GetForeignKeys().Single().Properties);
@@ -191,8 +191,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.SingleOrDefault()?.Properties ?? Array.Empty<IReadOnlyProperty>(),
-                ingredient.GetIndexes().SingleOrDefault()?.Properties ?? Array.Empty<IMutableProperty>());
+                initialIndexes.SingleOrDefault()?.Properties ?? [],
+                ingredient.GetIndexes().SingleOrDefault()?.Properties ?? []);
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 ingredient.GetForeignKeys().Single().Properties);
@@ -594,18 +594,14 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
             principalEntityBuilder.HasMany(c => c.Orders).WithOne(o => o.Customer)
-                .HasForeignKey(
-                    o => new { o.CustomerId, o.AnotherCustomerId })
-                .HasPrincipalKey(
-                    c => new { c.Id, c.AlternateKey });
+                .HasForeignKey(o => new { o.CustomerId, o.AnotherCustomerId })
+                .HasPrincipalKey(c => new { c.Id, c.AlternateKey });
 
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
             derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
-                .HasForeignKey(
-                    o => new { o.CustomerId })
-                .HasPrincipalKey(
-                    c => new { c.Id });
+                .HasForeignKey(o => new { o.CustomerId })
+                .HasPrincipalKey(c => new { c.Id });
 
             var fk = dependentEntityType.GetForeignKeys().Single();
             Assert.Single(dependentEntityType.GetIndexes());
@@ -638,10 +634,8 @@ public abstract partial class ModelBuilderTest
             Fixture.TestHelpers.ModelAsserter.AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
             principalEntityBuilder.HasOne<Order>().WithOne()
-                .HasPrincipalKey<Customer>(
-                    c => new { c.Id })
-                .HasForeignKey<Order>(
-                    o => new { o.CustomerId });
+                .HasPrincipalKey<Customer>(c => new { c.Id })
+                .HasForeignKey<Order>(o => new { o.CustomerId });
 
             modelBuilder.FinalizeModel();
 
@@ -677,15 +671,12 @@ public abstract partial class ModelBuilderTest
             var dependentEntityBuilder = modelBuilder.Entity<Order>();
             var derivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
 
-            dependentEntityBuilder.HasIndex(
-                    o => new { o.CustomerId, o.AnotherCustomerId })
+            dependentEntityBuilder.HasIndex(o => new { o.CustomerId, o.AnotherCustomerId })
                 .IsUnique();
 
             derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
-                .HasPrincipalKey(
-                    c => new { c.Id })
-                .HasForeignKey(
-                    o => new { o.CustomerId });
+                .HasPrincipalKey(c => new { c.Id })
+                .HasForeignKey(o => new { o.CustomerId });
 
             var dependentEntityType = dependentEntityBuilder.Metadata;
             var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
@@ -827,9 +818,9 @@ public abstract partial class ModelBuilderTest
                 .HasForeignKey<ExtraSpecialBookLabel>();
 
             var fk = bookLabelEntityBuilder.Metadata.FindNavigation(nameof(BookLabel.SpecialBookLabel)).ForeignKey;
-            Assert.Equal(new[] { fk }, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
+            Assert.Equal([fk], extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
             Assert.Equal(nameof(SpecialBookLabel.BookLabel), fk.DependentToPrincipal.Name);
-            Assert.Equal(new[] { fk }, extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
+            Assert.Equal([fk], extraSpecialBookLabelEntityBuilder.Metadata.GetForeignKeys());
         }
 
         [ConditionalFact]
@@ -854,11 +845,10 @@ public abstract partial class ModelBuilderTest
 
             Assert.Empty(modelBuilder.Model.FindEntityType(typeof(CityViewModel)).GetForeignKeys());
 
-            modelBuilder.Entity<CityViewModel>(
-                c =>
-                {
-                    c.Ignore(c => c.CustomValues);
-                });
+            modelBuilder.Entity<CityViewModel>(c =>
+            {
+                c.Ignore(c => c.CustomValues);
+            });
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(Dictionary<string, string>)));
 

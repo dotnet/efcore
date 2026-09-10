@@ -157,6 +157,17 @@ public class GearsOfWarData : ISetSource
                 Date = new DateOnly(1, 1, 1),
                 Time = new TimeOnly(0, 0, 0),
                 Difficulty = MissionDifficulty.Unknown
+            },
+            new()
+            {
+                Id = 4,
+                CodeName = "Nanoseconds",
+                Rating = null,
+                Timeline = new DateTimeOffset(11, 5, 3, 12, 0, 0, 0, 200, new TimeSpan()).Add(TimeSpan.FromTicks(4) /* 400 nanoseconds */),
+                Duration = new TimeSpan(0, 2, 0, 15, 456, 200).Add(TimeSpan.FromTicks(4) /* 400 nanoseconds */),
+                Date = new DateOnly(1, 1, 1),
+                Time = new TimeOnly(0, 0, 0, 10, 200).Add(TimeSpan.FromTicks(4) /* 400 nanoseconds */),
+                Difficulty = MissionDifficulty.Unknown
             }
         };
 

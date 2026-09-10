@@ -13,58 +13,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class ShadowFixupTest
 {
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_many_FK_set_both_navs_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_many(
             entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: true);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_many_FK_not_set_both_navs_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_many(
             entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: true);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_many_FK_set_no_navs_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_many(
             entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: false);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_many_FK_set_principal_nav_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_many(
             entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: true);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_many_FK_set_dependent_nav_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_many(
             entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: false);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_many_FK_not_set_principal_nav_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_many(
             entityState, principalFirst: false, setFk: false, setToPrincipal: false, setToDependent: true);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_many_FK_not_set_dependent_nav_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_many(
             entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: false);
@@ -120,58 +99,37 @@ public class ShadowFixupTest
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_one_FK_set_both_navs_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_one(
             entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: true);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_one_FK_not_set_both_navs_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_one(
             entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: true);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_one_FK_set_no_navs_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_one(
             entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: false);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_one_FK_set_principal_nav_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_one(
             entityState, principalFirst: false, setFk: true, setToPrincipal: false, setToDependent: true);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_one_FK_set_dependent_nav_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_one(
             entityState, principalFirst: false, setFk: true, setToPrincipal: true, setToDependent: false);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_one_FK_not_set_principal_nav_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_one(
             entityState, principalFirst: false, setFk: false, setToPrincipal: false, setToDependent: true);
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Add_dependent_then_principal_one_to_one_FK_not_set_dependent_nav_set(EntityState entityState)
         => Add_principal_and_dependent_one_to_one(
             entityState, principalFirst: false, setFk: false, setToPrincipal: true, setToDependent: false);
@@ -269,30 +227,28 @@ public class ShadowFixupTest
         {
             var category = modelBuilder.Entity<Category>().Metadata;
 
-            modelBuilder.Entity<Product>(
-                b =>
-                {
-                    var fk = b.Metadata.AddForeignKey(
-                        new[] { b.Property<int>("CategoryId").Metadata },
-                        category.FindPrimaryKey(),
-                        category);
-                    fk.SetDependentToPrincipal("Category");
-                    fk.SetPrincipalToDependent("Products");
-                });
+            modelBuilder.Entity<Product>(b =>
+            {
+                var fk = b.Metadata.AddForeignKey(
+                    [b.Property<int>("CategoryId").Metadata],
+                    category.FindPrimaryKey(),
+                    category);
+                fk.SetDependentToPrincipal("Category");
+                fk.SetPrincipalToDependent("Products");
+            });
 
             var parent = modelBuilder.Entity<Parent>().Metadata;
 
-            modelBuilder.Entity<Child>(
-                b =>
-                {
-                    var fk = b.Metadata.AddForeignKey(
-                        new[] { b.Property<int>("ParentId").Metadata },
-                        parent.FindPrimaryKey(),
-                        parent);
-                    fk.IsUnique = true;
-                    fk.SetDependentToPrincipal("Parent");
-                    fk.SetPrincipalToDependent("Child");
-                });
+            modelBuilder.Entity<Child>(b =>
+            {
+                var fk = b.Metadata.AddForeignKey(
+                    [b.Property<int>("ParentId").Metadata],
+                    parent.FindPrimaryKey(),
+                    parent);
+                fk.IsUnique = true;
+                fk.SetDependentToPrincipal("Parent");
+                fk.SetPrincipalToDependent("Child");
+            });
         }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

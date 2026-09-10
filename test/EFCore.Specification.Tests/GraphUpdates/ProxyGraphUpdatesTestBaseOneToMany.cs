@@ -12,21 +12,17 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Principal, false)]
-    [InlineData((int)ChangeMechanism.Principal, true)]
-    [InlineData((int)ChangeMechanism.Dependent, false)]
-    [InlineData((int)ChangeMechanism.Dependent, true)]
-    [InlineData((int)ChangeMechanism.Fk, false)]
-    [InlineData((int)ChangeMechanism.Fk, true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
+    [ConditionalTheory, InlineData((int)ChangeMechanism.Principal, false), InlineData((int)ChangeMechanism.Principal, true),
+     InlineData((int)ChangeMechanism.Dependent, false), InlineData((int)ChangeMechanism.Dependent, true),
+     InlineData((int)ChangeMechanism.Fk, false), InlineData((int)ChangeMechanism.Fk, true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Save_optional_many_to_one_dependents(ChangeMechanism changeMechanism, bool useExistingEntities)
     {
         Optional1 new1 = null;
@@ -146,21 +142,17 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Principal, false)]
-    [InlineData((int)ChangeMechanism.Principal, true)]
-    [InlineData((int)ChangeMechanism.Dependent, false)]
-    [InlineData((int)ChangeMechanism.Dependent, true)]
-    [InlineData((int)ChangeMechanism.Fk, false)]
-    [InlineData((int)ChangeMechanism.Fk, true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
+    [ConditionalTheory, InlineData((int)ChangeMechanism.Principal, false), InlineData((int)ChangeMechanism.Principal, true),
+     InlineData((int)ChangeMechanism.Dependent, false), InlineData((int)ChangeMechanism.Dependent, true),
+     InlineData((int)ChangeMechanism.Fk, false), InlineData((int)ChangeMechanism.Fk, true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Save_required_many_to_one_dependents(ChangeMechanism changeMechanism, bool useExistingEntities)
     {
         Root newRoot;
@@ -286,14 +278,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Principal)]
-    [InlineData((int)ChangeMechanism.Dependent)]
-    [InlineData((int)ChangeMechanism.Fk)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
+    [ConditionalTheory, InlineData((int)ChangeMechanism.Principal), InlineData((int)ChangeMechanism.Dependent),
+     InlineData((int)ChangeMechanism.Fk), InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent)),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk)), InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent)),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
     public virtual Task Save_removed_optional_many_to_one_dependents(ChangeMechanism changeMechanism)
     {
         Root root;
@@ -361,14 +349,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Principal)]
-    [InlineData((int)ChangeMechanism.Dependent)]
-    [InlineData((int)ChangeMechanism.Fk)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk))]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent))]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
+    [ConditionalTheory, InlineData((int)ChangeMechanism.Principal), InlineData((int)ChangeMechanism.Dependent),
+     InlineData((int)ChangeMechanism.Fk), InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent)),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk)), InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent)),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
     public virtual Task Save_removed_required_many_to_one_dependents(ChangeMechanism changeMechanism)
     {
         var removed1Id = 0;
@@ -435,21 +419,17 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Dependent, false)]
-    [InlineData((int)ChangeMechanism.Dependent, true)]
-    [InlineData((int)ChangeMechanism.Principal, false)]
-    [InlineData((int)ChangeMechanism.Principal, true)]
-    [InlineData((int)ChangeMechanism.Fk, false)]
-    [InlineData((int)ChangeMechanism.Fk, true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
+    [ConditionalTheory, InlineData((int)ChangeMechanism.Dependent, false), InlineData((int)ChangeMechanism.Dependent, true),
+     InlineData((int)ChangeMechanism.Principal, false), InlineData((int)ChangeMechanism.Principal, true),
+     InlineData((int)ChangeMechanism.Fk, false), InlineData((int)ChangeMechanism.Fk, true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Reparent_to_different_one_to_many(ChangeMechanism changeMechanism, bool useExistingParent)
     {
         var compositeCount = 0;
@@ -463,8 +443,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             {
                 if (!useExistingParent)
                 {
-                    newParent = context.CreateProxy<Optional1>(
-                        e => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance));
+                    newParent = context.CreateProxy<Optional1>(e
+                        => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance));
 
                     context.Set<Optional1>().Add(newParent);
                     context.SaveChanges();
@@ -574,21 +554,17 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Dependent, false)]
-    [InlineData((int)ChangeMechanism.Dependent, true)]
-    [InlineData((int)ChangeMechanism.Principal, false)]
-    [InlineData((int)ChangeMechanism.Principal, true)]
-    [InlineData((int)ChangeMechanism.Fk, false)]
-    [InlineData((int)ChangeMechanism.Fk, true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
+    [ConditionalTheory, InlineData((int)ChangeMechanism.Dependent, false), InlineData((int)ChangeMechanism.Dependent, true),
+     InlineData((int)ChangeMechanism.Principal, false), InlineData((int)ChangeMechanism.Principal, true),
+     InlineData((int)ChangeMechanism.Fk, false), InlineData((int)ChangeMechanism.Fk, true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Reparent_one_to_many_overlapping(ChangeMechanism changeMechanism, bool useExistingParent)
     {
         Root root = null;
@@ -603,17 +579,16 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             {
                 if (!useExistingParent)
                 {
-                    newParent = context.CreateProxy<RequiredComposite1>(
-                        e =>
+                    newParent = context.CreateProxy<RequiredComposite1>(e =>
+                    {
+                        e.Id = 3;
+                        e.Parent = context.Set<Root>().Single(IsTheRoot);
+                        e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                         {
-                            e.Id = 3;
-                            e.Parent = context.Set<Root>().Single(IsTheRoot);
-                            e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
-                            {
-                                context.CreateProxy<OptionalOverlapping2>(e => e.Id = 5),
-                                context.CreateProxy<OptionalOverlapping2>(e => e.Id = 6)
-                            };
-                        });
+                            context.CreateProxy<OptionalOverlapping2>(e => e.Id = 5),
+                            context.CreateProxy<OptionalOverlapping2>(e => e.Id = 6)
+                        };
+                    });
 
                     context.Set<RequiredComposite1>().Add(newParent);
                     context.SaveChanges();
@@ -728,16 +703,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never), InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate), InlineData(CascadeTiming.Never, CascadeTiming.Never)]
     public virtual Task Required_many_to_one_dependents_are_cascade_deleted(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
@@ -819,16 +789,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never), InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate), InlineData(CascadeTiming.Never, CascadeTiming.Never)]
     public virtual Task Optional_many_to_one_dependents_are_orphaned(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
@@ -921,76 +886,64 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(null, null)]
+    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never), InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate), InlineData(CascadeTiming.Never, CascadeTiming.Never), InlineData(null, null)]
     public virtual Task Optional_many_to_one_dependents_are_orphaned_with_Added_graph(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming) // Issue #29318
-        => ExecuteWithStrategyInTransactionAsync(
-            context =>
+        => ExecuteWithStrategyInTransactionAsync(context =>
+        {
+            context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
+            context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
+
+            var root = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
+            var removed = context.CreateProxy<Optional1>(e => e.Parent = root);
+            var orphaned = new List<Optional2>
             {
-                context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
-                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
+                context.CreateProxy<Optional2>(e => e.Parent = removed), context.CreateProxy<Optional2>(e => e.Parent = removed)
+            };
 
-                var root = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
-                var removed = context.CreateProxy<Optional1>(e => e.Parent = root);
-                var orphaned = new List<Optional2>
-                {
-                    context.CreateProxy<Optional2>(e => e.Parent = removed), context.CreateProxy<Optional2>(e => e.Parent = removed)
-                };
+            context.AddRange(orphaned);
+            var removedId = context.Entry(removed).Property(e => e.Id).CurrentValue;
+            context.Remove(removed);
 
-                context.AddRange(orphaned);
-                var removedId = context.Entry(removed).Property(e => e.Id).CurrentValue;
-                context.Remove(removed);
+            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+            if (cascadeDeleteTiming == null)
+            {
+                Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Added));
 
-                if (cascadeDeleteTiming == null)
-                {
-                    Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Added));
+                context.ChangeTracker.CascadeChanges();
+            }
 
-                    context.ChangeTracker.CascadeChanges();
-                }
+            foreach (var orphanEntry in orphaned.Select(context.Entry))
+            {
+                Assert.Equal(EntityState.Added, orphanEntry.State);
+                Assert.Null(orphanEntry.Entity.ParentId);
+                Assert.Null(orphanEntry.Property(e => e.ParentId).CurrentValue);
+            }
 
-                foreach (var orphanEntry in orphaned.Select(context.Entry))
-                {
-                    Assert.Equal(EntityState.Added, orphanEntry.State);
-                    Assert.Null(orphanEntry.Entity.ParentId);
-                    Assert.Null(orphanEntry.Property(e => e.ParentId).CurrentValue);
-                }
+            context.SaveChanges();
 
-                context.SaveChanges();
+            Assert.False(context.ChangeTracker.HasChanges());
 
-                Assert.False(context.ChangeTracker.HasChanges());
+            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+            Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
+            Assert.Empty(root.OptionalChildren);
+            Assert.Same(root, removed.Parent);
+            Assert.Equal(2, removed.Children.Count());
+            return Task.CompletedTask;
+        });
 
-                Assert.Empty(root.OptionalChildren);
-                Assert.Same(root, removed.Parent);
-                Assert.Equal(2, removed.Children.Count());
-                return Task.CompletedTask;
-            });
-
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never), InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate), InlineData(CascadeTiming.Never, CascadeTiming.Never)]
     public virtual Task Required_many_to_one_dependents_are_cascade_deleted_in_store(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
@@ -1067,16 +1020,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never), InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate), InlineData(CascadeTiming.Never, CascadeTiming.Never)]
     public virtual Task Optional_many_to_one_dependents_are_orphaned_in_store(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
@@ -1159,16 +1107,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never), InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate), InlineData(CascadeTiming.Never, CascadeTiming.Never)]
     public virtual Task Required_many_to_one_dependents_are_cascade_deleted_starting_detached(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
@@ -1260,16 +1203,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never), InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate), InlineData(CascadeTiming.Never, CascadeTiming.Never)]
     public virtual Task Optional_many_to_one_dependents_are_orphaned_starting_detached(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)
@@ -1365,16 +1303,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
+    [ConditionalTheory, InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate), InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges), InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never), InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate), InlineData(CascadeTiming.Never, CascadeTiming.Never)]
     public virtual Task Required_many_to_one_dependents_are_cascade_detached_when_Added(
         CascadeTiming cascadeDeleteTiming,
         CascadeTiming deleteOrphansTiming)

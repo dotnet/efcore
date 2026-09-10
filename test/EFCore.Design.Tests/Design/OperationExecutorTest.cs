@@ -24,25 +24,20 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
         Assert.Equal("args", ex.ParamName);
     }
 
-    [ConditionalTheory]
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "Tested negative cases and baselines are Windows-specific")]
-    [InlineData("MgOne", "MgOne")]
-    [InlineData("Name with Spaces", "NamewithSpaces")]
-    [InlineData(" Space Space ", "SpaceSpace")]
+    [ConditionalTheory, PlatformSkipCondition(
+         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("MgOne", "MgOne"),
+     InlineData("Name with Spaces", "NamewithSpaces"), InlineData(" Space Space ", "SpaceSpace")]
     public void AddMigration_can_scaffold_for_different_names(string migrationName, string processedMigrationName)
         => TestAddMigrationPositive(
             migrationName, processedMigrationName,
             "output", "output",
             ProductInfo.GetVersion());
 
-    [ConditionalTheory] // Issue #24024
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "Tested negative cases and baselines are Windows-specific")]
-    [InlineData("to fix error: add column is_deleted")]
-    [InlineData(@"A\B\C")]
+    [ConditionalTheory, PlatformSkipCondition(
+         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("to fix error: add column is_deleted"),
+     InlineData(@"A\B\C")] // Issue #24024
     public void AddMigration_errors_for_bad_names(string migrationName)
         => TestAddMigrationNegative(
             migrationName,
@@ -51,24 +46,19 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
             typeof(OperationException),
             DesignStrings.BadMigrationName(migrationName, string.Join("','", Path.GetInvalidFileNameChars())));
 
-    [ConditionalTheory]
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "Tested negative cases and baselines are Windows-specific")]
-    [InlineData("output", "output")]
-    [InlineData("Name with Spaces", "Name with Spaces")]
-    [InlineData(" Space Space", " Space Space")]
+    [ConditionalTheory, PlatformSkipCondition(
+         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("output", "output"),
+     InlineData("Name with Spaces", "Name with Spaces"), InlineData(" Space Space", " Space Space")]
     public void AddMigration_can_scaffold_for_different_output_dirs(string outputDir, string processedOutputDir)
         => TestAddMigrationPositive(
             "MgTwo", "MgTwo",
             outputDir, processedOutputDir,
             ProductInfo.GetVersion());
 
-    [ConditionalTheory]
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "Tested negative cases and baselines are Windows-specific")]
-    [InlineData("Something:Else")]
+    [ConditionalTheory, PlatformSkipCondition(
+         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("Something:Else")]
     public void AddMigration_errors_for_bad_output_dirs(string outputDir)
         => TestAddMigrationNegative("MgTwo", outputDir, ProductInfo.GetVersion(), typeof(IOException), null);
 
@@ -258,9 +248,8 @@ namespace My.Gnomespace.Data
         return resultHandler;
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath")]
-    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath"),
+     InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath")]
     public void No_output_path(string projectDir, string expectedPrefix)
     {
         expectedPrefix = expectedPrefix.Replace('/', S);
@@ -280,15 +269,14 @@ namespace My.Gnomespace.Data
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"putout", @"putout/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"putout/", @"putout/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/", @"putout/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/", @"/putout/", @"SomePath/SomeSubpath/")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath/", @"putout", @"putout/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath/", @"putout/", @"putout/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/", @"putout/", @"SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/", @"/putout/", @"SomePath/SomeSubpath/")]
     public void Relative_output_path(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
     {
         expectedPrefix = expectedPrefix.Replace('/', S);
@@ -310,15 +298,14 @@ namespace My.Gnomespace.Data
         Assert.Equal("putout", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"SomePath/SomeSubpath/")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"SomePath/SomeSubpath/")]
     public void Relative_multipart_output_path(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
     {
         expectedPrefix = expectedPrefix.Replace('/', S);
@@ -340,15 +327,14 @@ namespace My.Gnomespace.Data
         Assert.Equal("putout.output", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout", @"/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath", @"/putout", @"/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout/", @"", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath", @"/putout/", @"", @"SomePath/SomeSubpath/")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout", @"/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath", @"/putout", @"/", @"SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath", @"/putout/", @"", @"/SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath", @"/putout/", @"", @"SomePath/SomeSubpath/")]
     public void Absolute_output_path(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
     {
         expectedPrefix = expectedPrefix.Replace('/', S);
@@ -370,15 +356,14 @@ namespace My.Gnomespace.Data
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output", @"/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath", @"/putout/output", @"/", @"SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output/", @"", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath", @"/putout/output/", @"", @"SomePath/SomeSubpath/")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/output", @"/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath", @"/putout/output", @"/", @"SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath", @"/putout/output/", @"", @"/SomePath/SomeSubpath/"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath", @"/putout/output/", @"", @"SomePath/SomeSubpath/")]
     public void Absolute_multipart_output_path(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
     {
         expectedPrefix = expectedPrefix.Replace('/', S);
@@ -400,9 +385,8 @@ namespace My.Gnomespace.Data
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/")]
-    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/"),
+     InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/")]
     public void Output_path_is_empty_string(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
     {
         expectedPrefix = expectedPrefix.Replace('/', S);
@@ -424,9 +408,8 @@ namespace My.Gnomespace.Data
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Acme")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Acme")]
     public void No_output_path_with_root_namespace(string projectDir, string expectedPrefix, string rootNamespace)
     {
         expectedPrefix = expectedPrefix.Replace('/', S);
@@ -446,11 +429,10 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"putout", @"putout/", @"/SomePath/SomeSubpath/", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/", @"putout/", @"SomePath/SomeSubpath/", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/", @"/putout/", @"SomePath/SomeSubpath/", "Acme.Parts")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath/", @"putout", @"putout/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/", @"putout/", @"SomePath/SomeSubpath/", "Acme"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/", @"/putout/", @"SomePath/SomeSubpath/", "Acme.Parts")]
     public void Relative_output_path_with_root_namespace(
         string projectDir,
         string outputDir,
@@ -477,11 +459,10 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".putout", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"/SomePath/SomeSubpath/", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"SomePath/SomeSubpath/", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"SomePath/SomeSubpath/", "Acme.Parts")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"SomePath/SomeSubpath/", "Acme"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"SomePath/SomeSubpath/", "Acme.Parts")]
     public void Relative_multipart_output_path_with_root_namespace(
         string projectDir,
         string outputDir,
@@ -508,11 +489,10 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".putout.output", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath", @"/putout", @"/", @"SomePath/SomeSubpath/", "Acme")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath", @"/putout", @"/", @"SomePath/SomeSubpath/", "Acme")]
     public void Absolute_output_path_with_root_namespace(
         string projectDir,
         string outputDir,
@@ -539,11 +519,10 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Acme")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Acme")]
     public void Absolute_multipart_output_path_with_root_namespace(
         string projectDir,
         string outputDir,
@@ -570,9 +549,8 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Acme.Parts")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Acme.Parts")]
     public void Output_path_is_empty_string_with_root_namespace(
         string projectDir,
         string outputDir,
@@ -599,11 +577,10 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway.To.Kfc")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway"),
+     InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway.To.Kfc")]
     public void No_output_path_with_sub_namespace(string projectDir, string expectedPrefix, string subNamespace)
     {
         expectedPrefix = expectedPrefix.Replace('/', S);
@@ -624,15 +601,14 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
     public void Relative_output_path_with_sub_namespace(
         string projectDir,
         string outputDir,
@@ -659,15 +635,14 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
     public void Relative_multipart_output_path_with_sub_namespace(
         string projectDir,
         string outputDir,
@@ -694,15 +669,14 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
     public void Absolute_output_path_with_sub_namespace(
         string projectDir,
         string outputDir,
@@ -729,15 +703,14 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
     public void Absolute_multipart_output_path_with_sub_namespace(
         string projectDir,
         string outputDir,
@@ -764,11 +737,10 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway")]
-    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
-    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway"),
+     InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc"),
+     InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
     public void Output_path_is_empty_string_with_sub_namespace(
         string projectDir,
         string outputDir,
@@ -795,11 +767,10 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway.To.Kfc", "Acme.Parts")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway.To.Kfc", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway.To.Kfc", "Acme.Parts")]
     public void No_output_path_with_root_namespace_and_sub_namespace(
         string projectDir,
         string expectedPrefix,
@@ -824,15 +795,14 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme"),
+     InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
     public void Relative_output_path_with_root_namespace_and_sub_namespace(
         string projectDir,
         string outputDir,
@@ -860,15 +830,15 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
-    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [ConditionalTheory,
+     InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme"),
+     InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts"),
+     InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
     public void Relative_multipart_output_path_with_root_namespace_and_sub_namespace(
         string projectDir,
         string outputDir,
@@ -896,15 +866,14 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
     public void Absolute_output_path_with_root_namespace_and_sub_namespace(
         string projectDir,
         string outputDir,
@@ -932,15 +901,14 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
-    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme"),
+     InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
     public void Absolute_multipart_output_path_with_root_namespace_and_sub_namespace(
         string projectDir,
         string outputDir,
@@ -968,11 +936,10 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory]
-    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway", "Acme")]
-    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
-    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway", "Acme"),
+     InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts"),
+     InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
     public void Output_path_is_empty_string_with_root_namespace_and_sub_namespace(
         string projectDir,
         string outputDir,
