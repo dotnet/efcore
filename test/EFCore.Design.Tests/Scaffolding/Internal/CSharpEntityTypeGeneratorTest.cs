@@ -1198,6 +1198,51 @@ public partial class Entity
             });
 
     [Fact]
+    public Task TimestampAttribute_is_generated_for_row_version_property()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Version").IsRowVersion();
+                    }),
+            new ModelCodeGenerationOptions { UseDataAnnotations = true },
+            code =>
+            {
+                AssertFileContents(
+                    """
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class Entity
+{
+    [Key]
+    public int Id { get; set; }
+
+    [Timestamp]
+    public byte[] Version { get; set; }
+}
+""",
+                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+
+                Assert.DoesNotContain("IsRowVersion", code.ContextFile.Code);
+                Assert.DoesNotContain("IsConcurrencyToken", code.ContextFile.Code);
+            },
+            model =>
+            {
+                var property = model.FindEntityType("TestNamespace.Entity").GetProperty("Version");
+                Assert.True(property.IsConcurrencyToken);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
+            });
+
+    [Fact]
     public Task Comments_are_generated()
         => TestAsync(
             modelBuilder => modelBuilder
