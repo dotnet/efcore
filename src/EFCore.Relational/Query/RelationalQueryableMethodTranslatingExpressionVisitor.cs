@@ -1709,8 +1709,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return ExpandSharedTypeEntities((SelectExpression)shapedQueryExpression.QueryExpression, lambdaBody);
     }
 
-    private Expression ExpandSharedTypeEntities(SelectExpression selectExpression, Expression lambdaBody)
-        => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
+    // Mutates selectExpression. When expanding over a grouped SelectExpression, such as an aggregate lambda remapped onto a
+    // grouping element, allowOwnerJoin should be false so that a dependent in its own table is left unexpanded rather than
+    // appending an owner join and the dependent's key as an identifier.
+    // Also called by RelationalSqlTranslatingExpressionVisitor, which remaps aggregate lambdas onto the grouping element itself.
+    internal Expression ExpandSharedTypeEntities(
+        SelectExpression selectExpression,
+        Expression lambdaBody,
+        bool allowOwnerJoin = true)
+        => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody, allowOwnerJoin);
 
     private sealed class IncludePruner : ExpressionVisitor
     {
@@ -1730,12 +1737,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         private readonly SqlAliasManager _sqlAliasManager = queryableTranslator._sqlAliasManager;
         private SelectExpression _selectExpression = null!;
         private bool _bindComplexProperties;
+        private bool _allowOwnerJoin = true;
 
-        public Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
+        public Expression Expand(SelectExpression selectExpression, Expression lambdaBody, bool allowOwnerJoin = true)
         {
-            _selectExpression = selectExpression;
+            // Expansion can re-enter SQL translation, which can re-enter expansion for a different SelectExpression.
+            var (parentSelect, parentAllowOwnerJoin, parentBindComplex) =
+                (_selectExpression, _allowOwnerJoin, _bindComplexProperties);
+            (_selectExpression, _allowOwnerJoin, _bindComplexProperties) = (selectExpression, allowOwnerJoin, false);
 
-            return Visit(lambdaBody);
+            try
+            {
+                return Visit(lambdaBody);
+            }
+            finally
+            {
+                (_selectExpression, _allowOwnerJoin, _bindComplexProperties) =
+                    (parentSelect, parentAllowOwnerJoin, parentBindComplex);
+            }
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -1984,7 +2003,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     ? ExpandOwnedNavigation(navigation)
                     : null;
 
-            Expression ExpandOwnedNavigation(INavigation navigation)
+            Expression? ExpandOwnedNavigation(INavigation navigation)
             {
                 var targetEntityType = navigation.TargetEntityType;
 
@@ -2076,7 +2095,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
                 return entityProjectionExpression.BindNavigation(navigation)
                     ?? _selectExpression.GenerateOwnedReferenceEntityProjectionExpression(
-                        entityProjectionExpression, navigation, queryableTranslator._sqlExpressionFactory, _sqlAliasManager);
+                        entityProjectionExpression, navigation, queryableTranslator._sqlExpressionFactory, _sqlAliasManager,
+                        _allowOwnerJoin);
             }
 
             static TableExpressionBase FindRootTableExpressionForColumn(SelectExpression select, ColumnExpression column)
