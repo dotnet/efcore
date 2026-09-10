@@ -409,7 +409,7 @@ optionsBuilder
                 code => Assert.Contains("IsRowVersion()", code.ContextFile.Code),
                 model =>
                 {
-                    var property = model.FindEntityType("TestNamespace.Entity").GetProperty("Version");
+                    var property = model.FindEntityType("TestNamespace.Entity")!.GetProperty("Version");
                     Assert.True(property.IsConcurrencyToken);
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
                 });
@@ -432,7 +432,7 @@ optionsBuilder
                 },
                 model =>
                 {
-                    var property = model.FindEntityType("TestNamespace.Entity").GetProperty("Token");
+                    var property = model.FindEntityType("TestNamespace.Entity")!.GetProperty("Token");
                     Assert.True(property.IsConcurrencyToken);
                     Assert.NotEqual(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
                 });
