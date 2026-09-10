@@ -8678,9 +8678,9 @@ public partial class ManyTypesEntityType
             comparer: new ListOfNullableValueTypesComparer<TimeOnly?[], TimeOnly>(new NullableValueComparer<TimeOnly>(DefaultValueComparer<TimeOnly>.Default)),
             providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<TimeOnly?>(new JsonCollectionOfNullableStructsReaderWriter<TimeOnly?[], TimeOnly>(
-                JsonTimeOnlyReaderWriter.Instance)),
+                SqliteJsonTimeOnlyReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<TimeOnly?[], TimeOnly>(
-                JsonTimeOnlyReaderWriter.Instance),
+                SqliteJsonTimeOnlyReaderWriter.Instance),
             elementMapping: SqliteTimeOnlyTypeMapping.Default);
         var nullableTimeOnlyArrayElementType = nullableTimeOnlyArray.SetElementType(typeof(TimeOnly?),
             nullable: true);
@@ -9980,7 +9980,7 @@ public partial class ManyTypesEntityType
                 size: 48),
             converter: new ValueConverter<string, TimeOnly>(TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o"))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, TimeOnly>(
-                JsonTimeOnlyReaderWriter.Instance,
+                SqliteJsonTimeOnlyReaderWriter.Instance,
                 new ValueConverter<string, TimeOnly>(TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")))));
 
         var stringToTimeSpanConverterProperty = runtimeEntityType.AddProperty(
@@ -10134,9 +10134,9 @@ public partial class ManyTypesEntityType
             comparer: new ListOfValueTypesComparer<TimeOnly[], TimeOnly>(DefaultValueComparer<TimeOnly>.Default),
             providerValueComparer: DefaultValueComparer<string>.Default,
             converter: new CollectionToJsonStringConverter<TimeOnly>(new JsonCollectionOfStructsReaderWriter<TimeOnly[], TimeOnly>(
-                JsonTimeOnlyReaderWriter.Instance)),
+                SqliteJsonTimeOnlyReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<TimeOnly[], TimeOnly>(
-                JsonTimeOnlyReaderWriter.Instance),
+                SqliteJsonTimeOnlyReaderWriter.Instance),
             elementMapping: SqliteTimeOnlyTypeMapping.Default);
         var timeOnlyArrayElementType = timeOnlyArray.SetElementType(typeof(TimeOnly));
         timeOnlyArrayElementType.TypeMapping = timeOnlyArray.TypeMapping.ElementTypeMapping;

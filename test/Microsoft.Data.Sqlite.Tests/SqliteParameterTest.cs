@@ -244,6 +244,13 @@ public class SqliteParameterTest
     }
 
     [Fact]
+    public void Bind_works_when_byte_array_as_text()
+    {
+        var bytes = new byte[] { 0x7E, 0x57 };
+        Bind_works(bytes, "7E57", SqliteType.Text);
+    }
+
+    [Fact]
     public void Bind_works_when_read_only_memory_bytes()
     {
         var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
