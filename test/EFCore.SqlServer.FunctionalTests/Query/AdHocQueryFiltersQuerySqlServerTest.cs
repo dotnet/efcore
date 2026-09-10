@@ -520,6 +520,26 @@ WHERE [e].[IsDraft] = CAST(0 AS bit)
         AssertSql();
     }
 
+    public override async Task Query_filter_with_inline_collection_of_navigation_column(bool async)
+    {
+        await base.Query_filter_with_inline_collection_of_navigation_column(async);
+
+        AssertSql(
+            """
+SELECT [c].[Label]
+FROM [Children] AS [c]
+INNER JOIN (
+    SELECT [p].[Id], [p].[ServiceId]
+    FROM [Parents] AS [p]
+    WHERE [p].[ServiceId] = 10
+) AS [p0] ON [c].[ParentId] = [p0].[Id]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES ([p0].[ServiceId])) AS [v]([Value])
+    WHERE [v].[Value] = 10)
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
