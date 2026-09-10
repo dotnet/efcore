@@ -1237,7 +1237,7 @@ public partial class Entity
             },
             model =>
             {
-                var property = model.FindEntityType("TestNamespace.Entity").GetProperty("Version");
+                var property = model.FindEntityType("TestNamespace.Entity")!.GetProperty("Version");
                 Assert.True(property.IsConcurrencyToken);
                 Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
             });
