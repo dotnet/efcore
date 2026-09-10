@@ -48,6 +48,12 @@ public class CSharpHelperTest
          "-3.402823E+38f"), InlineData(
          3.402823E+38f, // Single MaxValue
          "3.402823E+38f"), InlineData(
+         float.NegativeInfinity,
+         "float.NegativeInfinity"), InlineData(
+         float.PositiveInfinity,
+         "float.PositiveInfinity"), InlineData(
+         float.NaN,
+         "float.NaN"), InlineData(
          42,
          "42"), InlineData(
          42L,
