@@ -1551,12 +1551,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             return true;
         }
 
-        // COUNT over the group as it stands, before the quantifier's own predicate narrows it. Only All needs this.
-        SqlExpression? total = null;
-        if (isAll && !TryTranslateCount(enumerableExpression, out total))
-        {
-            return false;
-        }
+        // What each row contributes to the count. Any counts every row its predicates leave, so any non-null marker will do;
+        // All counts only the rows that fail its predicate, which the marker itself has to decide.
+        var marker = _sqlExpressionFactory.Fragment("*");
 
         if (predicateLambda != null)
         {
@@ -1565,38 +1562,50 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 return false;
             }
 
-            enumerableExpression = enumerableExpression.ApplyPredicate(predicate);
+            if (isAll)
+            {
+                // All(p) is "no row fails p". A row fails where p is false or NULL, so the marker is NULL exactly where p
+                // holds and the count skips it - NOT p would not do, being NULL wherever p is, which the CASE would read as
+                // false and leave the row uncounted, making All wrongly come out true.
+                //
+                // Deciding it in the marker rather than by counting matches against the size of the group keeps both the
+                // grouping element's own filter and p in the SQL once each. Emitted twice, a volatile filter such as
+                // Where(o => EF.Functions.Random() > 0.5) is sampled independently per occurrence, and the counts stop
+                // describing the same rows.
+                marker = _sqlExpressionFactory.Case(
+                    [new CaseWhenClause(predicate, _sqlExpressionFactory.Constant(null, typeof(int)))],
+                    elseResult: _sqlExpressionFactory.Constant(1));
+            }
+            else
+            {
+                enumerableExpression = enumerableExpression.ApplyPredicate(predicate);
+            }
         }
 
-        if (!TryTranslateCount(enumerableExpression, out var matched))
+        if (!TryTranslateCount(enumerableExpression, marker, out var count))
         {
             return false;
         }
 
-        // Any(p) is "at least one row matched". All(p) is "every row matched", expressed by comparing the match count against
-        // the size of the group rather than by negating the predicate: NOT p is NULL wherever p is, and inside the CASE the
-        // count filters on, NULL reads as false - the row would go uncounted and All would wrongly come out true. Counting
-        // matches sidesteps that, since a row whose predicate is NULL simply fails to match.
-        //
-        // A count is also non-nullable, so no null guard is wrapped around either comparison, and both stay correct when the
-        // grouping element was already filtered down to no rows: Any is false, All is true.
+        // Any(p) is "at least one row matched"; All(p) is "no row failed". A count is non-nullable, so no null guard is
+        // wrapped around either comparison, and both stay correct when the grouping element was already filtered down to no
+        // rows: Any is false, All is true.
         translation = isAll
-            ? _sqlExpressionFactory.Equal(matched, total!)
-            : _sqlExpressionFactory.GreaterThan(matched, _sqlExpressionFactory.Constant(0));
+            ? _sqlExpressionFactory.Equal(count, _sqlExpressionFactory.Constant(0))
+            : _sqlExpressionFactory.GreaterThan(count, _sqlExpressionFactory.Constant(0));
 
         return true;
 
-        bool TryTranslateCount(EnumerableExpression source, [NotNullWhen(true)] out SqlExpression? count)
+        bool TryTranslateCount(EnumerableExpression source, SqlExpression selector, [NotNullWhen(true)] out SqlExpression? count)
         {
-            // A count ignores NULL values, so counting the grouping element itself would drop every row whose element is NULL
-            // - including, for Any, the very rows a predicate such as "x == null" matched. Count the star fragment instead:
-            // the aggregate translator renders that as a bare count over the group, or over CASE WHEN <predicate> THEN 1 END
-            // once a predicate is applied, so rows are counted rather than values. An element selector that isn't a scalar
-            // already counts that way; this makes a scalar one (from a Select over the grouping element) behave the same.
+            // Count the caller's marker rather than the grouping element: a count ignores NULL values, so counting the
+            // element would drop every row whose element is NULL - including, for Any, the very rows a predicate such as
+            // "x == null" matched. An element selector that isn't a scalar already counts rows rather than values; this
+            // makes a scalar one (from a Select over the grouping element) behave the same.
             //
             // LongCount rather than Count: the quantifier returns bool, so nothing in the query asks for a 32-bit counter,
             // and the EXISTS translation this replaces has no cardinality limit of its own.
-            source = source.ApplySelector(_sqlExpressionFactory.Fragment("*"));
+            source = source.ApplySelector(selector);
 
             count = TranslateAggregateMethod(
                 source,

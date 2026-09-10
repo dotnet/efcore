@@ -2446,8 +2446,9 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT_BIG(CASE
-    WHEN [o].[OrderID] > 10500 THEN 1
-END) ^ COUNT_BIG(*) AS bit) AS [AllBig]
+    WHEN [o].[OrderID] > 10500 THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [AllBig]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2534,8 +2535,9 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT_BIG(CASE
-    WHEN [o].[EmployeeID] > 5 THEN 1
-END) ^ COUNT_BIG(*) AS bit) AS [AllSenior]
+    WHEN [o].[EmployeeID] > 5 THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [AllSenior]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2588,10 +2590,11 @@ SELECT [o].[CustomerID] AS [Key], CASE
     END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Any], ~CAST(COUNT_BIG(CASE
-    WHEN [o].[OrderID] > 999999 AND [o].[OrderID] > 0 THEN 1
-END) ^ COUNT_BIG(CASE
-    WHEN [o].[OrderID] > 999999 THEN 1
-END) AS bit) AS [All]
+    WHEN [o].[OrderID] > 999999 THEN CASE
+        WHEN [o].[OrderID] > 0 THEN NULL
+        ELSE 1
+    END
+END) ^ CAST(0 AS bigint) AS bit) AS [All]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2622,8 +2625,9 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
-    WHEN [c].[City] = N'London' THEN 1
-END) ^ COUNT_BIG(*) AS bit) AS [Londons]
+    WHEN [c].[City] = N'London' THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [Londons]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
@@ -2655,8 +2659,9 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
-    WHEN [c].[City] = N'London' THEN 1
-END) ^ COUNT_BIG(*) AS bit) AS [Londons]
+    WHEN [c].[City] = N'London' THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [Londons]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
@@ -2685,8 +2690,9 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
-    WHEN [o].[OrderID] > 10250 THEN 1
-END) ^ COUNT_BIG(*) AS bit) AS [AllLate], COUNT(CASE
+    WHEN [o].[OrderID] > 10250 THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [AllLate], COUNT(CASE
     WHEN [c].[City] = N'London' THEN 1
 END) AS [Londons]
 FROM [Orders] AS [o]
@@ -2707,8 +2713,9 @@ SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region], CASE
     END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [AnyLondon], ~CAST(COUNT_BIG(CASE
-    WHEN [c].[City] = N'London' THEN 1
-END) ^ COUNT_BIG(*) AS bit) AS [AllLondon], COUNT(*) AS [Count]
+    WHEN [c].[City] = N'London' THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [AllLondon], COUNT(*) AS [Count]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
