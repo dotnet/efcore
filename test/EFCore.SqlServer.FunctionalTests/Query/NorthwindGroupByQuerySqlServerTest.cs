@@ -2604,14 +2604,13 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -2622,15 +2621,11 @@ GROUP BY [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN NOT EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND ([c].[City] <> N'London' OR [c].[City] IS NULL)) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Londons]
+SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) ^ COUNT_BIG(*) AS bit) AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -2642,14 +2637,13 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -2660,15 +2654,11 @@ GROUP BY [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN NOT EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND ([c].[City] <> N'London' OR [c].[City] IS NULL)) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Londons]
+SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) ^ COUNT_BIG(*) AS bit) AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -2679,13 +2669,7 @@ GROUP BY [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [HasOrders], COUNT(CASE
+SELECT [o].[EmployeeID] AS [Key], CAST(1 AS bit) AS [HasOrders], COUNT(CASE
     WHEN [c].[City] = N'London' THEN 1
 END) AS [Londons]
 FROM [Orders] AS [o]
@@ -2700,13 +2684,9 @@ GROUP BY [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN NOT EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [o0].[OrderID] <= 10250) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [AllLate], COUNT(CASE
+SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [o].[OrderID] > 10250 THEN 1
+END) ^ COUNT_BIG(*) AS bit) AS [AllLate], COUNT(CASE
     WHEN [c].[City] = N'London' THEN 1
 END) AS [Londons]
 FROM [Orders] AS [o]
@@ -2722,20 +2702,13 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c0].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END AS [AnyLondon], CASE
-    WHEN NOT EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o1]
-        LEFT JOIN [Customers] AS [c1] ON [o1].[CustomerID] = [c1].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o1].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) AND ([c1].[City] <> N'London' OR [c1].[City] IS NULL)) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [AllLondon], COUNT(*) AS [Count]
+END AS [AnyLondon], ~CAST(COUNT_BIG(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) ^ COUNT_BIG(*) AS bit) AS [AllLondon], COUNT(*) AS [Count]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
@@ -2749,15 +2722,14 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[ProductID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Order Details] AS [o0]
-        INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-        LEFT JOIN [Customers] AS [c] ON [o1].[CustomerID] = [c].[CustomerID]
-        WHERE [o].[ProductID] = [o0].[ProductID] AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[ProductID]
 """);
     }
@@ -2769,11 +2741,9 @@ GROUP BY [o].[ProductID]
         AssertSql(
             """
 SELECT [c].[City] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-        WHERE ([c].[City] = [c0].[City] OR ([c].[City] IS NULL AND [c0].[City] IS NULL)) AND [c0].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
@@ -2789,14 +2759,13 @@ GROUP BY [c].[City]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
