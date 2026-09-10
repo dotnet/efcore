@@ -53,7 +53,7 @@
     <SQLitePCLRawVersion>3.0.5</SQLitePCLRawVersion>
     <SQLite3MCPCLRawBundleVersion>2.4.0</SQLite3MCPCLRawBundleVersion>
     <XUnitV3Version>4.0.0-pre.108</XUnitV3Version>
-    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26428.3</MicrosoftDotNetXUnitV3ExtensionsVersion>
+    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26454.1</MicrosoftDotNetXUnitV3ExtensionsVersion>
     <MicrosoftTestingPlatformVersion>2.3.3</MicrosoftTestingPlatformVersion>
     <MicrosoftTestingExtensionsCodeCoverageVersion>18.10.0</MicrosoftTestingExtensionsCodeCoverageVersion>
   </PropertyGroup>
