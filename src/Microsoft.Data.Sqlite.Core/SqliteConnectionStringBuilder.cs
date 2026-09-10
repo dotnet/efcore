@@ -40,6 +40,7 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     private const string CommandTimeoutKeyword = "Command Timeout";
     private const string PoolingKeyword = "Pooling";
     private const string VfsKeyword = "Vfs";
+    private const string SynchronousKeyword = "Synchronous";
 
     private enum Keywords
     {
@@ -52,6 +53,7 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
         DefaultTimeout,
         Pooling,
         Vfs,
+        Synchronous,
     }
 
     private static readonly IReadOnlyList<string> _validKeywords;
@@ -66,10 +68,11 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     private int _defaultTimeout = 30;
     private bool _pooling = true;
     private string? _vfs;
+    private SqliteSynchronousMode? _synchronous;
 
     static SqliteConnectionStringBuilder()
     {
-        var validKeywords = new string[9];
+        var validKeywords = new string[10];
         validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
         validKeywords[(int)Keywords.Mode] = ModeKeyword;
         validKeywords[(int)Keywords.Cache] = CacheKeyword;
@@ -79,9 +82,11 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
         validKeywords[(int)Keywords.DefaultTimeout] = DefaultTimeoutKeyword;
         validKeywords[(int)Keywords.Pooling] = PoolingKeyword;
         validKeywords[(int)Keywords.Vfs] = VfsKeyword;
+        validKeywords[(int)Keywords.Synchronous] = SynchronousKeyword;
+
         _validKeywords = validKeywords;
 
-        _keywords = new Dictionary<string, Keywords>(12, StringComparer.OrdinalIgnoreCase)
+        _keywords = new Dictionary<string, Keywords>(13, StringComparer.OrdinalIgnoreCase)
         {
             [DataSourceKeyword] = Keywords.DataSource,
             [ModeKeyword] = Keywords.Mode,
@@ -92,6 +97,7 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
             [DefaultTimeoutKeyword] = Keywords.DefaultTimeout,
             [PoolingKeyword] = Keywords.Pooling,
             [VfsKeyword] = Keywords.Vfs,
+            [SynchronousKeyword] = Keywords.Synchronous,
 
             // aliases
             [FilenameKeyword] = Keywords.DataSource,
@@ -242,6 +248,17 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     }
 
     /// <summary>
+    ///     Gets or sets the SQLite synchronous mode used by the connection.
+    ///     When null, no synchronous pragma is sent.
+    /// </summary>
+    /// <value>The SQLite synchronous mode.</value>
+    public SqliteSynchronousMode? Synchronous
+    {
+        get => _synchronous;
+        set => base[SynchronousKeyword] = _synchronous = value;
+    }
+
+    /// <summary>
     ///     Gets or sets the value associated with the specified key.
     /// </summary>
     /// <param name="keyword">The key.</param>
@@ -295,6 +312,10 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
                     return;
                 case Keywords.Vfs:
                     Vfs = Convert.ToString(value, CultureInfo.InvariantCulture);
+                    return;
+
+                case Keywords.Synchronous:
+                    Synchronous = ConvertToEnum<SqliteSynchronousMode>(value);
                     return;
 
                 default:
@@ -430,6 +451,9 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
             case Keywords.Vfs:
                 return Vfs;
 
+            case Keywords.Synchronous:
+                return Synchronous;
+
             default:
                 Debug.Fail("Unexpected keyword: " + index);
                 return null;
@@ -479,6 +503,10 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
 
             case Keywords.Vfs:
                 _vfs = null;
+                return;
+
+            case Keywords.Synchronous:
+                _synchronous = null;
                 return;
 
             default:
