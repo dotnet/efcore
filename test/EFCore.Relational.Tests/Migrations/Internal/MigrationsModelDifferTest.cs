@@ -1610,6 +1610,84 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     }
 
     [Fact]
+    public void Optional_entity_splitting_does_not_seed_absent_fragment_row()
+        => Execute(
+            _ => { },
+            _ => { },
+            modelBuilder => modelBuilder.Entity(
+                "Animal",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("MouseId");
+                    x.Property<string>("BoneId").HasDefaultValue("default");
+                    x.HasData(
+                        new
+                        {
+                            Id = 42,
+                            MouseId = "1",
+                            BoneId = (string?)null
+                        });
+                    x.SplitToTable(
+                        "AnimalDetails", t =>
+                        {
+                            t.IsOptional();
+                            t.Property<string>("BoneId");
+                        });
+                }),
+            upOps => Assert.Collection(
+                upOps,
+                o => Assert.Equal("Animal", Assert.IsType<CreateTableOperation>(o).Name),
+                o => Assert.Equal("AnimalDetails", Assert.IsType<CreateTableOperation>(o).Name),
+                o => Assert.Equal("Animal", Assert.IsType<InsertDataOperation>(o).Table)),
+            downOps => Assert.Collection(
+                downOps,
+                o => Assert.Equal("AnimalDetails", Assert.IsType<DropTableOperation>(o).Name),
+                o => Assert.Equal("Animal", Assert.IsType<DropTableOperation>(o).Name)));
+
+    [Fact]
+    public void Optional_entity_splitting_seed_data_adds_and_removes_fragment_row()
+        => Execute(
+            modelBuilder => modelBuilder.Entity(
+                "Animal",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("MouseId");
+                    x.Property<string>("BoneId");
+                    x.SplitToTable(
+                        "AnimalDetails", t =>
+                        {
+                            t.IsOptional();
+                            t.Property<string>("BoneId");
+                        });
+                }),
+            source => source.Entity("Animal").HasData(
+                new
+                {
+                    Id = 42,
+                    MouseId = "1",
+                    BoneId = (string?)null
+                }),
+            target => target.Entity("Animal").HasData(
+                new
+                {
+                    Id = 42,
+                    MouseId = "1",
+                    BoneId = "2"
+                }),
+            upOps =>
+            {
+                var operation = Assert.IsType<InsertDataOperation>(Assert.Single(upOps));
+                Assert.Equal("AnimalDetails", operation.Table);
+            },
+            downOps =>
+            {
+                var operation = Assert.IsType<DeleteDataOperation>(Assert.Single(downOps));
+                Assert.Equal("AnimalDetails", operation.Table);
+            });
+
+    [Fact]
     public void Remove_entity_splitting_from_excluded_table()
         => Execute(
             _ => { },

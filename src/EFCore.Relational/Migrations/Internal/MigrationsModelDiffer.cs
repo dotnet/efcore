@@ -1914,6 +1914,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 INonTrackedModificationCommand command;
                 var table = mapping.Table;
                 var keyConstraint = table.PrimaryKey!;
+
+                if (mapping.IsSplitFragmentOptional
+                    && mapping.ColumnMappings.All(
+                        m => m.Property.IsPrimaryKey() || getValue(m.Property, rawSeed).Item1 is null))
+                {
+                    continue;
+                }
+
                 if (!identityMaps.TryGetValue(table, out var identityMap))
                 {
                     identityMap = RowIdentityMapFactory.Create(keyConstraint);

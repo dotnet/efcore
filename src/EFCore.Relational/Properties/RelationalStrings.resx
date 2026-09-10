@@ -460,6 +460,9 @@
   <data name="ExecuteUpdateDeleteOnEntityNotMappedToTable" xml:space="preserve">
     <value>'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
   </data>
+  <data name="ExecuteUpdateOnOptionalEntitySplittingFragment" xml:space="preserve">
+    <value>'ExecuteUpdate' is being used to set the property '{entityType}.{property}', which is mapped to the optional entity-splitting fragment '{storeObject}'. Since the row for an optional fragment isn't guaranteed to exist, 'ExecuteUpdate' on properties mapped to one is not supported. Use 'SaveChanges' instead.</value>
+  </data>
   <data name="ExecuteUpdateOverJsonIsNotSupported" xml:space="preserve">
     <value>'ExecuteUpdate' is being used over type '{structuralType}' which is mapped to JSON; 'ExecuteUpdate' on JSON is not supported.</value>
   </data>

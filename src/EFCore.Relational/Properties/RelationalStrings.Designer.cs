@@ -912,6 +912,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     'ExecuteUpdate' is being used to set the property '{entityType}.{property}', which is mapped to the optional entity-splitting fragment '{storeObject}'. Since the row for an optional fragment isn't guaranteed to exist, 'ExecuteUpdate' on properties mapped to one is not supported. Use 'SaveChanges' instead.
+        /// </summary>
+        public static string ExecuteUpdateOnOptionalEntitySplittingFragment(object? entityType, object? property, object? storeObject)
+            => string.Format(
+                GetString("ExecuteUpdateOnOptionalEntitySplittingFragment", nameof(entityType), nameof(property), nameof(storeObject)),
+                entityType, property, storeObject);
+
+        /// <summary>
         ///     'ExecuteUpdate' is being used over type '{structuralType}' which is mapped to JSON; 'ExecuteUpdate' on JSON is not supported.
         /// </summary>
         public static string ExecuteUpdateOverJsonIsNotSupported(object? structuralType)

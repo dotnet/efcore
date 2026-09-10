@@ -16627,6 +16627,9 @@
           "Member": "static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType);"
         },
         {
+          "Member": "static string ExecuteUpdateOnOptionalEntitySplittingFragment(object? entityType, object? property, object? storeObject);"
+        },
+        {
           "Member": "static string ExecuteUpdateOverJsonIsNotSupported(object? structuralType);"
         },
         {
