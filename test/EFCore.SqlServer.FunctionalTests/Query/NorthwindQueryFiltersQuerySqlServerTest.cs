@@ -417,20 +417,14 @@ GROUP BY [o].[EmployeeID]
 @ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN (
-            SELECT [c2].[CustomerID], [c2].[City], [c2].[CompanyName]
-            FROM [Customers] AS [c2]
-            WHERE [c2].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
-        ) AS [c1] ON [o0].[CustomerID] = [c1].[CustomerID]
-        WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL AND ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c1].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c0].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
 LEFT JOIN (
-    SELECT [c].[CustomerID], [c].[CompanyName]
+    SELECT [c].[CustomerID], [c].[City], [c].[CompanyName]
     FROM [Customers] AS [c]
     WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
@@ -448,20 +442,14 @@ GROUP BY [o].[EmployeeID]
 @ef_filter__TenantPrefix_startswith='B%' (Size = 40)
 
 SELECT [o].[EmployeeID] AS [Key], COUNT(*) AS [Total], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN (
-            SELECT [c2].[CustomerID], [c2].[City], [c2].[CompanyName]
-            FROM [Customers] AS [c2]
-            WHERE [c2].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
-        ) AS [c1] ON [o0].[CustomerID] = [c1].[CustomerID]
-        WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL AND ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c1].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c0].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
 LEFT JOIN (
-    SELECT [c].[CustomerID], [c].[CompanyName]
+    SELECT [c].[CustomerID], [c].[City], [c].[CompanyName]
     FROM [Customers] AS [c]
     WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 ) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
@@ -477,14 +465,13 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
