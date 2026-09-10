@@ -2225,6 +2225,23 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => ss.Set<NullSemanticsEntity1>().GroupBy(e => e.NullableIntA)
                 .Select(g => new { g.Key, Sum = g.Sum(x => x.IntA) != g.Key }));
 
+    // Enumerable.Any and All read a predicate that evaluates to NULL as "does not satisfy": such a row is not a match for
+    // Any, and is a failure for All. NullableIntA is 0, 1 or NULL, so "greater than or equal to 0" can only fail on a NULL,
+    // and grouping by it gives a group whose rows are all NULL - neither of which the Northwind columns the GroupBy
+    // quantifier tests group over can offer, since none of those hold NULLs.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Quantifier_over_group_treats_null_predicate_as_not_satisfied(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().GroupBy(e => e.NullableIntA)
+                .Select(g => new
+                {
+                    g.Key,
+                    All = g.All(e => e.NullableIntA >= 0),
+                    Any = g.Any(e => e.NullableIntA >= 0)
+                }),
+            elementSorter: e => e.Key);
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nullability_is_computed_correctly_for_chained_coalesce(bool async)
         => AssertQuery(

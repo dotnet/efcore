@@ -452,6 +452,10 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
 
     // EmployeeID is nullable, so the predicate is NULL rather than false on a row with no employee. Enumerable.Any/All
     // treat that as "does not satisfy"; the SQL must too, so such a row has to be left out of the match count.
+    //
+    // No Northwind order actually has a NULL EmployeeID, so these two only pin the SQL shape. The behaviour itself is
+    // covered by NullSemanticsQueryTestBase.Quantifier_over_group_treats_null_predicate_as_not_satisfied, whose model
+    // does hold NULLs.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Any_with_nullable_predicate(bool async)
         => AssertQuery(
