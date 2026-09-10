@@ -2044,6 +2044,23 @@ GROUP BY [j0].[Key]
 """);
     }
 
+    public override async Task Group_by_on_json_scalar_with_multiple_aggregates(bool async)
+    {
+        await base.Group_by_on_json_scalar_with_multiple_aggregates(async);
+
+        AssertSql(
+            """
+SELECT [j0].[Key], ISNULL(SUM(CAST(JSON_VALUE([j0].[c0], '$.Number') AS int)), 0) AS [Sum], MAX(CAST(JSON_VALUE([j0].[c0], '$.OwnedReferenceBranch.Fraction') AS decimal(18,2))) AS [Max], COUNT(CASE
+    WHEN CAST(JSON_VALUE([j0].[c0], '$.Number') AS int) > 5 THEN 1
+END) AS [Above]
+FROM (
+    SELECT [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') AS [Key]
+    FROM [JsonEntitiesBasic] AS [j]
+) AS [j0]
+GROUP BY [j0].[Key]
+""");
+    }
+
     public override async Task Group_by_on_json_scalar_using_collection_indexer(bool async)
     {
         await base.Group_by_on_json_scalar_using_collection_indexer(async);

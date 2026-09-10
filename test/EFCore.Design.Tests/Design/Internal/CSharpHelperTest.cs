@@ -48,6 +48,12 @@ public class CSharpHelperTest
          "-3.402823E+38f"), InlineData(
          3.402823E+38f, // Single MaxValue
          "3.402823E+38f"), InlineData(
+         float.NegativeInfinity,
+         "float.NegativeInfinity"), InlineData(
+         float.PositiveInfinity,
+         "float.PositiveInfinity"), InlineData(
+         float.NaN,
+         "float.NaN"), InlineData(
          42,
          "42"), InlineData(
          42L,
@@ -93,6 +99,18 @@ public class CSharpHelperTest
         => Literal_works(
             new byte[] { 1, 2 },
             "new byte[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array()
+        => Literal_works(
+            new int?[] { 1, 2 },
+            "new int?[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array_with_null_element()
+        => Literal_works(
+            new int?[] { 1, null, 3 },
+            "new int?[] { 1, null, 3 }");
 
     [Fact]
     public void Literal_works_when_empty_list()
