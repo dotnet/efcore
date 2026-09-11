@@ -259,10 +259,10 @@ public class ServiceCollectionMapTest
 
     private class FakeService : IFakeService, IPatchServiceInjectionSite
     {
-        public DbContext Context { get; private set; }
+        public DbContext Context { get; private set; } = null!;
 
         void IPatchServiceInjectionSite.InjectServices(IServiceProvider serviceProvider)
-            => Context = serviceProvider.GetService<ICurrentDbContext>().Context;
+            => Context = serviceProvider.GetService<ICurrentDbContext>()!.Context;
     }
 
     private class DerivedFakeService : FakeService;

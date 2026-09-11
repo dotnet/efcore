@@ -69,10 +69,10 @@ public class AppServiceProviderFactoryTest
         Assert.NotNull(services.GetRequiredService<TestService>());
     }
 
-    private static void InjectHostIntoDiagnostics(object[] args)
+    private static void InjectHostIntoDiagnostics(object?[] args)
     {
         Assert.Single(args);
-        Assert.Equal((string[])args[0], new[] { "arg1", "--applicationName", "MockAssembly" });
+        Assert.Equal((string[])args[0]!, new[] { "arg1", "--applicationName", "MockAssembly" });
 
         using var diagnosticListener = new DiagnosticListener("Microsoft.Extensions.Hosting");
 
@@ -129,7 +129,7 @@ public class AppServiceProviderFactoryTest
     }
 }
 
-public class TestAppServiceProviderFactory(Assembly startupAssembly, IOperationReporter reporter = null)
+public class TestAppServiceProviderFactory(Assembly startupAssembly, IOperationReporter? reporter = null)
     : AppServiceProviderFactory(startupAssembly, reporter ?? new TestOperationReporter());
 
 public class TestWebHost(IServiceProvider services)

@@ -66,7 +66,7 @@ public class GuidToBytesConverterTest
 
         Assert.Throws<ArgumentException>(() => converter([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]

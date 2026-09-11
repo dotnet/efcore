@@ -10,21 +10,21 @@ public class PropertyInfoExtensionsTest
     [Fact]
     public void IsStatic_identifies_static_properties()
     {
-        Assert.True(typeof(KitKat).GetAnyProperty("Yummy").IsStatic());
-        Assert.True(typeof(KitKat).GetAnyProperty("Wafers").IsStatic());
-        Assert.True(typeof(KitKat).GetAnyProperty("And").IsStatic());
-        Assert.True(typeof(KitKat).GetAnyProperty("Chocolate").IsStatic());
-        Assert.True(typeof(KitKat).GetAnyProperty("With").IsStatic());
-        Assert.True(typeof(KitKat).GetAnyProperty("No").IsStatic());
-        Assert.False(typeof(KitKat).GetAnyProperty("Nuts").IsStatic());
-        Assert.False(typeof(KitKat).GetAnyProperty("But").IsStatic());
-        Assert.False(typeof(KitKat).GetAnyProperty("May").IsStatic());
-        Assert.False(typeof(KitKat).GetAnyProperty("Contain").IsStatic());
-        Assert.False(typeof(KitKat).GetAnyProperty("TreeNuts").IsStatic());
-        Assert.False(typeof(KitKat).GetAnyProperty("Just").IsStatic());
-        Assert.True(typeof(KitKat).GetAnyProperty("Like").IsStatic());
-        Assert.False(typeof(KitKat).GetAnyProperty("A").IsStatic());
-        Assert.True(typeof(KitKat).GetAnyProperty("Twix").IsStatic());
+        Assert.True(typeof(KitKat).GetAnyProperty("Yummy")!.IsStatic());
+        Assert.True(typeof(KitKat).GetAnyProperty("Wafers")!.IsStatic());
+        Assert.True(typeof(KitKat).GetAnyProperty("And")!.IsStatic());
+        Assert.True(typeof(KitKat).GetAnyProperty("Chocolate")!.IsStatic());
+        Assert.True(typeof(KitKat).GetAnyProperty("With")!.IsStatic());
+        Assert.True(typeof(KitKat).GetAnyProperty("No")!.IsStatic());
+        Assert.False(typeof(KitKat).GetAnyProperty("Nuts")!.IsStatic());
+        Assert.False(typeof(KitKat).GetAnyProperty("But")!.IsStatic());
+        Assert.False(typeof(KitKat).GetAnyProperty("May")!.IsStatic());
+        Assert.False(typeof(KitKat).GetAnyProperty("Contain")!.IsStatic());
+        Assert.False(typeof(KitKat).GetAnyProperty("TreeNuts")!.IsStatic());
+        Assert.False(typeof(KitKat).GetAnyProperty("Just")!.IsStatic());
+        Assert.True(typeof(KitKat).GetAnyProperty("Like")!.IsStatic());
+        Assert.False(typeof(KitKat).GetAnyProperty("A")!.IsStatic());
+        Assert.True(typeof(KitKat).GetAnyProperty("Twix")!.IsStatic());
     }
 
     public class KitKat

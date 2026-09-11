@@ -7,8 +7,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
@@ -369,12 +367,12 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
             else if (type == typeof(DateTime))
             {
                 Assert.True(
-                    Equal((DateTime)(object)expected, (DateTime)(object)actual), $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
+                    Equal((DateTime)(object)expected!, (DateTime)(object)actual!), $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
             }
             else if (type == typeof(DateTimeOffset))
             {
                 Assert.True(
-                    Equal((DateTimeOffset)(object)expected, (DateTimeOffset)(object)actual),
+                    Equal((DateTimeOffset)(object)expected!, (DateTimeOffset)(object)actual!),
                     $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
             }
             else
@@ -413,12 +411,12 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     private bool Equal(DateTimeOffset left, DateTimeOffset right)
         => left.EqualsExact(right);
 
-    private static Type UnwrapNullableType(Type type)
+    private static Type? UnwrapNullableType(Type? type)
         => type == null ? null : Nullable.GetUnderlyingType(type) ?? type;
 
     public static Type UnwrapNullableEnumType(Type type)
     {
-        var underlyingNonNullableType = UnwrapNullableType(type);
+        var underlyingNonNullableType = UnwrapNullableType(type)!;
         return !underlyingNonNullableType.IsEnum ? underlyingNonNullableType : Enum.GetUnderlyingType(underlyingNonNullableType);
     }
 
@@ -482,7 +480,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         {
             var dt = (await context.Set<ObjectBackedDataTypes>().Where(ndt => ndt.Id == 101).ToListAsync()).Single();
 
-            var entityType = context.Model.FindEntityType(typeof(ObjectBackedDataTypes));
+            var entityType = context.Model.FindEntityType(typeof(ObjectBackedDataTypes))!;
             AssertEqualIfMapped(entityType, "TestString", () => dt.String);
             AssertEqualIfMapped(entityType, [10, 9, 8, 7, 6], () => dt.Bytes);
             AssertEqualIfMapped(entityType, (short)-1234, () => dt.Int16);
@@ -521,10 +519,10 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     {
         using var context = CreateContext();
         var query = from animal in context.Set<Animal>()
-                    select new { animal.Id, animal.IdentificationMethods.FirstOrDefault().Method };
+                    select new { animal.Id, animal.IdentificationMethods.FirstOrDefault()!.Method };
 
         var result = await query.SingleOrDefaultAsync();
-        Assert.Equal(IdentificationMethod.EarTag, result.Method);
+        Assert.Equal(IdentificationMethod.EarTag, result!.Method);
     }
 
     [Fact]
@@ -952,53 +950,53 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     protected class MaxLengthDataTypes
     {
         public int Id { get; set; }
-        public string String3 { get; set; }
-        public byte[] ByteArray5 { get; set; }
-        public string String9000 { get; set; }
-        public string StringUnbounded { get; set; }
-        public byte[] ByteArray9000 { get; set; }
+        public string String3 { get; set; } = null!;
+        public byte[] ByteArray5 { get; set; } = null!;
+        public string String9000 { get; set; } = null!;
+        public string StringUnbounded { get; set; } = null!;
+        public byte[] ByteArray9000 { get; set; } = null!;
     }
 
     protected class UnicodeDataTypes
     {
         public int Id { get; set; }
-        public string StringDefault { get; set; }
-        public string StringAnsi { get; set; }
-        public string StringAnsi3 { get; set; }
-        public string StringAnsi9000 { get; set; }
-        public string StringUnicode { get; set; }
+        public string StringDefault { get; set; } = null!;
+        public string StringAnsi { get; set; } = null!;
+        public string StringAnsi3 { get; set; } = null!;
+        public string StringAnsi9000 { get; set; } = null!;
+        public string StringUnicode { get; set; } = null!;
     }
 
     protected class BinaryKeyDataType
     {
-        public byte[] Id { get; set; }
+        public byte[] Id { get; set; } = null!;
 
-        public string Ex { get; set; }
+        public string Ex { get; set; } = null!;
 
-        public ICollection<BinaryForeignKeyDataType> Dependents { get; set; }
+        public ICollection<BinaryForeignKeyDataType> Dependents { get; set; } = null!;
     }
 
     protected class BinaryForeignKeyDataType
     {
         public int Id { get; set; }
-        public byte[] BinaryKeyDataTypeId { get; set; }
+        public byte[]? BinaryKeyDataTypeId { get; set; }
 
-        public BinaryKeyDataType Principal { get; set; }
+        public BinaryKeyDataType? Principal { get; set; }
     }
 
     protected class StringKeyDataType
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
-        public ICollection<StringForeignKeyDataType> Dependents { get; set; }
+        public ICollection<StringForeignKeyDataType> Dependents { get; set; } = null!;
     }
 
     protected class StringForeignKeyDataType
     {
         public int Id { get; set; }
-        public string StringKeyDataTypeId { get; set; }
+        public string? StringKeyDataTypeId { get; set; }
 
-        public StringKeyDataType Principal { get; set; }
+        public StringKeyDataType? Principal { get; set; }
     }
 
     protected class BuiltInNullableDataTypesBase
@@ -1032,34 +1030,34 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class ObjectBackedDataTypes
     {
-        private object _string;
-        private object _bytes;
-        private object _int16;
-        private object _int32;
-        private object _int64;
-        private object _double;
-        private object _decimal;
-        private object _dateTime;
-        private object _dateTimeOffset;
-        private object _timeSpan;
-        private object _dateOnly;
-        private object _timeOnly;
-        private object _single;
-        private object _boolean;
-        private object _byte;
-        private object _unsignedInt16;
-        private object _unsignedInt32;
-        private object _unsignedInt64;
-        private object _character;
-        private object _signedByte;
-        private object _enum64;
-        private object _enum32;
-        private object _enum16;
-        private object _enum8;
-        private object _enumU64;
-        private object _enumU32;
-        private object _enumU16;
-        private object _enumS8;
+        private object _string = null!;
+        private object? _bytes;
+        private object _int16 = null!;
+        private object _int32 = null!;
+        private object _int64 = null!;
+        private object _double = null!;
+        private object _decimal = null!;
+        private object _dateTime = null!;
+        private object _dateTimeOffset = null!;
+        private object _timeSpan = null!;
+        private object _dateOnly = null!;
+        private object _timeOnly = null!;
+        private object _single = null!;
+        private object _boolean = null!;
+        private object _byte = null!;
+        private object _unsignedInt16 = null!;
+        private object _unsignedInt32 = null!;
+        private object _unsignedInt64 = null!;
+        private object _character = null!;
+        private object _signedByte = null!;
+        private object _enum64 = null!;
+        private object _enum32 = null!;
+        private object _enum16 = null!;
+        private object _enum8 = null!;
+        private object _enumU64 = null!;
+        private object _enumU32 = null!;
+        private object _enumU16 = null!;
+        private object _enumS8 = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -1072,9 +1070,9 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
             set => _string = value;
         }
 
-        public byte[] Bytes
+        public byte[]? Bytes
         {
-            get => (byte[])_bytes;
+            get => (byte[]?)_bytes;
             set => _bytes = value;
         }
 
@@ -1238,8 +1236,8 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     protected class Animal
     {
         public int Id { get; set; }
-        public ICollection<AnimalIdentification> IdentificationMethods { get; set; }
-        public AnimalDetails Details { get; set; }
+        public ICollection<AnimalIdentification> IdentificationMethods { get; set; } = null!;
+        public AnimalDetails Details { get; set; } = null!;
     }
 
     protected class AnimalDetails
@@ -1275,6 +1273,6 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     {
         public int Id { get; set; }
 
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
     }
 }

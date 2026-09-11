@@ -38,7 +38,7 @@ public class CharToStringConverterTest
         Assert.Equal('F', converter("Funkadelic"));
         Assert.Equal('\0', converter(""));
 
-        Assert.Throws<NullReferenceException>(() => converter(null));
+        Assert.Throws<NullReferenceException>(() => converter(null!));
     }
 
     [Fact]

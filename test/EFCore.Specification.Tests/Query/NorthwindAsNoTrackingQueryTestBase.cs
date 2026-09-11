@@ -102,7 +102,7 @@ public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixt
     public virtual Task Applied_after_navigation_expansion(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.Customer.City != "London").AsNoTracking());
+            ss => ss.Set<Order>().Where(o => o.Customer!.City != "London").AsNoTracking());
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_simple_shadow(bool async)

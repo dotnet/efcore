@@ -19,13 +19,13 @@ public class Employee
     public int BusinessEntityID { get; set; }
     public DateTime BirthDate { get; set; }
     public bool CurrentFlag { get; set; }
-    public string Gender { get; set; }
+    public string Gender { get; set; } = null!;
     public DateTime HireDate { get; set; }
-    public string JobTitle { get; set; }
-    public string LoginID { get; set; }
-    public string MaritalStatus { get; set; }
+    public string JobTitle { get; set; } = null!;
+    public string LoginID { get; set; } = null!;
+    public string MaritalStatus { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
-    public string NationalIDNumber { get; set; }
+    public string NationalIDNumber { get; set; } = null!;
     public short? OrganizationLevel { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
@@ -38,6 +38,6 @@ public class Employee
     public virtual ICollection<EmployeePayHistory> EmployeePayHistory { get; set; }
     public virtual ICollection<JobCandidate> JobCandidate { get; set; }
     public virtual ICollection<PurchaseOrderHeader> PurchaseOrderHeader { get; set; }
-    public virtual SalesPerson SalesPerson { get; set; }
-    public virtual Person BusinessEntity { get; set; }
+    public virtual SalesPerson? SalesPerson { get; set; }
+    public virtual Person BusinessEntity { get; set; } = null!;
 }

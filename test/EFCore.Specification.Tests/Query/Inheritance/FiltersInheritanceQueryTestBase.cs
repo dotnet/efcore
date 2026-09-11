@@ -64,7 +64,7 @@ public abstract class FiltersInheritanceQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Animal>()
                 .OfType<Bird>()
                 .Select(b => new { b.Name }),
-            elementSorter: e => e.Name);
+            elementSorter: e => e.Name!);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_use_of_type_bird_first(bool async)

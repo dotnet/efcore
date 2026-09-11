@@ -251,7 +251,7 @@ public partial class ModelValidatorTest
 
     protected class NonPrimitiveAsPropertyEntity
     {
-        public NavigationAsProperty Property { get; set; }
+        public NavigationAsProperty Property { get; set; } = null!;
     }
 
     protected class NavigationAsProperty;
@@ -268,12 +268,12 @@ public partial class ModelValidatorTest
 
     protected class NonPrimitiveReferenceTypePropertyEntity
     {
-        public ICollection<Uri> Property { get; set; }
+        public ICollection<Uri> Property { get; set; } = null!;
     }
 
     protected class NavigationEntity
     {
-        public PrimitivePropertyEntity Navigation { get; set; }
+        public PrimitivePropertyEntity Navigation { get; set; } = null!;
     }
 
     protected class NonCandidatePropertyEntity
@@ -295,43 +295,43 @@ public partial class ModelValidatorTest
 
     protected class ExplicitNavigationEntity : INavigationEntity
     {
-        PrimitivePropertyEntity INavigationEntity.Navigation { get; set; }
+        PrimitivePropertyEntity INavigationEntity.Navigation { get; set; } = null!;
 
-        public PrimitivePropertyEntity Navigation { get; set; }
+        public PrimitivePropertyEntity Navigation { get; set; } = null!;
     }
 
     protected class InterfaceNavigationEntity
     {
-        public IList<INavigationEntity> Navigation { get; set; }
+        public IList<INavigationEntity> Navigation { get; set; } = null!;
     }
 
     protected abstract class LivingBeing
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [NotMapped]
-        public OwnedEntity Details { get; set; }
+        public OwnedEntity Details { get; set; } = null!;
     }
 
     protected class Animal : LivingBeing
     {
-        public Person FavoritePerson { get; set; }
+        public Person FavoritePerson { get; set; } = null!;
     }
 
     protected class Cat : Animal
     {
-        public string Breed { get; set; }
+        public string Breed { get; set; } = null!;
 
         [NotMapped]
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
 
         public int Identity { get; set; }
     }
 
     protected class Dog : Animal
     {
-        public string Breed { get; set; }
+        public string Breed { get; set; } = null!;
 
         [NotMapped]
         public int Type { get; set; }
@@ -341,7 +341,7 @@ public partial class ModelValidatorTest
 
     protected class Person : LivingBeing
     {
-        public string FavoriteBreed { get; set; }
+        public string FavoriteBreed { get; set; } = null!;
     }
 
     protected class Employee : Person;
@@ -349,12 +349,12 @@ public partial class ModelValidatorTest
     protected class Owner
     {
         public int Id { get; set; }
-        public OwnedEntity Owned { get; set; }
+        public OwnedEntity? Owned { get; set; }
     }
 
     protected class OwnedEntity
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     protected class CarbonComposite

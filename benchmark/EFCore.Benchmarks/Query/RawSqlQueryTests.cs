@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
 [DisplayName(nameof(RawSqlQueryTests))]
 public abstract class RawSqlQueryTests
 {
-    private OrdersContextBase _context;
+    private OrdersContextBase _context = null!;
 
     protected abstract OrdersFixtureBase CreateFixture();
     protected abstract string StoredProcedureCreationScript { get; }

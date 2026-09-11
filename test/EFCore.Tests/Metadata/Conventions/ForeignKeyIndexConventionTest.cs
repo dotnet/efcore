@@ -22,9 +22,9 @@ public class ForeignKeyIndexConventionTest
         dependentTypeBuilder.HasIndex(t => t.PrincipalId).IsUnique(false);
         principalTypeBuilder.HasKey(t => t.ChangedPrincipalId);
 
-        var entityType = modelBuilder.Model.FindEntityType(typeof(DependentEntity));
-        var property = entityType.FindProperty(nameof(DependentEntity.PrincipalId));
-        var index = entityType.FindIndex(property);
+        var entityType = modelBuilder.Model.FindEntityType(typeof(DependentEntity))!;
+        var property = entityType.FindProperty(nameof(DependentEntity.PrincipalId))!;
+        var index = entityType.FindIndex(property)!;
 
         Assert.False(index.IsUnique);
     }
@@ -42,6 +42,6 @@ public class ForeignKeyIndexConventionTest
 
         public int DependentId { get; set; }
 
-        public virtual PrincipalEntity Principal { get; set; }
+        public virtual PrincipalEntity Principal { get; set; } = null!;
     }
 }

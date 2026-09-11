@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(typeof(InfoLogContext).FullName)
+                optionsBuilder.UseInMemoryDatabase(typeof(InfoLogContext).FullName!)
                     .ConfigureWarnings(w => w.Default(WarningBehavior.Log));
 
                 if (_useLoggerFactory)
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     optionsBuilder
                         .EnableServiceProviderCaching(false)
-                        .UseLoggerFactory(externalProvider.GetService<ILoggerFactory>());
+                        .UseLoggerFactory(externalProvider.GetRequiredService<ILoggerFactory>());
                 }
                 else
                 {
@@ -123,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore
                     LogLevel logLevel,
                     EventId eventId,
                     TState state,
-                    Exception exception,
-                    Func<TState, Exception, string> formatter)
+                    Exception? exception,
+                    Func<TState, Exception?, string> formatter)
                 {
                     var message = new StringBuilder();
                     if (formatter != null)
@@ -151,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore
                 public IDisposable BeginScope(object state)
                     => throw new NotImplementedException();
 
-                public IDisposable BeginScope<TState>(TState state)
+                public IDisposable? BeginScope<TState>(TState state)
+                    where TState : notnull
                     => null;
             }
         }
@@ -187,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (appServiceProvider)
                 {
-                    loggerFactory = appServiceProvider.GetService<ILoggerFactory>();
+                    loggerFactory = appServiceProvider.GetRequiredService<ILoggerFactory>();
                     Random scopedExternalService;
                     Random scopedExternalServiceFromContext;
 
@@ -200,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Same(loggerFactory, scope.ServiceProvider.GetService<ILoggerFactory>());
 
-                        scopedExternalService = scope.ServiceProvider.GetService<Random>();
+                        scopedExternalService = scope.ServiceProvider.GetRequiredService<Random>();
                         Assert.NotNull(scopedExternalService);
 
                         scopedExternalServiceFromContext = context.GetService<Random>();
@@ -397,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                     else
                     {
-                        b.UseRootApplicationServiceProvider(p.GetService<ServiceProviderAccessor>().RootServiceProvider);
+                        b.UseRootApplicationServiceProvider(p.GetRequiredService<ServiceProviderAccessor>().RootServiceProvider);
                     }
                 });
 
@@ -406,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore
             private readonly ICoreSingletonOptions _singletonOptions = singletonOptions;
 
             public ApplicationService ApplicationService
-                => _singletonOptions.RootApplicationServiceProvider!.GetService<ApplicationService>();
+                => _singletonOptions.RootApplicationServiceProvider!.GetRequiredService<ApplicationService>();
         }
 
         private class TestScopedService(ICurrentDbContext currentContext, IEntityEntryGraphIterator graphIterator)
@@ -663,8 +664,8 @@ namespace Microsoft.EntityFrameworkCore
             public void NavigationReferenceChanged(
                 InternalEntityEntry entry,
                 INavigationBase navigationBase,
-                object oldValue,
-                object newValue)
+                object? oldValue,
+                object? newValue)
                 => throw new NotImplementedException();
 
             public void NavigationCollectionChanged(
@@ -679,8 +680,8 @@ namespace Microsoft.EntityFrameworkCore
                 IProperty property,
                 IEnumerable<IKey> containingPrincipalKeys,
                 IEnumerable<IForeignKey> containingForeignKeys,
-                object oldValue,
-                object newValue)
+                object? oldValue,
+                object? newValue)
                 => throw new NotImplementedException();
 
             public void TrackedFromQuery(InternalEntityEntry entry)
@@ -828,12 +829,12 @@ namespace Microsoft.EntityFrameworkCore
         [ComplexType]
         private class Tag
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             [Required]
-            public Stamp Stamp { get; set; }
+            public Stamp Stamp { get; set; } = null!;
 
-            public string[] Notes { get; set; }
+            public string[] Notes { get; set; } = null!;
         }
 
         [ComplexType]
@@ -845,66 +846,66 @@ namespace Microsoft.EntityFrameworkCore
         private class Category
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             [Required]
-            public Tag Tag { get; set; }
+            public Tag Tag { get; set; } = null!;
 
             [Required]
-            public Stamp Stamp { get; set; }
+            public Stamp Stamp { get; set; } = null!;
 
-            public List<Product> Products { get; set; }
+            public List<Product> Products { get; set; } = [];
         }
 
         private class Product
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public decimal Price { get; set; }
 
             [Required]
-            public Tag Tag { get; set; }
+            public Tag Tag { get; set; } = null!;
 
             [Required]
-            public Stamp Stamp { get; set; }
+            public Stamp Stamp { get; set; } = null!;
 
             public int CategoryId { get; set; }
-            public Category Category { get; set; }
+            public Category Category { get; set; } = null!;
         }
 
         private class TheGu
         {
             public Guid Id { get; set; }
-            public string ShirtColor { get; set; }
+            public string ShirtColor { get; set; } = null!;
         }
 
         private class CategoryWithSentinel
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
-            public List<ProductWithSentinel> Products { get; set; }
+            public List<ProductWithSentinel> Products { get; set; } = [];
         }
 
         private class ProductWithSentinel
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public decimal Price { get; set; }
 
             public int CategoryId { get; set; }
-            public CategoryWithSentinel Category { get; set; }
+            public CategoryWithSentinel Category { get; set; } = null!;
         }
 
         private class TheGuWithSentinel
         {
             public Guid Id { get; set; }
-            public string ShirtColor { get; set; }
+            public string ShirtColor { get; set; } = null!;
         }
 
         private class EarlyLearningCenter : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
+            private readonly IServiceProvider? _serviceProvider;
 
             public EarlyLearningCenter()
             {
@@ -917,12 +918,12 @@ namespace Microsoft.EntityFrameworkCore
                 : base(options)
                 => _serviceProvider = serviceProvider;
 
-            public DbSet<Product> Products { get; set; }
-            public DbSet<Category> Categories { get; set; }
-            public DbSet<TheGu> Gus { get; set; }
-            public DbSet<ProductWithSentinel> ProductWithSentinels { get; set; }
-            public DbSet<CategoryWithSentinel> CategoryWithSentinels { get; set; }
-            public DbSet<TheGuWithSentinel> GuWithSentinels { get; set; }
+            public DbSet<Product> Products { get; set; } = null!;
+            public DbSet<Category> Categories { get; set; } = null!;
+            public DbSet<TheGu> Gus { get; set; } = null!;
+            public DbSet<ProductWithSentinel> ProductWithSentinels { get; set; } = null!;
+            public DbSet<CategoryWithSentinel> CategoryWithSentinels { get; set; } = null!;
+            public DbSet<TheGuWithSentinel> GuWithSentinels { get; set; } = null!;
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -993,8 +994,8 @@ namespace Microsoft.EntityFrameworkCore
                 .AddMemoryCache()
                 .BuildServiceProvider(validateScopes: true);
 
-            var loggerFactory = new WrappingLoggerFactory(appServiceProvider.GetService<ILoggerFactory>());
-            var memoryCache = appServiceProvider.GetService<IMemoryCache>();
+            var loggerFactory = new WrappingLoggerFactory(appServiceProvider.GetRequiredService<ILoggerFactory>());
+            var memoryCache = appServiceProvider.GetRequiredService<IMemoryCache>();
 
             IInMemoryDatabaseRootCache singleton;
 
@@ -1055,8 +1056,8 @@ namespace Microsoft.EntityFrameworkCore
                 .AddMemoryCache()
                 .BuildServiceProvider(validateScopes: true);
 
-            var loggerFactory = new WrappingLoggerFactory(appServiceProvider.GetService<ILoggerFactory>());
-            var memoryCache = appServiceProvider.GetService<IMemoryCache>();
+            var loggerFactory = new WrappingLoggerFactory(appServiceProvider.GetRequiredService<ILoggerFactory>());
+            var memoryCache = appServiceProvider.GetRequiredService<IMemoryCache>();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContextWithOC3A>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -1188,8 +1189,8 @@ namespace Microsoft.EntityFrameworkCore
                 .AddMemoryCache()
                 .BuildServiceProvider(validateScopes: true);
 
-            var loggerFactory = new WrappingLoggerFactory(appServiceProvider.GetService<ILoggerFactory>());
-            var memoryCache = appServiceProvider.GetService<IMemoryCache>();
+            var loggerFactory = new WrappingLoggerFactory(appServiceProvider.GetRequiredService<ILoggerFactory>());
+            var memoryCache = appServiceProvider.GetRequiredService<IMemoryCache>();
 
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -1291,8 +1292,8 @@ namespace Microsoft.EntityFrameworkCore
                 .AddMemoryCache()
                 .BuildServiceProvider(validateScopes: true);
 
-            var loggerFactory = new WrappingLoggerFactory(appServiceProvider.GetService<ILoggerFactory>());
-            var memoryCache = appServiceProvider.GetService<IMemoryCache>();
+            var loggerFactory = new WrappingLoggerFactory(appServiceProvider.GetRequiredService<ILoggerFactory>());
+            var memoryCache = appServiceProvider.GetRequiredService<IMemoryCache>();
 
             var options = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(
@@ -1386,8 +1387,8 @@ namespace Microsoft.EntityFrameworkCore
                        .CreateScope())
             {
                 context1 = useInterface
-                    ? (ConstructorTestContextWithOC1A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC1A>()
-                    : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                    ? (ConstructorTestContextWithOC1A)serviceScope.ServiceProvider.GetRequiredService<IConstructorTestContextWithOC1A>()
+                    : serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1A>();
 
                 if (useInterface)
                 {
@@ -1408,8 +1409,8 @@ namespace Microsoft.EntityFrameworkCore
                        .CreateScope())
             {
                 context2 = useInterface
-                    ? (ConstructorTestContextWithOC1A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC1A>()
-                    : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                    ? (ConstructorTestContextWithOC1A)serviceScope.ServiceProvider.GetRequiredService<IConstructorTestContextWithOC1A>()
+                    : serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1A>();
 
                 // Singleton services not the same because service provider caching is off
                 Assert.NotSame(singleton[0], context2.GetService<IInMemoryDatabaseRootCache>());
@@ -1438,7 +1439,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1B>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1B>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
@@ -1450,7 +1451,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1B>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1B>();
 
                 // Singleton internal services not the same because service provider caching is off
                 Assert.NotSame(singleton, context.GetService<IInMemoryDatabaseRootCache>());
@@ -1481,7 +1482,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context.GetService<IMemoryCache>());
@@ -1502,7 +1503,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotSame(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotSame(singleton[1], context.GetService<IMemoryCache>());
@@ -1536,7 +1537,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(loggerFactory = context.GetService<ILoggerFactory>());
@@ -1550,7 +1551,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 // Singleton services not the same because service provider caching is off
                 Assert.NotSame(singleton, context.GetService<IInMemoryDatabaseRootCache>());
@@ -1575,7 +1576,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC2A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC2A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[2] = context.GetService<IMemoryCache>());
@@ -1587,7 +1588,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC2A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC2A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[2], context.GetService<IMemoryCache>());
@@ -1614,7 +1615,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context.GetService<IMemoryCache>());
@@ -1627,7 +1628,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context.GetService<IMemoryCache>());
@@ -1664,8 +1665,8 @@ namespace Microsoft.EntityFrameworkCore
                        .CreateScope())
             {
                 var context = useInterface
-                    ? (ConstructorTestContextWithOC3A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC3A>()
-                    : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                    ? (ConstructorTestContextWithOC3A)serviceScope.ServiceProvider.GetRequiredService<IConstructorTestContextWithOC3A>()
+                    : serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context.GetService<IMemoryCache>());
@@ -1679,8 +1680,8 @@ namespace Microsoft.EntityFrameworkCore
                        .CreateScope())
             {
                 var context = useInterface
-                    ? (ConstructorTestContextWithOC3A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC3A>()
-                    : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                    ? (ConstructorTestContextWithOC3A)serviceScope.ServiceProvider.GetRequiredService<IConstructorTestContextWithOC3A>()
+                    : serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context.GetService<IMemoryCache>());
@@ -1711,7 +1712,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
@@ -1724,7 +1725,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton, context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
@@ -1754,7 +1755,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context.GetService<IMemoryCache>());
@@ -1767,7 +1768,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.NotSame(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotSame(singleton[1], context.GetService<IMemoryCache>());
@@ -1793,7 +1794,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(loggerFactory = context.GetService<ILoggerFactory>());
@@ -1807,7 +1808,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.NotSame(singleton, context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotSame(loggerFactory, context.GetService<ILoggerFactory>());
@@ -1835,7 +1836,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context.GetService<IMemoryCache>());
@@ -1848,7 +1849,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context.GetService<IMemoryCache>());
@@ -1873,7 +1874,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context.GetService<IMemoryCache>());
@@ -1886,7 +1887,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context.GetService<IMemoryCache>());
@@ -1914,7 +1915,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
@@ -1927,7 +1928,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
                 Assert.Same(singleton, context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
@@ -1949,7 +1950,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context.GetService<IMemoryCache>());
@@ -1962,7 +1963,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotSame(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotSame(singleton[1], context.GetService<IMemoryCache>());
@@ -1992,7 +1993,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(singleton = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
@@ -2005,7 +2006,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotSame(singleton, context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
@@ -2030,7 +2031,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context.GetService<IMemoryCache>());
@@ -2043,7 +2044,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context.GetService<IMemoryCache>());
@@ -2076,7 +2077,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                context1 = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1A>();
 
                 Assert.NotNull(singleton[0] = context1.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
@@ -2091,7 +2092,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                context2 = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1A>();
 
                 Assert.Same(singleton[0], context2.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
@@ -2156,7 +2157,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                context1 = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton[0] = context1.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
@@ -2171,7 +2172,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                context2 = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton[0], context2.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
@@ -2202,14 +2203,14 @@ namespace Microsoft.EntityFrameworkCore
                         .BuildServiceProvider(validateScopes: true));
 
             var singleton = new object[3];
-            DbContextOptions options = null;
+            DbContextOptions options = null!;
 
             using (var serviceScope = appServiceProvider
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
-                var context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                var context1 = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1A>();
+                var context2 = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1A>();
 
                 Assert.NotSame(context1, context2);
 
@@ -2221,7 +2222,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (useDbContext)
                 {
-                    options = serviceScope.ServiceProvider.GetService<DbContextOptions>();
+                    options = serviceScope.ServiceProvider.GetRequiredService<DbContextOptions>();
 
                     if (optionsLifetime != ServiceLifetime.Transient)
                     {
@@ -2245,7 +2246,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC1A>();
 
                 // Singleton services not the same because service provider caching is off
                 Assert.NotSame(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
@@ -2306,8 +2307,8 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
-                var context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context1 = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
+                var context2 = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotSame(context1, context2);
 
@@ -2328,7 +2329,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context.GetService<IMemoryCache>());
@@ -2363,7 +2364,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                context1 = serviceScope.ServiceProvider.GetService<DbContext>();
+                context1 = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(singleton[0] = context1.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
@@ -2378,7 +2379,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                context2 = serviceScope.ServiceProvider.GetService<DbContext>();
+                context2 = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.Same(singleton[0], context2.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
@@ -2433,7 +2434,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                context1 = serviceScope.ServiceProvider.GetService<DbContext>();
+                context1 = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(singleton[0] = context1.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
@@ -2448,7 +2449,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                context2 = serviceScope.ServiceProvider.GetService<DbContext>();
+                context2 = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.Same(singleton[0], context2.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
@@ -2482,8 +2483,8 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context1 = serviceScope.ServiceProvider.GetService<DbContext>();
-                var context2 = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context1 = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
+                var context2 = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotSame(context1, context2);
 
@@ -2504,7 +2505,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotSame(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.NotSame(singleton[1], context.GetService<IMemoryCache>());
@@ -2556,8 +2557,8 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context1 = serviceScope.ServiceProvider.GetService<DbContext>();
-                var context2 = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context1 = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
+                var context2 = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotSame(context1, context2);
 
@@ -2578,7 +2579,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryDatabaseRootCache>());
                 Assert.Same(singleton[1], context.GetService<IMemoryCache>());
@@ -2605,7 +2606,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.NotNull(serviceScope.ServiceProvider.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
 
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(context.Model);
                 Assert.NotNull(context.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
@@ -2615,7 +2616,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Can_use_logger_before_context_exists_and_after_disposed_when_logger_factory_replaced()
         {
-            WrappingLoggerFactory loggerFactory = null;
+            WrappingLoggerFactory loggerFactory = null!;
             Log.Clear();
 
             var appServiceProvider = new ServiceCollection()
@@ -2624,7 +2625,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<DbContext>((p, b) =>
                     b.UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .EnableServiceProviderCaching(false)
-                        .UseLoggerFactory(loggerFactory = new WrappingLoggerFactory(p.GetService<ILoggerFactory>())))
+                        .UseLoggerFactory(loggerFactory = new WrappingLoggerFactory(p.GetRequiredService<ILoggerFactory>())))
                 .BuildServiceProvider(validateScopes: true);
 
             Assert.Null(loggerFactory);
@@ -2633,7 +2634,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(serviceScope.ServiceProvider.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
 
@@ -2644,11 +2645,11 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(context.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
 
                 // ReSharper disable once PossibleNullReferenceException
-                Assert.Equal(3, loggerFactory.CreatedLoggers.Count(n => n == DbLoggerCategory.Infrastructure.Name));
+                Assert.Equal(3, loggerFactory!.CreatedLoggers.Count(n => n == DbLoggerCategory.Infrastructure.Name));
             }
 
             // ReSharper disable once PossibleNullReferenceException
-            Assert.Equal(3, loggerFactory.CreatedLoggers.Count(n => n == DbLoggerCategory.Infrastructure.Name));
+            Assert.Equal(3, loggerFactory!.CreatedLoggers.Count(n => n == DbLoggerCategory.Infrastructure.Name));
         }
 
         [Fact]
@@ -2669,7 +2670,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(context.Model);
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
@@ -2697,7 +2698,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.NotNull(context.Model);
                 Assert.Same(replacecMemoryCache, context.GetService<IMemoryCache>());
@@ -2792,7 +2793,7 @@ namespace Microsoft.EntityFrameworkCore
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();
-            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>();
+            var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithSets>();
 
             Assert.Equal(
                 CoreStrings.NoProviderConfigured,
@@ -2829,7 +2830,7 @@ namespace Microsoft.EntityFrameworkCore
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();
-            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+            var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
             Assert.Equal(
                 CoreStrings.NoProviderConfigured,
@@ -2855,7 +2856,7 @@ namespace Microsoft.EntityFrameworkCore
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();
-            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfigurationWithSets>();
+            var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextNoConfigurationWithSets>();
 
             Assert.Equal(
                 CoreStrings.NoProviderConfigured,
@@ -2881,7 +2882,7 @@ namespace Microsoft.EntityFrameworkCore
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();
-            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
+            var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextNoConfiguration>();
 
             Assert.Equal(
                 CoreStrings.NoProviderConfigured,
@@ -3026,7 +3027,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(replacedSingleton = context.GetService<IModelCustomizer>());
                 Assert.IsType<CustomModelCustomizer>(replacedSingleton);
@@ -3045,7 +3046,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 // Singleton services not the same because service provider caching is off
                 Assert.NotSame(replacedSingleton, context.GetService<IModelCustomizer>());
@@ -3452,7 +3453,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(context.Model);
             }
@@ -3465,7 +3466,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.Equal(
                     CoreStrings.SingletonOptionChanged(
@@ -3580,7 +3581,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(context.Model);
             }
@@ -3593,7 +3594,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContextWithOC3A>();
 
                 Assert.Equal(
                     CoreStrings.SingletonOptionChanged(
@@ -3627,26 +3628,26 @@ namespace Microsoft.EntityFrameworkCore
 
         private class ConstructorTestContextWithSets(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Product> Products { get; set; }
+            public DbSet<Product> Products { get; set; } = null!;
         }
 
         private class ConstructorTestContextNoConfiguration : DbContext;
 
         private class ConstructorTestContextNoConfigurationWithSets : DbContext
         {
-            public DbSet<Product> Products { get; set; }
+            public DbSet<Product> Products { get; set; } = null!;
         }
 
         private class ConstructorTestContextWithOCBase : DbContext
         {
-            private readonly IServiceProvider _internalServicesProvider;
-            private readonly ILoggerFactory _loggerFactory;
-            private readonly IMemoryCache _memoryCache;
+            private readonly IServiceProvider? _internalServicesProvider;
+            private readonly ILoggerFactory? _loggerFactory;
+            private readonly IMemoryCache? _memoryCache;
             private readonly bool _isConfigured;
 
             protected ConstructorTestContextWithOCBase(
-                ILoggerFactory loggerFactory = null,
-                IMemoryCache memoryCache = null)
+                ILoggerFactory? loggerFactory = null,
+                IMemoryCache? memoryCache = null)
             {
                 _loggerFactory = loggerFactory;
                 _memoryCache = memoryCache;
@@ -3654,8 +3655,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected ConstructorTestContextWithOCBase(
                 IServiceProvider internalServicesProvider,
-                ILoggerFactory loggerFactory = null,
-                IMemoryCache memoryCache = null)
+                ILoggerFactory? loggerFactory = null,
+                IMemoryCache? memoryCache = null)
             {
                 _internalServicesProvider = internalServicesProvider;
                 _loggerFactory = loggerFactory;
@@ -3664,8 +3665,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected ConstructorTestContextWithOCBase(
                 DbContextOptions options,
-                ILoggerFactory loggerFactory = null,
-                IMemoryCache memoryCache = null)
+                ILoggerFactory? loggerFactory = null,
+                IMemoryCache? memoryCache = null)
                 : base(options)
             {
                 _loggerFactory = loggerFactory;
@@ -3755,7 +3756,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
 
                 Assert.IsType<CustomModelCustomizer2>(context.GetService<IModelCustomizer>());
                 Assert.Single(context.GetService<IEnumerable<IModelCustomizer>>());
@@ -3794,7 +3795,7 @@ namespace Microsoft.EntityFrameworkCore
                        .GetRequiredService<IServiceScopeFactory>()
                        .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<DerivedContext1>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<DerivedContext1>();
 
                 Assert.IsType<CustomModelCustomizer2>(context.GetService<IModelCustomizer>());
                 Assert.Single(context.GetService<IEnumerable<IModelCustomizer>>());
@@ -3868,7 +3869,8 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<NonGenericOptions2>(optionsLifetime: ServiceLifetime.Singleton)
                 .BuildServiceProvider(validateScopes: true);
 
-            Assert.Equal(typeof(NonGenericOptions2), services.GetService<DbContextOptions>().ContextType);
+            Assert.Equal(typeof(NonGenericOptions2), services.GetService<DbContextOptions>()!.ContextType);
+            Assert.Equal(typeof(NonGenericOptions2), services.GetRequiredService<DbContextOptions>().ContextType);
         }
 
         [Fact]
@@ -3884,17 +3886,17 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider(validateScopes: true);
 
             using var scope = services.CreateScope();
-            var context1 = scope.ServiceProvider.GetService<DerivedContext1>();
+            var context1 = scope.ServiceProvider.GetRequiredService<DerivedContext1>();
             Assert.IsType<DerivedContext1>(context1);
             Assert.Equal(
                 nameof(DerivedContext1),
-                context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
+                context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>()!.StoreName);
 
-            var context2 = scope.ServiceProvider.GetService<DerivedContext2>();
+            var context2 = scope.ServiceProvider.GetRequiredService<DerivedContext2>();
             Assert.IsType<DerivedContext2>(context2);
             Assert.Equal(
                 nameof(DerivedContext2),
-                context2.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
+                context2.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>()!.StoreName);
         }
 
         private class DerivedContext1 : DbContext
@@ -3995,11 +3997,11 @@ namespace Microsoft.EntityFrameworkCore
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope();
-            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+            var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
             Assert.NotNull(context);
             Assert.Equal(
                 "ReplacementDb",
-                context.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
+                context.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>()!.StoreName);
         }
 
         [Fact]
@@ -4057,18 +4059,18 @@ namespace Microsoft.EntityFrameworkCore.DifferentNamespace
     internal class Category
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
-        public List<Product> Products { get; set; }
+            public List<Product> Products { get; set; } = [];
     }
 
     internal class Product
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+            public string Name { get; set; } = null!;
         public decimal Price { get; set; }
 
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+            public Category Category { get; set; } = null!;
     }
 }

@@ -5,12 +5,10 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixtureBase<NorthwindContext>
     where TModelCustomizer : ITestModelCustomizer, new()
 {
-    private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = [];
+    private readonly Dictionary<(bool, string?, string?), ISetSource> _expectedDataCache = [];
 
     public override ISetSource GetExpectedData()
         => NorthwindData.Instance;
@@ -29,14 +27,14 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
         var expectedData = new NorthwindData();
         if (applyFilters)
         {
-            var customers = expectedData.Customers.Where(c => c.CompanyName.StartsWith(tenantPrefix)).ToArray();
+            var customers = expectedData.Customers.Where(c => c.CompanyName.StartsWith(tenantPrefix!)).ToArray();
             var customerQueriesWithQueryFilter = expectedData.CustomerQueriesWithQueryFilter
-                .Where(cq => cq.CompanyName.StartsWith(searchTerm)).ToArray();
-            var employees = expectedData.Employees.Where(e => e.Address.StartsWith("A")).ToArray();
+                .Where(cq => cq.CompanyName.StartsWith(searchTerm!)).ToArray();
+            var employees = expectedData.Employees.Where(e => e.Address!.StartsWith("A")).ToArray();
             var products = expectedData.Products.Where(p => p.Discontinued).ToArray();
-            var orders = expectedData.Orders.Where(o => o.Customer.CompanyName.StartsWith(tenantPrefix)).ToArray();
+            var orders = expectedData.Orders.Where(o => o.Customer!.CompanyName.StartsWith(tenantPrefix!)).ToArray();
             var orderDetails = expectedData.OrderDetails
-                .Where(od => od.Order.Customer.CompanyName.StartsWith(tenantPrefix) && od.Quantity > 50).ToArray();
+                .Where(od => od.Order!.Customer!.CompanyName.StartsWith(tenantPrefix!) && od.Quantity > 50).ToArray();
 
             foreach (var product in products)
             {
@@ -50,8 +48,8 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
             foreach (var orderDetail in orderDetails)
             {
-                orderDetail.Order = orderDetail.Order.Customer.CompanyName.StartsWith(tenantPrefix) ? orderDetail.Order : null;
-                orderDetail.Product = orderDetail.Product.Discontinued ? orderDetail.Product : null;
+                orderDetail.Order = (orderDetail.Order!.Customer!.CompanyName.StartsWith(tenantPrefix!) ? orderDetail.Order : null)!;
+                orderDetail.Product = (orderDetail.Product!.Discontinued ? orderDetail.Product : null)!;
             }
 
             expectedData = new NorthwindData(
@@ -70,21 +68,21 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
         return expectedData;
     }
 
-    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
     {
-        { typeof(Customer), e => ((Customer)e)?.CustomerID },
-        { typeof(CustomerQuery), e => ((CustomerQuery)e)?.CompanyName },
-        { typeof(CustomerQueryWithQueryFilter), e => ((CustomerQueryWithQueryFilter)e)?.CompanyName },
-        { typeof(Order), e => ((Order)e)?.OrderID },
-        { typeof(OrderQuery), e => ((OrderQuery)e)?.CustomerID },
-        { typeof(Employee), e => ((Employee)e)?.EmployeeID },
-        { typeof(Product), e => ((Product)e)?.ProductID },
-        { typeof(ProductQuery), e => ((ProductQuery)e)?.ProductID },
-        { typeof(ProductView), e => ((ProductView)e)?.ProductID },
-        { typeof(OrderDetail), e => (((OrderDetail)e)?.OrderID.ToString(), ((OrderDetail)e)?.ProductID.ToString()) }
+        { typeof(Customer), e => ((Customer?)e)?.CustomerID },
+        { typeof(CustomerQuery), e => ((CustomerQuery?)e)?.CompanyName },
+        { typeof(CustomerQueryWithQueryFilter), e => ((CustomerQueryWithQueryFilter?)e)?.CompanyName },
+        { typeof(Order), e => ((Order?)e)?.OrderID },
+        { typeof(OrderQuery), e => ((OrderQuery?)e)?.CustomerID },
+        { typeof(Employee), e => ((Employee?)e)?.EmployeeID },
+        { typeof(Product), e => ((Product?)e)?.ProductID },
+        { typeof(ProductQuery), e => ((ProductQuery?)e)?.ProductID },
+        { typeof(ProductView), e => ((ProductView?)e)?.ProductID },
+        { typeof(OrderDetail), e => (((OrderDetail?)e)?.OrderID.ToString(), ((OrderDetail?)e)?.ProductID.ToString()) }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
     {
         {
             typeof(Customer), (e, a) =>
@@ -93,7 +91,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (Customer)e;
+                    var ee = (Customer)e!;
                     var aa = (Customer)a;
 
                     Assert.Equal(ee.CustomerID, aa.CustomerID);
@@ -115,7 +113,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (CustomerQuery)e;
+                    var ee = (CustomerQuery)e!;
                     var aa = (CustomerQuery)a;
 
                     Assert.Equal(ee.CompanyName, aa.CompanyName);
@@ -133,7 +131,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (CustomerQueryWithQueryFilter)e;
+                    var ee = (CustomerQueryWithQueryFilter)e!;
                     var aa = (CustomerQueryWithQueryFilter)a;
 
                     Assert.Equal(ee.CompanyName, aa.CompanyName);
@@ -149,7 +147,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (Order)e;
+                    var ee = (Order)e!;
                     var aa = (Order)a;
 
                     Assert.Equal(ee.OrderID, aa.OrderID);
@@ -166,7 +164,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (OrderQuery)e;
+                    var ee = (OrderQuery)e!;
                     var aa = (OrderQuery)a;
 
                     Assert.Equal(ee.CustomerID, aa.CustomerID);
@@ -180,7 +178,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (Employee)e;
+                    var ee = (Employee)e!;
                     var aa = (Employee)a;
 
                     Assert.Equal(ee.EmployeeID, aa.EmployeeID);
@@ -198,7 +196,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (Product)e;
+                    var ee = (Product)e!;
                     var aa = (Product)a;
 
                     Assert.Equal(ee.ProductID, aa.ProductID);
@@ -216,7 +214,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (ProductQuery)e;
+                    var ee = (ProductQuery)e!;
                     var aa = (ProductQuery)a;
 
                     Assert.Equal(ee.ProductID, aa.ProductID);
@@ -232,7 +230,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (ProductView)e;
+                    var ee = (ProductView)e!;
                     var aa = (ProductView)a;
 
                     Assert.Equal(ee.ProductID, aa.ProductID);
@@ -248,7 +246,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixture
 
                 if (a != null)
                 {
-                    var ee = (OrderDetail)e;
+                    var ee = (OrderDetail)e!;
                     var aa = (OrderDetail)a;
 
                     Assert.Equal(ee.OrderID, aa.OrderID);

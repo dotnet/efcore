@@ -28,7 +28,7 @@ public class MultigraphTest
 
     private class A
     {
-        public static readonly PropertyInfo PProperty = typeof(A).GetProperty("P");
+        public static readonly PropertyInfo PProperty = typeof(A).GetProperty("P")!;
 
         public int P { get; set; }
         public int P2 { get; set; }
@@ -36,7 +36,7 @@ public class MultigraphTest
 
     private class B
     {
-        public static readonly PropertyInfo PProperty = typeof(B).GetProperty("P");
+        public static readonly PropertyInfo PProperty = typeof(B).GetProperty("P")!;
 
         public int P { get; set; }
         public int P2 { get; set; }
@@ -44,7 +44,7 @@ public class MultigraphTest
 
     private class C
     {
-        public static readonly PropertyInfo PProperty = typeof(C).GetProperty("P");
+        public static readonly PropertyInfo PProperty = typeof(C).GetProperty("P")!;
 
         public int P { get; set; }
         public int P2 { get; set; }
@@ -52,7 +52,7 @@ public class MultigraphTest
 
     private class D
     {
-        public static readonly PropertyInfo PProperty = typeof(D).GetProperty("P");
+        public static readonly PropertyInfo PProperty = typeof(D).GetProperty("P")!;
 
         public int P { get; set; }
         public int P2 { get; set; }
@@ -60,7 +60,7 @@ public class MultigraphTest
 
     private class E
     {
-        public static readonly PropertyInfo PProperty = typeof(E).GetProperty("P");
+        public static readonly PropertyInfo PProperty = typeof(E).GetProperty("P")!;
 
         public int P { get; set; }
         public int P2 { get; set; }
@@ -365,7 +365,7 @@ public class MultigraphTest
         // 3 -> {1}
         graph.AddEdge(vertexThree, vertexOne, edgeThree);
 
-        Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null;
+        Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null!;
 
         string formatter(IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>> data)
         {
@@ -460,7 +460,7 @@ public class MultigraphTest
         // 3 -> {1}
         graph.AddEdge(vertexThree, vertexOne, edgeThree);
 
-        Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null;
+        Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null!;
 
         string formatter(IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>> data)
         {
@@ -511,7 +511,7 @@ public class MultigraphTest
         // 3 -> {4}
         graph.AddEdge(vertexThree, vertexFour, edgeFour);
 
-        Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null;
+        Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null!;
 
         string formatter(IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>> data)
         {
@@ -547,8 +547,8 @@ public class MultigraphTest
         entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
         // B -> A -> C
-        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey()!, entityTypeA);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey()!, entityTypeB);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -573,8 +573,8 @@ public class MultigraphTest
         entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
         // C -> B -> A
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey()!, entityTypeB);
+        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey()!, entityTypeC);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -599,8 +599,8 @@ public class MultigraphTest
         entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
         // B -> A -> C
-        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey()!, entityTypeA);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey()!, entityTypeB);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -641,9 +641,9 @@ public class MultigraphTest
         entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
         // A -> B, A -> C, C -> B
-        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
-        entityTypeB.AddForeignKey(entityTypeB.AddProperty("P2", typeof(int)), entityTypeC.FindPrimaryKey(), entityTypeC);
+        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey()!, entityTypeA);
+        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey()!, entityTypeA);
+        entityTypeB.AddForeignKey(entityTypeB.AddProperty("P2", typeof(int)), entityTypeC.FindPrimaryKey()!, entityTypeC);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -686,7 +686,7 @@ public class MultigraphTest
         entityTypeA.SetPrimaryKey(property);
 
         // A -> A
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeA.FindPrimaryKey()!, entityTypeA);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeA);
@@ -711,8 +711,8 @@ public class MultigraphTest
         entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
         // C, A -> B -> A
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey()!, entityTypeB);
+        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey()!, entityTypeA);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeC, entityTypeA, entityTypeB);
@@ -738,9 +738,9 @@ public class MultigraphTest
         entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
         // A -> C -> B -> A
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey()!, entityTypeB);
+        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey()!, entityTypeC);
+        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey()!, entityTypeA);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -781,14 +781,14 @@ public class MultigraphTest
         entityTypeE.SetPrimaryKey(entityTypeE.AddProperty("Id", typeof(int)));
 
         // A -> C -> B -> A
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey()!, entityTypeB);
+        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey()!, entityTypeC);
+        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey()!, entityTypeA);
 
         // A -> E -> D -> A
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty("P2", typeof(int)), entityTypeD.FindPrimaryKey(), entityTypeD);
-        entityTypeD.AddForeignKey(entityTypeD.AddProperty("P2", typeof(int)), entityTypeE.FindPrimaryKey(), entityTypeE);
-        entityTypeE.AddForeignKey(entityTypeE.AddProperty("P2", typeof(int)), entityTypeA.FindPrimaryKey(), entityTypeA);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty("P2", typeof(int)), entityTypeD.FindPrimaryKey()!, entityTypeD);
+        entityTypeD.AddForeignKey(entityTypeD.AddProperty("P2", typeof(int)), entityTypeE.FindPrimaryKey()!, entityTypeE);
+        entityTypeE.AddForeignKey(entityTypeE.AddProperty("P2", typeof(int)), entityTypeA.FindPrimaryKey()!, entityTypeA);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
@@ -823,9 +823,9 @@ public class MultigraphTest
         entityTypeC.SetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
         // C -> B -> C -> A
-        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
-        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
-        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+        entityTypeB.AddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey()!, entityTypeC);
+        entityTypeC.AddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeB.FindPrimaryKey()!, entityTypeB);
+        entityTypeA.AddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeC.FindPrimaryKey()!, entityTypeC);
 
         var graph = new EntityTypeGraph();
         graph.Populate(entityTypeA, entityTypeB, entityTypeC);

@@ -112,8 +112,8 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
 
         var snapshotModel = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext)).Model;
 
-        Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations)).GetDiscriminatorValue());
-        Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived)).GetDiscriminatorValue());
+        Assert.Equal((int)RawEnum.A, snapshotModel.FindEntityType(typeof(WithAnnotations))!.GetDiscriminatorValue());
+        Assert.Equal((int)RawEnum.B, snapshotModel.FindEntityType(typeof(Derived))!.GetDiscriminatorValue());
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
                 {
                     Table = "T1",
                     Columns = ["Id", "C2", "C3"],
-                    Values = new object[,] { { 1, null, -1 } }
+                    Values = new object[,] { { 1, null!, -1 } }
                 }
             ],
             []);
@@ -279,13 +279,13 @@ partial class MyMigration
 
         var assembly = build.BuildInMemory();
 
-        var migrationType = assembly.GetType("MyNamespace.MyMigration", throwOnError: true, ignoreCase: false);
+        var migrationType = assembly.GetType("MyNamespace.MyMigration", throwOnError: true, ignoreCase: false)!;
 
         var contextTypeAttribute = migrationType.GetCustomAttribute<DbContextAttribute>();
         Assert.NotNull(contextTypeAttribute);
         Assert.Equal(typeof(MyContext), contextTypeAttribute.ContextType);
 
-        var migration = (Migration)Activator.CreateInstance(migrationType);
+        var migration = (Migration)Activator.CreateInstance(migrationType)!;
 
         Assert.Equal("20150511161616_MyMigration", migration.GetId());
 
@@ -323,7 +323,7 @@ partial class MyMigration
                 {
                     Table = "MyTable",
                     Columns = ["Id", "MyColumn"],
-                    Values = new object[,] { { 1, null }, { 2, RegexOptions.Multiline } }
+                    Values = new object[,] { { 1, null! }, { 2, RegexOptions.Multiline } }
                 }
             ],
             []);

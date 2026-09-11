@@ -16,7 +16,7 @@ public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
             c => EF.Functions.Like(c.ContactName, "%M%"),
-            c => c.ContactName.Contains("M") || c.ContactName.Contains("m"));
+            c => c.ContactName!.Contains("M") || c.ContactName.Contains("m"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Like_identity(bool async)
@@ -34,7 +34,7 @@ public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
             c => EF.Functions.Like(c.ContactName, "!%", "!"),
-            c => c.ContactName.Contains("%"));
+            c => c.ContactName!.Contains("%"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Like_all_literals(bool async)

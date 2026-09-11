@@ -98,12 +98,12 @@ public class ServiceProviderCacheTest
 
         var config1 = CreateOptions<CoreOptionsExtension>(loggerFactory);
         config1 = config1.WithExtension(
-            config1.FindExtension<CoreOptionsExtension>()
+            config1.FindExtension<CoreOptionsExtension>()!
                 .WithReplacedService(typeof(object), typeof(Random)));
 
         var config2 = CreateOptions<CoreOptionsExtension>(loggerFactory);
         config2 = config2.WithExtension(
-            config2.FindExtension<CoreOptionsExtension>()
+            config2.FindExtension<CoreOptionsExtension>()!
                 .WithReplacedService(typeof(object), typeof(Random)));
 
         var cache = new ServiceProviderCache();
@@ -124,12 +124,12 @@ public class ServiceProviderCacheTest
 
         var config1 = CreateOptions<CoreOptionsExtension>(loggerFactory);
         config1 = config1.WithExtension(
-            config1.FindExtension<CoreOptionsExtension>()
+            config1.FindExtension<CoreOptionsExtension>()!
                 .WithReplacedService(typeof(object), typeof(Random)));
 
         var config2 = CreateOptions<CoreOptionsExtension>(loggerFactory);
         config2 = config2.WithExtension(
-            config2.FindExtension<CoreOptionsExtension>()
+            config2.FindExtension<CoreOptionsExtension>()!
                 .WithReplacedService(typeof(object), typeof(string)));
 
         var cache = new ServiceProviderCache();
@@ -251,10 +251,10 @@ public class ServiceProviderCacheTest
 
     private class FakeDbContextOptionsExtension1(List<string> log) : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private readonly List<string> _log = log;
 
-        public string Something { get; set; }
+        public string Something { get; set; } = null!;
 
         public DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);
@@ -292,7 +292,7 @@ public class ServiceProviderCacheTest
 
     private class FakeDbContextOptionsExtension2(List<string> log) : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private readonly List<string> _log = log;
 
         public DbContextOptionsExtensionInfo Info
@@ -338,8 +338,8 @@ public class ServiceProviderCacheTest
         var provider1 = cache.GetOrAdd(options, providerRequired: false);
         cache.Clear();
 
-        var field = typeof(ServiceProviderCache).GetField("_configurations", BindingFlags.NonPublic | BindingFlags.Instance);
-        var dict = (IDictionary)field.GetValue(cache);
+        var field = typeof(ServiceProviderCache).GetField("_configurations", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var dict = (IDictionary)field.GetValue(cache)!;
 
         Assert.Equal(0, dict.Count);
 

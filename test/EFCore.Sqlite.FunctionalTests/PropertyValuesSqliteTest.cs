@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class PropertyValuesSqliteTest(PropertyValuesSqliteTest.PropertyValuesSqliteFixture fixture)
     : PropertyValuesRelationalTestBase<PropertyValuesSqliteTest.PropertyValuesSqliteFixture>(fixture)
 {

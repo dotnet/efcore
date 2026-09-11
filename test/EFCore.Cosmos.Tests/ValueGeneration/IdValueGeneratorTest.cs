@@ -41,7 +41,7 @@ public class IdValueGeneratorTest
         string Create<TEntity>(TEntity entity)
             where TEntity : class, new()
             => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
-                [model.FindEntityType(typeof(TEntity)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+                [model.FindEntityType(typeof(TEntity))!.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!]!;
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class IdValueGeneratorTest
         {
             var id = (string)CosmosTestHelpers.Instance.CreateInternalEntry(
                     model, EntityState.Added, new Post { Id = c, OtherId = "1" })
-                [model.FindEntityType(typeof(Post)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+                [model.FindEntityType(typeof(Post))!.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!]!;
 
             Assert.Contains(c, id);
             Assert.DoesNotContain("^", id);
@@ -81,7 +81,7 @@ public class IdValueGeneratorTest
         string Create(string value)
             => (string)CosmosTestHelpers.Instance.CreateInternalEntry(
                     model, EntityState.Added, new Post { Id = value, OtherId = "1" })
-                [model.FindEntityType(typeof(Post)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+                [model.FindEntityType(typeof(Post))!.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!]!;
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class IdValueGeneratorTest
 
         string Create(ComplexKeyEntity entity)
             => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
-                [model.FindEntityType(typeof(ComplexKeyEntity)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+                [model.FindEntityType(typeof(ComplexKeyEntity))!.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!]!;
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class IdValueGeneratorTest
 
         string Create(ComplexKeyEntity entity)
             => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
-                [model.FindEntityType(typeof(ComplexKeyEntity)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+                [model.FindEntityType(typeof(ComplexKeyEntity))!.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!]!;
     }
 
     [Fact]
@@ -155,7 +155,7 @@ public class IdValueGeneratorTest
 
         string Create(Customer entity)
             => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
-                [model.FindEntityType(typeof(Customer)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+                [model.FindEntityType(typeof(Customer))!.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!]!;
     }
 
     [Fact]
@@ -180,7 +180,7 @@ public class IdValueGeneratorTest
 
         string Create(Order entity)
             => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
-                [model.FindEntityType(typeof(Order)).FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)];
+                [model.FindEntityType(typeof(Order))!.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!]!;
     }
 
     private class ComplexKeyEntity
@@ -198,18 +198,18 @@ public class IdValueGeneratorTest
     private class Customer
     {
         public CustomerId Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Order
     {
-        public OrderKey Key { get; set; }
-        public string Description { get; set; }
+        public OrderKey Key { get; set; } = null!;
+        public string Description { get; set; } = null!;
     }
 
     private class OrderKey
     {
-        public InnerKey Inner { get; set; }
+        public InnerKey Inner { get; set; } = null!;
     }
 
     private class InnerKey
@@ -225,13 +225,13 @@ public class IdValueGeneratorTest
 
     private class Post
     {
-        public string Id { get; set; }
-        public string OtherId { get; set; }
+        public string Id { get; set; } = null!;
+        public string OtherId { get; set; } = null!;
     }
 
     private class IntClassEntity
     {
-        public IntClass Id { get; set; }
+        public IntClass Id { get; set; } = null!;
     }
 
     private class IntClass(int value)
@@ -242,7 +242,7 @@ public class IdValueGeneratorTest
         private bool Equals(IntClass other)
             => other != null && Value == other.Value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj == this
                 || (obj?.GetType() == GetType()
                     && Equals((IntClass)obj));

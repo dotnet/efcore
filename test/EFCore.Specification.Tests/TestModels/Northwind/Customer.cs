@@ -9,8 +9,6 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public class Customer : IComparable<Customer>
 {
     public Customer()
@@ -22,42 +20,42 @@ public class Customer : IComparable<Customer>
         => CustomerID = customerID;
 
     [MaxLength(5), Required]
-    public string CustomerID { get; set; }
+    public string CustomerID { get; set; } = null!;
 
     [MaxLength(40), Required]
-    public string CompanyName { get; set; }
+    public string CompanyName { get; set; } = null!;
 
     [MaxLength(30)]
-    public string ContactName { get; set; }
+    public string? ContactName { get; set; }
 
     [MaxLength(30)]
-    public string ContactTitle { get; set; }
+    public string? ContactTitle { get; set; }
 
     [MaxLength(60)]
-    public string Address { get; set; }
+    public string? Address { get; set; }
 
     [MaxLength(15)]
-    public string City { get; set; }
+    public string? City { get; set; }
 
     [MaxLength(15)]
-    public string Region { get; set; }
+    public string? Region { get; set; }
 
     [MaxLength(10)]
-    public string PostalCode { get; set; }
+    public string? PostalCode { get; set; }
 
     [MaxLength(15)]
-    public string Country { get; set; }
+    public string? Country { get; set; }
 
     [MaxLength(24)]
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     [MaxLength(24)]
-    public string Fax { get; set; }
+    public string? Fax { get; set; }
 
-    public virtual List<Order> Orders { get; set; }
+    public virtual List<Order> Orders { get; set; } = null!;
 
     [JsonIgnore, Newtonsoft.Json.JsonIgnore]
-    public NorthwindContext Context { get; set; }
+    public NorthwindContext Context { get; set; } = null!;
 
     [NotMapped]
     public bool IsLondon
@@ -66,19 +64,19 @@ public class Customer : IComparable<Customer>
     protected bool Equals(Customer other)
         => string.Equals(CustomerID, other.CustomerID);
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is not null
             && (ReferenceEquals(this, obj)
                 || (obj.GetType() == GetType()
                     && Equals((Customer)obj)));
 
-    public static bool operator ==(Customer left, Customer right)
+    public static bool operator ==(Customer? left, Customer? right)
         => Equals(left, right);
 
-    public static bool operator !=(Customer left, Customer right)
+    public static bool operator !=(Customer? left, Customer? right)
         => !Equals(left, right);
 
-    public int CompareTo(Customer other)
+    public int CompareTo(Customer? other)
         => other == null ? 1 : CustomerID.CompareTo(other.CustomerID);
 
     public override int GetHashCode()

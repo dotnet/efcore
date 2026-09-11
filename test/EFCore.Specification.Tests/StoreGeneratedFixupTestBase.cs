@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : StoreGeneratedFixupTestBase<TFixture>.StoreGeneratedFixupFixtureBase, new()
 {
@@ -3835,7 +3833,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         entry.Property(g => g.Id).IsTemporary = true;
         var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
         internalEntry.PrepareToSave();
-        internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
+        internalEntry.SetProperty(entry.Metadata.FindProperty("Id")!, Guid77, false);
         internalEntry.AcceptChanges();
 
         Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
@@ -3962,7 +3960,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
 
         var expectedState = tempKeys ? EntityState.Added : EntityState.Unchanged;
 
-        if (context.Database.ProviderName.EndsWith("InMemory", StringComparison.OrdinalIgnoreCase))
+        if (context.Database.ProviderName!.EndsWith("InMemory", StringComparison.OrdinalIgnoreCase))
         {
             tempKeys = false;
         }
@@ -4001,7 +3999,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
     protected class FirstLevel
     {
         public int Id { get; set; }
-        public IList<SecondLevel> SecondLevels { get; set; }
+        public IList<SecondLevel> SecondLevels { get; set; } = null!;
     }
 
     private static void AddData(FirstLevel first)
@@ -4014,15 +4012,15 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
     {
         public int Id { get; set; }
         public int FirstLevelId { get; set; }
-        public FirstLevel FirstLevel { get; set; }
-        public IList<ThirdLevel> ThirdLevels { get; set; }
+        public FirstLevel FirstLevel { get; set; } = null!;
+        public IList<ThirdLevel> ThirdLevels { get; set; } = null!;
     }
 
     protected class ThirdLevel
     {
         public int Id { get; set; }
         public int SecondLevelId { get; set; }
-        public SecondLevel SecondLevel { get; set; }
+        public SecondLevel SecondLevel { get; set; } = null!;
     }
 
     protected class Parent
@@ -4030,7 +4028,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public Child Child { get; set; }
+        public Child Child { get; set; } = null!;
     }
 
     protected class Child
@@ -4041,7 +4039,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int ParentId1 { get; set; }
         public Guid ParentId2 { get; set; }
 
-        public Parent Parent { get; set; }
+        public Parent Parent { get; set; } = null!;
     }
 
     protected class ParentPN
@@ -4050,7 +4048,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public Guid Id2 { get; set; }
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public ChildPN Child { get; set; }
+        public ChildPN Child { get; set; } = null!;
     }
 
     protected class ChildPN
@@ -4077,7 +4075,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public Guid ParentId2 { get; set; }
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public ParentDN Parent { get; set; }
+        public ParentDN Parent { get; set; } = null!;
     }
 
     protected class ParentNN
@@ -4110,7 +4108,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public Guid CategoryId2 { get; set; }
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public CategoryDN Category { get; set; }
+        public CategoryDN Category { get; set; } = null!;
     }
 
     protected class CategoryPN
@@ -4160,14 +4158,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
 
         public int CategoryId1 { get; set; }
         public Guid CategoryId2 { get; set; }
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
     }
 
     protected class Level
     {
         public virtual int Id { get; set; }
         public virtual Guid GameId { get; set; }
-        public virtual Game Game { get; set; }
+        public virtual Game Game { get; set; } = null!;
 
         public virtual ICollection<Item> Items { get; } = [];
         public virtual ICollection<Actor> Actors { get; } = [];
@@ -4178,10 +4176,10 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int Id { get; set; }
 
         public Guid GameId { get; set; }
-        public Game Game { get; set; }
+        public Game Game { get; set; } = null!;
 
         public int LevelId { get; set; }
-        public Level Level { get; set; }
+        public Level Level { get; set; } = null!;
     }
 
     protected class Item : GameEntity;

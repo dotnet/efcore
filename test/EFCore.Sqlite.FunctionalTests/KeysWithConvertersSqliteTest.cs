@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class KeysWithConvertersSqliteTest(KeysWithConvertersSqliteTest.KeysWithConvertersSqliteFixture fixture)
     : KeysWithConvertersTestBase<KeysWithConvertersSqliteTest.KeysWithConvertersSqliteFixture>(fixture)
 {

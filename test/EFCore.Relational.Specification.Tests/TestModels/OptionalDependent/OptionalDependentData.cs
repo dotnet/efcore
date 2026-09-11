@@ -6,8 +6,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
-#nullable disable
-
 public class OptionalDependentData : ISetSource
 {
     public IReadOnlyList<OptionalDependentEntityAllOptional> EntitiesAllOptional { get; } = CreateEntitiesAllOptional();

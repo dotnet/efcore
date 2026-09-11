@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 {
     public TestSqlLoggerFactory TestSqlLoggerFactory
@@ -221,7 +219,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (EntityBasic)e;
+                    var ee = (EntityBasic)e!;
                     var aa = (EntityBasic)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -235,7 +233,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityBasic)e;
+                    var ee = (JsonEntityBasic)e!;
                     var aa = (JsonEntityBasic)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -243,7 +241,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 
                     if (ee.OwnedReferenceRoot is not null || aa.OwnedReferenceRoot is not null)
                     {
-                        AssertCosmosOwnedRoot(ee.OwnedReferenceRoot, aa.OwnedReferenceRoot);
+                        AssertCosmosOwnedRoot(ee.OwnedReferenceRoot!, aa.OwnedReferenceRoot!);
 
                         Assert.Equal(ee.OwnedCollectionRoot.Count, aa.OwnedCollectionRoot.Count);
                         for (var i = 0; i < ee.OwnedCollectionRoot.Count; i++)
@@ -260,7 +258,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityBasicForReference)e;
+                    var ee = (JsonEntityBasicForReference)e!;
                     var aa = (JsonEntityBasicForReference)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -275,7 +273,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityBasicForCollection)e;
+                    var ee = (JsonEntityBasicForCollection)e!;
                     var aa = (JsonEntityBasicForCollection)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -289,7 +287,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedRoot)e;
+                    var ee = (JsonOwnedRoot)e!;
                     var aa = (JsonOwnedRoot)a;
 
                     AssertCosmosOwnedRoot(ee, aa);
@@ -301,7 +299,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedBranch)e;
+                    var ee = (JsonOwnedBranch)e!;
                     var aa = (JsonOwnedBranch)a;
 
                     AssertCosmosOwnedBranch(ee, aa);
@@ -313,7 +311,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedLeaf)e;
+                    var ee = (JsonOwnedLeaf)e!;
                     var aa = (JsonOwnedLeaf)a;
 
                     AssertOwnedLeaf(ee, aa);
@@ -326,7 +324,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityCustomNaming)e;
+                    var ee = (JsonEntityCustomNaming)e!;
                     var aa = (JsonEntityCustomNaming)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -347,7 +345,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedCustomNameRoot)e;
+                    var ee = (JsonOwnedCustomNameRoot)e!;
                     var aa = (JsonOwnedCustomNameRoot)a;
 
                     AssertCustomNameRoot(ee, aa);
@@ -359,7 +357,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedCustomNameBranch)e;
+                    var ee = (JsonOwnedCustomNameBranch)e!;
                     var aa = (JsonOwnedCustomNameBranch)a;
 
                     AssertCustomNameBranch(ee, aa);
@@ -372,16 +370,16 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntitySingleOwned)e;
+                    var ee = (JsonEntitySingleOwned)e!;
                     var aa = (JsonEntitySingleOwned)a;
 
                     Assert.Equal(ee.Id, aa.Id);
                     Assert.Equal(ee.Name, aa.Name);
 
                     Assert.Equal(ee.OwnedCollection?.Count ?? 0, aa.OwnedCollection?.Count ?? 0);
-                    for (var i = 0; i < ee.OwnedCollection.Count; i++)
+                    for (var i = 0; i < ee.OwnedCollection!.Count; i++)
                     {
-                        AssertOwnedLeaf(ee.OwnedCollection[i], aa.OwnedCollection[i]);
+                        AssertOwnedLeaf(ee.OwnedCollection[i], aa.OwnedCollection![i]);
                     }
                 }
             }
@@ -392,7 +390,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityInheritanceBase)e;
+                    var ee = (JsonEntityInheritanceBase)e!;
                     var aa = (JsonEntityInheritanceBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -400,9 +398,9 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 
                     AssertCosmosOwnedBranch(ee.ReferenceOnBase, aa.ReferenceOnBase);
                     Assert.Equal(ee.CollectionOnBase?.Count ?? 0, aa.CollectionOnBase?.Count ?? 0);
-                    for (var i = 0; i < ee.CollectionOnBase.Count; i++)
+                    for (var i = 0; i < ee.CollectionOnBase!.Count; i++)
                     {
-                        AssertCosmosOwnedBranch(ee.CollectionOnBase[i], aa.CollectionOnBase[i]);
+                        AssertCosmosOwnedBranch(ee.CollectionOnBase[i], aa.CollectionOnBase![i]);
                     }
                 }
             }
@@ -413,7 +411,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityInheritanceDerived)e;
+                    var ee = (JsonEntityInheritanceDerived)e!;
                     var aa = (JsonEntityInheritanceDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -424,15 +422,15 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                     AssertCosmosOwnedBranch(ee.ReferenceOnDerived, aa.ReferenceOnDerived);
 
                     Assert.Equal(ee.CollectionOnBase?.Count ?? 0, aa.CollectionOnBase?.Count ?? 0);
-                    for (var i = 0; i < ee.CollectionOnBase.Count; i++)
+                    for (var i = 0; i < ee.CollectionOnBase!.Count; i++)
                     {
-                        AssertCosmosOwnedBranch(ee.CollectionOnBase[i], aa.CollectionOnBase[i]);
+                        AssertCosmosOwnedBranch(ee.CollectionOnBase[i], aa.CollectionOnBase![i]);
                     }
 
                     Assert.Equal(ee.CollectionOnDerived?.Count ?? 0, aa.CollectionOnDerived?.Count ?? 0);
-                    for (var i = 0; i < ee.CollectionOnDerived.Count; i++)
+                    for (var i = 0; i < ee.CollectionOnDerived!.Count; i++)
                     {
-                        AssertCosmosOwnedBranch(ee.CollectionOnDerived[i], aa.CollectionOnDerived[i]);
+                        AssertCosmosOwnedBranch(ee.CollectionOnDerived[i], aa.CollectionOnDerived![i]);
                     }
                 }
             }
@@ -443,17 +441,17 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityAllTypes)e;
+                    var ee = (JsonEntityAllTypes)e!;
                     var aa = (JsonEntityAllTypes)a;
 
                     Assert.Equal(ee.Id, aa.Id);
 
-                    AssertCosmosAllTypes(ee.Reference, aa.Reference);
+                    AssertCosmosAllTypes(ee.Reference!, aa.Reference!);
 
                     Assert.Equal(ee.Collection?.Count ?? 0, aa.Collection?.Count ?? 0);
-                    for (var i = 0; i < ee.Collection.Count; i++)
+                    for (var i = 0; i < ee.Collection!.Count; i++)
                     {
-                        AssertCosmosAllTypes(ee.Collection[i], aa.Collection[i]);
+                        AssertCosmosAllTypes(ee.Collection[i], aa.Collection![i]);
                     }
                 }
             }
@@ -464,7 +462,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonOwnedAllTypes)e;
+                    var ee = (JsonOwnedAllTypes)e!;
                     var aa = (JsonOwnedAllTypes)a;
 
                     AssertCosmosAllTypes(ee, aa);
@@ -477,12 +475,12 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityConverters)e;
+                    var ee = (JsonEntityConverters)e!;
                     var aa = (JsonEntityConverters)a;
 
                     Assert.Equal(ee.Id, aa.Id);
 
-                    AssertCosmosConverters(ee.Reference, aa.Reference);
+                    AssertCosmosConverters(ee.Reference!, aa.Reference!);
                 }
             }
         },
@@ -492,7 +490,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonOwnedConverters)e;
+                    var ee = (JsonOwnedConverters)e!;
                     var aa = (JsonOwnedConverters)a;
 
                     AssertCosmosConverters(ee, aa);
@@ -508,7 +506,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
         Assert.Equal(expected.Names, actual.Names);
         Assert.Equal(expected.Numbers, actual.Numbers);
 
-        AssertCosmosOwnedBranch(expected.OwnedReferenceBranch, actual.OwnedReferenceBranch);
+        AssertCosmosOwnedBranch(expected.OwnedReferenceBranch!, actual.OwnedReferenceBranch!);
         Assert.Equal(expected.OwnedCollectionBranch.Count, actual.OwnedCollectionBranch.Count);
         for (var i = 0; i < expected.OwnedCollectionBranch.Count; i++)
         {

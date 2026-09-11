@@ -224,7 +224,7 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
             async,
             ss => ss.Set<Animal>()
                 .Where(b => "Kiwi" == EF.Property<string>(b, "Discriminator"))
-                .Select(k => new { Predator = EF.Property<string>((Bird)k, "Name") }),
+                .Select(k => new { Predator = EF.Property<string?>((Bird)k, "Name") }),
             ss => ss.Set<Animal>()
                 .Where(b => b is Kiwi)
                 .Select(k => new { Predator = ((Bird)k).Name }),
@@ -261,21 +261,21 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
                 await context.SaveChangesAsync();
             }, async context =>
             {
-                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species.EndsWith("owenii"));
+                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species!.EndsWith("owenii"));
 
                 kiwi.EagleId = eagleId;
 
                 await context.SaveChangesAsync();
             }, async context =>
             {
-                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species.EndsWith("owenii"));
+                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species!.EndsWith("owenii"));
 
                 context.Set<Bird>().Remove(kiwi);
 
                 await context.SaveChangesAsync();
             }, async context =>
             {
-                var count = await context.Set<Kiwi>().CountAsync(k => k.Species.EndsWith("owenii"));
+                var count = await context.Set<Kiwi>().CountAsync(k => k.Species!.EndsWith("owenii"));
 
                 Assert.Equal(0, count);
             });

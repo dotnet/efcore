@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<ComplexNavigationsContext>
 {
     protected override string StoreName
@@ -15,7 +13,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
     public override ISetSource GetExpectedData()
         => ComplexNavigationsDefaultData.Instance;
 
-    public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
+    public virtual Dictionary<(Type, string), Func<object, object?>> GetShadowPropertyMappings()
     {
         var l1s = GetExpectedData().Set<Level1>().ToList();
         var l2s = GetExpectedData().Set<Level2>().ToList();
@@ -27,7 +25,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
         var il1s = GetExpectedData().Set<InheritanceLeaf1>().ToList();
         var il2s = GetExpectedData().Set<InheritanceLeaf2>().ToList();
 
-        return new Dictionary<(Type, string), Func<object, object>>
+        return new Dictionary<(Type, string), Func<object, object?>>
         {
             {
                 (typeof(Level1), "OneToOne_Optional_Self1Id"),
@@ -147,18 +145,18 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
         };
     }
 
-    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
     {
-        { typeof(Level1), e => ((Level1)e)?.Id },
-        { typeof(Level2), e => ((Level2)e)?.Id },
-        { typeof(Level3), e => ((Level3)e)?.Id },
-        { typeof(Level4), e => ((Level4)e)?.Id },
-        { typeof(InheritanceBase1), e => ((InheritanceBase1)e)?.Id },
-        { typeof(InheritanceBase2), e => ((InheritanceBase2)e)?.Id },
-        { typeof(InheritanceDerived1), e => ((InheritanceDerived1)e)?.Id },
-        { typeof(InheritanceDerived2), e => ((InheritanceDerived2)e)?.Id },
-        { typeof(InheritanceLeaf1), e => ((InheritanceLeaf1)e)?.Id },
-        { typeof(InheritanceLeaf2), e => ((InheritanceLeaf2)e)?.Id }
+        { typeof(Level1), e => ((Level1?)e)?.Id },
+        { typeof(Level2), e => ((Level2?)e)?.Id },
+        { typeof(Level3), e => ((Level3?)e)?.Id },
+        { typeof(Level4), e => ((Level4?)e)?.Id },
+        { typeof(InheritanceBase1), e => ((InheritanceBase1?)e)?.Id },
+        { typeof(InheritanceBase2), e => ((InheritanceBase2?)e)?.Id },
+        { typeof(InheritanceDerived1), e => ((InheritanceDerived1?)e)?.Id },
+        { typeof(InheritanceDerived2), e => ((InheritanceDerived2?)e)?.Id },
+        { typeof(InheritanceLeaf1), e => ((InheritanceLeaf1?)e)?.Id },
+        { typeof(InheritanceLeaf2), e => ((InheritanceLeaf2?)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
@@ -170,7 +168,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (Level1)e;
+                    var ee = (Level1)e!;
                     var aa = (Level1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -186,7 +184,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (Level2)e;
+                    var ee = (Level2)e!;
                     var aa = (Level2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -204,7 +202,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (Level3)e;
+                    var ee = (Level3)e!;
                     var aa = (Level3)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -221,7 +219,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (Level4)e;
+                    var ee = (Level4)e!;
                     var aa = (Level4)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -238,7 +236,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (InheritanceBase1)e;
+                    var ee = (InheritanceBase1)e!;
                     var aa = (InheritanceBase1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -253,7 +251,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (InheritanceBase2)e;
+                    var ee = (InheritanceBase2)e!;
                     var aa = (InheritanceBase2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -268,7 +266,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (InheritanceDerived1)e;
+                    var ee = (InheritanceDerived1)e!;
                     var aa = (InheritanceDerived1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -283,7 +281,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (InheritanceDerived2)e;
+                    var ee = (InheritanceDerived2)e!;
                     var aa = (InheritanceDerived2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -298,7 +296,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (InheritanceLeaf1)e;
+                    var ee = (InheritanceLeaf1)e!;
                     var aa = (InheritanceLeaf1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -313,7 +311,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
 
                 if (a != null)
                 {
-                    var ee = (InheritanceLeaf2)e;
+                    var ee = (InheritanceLeaf2)e!;
                     var aa = (InheritanceLeaf2)a;
 
                     Assert.Equal(ee.Id, aa.Id);

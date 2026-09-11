@@ -10,7 +10,7 @@ public abstract class EndToEndTest(CrossStoreFixture fixture) : IAsyncLifetime
 {
     protected CrossStoreFixture Fixture { get; } = fixture;
     protected abstract ITestStoreFactory TestStoreFactory { get; }
-    protected TestStore TestStore { get; private set; }
+    protected TestStore TestStore { get; private set; } = null!;
 
     [Fact]
     public virtual void Can_save_changes_and_query()

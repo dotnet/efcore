@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class QueryFilterFuncletizationContext(DbContextOptions options) : DbContext(options)
 {
     public static int AdminId = 1;
@@ -21,10 +19,10 @@ public class QueryFilterFuncletizationContext(DbContextOptions options) : DbCont
     public Indirection GetFlag()
         => new();
 
-    public List<int> TenantIds { get; set; }
-    public Indirection IndirectionFlag { get; set; }
+    public List<int> TenantIds { get; set; } = null!;
+    public Indirection IndirectionFlag { get; set; } = null!;
 
-    public DbSet<DependentSetFilter> Dependents { get; set; }
+    public DbSet<DependentSetFilter> Dependents { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -63,7 +61,7 @@ public class QueryFilterFuncletizationContext(DbContextOptions options) : DbCont
             .HasQueryFilter(b => b.IsEnabled == StaticMemberFilter.DefaultEnabled);
         var enabled = true;
         modelBuilder.Entity<LocalVariableFilter>().HasQueryFilter(e => e.IsEnabled == enabled);
-        Indirection flag = null;
+        Indirection flag = null!;
         modelBuilder.Entity<LocalVariableErrorFilter>().HasQueryFilter(e => e.IsEnabled == flag.Enabled);
         IncorrectFilter(modelBuilder.Entity<ParameterFilter>(), Tenant);
 
@@ -385,7 +383,7 @@ public class PrincipalSetFilter
 {
     public int Id { get; set; }
     public bool Filler { get; set; }
-    public ICollection<DependentSetFilter> Dependents { get; set; }
+    public ICollection<DependentSetFilter> Dependents { get; set; } = null!;
 }
 
 public class DependentSetFilter
@@ -405,8 +403,8 @@ public class DeDupeFilter1
 {
     public int Id { get; set; }
     public int Tenant { get; set; }
-    public ICollection<DeDupeFilter2> DeDupeFilter2s { get; set; }
-    public ICollection<DeDupeFilter3> DeDupeFilter3s { get; set; }
+    public ICollection<DeDupeFilter2> DeDupeFilter2s { get; set; } = null!;
+    public ICollection<DeDupeFilter3> DeDupeFilter3s { get; set; } = null!;
 }
 
 public class DeDupeFilter2
@@ -414,7 +412,7 @@ public class DeDupeFilter2
     public int Id { get; set; }
     public int TenantX { get; set; }
     public int? DeDupeFilter1Id { get; set; }
-    public DeDupeFilter1 DeDupeFilter1 { get; set; }
+    public DeDupeFilter1 DeDupeFilter1 { get; set; } = null!;
 }
 
 public class DeDupeFilter3
@@ -422,7 +420,7 @@ public class DeDupeFilter3
     public int Id { get; set; }
     public short Tenant { get; set; }
     public int? DeDupeFilter1Id { get; set; }
-    public DeDupeFilter1 DeDupeFilter1 { get; set; }
+    public DeDupeFilter1 DeDupeFilter1 { get; set; } = null!;
 }
 
 #endregion

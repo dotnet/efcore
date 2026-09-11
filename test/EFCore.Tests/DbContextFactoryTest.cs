@@ -112,7 +112,7 @@ public class DbContextFactoryTest
             .AddPooledDbContextFactory<WoolacombeContext>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
             .BuildServiceProvider(validateScopes: true);
 
-        var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
+        var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>();
 
         var context1 = contextFactory.CreateDbContext();
         var context2 = contextFactory.CreateDbContext();
@@ -144,8 +144,9 @@ public class DbContextFactoryTest
             .BuildServiceProvider(validateScopes: true);
 
         var scope = serviceProvider.CreateScope();
-        var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
+        var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>();
         Assert.Same(contextFactory, scope.ServiceProvider.GetService<IDbContextFactory<WoolacombeContext>>());
+        Assert.Same(contextFactory, scope.ServiceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>());
 
         var context1 = contextFactory.CreateDbContext();
         var context2 = contextFactory.CreateDbContext();
@@ -154,7 +155,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context1));
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
 
-        var context3 = scope.ServiceProvider.GetService<WoolacombeContext>();
+        var context3 = scope.ServiceProvider.GetRequiredService<WoolacombeContext>();
 
         Assert.Same(context3, scope.ServiceProvider.GetService<WoolacombeContext>());
         Assert.NotSame(context1, context3);
@@ -169,7 +170,7 @@ public class DbContextFactoryTest
 
         using var context1b = contextFactory.CreateDbContext();
         using var context2b = contextFactory.CreateDbContext();
-        var context3b = scope1.ServiceProvider.GetService<WoolacombeContext>();
+        var context3b = scope1.ServiceProvider.GetRequiredService<WoolacombeContext>();
 
         Assert.Same(context3b, scope1.ServiceProvider.GetService<WoolacombeContext>());
         Assert.NotSame(context1b, context3b);
@@ -263,7 +264,7 @@ public class DbContextFactoryTest
             .AddDbContextFactory<CroydeContext>(b => b.UseInMemoryDatabase(nameof(CroydeContext)))
             .BuildServiceProvider(validateScopes: true);
 
-        using var context = serviceProvider.GetService<IDbContextFactory<CroydeContext>>().CreateDbContext();
+        using var context = serviceProvider.GetRequiredService<IDbContextFactory<CroydeContext>>().CreateDbContext();
 
         Assert.Equal(nameof(CroydeContext), GetStoreName(context));
     }
@@ -287,7 +288,7 @@ public class DbContextFactoryTest
             .AddDbContextFactory<MortehoeContext>()
             .BuildServiceProvider(validateScopes: true);
 
-        using var context = serviceProvider.GetService<IDbContextFactory<MortehoeContext>>().CreateDbContext();
+        using var context = serviceProvider.GetRequiredService<IDbContextFactory<MortehoeContext>>().CreateDbContext();
 
         Assert.Equal(nameof(MortehoeContext), GetStoreName(context));
     }
@@ -305,7 +306,7 @@ public class DbContextFactoryTest
             .AddDbContextFactory<DbContext>(b => b.UseInMemoryDatabase(nameof(DbContext)))
             .BuildServiceProvider(validateScopes: true);
 
-        using var context = serviceProvider.GetService<IDbContextFactory<DbContext>>().CreateDbContext();
+        using var context = serviceProvider.GetRequiredService<IDbContextFactory<DbContext>>().CreateDbContext();
 
         Assert.Equal(nameof(DbContext), GetStoreName(context));
     }
@@ -326,7 +327,7 @@ public class DbContextFactoryTest
             serviceProvider = serviceProvider.CreateScope().ServiceProvider;
         }
 
-        var contextFactory = serviceProvider.GetService<IDbContextFactory<IlfracombeContext>>();
+        var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<IlfracombeContext>>();
 
         using var context1 = contextFactory.CreateDbContext();
         using var context2 = contextFactory.CreateDbContext();
@@ -375,7 +376,7 @@ public class DbContextFactoryTest
         var scope = serviceProvider.CreateScope();
         var scopedServiceProvider = scope.ServiceProvider;
 
-        var contextFactory = scopedServiceProvider.GetService<IDbContextFactory<CombeMartinContext>>();
+        var contextFactory = scopedServiceProvider.GetRequiredService<IDbContextFactory<CombeMartinContext>>();
 
         using var context1 = contextFactory.CreateDbContext();
         using var context2 = contextFactory.CreateDbContext();
@@ -402,7 +403,7 @@ public class DbContextFactoryTest
 
         scope = serviceProvider.CreateScope();
         scopedServiceProvider = scope.ServiceProvider;
-        contextFactory = scopedServiceProvider.GetService<IDbContextFactory<CombeMartinContext>>();
+        contextFactory = scopedServiceProvider.GetRequiredService<IDbContextFactory<CombeMartinContext>>();
 
         using var context = contextFactory.CreateDbContext();
 
@@ -462,7 +463,7 @@ public class DbContextFactoryTest
             serviceProvider = serviceProvider.CreateScope().ServiceProvider;
         }
 
-        var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
+        var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>();
 
         using var context1 = contextFactory.CreateDbContext();
         using var context2 = contextFactory.CreateDbContext();
@@ -487,7 +488,7 @@ public class DbContextFactoryTest
             })
             .BuildServiceProvider(validateScopes: true);
 
-        var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
+        var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>();
 
         using var context1 = contextFactory.CreateDbContext();
         using var context2 = contextFactory.CreateDbContext();
@@ -504,10 +505,10 @@ public class DbContextFactoryTest
             .AddDbContextFactory<WestwardHoContext>(b => b.UseInMemoryDatabase(nameof(WestwardHoContext)))
             .BuildServiceProvider(validateScopes: true);
 
-        var factory = serviceProvider.GetService<IDbContextFactory<WestwardHoContext>>();
+        var factory = serviceProvider.GetRequiredService<IDbContextFactory<WestwardHoContext>>();
 
         Assert.Contains(
-            typeof(Random).FullName,
+            typeof(Random).FullName!,
             Assert.Throws<InvalidOperationException>(() => factory.CreateDbContext()).Message);
     }
 
@@ -523,8 +524,8 @@ public class DbContextFactoryTest
             .AddDbContextFactory<ClovellyContext>(b => b.UseInMemoryDatabase(nameof(ClovellyContext)))
             .BuildServiceProvider(validateScopes: true);
 
-        using var context1 = serviceProvider.GetService<IDbContextFactory<CroydeContext>>().CreateDbContext();
-        using var context2 = serviceProvider.GetService<IDbContextFactory<ClovellyContext>>().CreateDbContext();
+        using var context1 = serviceProvider.GetRequiredService<IDbContextFactory<CroydeContext>>().CreateDbContext();
+        using var context2 = serviceProvider.GetRequiredService<IDbContextFactory<ClovellyContext>>().CreateDbContext();
 
         Assert.Equal(nameof(CroydeContext), GetStoreName(context1));
         Assert.Equal(nameof(ClovellyContext), GetStoreName(context2));
@@ -540,8 +541,8 @@ public class DbContextFactoryTest
             .AddDbContextFactory<WoolacombeContext>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
             .BuildServiceProvider(validateScopes: true);
 
-        using var context1 = serviceProvider.GetService<IDbContextFactory<WidemouthBayContext>>().CreateDbContext();
-        using var context2 = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>().CreateDbContext();
+        using var context1 = serviceProvider.GetRequiredService<IDbContextFactory<WidemouthBayContext>>().CreateDbContext();
+        using var context2 = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>().CreateDbContext();
 
         Assert.Equal(nameof(WidemouthBayContext), GetStoreName(context1));
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
@@ -557,7 +558,7 @@ public class DbContextFactoryTest
             .AddDbContextFactory<WoolacombeContext>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
             .BuildServiceProvider(validateScopes: true);
 
-        var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
+        var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>();
 
         Assert.IsType<WoolacombeContextFactory>(contextFactory);
 
@@ -576,7 +577,7 @@ public class DbContextFactoryTest
             .AddDbContextFactory<WoolacombeContext, WoolacombeContextFactory>(b => b.UseInMemoryDatabase(nameof(WoolacombeContext)))
             .BuildServiceProvider(validateScopes: true);
 
-        var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
+        var contextFactory = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>();
 
         Assert.IsType<WoolacombeContextFactory>(contextFactory);
 
@@ -890,5 +891,5 @@ public class DbContextFactoryTest
     }
 
     private static string GetStoreName(DbContext context1)
-        => context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName;
+        => context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>()!.StoreName;
 }

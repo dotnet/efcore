@@ -309,10 +309,10 @@ public class ProxyTests
     {
         public virtual int Id { get; set; }
 
-        public virtual IsOwnedButNotWeak Owned { get; set; }
+        public virtual IsOwnedButNotWeak? Owned { get; set; }
 
-        public virtual IsWeak Weak1 { get; set; }
-        public virtual IsWeak Weak2 { get; set; }
+        public virtual IsWeak? Weak1 { get; set; }
+        public virtual IsWeak? Weak2 { get; set; }
     }
 
     [Owned]
@@ -328,7 +328,7 @@ public class ProxyTests
 
     public record IndyCar;
 
-    private class NeweyContext(string dbName = null, bool useLazyLoading = true, bool useChangeDetection = false) : DbContext
+    private class NeweyContext(string? dbName = null, bool useLazyLoading = true, bool useChangeDetection = false) : DbContext
     {
         private readonly IServiceProvider _internalServiceProvider
             = new ServiceCollection()
@@ -339,11 +339,11 @@ public class ProxyTests
         private static readonly InMemoryDatabaseRoot _dbRoot = new();
         private readonly bool _useLazyLoadingProxies = useLazyLoading;
         private readonly bool _useChangeDetectionProxies = useChangeDetection;
-        private readonly string _dbName = dbName;
+        private readonly string? _dbName = dbName;
 
         public NeweyContext(
             IServiceProvider internalServiceProvider,
-            string dbName = null,
+            string? dbName = null,
             bool useLazyLoading = true,
             bool useChangeDetection = false)
             : this(dbName, useLazyLoading, useChangeDetection)
@@ -471,7 +471,7 @@ public class ProxyTests
 
     private class CannotAddProxyTypeToModel : DbContext
     {
-        public DbSet<ClassToBeProxied> _entityToBeProxied { get; set; }
+        public DbSet<ClassToBeProxied> _entityToBeProxied { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

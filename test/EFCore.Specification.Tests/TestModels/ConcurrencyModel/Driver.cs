@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public class Driver
 {
     public class DriverProxy(
@@ -25,8 +23,8 @@ public class Driver
         public bool InitializedCalled { get; set; }
     }
 
-    private readonly ILazyLoader _loader;
-    private Team _team;
+    private readonly ILazyLoader _loader = null!;
+    private Team? _team;
 
     public Driver()
     {
@@ -62,7 +60,7 @@ public class Driver
     }
 
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public int? CarNumber { get; set; }
     public int Championships { get; set; }
     public int Races { get; set; }
@@ -73,7 +71,7 @@ public class Driver
 
     public virtual Team Team
     {
-        get => _loader.Load(this, ref _team);
+        get => _loader.Load(this, ref _team)!;
         set => _team = value;
     }
 

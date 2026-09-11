@@ -27,7 +27,7 @@ public abstract class MigrationsModelDifferTestBase
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
         Action<IReadOnlyList<MigrationOperation>> assertActionUp,
-        Action<IReadOnlyList<MigrationOperation>> assertActionDown,
+        Action<IReadOnlyList<MigrationOperation>>? assertActionDown,
         bool skipSourceConventions = false)
         => Execute(
             buildCommonAction, buildSourceAction, buildTargetAction, assertActionUp, assertActionDown, null, skipSourceConventions);
@@ -37,8 +37,8 @@ public abstract class MigrationsModelDifferTestBase
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
         Action<IReadOnlyList<MigrationOperation>> assertActionUp,
-        Action<IReadOnlyList<MigrationOperation>> assertActionDown,
-        Action<DbContextOptionsBuilder> builderOptionsAction,
+        Action<IReadOnlyList<MigrationOperation>>? assertActionDown,
+        Action<DbContextOptionsBuilder>? builderOptionsAction,
         bool skipSourceConventions = false,
         bool enableSensitiveLogging = true)
     {

@@ -143,7 +143,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>())
                 .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'")),
-            ss => ss.Set<Customer>().Where(x => x.ContactName.Contains("z")));
+            ss => ss.Set<Customer>().Where(x => x.ContactName!.Contains("z")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_columns_out_of_order(bool async)
@@ -198,8 +198,8 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z")),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")),
+            ss => ss.Set<Customer>().Where(c => c.ContactName!.Contains("z")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_composed_after_removing_whitespaces(bool async)
@@ -208,8 +208,8 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                     NormalizeDelimitersInRawString(
                         _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + "* FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z")),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")),
+            ss => ss.Set<Customer>().Where(c => c.ContactName!.Contains("z")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlRaw_queryable_composed_compiled(bool async)
@@ -218,7 +218,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         {
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
                 .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -231,7 +231,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         {
             var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
                 .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -250,7 +250,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
                 .FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -264,7 +264,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
                 .FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -284,7 +284,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
                     CreateDbParameter("customer", "CONSH"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -299,7 +299,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
                     CreateDbParameter("customer", "CONSH"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -319,7 +319,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
                     CreateDbParameter(null!, "CONSH"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -334,7 +334,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
                     CreateDbParameter(null!, "CONSH"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -1093,7 +1093,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ((DbSet<OrderQuery>)ss.Set<OrderQuery>())
                 .FromSqlRaw(NormalizeDelimitersInRawString("SELECT NULL AS [CustomerID] FROM [Customers] WHERE [City] = 'Berlin'"))
                 .IgnoreQueryFilters(),
-            ss => ss.Set<Customer>().Where(x => x.City == "Berlin").Select(x => new OrderQuery(null)));
+            ss => ss.Set<Customer>().Where(x => x.City == "Berlin").Select(x => new OrderQuery(null!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSql_used_twice_without_parameters(bool async)
@@ -1300,8 +1300,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
     SELECT * FROM [Customers]
 )
 SELECT * FROM [Customers2]"))
-                .Where(c => c.ContactName.Contains("z")),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")),
+            ss => ss.Set<Customer>().Where(c => c.ContactName!.Contains("z")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_two_parameters(bool async)

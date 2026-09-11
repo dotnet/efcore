@@ -9,8 +9,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SqlServerValueGenerationScenariosTestBase
 {
     protected static readonly GeometryFactory GeometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
@@ -272,7 +270,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly string _stringSentinel = stringSentinel;
 
-        public DbSet<BlogWithStringKey> StringyBlogs { get; set; }
+        public DbSet<BlogWithStringKey> StringyBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -292,8 +290,8 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
     public class BlogWithStringKey
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } = null!;
+        public string? Name { get; set; }
     }
 
     [Fact]
@@ -366,7 +364,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly uint _uintSentinel = uintSentinel;
 
-        public DbSet<BlogWithUIntKey> UnsignedBlogs { get; set; }
+        public DbSet<BlogWithUIntKey> UnsignedBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -383,7 +381,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     public class BlogWithUIntKey
     {
         public uint Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     [Fact]
@@ -415,7 +413,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly IntKey _sentinel = sentinel;
 
-        public DbSet<BlogWithIntEnumKey> EnumBlogs { get; set; }
+        public DbSet<BlogWithIntEnumKey> EnumBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -432,7 +430,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     public class BlogWithIntEnumKey
     {
         public IntKey Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public enum IntKey
@@ -471,7 +469,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly ULongKey _sentinel = sentinel;
 
-        public DbSet<BlogWithULongEnumKey> EnumBlogs { get; set; }
+        public DbSet<BlogWithULongEnumKey> EnumBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -488,7 +486,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     public class BlogWithULongEnumKey
     {
         public ULongKey Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public enum ULongKey : ulong
@@ -526,7 +524,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly string _sentinel = sentinel;
 
-        public DbSet<BlogWithStringKey> StringyBlogs { get; set; }
+        public DbSet<BlogWithStringKey> StringyBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -658,7 +656,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
             Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
-            Assert.Equal(111, blogs[1].NeedsConverter.Value);
+            Assert.Equal(111, blogs[1].NeedsConverter!.Value);
         }
 
         await using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
@@ -688,9 +686,9 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[0].CreatedOn);
             Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
-            Assert.Equal(222, blogs[1].NeedsConverter.Value);
+            Assert.Equal(222, blogs[1].NeedsConverter!.Value);
             Assert.Equal(new DateTime(1974, 8, 3, 0, 10, 0), blogs[2].CreatedOn);
-            Assert.Equal(333, blogs[2].NeedsConverter.Value);
+            Assert.Equal(333, blogs[2].NeedsConverter!.Value);
         }
     }
 
@@ -724,7 +722,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             context.SaveChanges();
 
-            var point = (Point)blogs[1].GeometryCollection.Geometries[0];
+            var point = (Point)blogs[1].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point.X);
             Assert.Equal(3, point.Y);
         }
@@ -734,16 +732,16 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
 
-            var point1 = (Point)blogs[1].GeometryCollection.Geometries[0];
+            var point1 = (Point)blogs[1].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point1.X);
             Assert.Equal(3, point1.Y);
 
-            var point2 = (Point)blogs[2].GeometryCollection.Geometries[0];
+            var point2 = (Point)blogs[2].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point2.X);
             Assert.Equal(2, point2.Y);
 
-            blogs[1].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 11));
-            blogs[2].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 22));
+            blogs[1].GeometryCollection!.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 11));
+            blogs[2].GeometryCollection!.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 22));
 
             context.SaveChanges();
         }
@@ -753,11 +751,11 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
 
-            var point1 = (Point)blogs[1].GeometryCollection.Geometries[0];
+            var point1 = (Point)blogs[1].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point1.X);
             Assert.Equal(11, point1.Y);
 
-            var point2 = (Point)blogs[2].GeometryCollection.Geometries[0];
+            var point2 = (Point)blogs[2].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point2.X);
             Assert.Equal(22, point2.Y);
         }
@@ -1041,7 +1039,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
     [Fact]
     public async Task Insert_and_update_with_computed_column_with_querying_function()
     {
-        SqlServerTestStore testStore = null;
+        SqlServerTestStore? testStore = null;
         try
         {
             testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1598,7 +1596,7 @@ END");
         var updatedBlog = innerContext.ConcurrentBlogs.Single();
         updatedBlog.Name = "One Pegasus";
         innerContext.SaveChanges();
-        var currentTimestamp = updatedBlog.Timestamp.ToArray();
+        var currentTimestamp = updatedBlog.Timestamp!.ToArray();
 
         try
         {
@@ -1656,9 +1654,9 @@ END");
     public class Blog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public DateTime CreatedOn { get; set; }
-        public NeedsConverter NeedsConverter { get; set; }
+        public NeedsConverter? NeedsConverter { get; set; }
         public int? OtherId { get; set; }
     }
 
@@ -1673,15 +1671,15 @@ END");
     public class BlogWithSpatial
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public GeometryCollection GeometryCollection { get; set; }
+        public string? Name { get; set; }
+        public GeometryCollection? GeometryCollection { get; set; }
     }
 
     public class NeedsConverter(int value)
     {
         public int Value { get; } = value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => throw new InvalidOperationException();
 
         public override int GetHashCode()
@@ -1691,52 +1689,52 @@ END");
     public class NullableKeyBlog
     {
         public int? Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public DateTime CreatedOn { get; set; }
     }
 
     public class FullNameBlog
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string FullName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? FullName { get; set; }
     }
 
     public class GuidBlog
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public Guid NotId { get; set; }
     }
 
     public class ConcurrentBlog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public byte[] Timestamp { get; set; }
+        public string? Name { get; set; }
+        public byte[]? Timestamp { get; set; }
     }
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         => modelBuilder.Entity<Blog>()
             .Property(e => e.NeedsConverter)
             .HasConversion(
-                v => v.Value,
+                v => v!.Value,
                 v => new NeedsConverter(v),
                 new ValueComparer<NeedsConverter>(
                     (l, r) => (l == null && r == null) || (l != null && r != null && l.Value == r.Value),
-                    v => v.Value.GetHashCode(),
-                    v => new NeedsConverter(v.Value)))
+                    v => v!.Value.GetHashCode(),
+                    v => new NeedsConverter(v!.Value)))
             .HasDefaultValue(new NeedsConverter(999));
 
     public abstract class ContextBase(string databaseName, Action<ModelBuilder> builder) : DbContext
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<BlogWithSpatial> SpatialBlogs { get; set; }
-        public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; }
-        public DbSet<FullNameBlog> FullNameBlogs { get; set; }
-        public DbSet<GuidBlog> GuidBlogs { get; set; }
-        public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<BlogWithSpatial> SpatialBlogs { get; set; } = null!;
+        public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; } = null!;
+        public DbSet<FullNameBlog> FullNameBlogs { get; set; } = null!;
+        public DbSet<GuidBlog> GuidBlogs { get; set; } = null!;
+        public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => builder(modelBuilder);

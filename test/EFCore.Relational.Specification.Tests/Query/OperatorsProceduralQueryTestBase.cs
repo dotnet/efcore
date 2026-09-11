@@ -5,17 +5,15 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
     private static readonly MethodInfo LikeMethodInfo
         = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-            nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)]);
+            nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo StringConcatMethodInfo
         = typeof(string).GetRuntimeMethod(
-            nameof(string.Concat), [typeof(string), typeof(string)]);
+            nameof(string.Concat), [typeof(string), typeof(string)])!;
 
     protected readonly List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)>
         Binaries;
@@ -243,7 +241,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         Type[] types,
         RootEntityExpressionInfo[] rootEntityExpressions,
         int maxDepth,
-        Type startingResultType)
+        Type? startingResultType)
     {
         var distinctTypes = types.Distinct().ToList();
         var possibleLeafBinaries =
@@ -470,7 +468,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             BindingFlags.NonPublic | BindingFlags.Instance);
 
         var genericArguments = roots.Select(x => PropertyTypeToEntityMap[x.Type]).Concat([resultExpression.Type]).ToArray();
-        var genericMethod = method.MakeGenericMethod(genericArguments);
+        var genericMethod = method!.MakeGenericMethod(genericArguments);
 
         var resultRewriter = new ResultExpressionProjectionRewriter(resultExpression, roots);
 
@@ -488,7 +486,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         var setSourceTemplate = (ISetSource ss) =>
             from e1 in ss.Set<TEntity1>()
             orderby e1.Id
-            select new OperatorDto1<TEntity1, TResult>(e1, default);
+            select new OperatorDto1<TEntity1, TResult>(e1, default!);
 
         ExecuteQueryAndVerifyResults(
             seed,
@@ -513,7 +511,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             from e1 in ss.Set<TEntity1>()
             from e2 in ss.Set<TEntity2>()
             orderby e1.Id, e2.Id
-            select new OperatorDto2<TEntity1, TEntity2, TResult>(e1, e2, default);
+            select new OperatorDto2<TEntity1, TEntity2, TResult>(e1, e2, default!);
 
         ExecuteQueryAndVerifyResults(
             seed,
@@ -541,7 +539,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             from e2 in ss.Set<TEntity2>()
             from e3 in ss.Set<TEntity3>()
             orderby e1.Id, e2.Id, e3.Id
-            select new OperatorDto3<TEntity1, TEntity2, TEntity3, TResult>(e1, e2, e3, default);
+            select new OperatorDto3<TEntity1, TEntity2, TEntity3, TResult>(e1, e2, e3, default!);
 
         ExecuteQueryAndVerifyResults(
             seed,
@@ -572,7 +570,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             from e3 in ss.Set<TEntity3>()
             from e4 in ss.Set<TEntity4>()
             orderby e1.Id, e2.Id, e3.Id, e4.Id
-            select new OperatorDto4<TEntity1, TEntity2, TEntity3, TEntity4, TResult>(e1, e2, e3, e4, default);
+            select new OperatorDto4<TEntity1, TEntity2, TEntity3, TEntity4, TResult>(e1, e2, e3, e4, default!);
 
         ExecuteQueryAndVerifyResults(
             seed,
@@ -606,7 +604,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             from e4 in ss.Set<TEntity4>()
             from e5 in ss.Set<TEntity5>()
             orderby e1.Id, e2.Id, e3.Id, e4.Id, e5.Id
-            select new OperatorDto5<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TResult>(e1, e2, e3, e4, e5, default);
+            select new OperatorDto5<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TResult>(e1, e2, e3, e4, e5, default!);
 
         ExecuteQueryAndVerifyResults(
             seed,
@@ -643,7 +641,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             from e5 in ss.Set<TEntity5>()
             from e6 in ss.Set<TEntity6>()
             orderby e1.Id, e2.Id, e3.Id, e4.Id, e5.Id, e6.Id
-            select new OperatorDto6<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TEntity6, TResult>(e1, e2, e3, e4, e5, e6, default);
+            select new OperatorDto6<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TEntity6, TResult>(e1, e2, e3, e4, e5, e6, default!);
 
         ExecuteQueryAndVerifyResults(
             seed,
@@ -932,7 +930,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             methodName,
             BindingFlags.NonPublic | BindingFlags.Instance);
 
-        var genericMethod = method.MakeGenericMethod(roots.Select(x => PropertyTypeToEntityMap[x.Type]).ToArray());
+        var genericMethod = method!.MakeGenericMethod(roots.Select(x => PropertyTypeToEntityMap[x.Type]).ToArray());
 
         var resultRewriter = new ResultExpressionPredicateRewriter(resultExpression, roots);
 
@@ -1163,7 +1161,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
     {
         private static readonly MethodInfo _likeMethodInfo
             = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)]);
+                nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)])!;
 
         private readonly Expression[] _roots = roots;
         private readonly Expression _resultExpression = resultExpression;

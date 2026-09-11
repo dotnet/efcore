@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -30,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Find_int_key_from_store()
         {
             using var context = CreateContext();
-            Assert.Equal("Smokey", Finder.Find<IntKey>(context, 77).Foo);
+            Assert.Equal("Smokey", Finder.Find<IntKey>(context, 77)!.Foo);
         }
 
         [Fact]
@@ -54,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Find_nullable_int_key_from_store()
         {
             using var context = CreateContext();
-            Assert.Equal("Smokey", Finder.Find<NullableIntKey>(context, 77).Foo);
+            Assert.Equal("Smokey", Finder.Find<NullableIntKey>(context, 77)!.Foo);
         }
 
         [Fact]
@@ -78,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Find_string_key_from_store()
         {
             using var context = CreateContext();
-            Assert.Equal("Alice", Finder.Find<StringKey>(context, "Cat").Foo);
+            Assert.Equal("Alice", Finder.Find<StringKey>(context, "Cat")!.Foo);
         }
 
         [Fact]
@@ -102,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Find_composite_key_from_store()
         {
             using var context = CreateContext();
-            Assert.Equal("Olive", Finder.Find<CompositeKey>(context, 77, "Dog").Foo);
+            Assert.Equal("Olive", Finder.Find<CompositeKey>(context, 77, "Dog")!.Foo);
         }
 
         [Fact]
@@ -126,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Find_base_type_from_store()
         {
             using var context = CreateContext();
-            Assert.Equal("Baxter", Finder.Find<BaseType>(context, 77).Foo);
+            Assert.Equal("Baxter", Finder.Find<BaseType>(context, 77)!.Foo);
         }
 
         [Fact]
@@ -151,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             var derivedType = Finder.Find<DerivedType>(context, 78);
-            Assert.Equal("Strawberry", derivedType.Foo);
+            Assert.Equal("Strawberry", derivedType!.Foo);
             Assert.Equal("Cheesecake", derivedType.Boo);
         }
 
@@ -194,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             var derivedType = Finder.Find<BaseType>(context, 78);
-            Assert.Equal("Strawberry", derivedType.Foo);
+            Assert.Equal("Strawberry", derivedType!.Foo);
             Assert.Equal("Cheesecake", ((DerivedType)derivedType).Boo);
         }
 
@@ -213,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Find_shadow_key_from_store()
         {
             using var context = CreateContext();
-            Assert.Equal("Clippy", Finder.Find<ShadowKey>(context, 77).Foo);
+            Assert.Equal("Clippy", Finder.Find<ShadowKey>(context, 77)!.Foo);
         }
 
         [Fact]
@@ -227,28 +225,28 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Returns_null_for_null_key_values_array()
         {
             using var context = CreateContext();
-            Assert.Null(Finder.Find<CompositeKey>(context, null));
+            Assert.Null(Finder.Find<CompositeKey>(context, null!));
         }
 
         [Fact]
         public virtual void Returns_null_for_null_key()
         {
             using var context = CreateContext();
-            Assert.Null(Finder.Find<IntKey>(context, [null]));
+            Assert.Null(Finder.Find<IntKey>(context, [null!]));
         }
 
         [Fact]
         public virtual void Returns_null_for_null_nullable_key()
         {
             using var context = CreateContext();
-            Assert.Null(Finder.Find<NullableIntKey>(context, [null]));
+            Assert.Null(Finder.Find<NullableIntKey>(context, [null!]));
         }
 
         [Fact]
         public virtual void Returns_null_for_null_in_composite_key()
         {
             using var context = CreateContext();
-            Assert.Null(Finder.Find<CompositeKey>(context, 77, null));
+            Assert.Null(Finder.Find<CompositeKey>(context, 77, null!));
         }
 
         [Fact]
@@ -330,15 +328,15 @@ namespace Microsoft.EntityFrameworkCore
 
             var entity = await Finder.FindAsync<IntKey>(cancellationType, context, [77]);
 
-            Assert.Equal("Smokey", entity.Foo);
-            Assert.Equal(7, entity.OwnedReference.Prop);
+            Assert.Equal("Smokey", entity!.Foo);
+            Assert.Equal(7, entity.OwnedReference!.Prop);
             Assert.Equal(2, entity.OwnedCollection.Count);
             Assert.Contains(71, entity.OwnedCollection.Select(e => e.Prop));
             Assert.Contains(72, entity.OwnedCollection.Select(e => e.Prop));
-            Assert.Equal("7", entity.OwnedReference.NestedOwned.Prop);
-            Assert.Equal(2, entity.OwnedReference.NestedOwnedCollection.Count);
-            Assert.Contains("71", entity.OwnedReference.NestedOwnedCollection.Select(e => e.Prop));
-            Assert.Contains("72", entity.OwnedReference.NestedOwnedCollection.Select(e => e.Prop));
+            Assert.Equal("7", entity.OwnedReference!.NestedOwned!.Prop);
+            Assert.Equal(2, entity.OwnedReference!.NestedOwnedCollection.Count);
+            Assert.Contains("71", entity.OwnedReference!.NestedOwnedCollection.Select(e => e.Prop));
+            Assert.Contains("72", entity.OwnedReference!.NestedOwnedCollection.Select(e => e.Prop));
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -365,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Find_nullable_int_key_from_store_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Equal("Smokey", (await Finder.FindAsync<NullableIntKey>(cancellationType, context, [77])).Foo);
+            Assert.Equal("Smokey", (await Finder.FindAsync<NullableIntKey>(cancellationType, context, [77]))!.Foo);
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -392,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Find_string_key_from_store_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Equal("Alice", (await Finder.FindAsync<StringKey>(cancellationType, context, ["Cat"])).Foo);
+            Assert.Equal("Alice", (await Finder.FindAsync<StringKey>(cancellationType, context, ["Cat"]))!.Foo);
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -419,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Find_composite_key_from_store_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Equal("Olive", (await Finder.FindAsync<CompositeKey>(cancellationType, context, [77, "Dog"])).Foo);
+            Assert.Equal("Olive", (await Finder.FindAsync<CompositeKey>(cancellationType, context, [77, "Dog"]))!.Foo);
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -446,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Find_base_type_from_store_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Equal("Baxter", (await Finder.FindAsync<BaseType>(cancellationType, context, [77])).Foo);
+            Assert.Equal("Baxter", (await Finder.FindAsync<BaseType>(cancellationType, context, [77]))!.Foo);
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -474,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             var derivedType = await Finder.FindAsync<DerivedType>(cancellationType, context, [78]);
-            Assert.Equal("Strawberry", derivedType.Foo);
+            Assert.Equal("Strawberry", derivedType!.Foo);
             Assert.Equal("Cheesecake", derivedType.Boo);
         }
 
@@ -522,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             var derivedType = await Finder.FindAsync<BaseType>(cancellationType, context, [78]);
-            Assert.Equal("Strawberry", derivedType.Foo);
+            Assert.Equal("Strawberry", derivedType!.Foo);
             Assert.Equal("Cheesecake", ((DerivedType)derivedType).Boo);
         }
 
@@ -543,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Find_shadow_key_from_store_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Equal("Clippy", (await Finder.FindAsync<ShadowKey>(cancellationType, context, [77])).Foo);
+            Assert.Equal("Clippy", (await Finder.FindAsync<ShadowKey>(cancellationType, context, [77]))!.Foo);
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -559,7 +557,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Returns_null_for_null_key_values_array_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, null));
+            Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, null!));
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -567,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Returns_null_for_null_key_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Null(await Finder.FindAsync<IntKey>(cancellationType, context, [null]));
+            Assert.Null(await Finder.FindAsync<IntKey>(cancellationType, context, [null!]));
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -575,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Returns_null_for_null_in_composite_key_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, [77, null]));
+            Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, [77, null!]));
         }
 
         [Theory, InlineData((int)CancellationType.Right), InlineData((int)CancellationType.Wrong),
@@ -661,12 +659,12 @@ namespace Microsoft.EntityFrameworkCore
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
-            public string Foo { get; set; }
+            public string Foo { get; set; } = null!;
         }
 
         protected class DerivedType : BaseType
         {
-            public string Boo { get; set; }
+            public string Boo { get; set; } = null!;
         }
 
         protected class IntKey
@@ -674,10 +672,10 @@ namespace Microsoft.EntityFrameworkCore
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
-            public string Foo { get; set; }
+            public string Foo { get; set; } = null!;
 
-            public Owned1 OwnedReference { get; set; }
-            public List<Owned1> OwnedCollection { get; set; }
+            public Owned1? OwnedReference { get; set; }
+            public List<Owned1> OwnedCollection { get; set; } = null!;
         }
 
         protected class NullableIntKey
@@ -685,41 +683,41 @@ namespace Microsoft.EntityFrameworkCore
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int? Id { get; set; }
 
-            public string Foo { get; set; }
+            public string Foo { get; set; } = null!;
         }
 
         protected class StringKey
         {
-            public string Id { get; set; }
+            public string Id { get; set; } = null!;
 
-            public string Foo { get; set; }
+            public string Foo { get; set; } = null!;
         }
 
         protected class CompositeKey
         {
             public int Id1 { get; set; }
-            public string Id2 { get; set; }
-            public string Foo { get; set; }
+            public string Id2 { get; set; } = null!;
+            public string Foo { get; set; } = null!;
         }
 
         protected class ShadowKey
         {
-            public string Foo { get; set; }
+            public string Foo { get; set; } = null!;
         }
 
         [Owned]
         protected class Owned1
         {
             public int Prop { get; set; }
-            public Owned2 NestedOwned { get; set; }
-            public List<Owned2> NestedOwnedCollection { get; set; }
+            public Owned2? NestedOwned { get; set; }
+            public List<Owned2> NestedOwnedCollection { get; set; } = null!;
         }
 
         [Owned]
         protected class Owned2
         {
             [Required]
-            public string Prop { get; set; }
+            public string Prop { get; set; } = null!;
         }
 
         protected DbContext CreateContext()
@@ -783,10 +781,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class TestFinder
         {
-            public abstract TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+            public abstract TEntity? Find<TEntity>(DbContext context, params object[] keyValues)
                 where TEntity : class;
 
-            public abstract ValueTask<TEntity> FindAsync<TEntity>(
+            public abstract ValueTask<TEntity?> FindAsync<TEntity>(
                 CancellationType cancellationType,
                 DbContext context,
                 object[] keyValues,
@@ -796,14 +794,16 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FindViaSetFinder : TestFinder
         {
-            public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+            public override TEntity? Find<TEntity>(DbContext context, params object[] keyValues)
+                where TEntity : class
                 => context.Set<TEntity>().Find(keyValues);
 
-            public override ValueTask<TEntity> FindAsync<TEntity>(
+            public override ValueTask<TEntity?> FindAsync<TEntity>(
                 CancellationType cancellationType,
                 DbContext context,
                 object[] keyValues,
                 CancellationToken cancellationToken = default)
+                where TEntity : class
                 => cancellationType switch
                 {
                     CancellationType.Right => context.Set<TEntity>().FindAsync(keyValues, cancellationToken: cancellationToken),
@@ -816,35 +816,39 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FindViaNonGenericContextFinder : TestFinder
         {
-            public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
-                => (TEntity)context.Find(typeof(TEntity), keyValues);
+            public override TEntity? Find<TEntity>(DbContext context, params object[] keyValues)
+                where TEntity : class
+                => (TEntity?)context.Find(typeof(TEntity), keyValues);
 
-            public override async ValueTask<TEntity> FindAsync<TEntity>(
+            public override async ValueTask<TEntity?> FindAsync<TEntity>(
                 CancellationType cancellationType,
                 DbContext context,
                 object[] keyValues,
                 CancellationToken cancellationToken = default)
+                where TEntity : class
                 => cancellationType switch
                 {
-                    CancellationType.Right => (TEntity)await context.FindAsync(
+                    CancellationType.Right => (TEntity?)await context.FindAsync(
                         typeof(TEntity), keyValues, cancellationToken: cancellationToken),
-                    CancellationType.Wrong => (TEntity)await context.FindAsync(
+                    CancellationType.Wrong => (TEntity?)await context.FindAsync(
                         typeof(TEntity), keyValues?.Concat([cancellationToken]).ToArray()),
-                    CancellationType.None => (TEntity)await context.FindAsync(typeof(TEntity), keyValues),
+                    CancellationType.None => (TEntity?)await context.FindAsync(typeof(TEntity), keyValues),
                     _ => throw new ArgumentOutOfRangeException(nameof(cancellationType), cancellationType, null)
                 };
         }
 
         public class FindViaContextFinder : TestFinder
         {
-            public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+            public override TEntity? Find<TEntity>(DbContext context, params object[] keyValues)
+                where TEntity : class
                 => context.Find<TEntity>(keyValues);
 
-            public override ValueTask<TEntity> FindAsync<TEntity>(
+            public override ValueTask<TEntity?> FindAsync<TEntity>(
                 CancellationType cancellationType,
                 DbContext context,
                 object[] keyValues,
                 CancellationToken cancellationToken = default)
+                where TEntity : class
                 => cancellationType switch
                 {
                     CancellationType.Right => context.FindAsync<TEntity>(keyValues, cancellationToken: cancellationToken),
@@ -861,6 +865,6 @@ namespace Microsoft.EntityFrameworkCore.DifferentNamespace
 {
     internal class ShadowKey
     {
-        public string Foo { get; set; }
+        public string Foo { get; set; } = null!;
     }
 }

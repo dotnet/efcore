@@ -37,7 +37,7 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Id", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -47,7 +47,7 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Value", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Value", columnMod.Property.Name);
+        Assert.Equal("Value", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -78,7 +78,7 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Id", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -88,7 +88,7 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Value", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Value", columnMod.Property.Name);
+        Assert.Equal("Value", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -119,7 +119,7 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Id", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -260,7 +260,7 @@ public class CommandBatchPreparerTest
         var relatedEntry = stateManager.GetOrCreateEntry(
             new RelatedFakeEntity { Id = 1, RelatedId = 3 });
         relatedEntry.SetEntityState(EntityState.Modified);
-        relatedEntry.SetOriginalValue(relatedEntry.EntityType.FindProperty("RelatedId"), 42);
+        relatedEntry.SetOriginalValue(relatedEntry.EntityType.FindProperty("RelatedId")!, 42);
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -352,7 +352,7 @@ public class CommandBatchPreparerTest
         var relatedEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { RelatedId = temporaryIdValue });
         relatedEntry.SetEntityState(EntityState.Added);
 
-        var factory = (TestModificationCommandBatchFactory)configuration.GetService<IModificationCommandBatchFactory>();
+        var factory = (TestModificationCommandBatchFactory)configuration.GetService<IModificationCommandBatchFactory>()!;
 
         var batches = CreateCommandBatchPreparer(factory).BatchCommands([relatedEntry, entry], new UpdateAdapter(stateManager));
 
@@ -389,7 +389,7 @@ public class CommandBatchPreparerTest
                 Value = "Test2"
             });
         fakeEntry2.SetEntityState(EntityState.Modified);
-        fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test");
+        fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value))!, "Test");
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -414,7 +414,7 @@ public class CommandBatchPreparerTest
         Assert.Equal(
             CoreStrings.TempValue(nameof(FakeEntity.Value), nameof(FakeEntity)),
             Assert.Throws<InvalidOperationException>(() => entry.SetTemporaryValue(
-                entry.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test")).Message);
+                entry.EntityType.FindProperty(nameof(FakeEntity.Value))!, "Test")).Message);
     }
 
     [InlineData(true), InlineData(false), Theory]
@@ -472,7 +472,7 @@ ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
                 UniqueValue = "Test2"
             });
         fakeEntry2.SetEntityState(EntityState.Modified);
-        fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
+        fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue))!, "Test");
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -544,7 +544,7 @@ FakeEntity [Deleted]"
         var fakeEntry2 = stateManager.GetOrCreateEntry(
             new FakeEntity { Id = 2, UniqueValue = "Test2" });
         fakeEntry2.SetEntityState(EntityState.Modified);
-        fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
+        fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue))!, "Test");
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -575,7 +575,7 @@ FakeEntity [Deleted]"
                 Payload = "new-basic"
             });
         modifiedBasic.SetEntityState(EntityState.Modified);
-        modifiedBasic.SetOriginalValue(modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-basic");
+        modifiedBasic.SetOriginalValue(modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload))!, "old-basic");
 
         var modifiedPro = stateManager.GetOrCreateEntry(
             new CompositeKeyEntity
@@ -585,9 +585,9 @@ FakeEntity [Deleted]"
                 Payload = "new-pro"
             });
         modifiedPro.SetEntityState(EntityState.Modified);
-        modifiedPro.SetOriginalValue(modifiedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-pro");
+        modifiedPro.SetOriginalValue(modifiedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload))!, "old-pro");
 
-        var clusteringKeyProperty = modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey));
+        var clusteringKeyProperty = modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey))!;
         modifiedBasic.SetOriginalValue(clusteringKeyProperty, 0);
         modifiedPro.SetOriginalValue(clusteringKeyProperty, 0);
 
@@ -1022,8 +1022,8 @@ FakeEntity [Deleted]"
             .ToList();
 
     public ICommandBatchPreparer CreateCommandBatchPreparer(
-        IModificationCommandBatchFactory modificationCommandBatchFactory = null,
-        IUpdateAdapter updateAdapter = null,
+        IModificationCommandBatchFactory? modificationCommandBatchFactory = null,
+        IUpdateAdapter? updateAdapter = null,
         bool sensitiveLogging = false)
     {
         modificationCommandBatchFactory ??=
@@ -1196,8 +1196,8 @@ FakeEntity [Deleted]"
     private class FakeEntity
     {
         public int Id { get; set; }
-        public string Value { get; set; }
-        public string UniqueValue { get; set; }
+        public string Value { get; set; } = null!;
+        public string UniqueValue { get; set; } = null!;
         public int? RelatedId { get; set; }
     }
 
@@ -1209,7 +1209,7 @@ FakeEntity [Deleted]"
 
     private class DerivedRelatedFakeEntity : RelatedFakeEntity
     {
-        public string DerivedValue { get; set; }
+        public string DerivedValue { get; set; } = null!;
     }
 
     private class CompositeKeyEntity
@@ -1217,7 +1217,7 @@ FakeEntity [Deleted]"
         public Guid TestId { get; set; }
         public CompositeCategory Category { get; set; }
         public int ClusteringKey { get; set; }
-        public string Payload { get; set; }
+        public string Payload { get; set; } = null!;
     }
 
     private enum CompositeCategory
@@ -1300,7 +1300,8 @@ FakeEntity [Deleted]"
         entityAEntry.SetEntityState(EntityState.Unchanged);
 
         // Track the owned entity
-        var ownedEntityType = model.FindEntityType(typeof(OwnedEntity37588), "Owned", model.FindEntityType(typeof(EntityA37588)));
+        var ownedEntityType = model.FindEntityType(
+            typeof(OwnedEntity37588), "Owned", model.FindEntityType(typeof(EntityA37588))!)!;
         var ownedEntry = stateManager.GetOrCreateEntry(entityA.Owned, ownedEntityType);
         ownedEntry.SetEntityState(EntityState.Unchanged);
 
@@ -1353,7 +1354,7 @@ FakeEntity [Deleted]"
 
     private abstract class EntityBase37588
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         public long RowVersion { get; set; }
     }
 
@@ -1365,12 +1366,12 @@ FakeEntity [Deleted]"
     private class EntityA37588 : EntityBase37588
     {
         public bool SomeValue { get; set; }
-        public OwnedEntity37588 Owned { get; set; }
+        public OwnedEntity37588 Owned { get; set; } = null!;
     }
 
     private class EntityB37588 : EntityBase37588
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class AnotherFakeEntity
@@ -1433,7 +1434,7 @@ FakeEntity [Deleted]"
 
         modelBuilder.Entity<AbstractPrincipal>()
             .UseTpcMappingStrategy()
-            .ToTable((string)null)
+            .ToTable((string?)null)
             .Property(e => e.Id)
             .ValueGeneratedNever();
 

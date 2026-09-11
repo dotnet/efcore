@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : MigrationsInfrastructureFixtureBase, new()
 {
@@ -20,9 +18,9 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Fixture.ResetCounts();
     }
 
-    protected string Sql { get; private set; }
+    protected string Sql { get; private set; } = null!;
 
-    protected string ActiveProvider { get; private set; }
+    protected string? ActiveProvider { get; private set; }
 
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
@@ -561,7 +559,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 public abstract class MigrationsInfrastructureFixtureBase
     : SharedStoreFixtureBase<MigrationsInfrastructureFixtureBase.MigrationsContext>
 {
-    public static string ActiveProvider { get; set; }
+    public static string? ActiveProvider { get; set; }
 
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;
@@ -601,7 +599,7 @@ public abstract class MigrationsInfrastructureFixtureBase
 
     public class MigrationsContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public DbSet<Foo> Foos { get; set; }
+        public DbSet<Foo> Foos { get; set; } = null!;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
@@ -629,7 +627,7 @@ public abstract class MigrationsInfrastructureFixtureBase
     {
         public int Id { get; set; }
         public int Bar { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 
     [DbContext(typeof(MigrationsContext)), Migration("00000000000001_Migration1")]

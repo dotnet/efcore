@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesSqlServerTestBase<TFixture>.GraphUpdatesSqlServerFixtureBase, new()
 {
@@ -63,29 +61,29 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
     {
         public string Id
         {
-            get;
+            get => field!;
             set => SetWithNotify(value, ref field);
         }
 
         public string AlternateId
         {
-            get;
+            get => field!;
             set => SetWithNotify(value, ref field);
         }
 
-        public string Index
+        public string? Index
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public string UniqueIndex
+        public string? UniqueIndex
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public StringKeyAndIndexChild Child
+        public StringKeyAndIndexChild? Child
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -96,11 +94,11 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
     {
         public string Id
         {
-            get;
+            get => field!;
             set => SetWithNotify(value, ref field);
         }
 
-        public string ParentId
+        public string? ParentId
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -112,7 +110,7 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
             set => SetWithNotify(value, ref field);
         }
 
-        public StringKeyAndIndexParent Parent
+        public StringKeyAndIndexParent? Parent
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -207,7 +205,7 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
 
     protected class ChildWithSetDefault : NotifyingEntity
     {
-        private ParentWithSetDefault _parent;
+        private ParentWithSetDefault _parent = null!;
 
         public int Id
         {

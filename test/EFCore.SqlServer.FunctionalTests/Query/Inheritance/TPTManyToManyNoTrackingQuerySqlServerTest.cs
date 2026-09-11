@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPTManyToManyNoTrackingQuerySqlServerTest : TPTManyToManyNoTrackingQueryRelationalTestBase<
     TPTManyToManyQuerySqlServerFixture>
 {
@@ -725,7 +723,7 @@ LEFT JOIN (
         INNER JOIN [EntityOnes] AS [e0] ON [j0].[EntityOneId] = [e0].[Id]
     ) AS [s0] ON [s].[Id] = [s0].[EntityBranchId]
 ) AS [s1] ON [e].[Key1] = [s1].[CompositeId1] AND [e].[Key2] = [s1].[CompositeId2] AND [e].[Key3] = [s1].[CompositeId3]
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s1].[LeafId], [s1].[CompositeId1], [s1].[CompositeId2], [s1].[CompositeId3], [s1].[EntityBranchId]
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s1].[LeafId], [s1].[CompositeId1], [s1].[CompositeId2], [s1].[CompositeId3], [s1].[EntityBranchId], [s1].[EntityOneId]
 """);
     }
 
@@ -748,7 +746,7 @@ LEFT JOIN (
         INNER JOIN [EntityOnes] AS [e2] ON [j0].[RightId] = [e2].[Id]
     ) AS [s] ON [e0].[Id] = [s].[LeftId]
 ) AS [s0] ON [e].[Id] = [s0].[ThreeId]
-ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[LeftId]
+ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[LeftId], [s0].[RightId]
 """);
     }
 
@@ -801,7 +799,7 @@ LEFT JOIN (
     FROM [JoinTwoToThree] AS [j]
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
 ) AS [s] ON [e].[Id] = [s].[ThreeId]
-ORDER BY [e].[Id], [s].[Id], [s].[ThreeId]
+ORDER BY [e].[Id], [s].[Id], [s].[ThreeId], [s].[TwoId]
 """);
     }
 
@@ -822,7 +820,7 @@ LEFT JOIN (
     ) AS [s]
     WHERE 2 < [s].[row]
 ) AS [s0] ON [e].[Id] = [s0].[SelfSkipSharedLeftId]
-ORDER BY [e].[Id], [s0].[SelfSkipSharedLeftId], [s0].[Id]
+ORDER BY [e].[Id], [s0].[SelfSkipSharedLeftId], [s0].[Id], [s0].[SelfSkipSharedRightId]
 """);
     }
 
@@ -843,7 +841,7 @@ LEFT JOIN (
     ) AS [s]
     WHERE [s].[row] <= 2
 ) AS [s0] ON [e].[Key1] = [s0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [s0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [s0].[CompositeKeySkipSharedKey3]
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s0].[CompositeKeySkipSharedKey1], [s0].[CompositeKeySkipSharedKey2], [s0].[CompositeKeySkipSharedKey3], [s0].[Id]
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s0].[CompositeKeySkipSharedKey1], [s0].[CompositeKeySkipSharedKey2], [s0].[CompositeKeySkipSharedKey3], [s0].[Id], [s0].[TwoSkipSharedId]
 """);
     }
 
@@ -1010,7 +1008,7 @@ LEFT JOIN (
     ) AS [s0] ON [e0].[Id] = [s0].[TwoId]
     WHERE [e0].[Id] < 10
 ) AS [s1] ON [e].[Id] = [s1].[OneId]
-ORDER BY [e].[Id], [s1].[OneId], [s1].[TwoId], [s1].[TwoId0], [s1].[Id0]
+ORDER BY [e].[Id], [s1].[OneId], [s1].[TwoId], [s1].[TwoId0], [s1].[Id0], [s1].[ThreeId]
 """);
     }
 
@@ -2023,7 +2021,7 @@ LEFT JOIN (
     ) AS [s]
     WHERE [s].[row] <= 2
 ) AS [s0] ON [e].[Key1] = [s0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [s0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [s0].[CompositeKeySkipSharedKey3]
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s0].[CompositeKeySkipSharedKey1], [s0].[CompositeKeySkipSharedKey2], [s0].[CompositeKeySkipSharedKey3], [s0].[Id]
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s0].[CompositeKeySkipSharedKey1], [s0].[CompositeKeySkipSharedKey2], [s0].[CompositeKeySkipSharedKey3], [s0].[Id], [s0].[TwoSkipSharedId]
 """);
     }
 
@@ -2428,7 +2426,7 @@ LEFT JOIN (
         INNER JOIN [UnidirectionalEntityOnes] AS [u5] ON [u4].[UnidirectionalEntityOneId] = [u5].[Id]
     ) AS [s0] ON [s].[Id] = [s0].[UnidirectionalEntityBranchId]
 ) AS [s1] ON [u].[Key1] = [s1].[CompositeId1] AND [u].[Key2] = [s1].[CompositeId2] AND [u].[Key3] = [s1].[CompositeId3]
-ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [s1].[LeafId], [s1].[CompositeId1], [s1].[CompositeId2], [s1].[CompositeId3], [s1].[UnidirectionalEntityBranchId]
+ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [s1].[LeafId], [s1].[CompositeId1], [s1].[CompositeId2], [s1].[CompositeId3], [s1].[UnidirectionalEntityBranchId], [s1].[UnidirectionalEntityOneId]
 """);
     }
 
@@ -2451,7 +2449,7 @@ LEFT JOIN (
         INNER JOIN [UnidirectionalEntityOnes] AS [u4] ON [u3].[RightId] = [u4].[Id]
     ) AS [s] ON [u1].[Id] = [s].[LeftId]
 ) AS [s0] ON [u].[Id] = [s0].[ThreeId]
-ORDER BY [u].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[LeftId]
+ORDER BY [u].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[LeftId], [s0].[RightId]
 """);
     }
 
@@ -2469,7 +2467,7 @@ LEFT JOIN (
     FROM [UnidirectionalEntityOneUnidirectionalEntityTwo] AS [u1]
     INNER JOIN [UnidirectionalEntityOnes] AS [u2] ON [u1].[UnidirectionalEntityOneId] = [u2].[Id]
 ) AS [s] ON [u].[Id] = [s].[TwoSkipSharedId]
-ORDER BY [u].[Id], [s].[TwoSkipSharedId]
+ORDER BY [u].[Id], [s].[TwoSkipSharedId], [s].[UnidirectionalEntityOneId]
 """);
     }
 
@@ -2503,7 +2501,7 @@ LEFT JOIN (
     FROM [UnidirectionalJoinTwoToThree] AS [u0]
     INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
 ) AS [s] ON [u].[Id] = [s].[ThreeId]
-ORDER BY [u].[Id], [s].[Id], [s].[ThreeId]
+ORDER BY [u].[Id], [s].[Id], [s].[ThreeId], [s].[TwoId]
 """);
     }
 
@@ -2524,7 +2522,7 @@ LEFT JOIN (
     ) AS [s]
     WHERE 2 < [s].[row]
 ) AS [s0] ON [u].[Id] = [s0].[UnidirectionalEntityTwoId]
-ORDER BY [u].[Id], [s0].[UnidirectionalEntityTwoId], [s0].[Id]
+ORDER BY [u].[Id], [s0].[UnidirectionalEntityTwoId], [s0].[Id], [s0].[SelfSkipSharedRightId]
 """);
     }
 
@@ -2545,7 +2543,7 @@ LEFT JOIN (
     ) AS [s]
     WHERE [s].[row] <= 2
 ) AS [s0] ON [u].[Key1] = [s0].[UnidirectionalEntityCompositeKeyKey1] AND [u].[Key2] = [s0].[UnidirectionalEntityCompositeKeyKey2] AND [u].[Key3] = [s0].[UnidirectionalEntityCompositeKeyKey3]
-ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [s0].[UnidirectionalEntityCompositeKeyKey1], [s0].[UnidirectionalEntityCompositeKeyKey2], [s0].[UnidirectionalEntityCompositeKeyKey3], [s0].[Id]
+ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [s0].[UnidirectionalEntityCompositeKeyKey1], [s0].[UnidirectionalEntityCompositeKeyKey2], [s0].[UnidirectionalEntityCompositeKeyKey3], [s0].[Id], [s0].[TwoSkipSharedId]
 """);
     }
 
@@ -2726,6 +2724,93 @@ FROM [UnidirectionalRoots] AS [u]
 INNER JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
 LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
 WHERE 0 = 1
+""");
+    }
+
+    public override async Task SelectMany_with_collection_selector_having_subquery()
+    {
+        await base.SelectMany_with_collection_selector_having_subquery();
+
+        AssertSql(
+            """
+SELECT [u].[Id] AS [UserId], [s].[Id] AS [OrgId]
+FROM [Users] AS [u]
+CROSS JOIN (
+    SELECT [o1].[Id]
+    FROM (
+        SELECT 1 AS empty
+    ) AS [e]
+    LEFT JOIN (
+        SELECT [o].[Id]
+        FROM [Organisations] AS [o]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [OrganisationUser] AS [o0]
+            WHERE [o].[Id] = [o0].[OrganisationId])
+    ) AS [o1] ON 1 = 1
+) AS [s]
+""");
+    }
+
+    public override async Task Many_to_many_load_works_when_join_entity_has_custom_key(bool async)
+    {
+        await base.Many_to_many_load_works_when_join_entity_has_custom_key(async);
+
+        AssertSql(
+            """
+@p='1'
+
+SELECT TOP(1) [m].[Id]
+FROM [ManyM_DB] AS [m]
+WHERE [m].[Id] = @p
+""",
+            //
+            """
+@p='1'
+
+SELECT [s].[Id], [m].[Id], [s].[Id0], [s0].[Id], [s0].[ManyM_Id], [s0].[ManyN_Id], [s0].[Id0]
+FROM [ManyM_DB] AS [m]
+INNER JOIN (
+    SELECT [m1].[Id], [m0].[Id] AS [Id0], [m0].[ManyM_Id]
+    FROM [ManyMN_DB] AS [m0]
+    LEFT JOIN [ManyN_DB] AS [m1] ON [m0].[ManyN_Id] = [m1].[Id]
+) AS [s] ON [m].[Id] = [s].[ManyM_Id]
+LEFT JOIN (
+    SELECT [m2].[Id], [m2].[ManyM_Id], [m2].[ManyN_Id], [m3].[Id] AS [Id0]
+    FROM [ManyMN_DB] AS [m2]
+    INNER JOIN [ManyM_DB] AS [m3] ON [m2].[ManyM_Id] = [m3].[Id]
+    WHERE [m3].[Id] = @p
+) AS [s0] ON [s].[Id] = [s0].[ManyN_Id]
+WHERE [m].[Id] = @p
+ORDER BY [m].[Id], [s].[Id0]
+""",
+            //
+            """
+@p='1'
+
+SELECT TOP(1) [m].[Id]
+FROM [ManyN_DB] AS [m]
+WHERE [m].[Id] = @p
+""",
+            //
+            """
+@p='1'
+
+SELECT [s].[Id], [m].[Id], [s].[Id0], [s0].[Id], [s0].[ManyM_Id], [s0].[ManyN_Id], [s0].[Id0]
+FROM [ManyN_DB] AS [m]
+INNER JOIN (
+    SELECT [m1].[Id], [m0].[Id] AS [Id0], [m0].[ManyN_Id]
+    FROM [ManyMN_DB] AS [m0]
+    INNER JOIN [ManyM_DB] AS [m1] ON [m0].[ManyM_Id] = [m1].[Id]
+) AS [s] ON [m].[Id] = [s].[ManyN_Id]
+LEFT JOIN (
+    SELECT [m2].[Id], [m2].[ManyM_Id], [m2].[ManyN_Id], [m3].[Id] AS [Id0]
+    FROM [ManyMN_DB] AS [m2]
+    INNER JOIN [ManyN_DB] AS [m3] ON [m2].[ManyN_Id] = [m3].[Id]
+    WHERE [m3].[Id] = @p
+) AS [s0] ON [s].[Id] = [s0].[ManyM_Id]
+WHERE [m].[Id] = @p
+ORDER BY [m].[Id], [s].[Id0]
 """);
     }
 

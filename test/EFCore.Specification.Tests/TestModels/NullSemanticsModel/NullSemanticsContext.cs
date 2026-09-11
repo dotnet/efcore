@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
-#nullable disable
-
 public class NullSemanticsContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public DbSet<NullSemanticsEntity1> Entities1 { get; set; }
-    public DbSet<NullSemanticsEntity2> Entities2 { get; set; }
+    public DbSet<NullSemanticsEntity1> Entities1 { get; set; } = null!;
+    public DbSet<NullSemanticsEntity2> Entities2 { get; set; } = null!;
 
     public static Task SeedAsync(NullSemanticsContext context)
     {

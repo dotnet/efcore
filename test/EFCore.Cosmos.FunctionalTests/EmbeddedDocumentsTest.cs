@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosFixture>
 {
     private const string DatabaseName = "EmbeddedDocumentsTest";
@@ -29,9 +27,9 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         Engine firstEngine;
         using (var context = new EmbeddedTransportationContext(options))
         {
-            firstOperator = context.Set<Vehicle>().Select(v => v.Operator).OrderBy(o => o.VehicleName).First();
+            firstOperator = context.Set<Vehicle>().Select(v => v.Operator!).OrderBy(o => o.VehicleName).First();
             firstOperator.Name += "1";
-            firstEngine = context.Set<PoweredVehicle>().Select(v => v.Engine).OrderBy(o => o.VehicleName).First();
+            firstEngine = context.Set<PoweredVehicle>().Select(v => v.Engine!).OrderBy(o => o.VehicleName).First();
             firstEngine.Description += "1";
 
             await context.SaveChangesAsync();
@@ -40,11 +38,11 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         using (var context = new EmbeddedTransportationContext(options))
         {
             var @operator = await context.Set<Vehicle>()
-                .Select(v => v.Operator).OrderBy(o => o.VehicleName).FirstAsync();
+                .Select(v => v.Operator!).OrderBy(o => o.VehicleName).FirstAsync();
             Assert.Equal(firstOperator.Name, @operator.Name);
 
             var engine = await context.Set<PoweredVehicle>()
-                .Select(v => v.Engine).OrderBy(o => o.VehicleName).FirstAsync();
+                .Select(v => v.Engine!).OrderBy(o => o.VehicleName).FirstAsync();
             Assert.Equal(firstEngine.Description, engine.Description);
         }
     }
@@ -542,7 +540,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             await context.AddAsync(person);
 
             var addressEntry = context.Entry(address);
-            addressGuid = (Guid)addressEntry.Property("Id").CurrentValue;
+            addressGuid = (Guid)addressEntry.Property("Id").CurrentValue!;
 
             await context.SaveChangesAsync();
         }
@@ -557,7 +555,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             Assert.Equal(address.City, addresses[0].City);
 
             var addressEntry = context.Entry(addresses[0]);
-            Assert.Equal(addressGuid, (Guid)addressEntry.Property("Id").CurrentValue);
+            Assert.Equal(addressGuid, (Guid)addressEntry.Property("Id").CurrentValue!);
         }
     }
 
@@ -576,7 +574,7 @@ FROM root c
 WHERE (c["$type"] IN ("Vehicle", "PoweredVehicle") AND (c["Name"] = "AIM-9M Sidewinder"))
 OFFSET 0 LIMIT 1
 """);
-            Assert.Equal("Heat-seeking", missile.Operator.Details.Type);
+            Assert.Equal("Heat-seeking", missile.Operator.Details!.Type);
 
             missile.Operator.Details.Type = "IR";
 
@@ -587,7 +585,7 @@ OFFSET 0 LIMIT 1
         {
             var missile = await context.Set<Vehicle>().FirstAsync(v => v.Name == "AIM-9M Sidewinder");
 
-            Assert.Equal("IR", missile.Operator.Details.Type);
+            Assert.Equal("IR", missile.Operator.Details!.Type);
         }
     }
 
@@ -805,10 +803,10 @@ OFFSET 0 LIMIT 2
         public virtual CosmosTestStore TestStore { get; } = CosmosTestStore.Create(DatabaseName);
 
         public async Task<EmbeddedTransportationContextOptions> CreateOptions(
-            Action<ModelBuilder> onModelCreating = null,
+            Action<ModelBuilder>? onModelCreating = null,
             bool seed = true)
         {
-            EmbeddedTransportationContextOptions embeddedOptions = null;
+            EmbeddedTransportationContextOptions? embeddedOptions = null;
 
             await TestStore.InitializeAsync(
                 ServiceProvider,
@@ -823,7 +821,7 @@ OFFSET 0 LIMIT 2
                 });
 
             ListLoggerFactory.Clear();
-            return embeddedOptions;
+            return embeddedOptions!;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
@@ -833,7 +831,7 @@ OFFSET 0 LIMIT 2
             => base.AddOptions(builder).ConfigureWarnings(w
                 => w.Ignore(CosmosEventId.NoPartitionKeyDefined).Ignore(CoreEventId.MappedNavigationIgnoredWarning));
 
-        protected override object GetAdditionalModelCacheKey(DbContext context)
+        protected override object? GetAdditionalModelCacheKey(DbContext context)
         {
             var options = ((EmbeddedTransportationContext)context).Options;
             return options.OnModelCreating == null
@@ -848,7 +846,7 @@ OFFSET 0 LIMIT 2
             => await TestStore.DisposeAsync();
     }
 
-    public record class EmbeddedTransportationContextOptions(DbContextOptions Options, Action<ModelBuilder> OnModelCreating);
+    public record class EmbeddedTransportationContextOptions(DbContextOptions Options, Action<ModelBuilder>? OnModelCreating);
 
     protected class EmbeddedTransportationContext(EmbeddedTransportationContextOptions options) : TransportationContext(options.Options)
     {
@@ -921,33 +919,33 @@ OFFSET 0 LIMIT 2
 
     private class Person : PersonBase
     {
-        public Address MainAddress { get; set; }
+        public Address MainAddress { get; set; } = null!;
         public ICollection<Address> Addresses { get; set; } = [];
     }
 
     public class Address
     {
-        public string Street { get; set; }
-        public string City { get; set; }
-        public AddressTitle AddressTitle { get; set; }
+        public string Street { get; set; } = null!;
+        public string City { get; set; } = null!;
+        public AddressTitle AddressTitle { get; set; } = null!;
         public ICollection<Note> Notes { get; set; } = [];
         public ICollection<NoteWithId> IdNotes { get; set; } = [];
     }
 
     public class AddressTitle
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
     }
 
     public class Note
     {
-        public string Content { get; set; }
+        public string Content { get; set; } = null!;
     }
 
     public class NoteWithId
     {
         public int Id { get; set; }
         public int AddressId { get; set; }
-        public string Content { get; set; }
+        public string Content { get; set; } = null!;
     }
 }

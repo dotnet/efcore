@@ -3,7 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPTFiltersInheritanceQuerySqliteTest(TPTFiltersInheritanceQuerySqliteFixture fixture)
     : TPTFiltersInheritanceQueryTestBase<TPTFiltersInheritanceQuerySqliteFixture>(fixture);

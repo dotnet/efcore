@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCGearsOfWarQuerySqliteFixture : TPCGearsOfWarQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory

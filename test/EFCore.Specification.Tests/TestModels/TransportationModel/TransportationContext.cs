@@ -5,11 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
-#nullable disable
-
 public class TransportationContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public DbSet<Vehicle> Vehicles { get; set; }
+    public DbSet<Vehicle> Vehicles { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,7 +69,7 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
             .Include(v => v.Operator)
             .ThenInclude(v => v.Details)
             .Include(v => ((PoweredVehicle)v).Engine)
-            .ThenInclude(e => (e as CombustionEngine).FuelTank)
+            .ThenInclude(e => (e as CombustionEngine)!.FuelTank)
             .OrderBy(v => v.Name).ToList();
 
         Assert.Equal(expected, actual);

@@ -547,13 +547,13 @@ public class ObservableBackedBindingListTest
 
         public int Int { get; }
         public int? NullableInt { get; }
-        public string String { get; }
-        public NotXNode XNode { get; }
-        public Random Random { get; }
-        public byte[] ByteArray { get; }
+        public string String { get; } = null!;
+        public NotXNode XNode { get; } = null!;
+        public Random Random { get; } = null!;
+        public byte[] ByteArray { get; } = null!;
 
         public static PropertyDescriptor Property(string name)
-            => TypeDescriptor.GetProperties(typeof(ListElement))[name];
+            => TypeDescriptor.GetProperties(typeof(ListElement))[name]!;
     }
 
     private abstract class NotXNode;

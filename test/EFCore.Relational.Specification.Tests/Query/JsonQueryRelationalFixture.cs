@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class JsonQueryRelationalFixture : JsonQueryFixtureBase, ITestSqlLoggerFactory
 {
     public new RelationalTestStore TestStore

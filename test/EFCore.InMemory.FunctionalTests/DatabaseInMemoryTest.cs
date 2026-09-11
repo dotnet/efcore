@@ -90,7 +90,7 @@ public class DatabaseInMemoryTest
         }
 
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
@@ -118,7 +118,7 @@ public class DatabaseInMemoryTest
     private class SimpleContext : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Artist> Artists { get; set; }
+        public DbSet<Artist> Artists { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -132,8 +132,8 @@ public class DatabaseInMemoryTest
 
         public class ArtistBase<TKey>
         {
-            public TKey ArtistId { get; set; }
-            public string Name { get; set; }
+            public TKey ArtistId { get; set; } = default!;
+            public string Name { get; set; } = null!;
         }
     }
 }

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SharedTypeQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string NonSharedStoreName
@@ -51,6 +49,6 @@ public abstract class SharedTypeQueryTestBase(NonSharedFixture fixture) : NonSha
 
     protected class ViewQuery24601
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 }

@@ -199,9 +199,9 @@ public class DatabaseFacadeTest
         public IDbContextTransaction CurrentTransaction
             => _transaction;
 
-        public Transaction EnlistedTransaction { get; }
+        public Transaction? EnlistedTransaction { get; }
 
-        public void EnlistTransaction(Transaction transaction)
+        public void EnlistTransaction(Transaction? transaction)
             => throw new NotImplementedException();
 
         public void ResetState()

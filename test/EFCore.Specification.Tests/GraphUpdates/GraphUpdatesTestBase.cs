@@ -12,8 +12,6 @@ using System.Runtime.CompilerServices;
 // ReSharper disable NonReadonlyMemberInGetHashCode
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
@@ -190,7 +188,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                         v => v.Value,
                         v => new MyDiscriminator(v),
                         new ValueComparer<MyDiscriminator>(
-                            (l, r) => l.Value == r.Value,
+                            (l, r) => l!.Value == r!.Value,
                             v => v.Value.GetHashCode(),
                             v => new MyDiscriminator(v.Value)))
                     .Metadata
@@ -910,7 +908,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
     protected IOrderedQueryable<Root> QueryRequiredGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
             .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
-            .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
+            .Include(e => e.RequiredSingle).ThenInclude(e => e!.Single)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadOptionalGraphAsync(DbContext context)
@@ -921,9 +919,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         => ModifyQueryRoot(context.Set<Root>())
             .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
             .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
-            .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleDerived).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingle!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleDerived!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleMoreDerived!).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadRequiredNonPkGraphAsync(DbContext context)
@@ -948,8 +946,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         => ModifyQueryRoot(context.Set<Root>())
             .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.Children)
             .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.CompositeChildren)
-            .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
-            .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
+            .Include(e => e.RequiredSingleAk).ThenInclude(e => e!.Single)
+            .Include(e => e.RequiredSingleAk).ThenInclude(e => e!.SingleComposite)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadOptionalAkGraphAsync(DbContext context)
@@ -960,10 +958,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         => ModifyQueryRoot(context.Set<Root>())
             .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
             .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
-            .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleAk).ThenInclude(e => e.SingleComposite)
-            .Include(e => e.OptionalSingleAkDerived).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAk!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAk!).ThenInclude(e => e.SingleComposite)
+            .Include(e => e.OptionalSingleAkDerived!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAkMoreDerived!).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadRequiredNonPkAkGraphAsync(DbContext context)
@@ -1151,11 +1149,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         if (root.OptionalSingle != null)
         {
             Assert.Same(root, root.OptionalSingle.Root);
-            Assert.Same(root, root.OptionalSingleDerived.DerivedRoot);
-            Assert.Same(root, root.OptionalSingleMoreDerived.MoreDerivedRoot);
-            Assert.Same(root.OptionalSingle, root.OptionalSingle.Single.Back);
-            Assert.Same(root.OptionalSingleDerived, root.OptionalSingleDerived.Single.Back);
-            Assert.Same(root.OptionalSingleMoreDerived, root.OptionalSingleMoreDerived.Single.Back);
+            Assert.Same(root, root.OptionalSingleDerived!.DerivedRoot);
+            Assert.Same(root, root.OptionalSingleMoreDerived!.MoreDerivedRoot);
+            Assert.Same(root.OptionalSingle, root.OptionalSingle.Single!.Back);
+            Assert.Same(root.OptionalSingleDerived, root.OptionalSingleDerived.Single!.Back);
+            Assert.Same(root.OptionalSingleMoreDerived, root.OptionalSingleMoreDerived.Single!.Back);
         }
 
         if (root.RequiredNonPkSingle != null)
@@ -1192,12 +1190,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         if (root.OptionalSingleAk != null)
         {
             Assert.Same(root, root.OptionalSingleAk.Root);
-            Assert.Same(root, root.OptionalSingleAkDerived.DerivedRoot);
-            Assert.Same(root, root.OptionalSingleAkMoreDerived.MoreDerivedRoot);
-            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.Single.Back);
-            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.SingleComposite.Back);
-            Assert.Same(root.OptionalSingleAkDerived, root.OptionalSingleAkDerived.Single.Back);
-            Assert.Same(root.OptionalSingleAkMoreDerived, root.OptionalSingleAkMoreDerived.Single.Back);
+            Assert.Same(root, root.OptionalSingleAkDerived!.DerivedRoot);
+            Assert.Same(root, root.OptionalSingleAkMoreDerived!.MoreDerivedRoot);
+            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.Single!.Back);
+            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.SingleComposite!.Back);
+            Assert.Same(root.OptionalSingleAkDerived, root.OptionalSingleAkDerived.Single!.Back);
+            Assert.Same(root.OptionalSingleAkMoreDerived, root.OptionalSingleAkMoreDerived.Single!.Back);
         }
 
         if (root.RequiredNonPkSingleAk != null)
@@ -1240,7 +1238,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         if (root.OptionalSingle != null)
         {
             Assert.Same(root, root.OptionalSingle.Root);
-            Assert.Same(root.OptionalSingle, root.OptionalSingle.Single.Back);
+            Assert.Same(root.OptionalSingle, root.OptionalSingle.Single!.Back);
         }
 
         if (root.RequiredNonPkSingle != null)
@@ -1273,8 +1271,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         if (root.OptionalSingleAk != null)
         {
             Assert.Same(root, root.OptionalSingleAk.Root);
-            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.Single.Back);
-            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.SingleComposite.Back);
+            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.Single!.Back);
+            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.SingleComposite!.Back);
         }
 
         if (root.RequiredNonPkSingleAk != null)
@@ -1310,7 +1308,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance);
 
-        public RequiredSingle1 RequiredSingle
+        public RequiredSingle1? RequiredSingle
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -1320,33 +1318,33 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredNonPkSingle1Derived RequiredNonPkSingleDerived
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredNonPkSingle1MoreDerived RequiredNonPkSingleMoreDerived
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public OptionalSingle1 OptionalSingle
+        public OptionalSingle1? OptionalSingle
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingle1Derived OptionalSingleDerived
+        public OptionalSingle1Derived? OptionalSingleDerived
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingle1MoreDerived OptionalSingleMoreDerived
+        public OptionalSingle1MoreDerived? OptionalSingleMoreDerived
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -1364,7 +1362,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance);
 
-        public RequiredSingleAk1 RequiredSingleAk
+        public RequiredSingleAk1? RequiredSingleAk
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -1374,33 +1372,33 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredNonPkSingleAk1Derived RequiredNonPkSingleAkDerived
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredNonPkSingleAk1MoreDerived RequiredNonPkSingleAkMoreDerived
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public OptionalSingleAk1 OptionalSingleAk
+        public OptionalSingleAk1? OptionalSingleAk
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk1Derived OptionalSingleAkDerived
+        public OptionalSingleAk1Derived? OptionalSingleAkDerived
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk1MoreDerived OptionalSingleAkMoreDerived
+        public OptionalSingleAk1MoreDerived? OptionalSingleAkMoreDerived
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -1412,7 +1410,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Root;
             return Id == other?.Id;
@@ -1436,7 +1434,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Root Parent
+        public Root? Parent
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -1448,7 +1446,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Required1;
             return Id == other?.Id;
@@ -1460,7 +1458,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Required1Derived : Required1
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required1Derived);
 
         public override int GetHashCode()
@@ -1469,7 +1467,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Required1MoreDerived : Required1Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required1MoreDerived);
 
         public override int GetHashCode()
@@ -1494,9 +1492,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Required2;
             return Id == other?.Id;
@@ -1508,7 +1506,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Required2Derived : Required2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required2Derived);
 
         public override int GetHashCode()
@@ -1517,7 +1515,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Required2MoreDerived : Required2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required2MoreDerived);
 
         public override int GetHashCode()
@@ -1542,7 +1540,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public IEnumerable<Optional2> Children
         {
@@ -1556,7 +1554,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Optional1;
             return Id == other?.Id;
@@ -1568,7 +1566,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Optional1Derived : Optional1
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional1Derived);
 
         public override int GetHashCode()
@@ -1577,7 +1575,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Optional1MoreDerived : Optional1Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional1MoreDerived);
 
         public override int GetHashCode()
@@ -1598,13 +1596,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Optional1 Parent
+        public Optional1? Parent
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Optional2;
             return Id == other?.Id;
@@ -1616,7 +1614,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Optional2Derived : Optional2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional2Derived);
 
         public override int GetHashCode()
@@ -1625,7 +1623,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Optional2MoreDerived : Optional2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional2MoreDerived);
 
         public override int GetHashCode()
@@ -1650,15 +1648,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredSingle2 Single
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingle1;
             return Id == other?.Id;
@@ -1686,9 +1684,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingle2;
             return Id == other?.Id;
@@ -1716,15 +1714,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredNonPkSingle2 Single
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingle1;
             return Id == other?.Id;
@@ -1746,9 +1744,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle1Derived);
 
         public override int GetHashCode()
@@ -1767,9 +1765,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle1MoreDerived);
 
         public override int GetHashCode()
@@ -1794,9 +1792,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingle2;
             return Id == other?.Id;
@@ -1808,7 +1806,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingle2Derived : RequiredNonPkSingle2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle2Derived);
 
         public override int GetHashCode()
@@ -1817,7 +1815,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingle2MoreDerived : RequiredNonPkSingle2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle2MoreDerived);
 
         public override int GetHashCode()
@@ -1838,19 +1836,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Root Root
+        public Root? Root
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingle2 Single
+        public OptionalSingle2? Single
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingle1;
             return Id == other?.Id;
@@ -1868,13 +1866,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Root DerivedRoot
+        public Root? DerivedRoot
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle1Derived);
 
         public override int GetHashCode()
@@ -1889,13 +1887,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Root MoreDerivedRoot
+        public Root? MoreDerivedRoot
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle1MoreDerived);
 
         public override int GetHashCode()
@@ -1920,15 +1918,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public OptionalSingle1 Back
+        public OptionalSingle1? Back
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingle2;
             return Id == other?.Id;
@@ -1942,7 +1940,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
     {
         public int Value { get; } = value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => throw new InvalidOperationException();
 
         public override int GetHashCode()
@@ -1951,7 +1949,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingle2Derived : OptionalSingle2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle2Derived);
 
         public override int GetHashCode()
@@ -1960,7 +1958,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingle2MoreDerived : OptionalSingle2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle2MoreDerived);
 
         public override int GetHashCode()
@@ -1991,7 +1989,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public IEnumerable<RequiredAk2> Children
         {
@@ -2005,7 +2003,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredAk1;
             return Id == other?.Id;
@@ -2017,7 +2015,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredAk1Derived : RequiredAk1
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk1Derived);
 
         public override int GetHashCode()
@@ -2026,7 +2024,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredAk1MoreDerived : RequiredAk1Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk1MoreDerived);
 
         public override int GetHashCode()
@@ -2057,9 +2055,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredAk2;
             return Id == other?.Id;
@@ -2087,9 +2085,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredComposite1;
             return Id == other?.Id;
@@ -2125,7 +2123,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public RequiredComposite1 Parent
+        public RequiredComposite1? Parent
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -2135,9 +2133,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalOverlapping2;
             return Id == other?.Id;
@@ -2171,9 +2169,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredComposite2;
             return Id == other?.Id;
@@ -2185,7 +2183,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredAk2Derived : RequiredAk2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk2Derived);
 
         public override int GetHashCode()
@@ -2194,7 +2192,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredAk2MoreDerived : RequiredAk2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk2MoreDerived);
 
         public override int GetHashCode()
@@ -2221,7 +2219,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Root Parent
+        public Root? Parent
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -2239,7 +2237,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalAk1;
             return Id == other?.Id;
@@ -2251,7 +2249,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalAk1Derived : OptionalAk1
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk1Derived);
 
         public override int GetHashCode()
@@ -2260,7 +2258,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalAk1MoreDerived : OptionalAk1Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk1MoreDerived);
 
         public override int GetHashCode()
@@ -2287,13 +2285,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalAk1 Parent
+        public OptionalAk1? Parent
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalAk2;
             return Id == other?.Id;
@@ -2323,7 +2321,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalAk1 Parent
+        public OptionalAk1? Parent
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -2335,13 +2333,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Optional1 Parent2
+        public Optional1? Parent2
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalComposite2;
             return Id == other?.Id;
@@ -2353,7 +2351,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalAk2Derived : OptionalAk2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk2Derived);
 
         public override int GetHashCode()
@@ -2362,7 +2360,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalAk2MoreDerived : OptionalAk2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk2MoreDerived);
 
         public override int GetHashCode()
@@ -2393,21 +2391,21 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredSingleAk2 Single
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredSingleComposite2 SingleComposite
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleAk1;
             return Id == other?.Id;
@@ -2441,9 +2439,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleAk2;
             return Id == other?.Id;
@@ -2477,9 +2475,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleComposite2;
             return Id == other?.Id;
@@ -2513,15 +2511,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public RequiredNonPkSingleAk2 Single
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingleAk1;
             return Id == other?.Id;
@@ -2543,9 +2541,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk1Derived);
 
         public override int GetHashCode()
@@ -2564,9 +2562,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk1MoreDerived);
 
         public override int GetHashCode()
@@ -2597,9 +2595,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingleAk2;
             return Id == other?.Id;
@@ -2611,7 +2609,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingleAk2Derived : RequiredNonPkSingleAk2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk2Derived);
 
         public override int GetHashCode()
@@ -2620,7 +2618,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingleAk2MoreDerived : RequiredNonPkSingleAk2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk2MoreDerived);
 
         public override int GetHashCode()
@@ -2647,25 +2645,25 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Root Root
+        public Root? Root
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleComposite2 SingleComposite
+        public OptionalSingleComposite2? SingleComposite
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk2 Single
+        public OptionalSingleAk2? Single
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleAk1;
             return Id == other?.Id;
@@ -2683,13 +2681,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Root DerivedRoot
+        public Root? DerivedRoot
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk1Derived);
 
         public override int GetHashCode()
@@ -2704,13 +2702,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Root MoreDerivedRoot
+        public Root? MoreDerivedRoot
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk1MoreDerived);
 
         public override int GetHashCode()
@@ -2737,13 +2735,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk1 Back
+        public OptionalSingleAk1? Back
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleAk2;
             return Id == other?.Id;
@@ -2773,13 +2771,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk1 Back
+        public OptionalSingleAk1? Back
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleComposite2;
             return Id == other?.Id;
@@ -2791,7 +2789,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingleAk2Derived : OptionalSingleAk2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk2Derived);
 
         public override int GetHashCode()
@@ -2800,7 +2798,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingleAk2MoreDerived : OptionalSingleAk2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk2MoreDerived);
 
         public override int GetHashCode()
@@ -2819,9 +2817,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public OwnedOptionalSingle1 OptionalSingle
+        public OwnedOptionalSingle1? OptionalSingle
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -2847,7 +2845,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public ICollection<OwnedRequired2> Children
         {
@@ -2863,7 +2861,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class OwnedOptional1 : NotifyingEntity
@@ -2873,7 +2871,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public ICollection<OwnedOptional2> Children
         {
@@ -2889,7 +2887,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class OwnedRequiredSingle1 : NotifyingEntity
@@ -2899,13 +2897,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public OwnedRequiredSingle2 Single
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class OwnedRequiredSingle2 : NotifyingEntity
@@ -2915,7 +2913,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class OwnedOptionalSingle1 : NotifyingEntity
@@ -2925,9 +2923,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
-        public OwnedOptionalSingle2 Single
+        public OwnedOptionalSingle2? Single
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -2941,7 +2939,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class BadCustomer : NotifyingEntity
@@ -2979,7 +2977,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public BadCustomer BadCustomer
+        public BadCustomer? BadCustomer
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -3031,7 +3029,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public ChildAsAParent ChildAsAParent
+        public ChildAsAParent? ChildAsAParent
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -3048,7 +3046,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public ParentAsAChild ParentAsAChild
+        public ParentAsAChild? ParentAsAChild
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -3076,7 +3074,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public int BarCode
         {
@@ -3116,7 +3114,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Bloog Bloog
+        public Bloog? Bloog
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -3170,7 +3168,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = null!;
 
-        public SharedFkDependant Dependant
+        public SharedFkDependant? Dependant
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -3197,11 +3195,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         } = null!;
 
-        public SharedFkParent Parent
+        public SharedFkParent? Parent
         {
             get;
             set => SetWithNotify(value, ref field);
-        } = null!;
+        }
     }
 
     protected class Owner : NotifyingEntity
@@ -3216,7 +3214,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public ICollection<Owned> OwnedCollection
         {
@@ -3234,11 +3232,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public string Bar
+        public string? Bar
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class OwnerWithKeyedCollection : NotifyingEntity
@@ -3253,13 +3251,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public OwnedWithKey OwnedWithKey
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public ICollection<OwnedWithKey> OwnedCollection
         {
@@ -3289,11 +3287,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public string Bar
+        public string? Bar
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     [Owned]
@@ -3311,11 +3309,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public string Bar
+        public string? Bar
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class OwnerWithNonCompositeOwnedCollection : NotifyingEntity
@@ -3339,7 +3337,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class OwnerNoKeyGeneration : NotifyingEntity
@@ -3354,7 +3352,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public ICollection<OwnedNoKeyGeneration> OwnedCollection
         {
@@ -3372,11 +3370,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public string Bar
+        public string? Bar
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     [PrimaryKey("PartnerId", "ProviderId")]
@@ -3386,7 +3384,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class ProviderContract1 : ProviderContract
@@ -3395,7 +3393,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class ProviderContract2 : ProviderContract
@@ -3404,7 +3402,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class Partner : NotifyingEntity
@@ -3413,7 +3411,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class Provider : NotifyingEntity
@@ -3422,7 +3420,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class EventDescriptorZ : NotifyingEntity
@@ -3437,7 +3435,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class EntityZ : NotifyingEntity
@@ -3481,7 +3479,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Cruiser : NotifyingEntity
     {
-        private AccessState _userState;
+        private AccessState _userState = null!;
 
         public int CruiserId
         {
@@ -3521,7 +3519,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class CruiserWithSentinel : NotifyingEntity
     {
-        private AccessStateWithSentinel _userState;
+        private AccessStateWithSentinel _userState = null!;
 
         public int CruiserWithSentinelId
         {
@@ -3578,7 +3576,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class ChildWithClientSetDefault : NotifyingEntity
     {
-        private ParentWithClientSetDefault _parent;
+        private ParentWithClientSetDefault _parent = null!;
 
         public int Id
         {
@@ -3611,14 +3609,14 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class Something : NotifyingEntity
     {
-        private SomethingCategory _somethingCategory;
-        private SomethingOfCategoryA _somethingOfCategoryA;
-        private SomethingOfCategoryB _somethingOfCategoryB;
+        private SomethingCategory _somethingCategory = null!;
+        private SomethingOfCategoryA _somethingOfCategoryA = null!;
+        private SomethingOfCategoryB _somethingOfCategoryB = null!;
 
         public int Id
         {
@@ -3636,7 +3634,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public virtual SomethingCategory SomethingCategory
         {
@@ -3659,7 +3657,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class SomethingOfCategoryA : NotifyingEntity
     {
-        private Something _something;
+        private Something _something = null!;
 
         public int SomethingId
         {
@@ -3671,7 +3669,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public virtual Something Something
         {
@@ -3682,8 +3680,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class SomethingOfCategoryB : NotifyingEntity
     {
-        private SomethingCategory _somethingCategory;
-        private Something _something;
+        private SomethingCategory _somethingCategory = null!;
+        private Something _something = null!;
 
         public int SomethingId
         {
@@ -3701,7 +3699,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public virtual SomethingCategory SomethingCategory
         {
@@ -3724,13 +3722,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Carrot Carrot
+        public Carrot? Carrot
         {
             get;
             set => SetWithNotify(value, ref field);
         }
 
-        public Swede Swede
+        public Swede? Swede
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -3755,7 +3753,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public ICollection<Turnip> Turnips
         {
@@ -3778,7 +3776,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Carrot Carrot
+        public Carrot? Carrot
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -3803,7 +3801,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public ICollection<TurnipSwede> TurnipSwedes
         {
@@ -3826,7 +3824,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public Swede Swede
+        public Swede? Swede
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -3842,7 +3840,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class Bayaz : NotifyingEntity
@@ -3860,7 +3858,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public virtual ICollection<FirstLaw> FirstLaw
         {
@@ -3885,7 +3883,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public int BayazId
         {
@@ -3919,7 +3917,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public int FirstLawId
         {
@@ -3952,7 +3950,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public int SecondLawId
         {
@@ -4015,7 +4013,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Lettuce2 : Parsnip2
     {
-        public Beetroot2 Root
+        public Beetroot2? Root
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -4066,7 +4064,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected abstract class ChildBaseEntity32084 : NotifyingEntity
@@ -4090,7 +4088,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class StableParent32084 : NotifyingEntity
@@ -4105,7 +4103,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class StableChild32084 : NotifyingEntity
@@ -4137,7 +4135,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref field);
         }
 
-        public StableParent32084 Brother
+        public StableParent32084? Brother
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -4163,7 +4161,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = default!;
     }
 
     protected class BoolOnlyKey<T> : NotifyingEntity
@@ -4173,7 +4171,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = default!;
     }
 
     protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged
@@ -4185,8 +4183,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             NotifyChanged(propertyName);
         }
 
-        public event PropertyChangingEventHandler PropertyChanging;
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private void NotifyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -4200,9 +4198,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
-        Func<DbContext, Task> nestedTestOperation1 = null,
-        Func<DbContext, Task> nestedTestOperation2 = null,
-        Func<DbContext, Task> nestedTestOperation3 = null)
+        Func<DbContext, Task>? nestedTestOperation1 = null,
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);

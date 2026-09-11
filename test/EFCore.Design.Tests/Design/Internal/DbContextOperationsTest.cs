@@ -10,7 +10,7 @@ public class DbContextOperationsTest
 {
     [Fact]
     public void CreateContext_gets_service()
-        => CreateOperations(typeof(TestProgram), includeContext: false).CreateContext(typeof(TestContext).FullName.ToLower());
+        => CreateOperations(typeof(TestProgram), includeContext: false).CreateContext(typeof(TestContext).FullName!.ToLower());
 
     [Fact]
     public void CreateContext_gets_service_without_name()
@@ -54,8 +54,8 @@ public class DbContextOperationsTest
             new TestAppServiceProviderFactory(assembly, reporter));
 
         Assert.Equal(
-            DesignStrings.MultipleContextsWithName(typeof(TestContext).FullName.ToLower()),
-            Assert.Throws<OperationException>(() => operations.CreateContext(typeof(TestContext).FullName.ToLower())).Message);
+            DesignStrings.MultipleContextsWithName(typeof(TestContext).FullName!.ToLower()),
+            Assert.Throws<OperationException>(() => operations.CreateContext(typeof(TestContext).FullName!.ToLower())).Message);
 
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
@@ -289,7 +289,7 @@ public class DbContextOperationsTest
     [Fact]
     public void GetContextInfo_does_not_throw_if_DbConnection_cannot_be_created()
     {
-        Exception expected = null;
+        Exception? expected = null;
         try
         {
             new SqlConnection("Cake=None");
@@ -298,6 +298,8 @@ public class DbContextOperationsTest
         {
             expected = e;
         }
+
+        Assert.NotNull(expected);
 
         var info = CreateOperations(typeof(TestProgramRelationalBad)).GetContextInfo(nameof(TestContext));
 

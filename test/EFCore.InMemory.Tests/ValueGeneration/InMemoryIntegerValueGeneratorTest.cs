@@ -15,30 +15,30 @@ public class InMemoryIntegerValueGeneratorTest
     {
         var generator = new InMemoryIntegerValueGenerator<int>(0);
 
-        Assert.Equal(1, generator.Next(null));
-        Assert.Equal(2, generator.Next(null));
-        Assert.Equal(3, generator.Next(null));
-        Assert.Equal(4, generator.Next(null));
-        Assert.Equal(5, generator.Next(null));
-        Assert.Equal(6, generator.Next(null));
+        Assert.Equal(1, generator.Next(null!));
+        Assert.Equal(2, generator.Next(null!));
+        Assert.Equal(3, generator.Next(null!));
+        Assert.Equal(4, generator.Next(null!));
+        Assert.Equal(5, generator.Next(null!));
+        Assert.Equal(6, generator.Next(null!));
 
         generator = new InMemoryIntegerValueGenerator<int>(0);
 
-        Assert.Equal(1, generator.Next(null));
-        Assert.Equal(2, generator.Next(null));
+        Assert.Equal(1, generator.Next(null!));
+        Assert.Equal(2, generator.Next(null!));
     }
 
     [Fact]
     public void Can_create_values_for_all_integer_types()
     {
-        Assert.Equal(1, new InMemoryIntegerValueGenerator<int>(0).Next(null));
-        Assert.Equal(1L, new InMemoryIntegerValueGenerator<long>(0).Next(null));
-        Assert.Equal((short)1, new InMemoryIntegerValueGenerator<short>(0).Next(null));
-        Assert.Equal((byte)1, new InMemoryIntegerValueGenerator<byte>(0).Next(null));
-        Assert.Equal((uint)1, new InMemoryIntegerValueGenerator<uint>(0).Next(null));
-        Assert.Equal((ulong)1, new InMemoryIntegerValueGenerator<ulong>(0).Next(null));
-        Assert.Equal((ushort)1, new InMemoryIntegerValueGenerator<ushort>(0).Next(null));
-        Assert.Equal((sbyte)1, new InMemoryIntegerValueGenerator<sbyte>(0).Next(null));
+        Assert.Equal(1, new InMemoryIntegerValueGenerator<int>(0).Next(null!));
+        Assert.Equal(1L, new InMemoryIntegerValueGenerator<long>(0).Next(null!));
+        Assert.Equal((short)1, new InMemoryIntegerValueGenerator<short>(0).Next(null!));
+        Assert.Equal((byte)1, new InMemoryIntegerValueGenerator<byte>(0).Next(null!));
+        Assert.Equal((uint)1, new InMemoryIntegerValueGenerator<uint>(0).Next(null!));
+        Assert.Equal((ulong)1, new InMemoryIntegerValueGenerator<ulong>(0).Next(null!));
+        Assert.Equal((ushort)1, new InMemoryIntegerValueGenerator<ushort>(0).Next(null!));
+        Assert.Equal((sbyte)1, new InMemoryIntegerValueGenerator<sbyte>(0).Next(null!));
     }
 
     [Fact]
@@ -48,10 +48,10 @@ public class InMemoryIntegerValueGeneratorTest
 
         for (var i = 1; i < 256; i++)
         {
-            generator.Next(null);
+            generator.Next(null!);
         }
 
-        Assert.Throws<OverflowException>(() => generator.Next(null));
+        Assert.Throws<OverflowException>(() => generator.Next(null!));
     }
 
     [Fact]

@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 {
     public BatchingTest(BatchingTestFixture fixture)
@@ -390,25 +388,25 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         }
 
         // ReSharper disable once UnusedMember.Local
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Owner> Owners { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Owner> Owners { get; set; } = null!;
     }
 
     private class Blog
     {
         public Guid Id { get; set; }
         public int Order { get; set; }
-        public string OwnerId { get; set; }
-        public Owner Owner { get; set; }
-        public byte[] Version { get; set; }
+        public string? OwnerId { get; set; }
+        public Owner? Owner { get; set; }
+        public byte[] Version { get; set; } = null!;
         public ICollection<Post> Posts { get; } = new HashSet<Post>();
     }
 
     private class Owner
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public byte[] Version { get; set; }
+        public string Id { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public byte[] Version { get; set; } = null!;
     }
 
     private class Post
@@ -416,7 +414,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         public int PostId { get; set; }
         public int? Order { get; set; }
         public Guid BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
         public ICollection<Comment> Comments { get; } = new HashSet<Comment>();
     }
 
@@ -424,7 +422,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     {
         public int CommentId { get; set; }
         public int PostId { get; set; }
-        public Post Post { get; set; }
+        public Post Post { get; set; } = null!;
     }
 
     public class BatchingTestFixture : SharedStoreFixtureBase<PoolableDbContext>

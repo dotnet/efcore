@@ -5,8 +5,6 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -1041,13 +1039,13 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
     protected class Entity
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     protected class EntityWithAdditionalProperty
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int AdditionalProperty { get; set; }
     }
 
@@ -1066,7 +1064,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
     protected class Parent
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     private async Task SaveChanges(DbContext context, bool async)

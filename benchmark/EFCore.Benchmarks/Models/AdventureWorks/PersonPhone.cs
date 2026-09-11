@@ -8,10 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class PersonPhone
 {
     public int BusinessEntityID { get; set; }
-    public string PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = null!;
     public int PhoneNumberTypeID { get; set; }
     public DateTime ModifiedDate { get; set; }
 
-    public virtual Person BusinessEntity { get; set; }
-    public virtual PhoneNumberType PhoneNumberType { get; set; }
+    public virtual Person BusinessEntity { get; set; } = null!;
+    public virtual PhoneNumberType PhoneNumberType { get; set; } = null!;
 }

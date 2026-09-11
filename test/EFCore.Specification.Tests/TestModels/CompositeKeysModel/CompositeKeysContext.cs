@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel;
 
-#nullable disable
-
 public class CompositeKeysContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public DbSet<CompositeOne> CompositeOnes { get; set; }
-    public DbSet<CompositeTwo> CompositeTwos { get; set; }
-    public DbSet<CompositeThree> CompositeThrees { get; set; }
-    public DbSet<CompositeFour> CompositeFours { get; set; }
+    public DbSet<CompositeOne> CompositeOnes { get; set; } = null!;
+    public DbSet<CompositeTwo> CompositeTwos { get; set; } = null!;
+    public DbSet<CompositeThree> CompositeThrees { get; set; } = null!;
+    public DbSet<CompositeFour> CompositeFours { get; set; } = null!;
 }

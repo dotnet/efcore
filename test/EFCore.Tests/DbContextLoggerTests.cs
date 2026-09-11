@@ -368,10 +368,10 @@ public class DbContextLoggerTests
         {
             Assert.Equal(0, async ? await context.SaveChangesAsync() : context.SaveChanges());
 
-            productVersion = context.Model.GetProductVersion();
+            productVersion = context.Model.GetProductVersion()!;
         }
 
-        var lines = writer.ToString()
+        var lines = writer.ToString()!
             .Replace(productVersion, "X.X.X-any")
             .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 

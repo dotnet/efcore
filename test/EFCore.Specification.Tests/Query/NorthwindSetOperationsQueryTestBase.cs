@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -53,7 +51,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
             async,
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "London")
-                .Except(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
+                .Except(ss.Set<Customer>().Where(c => c.ContactName!.Contains("Thomas"))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Except_simple_followed_by_projecting_constant(bool async)
@@ -105,7 +103,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
             async,
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "London")
-                .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
+                .Intersect(ss.Set<Customer>().Where(c => c.ContactName!.Contains("Thomas"))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Intersect_nested(bool async)
@@ -178,7 +176,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
-                .Where(c => c.ContactName.Contains("Thomas"))); // pushdown
+                .Where(c => c.ContactName!.Contains("Thomas"))); // pushdown
 
     // Should cause pushdown into a subquery, keeping the ordering, offset and limit inside the subquery
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -191,7 +189,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .OrderBy(c => c.Region)
                 .ThenBy(c => c.City)
                 .Skip(0) // prevent pushdown from removing OrderBy
-                .Where(c => c.ContactName.Contains("Thomas"))); // pushdown
+                .Where(c => c.ContactName!.Contains("Thomas"))); // pushdown
 
     // Nested set operation with same operation type - no parentheses are needed.
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -212,7 +210,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
-                .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
+                .Intersect(ss.Set<Customer>().Where(c => c.ContactName!.Contains("Thomas"))));
 
     // The evaluation order of Concat and Union can matter: A UNION ALL (B UNION C) can be different from (A UNION ALL B) UNION C.
     // Make sure parentheses are added.
@@ -259,7 +257,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                 .Select(c => c.Address)
-                .Where(a => a.Contains("Hanover")));
+                .Where(a => a!.Contains("Hanover")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_Select_scalar(bool async)
@@ -280,9 +278,9 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
 
     public class CustomerDeets
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is not null
                 && (ReferenceEquals(this, obj)
                     || (obj.GetType() == GetType()
@@ -471,7 +469,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .Select(c => "NonNullableConstant")
                 .Concat(
                     ss.Set<Customer>()
-                        .Select(c => (string)null)));
+                        .Select(c => (string?)null)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_over_column_column(bool async)
@@ -805,7 +803,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                     ss.Set<Customer>()
                         .Where(c => c.CustomerID.StartsWith("F"))
                         .Select(c => new { c.Orders })),
-            elementSorter: a => a.Orders.FirstOrDefault().Maybe(e => e.CustomerID),
+            elementSorter: a => a.Orders.FirstOrDefault()!.Maybe(e => e.CustomerID),
             elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -813,7 +811,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
         => AssertQuery(
             async,
             ss => ss.Set<Order>()
-                .Where(c => c.Customer.City == "Seatte")
+                .Where(c => c.Customer!.City == "Seatte")
                 .Select(c => new { c.OrderDate })
                 .Union(
                     ss.Set<Order>()
@@ -826,10 +824,10 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
     public virtual Task Union_on_entity_with_correlated_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(c => c.Customer.City == "Seatte").Select(c => c.Customer)
+            ss => ss.Set<Order>().Where(c => c.Customer!.City == "Seatte").Select(c => c.Customer)
                 .Union(ss.Set<Order>().Where(o => o.OrderID < 10250).Select(c => c.Customer))
-                .OrderBy(c => c.CustomerID)
-                .Select(c => c.Orders),
+                .OrderBy(c => c!.CustomerID)
+                .Select(c => c!.Orders),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
@@ -837,10 +835,10 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
     public virtual Task Union_on_entity_plus_other_column_with_correlated_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(c => c.Customer.City == "Seatte").Select(c => new { c.Customer, c.OrderDate })
+            ss => ss.Set<Order>().Where(c => c.Customer!.City == "Seatte").Select(c => new { c.Customer, c.OrderDate })
                 .Union(ss.Set<Order>().Where(o => o.OrderID < 10250).Select(c => new { c.Customer, c.OrderDate }))
-                .OrderBy(c => c.Customer.CustomerID)
-                .Select(c => new { c.OrderDate, Orders = ss.Set<Order>().Where(o => o.CustomerID == c.Customer.CustomerID).ToList() }),
+                .OrderBy(c => c.Customer!.CustomerID)
+                .Select(c => new { c.OrderDate, Orders = ss.Set<Order>().Where(o => o.CustomerID == c.Customer!.CustomerID).ToList() }),
             assertOrder: true,
             elementAsserter: (e, a) =>
             {

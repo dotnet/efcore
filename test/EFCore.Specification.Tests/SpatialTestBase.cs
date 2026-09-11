@@ -6,8 +6,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : SpatialFixtureBase, new()
 {
@@ -22,7 +20,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
         entity.Point.X = 1;
 
-        Assert.Equal(0, db.Entry(entity).Property(e => e.Point).OriginalValue.X);
+        Assert.Equal(0, db.Entry(entity).Property(e => e.Point).OriginalValue!.X);
     }
 
     [Fact]
@@ -71,8 +69,8 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Equal(CreatePoint(), fromStore1.Point);
                 Assert.Equal(CreatePolygon(), fromStore2.Polygon);
 
-                fromStore1.Point.Y = 22.2;
-                fromStore2.Polygon.Coordinates[1].Y = 22.2;
+                fromStore1.Point!.Y = 22.2;
+                fromStore2.Polygon!.Coordinates[1].Y = 22.2;
 
                 context.Entry(fromStore2).State = EntityState.Unchanged;
 
@@ -114,18 +112,18 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
         Assert.NotNull(entity.Point);
         Assert.True(double.IsNaN(entity.Point.Z));
         Assert.True(double.IsNaN(entity.Point.M));
-        Assert.Equal(0, entity.PointZ.Z);
+        Assert.Equal(0, entity.PointZ!.Z);
         Assert.True(double.IsNaN(entity.PointZ.M));
-        Assert.True(double.IsNaN(entity.PointM.Z));
+        Assert.True(double.IsNaN(entity.PointM!.Z));
         Assert.Equal(0, entity.PointM.M);
-        Assert.Equal(0, entity.PointZM.Z);
+        Assert.Equal(0, entity.PointZM!.Z);
         Assert.Equal(0, entity.PointZM.M);
     }
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<SpatialContext, Task> testOperation,
-        Func<SpatialContext, Task> nestedTestOperation1 = null,
-        Func<SpatialContext, Task> nestedTestOperation2 = null)
+        Func<SpatialContext, Task>? nestedTestOperation1 = null,
+        Func<SpatialContext, Task>? nestedTestOperation2 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2);

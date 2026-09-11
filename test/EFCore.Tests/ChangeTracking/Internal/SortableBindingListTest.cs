@@ -135,12 +135,12 @@ public class SortableBindingListTest
 
         public int Int { get; }
         public int? NullableInt { get; }
-        public string String { get; }
-        public Random Random { get; }
-        public byte[] ByteArray { get; }
+        public string String { get; } = null!;
+        public Random Random { get; } = null!;
+        public byte[] ByteArray { get; } = null!;
 
         public static PropertyDescriptor Property(string name)
-            => TypeDescriptor.GetProperties(typeof(ListElement))[name];
+            => TypeDescriptor.GetProperties(typeof(ListElement))[name]!;
     }
 
     private class DerivedListElement : ListElement
@@ -157,8 +157,8 @@ public class SortableBindingListTest
 
     private class ListElementComparer : IEqualityComparer<ListElement>
     {
-        public bool Equals(ListElement x, ListElement y)
-            => x.Int == y.Int;
+        public bool Equals(ListElement? x, ListElement? y)
+            => x!.Int == y!.Int;
 
         public int GetHashCode(ListElement obj)
             => obj.Int;

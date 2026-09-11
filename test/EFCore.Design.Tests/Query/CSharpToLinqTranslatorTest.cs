@@ -12,8 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable RedundantCast
-#nullable enable
-
 public class CSharpToLinqTranslatorTest
 {
     [Fact]

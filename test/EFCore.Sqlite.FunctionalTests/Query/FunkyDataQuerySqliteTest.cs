@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class FunkyDataQuerySqliteTest : FunkyDataQueryTestBase<FunkyDataQuerySqliteTest.FunkyDataQuerySqliteFixture>
 {
     public FunkyDataQuerySqliteTest(FunkyDataQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)

@@ -5,8 +5,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvertersCosmosTest.CustomConvertersCosmosFixture>
 {
     public CustomConvertersCosmosTest(CustomConvertersCosmosFixture fixture)

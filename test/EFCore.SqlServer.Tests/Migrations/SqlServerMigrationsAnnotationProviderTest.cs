@@ -16,7 +16,7 @@ public class SqlServerMigrationsAnnotationProviderTest
         modelBuilder.Entity<Entity>().Property<int>("Id").UseIdentityColumn(2, 3);
 
         var model = modelBuilder.FinalizeModel(designTime: true);
-        var property = model.FindEntityType(typeof(Entity)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(Entity))!.FindProperty("Id")!;
 
         var migrationAnnotations = _annotations.For(property.GetTableColumnMappings().Single().Column, true).ToList();
 
@@ -33,14 +33,14 @@ public class SqlServerMigrationsAnnotationProviderTest
         var model = modelBuilder.FinalizeModel(designTime: true);
 
         Assert.Contains(
-            _annotations.For(model.FindEntityType(typeof(Entity)).GetIndexes().Single().GetMappedTableIndexes().Single(), true),
-            a => a.Name == SqlServerAnnotationNames.Include && ((string[])a.Value).Contains("IncludedColumn"));
+            _annotations.For(model.FindEntityType(typeof(Entity))!.GetIndexes().Single().GetMappedTableIndexes().Single(), true),
+            a => a.Name == SqlServerAnnotationNames.Include && ((string[])a.Value!).Contains("IncludedColumn"));
     }
 
     private class Entity
     {
         public int Id { get; set; }
-        public string IndexedProp { get; set; }
-        public string IncludedProp { get; set; }
+        public string IndexedProp { get; set; } = null!;
+        public string IncludedProp { get; set; } = null!;
     }
 }

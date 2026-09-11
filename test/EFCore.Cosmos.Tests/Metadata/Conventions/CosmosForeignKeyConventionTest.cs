@@ -68,7 +68,7 @@ public class CosmosForeignKeyConventionTest
     private class Owner
     {
         public int Id { get; set; }
-        public Owned Owned { get; set; }
+        public Owned Owned { get; set; } = null!;
     }
 
     private class Owned

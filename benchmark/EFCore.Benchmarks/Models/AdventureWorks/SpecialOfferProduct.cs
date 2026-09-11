@@ -19,6 +19,6 @@ public class SpecialOfferProduct
 #pragma warning restore IDE1006 // Naming Styles
 
     public virtual ICollection<SalesOrderDetail> SalesOrderDetail { get; set; }
-    public virtual Product Product { get; set; }
-    public virtual SpecialOffer SpecialOffer { get; set; }
+    public virtual Product Product { get; set; } = null!;
+    public virtual SpecialOffer SpecialOffer { get; set; } = null!;
 }

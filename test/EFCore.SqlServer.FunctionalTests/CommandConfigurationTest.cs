@@ -6,8 +6,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationFixture>
 {
     public CommandConfigurationTest(CommandConfigurationFixture fixture)
@@ -65,7 +63,7 @@ public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.C
 
     private class ChipsContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public DbSet<KettleChips> Chips { get; set; }
+        public DbSet<KettleChips> Chips { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.UseHiLo();
@@ -76,7 +74,7 @@ public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.C
         // ReSharper disable once UnusedMember.Local
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime BestBuyDate { get; set; }
     }
 

@@ -16,7 +16,7 @@ public class QueryFilterRewritingConventionTest
     {
         var modelBuilder = new InternalModelBuilder(new Model());
         Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Post>().Single().Id == e.Id;
-        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)!
             .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
         Assert.Equal(
@@ -30,7 +30,7 @@ public class QueryFilterRewritingConventionTest
         var modelBuilder = new InternalModelBuilder(new Model());
         modelBuilder.SharedTypeEntity("Post1", typeof(Post), ConfigurationSource.Explicit);
         Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Post>().Single().Id == e.Id;
-        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)!
             .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
         Assert.Equal(
@@ -44,7 +44,7 @@ public class QueryFilterRewritingConventionTest
         var modelBuilder = new InternalModelBuilder(new Model());
         modelBuilder.SharedTypeEntity("Post1", typeof(Post), ConfigurationSource.Explicit);
         Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Blog>("Post1").Single().Id == e.Id;
-        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)!
             .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
         Assert.Equal(
@@ -56,11 +56,11 @@ public class QueryFilterRewritingConventionTest
     public virtual void QueryFilter_containing_db_set_of_owned()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
-        modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)!
             .HasOwnership(typeof(Blog), "Blog", ConfigurationSource.Explicit);
 
         Expression<Func<Owner, bool>> lambda = e => new MyContext().Set<Blog>().Single().Id == e.Id;
-        modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)!
             .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
         Assert.Equal(
@@ -94,7 +94,7 @@ public class QueryFilterRewritingConventionTest
     protected class Owner
     {
         public int Id { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
     }
 
     protected class MyContext : DbContext;

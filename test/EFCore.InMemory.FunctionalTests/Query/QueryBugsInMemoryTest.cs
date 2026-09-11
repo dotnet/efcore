@@ -119,10 +119,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<VehicleInspection> VehicleInspections { get; set; }
+        public DbSet<VehicleInspection> VehicleInspections { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Motor> Motors { get; set; }
+        public DbSet<Motor> Motors { get; set; } = null!;
     }
 
     private class VehicleInspection
@@ -135,7 +135,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public long Id { get; set; }
         public long VehicleInspectionId { get; set; }
-        public VehicleInspection Inspection { get; set; }
+        public VehicleInspection Inspection { get; set; } = null!;
     }
 
     #endregion
@@ -195,20 +195,20 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         public int Id { get; set; }
 
         public int QuestionId { get; set; }
-        public Question3595 Question { get; set; }
+        public Question3595 Question { get; set; } = null!;
 
         public int ExamId { get; set; }
-        public Exam3595 Exam { get; set; }
+        public Exam3595 Exam { get; set; } = null!;
     }
 
     private class Context3595 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Exam3595> Exams { get; set; }
-        public DbSet<Question3595> Questions { get; set; }
+        public DbSet<Exam3595> Exams { get; set; } = null!;
+        public DbSet<Question3595> Questions { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<ExamQuestion3595> ExamQuestions { get; set; }
+        public DbSet<ExamQuestion3595> ExamQuestions { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -420,10 +420,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext3101 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Entity3101> Entities { get; set; }
+        public DbSet<Entity3101> Entities { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Child3101> Children { get; set; }
+        public DbSet<Child3101> Children { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -440,7 +440,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         public int? RootEntityId { get; set; }
 
-        public Entity3101 RootEntity { get; set; }
+        public Entity3101? RootEntity { get; set; }
 
         public ICollection<Child3101> Children { get; set; } = [];
     }
@@ -448,7 +448,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Child3101
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     #endregion
@@ -592,12 +592,12 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext5456 : DbContext
     {
-        public DbSet<Blog5456> Blogs { get; set; }
+        public DbSet<Blog5456> Blogs { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Post5456> Posts { get; set; }
-        public DbSet<Comment5456> Comments { get; set; }
-        public DbSet<Author5456> Authors { get; set; }
+        public DbSet<Post5456> Posts { get; set; } = null!;
+        public DbSet<Comment5456> Comments { get; set; } = null!;
+        public DbSet<Author5456> Authors { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -611,27 +611,27 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Blog5456
     {
         public int Id { get; set; }
-        public List<Post5456> Posts { get; set; }
-        public Author5456 Author { get; set; }
+        public List<Post5456> Posts { get; set; } = null!;
+        public Author5456 Author { get; set; } = null!;
     }
 
     private class Author5456
     {
         public int Id { get; set; }
-        public List<Blog5456> Blogs { get; set; }
+        public List<Blog5456> Blogs { get; set; } = null!;
     }
 
     private class Post5456
     {
         public int Id { get; set; }
-        public Blog5456 Blog { get; set; }
-        public List<Comment5456> Comments { get; set; }
+        public Blog5456 Blog { get; set; } = null!;
+        public List<Comment5456> Comments { get; set; } = null!;
     }
 
     private class Comment5456
     {
         public int Id { get; set; }
-        public Post5456 Blog { get; set; }
+        public Post5456 Blog { get; set; } = null!;
     }
 
     #endregion
@@ -653,7 +653,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext8282 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Entity8282> Entity { get; set; }
+        public DbSet<Entity8282> Entity { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -713,12 +713,12 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class OtherEntity21803
     {
         public int Id { get; private set; }
-        public AppEntity21803 AppEntity { get; set; }
+        public AppEntity21803 AppEntity { get; set; } = null!;
     }
 
     private class MyContext21803 : DbContext
     {
-        public DbSet<AppEntity21803> Entities { get; set; }
+        public DbSet<AppEntity21803> Entities { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -769,8 +769,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Owner20729
     {
         public int Id { get; set; }
-        public Owned120729 Owned1 { get; set; }
-        public Owned220729 Owned2 { get; set; }
+        public Owned120729? Owned1 { get; set; }
+        public Owned220729? Owned2 { get; set; }
     }
 
     [Owned]
@@ -784,7 +784,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Owned220729
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public Other20729 Other { get; set; }
+        public Other20729? Other { get; set; }
     }
 
     private class Other20729
@@ -796,7 +796,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext20729 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Owner20729> Owners { get; set; }
+        public DbSet<Owner20729> Owners { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -832,14 +832,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [Owned]
     private class OwnedClass23285
     {
-        public string A { get; set; }
-        public string B { get; set; }
+        public string? A { get; set; }
+        public string? B { get; set; }
     }
 
     private class Root23285
     {
         public int Id { get; set; }
-        public OwnedClass23285 OwnedProp { get; set; }
+        public OwnedClass23285? OwnedProp { get; set; }
     }
 
     private class ChildA23285 : Root23285
@@ -855,7 +855,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext23285 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Root23285> Table { get; set; }
+        public DbSet<Root23285> Table { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -904,8 +904,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [Owned]
     private class OwnedClass23687
     {
-        public string A { get; set; }
-        public string B { get; set; }
+        public string A { get; set; } = null!;
+        public string B { get; set; } = null!;
     }
 
     [PrimaryKey(nameof(Id1), nameof(Id2))]
@@ -913,13 +913,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id1 { get; set; }
         public int Id2 { get; set; }
-        public OwnedClass23687 OwnedProp { get; set; }
+        public OwnedClass23687 OwnedProp { get; set; } = null!;
     }
 
     private class MyContext23687 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Root23687> Table { get; set; }
+        public DbSet<Root23687> Table { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1012,10 +1012,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext23593 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<StatusMap23593> StatusMaps { get; set; }
+        public DbSet<StatusMap23593> StatusMaps { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<StatusMapEvent23593> StatusMapEvents { get; set; }
+        public DbSet<StatusMapEvent23593> StatusMapEvents { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1034,7 +1034,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         {
             using var context = new MyContext23926();
 
-            var query = context.History.Select(e => e.User.Name).ToList();
+            var query = context.History.Select(e => e.User!.Name).ToList();
 
             Assert.Equal(query, new[] { "UserA", "DerivedUserB", null });
         }
@@ -1053,14 +1053,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
         public int? UserId { get; set; }
-        public User23926 User { get; set; }
+        public User23926? User { get; set; }
     }
 
     private class User23926
     {
         public int Id { get; set; }
         public UserTypes23926 Type { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private enum UserTypes23926
@@ -1071,13 +1071,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class DerivedUser23926 : User23926
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     private class MyContext23926 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<History23926> History { get; set; }
+        public DbSet<History23926> History { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1111,7 +1111,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                     D = x.Child.Owned.Second
                 }).FirstOrDefault();
 
-            Assert.Equal("test", result.Value);
+            Assert.Equal("test", result!.Value);
             Assert.Equal(2, result.A);
             Assert.Equal(4, result.B);
             Assert.Equal(1, result.C);
@@ -1148,16 +1148,16 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class RootEntity18435
     {
         public int Id { get; set; }
-        public string Value { get; set; }
-        public TestOwned18435 Owned { get; set; }
-        public ChildEntity18435 Child { get; set; }
+        public string Value { get; set; } = null!;
+        public TestOwned18435 Owned { get; set; } = null!;
+        public ChildEntity18435 Child { get; set; } = null!;
     }
 
     private class ChildEntity18435
     {
         public int Id { get; set; }
-        public string Value { get; set; }
-        public TestOwned18435 Owned { get; set; }
+        public string? Value { get; set; }
+        public TestOwned18435 Owned { get; set; } = null!;
     }
 
     [Owned]
@@ -1165,13 +1165,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int First { get; set; }
         public int Second { get; set; }
-        public string AnotherValueType { get; set; }
+        public string AnotherValueType { get; set; } = null!;
     }
 
     private class MyContext18435 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<RootEntity18435> TestEntities { get; set; }
+        public DbSet<RootEntity18435> TestEntities { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1219,7 +1219,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext19425 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<FooTable19425> FooTable { get; set; }
+        public DbSet<FooTable19425> FooTable { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1240,7 +1240,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
             var query = context.Entities.OrderByDescending(e => e.Id).FirstOrDefault(p => p.Type.Date.Year == 2020);
 
-            Assert.Equal(2, query.Id);
+            Assert.Equal(2, query!.Id);
         }
     }
 
@@ -1256,7 +1256,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public MyType19667 Type { get; set; }
+        public MyType19667 Type { get; set; } = null!;
     }
 
     [Owned]
@@ -1268,7 +1268,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext19667 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<MyEntity19667> Entities { get; set; }
+        public DbSet<MyEntity19667> Entities { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1297,7 +1297,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                                r.B.BValue,
                            }).FirstOrDefault();
 
-            Assert.Equal(result1.BValue, result2.BValue);
+            Assert.Equal(result1!.BValue, result2!.BValue);
         }
     }
 
@@ -1318,31 +1318,31 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public ASubClass20359 Sub { get; set; }
+        public ASubClass20359 Sub { get; set; } = null!;
     }
 
     private class ASubClass20359
     {
-        public string AValue { get; set; }
+        public string AValue { get; set; } = null!;
     }
 
     private class B20359
     {
-        public string BValue { get; set; }
+        public string BValue { get; set; } = null!;
     }
 
     private class Root20359
     {
         public int Id { get; set; }
 
-        public A20359 A { get; set; }
-        public B20359 B { get; set; }
+        public A20359 A { get; set; } = null!;
+        public B20359 B { get; set; } = null!;
     }
 
     private class MyContext20359 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Root20359> Root { get; set; }
+        public DbSet<Root20359> Root { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1417,8 +1417,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         [Key]
         public int Key { get; set; }
 
-        public string Forename { get; set; }
-        public string Surname { get; set; }
+        public string Forename { get; set; } = null!;
+        public string Surname { get; set; } = null!;
     }
 
     private class Customer23360
@@ -1426,20 +1426,20 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         [Key]
         public int Key { get; set; }
 
-        public string GivenName { get; set; }
-        public string FamilyName { get; set; }
+        public string GivenName { get; set; } = null!;
+        public string FamilyName { get; set; } = null!;
     }
 
     private class CommonSelectType23360
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
     }
 
     private class MyContext23360 : DbContext
     {
-        public virtual DbSet<User23360> User { get; set; }
-        public virtual DbSet<Customer23360> Customer { get; set; }
+        public virtual DbSet<User23360> User { get; set; } = null!;
+        public virtual DbSet<Customer23360> Customer { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1474,7 +1474,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                 })
                 .FirstOrDefault();
 
-            Assert.Equal("TestText", myA.PropertyB.PropertyCList.First().SomeText);
+            Assert.Equal("TestText", myA!.PropertyB!.PropertyCList.First().SomeText);
         }
     }
 
@@ -1490,7 +1490,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public BDto18394 PropertyB { get; set; }
+        public BDto18394? PropertyB { get; set; }
 
         public int PropertyBId { get; set; }
     }
@@ -1499,7 +1499,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public List<CDto18394> PropertyCList { get; set; }
+        public List<CDto18394> PropertyCList { get; set; } = null!;
     }
 
     private class CDto18394
@@ -1508,14 +1508,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         public int CId { get; set; }
 
-        public string SomeText { get; set; }
+        public string SomeText { get; set; } = null!;
     }
 
     private class A18394
     {
         public int Id { get; set; }
 
-        public B18394 PropertyB { get; set; }
+        public B18394? PropertyB { get; set; }
 
         public int PropertyBId { get; set; }
     }
@@ -1524,7 +1524,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public List<C18394> PropertyCList { get; set; }
+        public List<C18394> PropertyCList { get; set; } = null!;
     }
 
     private class C18394
@@ -1533,17 +1533,17 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         public int BId { get; set; }
 
-        public string SomeText { get; set; }
+        public string SomeText { get; set; } = null!;
 
-        public B18394 B { get; set; }
+        public B18394 B { get; set; } = null!;
     }
 
     private class MyContext18394 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<A18394> As { get; set; }
-        public DbSet<B18394> Bs { get; set; }
-        public DbSet<C18394> Cs { get; set; }
+        public DbSet<A18394> As { get; set; } = null!;
+        public DbSet<B18394> Bs { get; set; } = null!;
+        public DbSet<C18394> Cs { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1590,15 +1590,15 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Outer23934
     {
         public Guid Id { get; set; }
-        public OwnedClass23934 OwnedProp { get; set; }
+        public OwnedClass23934 OwnedProp { get; set; } = null!;
         public Guid InnerId { get; set; }
-        public Inner23934 Inner { get; set; }
+        public Inner23934 Inner { get; set; } = null!;
     }
 
     private class Inner23934
     {
         public Guid Id { get; set; }
-        public OwnedClass23934 OwnedProp { get; set; }
+        public OwnedClass23934 OwnedProp { get; set; } = null!;
     }
 
     [Owned]
@@ -1610,10 +1610,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext23934 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Outer23934> Outers { get; set; }
+        public DbSet<Outer23934> Outers { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Inner23934> Inners { get; set; }
+        public DbSet<Inner23934> Inners { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

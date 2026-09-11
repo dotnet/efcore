@@ -4,7 +4,6 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <Nullable>disable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
     <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->

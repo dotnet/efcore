@@ -7,15 +7,13 @@ using Microsoft.Azure.Cosmos;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 [ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential))]
 public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fixture)
     : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {
     private const string DatabaseName = "ConfigPatternsCosmos";
 
-    private IServiceProvider _serviceProvider;
+    private IServiceProvider? _serviceProvider;
 
     protected CosmosFixture Fixture { get; } = fixture;
 
@@ -167,7 +165,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
 
     private DbContextOptions CreateOptions(
         CosmosTestStore testDatabase,
-        Action<DbContextOptionsBuilder> configure = null,
+        Action<DbContextOptionsBuilder>? configure = null,
         bool useExternalServiceProvider = true)
     {
         var builder = Fixture.AddOptions(testDatabase.AddProviderOptions(new DbContextOptionsBuilder()))
@@ -186,7 +184,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
     private class Customer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class CustomerContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)

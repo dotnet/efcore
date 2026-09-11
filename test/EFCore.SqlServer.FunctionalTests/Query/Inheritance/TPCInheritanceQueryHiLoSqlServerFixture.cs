@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCInheritanceQueryHiLoSqlServerFixture : TPCInheritanceQuerySqlServerFixtureBase
 {
     protected override string StoreName

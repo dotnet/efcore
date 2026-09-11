@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
-#nullable disable
-
 public class InheritanceLeaf2
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public List<InheritanceBase2> BaseCollection { get; set; }
+    public List<InheritanceBase2> BaseCollection { get; set; } = null!;
 }

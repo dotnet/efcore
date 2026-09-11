@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -22,8 +23,8 @@ public class RelationalEventIdTest : EventIdTestBase
         var constantExpression = Expression.Constant("A");
         var model = new Model();
         var entityType = new EntityType(typeof(object), model, owned: false, ConfigurationSource.Convention);
-        var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
-        var key = entityType.AddKey(property, ConfigurationSource.Convention);
+        var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention)!;
+        var key = entityType.AddKey(property, ConfigurationSource.Convention)!;
         var foreignKey = new ForeignKey([property], key, entityType, entityType, ConfigurationSource.Convention);
         var index = new Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
         var contextServices = FakeRelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
@@ -59,7 +60,7 @@ public class RelationalEventIdTest : EventIdTestBase
             { typeof(Migration), () => new FakeMigration() },
             { typeof(IMigrationsAssembly), () => new FakeMigrationsAssembly() },
             { typeof(MigrationCommand), () => new FakeMigrationCommand() },
-            { typeof(MethodCallExpression), () => Expression.Call(constantExpression, typeof(object).GetMethod("ToString")) },
+            { typeof(MethodCallExpression), () => Expression.Call(constantExpression, typeof(object).GetMethod("ToString")!) },
             { typeof(Expression), () => constantExpression },
             { typeof(IEntityType), () => entityType },
             { typeof(IProperty), () => property },
@@ -131,15 +132,15 @@ public class RelationalEventIdTest : EventIdTestBase
 
     private class FakeMigrator : IMigrator
     {
-        public void Migrate(string targetMigration = null)
+        public void Migrate(string? targetMigration = null)
             => throw new NotImplementedException();
 
-        public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new())
+        public Task MigrateAsync(string? targetMigration = null, CancellationToken cancellationToken = new())
             => throw new NotImplementedException();
 
         public string GenerateScript(
-            string fromMigration = null,
-            string toMigration = null,
+            string? fromMigration = null,
+            string? toMigration = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
             => throw new NotImplementedException();
 
@@ -200,7 +201,7 @@ public class RelationalEventIdTest : EventIdTestBase
         public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
             => throw new NotImplementedException();
 
-        public Task<object> ExecuteScalarAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+        public Task<object?> ExecuteScalarAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
             => throw new NotImplementedException();
 
         public void PopulateFrom(IRelationalCommandTemplate commandTemplate)
@@ -209,15 +210,16 @@ public class RelationalEventIdTest : EventIdTestBase
 
     private class FakeRelationalConnection : IRelationalConnection
     {
-        public string ConnectionString { get; set; }
+        public string? ConnectionString { get; set; }
 
+        [AllowNull]
         public DbConnection DbConnection { get; set; } = new FakeDbConnection();
 
-        public void SetDbConnection(DbConnection value, bool contextOwnsConnection)
+        public void SetDbConnection(DbConnection? value, bool contextOwnsConnection)
             => throw new NotImplementedException();
 
         public DbContext Context
-            => null;
+            => null!;
 
         public Guid ConnectionId
             => Guid.NewGuid();
@@ -277,19 +279,19 @@ public class RelationalEventIdTest : EventIdTestBase
         public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IDbContextTransaction UseTransaction(DbTransaction transaction)
+        public IDbContextTransaction? UseTransaction(DbTransaction? transaction)
             => throw new NotImplementedException();
 
-        public IDbContextTransaction UseTransaction(DbTransaction transaction, Guid transactionId)
+        public IDbContextTransaction? UseTransaction(DbTransaction? transaction, Guid transactionId)
             => throw new NotImplementedException();
 
-        public Task<IDbContextTransaction> UseTransactionAsync(
-            DbTransaction transaction,
+        public Task<IDbContextTransaction?> UseTransactionAsync(
+            DbTransaction? transaction,
             CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public Task<IDbContextTransaction> UseTransactionAsync(
-            DbTransaction transaction,
+        public Task<IDbContextTransaction?> UseTransactionAsync(
+            DbTransaction? transaction,
             Guid transactionId,
             CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
@@ -306,7 +308,8 @@ public class RelationalEventIdTest : EventIdTestBase
 
     private class FakeDbConnection : DbConnection
     {
-        public override string ConnectionString { get; set; }
+        [AllowNull]
+        public override string ConnectionString { get; set; } = "";
 
         public override string Database
             => "Database";
@@ -338,6 +341,7 @@ public class RelationalEventIdTest : EventIdTestBase
 
     private class FakeDbCommand : DbCommand
     {
+        [AllowNull]
         public override string CommandText
         {
             get => "CommandText";
@@ -348,12 +352,12 @@ public class RelationalEventIdTest : EventIdTestBase
         public override CommandType CommandType { get; set; }
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
-        protected override DbConnection DbConnection { get; set; } = new FakeDbConnection();
+        protected override DbConnection? DbConnection { get; set; } = new FakeDbConnection();
 
         protected override DbParameterCollection DbParameterCollection
             => new FakeDbParameterCollection();
 
-        protected override DbTransaction DbTransaction { get; set; }
+        protected override DbTransaction? DbTransaction { get; set; }
 
         public override void Cancel()
             => throw new NotImplementedException();
@@ -457,13 +461,13 @@ public class RelationalEventIdTest : EventIdTestBase
         public override byte GetByte(int ordinal)
             => throw new NotImplementedException();
 
-        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+        public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
             => throw new NotImplementedException();
 
         public override char GetChar(int ordinal)
             => throw new NotImplementedException();
 
-        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+        public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
             => throw new NotImplementedException();
 
         public override string GetDataTypeName(int ordinal)

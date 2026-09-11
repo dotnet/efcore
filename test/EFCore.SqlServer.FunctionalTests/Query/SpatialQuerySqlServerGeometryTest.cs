@@ -6,8 +6,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
 public class SpatialQuerySqlServerGeometryTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeometryFixture>
 {
@@ -247,8 +245,8 @@ FROM [LineStringEntity] AS [l]
     {
         await AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = EF.Functions.CurveToLine(e.Polygon) }),
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = (Geometry)e.Polygon }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = EF.Functions.CurveToLine(e.Polygon!) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = (Geometry)e.Polygon! }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -340,7 +338,7 @@ FROM [PointEntity] AS [p]
         await AssertQuery(
             async,
             ss => ss.Set<PointEntity>()
-                .Select(e => new { e.Id, Distance = (double?)e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
+                .Select(e => new { e.Id, Distance = (double?)e.Point!.Distance(new Point(1, 1) { SRID = 4326 }) }),
             ss => ss.Set<PointEntity>().Select(e
                 => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
             elementSorter: e => e.Id,

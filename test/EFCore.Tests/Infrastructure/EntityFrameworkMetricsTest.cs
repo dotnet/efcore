@@ -223,7 +223,7 @@ public class EntityFrameworkMetricsTest
 
                 using (var innerContext = new SomeDbContext())
                 {
-                    innerContext.Foos.Find(entity.Id).Token = 1;
+                    innerContext.Foos.Find(entity.Id)!.Token = 1;
                     innerContext.SaveChanges();
                 }
 
@@ -351,7 +351,7 @@ public class EntityFrameworkMetricsTest
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Foo> Foos { get; set; }
+        public DbSet<Foo> Foos { get; set; } = null!;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Foo>().Property(e => e.Token).IsConcurrencyToken();

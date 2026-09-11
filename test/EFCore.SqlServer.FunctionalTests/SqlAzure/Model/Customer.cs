@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 [Table("Customer", Schema = "SalesLT")]
 public class Customer
 {
@@ -21,33 +19,33 @@ public class Customer
 
     public bool NameStyle { get; set; }
 
-    public string FirstName { get; set; }
-    public string MiddleName { get; set; }
-    public string LastName { get; set; }
-    public string Phone { get; set; }
+    public string? FirstName { get; set; }
+    public string? MiddleName { get; set; }
+    public string? LastName { get; set; }
+    public string? Phone { get; set; }
 
     [MaxLength(128)]
-    public string CompanyName { get; set; }
+    public string? CompanyName { get; set; }
 
     [MaxLength(50)]
-    public string EmailAddress { get; set; }
+    public string? EmailAddress { get; set; }
 
     public DateTime ModifiedDate { get; set; }
 
     [Required, MaxLength(128)]
-    public string PasswordHash { get; set; }
+    public string PasswordHash { get; set; } = null!;
 
     [Required, MaxLength(10)]
-    public string PasswordSalt { get; set; }
+    public string PasswordSalt { get; set; } = null!;
 
     [MaxLength(256)]
-    public string SalesPerson { get; set; }
+    public string? SalesPerson { get; set; }
 
     [MaxLength(10)]
-    public string Suffix { get; set; }
+    public string? Suffix { get; set; }
 
     [MaxLength(8)]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     public Guid rowguid { get; set; }
 

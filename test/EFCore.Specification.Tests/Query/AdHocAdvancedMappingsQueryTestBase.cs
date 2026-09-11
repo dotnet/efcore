@@ -7,8 +7,6 @@ using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -48,7 +46,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public class TipoServicio
         {
             public int Id { get; set; }
-            public string Nombre { get; set; }
+            public string Nombre { get; set; } = null!;
         }
     }
 
@@ -76,7 +74,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             {
                 e.Id,
                 e.Title,
-                FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault().Name
+                FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault()!.Name
             }).ToList();
         }
     }
@@ -84,8 +82,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context11835(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs
+            => Set<Blog>();
+
+        public DbSet<Post> Posts
+            => Set<Post>();
 
         public Task SeedAsync()
         {
@@ -107,17 +108,17 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             public int Id { get; set; }
 
             [NotMapped]
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
 
-            public List<Post> Posts { get; set; }
+            public List<Post> Posts { get; set; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
-            public string Name { get; set; }
+            public Blog Blog { get; set; } = null!;
+            public string Name { get; set; } = null!;
         }
     }
 
@@ -147,8 +148,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context15684(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories
+            => Set<Category>();
+
+        public DbSet<Product> Products
+            => Set<Product>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
@@ -172,11 +176,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             public int Id { get; set; }
 
             [Required]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public int? CategoryId { get; set; }
 
-            public Category Category { get; set; }
+            public Category? Category { get; set; }
         }
 
         public class Category
@@ -185,17 +189,17 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             public int Id { get; set; }
 
             [Required]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public CategoryStatus Status { get; set; }
         }
 
         public class ProductDto
         {
-            public string CategoryName { get; set; }
+            public string CategoryName { get; set; } = null!;
             public CategoryStatus CategoryStatus { get; set; }
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public enum CategoryStatus
@@ -243,10 +247,12 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     protected class Context17276(DbContextOptions options) : DbContext(options)
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<RemovableEntity> RemovableEntities { get; set; }
+        public DbSet<RemovableEntity> RemovableEntities
+            => Set<RemovableEntity>();
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents
+            => Set<Parent>();
 
         public static List<T> List<T>(IQueryable<T> query)
             where T : IRemovable
@@ -256,7 +262,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         {
             bool IsRemoved { get; set; }
 
-            string RemovedByUser { get; set; }
+            string? RemovedByUser { get; set; }
 
             DateTime? Removed { get; set; }
         }
@@ -265,21 +271,21 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         {
             public int Id { get; set; }
             public bool IsRemoved { get; set; }
-            public string RemovedByUser { get; set; }
+            public string? RemovedByUser { get; set; }
             public DateTime? Removed { get; set; }
-            public OwnedEntity OwnedEntity { get; set; }
+            public OwnedEntity? OwnedEntity { get; set; }
         }
 
         public class Parent : IHasId<int>
         {
             public int Id { get; set; }
-            public RemovableEntity RemovableEntity { get; set; }
+            public RemovableEntity? RemovableEntity { get; set; }
         }
 
         [Owned]
         public class OwnedEntity : IOwned
         {
-            public string OwnedValue { get; set; }
+            public string? OwnedValue { get; set; }
             public int Exists { get; set; }
         }
 
@@ -290,7 +296,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
         public interface IOwned
         {
-            string OwnedValue { get; }
+            string? OwnedValue { get; }
             int Exists { get; }
         }
 
@@ -319,8 +325,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context17794(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Offer> Offers { get; set; }
-        public DbSet<OfferAction> OfferActions { get; set; }
+        public DbSet<Offer> Offers
+            => Set<Offer>();
+
+        public DbSet<OfferAction> OfferActions
+            => Set<OfferAction>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -349,7 +358,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         {
             public int Id { get; set; }
 
-            public ICollection<OfferAction> OfferActions { get; set; }
+            public ICollection<OfferAction> OfferActions { get; set; } = [];
         }
 
         public enum Actions
@@ -363,7 +372,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             public int Id { get; set; }
 
             [Required]
-            public Offer Offer { get; set; }
+            public Offer Offer { get; set; } = null!;
 
             public int OfferId { get; set; }
 
@@ -387,7 +396,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             var id = 1;
             var query = queryBase.Cast<Context18087.IDomainEntity>().FirstOrDefault(x => x.Id == id);
 
-            Assert.Equal(1, query.Id);
+            Assert.Equal(1, query!.Id);
         }
 
         using (var context = contextFactory.CreateDbContext())
@@ -417,7 +426,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context18087(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MockEntity> MockEntities { get; set; }
+        public DbSet<MockEntity> MockEntities
+            => Set<MockEntity>();
 
         public Task SeedAsync()
         {
@@ -442,9 +452,9 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public class MockEntity : IDomainEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
-            public MockEntity NavigationEntity { get; set; }
+            public MockEntity? NavigationEntity { get; set; }
         }
     }
 
@@ -464,7 +474,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context18346(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Business> Businesses { get; set; }
+        public DbSet<Business> Businesses
+            => Set<Business>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Business>()
@@ -484,7 +495,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public abstract class Business
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public BusinessType Type { get; set; }
         }
 
@@ -566,7 +577,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26742(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
@@ -585,7 +597,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     public virtual Task Hierarchy_query_with_abstract_type_sibling(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(async, null);
 
-    public virtual async Task Hierarchy_query_with_abstract_type_sibling_helper(bool async, Action<ModelBuilder> onModelCreating)
+    public virtual async Task Hierarchy_query_with_abstract_type_sibling_helper(bool async, Action<ModelBuilder>? onModelCreating)
     {
         var contextFactory = await InitializeNonSharedTest<Context28196>(onModelCreating: onModelCreating, seed: c => c.SeedAsync());
         using var context = contextFactory.CreateDbContext();
@@ -597,7 +609,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     protected class Context28196(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Animal> Animals { get; set; }
+        public DbSet<Animal> Animals
+            => Set<Animal>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -645,7 +658,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public abstract class Animal
         {
             public int Id { get; set; }
-            public string Species { get; set; }
+            public string Species { get; set; } = null!;
         }
 
         public class FarmAnimal : Animal
@@ -655,17 +668,17 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
         public abstract class Pet : Animal
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class Cat : Pet
         {
-            public string EdcuationLevel { get; set; }
+            public string EdcuationLevel { get; set; } = null!;
         }
 
         public class Dog : Pet
         {
-            public string FavoriteToy { get; set; }
+            public string FavoriteToy { get; set; } = null!;
         }
     }
 
@@ -715,7 +728,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     protected class Context34760(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Book> Books { get; set; }
+        public DbSet<Book> Books
+            => Set<Book>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -749,7 +763,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public class Book
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public virtual DateTime PublishDate { get; set; }
             public virtual DateTime AudiobookDate { get; set; }

@@ -12,8 +12,8 @@ public class InternalPropertyBuilderTest
     {
         var model = new Model();
         var modelBuilder = new InternalModelBuilder(model);
-        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-        var builder = entityBuilder.Property(Customer.NameProperty.Name, ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!;
+        var builder = entityBuilder.Property(Customer.NameProperty.Name, ConfigurationSource.Convention)!;
         var property = builder.Metadata;
 
         Assert.Equal(typeof(string), property.ClrType);
@@ -128,10 +128,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasMaxLength(1, ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.HasMaxLength(2, ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(2, metadata.GetMaxLength().Value);
+        Assert.Equal(2, metadata.GetMaxLength()!.Value);
 
         Assert.Null(builder.HasMaxLength(1, ConfigurationSource.Convention));
-        Assert.Equal(2, metadata.GetMaxLength().Value);
+        Assert.Equal(2, metadata.GetMaxLength()!.Value);
     }
 
     [Fact]
@@ -144,10 +144,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasMaxLength(1, ConfigurationSource.DataAnnotation));
         Assert.Null(builder.HasMaxLength(2, ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(1, metadata.GetMaxLength().Value);
+        Assert.Equal(1, metadata.GetMaxLength()!.Value);
 
         Assert.NotNull(builder.HasMaxLength(2, ConfigurationSource.Explicit));
-        Assert.Equal(2, metadata.GetMaxLength().Value);
+        Assert.Equal(2, metadata.GetMaxLength()!.Value);
     }
 
     [Fact]
@@ -190,10 +190,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasPrecision(1, ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.HasPrecision(2, ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(2, metadata.GetPrecision().Value);
+        Assert.Equal(2, metadata.GetPrecision()!.Value);
 
         Assert.Null(builder.HasPrecision(1, ConfigurationSource.Convention));
-        Assert.Equal(2, metadata.GetPrecision().Value);
+        Assert.Equal(2, metadata.GetPrecision()!.Value);
     }
 
     [Fact]
@@ -206,10 +206,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasPrecision(1, ConfigurationSource.DataAnnotation));
         Assert.Null(builder.HasPrecision(2, ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(1, metadata.GetPrecision().Value);
+        Assert.Equal(1, metadata.GetPrecision()!.Value);
 
         Assert.NotNull(builder.HasPrecision(2, ConfigurationSource.Explicit));
-        Assert.Equal(2, metadata.GetPrecision().Value);
+        Assert.Equal(2, metadata.GetPrecision()!.Value);
     }
 
     [Fact]
@@ -221,10 +221,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasScale(1, ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.HasScale(2, ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(2, metadata.GetScale().Value);
+        Assert.Equal(2, metadata.GetScale()!.Value);
 
         Assert.Null(builder.HasScale(1, ConfigurationSource.Convention));
-        Assert.Equal(2, metadata.GetScale().Value);
+        Assert.Equal(2, metadata.GetScale()!.Value);
     }
 
     [Fact]
@@ -237,10 +237,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasScale(1, ConfigurationSource.DataAnnotation));
         Assert.Null(builder.HasScale(2, ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(1, metadata.GetScale().Value);
+        Assert.Equal(1, metadata.GetScale()!.Value);
 
         Assert.NotNull(builder.HasScale(2, ConfigurationSource.Explicit));
-        Assert.Equal(2, metadata.GetScale().Value);
+        Assert.Equal(2, metadata.GetScale()!.Value);
     }
 
     [Fact]
@@ -252,18 +252,18 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.HasValueGenerator((p, e) => new CustomValueGenerator2(), ConfigurationSource.DataAnnotation));
 
-        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.True(metadata.RequiresValueGenerator());
 
         Assert.Null(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.Convention));
-        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.True(metadata.RequiresValueGenerator());
 
         Assert.Null(builder.HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory), ConfigurationSource.Convention));
-        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()!(null!, null!));
 
         Assert.NotNull(builder.HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory), ConfigurationSource.DataAnnotation));
-        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.True(metadata.RequiresValueGenerator());
 
         Assert.NotNull(builder.HasValueGeneratorFactory(null, ConfigurationSource.DataAnnotation));
@@ -286,11 +286,11 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasValueGenerator(factory, ConfigurationSource.DataAnnotation));
         Assert.Null(builder.HasValueGenerator((p, e) => new CustomValueGenerator2(), ConfigurationSource.DataAnnotation));
 
-        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.True(metadata.RequiresValueGenerator());
 
         Assert.NotNull(builder.HasValueGenerator((p, e) => new CustomValueGenerator2(), ConfigurationSource.Explicit));
-        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.True(metadata.RequiresValueGenerator());
     }
 
@@ -302,21 +302,21 @@ public class InternalPropertyBuilderTest
 
         Assert.NotNull(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.DataAnnotation));
 
-        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
         Assert.True(metadata.RequiresValueGenerator());
 
         Assert.Null(
             builder.HasValueGenerator(
-                (Func<IReadOnlyProperty, ITypeBase, ValueGenerator>)null, ConfigurationSource.Convention));
+                (Func<IReadOnlyProperty, ITypeBase, ValueGenerator>?)null, ConfigurationSource.Convention));
 
-        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
         Assert.True(metadata.RequiresValueGenerator());
 
         Assert.NotNull(
             builder.HasValueGenerator(
-                (Func<IReadOnlyProperty, ITypeBase, ValueGenerator>)null, ConfigurationSource.Explicit));
+                (Func<IReadOnlyProperty, ITypeBase, ValueGenerator>?)null, ConfigurationSource.Explicit));
 
         Assert.Null(metadata.GetValueGeneratorFactory());
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
@@ -332,11 +332,11 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasValueGenerator(typeof(CustomValueGenerator1), ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.HasValueGenerator(typeof(CustomValueGenerator2), ConfigurationSource.DataAnnotation));
 
-        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.True(metadata.RequiresValueGenerator());
 
         Assert.Null(builder.HasValueGenerator(typeof(CustomValueGenerator1), ConfigurationSource.Convention));
-        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.True(metadata.RequiresValueGenerator());
     }
 
@@ -348,17 +348,17 @@ public class InternalPropertyBuilderTest
 
         Assert.NotNull(builder.HasValueGenerator(typeof(CustomValueGenerator1), ConfigurationSource.DataAnnotation));
 
-        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
         Assert.True(metadata.RequiresValueGenerator());
 
-        Assert.Null(builder.HasValueGenerator((Type)null, ConfigurationSource.Convention));
+        Assert.Null(builder.HasValueGenerator((Type?)null, ConfigurationSource.Convention));
 
-        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+        Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()!(null!, null!));
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
         Assert.True(metadata.RequiresValueGenerator());
 
-        Assert.NotNull(builder.HasValueGenerator((Type)null, ConfigurationSource.Explicit));
+        Assert.NotNull(builder.HasValueGenerator((Type?)null, ConfigurationSource.Explicit));
 
         Assert.Null(metadata.GetValueGeneratorFactory());
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
@@ -437,7 +437,7 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasValueComparer(typeof(CustomValueComparer<string>), ConfigurationSource.DataAnnotation));
         Assert.IsType<CustomValueComparer<string>>(metadata.GetValueComparer());
 
-        Assert.NotNull(builder.HasValueComparer((ValueComparer)null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasValueComparer((ValueComparer?)null, ConfigurationSource.DataAnnotation));
         Assert.Null(metadata.GetValueComparer());
         Assert.Null(metadata[CoreAnnotationNames.ValueComparer]);
         Assert.Null(metadata[CoreAnnotationNames.ValueComparerType]);
@@ -465,7 +465,7 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasProviderValueComparer(typeof(CustomValueComparer<string>), ConfigurationSource.DataAnnotation));
         Assert.IsType<CustomValueComparer<string>>(metadata.GetProviderValueComparer());
 
-        Assert.NotNull(builder.HasProviderValueComparer((ValueComparer)null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasProviderValueComparer((ValueComparer?)null, ConfigurationSource.DataAnnotation));
         Assert.Null(metadata.GetProviderValueComparer());
         Assert.Null(metadata[CoreAnnotationNames.ProviderValueComparer]);
         Assert.Null(metadata[CoreAnnotationNames.ProviderValueComparerType]);
@@ -480,10 +480,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.IsUnicode(false, ConfigurationSource.DataAnnotation));
 
-        Assert.False(metadata.IsUnicode().Value);
+        Assert.False(metadata.IsUnicode()!.Value);
 
         Assert.Null(builder.IsUnicode(true, ConfigurationSource.Convention));
-        Assert.False(metadata.IsUnicode().Value);
+        Assert.False(metadata.IsUnicode()!.Value);
     }
 
     [Fact]
@@ -496,10 +496,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
         Assert.Null(builder.IsUnicode(false, ConfigurationSource.DataAnnotation));
 
-        Assert.True(metadata.IsUnicode().Value);
+        Assert.True(metadata.IsUnicode()!.Value);
 
         Assert.NotNull(builder.IsUnicode(false, ConfigurationSource.Explicit));
-        Assert.False(metadata.IsUnicode().Value);
+        Assert.False(metadata.IsUnicode()!.Value);
     }
 
     [Fact]
@@ -539,8 +539,8 @@ public class InternalPropertyBuilderTest
     public void Cannot_set_required_to_false_if_nonnullable()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
-        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
-        var builder = entityBuilder.Property(typeof(int), nameof(Customer.Id), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention)!;
+        var builder = entityBuilder.Property(typeof(int), nameof(Customer.Id), ConfigurationSource.Convention)!;
 
         Assert.Null(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
@@ -619,8 +619,8 @@ public class InternalPropertyBuilderTest
     {
         var modelBuilder = (InternalModelBuilder)
             InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
-        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
-        return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention)!;
+        return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention)!;
     }
 
     private Property CreateProperty()
@@ -628,9 +628,9 @@ public class InternalPropertyBuilderTest
 
     private class Customer
     {
-        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name")!;
 
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 }

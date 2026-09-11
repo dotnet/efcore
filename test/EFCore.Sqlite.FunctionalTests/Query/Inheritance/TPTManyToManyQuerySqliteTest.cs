@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPTManyToManyQuerySqliteTest(TPTManyToManyQuerySqliteFixture fixture)
     : TPTManyToManyQueryRelationalTestBase<TPTManyToManyQuerySqliteFixture>(fixture)
 {

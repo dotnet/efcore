@@ -14,7 +14,7 @@ public class ValueGeneratorConventionTest
     {
         public int Id { get; set; }
         public int Number { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class ReferencedEntity
@@ -35,14 +35,14 @@ public class ValueGeneratorConventionTest
     public void RequiresValueGenerator_flag_is_set_for_key_properties_that_use_value_generation()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "Id", "Name" };
 
-        entityBuilder.Property(properties[0], ConfigurationSource.Convention)
+        entityBuilder.Property(properties[0], ConfigurationSource.Convention)!
             .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
-        var keyBuilder = entityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
+        var keyBuilder = entityBuilder.PrimaryKey(properties, ConfigurationSource.Convention)!;
 
         RunConvention(entityBuilder);
 
@@ -60,8 +60,8 @@ public class ValueGeneratorConventionTest
     {
         var modelBuilder = CreateInternalModelBuilder();
 
-        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
+        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "SampleEntityId" };
 
@@ -69,10 +69,10 @@ public class ValueGeneratorConventionTest
 
         referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
+            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention)!,
             ConfigurationSource.Convention);
 
-        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention)!;
 
         RunConvention(referencedEntityBuilder);
 
@@ -87,21 +87,21 @@ public class ValueGeneratorConventionTest
     {
         var modelBuilder = CreateInternalModelBuilder();
 
-        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
+        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "Id", "SampleEntityId" };
-        referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
+        referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)!
             .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
-        referencedEntityBuilder.Property(properties[1], ConfigurationSource.Convention)
+        referencedEntityBuilder.Property(properties[1], ConfigurationSource.Convention)!
             .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
         referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties([properties[1]], ConfigurationSource.Convention),
+            referencedEntityBuilder.GetOrCreateProperties([properties[1]], ConfigurationSource.Convention)!,
             ConfigurationSource.Convention);
 
-        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention)!;
 
         RunConvention(referencedEntityBuilder);
 
@@ -116,20 +116,20 @@ public class ValueGeneratorConventionTest
     {
         var modelBuilder = CreateInternalModelBuilder();
 
-        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
+        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "Id", "SampleEntityId" };
 
-        referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
+        referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)!
             .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
         referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
+            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention)!,
             ConfigurationSource.Convention);
 
-        var keyBuilder = referencedEntityBuilder.PrimaryKey([properties[1]], ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey([properties[1]], ConfigurationSource.Convention)!;
 
         RunConvention(referencedEntityBuilder);
 
@@ -143,14 +143,14 @@ public class ValueGeneratorConventionTest
     public void KeyConvention_does_not_override_ValueGenerated_when_configured_explicitly()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "Id" };
 
-        entityBuilder.Property(properties[0], ConfigurationSource.Convention)
+        entityBuilder.Property(properties[0], ConfigurationSource.Convention)!
             .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
-        var keyBuilder = entityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
+        var keyBuilder = entityBuilder.PrimaryKey(properties, ConfigurationSource.Convention)!;
 
         RunConvention(entityBuilder);
 
@@ -164,14 +164,14 @@ public class ValueGeneratorConventionTest
     {
         var modelBuilder = CreateInternalModelBuilder();
 
-        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
+        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "SampleEntityId" };
 
         referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention);
 
-        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention)!;
 
         RunConvention(referencedEntityBuilder);
 
@@ -181,8 +181,8 @@ public class ValueGeneratorConventionTest
 
         var foreignKeyBuilder = referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-            ConfigurationSource.Convention);
+            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention)!,
+            ConfigurationSource.Convention)!;
 
         RunConvention(foreignKeyBuilder);
 
@@ -195,14 +195,14 @@ public class ValueGeneratorConventionTest
     {
         var modelBuilder = CreateInternalModelBuilder();
 
-        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
+        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "SampleEntityId" };
 
         referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention);
 
-        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention)!;
 
         RunConvention(referencedEntityBuilder);
 
@@ -212,8 +212,8 @@ public class ValueGeneratorConventionTest
 
         var relationshipBuilder = referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-            ConfigurationSource.Convention);
+            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention)!,
+            ConfigurationSource.Convention)!;
 
         RunConvention(relationshipBuilder);
 
@@ -236,10 +236,10 @@ public class ValueGeneratorConventionTest
     public void Identity_is_set_for_primary_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
 
         var keyBuilder = entityBuilder.PrimaryKey(
-            new List<string> { "Id" }, ConfigurationSource.Convention);
+            new List<string> { "Id" }, ConfigurationSource.Convention)!;
 
         RunConvention(entityBuilder);
 
@@ -252,10 +252,10 @@ public class ValueGeneratorConventionTest
     public void Identity_is_not_set_for_non_primary_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
 
         var keyBuilder = entityBuilder.HasKey(
-            new List<string> { "Number" }, ConfigurationSource.Convention);
+            new List<string> { "Number" }, ConfigurationSource.Convention)!;
 
         RunConvention(entityBuilder);
 
@@ -268,10 +268,10 @@ public class ValueGeneratorConventionTest
     public void Identity_not_set_when_composite_primary_key()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
 
         var keyBuilder = entityBuilder.PrimaryKey(
-            new List<string> { "Id", "Number" }, ConfigurationSource.Convention);
+            new List<string> { "Id", "Number" }, ConfigurationSource.Convention)!;
 
         RunConvention(entityBuilder);
 
@@ -285,10 +285,10 @@ public class ValueGeneratorConventionTest
     public void Identity_not_set_when_primary_key_property_is_string()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
 
         var keyBuilder = entityBuilder.PrimaryKey(
-            new List<string> { "Name" }, ConfigurationSource.Convention);
+            new List<string> { "Name" }, ConfigurationSource.Convention)!;
 
         var property = keyBuilder.Metadata.Properties.First();
 
@@ -300,10 +300,10 @@ public class ValueGeneratorConventionTest
     public void Identity_not_set_when_primary_key_property_is_byte_array()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
         entityBuilder.Property(typeof(byte[]), "binaryKey", ConfigurationSource.Explicit);
 
-        var keyBuilder = entityBuilder.PrimaryKey(["binaryKey"], ConfigurationSource.Convention);
+        var keyBuilder = entityBuilder.PrimaryKey(["binaryKey"], ConfigurationSource.Convention)!;
 
         var property = keyBuilder.Metadata.Properties.First();
 
@@ -315,10 +315,10 @@ public class ValueGeneratorConventionTest
     public void Identity_not_set_when_primary_key_property_is_enum()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
         entityBuilder.Property(typeof(Eenom), "enumKey", ConfigurationSource.Explicit);
 
-        var keyBuilder = entityBuilder.PrimaryKey(["enumKey"], ConfigurationSource.Convention);
+        var keyBuilder = entityBuilder.PrimaryKey(["enumKey"], ConfigurationSource.Convention)!;
 
         var property = keyBuilder.Metadata.Properties.First();
 
@@ -330,10 +330,10 @@ public class ValueGeneratorConventionTest
     public void Identity_is_recomputed_when_primary_key_is_changed()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
 
-        var idProperty = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).Metadata;
-        var numberProperty = entityBuilder.Property(typeof(int), "Number", ConfigurationSource.Convention).Metadata;
+        var idProperty = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention)!.Metadata;
+        var numberProperty = entityBuilder.Property(typeof(int), "Number", ConfigurationSource.Convention)!.Metadata;
 
         Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
         Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
@@ -361,13 +361,13 @@ public class ValueGeneratorConventionTest
     public void Convention_does_not_override_None_when_configured_explicitly()
     {
         var modelBuilder = CreateInternalModelBuilder();
-        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
 
-        entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention)
+        entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention)!
             .ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
         var keyBuilder = entityBuilder.PrimaryKey(
-            new List<string> { "Id" }, ConfigurationSource.Convention);
+            new List<string> { "Id" }, ConfigurationSource.Convention)!;
 
         RunConvention(entityBuilder);
 
@@ -381,11 +381,11 @@ public class ValueGeneratorConventionTest
     {
         var modelBuilder = CreateInternalModelBuilder();
 
-        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
+        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "Id" };
-        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention)!;
 
         RunConvention(referencedEntityBuilder);
 
@@ -395,8 +395,8 @@ public class ValueGeneratorConventionTest
 
         var relationshipBuilder = referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-            ConfigurationSource.Convention);
+            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention)!,
+            ConfigurationSource.Convention)!;
 
         RunConvention(relationshipBuilder);
 
@@ -408,11 +408,11 @@ public class ValueGeneratorConventionTest
     {
         var modelBuilder = CreateInternalModelBuilder();
 
-        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
-        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention)!;
+        var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention)!;
 
         var properties = new List<string> { "Id" };
-        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention)!;
 
         RunConvention(referencedEntityBuilder);
 
@@ -422,8 +422,8 @@ public class ValueGeneratorConventionTest
 
         var relationshipBuilder = referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
-            ConfigurationSource.Convention);
+            referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention)!,
+            ConfigurationSource.Convention)!;
 
         RunConvention(relationshipBuilder);
 

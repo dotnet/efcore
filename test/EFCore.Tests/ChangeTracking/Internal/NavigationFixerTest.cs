@@ -32,13 +32,13 @@ public class NavigationFixerTest
 
     private class FixupContext : DbContext
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                .UseInMemoryDatabase(typeof(FixupContext).FullName);
+                .UseInMemoryDatabase(typeof(FixupContext).FullName!);
     }
 
     private class Blog
@@ -49,7 +49,7 @@ public class NavigationFixerTest
 
     private class Post
     {
-        private Blog _blog;
+        private Blog _blog = null!;
         public int Id { get; set; }
         public int BlogId { get; set; }
 
@@ -136,8 +136,8 @@ public class NavigationFixerTest
 
         principal.Id = "TEST";
 
-        var principalType = model.FindEntityType(typeof(CaseInsensitiveCategory));
-        var idProperty = principalType.FindProperty(nameof(CaseInsensitiveCategory.Id));
+        var principalType = model.FindEntityType(typeof(CaseInsensitiveCategory))!;
+        var idProperty = principalType.FindProperty(nameof(CaseInsensitiveCategory.Id))!;
 
         fixer.KeyPropertyChanged(
             principalEntry,
@@ -524,8 +524,8 @@ public class NavigationFixerTest
 
         dependent.CategoryId = 11;
 
-        var productType = model.FindEntityType(typeof(Product));
-        var categoryIdProperty = productType.FindProperty("CategoryId");
+        var productType = model.FindEntityType(typeof(Product))!;
+        var categoryIdProperty = productType.FindProperty("CategoryId")!;
 
         fixer.KeyPropertyChanged(
             dependentEntry,
@@ -566,8 +566,8 @@ public class NavigationFixerTest
 
         dependent.CategoryId = 0;
 
-        var productType = model.FindEntityType(typeof(Product));
-        var categoryIdProperty = productType.FindProperty("CategoryId");
+        var productType = model.FindEntityType(typeof(Product))!;
+        var categoryIdProperty = productType.FindProperty("CategoryId")!;
 
         fixer.KeyPropertyChanged(
             dependentEntry,
@@ -608,8 +608,8 @@ public class NavigationFixerTest
 
         dependent.CategoryId = 11;
 
-        var productType = model.FindEntityType(typeof(Product));
-        var categoryIdProperty = productType.FindProperty("CategoryId");
+        var productType = model.FindEntityType(typeof(Product))!;
+        var categoryIdProperty = productType.FindProperty("CategoryId")!;
 
         fixer.KeyPropertyChanged(
             dependentEntry,
@@ -652,8 +652,8 @@ public class NavigationFixerTest
 
         dependent.Id = 22;
 
-        var productDetailType = model.FindEntityType(typeof(ProductDetail));
-        var idProperty = productDetailType.FindProperty("Id");
+        var productDetailType = model.FindEntityType(typeof(ProductDetail))!;
+        var idProperty = productDetailType.FindProperty("Id")!;
 
         fixer.KeyPropertyChanged(
             dependentEntry,
@@ -692,8 +692,8 @@ public class NavigationFixerTest
 
         dependent.Id = 0;
 
-        var productDetailType = model.FindEntityType(typeof(ProductDetail));
-        var idProperty = productDetailType.FindProperty("Id");
+        var productDetailType = model.FindEntityType(typeof(ProductDetail))!;
+        var idProperty = productDetailType.FindProperty("Id")!;
 
         fixer.KeyPropertyChanged(
             dependentEntry,
@@ -731,8 +731,8 @@ public class NavigationFixerTest
 
         dependent.Id = 21;
 
-        var productDetailType = model.FindEntityType(typeof(ProductDetail));
-        var idProperty = productDetailType.FindProperty("Id");
+        var productDetailType = model.FindEntityType(typeof(ProductDetail))!;
+        var idProperty = productDetailType.FindProperty("Id")!;
 
         fixer.KeyPropertyChanged(
             dependentEntry,
@@ -779,8 +779,8 @@ public class NavigationFixerTest
 
         entity1.AlternateProductId = 23;
 
-        var productType = model.FindEntityType(typeof(Product));
-        var alternateProductId = productType.FindProperty("AlternateProductId");
+        var productType = model.FindEntityType(typeof(Product))!;
+        var alternateProductId = productType.FindProperty("AlternateProductId")!;
 
         fixer.KeyPropertyChanged(
             entry1,
@@ -833,8 +833,8 @@ public class NavigationFixerTest
 
         entity1.AlternateProductId = 23;
 
-        var productType = model.FindEntityType(typeof(Product));
-        var alternateProductId = productType.FindProperty("AlternateProductId");
+        var productType = model.FindEntityType(typeof(Product))!;
+        var alternateProductId = productType.FindProperty("AlternateProductId")!;
 
         fixer.KeyPropertyChanged(
             entry1,
@@ -1001,8 +1001,8 @@ public class NavigationFixerTest
         // Changes both FK relationships
         tag1.ProductId = 2;
 
-        var productTagType = model.FindEntityType(typeof(ProductTag));
-        var productId = productTagType.FindProperty("ProductId");
+        var productTagType = model.FindEntityType(typeof(ProductTag))!;
+        var productId = productTagType.FindProperty("ProductId")!;
 
         fixer.KeyPropertyChanged(
             tagEntry1,
@@ -1268,7 +1268,7 @@ public class NavigationFixerTest
         Assert.Equal(dependent2.AlternateProductId, principal2.Id);
     }
 
-    private static IServiceProvider CreateContextServices(IModel model = null)
+    private static IServiceProvider CreateContextServices(IModel? model = null)
         => InMemoryTestHelpers.Instance.CreateContextServices(model ?? BuildModel());
 
     private class Category
@@ -1280,7 +1280,7 @@ public class NavigationFixerTest
 
     private class CaseInsensitiveCategory
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
         public ICollection<CaseInsensitiveProduct> Products { get; } = new List<CaseInsensitiveProduct>();
     }
@@ -1289,8 +1289,8 @@ public class NavigationFixerTest
     {
         public int Id { get; set; }
 
-        public string CategoryId { get; set; }
-        public CaseInsensitiveCategory Category { get; set; }
+        public string CategoryId { get; set; } = null!;
+        public CaseInsensitiveCategory Category { get; set; } = null!;
     }
 
     private class Product
@@ -1298,20 +1298,20 @@ public class NavigationFixerTest
         public int Id { get; set; }
 
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
 
-        public ProductDetail Detail { get; set; }
+        public ProductDetail Detail { get; set; } = null!;
 
         public int? AlternateProductId { get; set; }
-        public Product AlternateProduct { get; set; }
-        public Product OriginalProduct { get; set; }
+        public Product AlternateProduct { get; set; } = null!;
+        public Product OriginalProduct { get; set; } = null!;
     }
 
     private class ProductDetail : IEnumerable<Product>
     {
         public int Id { get; set; }
 
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
 
         public IEnumerator<Product> GetEnumerator()
             => throw new NotImplementedException();
@@ -1323,7 +1323,7 @@ public class NavigationFixerTest
     private class ProductPhoto
     {
         public int ProductId { get; set; }
-        public string PhotoId { get; set; }
+        public string PhotoId { get; set; } = null!;
 
         public ICollection<ProductTag> ProductTags { get; } = new HashSet<ProductTag>();
     }
@@ -1341,11 +1341,11 @@ public class NavigationFixerTest
         public int Id { get; set; }
 
         public int ProductId { get; set; }
-        public string PhotoId { get; set; }
+        public string PhotoId { get; set; } = null!;
         public Guid ReviewId { get; set; }
 
-        public ProductPhoto Photo { get; set; }
-        public ProductReview Review { get; set; }
+        public ProductPhoto Photo { get; set; } = null!;
+        public ProductReview Review { get; set; } = null!;
     }
 
     private sealed class CaseInsensitiveKeyStringTypeMapping : CoreTypeMapping
@@ -1368,11 +1368,11 @@ public class NavigationFixerTest
         }
 
         public override CoreTypeMapping WithComposedConverter(
-            ValueConverter converter,
-            ValueComparer comparer = null,
-            ValueComparer keyComparer = null,
-            CoreTypeMapping elementMapping = null,
-            JsonValueReaderWriter jsonValueReaderWriter = null)
+            ValueConverter? converter,
+            ValueComparer? comparer = null,
+            ValueComparer? keyComparer = null,
+            CoreTypeMapping? elementMapping = null,
+            JsonValueReaderWriter? jsonValueReaderWriter = null)
             => new CaseInsensitiveKeyStringTypeMapping(
                 Parameters.WithComposedConverter(
                     converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));

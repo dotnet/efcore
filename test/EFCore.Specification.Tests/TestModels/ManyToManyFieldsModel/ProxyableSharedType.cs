@@ -3,15 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
-#nullable disable
-
 public class ProxyableSharedType
 {
     private readonly Dictionary<string, object> _keyValueStore = [];
 
-    public virtual object this[string key]
+    public virtual object? this[string key]
     {
         get => _keyValueStore.TryGetValue(key, out var value) ? value : default;
-        set => _keyValueStore[key] = value;
+        set => _keyValueStore[key] = value!;
     }
 }

@@ -85,8 +85,8 @@ public class LanguageBasedSelectorTests
     private class TestLanguageBasedSelector(params TestLanguageBasedService[] services)
         : LanguageBasedSelector<TestLanguageBasedService>(services);
 
-    private class TestLanguageBasedService(string language) : ILanguageBasedService
+    private class TestLanguageBasedService(string? language) : ILanguageBasedService
     {
-        public string Language { get; } = language;
+        public string? Language { get; } = language;
     }
 }

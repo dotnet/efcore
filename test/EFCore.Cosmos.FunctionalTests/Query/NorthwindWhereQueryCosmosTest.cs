@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindWhereQueryCosmosTest : NorthwindWhereQueryTestBase<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
 {
     public NorthwindWhereQueryCosmosTest(
@@ -64,7 +62,7 @@ WHERE (c["City"] = @city)
 """);
             });
 
-        return null;
+        return null!;
     }
 
     public override Task Where_indexer_closure(bool async)

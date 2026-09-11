@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCManyToManyQuerySqliteFixture : TPCManyToManyQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory

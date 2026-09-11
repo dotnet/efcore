@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindJoinQuerySqlServerTest : NorthwindJoinQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
     public NorthwindJoinQuerySqlServerTest(
@@ -775,7 +773,7 @@ CROSS APPLY (
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [o1].[OrderID], [o0].[OrderID]
+ORDER BY [c].[CustomerID], [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 

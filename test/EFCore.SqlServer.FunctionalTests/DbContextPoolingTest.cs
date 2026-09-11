@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
 #pragma warning disable CS9113 // Parameter is unread.
 public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
     : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
@@ -35,7 +34,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
             .EnableServiceProviderCaching(false);
 
-    private static IServiceProvider BuildServiceProvider<TContextService, TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
+    private static IServiceProvider BuildServiceProvider<TContextService, TContext>(Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContextService : class
         where TContext : DbContext, TContextService
         => new ServiceCollection()
@@ -51,7 +50,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             })
             .BuildServiceProvider(validateScopes: true);
 
-    private static IServiceProvider BuildServiceProvider<TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
+    private static IServiceProvider BuildServiceProvider<TContext>(Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
         => new ServiceCollection()
             .AddDbContextPool<TContext>(ob =>
@@ -98,13 +97,13 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
     private static IDbContextFactory<TContext> BuildFactory<TContext>(bool withDependencyInjection)
         where TContext : DbContext
         => withDependencyInjection
-            ? BuildServiceProviderWithFactory<TContext>().GetService<IDbContextFactory<TContext>>()
+            ? BuildServiceProviderWithFactory<TContext>().GetRequiredService<IDbContextFactory<TContext>>()
             : new PooledDbContextFactory<TContext>(ConfigureOptions(new DbContextOptionsBuilder<TContext>()).Options);
 
     private static IDbContextFactory<TContext> BuildFactory<TContext>(bool withDependencyInjection, int poolSize)
         where TContext : DbContext
         => withDependencyInjection
-            ? BuildServiceProviderWithFactory<TContext>(poolSize).GetService<IDbContextFactory<TContext>>()
+            ? BuildServiceProviderWithFactory<TContext>(poolSize).GetRequiredService<IDbContextFactory<TContext>>()
             : new PooledDbContextFactory<TContext>(ConfigureOptions(new DbContextOptionsBuilder<TContext>()).Options, poolSize);
 
     private interface IPooledContext;
@@ -150,7 +149,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             }
         }
 
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -168,7 +167,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
 
     private class PooledContextWithOverrides(DbContextOptions options) : DbContext(options), IPooledContext
     {
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -179,25 +178,25 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
 
     public class Customer
     {
-        public string CustomerId { get; set; }
-        public string CompanyName { get; set; }
-        public ILazyLoader LazyLoader { get; set; }
+        public string CustomerId { get; set; } = null!;
+        public string CompanyName { get; set; } = null!;
+        public ILazyLoader LazyLoader { get; set; } = null!;
         public ObservableCollection<Order> Orders { get; } = [];
     }
 
     public class Order
     {
         public int OrderId { get; set; }
-        public ILazyLoader LazyLoader { get; set; }
-        public string CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public ILazyLoader LazyLoader { get; set; } = null!;
+        public string CustomerId { get; set; } = null!;
+        public Customer Customer { get; set; } = null!;
     }
 
     private interface ISecondContext;
 
     private class SecondContext(DbContextOptions options) : DbContext(options), ISecondContext
     {
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         public class Blog
         {
@@ -496,7 +495,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
                 .BuildServiceProvider(validateScopes: true);
 
         using var scope = serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetService<TwoParameterConstructorContext>();
+        var context = scope.ServiceProvider.GetRequiredService<TwoParameterConstructorContext>();
 
         Assert.Equal("string", context.StringParameter);
     }
@@ -612,9 +611,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         async Task<DbContext> GetContextAsync(IServiceScope serviceScope)
             => useFactory
                 ? async
-                    ? await serviceScope.ServiceProvider.GetService<IDbContextFactory<DbContext>>()!.CreateDbContextAsync()
-                    : serviceScope.ServiceProvider.GetService<IDbContextFactory<DbContext>>()!.CreateDbContext()
-                : serviceScope.ServiceProvider.GetService<DbContext>();
+                    ? await serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<DbContext>>().CreateDbContextAsync()
+                    : serviceScope.ServiceProvider.GetRequiredService<IDbContextFactory<DbContext>>().CreateDbContext()
+                : serviceScope.ServiceProvider.GetRequiredService<DbContext>();
     }
 
     [Theory, InlineData(false), InlineData(true)]
@@ -627,10 +626,10 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             .BuildServiceProvider(validateScopes: true);
 
         var serviceScope1 = serviceProvider.CreateScope();
-        var context1 = serviceScope1.ServiceProvider.GetService<DbContext>();
+        var context1 = serviceScope1.ServiceProvider.GetRequiredService<DbContext>();
 
         var serviceScope2 = serviceProvider.CreateScope();
-        var context2 = serviceScope2.ServiceProvider.GetService<DbContext>();
+        var context2 = serviceScope2.ServiceProvider.GetRequiredService<DbContext>();
 
         Assert.NotSame(context1, context2);
 
@@ -656,7 +655,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Equal(0, id2d.Lease);
 
         var serviceScope3 = serviceProvider.CreateScope();
-        var context3 = serviceScope3.ServiceProvider.GetService<DbContext>();
+        var context3 = serviceScope3.ServiceProvider.GetRequiredService<DbContext>();
 
         var id1r = context3.ContextId;
 
@@ -667,7 +666,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Equal(0, id1r.Lease);
 
         var serviceScope4 = serviceProvider.CreateScope();
-        var context4 = serviceScope4.ServiceProvider.GetService<DbContext>();
+        var context4 = serviceScope4.ServiceProvider.GetRequiredService<DbContext>();
 
         var id2r = context4.ContextId;
 
@@ -804,8 +803,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         var scopedProvider = serviceScope.ServiceProvider;
 
         var context1 = useInterface
-            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-            : scopedProvider.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+            : scopedProvider.GetRequiredService<PooledContext>();
 
         Assert.Null(context1!.Database.GetCommandTimeout());
 
@@ -853,8 +852,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         scopedProvider = serviceScope.ServiceProvider;
 
         var context2 = useInterface
-            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-            : scopedProvider.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+            : scopedProvider.GetRequiredService<PooledContext>();
 
         Assert.Same(context1, context2);
 
@@ -1080,74 +1079,74 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.False(_context_OnSaveChangesFailed);
     }
 
-    private void Context_OnSavingChanges(object sender, SavingChangesEventArgs e)
+    private void Context_OnSavingChanges(object? sender, SavingChangesEventArgs e)
         => _context_OnSavingChanges = true;
 
     private bool _context_OnSavingChanges;
 
-    private void Context_OnSavedChanges(object sender, SavedChangesEventArgs e)
+    private void Context_OnSavedChanges(object? sender, SavedChangesEventArgs e)
         => _context_OnSavedChanges = true;
 
     private bool _context_OnSavedChanges;
 
-    private void Context_OnSaveChangesFailed(object sender, SaveChangesFailedEventArgs e)
+    private void Context_OnSaveChangesFailed(object? sender, SaveChangesFailedEventArgs e)
         => _context_OnSaveChangesFailed = true;
 
     private bool _context_OnSaveChangesFailed;
 
     private bool _localView_OnPropertyChanged;
 
-    private void LocalView_OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void LocalView_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         => _localView_OnPropertyChanged = true;
 
     private bool _localView_OnPropertyChanging;
 
-    private void LocalView_OnPropertyChanging(object sender, PropertyChangingEventArgs e)
+    private void LocalView_OnPropertyChanging(object? sender, PropertyChangingEventArgs e)
         => _localView_OnPropertyChanging = true;
 
     private bool _localView_OnCollectionChanged;
 
-    private void LocalView_OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void LocalView_OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         => _localView_OnCollectionChanged = true;
 
     private bool _changeTracker_OnTracking;
 
-    private void ChangeTracker_OnTracking(object sender, EntityTrackingEventArgs e)
+    private void ChangeTracker_OnTracking(object? sender, EntityTrackingEventArgs e)
         => _changeTracker_OnTracking = true;
 
     private bool _changeTracker_OnTracked;
 
-    private void ChangeTracker_OnTracked(object sender, EntityTrackedEventArgs e)
+    private void ChangeTracker_OnTracked(object? sender, EntityTrackedEventArgs e)
         => _changeTracker_OnTracked = true;
 
     private bool _changeTracker_OnStateChanging;
 
-    private void ChangeTracker_OnStateChanging(object sender, EntityStateChangingEventArgs e)
+    private void ChangeTracker_OnStateChanging(object? sender, EntityStateChangingEventArgs e)
         => _changeTracker_OnStateChanging = true;
 
     private bool _changeTracker_OnStateChanged;
 
-    private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
+    private void ChangeTracker_OnStateChanged(object? sender, EntityStateChangedEventArgs e)
         => _changeTracker_OnStateChanged = true;
 
     private bool _changeTracker_OnDetectingAllChanges;
 
-    private void ChangeTracker_OnDetectingAllChanges(object sender, DetectChangesEventArgs e)
+    private void ChangeTracker_OnDetectingAllChanges(object? sender, DetectChangesEventArgs e)
         => _changeTracker_OnDetectingAllChanges = true;
 
     private bool _changeTracker_OnDetectedAllChanges;
 
-    private void ChangeTracker_OnDetectedAllChanges(object sender, DetectedChangesEventArgs e)
+    private void ChangeTracker_OnDetectedAllChanges(object? sender, DetectedChangesEventArgs e)
         => _changeTracker_OnDetectedAllChanges = true;
 
     private bool _changeTracker_OnDetectingEntityChanges;
 
-    private void ChangeTracker_OnDetectingEntityChanges(object sender, DetectEntityChangesEventArgs e)
+    private void ChangeTracker_OnDetectingEntityChanges(object? sender, DetectEntityChangesEventArgs e)
         => _changeTracker_OnDetectingEntityChanges = true;
 
     private bool _changeTracker_OnDetectedEntityChanges;
 
-    private void ChangeTracker_OnDetectedEntityChanges(object sender, DetectedEntityChangesEventArgs e)
+    private void ChangeTracker_OnDetectedEntityChanges(object? sender, DetectedEntityChangesEventArgs e)
         => _changeTracker_OnDetectedEntityChanges = true;
 
     [Theory, InlineData(false, null), InlineData(true, null), InlineData(false, QueryTrackingBehavior.TrackAll),
@@ -1232,8 +1231,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             var scopedProvider = serviceScope.ServiceProvider;
 
             var context1 = useInterface
-                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                : scopedProvider.GetService<PooledContext>();
+                ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+                : scopedProvider.GetRequiredService<PooledContext>();
 
             var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
@@ -1245,8 +1244,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             scopedProvider = serviceScope.ServiceProvider;
 
             var context2 = useInterface
-                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                : scopedProvider.GetService<PooledContext>();
+                ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+                : scopedProvider.GetRequiredService<PooledContext>();
 
             Assert.Same(context1, context2);
             Assert.Empty(context2.ChangeTracker.Entries());
@@ -1303,8 +1302,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         var scopedProvider = serviceScope.ServiceProvider;
 
         var context1 = useInterface
-            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-            : scopedProvider.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+            : scopedProvider.GetRequiredService<PooledContext>();
 
         context1.ChangeTracker.LazyLoadingEnabled = true;
 
@@ -1384,15 +1383,15 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         var scopedProvider1 = serviceScope1.ServiceProvider;
 
         var context1 = useInterface
-            ? (PooledContext)scopedProvider1.GetService<IPooledContext>()
-            : scopedProvider1.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider1.GetRequiredService<IPooledContext>()
+            : scopedProvider1.GetRequiredService<PooledContext>();
 
         var serviceScope2 = serviceProvider.CreateScope();
         var scopedProvider2 = serviceScope2.ServiceProvider;
 
         var context2 = useInterface
-            ? (PooledContext)scopedProvider2.GetService<IPooledContext>()
-            : scopedProvider2.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider2.GetRequiredService<IPooledContext>()
+            : scopedProvider2.GetRequiredService<PooledContext>();
 
         await Dispose(serviceScope1, async);
         await Dispose(serviceScope2, async);
@@ -1412,8 +1411,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         var scopedProvider = serviceScope.ServiceProvider;
 
         var context = useInterface
-            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-            : scopedProvider.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+            : scopedProvider.GetRequiredService<PooledContext>();
 
         await Dispose(serviceScope, async);
 
@@ -1433,8 +1432,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         var scopedProvider = serviceScope.ServiceProvider;
 
         var context = useInterface
-            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-            : scopedProvider.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+            : scopedProvider.GetRequiredService<PooledContext>();
 
         await Dispose(serviceScope, async);
 
@@ -1539,8 +1538,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         var scopedProvider = serviceScope.ServiceProvider;
 
         var context1 = useInterface
-            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-            : scopedProvider.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+            : scopedProvider.GetRequiredService<PooledContext>();
 
         context1!.Database.BeginTransaction();
 
@@ -1552,8 +1551,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         scopedProvider = serviceScope.ServiceProvider;
 
         var context2 = useInterface
-            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-            : scopedProvider.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+            : scopedProvider.GetRequiredService<PooledContext>();
 
         Assert.Same(context1, context2);
         Assert.Null(context2!.Database.CurrentTransaction);
@@ -1568,8 +1567,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         scopedProvider = serviceScope.ServiceProvider;
 
         var context3 = useInterface
-            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-            : scopedProvider.GetService<PooledContext>();
+            ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+            : scopedProvider.GetRequiredService<PooledContext>();
 
         Assert.Same(context2, context3);
         Assert.Null(context3!.Database.CurrentTransaction);
@@ -1900,8 +1899,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
                 var scopedProvider = scope.ServiceProvider;
 
                 var context = useInterface
-                    ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                    : scopedProvider.GetService<PooledContext>();
+                    ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+                    : scopedProvider.GetRequiredService<PooledContext>();
 
                 var _ = context.Customers.ToList();
 
@@ -1930,8 +1929,8 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
                 var scopedProvider = serviceScope.ServiceProvider;
 
                 var context = useInterface
-                    ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                    : scopedProvider.GetService<PooledContext>();
+                    ? (PooledContext)scopedProvider.GetRequiredService<IPooledContext>()
+                    : scopedProvider.GetRequiredService<PooledContext>();
 
                 await context!.Customers.AsNoTracking().FirstAsync(c => c.CustomerId == "ALFKI");
 

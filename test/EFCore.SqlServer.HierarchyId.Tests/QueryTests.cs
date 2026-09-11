@@ -131,7 +131,7 @@ public class QueryTests : IDisposable
             Condense(@"SELECT [p].[Id].GetAncestor(1) FROM [Patriarchy] AS [p] WHERE [p].[Id].GetLevel() = CAST(0 AS smallint)"),
             Condense(_db.Sql));
 
-        Assert.Equal(new HierarchyId[] { null }, results);
+        Assert.Equal(new HierarchyId?[] { null }, results);
     }
 
     [Fact]
@@ -206,7 +206,7 @@ public class QueryTests : IDisposable
             _db.SaveChanges();
             _db.ChangeTracker.Clear();
 
-            var queried = _db.Patriarchy.Where(e => e.Name.StartsWith("Th")).OrderBy(e => e.Id).ToList();
+            var queried = _db.Patriarchy.Where(e => e.Name!.StartsWith("Th")).OrderBy(e => e.Id).ToList();
 
             Assert.Equal(3, queried.Count);
 
@@ -237,7 +237,7 @@ public class QueryTests : IDisposable
             _db.SaveChanges();
             _db.ChangeTracker.Clear();
 
-            var queried = _db.ConvertedPatriarchy.Where(e => e.Name.StartsWith("Th")).OrderBy(e => e.Id).ToList();
+            var queried = _db.ConvertedPatriarchy.Where(e => e.Name!.StartsWith("Th")).OrderBy(e => e.Id).ToList();
 
             Assert.Equal(3, queried.Count);
 
@@ -255,7 +255,7 @@ public class QueryTests : IDisposable
             _db.SaveChanges();
             _db.ChangeTracker.Clear();
 
-            queried = _db.ConvertedPatriarchy.Where(e => e.Name.StartsWith("Th")).OrderBy(e => e.Id).ToList();
+            queried = _db.ConvertedPatriarchy.Where(e => e.Name!.StartsWith("Th")).OrderBy(e => e.Id).ToList();
 
             Assert.Equal(3, queried.Count);
 
@@ -385,7 +385,7 @@ WHERE [p].[Id] IN (@ids1, @ids2)
     // replace whitespace with a single space
     private static string Condense(string str)
     {
-        var split = str.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+        var split = str.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         return string.Join(" ", split);
     }
 }

@@ -19,14 +19,14 @@ public class IndexAttributeConventionTest
     {
         var modelBuilder = new InternalModelBuilder(new Model());
 
-        var entityBuilder = modelBuilder.Entity(typeof(EntityWithIndex), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(EntityWithIndex), ConfigurationSource.Convention)!;
         entityBuilder.Property("Id", ConfigurationSource.Convention);
-        var propABuilder = entityBuilder.Property("A", ConfigurationSource.Convention);
-        var propBBuilder = entityBuilder.Property("B", ConfigurationSource.Convention);
+        var propABuilder = entityBuilder.Property("A", ConfigurationSource.Convention)!;
+        var propBBuilder = entityBuilder.Property("B", ConfigurationSource.Convention)!;
         entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
 
         var indexProperties = new List<string> { propABuilder.Metadata.Name, propBBuilder.Metadata.Name };
-        var indexBuilder = entityBuilder.HasIndex(indexProperties, "IndexOnAAndB", ConfigurationSource.Convention);
+        var indexBuilder = entityBuilder.HasIndex(indexProperties, "IndexOnAAndB", ConfigurationSource.Convention)!;
         indexBuilder.IsUnique(false, ConfigurationSource.Convention);
         indexBuilder.IsDescending([false, true], ConfigurationSource.Convention);
 
@@ -223,7 +223,7 @@ public class IndexAttributeConventionTest
         Assert.Empty(parentEntityBuilder.Metadata.GetDeclaredIndexes());
         Assert.Single(childEntityBuilder.Metadata.GetDeclaredIndexes());
 
-        parentEntityBuilder.HasBaseType((string)null);
+        parentEntityBuilder.HasBaseType((string?)null);
 
         Assert.Null(parentEntityBuilder.Metadata.BaseType);
         Assert.NotNull(childEntityBuilder.Metadata.BaseType);
@@ -348,7 +348,7 @@ public class IndexAttributeConventionTest
         public int D { get; set; }
     }
 
-    [Index(nameof(A), (string)null, Name = "IndexOnAAndNull")]
+    [Index(nameof(A), (string)null!, Name = "IndexOnAAndNull")]
     private class EntityWithInvalidNullIndexProperty
     {
         public int Id { get; set; }

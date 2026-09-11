@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixture>(TFixture fixture)
     : StoreValueGenerationTestBase<TFixture>(fixture)
     where TFixture : StoreValueGenerationWithoutOutputSqlServerFixture

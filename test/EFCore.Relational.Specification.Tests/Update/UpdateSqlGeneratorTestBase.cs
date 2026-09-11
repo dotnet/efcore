@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Update.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class UpdateSqlGeneratorTestBase
 {
     [Fact]
@@ -247,11 +245,11 @@ public abstract class UpdateSqlGeneratorTestBase
         var generator = new ParameterNameGenerator();
 
         var duckType = entry.EntityType;
-        var idProperty = duckType.FindProperty(nameof(Duck.Id));
-        var nameProperty = duckType.FindProperty(nameof(Duck.Name));
-        var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
-        var computedProperty = duckType.FindProperty(nameof(Duck.Computed));
-        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+        var idProperty = duckType.FindProperty(nameof(Duck.Id))!;
+        var nameProperty = duckType.FindProperty(nameof(Duck.Name))!;
+        var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks))!;
+        var computedProperty = duckType.FindProperty(nameof(Duck.Computed))!;
+        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken))!;
 
         var columnModifications = new[]
         {
@@ -289,11 +287,11 @@ public abstract class UpdateSqlGeneratorTestBase
         var generator = new ParameterNameGenerator();
 
         var duckType = entry.EntityType;
-        var idProperty = duckType.FindProperty(nameof(Duck.Id));
-        var nameProperty = duckType.FindProperty(nameof(Duck.Name));
-        var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
-        var computedProperty = duckType.FindProperty(nameof(Duck.Computed));
-        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+        var idProperty = duckType.FindProperty(nameof(Duck.Id))!;
+        var nameProperty = duckType.FindProperty(nameof(Duck.Name))!;
+        var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks))!;
+        var computedProperty = duckType.FindProperty(nameof(Duck.Computed))!;
+        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken))!;
 
         var columnModifications = new[]
         {
@@ -325,8 +323,8 @@ public abstract class UpdateSqlGeneratorTestBase
         var generator = new ParameterNameGenerator();
 
         var duckType = entry.EntityType;
-        var idProperty = duckType.FindProperty(nameof(Duck.Id));
-        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+        var idProperty = duckType.FindProperty(nameof(Duck.Id))!;
+        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken))!;
 
         var columnModifications = new[]
         {
@@ -353,10 +351,10 @@ public abstract class UpdateSqlGeneratorTestBase
     protected class Duck
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int Quacks { get; set; }
         public Guid Computed { get; set; }
-        public byte[] ConcurrencyToken { get; set; }
+        public byte[]? ConcurrencyToken { get; set; }
     }
 
     private IModificationCommand CreateModificationCommand(

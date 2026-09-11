@@ -7,8 +7,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ModelBuilding101TestBase
 {
     [Fact]
@@ -20,14 +18,14 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -72,7 +70,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -83,7 +81,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
         }
     }
@@ -97,14 +95,14 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -143,7 +141,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -154,7 +152,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -174,13 +172,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -225,7 +223,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -233,7 +231,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("Id"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -250,7 +248,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -258,7 +256,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("Id"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -278,13 +276,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -328,7 +326,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -336,7 +334,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -353,7 +351,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -361,7 +359,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -381,13 +379,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader? Header { get; set; }
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class BlogContext0 : Context101
@@ -430,7 +428,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader? Header { get; set; }
             }
 
             public class BlogHeader
@@ -438,7 +436,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -455,7 +453,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader? Header { get; set; }
             }
 
             public class BlogHeader
@@ -463,7 +461,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -483,7 +481,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
@@ -526,7 +524,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -554,7 +552,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
@@ -602,7 +600,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
@@ -656,7 +654,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
@@ -715,7 +713,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -767,7 +765,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -798,7 +796,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -850,7 +848,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId { get; set; }
 
                 [ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -880,7 +878,7 @@ public abstract partial class ModelBuilding101TestBase
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class BlogContext0 : Context101
@@ -931,7 +929,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -961,7 +959,7 @@ public abstract partial class ModelBuilding101TestBase
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class BlogContext0 : Context101
@@ -1011,7 +1009,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -1273,14 +1271,14 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -1328,7 +1326,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1339,7 +1337,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1366,14 +1364,14 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -1421,7 +1419,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1432,7 +1430,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1459,13 +1457,13 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -1512,7 +1510,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
                 public int AlternateId { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1520,7 +1518,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1544,7 +1542,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1552,7 +1550,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1579,13 +1577,13 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -1633,7 +1631,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1641,7 +1639,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1668,7 +1666,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
@@ -1676,7 +1674,7 @@ public abstract partial class ModelBuilding101TestBase
             public int Id { get; set; }
             public int BlogId1 { get; set; }
             public int BlogId2 { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -1730,7 +1728,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1740,7 +1738,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId2 { get; set; }
 
                 [ForeignKey("BlogId1, BlogId2")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1759,7 +1757,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1773,7 +1771,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId2 { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId1, BlogId2"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1794,7 +1792,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
@@ -1802,7 +1800,7 @@ public abstract partial class ModelBuilding101TestBase
             public int Id { get; set; }
             public int BlogId1 { get; set; }
             public int? BlogId2 { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -1856,7 +1854,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1866,7 +1864,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId2 { get; set; }
 
                 [ForeignKey("BlogId1, BlogId2")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1885,7 +1883,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1898,7 +1896,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId2 { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId1, BlogId2")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1919,13 +1917,13 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -1986,7 +1984,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -1994,7 +1992,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId1, BlogId2"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -2013,7 +2011,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -2021,7 +2019,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId1, BlogId2"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -2042,13 +2040,13 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader? Header { get; set; }
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class BlogContext0 : Context101
@@ -2108,7 +2106,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader? Header { get; set; }
             }
 
             public class BlogHeader
@@ -2116,7 +2114,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId1, BlogId2")]
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -2135,7 +2133,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader? Header { get; set; }
             }
 
             public class BlogHeader
@@ -2143,7 +2141,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId1, BlogId2")]
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -2165,8 +2163,8 @@ public abstract partial class ModelBuilding101TestBase
             public int Id { get; set; }
 
             public int? HusbandId { get; set; }
-            public Person Husband { get; set; }
-            public Person Wife { get; set; }
+            public Person Husband { get; set; } = null!;
+            public Person Wife { get; set; } = null!;
         }
 
         public class PersonContext0 : Context101
@@ -2203,10 +2201,10 @@ public abstract partial class ModelBuilding101TestBase
                 public int? HusbandId { get; set; }
 
                 [InverseProperty("Wife"), ForeignKey("HusbandId")]
-                public Person Husband { get; set; }
+                public Person Husband { get; set; } = null!;
 
                 [InverseProperty("Husband")]
-                public Person Wife { get; set; }
+                public Person Wife { get; set; } = null!;
             }
 
             public DbSet<Person> People
@@ -2223,14 +2221,14 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public BlogHeader Header { get; set; }
+            public BlogHeader Header { get; set; } = null!;
         }
 
         public class BlogHeader
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class BlogContext0 : Context101
@@ -2275,7 +2273,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -2284,7 +2282,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [DeleteBehavior(DeleteBehavior.Restrict)]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -2301,7 +2299,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public BlogHeader Header { get; set; }
+                public BlogHeader Header { get; set; } = null!;
             }
 
             public class BlogHeader
@@ -2312,7 +2310,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [InverseProperty("Header"), ForeignKey("BlogId"), Required, DeleteBehavior(DeleteBehavior.Restrict)]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs

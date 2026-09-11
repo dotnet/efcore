@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-#nullable disable
-
 public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixture fixture) : NonSharedModelBulkUpdatesTestBase(fixture)
 {
     protected override string NonSharedStoreName
@@ -162,8 +160,8 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
-            public string Data { get; set; }
-            public ComplexThing ComplexThing { get; set; }
+            public string? Data { get; set; }
+            public ComplexThing ComplexThing { get; set; } = null!;
         }
 
         public class ComplexThing

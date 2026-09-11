@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : FieldsOnlyLoadTestBase<TFixture>.FieldsOnlyLoadFixtureBase
 {
@@ -2748,7 +2746,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var child = context.Attach(
-            new ChildAk { Id = 767, ParentId = null }).Entity;
+            new ChildAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -2782,7 +2780,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var single = context.Attach(
-            new SingleAk { Id = 767, ParentId = null }).Entity;
+            new SingleAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -2817,7 +2815,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var child = context.Attach(
-            new ChildAk { Id = 767, ParentId = null }).Entity;
+            new ChildAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -2848,7 +2846,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var single = context.Attach(
-            new SingleAk { Id = 767, ParentId = null }).Entity;
+            new SingleAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -4167,78 +4165,78 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     protected class Parent
     {
         public int Id;
-        public string AlternateId;
-        public IEnumerable<Child> Children;
-        public SinglePkToPk SinglePkToPk;
-        public Single Single;
-        public IEnumerable<ChildAk> ChildrenAk;
-        public SingleAk SingleAk;
-        public IEnumerable<ChildShadowFk> ChildrenShadowFk;
-        public SingleShadowFk SingleShadowFk;
-        public IEnumerable<ChildCompositeKey> ChildrenCompositeKey;
-        public SingleCompositeKey SingleCompositeKey;
+        public string AlternateId = null!;
+        public IEnumerable<Child> Children = null!;
+        public SinglePkToPk SinglePkToPk = null!;
+        public Single Single = null!;
+        public IEnumerable<ChildAk> ChildrenAk = null!;
+        public SingleAk SingleAk = null!;
+        public IEnumerable<ChildShadowFk> ChildrenShadowFk = null!;
+        public SingleShadowFk SingleShadowFk = null!;
+        public IEnumerable<ChildCompositeKey> ChildrenCompositeKey = null!;
+        public SingleCompositeKey SingleCompositeKey = null!;
     }
 
     protected class Child
     {
         public int Id;
         public int? ParentId;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class SinglePkToPk
     {
         public int Id;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class Single
     {
         public int Id;
         public int? ParentId;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class ChildAk
     {
         public int Id;
-        public string ParentId;
-        public Parent Parent;
+        public string ParentId = null!;
+        public Parent Parent = null!;
     }
 
     protected class SingleAk
     {
         public int Id;
-        public string ParentId;
-        public Parent Parent;
+        public string ParentId = null!;
+        public Parent Parent = null!;
     }
 
     protected class ChildShadowFk
     {
         public int Id;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class SingleShadowFk
     {
         public int Id;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class ChildCompositeKey
     {
         public int Id;
         public int? ParentId;
-        public string ParentAlternateId;
-        public Parent Parent;
+        public string ParentAlternateId = null!;
+        public Parent Parent = null!;
     }
 
     protected class SingleCompositeKey
     {
         public int Id;
         public int? ParentId;
-        public string ParentAlternateId;
-        public Parent Parent;
+        public string ParentAlternateId = null!;
+        public Parent Parent = null!;
     }
 
     protected DbContext CreateContext(bool noTracking = false)

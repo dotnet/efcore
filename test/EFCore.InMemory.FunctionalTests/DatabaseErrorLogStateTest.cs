@@ -111,7 +111,7 @@ public class DatabaseErrorLogStateTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         public class Blog
         {
@@ -128,8 +128,8 @@ public class DatabaseErrorLogStateTest
                 }
             }
 
-            public string Url { get; set; }
-            public string Name { get; set; }
+            public string Url { get; set; } = null!;
+            public string? Name { get; set; }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -158,21 +158,22 @@ public class DatabaseErrorLogStateTest
 
         public class TestLogger : ILogger
         {
-            public IDisposable BeginScope<TState>(TState state)
+            public IDisposable? BeginScope<TState>(TState state)
+                where TState : notnull
                 => NullScope.Instance;
 
             public void Log<TState>(
                 LogLevel logLevel,
                 EventId eventId,
                 TState state,
-                Exception exception,
-                Func<TState, Exception, string> formatter)
+                Exception? exception,
+                Func<TState, Exception?, string> formatter)
             {
                 if (eventId.Id == CoreEventId.SaveChangesFailed.Id
                     || eventId.Id == CoreEventId.QueryIterationFailed.Id)
                 {
-                    LastDatabaseErrorState = (IReadOnlyList<KeyValuePair<string, object>>)state;
-                    LastDatabaseErrorException = exception;
+                    LastDatabaseErrorState = (IReadOnlyList<KeyValuePair<string, object>>)(object)state!;
+                    LastDatabaseErrorException = exception!;
                     LastDatabaseErrorFormatter = (s, e) => formatter((TState)s, e);
                 }
             }
@@ -180,9 +181,9 @@ public class DatabaseErrorLogStateTest
             public bool IsEnabled(LogLevel logLevel)
                 => true;
 
-            public IReadOnlyList<KeyValuePair<string, object>> LastDatabaseErrorState { get; private set; }
-            public Exception LastDatabaseErrorException { get; private set; }
-            public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; }
+            public IReadOnlyList<KeyValuePair<string, object>> LastDatabaseErrorState { get; private set; } = null!;
+            public Exception LastDatabaseErrorException { get; private set; } = null!;
+            public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; } = null!;
 
             private class NullScope : IDisposable
             {

@@ -3454,7 +3454,7 @@ public class FixupCompositeTest
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public Child Child { get; set; }
+        public Child Child { get; set; } = null!;
     }
 
     private class Child
@@ -3465,7 +3465,7 @@ public class FixupCompositeTest
         public int ParentId1 { get; set; }
         public Guid ParentId2 { get; set; }
 
-        public Parent Parent { get; set; }
+        public Parent Parent { get; set; } = null!;
     }
 
     private class ParentPN
@@ -3473,7 +3473,7 @@ public class FixupCompositeTest
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ChildPN Child { get; set; }
+        public ChildPN Child { get; set; } = null!;
     }
 
     private class ChildPN
@@ -3498,7 +3498,7 @@ public class FixupCompositeTest
 
         public int ParentId1 { get; set; }
         public Guid ParentId2 { get; set; }
-        public ParentDN Parent { get; set; }
+        public ParentDN Parent { get; set; } = null!;
     }
 
     private class ParentNN
@@ -3529,7 +3529,7 @@ public class FixupCompositeTest
 
         public int CategoryId1 { get; set; }
         public Guid CategoryId2 { get; set; }
-        public CategoryDN Category { get; set; }
+        public CategoryDN Category { get; set; } = null!;
     }
 
     private class CategoryPN
@@ -3579,7 +3579,7 @@ public class FixupCompositeTest
 
         public int CategoryId1 { get; set; }
         public Guid CategoryId2 { get; set; }
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
     }
 
     public class ParentShared
@@ -3587,7 +3587,7 @@ public class FixupCompositeTest
         public long ID { get; set; }
         public long? FavoriteChildID { get; set; }
 
-        public virtual ChildShared FavoriteChildShared { get; set; }
+        public virtual ChildShared FavoriteChildShared { get; set; } = null!;
         public virtual List<ChildShared> Children { get; } = [];
     }
 
@@ -3596,7 +3596,7 @@ public class FixupCompositeTest
         public long ParentID { get; set; }
         public long ID { get; set; }
 
-        public virtual ParentShared ParentShared { get; set; }
+        public virtual ParentShared ParentShared { get; set; } = null!;
     }
 
     private class FixupContext : DbContext

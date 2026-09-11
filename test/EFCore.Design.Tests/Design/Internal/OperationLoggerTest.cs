@@ -16,7 +16,7 @@ public class OperationLoggerTests
         logger.Log<object>(
             LogLevel.Information,
             RelationalEventId.CommandExecuted,
-            null,
+            null!,
             null,
             (_, __) => "-- Can't stop the SQL");
 

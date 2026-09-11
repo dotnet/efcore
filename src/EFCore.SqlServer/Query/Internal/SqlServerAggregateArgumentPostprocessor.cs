@@ -7,8 +7,9 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
-///     SQL Server doesn't support aggregate function invocations over subqueries, or other aggregate function invocations; this
-///     postprocessor lifts such subqueries out to an OUTER APPLY/JOIN on the SELECT to work around this limitation.
+///     SQL Server doesn't support aggregate function invocations over subqueries, or other aggregate function invocations; nor does it
+///     support aggregating an expression which references a column from an outer query alongside any other column. This postprocessor
+///     lifts such aggregate arguments out to an OUTER APPLY/JOIN on the SELECT to work around these limitations.
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -16,14 +17,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAliasManager) : ExpressionVisitor
+public class SqlServerAggregateArgumentPostprocessor(SqlAliasManager sqlAliasManager) : ExpressionVisitor
 {
     private SelectExpression? _currentSelect;
     private bool _inAggregateInvocation;
     private bool _aggregateArgumentContainsSubquery;
+    private bool _aggregateArgumentContainsOuterReference;
+    private bool _aggregateArgumentContainsLocalReference;
     private List<JoinExpressionBase>? _joinsToAdd;
     private bool _isCorrelatedSubquery;
     private HashSet<string>? _tableAliasesInScope;
+    private HashSet<string>? _aggregatingSelectTableAliases;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,18 +85,42 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
                 var parentInAggregateInvocation = _inAggregateInvocation;
                 var parentIsCorrelatedSubquery = _isCorrelatedSubquery;
                 var parentTableAliasesInScope = _tableAliasesInScope;
+                var parentAggregatingSelectTableAliases = _aggregatingSelectTableAliases;
                 var parentAggregateArgumentContainsSubquery = _aggregateArgumentContainsSubquery;
+                var parentAggregateArgumentContainsOuterReference = _aggregateArgumentContainsOuterReference;
+                var parentAggregateArgumentContainsLocalReference = _aggregateArgumentContainsLocalReference;
                 _inAggregateInvocation = true;
                 _isCorrelatedSubquery = false;
                 _tableAliasesInScope = [];
+                // The tables of the SELECT in which the aggregate is evaluated; columns over any other table are outer references.
+                _aggregatingSelectTableAliases = _currentSelect is null
+                    ? []
+                    : new HashSet<string>(_currentSelect.Tables.Select(t => t.UnwrapJoin().Alias).Where(a => a is not null)!);
                 _aggregateArgumentContainsSubquery = false;
+                _aggregateArgumentContainsOuterReference = false;
+                _aggregateArgumentContainsLocalReference = false;
 
                 var result = base.VisitExtension(function);
 
-                if (_aggregateArgumentContainsSubquery)
+                // An outer reference on its own is fine - SQL Server evaluates such an aggregate in the outer query, which is how
+                // aggregates over an outer grouping get translated. It's only when the outer reference is combined with another column
+                // that SQL Server rejects the expression, and lifting is both needed and unambiguous.
+                var liftArgument = _aggregateArgumentContainsSubquery
+                    || (_aggregateArgumentContainsOuterReference && _aggregateArgumentContainsLocalReference);
+                var isCorrelatedSubquery = _isCorrelatedSubquery;
+
+                _inAggregateInvocation = parentInAggregateInvocation;
+                _isCorrelatedSubquery = parentIsCorrelatedSubquery;
+                _tableAliasesInScope = parentTableAliasesInScope;
+                _aggregatingSelectTableAliases = parentAggregatingSelectTableAliases;
+                _aggregateArgumentContainsSubquery = parentAggregateArgumentContainsSubquery;
+                _aggregateArgumentContainsOuterReference = parentAggregateArgumentContainsOuterReference;
+                _aggregateArgumentContainsLocalReference = parentAggregateArgumentContainsLocalReference;
+
+                if (liftArgument)
                 {
-                    // During our visitation of the aggregate function invocation, a subquery was encountered - this is our trigger to
-                    // extract out the argument to be an OUTER APPLY/CROSS JOIN.
+                    // During our visitation of the aggregate function invocation, a subquery or an outer reference was encountered - this
+                    // is our trigger to extract out the argument to be an OUTER APPLY/CROSS JOIN.
                     if (result is not SqlFunctionExpression { Instance: null, Arguments: [var argument] } visitedFunction)
                     {
                         throw new UnreachableException();
@@ -154,7 +182,7 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
 
                     _joinsToAdd ??= [];
                     _joinsToAdd.Add(
-                        _isCorrelatedSubquery ? new OuterApplyExpression(liftedSubquery) : new CrossJoinExpression(liftedSubquery));
+                        isCorrelatedSubquery ? new OuterApplyExpression(liftedSubquery) : new CrossJoinExpression(liftedSubquery));
 
                     var projection = liftedSubquery.Projection.Single();
 
@@ -167,11 +195,6 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
                                 nullable: true)
                         ]);
                 }
-
-                _inAggregateInvocation = parentInAggregateInvocation;
-                _isCorrelatedSubquery = parentIsCorrelatedSubquery;
-                _tableAliasesInScope = parentTableAliasesInScope;
-                _aggregateArgumentContainsSubquery = parentAggregateArgumentContainsSubquery;
 
                 return result;
             }
@@ -188,6 +211,20 @@ public class SqlServerAggregateOverSubqueryPostprocessor(SqlAliasManager sqlAlia
             // we're in a correlated subquery.
             case ColumnExpression column when _tableAliasesInScope?.Contains(column.TableAlias) == false:
                 _isCorrelatedSubquery = true;
+
+                // The column may still belong to the SELECT in which the aggregate is being evaluated (that SELECT's tables aren't in
+                // _tableAliasesInScope, since the lifted subquery must reference them via APPLY rather than via CROSS JOIN). If it doesn't,
+                // it's an outer reference, which SQL Server only tolerates inside an aggregate if it's the only column referenced there.
+                switch (_aggregatingSelectTableAliases?.Contains(column.TableAlias))
+                {
+                    case true:
+                        _aggregateArgumentContainsLocalReference = true;
+                        break;
+                    case false:
+                        _aggregateArgumentContainsOuterReference = true;
+                        break;
+                }
+
                 return base.VisitExtension(column);
 
             case ShapedQueryExpression shapedQueryExpression:

@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
-#nullable disable
-
 public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtureBase
 {
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

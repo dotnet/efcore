@@ -87,10 +87,10 @@ public class ModelSourceTest
 
     private class JustAClass
     {
-        public DbSet<Random> One { get; set; }
-        protected DbSet<object> Two { get; set; }
-        private DbSet<string> Three { get; set; }
-        private DbSet<string> Four { get; set; }
+        public DbSet<Random> One { get; set; } = null!;
+        protected DbSet<object> Two { get; set; } = null!;
+        private DbSet<string> Three { get; set; } = null!;
+        private DbSet<string> Four { get; set; } = null!;
     }
 
     private class SetA
@@ -232,7 +232,7 @@ public class ModelSourceTest
 
         var model = modelSource.GetModel(context, testModelDependencies, designTime: false);
         var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
-            .Single(m => m.Key == "PackageVersion").Value;
+            .Single(m => m.Key == "PackageVersion").Value!;
 
         var prereleaseIndex = packageVersion.IndexOf("-", StringComparison.Ordinal);
         if (prereleaseIndex != -1)

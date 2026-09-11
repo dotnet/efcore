@@ -7,8 +7,6 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqliteDatabaseCreatorTest
 {
     [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]

@@ -5,20 +5,18 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class ManyToManyNoTrackingQueryTestBase<TFixture>(TFixture fixture) : ManyToManyQueryTestBase<TFixture>(fixture)
     where TFixture : ManyToManyQueryFixtureBase, new()
 {
     private static readonly MethodInfo _asNoTrackingMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
-            .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
+            .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking))!;
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
         serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
 
-        var elementType = serverQueryExpression.Type.TryGetSequenceType();
+        var elementType = serverQueryExpression.Type.TryGetSequenceType()!;
 
         return elementType.UnwrapNullableType().IsValueType
             && serverQueryExpression is MethodCallExpression methodCallExpression
@@ -30,7 +28,7 @@ public abstract class ManyToManyNoTrackingQueryTestBase<TFixture>(TFixture fixtu
 
         static Expression ApplyNoTracking(Expression source)
             => Expression.Call(
-                _asNoTrackingMethodInfo.MakeGenericMethod(source.Type.TryGetSequenceType()),
+                _asNoTrackingMethodInfo.MakeGenericMethod(source.Type.TryGetSequenceType()!),
                 source);
     }
 

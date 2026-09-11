@@ -102,7 +102,7 @@ public class CollectionTypeFactoryTest
     private class DummyNotifying : INotifyPropertyChanged
     {
 #pragma warning disable 67
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 #pragma warning restore 67
     }
 }

@@ -30,7 +30,7 @@ public class BoolToStringConverterTest
         Assert.True(converter("T"));
         Assert.False(converter("Yes"));
         Assert.False(converter(""));
-        Assert.False(converter(null));
+        Assert.False(converter(null!));
     }
 
     private static readonly BoolToStringConverter _boolToYn
@@ -56,7 +56,7 @@ public class BoolToStringConverterTest
         Assert.True(converter("yes"));
         Assert.False(converter("True"));
         Assert.False(converter(""));
-        Assert.False(converter(null));
+        Assert.False(converter(null!));
     }
 
     [Fact]
@@ -76,6 +76,6 @@ public class BoolToStringConverterTest
         Assert.False(converter(""));
         Assert.True(converter(" "));
         Assert.False(converter("\t"));
-        Assert.False(converter(null));
+        Assert.False(converter(null!));
     }
 }

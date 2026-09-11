@@ -2057,7 +2057,7 @@ public class FixupTest
 
             Assert.Equal(category2.Id, product.CategoryId);
             Assert.Equal(category, category.Products.Single().Category);
-            Assert.Equal(category2, category2.Products.Single().Category); // Throws
+            Assert.Equal(category2, category2.Products!.Single().Category!); // Throws
         }
     }
 
@@ -2100,17 +2100,17 @@ public class FixupTest
     public void Navigation_fixup_happens_when_entities_are_tracked_from_query()
     {
         using var context = new FixupContext();
-        var categoryType = context.Model.FindEntityType(typeof(Category));
-        var productType = context.Model.FindEntityType(typeof(Product));
-        var offerType = context.Model.FindEntityType(typeof(SpecialOffer));
+        var categoryType = context.Model.FindEntityType(typeof(Category))!;
+        var productType = context.Model.FindEntityType(typeof(Product))!;
+        var offerType = context.Model.FindEntityType(typeof(SpecialOffer))!;
 
         var stateManager = context.GetService<IStateManager>();
 
-        stateManager.StartTrackingFromQuery(categoryType, new Category(11), new Snapshot<int>(11));
+        stateManager.StartTrackingFromQuery(categoryType!, new Category(11), new Snapshot<int>(11));
         stateManager.StartTrackingFromQuery(categoryType, new Category(12), new Snapshot<int>(12));
         stateManager.StartTrackingFromQuery(categoryType, new Category(13), new Snapshot<int>(13));
 
-        stateManager.StartTrackingFromQuery(productType, new Product(21, 11), new Snapshot<int, int>(21, 11));
+        stateManager.StartTrackingFromQuery(productType!, new Product(21, 11), new Snapshot<int, int>(21, 11));
         AssertAllFixedUp(context);
         stateManager.StartTrackingFromQuery(productType, new Product(22, 11), new Snapshot<int, int>(22, 11));
         AssertAllFixedUp(context);
@@ -2121,7 +2121,7 @@ public class FixupTest
         stateManager.StartTrackingFromQuery(productType, new Product(25, 12), new Snapshot<int, int>(25, 12));
         AssertAllFixedUp(context);
 
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(31, 22), new Snapshot<int, int>(31, 22));
+        stateManager.StartTrackingFromQuery(offerType!, new SpecialOffer(31, 22), new Snapshot<int, int>(31, 22));
         AssertAllFixedUp(context);
         stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(32, 22), new Snapshot<int, int>(32, 22));
         AssertAllFixedUp(context);
@@ -2979,13 +2979,13 @@ public class FixupTest
     private class Level2 : IComparable<Level2>
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public Level1 Level1 { get; set; }
+        public Level1 Level1 { get; set; } = null!;
         public int Level1Id { get; set; }
 
-        public int CompareTo(Level2 other)
-            => StringComparer.InvariantCultureIgnoreCase.Compare(Name, other.Name);
+        public int CompareTo(Level2? other)
+            => StringComparer.InvariantCultureIgnoreCase.Compare(Name, other!.Name);
     }
 
     private class ComparableEntitiesContext(string databaseName) : DbContext
@@ -2995,8 +2995,8 @@ public class FixupTest
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
 
-        public DbSet<Level1> Level1s { get; set; }
-        public DbSet<Level2> Level2s { get; set; }
+        public DbSet<Level1> Level1s { get; set; } = null!;
+        public DbSet<Level2> Level2s { get; set; } = null!;
     }
 
     [Fact]
@@ -3036,7 +3036,7 @@ public class FixupTest
 
             context.Attach(attached);
 
-            detachedRoom.Product = null;
+            detachedRoom.Product = null!;
             detachedRoom.ProductId = null;
 
             context.Entry(attachedRoom).CurrentValues.SetValues(detachedRoom);
@@ -3051,7 +3051,7 @@ public class FixupTest
     public class ContainerX
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public List<ContainerRoomX> Rooms { get; set; } = [];
     }
 
@@ -3060,15 +3060,15 @@ public class FixupTest
         public int Id { get; set; }
         public int Number { get; set; }
         public int ContainerId { get; set; }
-        public ContainerX Container { get; set; }
+        public ContainerX Container { get; set; } = null!;
         public int? ProductId { get; set; }
-        public ProductX Product { get; set; }
+        public ProductX Product { get; set; } = null!;
     }
 
     public class ProductX
     {
         public int Id { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
         public List<ContainerRoomX> Rooms { get; set; } = [];
     }
 
@@ -3143,7 +3143,7 @@ public class FixupTest
     protected class ParentX
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public virtual IList<ParentChildX> ParentChildren { get; set; } = new List<ParentChildX>();
     }
 
@@ -3152,11 +3152,11 @@ public class FixupTest
         public int ParentId { get; set; }
         public int ChildId { get; set; }
         public int SortOrder { get; set; }
-        public virtual ParentX Parent { get; set; }
-        public virtual ChildX Child { get; set; }
+        public virtual ParentX Parent { get; set; } = null!;
+        public virtual ChildX Child { get; set; } = null!;
 
         // Bad implementation of Equals to test for regression
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null)
             {
@@ -3191,7 +3191,7 @@ public class FixupTest
     protected class ChildX
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public virtual IList<ParentChildX> ParentChildren { get; set; } = new List<ParentChildX>();
     }
 
@@ -3271,15 +3271,15 @@ public class FixupTest
     private class EntityB
     {
         public int EntityBId { get; set; }
-        public string Value { get; set; }
-        public EntityA EntityA { get; set; }
+        public string Value { get; set; } = null!;
+        public EntityA EntityA { get; set; } = null!;
     }
 
     private class EntityA
     {
         public int EntityAId { get; set; }
         public int? EntityBId { get; set; }
-        public EntityB EntityB { get; set; }
+        public EntityB EntityB { get; set; } = null!;
     }
 
     private class BadBeeContext(string databaseName, params IInterceptor[] interceptors) : DbContext
@@ -3292,8 +3292,8 @@ public class FixupTest
                 .AddInterceptors(_interceptors)
                 .UseInMemoryDatabase(_databaseName);
 
-        public DbSet<EntityA> AEntities { get; set; }
-        public DbSet<EntityB> BEntities { get; set; }
+        public DbSet<EntityA> AEntities { get; set; } = null!;
+        public DbSet<EntityB> BEntities { get; set; } = null!;
     }
 
     protected virtual void AssertAllFixedUp(DbContext context)
@@ -3330,7 +3330,7 @@ public class FixupTest
     private class Cat
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int Age { get; set; }
         public ICollection<Human> Humans { get; } = new List<Human>();
     }
@@ -3338,7 +3338,7 @@ public class FixupTest
     private class Human
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int Age { get; set; }
         public ICollection<Cat> Cats { get; } = new List<Cat>();
     }
@@ -3347,14 +3347,14 @@ public class FixupTest
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private readonly int _id = id;
-        private Child _child;
+        private Child _child = null!;
 
         // ReSharper disable once ConvertToAutoProperty
         public int Id
             => _id;
 
-        public string Value1 { get; set; }
-        public string Value2 { get; set; }
+        public string? Value1 { get; set; }
+        public string? Value2 { get; set; }
 
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public Child Child
@@ -3369,14 +3369,14 @@ public class FixupTest
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private readonly int _id = id;
         private int _parentId = parentId;
-        private Parent _parent;
+        private Parent _parent = null!;
 
         // ReSharper disable once ConvertToAutoProperty
         public int Id
             => _id;
 
-        public string Value1 { get; set; }
-        public string Value2 { get; set; }
+        public string? Value1 { get; set; }
+        public string? Value2 { get; set; }
 
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public int ParentId
@@ -3397,7 +3397,7 @@ public class FixupTest
     {
         public int Id { get; set; }
 
-        public ChildPN Child { get; set; }
+        public ChildPN Child { get; set; } = null!;
     }
 
     private class ChildPN
@@ -3417,7 +3417,7 @@ public class FixupTest
         public int Id { get; set; }
         public int ParentId { get; set; }
 
-        public ParentDN Parent { get; set; }
+        public ParentDN Parent { get; set; } = null!;
     }
 
     private class ParentNN
@@ -3441,7 +3441,7 @@ public class FixupTest
         public int Id { get; set; }
         public int CategoryId { get; set; }
 
-        public CategoryDN Category { get; set; }
+        public CategoryDN Category { get; set; } = null!;
     }
 
     private class CategoryPN
@@ -3472,7 +3472,7 @@ public class FixupTest
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private readonly int _id;
-        private ICollection<Product> _products;
+        private ICollection<Product> _products = null!;
 
         // ReSharper disable once UnusedMember.Local
         public Category()
@@ -3482,8 +3482,8 @@ public class FixupTest
         public Category(int id)
             => _id = id;
 
-        public string Value1 { get; set; }
-        public string Value2 { get; set; }
+        public string? Value1 { get; set; }
+        public string? Value2 { get; set; }
 
         // ReSharper disable once ConvertToAutoProperty
         public int Id
@@ -3502,7 +3502,7 @@ public class FixupTest
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private readonly int _id;
         private int _categoryId;
-        private Category _category;
+        private Category _category = null!;
 
         // ReSharper disable once UnusedMember.Local
         public Product()
@@ -3526,8 +3526,8 @@ public class FixupTest
         public void SetCategoryId(int categoryId)
             => _categoryId = categoryId;
 
-        public string Value1 { get; set; }
-        public string Value2 { get; set; }
+        public string? Value1 { get; set; }
+        public string? Value2 { get; set; }
 
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public Category Category
@@ -3541,7 +3541,7 @@ public class FixupTest
         {
             get;
             private set;
-        }
+        } = null!;
 
         public void AddSpecialOffer(SpecialOffer specialOffer)
             => (SpecialOffers ??= new List<SpecialOffer>()).Add(specialOffer);
@@ -3552,7 +3552,7 @@ public class FixupTest
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private readonly int _id;
         private int _productId;
-        private Product _product;
+        private Product _product = null!;
 
         // ReSharper disable once UnusedMember.Local
         public SpecialOffer()
@@ -3591,7 +3591,7 @@ public class FixupTest
         private readonly string _databaseName;
 
         public FixupContext(params IInterceptor[] interceptors)
-            : this(null, interceptors)
+            : this(null!, interceptors)
         {
         }
 
@@ -3722,7 +3722,7 @@ public class FixupTest
     private class TestAssembly
     {
         [Key]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         // ReSharper disable once CollectionNeverUpdated.Local
         public ICollection<TestClass> Classes { get; } = new List<TestClass>();
@@ -3730,15 +3730,15 @@ public class FixupTest
 
     private class TestClass
     {
-        public TestAssembly Assembly { get; set; }
-        public string Name { get; set; }
+        public TestAssembly Assembly { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 
     private class Context4853 : DbContext
     {
         // ReSharper disable once UnusedMember.Local
-        public DbSet<TestAssembly> Assemblies { get; set; }
-        public DbSet<TestClass> Classes { get; set; }
+        public DbSet<TestAssembly> Assemblies { get; set; } = null!;
+        public DbSet<TestClass> Classes { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder options)
             => options
@@ -3758,20 +3758,20 @@ public class FixupTest
     private class Dependent
     {
         public int Id { get; set; }
-        public string Url { get; set; }
-        public Principal Principal { get; set; }
+        public string Url { get; set; } = null!;
+        public Principal? Principal { get; set; }
     }
 
     private class Principal
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
     }
 
     private class DetachingContext : DbContext
     {
-        public DbSet<Principal> Principals { get; set; }
-        public DbSet<Dependent> Dependents { get; set; }
+        public DbSet<Principal> Principals { get; set; } = null!;
+        public DbSet<Dependent> Dependents { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder options)
             => options
@@ -3817,9 +3817,9 @@ public class FixupTest
     public class FixupBlog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public FixupSite FixupSite { get; set; }
+        public FixupSite FixupSite { get; set; } = null!;
         public List<FixupPost> Posts { get; } = [];
     }
 
@@ -3828,24 +3828,24 @@ public class FixupTest
         public int Id { get; set; }
 
         public int? FixupBlogId { get; set; }
-        public FixupBlog FixupBlog { get; set; }
+        public FixupBlog FixupBlog { get; set; } = null!;
     }
 
     public class FixupPost
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public string? Title { get; set; }
+        public string? Content { get; set; }
 
         public int? FixupBlogId { get; set; }
-        public FixupBlog FixupBlog { get; set; }
+        public FixupBlog FixupBlog { get; set; } = null!;
         public List<FixupTag> Tags { get; } = [];
     }
 
     public class FixupTag
     {
         public int Id { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
         public List<FixupPost> Posts { get; } = [];
     }

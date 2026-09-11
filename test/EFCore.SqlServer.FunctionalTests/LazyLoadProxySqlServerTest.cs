@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class LazyLoadProxySqlServerTest : LazyLoadProxyRelationalTestBase<LazyLoadProxySqlServerTest.LoadSqlServerFixture>
 {
     public LazyLoadProxySqlServerTest(LoadSqlServerFixture fixture)
@@ -529,7 +527,7 @@ WHERE [p].[Id] = @entity_equality_called_Id
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    private string Sql { get; set; }
+    private string? Sql { get; set; }
 
     public class LoadSqlServerFixture : LoadRelationalFixtureBase
     {

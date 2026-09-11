@@ -10,14 +10,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly MethodInfo _asNoTrackingMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
-            .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
+            .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking))!;
 
     // Include with cycles are not allowed in no tracking query.
     public override async Task Include_multi_level_reference_and_collection_predicate(bool async)
@@ -109,7 +107,7 @@ public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture>(TFixture
         using var context = CreateContext();
         var orders = context.Set<Order>().Where(o => o.CustomerID == "ALFKI").ToList();
         Assert.Equal(6, context.ChangeTracker.Entries().Count());
-        Assert.True(orders.All(o => o.Customer.CustomerID == null));
+        Assert.True(orders.All(o => o.Customer!.CustomerID == null));
 
         var customer
             = async
@@ -127,7 +125,7 @@ public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture>(TFixture
         Assert.True(customer.Orders.All(e => ReferenceEquals(e.Customer, customer)));
 
         Assert.Equal(6, context.ChangeTracker.Entries().Count());
-        Assert.True(orders.All(o => o.Customer.CustomerID == null));
+        Assert.True(orders.All(o => o.Customer!.CustomerID == null));
     }
 
     public override async Task Include_collection_principal_already_tracked(bool async)
@@ -189,7 +187,7 @@ public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture>(TFixture
         serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
 
         return Expression.Call(
-            _asNoTrackingMethodInfo.MakeGenericMethod(serverQueryExpression.Type.TryGetSequenceType()),
+            _asNoTrackingMethodInfo.MakeGenericMethod(serverQueryExpression.Type.TryGetSequenceType()!),
             serverQueryExpression);
     }
 }

@@ -20,7 +20,7 @@ public class StringToDateTimeOffsetConverterTest
             new DateTimeOffset(), converter("0001-01-01 00:00:00+00:00"));
 
         Assert.Throws<FormatException>(() => converter("Not a DateTime"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]

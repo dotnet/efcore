@@ -157,7 +157,7 @@ public class SqlServerMetadataExtensionsTest
 
         index.SetIsClustered(true);
 
-        Assert.True(index.IsClustered().Value);
+        Assert.True(index.IsClustered()!.Value);
 
         index.SetIsClustered(null);
 
@@ -178,7 +178,7 @@ public class SqlServerMetadataExtensionsTest
 
         key.SetIsClustered(true);
 
-        Assert.True(key.IsClustered().Value);
+        Assert.True(key.IsClustered()!.Value);
 
         key.SetIsClustered(null);
 
@@ -338,7 +338,7 @@ public class SqlServerMetadataExtensionsTest
         property.SetHiLoSequenceName("DaneelOlivaw");
         property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
 
-        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence().Name);
+        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence()!.Name);
     }
 
     [Fact]
@@ -356,7 +356,7 @@ public class SqlServerMetadataExtensionsTest
         modelBuilder.Model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
         property.SetHiLoSequenceName("DaneelOlivaw");
 
-        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence().Name);
+        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence()!.Name);
     }
 
     [Fact]
@@ -374,7 +374,7 @@ public class SqlServerMetadataExtensionsTest
         modelBuilder.Model.SetHiLoSequenceName("DaneelOlivaw");
         property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
 
-        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence().Name);
+        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence()!.Name);
     }
 
     [Fact]
@@ -393,7 +393,7 @@ public class SqlServerMetadataExtensionsTest
         modelBuilder.Model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
         modelBuilder.Model.SetHiLoSequenceName("DaneelOlivaw");
 
-        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence().Name);
+        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence()!.Name);
     }
 
     [Fact]
@@ -412,8 +412,8 @@ public class SqlServerMetadataExtensionsTest
         property.SetHiLoSequenceSchema("R");
         property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
 
-        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence().Name);
-        Assert.Equal("R", property.FindHiLoSequence().Schema);
+        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence()!.Name);
+        Assert.Equal("R", property.FindHiLoSequence()!.Schema);
     }
 
     [Fact]
@@ -432,8 +432,8 @@ public class SqlServerMetadataExtensionsTest
         property.SetHiLoSequenceName("DaneelOlivaw");
         property.SetHiLoSequenceSchema("R");
 
-        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence().Name);
-        Assert.Equal("R", property.FindHiLoSequence().Schema);
+        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence()!.Name);
+        Assert.Equal("R", property.FindHiLoSequence()!.Schema);
     }
 
     [Fact]
@@ -452,8 +452,8 @@ public class SqlServerMetadataExtensionsTest
         modelBuilder.Model.SetHiLoSequenceSchema("R");
         property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
 
-        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence().Name);
-        Assert.Equal("R", property.FindHiLoSequence().Schema);
+        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence()!.Name);
+        Assert.Equal("R", property.FindHiLoSequence()!.Schema);
     }
 
     [Fact]
@@ -472,8 +472,8 @@ public class SqlServerMetadataExtensionsTest
         modelBuilder.Model.SetHiLoSequenceName("DaneelOlivaw");
         modelBuilder.Model.SetHiLoSequenceSchema("R");
 
-        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence().Name);
-        Assert.Equal("R", property.FindHiLoSequence().Schema);
+        Assert.Equal("DaneelOlivaw", property.FindHiLoSequence()!.Name);
+        Assert.Equal("R", property.FindHiLoSequence()!.Schema);
     }
 
     private static ModelBuilder GetModelBuilder()
@@ -484,10 +484,10 @@ public class SqlServerMetadataExtensionsTest
     {
         public int Id { get; set; }
         public int? NullableInt { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public byte Byte { get; set; }
         public byte? NullableByte { get; set; }
-        public byte[] ByteArray { get; set; }
+        public byte[] ByteArray { get; set; } = null!;
     }
 
     private class Order

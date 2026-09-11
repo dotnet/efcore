@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public class OrderDetail : IComparable<OrderDetail>
 {
     private int? _orderId;
@@ -26,14 +24,14 @@ public class OrderDetail : IComparable<OrderDetail>
     public short Quantity { get; set; }
     public float Discount { get; set; }
 
-    public virtual Product Product { get; set; }
-    public virtual Order Order { get; set; }
+    public virtual Product Product { get; set; } = null!;
+    public virtual Order Order { get; set; } = null!;
 
     protected bool Equals(OrderDetail other)
         => OrderID == other.OrderID
             && ProductID == other.ProductID;
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is not null
             && (ReferenceEquals(this, obj)
                 || (obj.GetType() == GetType()
@@ -42,7 +40,7 @@ public class OrderDetail : IComparable<OrderDetail>
     public override int GetHashCode()
         => HashCode.Combine(OrderID, ProductID);
 
-    public int CompareTo(OrderDetail other)
+    public int CompareTo(OrderDetail? other)
     {
         if (other == null)
         {

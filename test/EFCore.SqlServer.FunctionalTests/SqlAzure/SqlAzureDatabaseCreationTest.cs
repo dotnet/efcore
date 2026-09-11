@@ -6,8 +6,6 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
 public class SqlAzureDatabaseCreationTest
 {
@@ -28,8 +26,8 @@ public class SqlAzureDatabaseCreationTest
     {
         private readonly string _connectionString = testStore.ConnectionString;
 
-        public DbSet<FastUn> FastUns { get; set; }
-        public DbSet<BigUn> BigUns { get; set; }
+        public DbSet<FastUn> FastUns { get; set; } = null!;
+        public DbSet<BigUn> BigUns { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
@@ -53,8 +51,8 @@ public class SqlAzureDatabaseCreationTest
     {
         private readonly string _connectionString = testStore.ConnectionString;
 
-        public DbSet<FastUn> FastUns { get; set; }
-        public DbSet<BigUn> BigUns { get; set; }
+        public DbSet<FastUn> FastUns { get; set; } = null!;
+        public DbSet<BigUn> BigUns { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
@@ -82,8 +80,8 @@ public class SqlAzureDatabaseCreationTest
     {
         private readonly string _connectionString = testStore.ConnectionString;
 
-        public DbSet<FastUn> FastUns { get; set; }
-        public DbSet<BigUn> BigUns { get; set; }
+        public DbSet<FastUn> FastUns { get; set; } = null!;
+        public DbSet<BigUn> BigUns { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
@@ -121,13 +119,13 @@ SELECT DATABASEPROPERTYEX('{storeName}', 'EDITION'),
     private class BigUn
     {
         public int Id { get; set; }
-        public ICollection<FastUn> FastUns { get; set; }
+        public ICollection<FastUn> FastUns { get; set; } = null!;
     }
 
     private class FastUn
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public BigUn BigUn { get; set; }
+        public string? Name { get; set; }
+        public BigUn? BigUn { get; set; }
     }
 }

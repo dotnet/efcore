@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SequentialGuidEndToEndTest : IAsyncLifetime
 {
     [Fact]
@@ -86,7 +84,7 @@ public class SequentialGuidEndToEndTest : IAsyncLifetime
         private readonly string _databaseName = databaseName;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Pegasus> Pegasuses { get; set; }
+        public DbSet<Pegasus> Pegasuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -97,11 +95,11 @@ public class SequentialGuidEndToEndTest : IAsyncLifetime
     private class Pegasus
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int Index { get; set; }
     }
 
-    protected SqlServerTestStore TestStore { get; private set; }
+    protected SqlServerTestStore TestStore { get; private set; } = null!;
 
     public async ValueTask InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("SequentialGuidEndToEndTest");

@@ -6,8 +6,6 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : MusicStoreTestBase<TFixture>.MusicStoreFixtureBase, new()
 {
@@ -32,7 +30,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
 
                 var result = await controller.Browse(genreName);
 
-                Assert.Equal(genreName, result.Name);
+                Assert.Equal(genreName, result!.Name);
                 Assert.NotNull(result.Albums);
                 Assert.Equal(3, result.Albums.Count);
             }
@@ -73,7 +71,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
 
                 var result = await controller.Details(albumId);
 
-                Assert.NotNull(result.Genre);
+                Assert.NotNull(result!.Genre);
                 var genre = genres.SingleOrDefault(g => g.GenreId == result.GenreId);
                 Assert.NotNull(genre);
                 Assert.NotNull(genre.Albums.SingleOrDefault(a => a.AlbumId == albumId));
@@ -521,7 +519,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
     protected class CartSummaryViewBag
     {
         public int CartCount { get; set; }
-        public string CartSummary { get; set; }
+        public string CartSummary { get; set; } = null!;
     }
 
     protected class ShoppingCartController(MusicStoreContext context, string cartId)
@@ -588,12 +586,12 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         }
     }
 
-    public class CheckoutController(Dictionary<string, StringValues> formCollection = null)
+    public class CheckoutController(Dictionary<string, StringValues>? formCollection = null)
     {
         private readonly Dictionary<string, StringValues> _formCollection = formCollection ?? [];
         private const string PromoCode = "FREE";
 
-        public async Task<object> AddressAndPayment(MusicStoreContext context, string cartId, Order order)
+        public async Task<object?> AddressAndPayment(MusicStoreContext context, string cartId, Order order)
         {
             try
             {
@@ -670,7 +668,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
             return genres;
         }
 
-        public async Task<Genre> Browse(string genre)
+        public async Task<Genre?> Browse(string genre)
         {
             var genreModel = await _context.Genres
                 .Include(g => g.Albums)
@@ -680,7 +678,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
             return genreModel;
         }
 
-        public async Task<Album> Details(int id)
+        public async Task<Album?> Details(int id)
         {
             var album = await _context.Albums
                 .Where(a => a.AlbumId == id)

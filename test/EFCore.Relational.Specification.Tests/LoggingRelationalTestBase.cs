@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingTestBase
     where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
     where TExtension : RelationalOptionsExtension, new()
@@ -69,7 +67,7 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().ToTable((string)null).HasIndex(nameof(Animal.Name), nameof(Cat.Identity));
+            modelBuilder.Entity<Cat>().ToTable((string?)null).HasIndex(nameof(Animal.Name), nameof(Cat.Identity));
         }
     }
 
@@ -135,7 +133,7 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
 
     protected abstract DbContextOptionsBuilder CreateOptionsBuilder(
         IServiceCollection services,
-        Action<RelationalDbContextOptionsBuilder<TBuilder, TExtension>> relationalAction);
+        Action<RelationalDbContextOptionsBuilder<TBuilder, TExtension>>? relationalAction);
 
     protected override DbContextOptionsBuilder CreateOptionsBuilder(IServiceCollection services)
         => CreateOptionsBuilder(services, null);

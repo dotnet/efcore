@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using CosmosSqlQuery = Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal.CosmosSqlQuery;
@@ -93,7 +91,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
             private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
-            private readonly IConcurrencyDetector _concurrencyDetector;
+            private readonly IConcurrencyDetector? _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
             private bool _hasExecuted;
@@ -135,9 +133,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     _hasExecuted = true;
 
-                    var maxItemCount = (int)_cosmosQueryContext.Parameters[_queryingEnumerable._maxItemCountParameterName];
+                    var maxItemCount = (int)_cosmosQueryContext.Parameters[_queryingEnumerable._maxItemCountParameterName]!;
                     var continuationToken =
-                        (string)_cosmosQueryContext.Parameters[_queryingEnumerable._continuationTokenParameterName];
+                        (string?)_cosmosQueryContext.Parameters[_queryingEnumerable._continuationTokenParameterName];
                     var responseContinuationTokenLimitInKb = (int?)
                         _cosmosQueryContext.Parameters[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
 

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {
@@ -640,9 +638,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         => context.Set<Root>()
             .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
             .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
-            .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleDerived).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingle!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleDerived!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleMoreDerived!).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadRequiredNonPkGraphAsync(DbContext context)
@@ -679,10 +677,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         => context.Set<Root>()
             .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
             .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
-            .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleAk).ThenInclude(e => e.SingleComposite)
-            .Include(e => e.OptionalSingleAkDerived).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAk!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAk!).ThenInclude(e => e.SingleComposite)
+            .Include(e => e.OptionalSingleAkDerived!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAkMoreDerived!).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadRequiredNonPkAkGraphAsync(DbContext context)
@@ -744,19 +742,19 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         public virtual IEnumerable<Optional1> OptionalChildren { get; set; }
             = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance);
 
-        public virtual RequiredSingle1 RequiredSingle { get; set; }
+        public virtual RequiredSingle1 RequiredSingle { get; set; } = null!;
 
-        public virtual RequiredNonPkSingle1 RequiredNonPkSingle { get; set; }
+        public virtual RequiredNonPkSingle1 RequiredNonPkSingle { get; set; } = null!;
 
-        public virtual RequiredNonPkSingle1Derived RequiredNonPkSingleDerived { get; set; }
+        public virtual RequiredNonPkSingle1Derived RequiredNonPkSingleDerived { get; set; } = null!;
 
-        public virtual RequiredNonPkSingle1MoreDerived RequiredNonPkSingleMoreDerived { get; set; }
+        public virtual RequiredNonPkSingle1MoreDerived RequiredNonPkSingleMoreDerived { get; set; } = null!;
 
-        public virtual OptionalSingle1 OptionalSingle { get; set; }
+        public virtual OptionalSingle1? OptionalSingle { get; set; }
 
-        public virtual OptionalSingle1Derived OptionalSingleDerived { get; set; }
+        public virtual OptionalSingle1Derived? OptionalSingleDerived { get; set; }
 
-        public virtual OptionalSingle1MoreDerived OptionalSingleMoreDerived { get; set; }
+        public virtual OptionalSingle1MoreDerived? OptionalSingleMoreDerived { get; set; }
 
         public virtual IEnumerable<RequiredAk1> RequiredChildrenAk { get; set; }
             = new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance);
@@ -764,24 +762,24 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         public virtual IEnumerable<OptionalAk1> OptionalChildrenAk { get; set; }
             = new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance);
 
-        public virtual RequiredSingleAk1 RequiredSingleAk { get; set; }
+        public virtual RequiredSingleAk1 RequiredSingleAk { get; set; } = null!;
 
-        public virtual RequiredNonPkSingleAk1 RequiredNonPkSingleAk { get; set; }
+        public virtual RequiredNonPkSingleAk1 RequiredNonPkSingleAk { get; set; } = null!;
 
-        public virtual RequiredNonPkSingleAk1Derived RequiredNonPkSingleAkDerived { get; set; }
+        public virtual RequiredNonPkSingleAk1Derived RequiredNonPkSingleAkDerived { get; set; } = null!;
 
-        public virtual RequiredNonPkSingleAk1MoreDerived RequiredNonPkSingleAkMoreDerived { get; set; }
+        public virtual RequiredNonPkSingleAk1MoreDerived RequiredNonPkSingleAkMoreDerived { get; set; } = null!;
 
-        public virtual OptionalSingleAk1 OptionalSingleAk { get; set; }
+        public virtual OptionalSingleAk1? OptionalSingleAk { get; set; }
 
-        public virtual OptionalSingleAk1Derived OptionalSingleAkDerived { get; set; }
+        public virtual OptionalSingleAk1Derived? OptionalSingleAkDerived { get; set; }
 
-        public virtual OptionalSingleAk1MoreDerived OptionalSingleAkMoreDerived { get; set; }
+        public virtual OptionalSingleAk1MoreDerived? OptionalSingleAkMoreDerived { get; set; }
 
         public virtual IEnumerable<RequiredComposite1> RequiredCompositeChildren { get; set; }
             = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Root;
             return Id == other?.Id;
@@ -801,12 +799,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int ParentId { get; set; }
 
-        public virtual Root Parent { get; set; }
+        public virtual Root? Parent { get; set; }
 
         public virtual IEnumerable<Required2> Children { get; set; }
             = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Required1;
             return Id == other?.Id;
@@ -822,7 +820,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required1Derived);
 
         public override int GetHashCode()
@@ -835,7 +833,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required1MoreDerived);
 
         public override int GetHashCode()
@@ -852,9 +850,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int ParentId { get; set; }
 
-        public virtual Required1 Parent { get; set; }
+        public virtual Required1 Parent { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Required2;
             return Id == other?.Id;
@@ -870,7 +868,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required2Derived);
 
         public override int GetHashCode()
@@ -883,7 +881,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required2MoreDerived);
 
         public override int GetHashCode()
@@ -900,7 +898,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? ParentId { get; set; }
 
-        public virtual Root Parent { get; set; }
+        public virtual Root Parent { get; set; } = null!;
 
         public virtual IEnumerable<Optional2> Children { get; set; }
             = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance);
@@ -908,7 +906,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         public virtual ICollection<OptionalComposite2> CompositeChildren { get; set; }
             = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Optional1;
             return Id == other?.Id;
@@ -924,7 +922,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional1Derived);
 
         public override int GetHashCode()
@@ -937,7 +935,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional1MoreDerived);
 
         public override int GetHashCode()
@@ -954,9 +952,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? ParentId { get; set; }
 
-        public virtual Optional1 Parent { get; set; }
+        public virtual Optional1? Parent { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Optional2;
             return Id == other?.Id;
@@ -972,7 +970,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional2Derived);
 
         public override int GetHashCode()
@@ -985,7 +983,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional2MoreDerived);
 
         public override int GetHashCode()
@@ -1000,11 +998,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int Id { get; set; }
 
-        public virtual Root Root { get; set; }
+        public virtual Root Root { get; set; } = null!;
 
-        public virtual RequiredSingle2 Single { get; set; }
+        public virtual RequiredSingle2 Single { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingle1;
             return Id == other?.Id;
@@ -1022,9 +1020,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int Id { get; set; }
 
-        public virtual RequiredSingle1 Back { get; set; }
+        public virtual RequiredSingle1 Back { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingle2;
             return Id == other?.Id;
@@ -1044,11 +1042,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int RootId { get; set; }
 
-        public virtual Root Root { get; set; }
+        public virtual Root Root { get; set; } = null!;
 
-        public virtual RequiredNonPkSingle2 Single { get; set; }
+        public virtual RequiredNonPkSingle2 Single { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingle1;
             return Id == other?.Id;
@@ -1066,9 +1064,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int DerivedRootId { get; set; }
 
-        public virtual Root DerivedRoot { get; set; }
+        public virtual Root DerivedRoot { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle1Derived);
 
         public override int GetHashCode()
@@ -1083,9 +1081,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int MoreDerivedRootId { get; set; }
 
-        public virtual Root MoreDerivedRoot { get; set; }
+        public virtual Root MoreDerivedRoot { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle1MoreDerived);
 
         public override int GetHashCode()
@@ -1102,9 +1100,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int BackId { get; set; }
 
-        public virtual RequiredNonPkSingle1 Back { get; set; }
+        public virtual RequiredNonPkSingle1 Back { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingle2;
             return Id == other?.Id;
@@ -1120,7 +1118,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle2Derived);
 
         public override int GetHashCode()
@@ -1133,7 +1131,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle2MoreDerived);
 
         public override int GetHashCode()
@@ -1150,11 +1148,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? RootId { get; set; }
 
-        public virtual Root Root { get; set; }
+        public virtual Root? Root { get; set; }
 
-        public virtual OptionalSingle2 Single { get; set; }
+        public virtual OptionalSingle2? Single { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingle1;
             return Id == other?.Id;
@@ -1172,9 +1170,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? DerivedRootId { get; set; }
 
-        public virtual Root DerivedRoot { get; set; }
+        public virtual Root? DerivedRoot { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle1Derived);
 
         public override int GetHashCode()
@@ -1189,9 +1187,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? MoreDerivedRootId { get; set; }
 
-        public virtual Root MoreDerivedRoot { get; set; }
+        public virtual Root? MoreDerivedRoot { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle1MoreDerived);
 
         public override int GetHashCode()
@@ -1208,9 +1206,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? BackId { get; set; }
 
-        public virtual OptionalSingle1 Back { get; set; }
+        public virtual OptionalSingle1? Back { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingle2;
             return Id == other?.Id;
@@ -1226,7 +1224,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle2Derived);
 
         public override int GetHashCode()
@@ -1239,7 +1237,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle2MoreDerived);
 
         public override int GetHashCode()
@@ -1258,7 +1256,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid ParentId { get; set; }
 
-        public virtual Root Parent { get; set; }
+        public virtual Root? Parent { get; set; }
 
         public virtual IEnumerable<RequiredAk2> Children { get; set; }
             = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance);
@@ -1266,7 +1264,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         public virtual IEnumerable<RequiredComposite2> CompositeChildren { get; set; }
             = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredAk1;
             return Id == other?.Id;
@@ -1282,7 +1280,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk1Derived);
 
         public override int GetHashCode()
@@ -1295,7 +1293,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk1MoreDerived);
 
         public override int GetHashCode()
@@ -1314,9 +1312,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid ParentId { get; set; }
 
-        public virtual RequiredAk1 Parent { get; set; }
+        public virtual RequiredAk1 Parent { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredAk2;
             return Id == other?.Id;
@@ -1336,9 +1334,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid ParentAlternateId { get; set; }
 
-        public virtual Root Parent { get; set; }
+        public virtual Root Parent { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredComposite1;
             return Id == other?.Id;
@@ -1363,11 +1361,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? ParentId { get; set; }
 
-        public virtual RequiredComposite1 Parent { get; set; }
+        public virtual RequiredComposite1 Parent { get; set; } = null!;
 
-        public virtual Root Root { get; set; }
+        public virtual Root Root { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalOverlapping2;
             return Id == other?.Id;
@@ -1389,9 +1387,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int ParentId { get; set; }
 
-        public virtual RequiredAk1 Parent { get; set; }
+        public virtual RequiredAk1 Parent { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredComposite2;
             return Id == other?.Id;
@@ -1407,7 +1405,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk2Derived);
 
         public override int GetHashCode()
@@ -1420,7 +1418,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk2MoreDerived);
 
         public override int GetHashCode()
@@ -1439,7 +1437,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid? ParentId { get; set; }
 
-        public virtual Root Parent { get; set; }
+        public virtual Root Parent { get; set; } = null!;
 
         public virtual IEnumerable<OptionalAk2> Children { get; set; }
             = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance);
@@ -1447,7 +1445,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         public virtual ICollection<OptionalComposite2> CompositeChildren { get; set; }
             = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalAk1;
             return Id == other?.Id;
@@ -1463,7 +1461,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk1Derived);
 
         public override int GetHashCode()
@@ -1476,7 +1474,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk1MoreDerived);
 
         public override int GetHashCode()
@@ -1495,9 +1493,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid? ParentId { get; set; }
 
-        public virtual OptionalAk1 Parent { get; set; }
+        public virtual OptionalAk1? Parent { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalAk2;
             return Id == other?.Id;
@@ -1519,13 +1517,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? ParentId { get; set; }
 
-        public virtual OptionalAk1 Parent { get; set; }
+        public virtual OptionalAk1? Parent { get; set; }
 
         public virtual int? Parent2Id { get; set; }
 
-        public virtual Optional1 Parent2 { get; set; }
+        public virtual Optional1? Parent2 { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalComposite2;
             return Id == other?.Id;
@@ -1541,7 +1539,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk2Derived);
 
         public override int GetHashCode()
@@ -1554,7 +1552,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk2MoreDerived);
 
         public override int GetHashCode()
@@ -1573,13 +1571,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid RootId { get; set; }
 
-        public virtual Root Root { get; set; }
+        public virtual Root Root { get; set; } = null!;
 
-        public virtual RequiredSingleAk2 Single { get; set; }
+        public virtual RequiredSingleAk2 Single { get; set; } = null!;
 
-        public virtual RequiredSingleComposite2 SingleComposite { get; set; }
+        public virtual RequiredSingleComposite2 SingleComposite { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleAk1;
             return Id == other?.Id;
@@ -1601,9 +1599,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid BackId { get; set; }
 
-        public virtual RequiredSingleAk1 Back { get; set; }
+        public virtual RequiredSingleAk1 Back { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleAk2;
             return Id == other?.Id;
@@ -1625,9 +1623,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int BackId { get; set; }
 
-        public virtual RequiredSingleAk1 Back { get; set; }
+        public virtual RequiredSingleAk1 Back { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleComposite2;
             return Id == other?.Id;
@@ -1649,11 +1647,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid RootId { get; set; }
 
-        public virtual Root Root { get; set; }
+        public virtual Root Root { get; set; } = null!;
 
-        public virtual RequiredNonPkSingleAk2 Single { get; set; }
+        public virtual RequiredNonPkSingleAk2 Single { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingleAk1;
             return Id == other?.Id;
@@ -1671,9 +1669,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid DerivedRootId { get; set; }
 
-        public virtual Root DerivedRoot { get; set; }
+        public virtual Root DerivedRoot { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk1Derived);
 
         public override int GetHashCode()
@@ -1688,9 +1686,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid MoreDerivedRootId { get; set; }
 
-        public virtual Root MoreDerivedRoot { get; set; }
+        public virtual Root MoreDerivedRoot { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk1MoreDerived);
 
         public override int GetHashCode()
@@ -1709,9 +1707,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid BackId { get; set; }
 
-        public virtual RequiredNonPkSingleAk1 Back { get; set; }
+        public virtual RequiredNonPkSingleAk1 Back { get; set; } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingleAk2;
             return Id == other?.Id;
@@ -1727,7 +1725,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk2Derived);
 
         public override int GetHashCode()
@@ -1740,7 +1738,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk2MoreDerived);
 
         public override int GetHashCode()
@@ -1759,13 +1757,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid? RootId { get; set; }
 
-        public virtual Root Root { get; set; }
+        public virtual Root? Root { get; set; }
 
-        public virtual OptionalSingleComposite2 SingleComposite { get; set; }
+        public virtual OptionalSingleComposite2? SingleComposite { get; set; }
 
-        public virtual OptionalSingleAk2 Single { get; set; }
+        public virtual OptionalSingleAk2? Single { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleAk1;
             return Id == other?.Id;
@@ -1783,9 +1781,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid? DerivedRootId { get; set; }
 
-        public virtual Root DerivedRoot { get; set; }
+        public virtual Root? DerivedRoot { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk1Derived);
 
         public override int GetHashCode()
@@ -1800,9 +1798,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid? MoreDerivedRootId { get; set; }
 
-        public virtual Root MoreDerivedRoot { get; set; }
+        public virtual Root? MoreDerivedRoot { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk1MoreDerived);
 
         public override int GetHashCode()
@@ -1821,9 +1819,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual Guid? BackId { get; set; }
 
-        public virtual OptionalSingleAk1 Back { get; set; }
+        public virtual OptionalSingleAk1? Back { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleAk2;
             return Id == other?.Id;
@@ -1845,9 +1843,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? BackId { get; set; }
 
-        public virtual OptionalSingleAk1 Back { get; set; }
+        public virtual OptionalSingleAk1? Back { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleComposite2;
             return Id == other?.Id;
@@ -1863,7 +1861,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk2Derived);
 
         public override int GetHashCode()
@@ -1876,7 +1874,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         {
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk2MoreDerived);
 
         public override int GetHashCode()
@@ -1907,14 +1905,14 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
         public virtual int? BadCustomerId { get; set; }
 
-        public virtual BadCustomer BadCustomer { get; set; }
+        public virtual BadCustomer? BadCustomer { get; set; }
     }
 
     public class SharedFkRoot
     {
         public virtual long Id { get; set; }
-        public virtual ICollection<SharedFkDependant> Dependants { get; set; }
-        public virtual ICollection<SharedFkParent> Parents { get; set; }
+        public virtual ICollection<SharedFkDependant> Dependants { get; set; } = null!;
+        public virtual ICollection<SharedFkParent> Parents { get; set; } = null!;
     }
 
     public class SharedFkParent
@@ -1922,28 +1920,28 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
         public virtual long Id { get; set; }
         public virtual long? DependantId { get; set; }
         public virtual long RootId { get; set; }
-        public virtual SharedFkRoot Root { get; set; }
-        public virtual SharedFkDependant Dependant { get; set; }
+        public virtual SharedFkRoot Root { get; set; } = null!;
+        public virtual SharedFkDependant? Dependant { get; set; }
     }
 
     public class SharedFkDependant
     {
         public virtual long Id { get; set; }
         public virtual long RootId { get; set; }
-        public virtual SharedFkRoot Root { get; set; }
-        public virtual SharedFkParent Parent { get; set; }
+        public virtual SharedFkRoot Root { get; set; } = null!;
+        public virtual SharedFkParent? Parent { get; set; }
     }
 
     public class Car
     {
         public virtual Guid Id { get; set; }
-        public virtual Person Owner { get; set; }
+        public virtual Person Owner { get; set; } = null!;
     }
 
     public class Person
     {
         public virtual Guid Id { get; set; }
-        public virtual Car Vehicle { get; set; }
+        public virtual Car Vehicle { get; set; } = null!;
     }
 
     public record RecordBase
@@ -1953,7 +1951,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
     public record RecordCar : RecordBase
     {
-        public virtual RecordPerson Owner { get; set; }
+        public virtual RecordPerson? Owner { get; set; }
         public virtual int? OwnerId { get; set; }
     }
 
@@ -1968,9 +1966,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
-        Func<DbContext, Task> nestedTestOperation1 = null,
-        Func<DbContext, Task> nestedTestOperation2 = null,
-        Func<DbContext, Task> nestedTestOperation3 = null)
+        Func<DbContext, Task>? nestedTestOperation1 = null,
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -128,7 +126,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     {
         protected readonly List<int> _ids = [1, 7];
 
-        public DbSet<MyEntity8576> Entities { get; set; }
+        public DbSet<MyEntity8576> Entities
+            => Set<MyEntity8576>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<MyEntity8576>().HasQueryFilter(x => !_ids.Contains(x.Id));
@@ -144,7 +143,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         public class MyEntity8576
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public bool IsDeleted { get; set; }
             public bool IsDraft { get; set; }
         }
@@ -201,7 +200,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     {
         private readonly List<int> _ids = [1, 7];
 
-        public DbSet<MyEntity10295> Entities { get; set; }
+        public DbSet<MyEntity10295> Entities
+            => Set<MyEntity10295>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<MyEntity10295>().HasQueryFilter(x => !_ids.Contains(x.Id));
@@ -217,7 +217,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         public class MyEntity10295
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
     }
 
@@ -244,7 +244,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     {
         public int Tenant { get; set; }
 
-        public DbSet<Blog10301> Blogs { get; set; }
+        public DbSet<Blog10301> Blogs
+            => Set<Blog10301>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Blog10301>().HasQueryFilter(e => e.SomeValue == Tenant);
@@ -285,8 +286,11 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
 
     protected class Context12170(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<Definition12170> Definitions { get; set; }
-        public virtual DbSet<DefinitionHistory12170> DefinitionHistories { get; set; }
+        public virtual DbSet<Definition12170> Definitions
+            => Set<Definition12170>();
+
+        public virtual DbSet<DefinitionHistory12170> DefinitionHistories
+            => Set<DefinitionHistory12170>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -308,24 +312,24 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         public class MasterChangeInfo12170
         {
             public bool Exists { get; set; }
-            public virtual OptionalChangePoint12170 RemovedPoint { get; set; }
+            public virtual OptionalChangePoint12170 RemovedPoint { get; set; } = null!;
         }
 
         public class DefinitionHistory12170
         {
             public int Id { get; set; }
             public int MacGuffinDefinitionID { get; set; }
-            public virtual Definition12170 Definition { get; set; }
-            public OptionalChangePoint12170 EndedPoint { get; set; }
+            public virtual Definition12170? Definition { get; set; }
+            public OptionalChangePoint12170 EndedPoint { get; set; } = null!;
         }
 
         public class Definition12170
         {
             public int Id { get; set; }
-            public virtual MasterChangeInfo12170 ChangeInfo { get; set; }
+            public virtual MasterChangeInfo12170 ChangeInfo { get; set; } = null!;
 
-            public virtual ICollection<DefinitionHistory12170> HistoryEntries { get; set; }
-            public virtual DefinitionHistory12170 LatestHistoryEntry { get; set; }
+            public virtual ICollection<DefinitionHistory12170> HistoryEntries { get; set; } = null!;
+            public virtual DefinitionHistory12170? LatestHistoryEntry { get; set; }
             public int? LatestHistoryEntryID { get; set; }
         }
     }
@@ -352,8 +356,11 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
 
     protected class Context13517(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity13517> Entities { get; set; }
-        public DbSet<RefEntity13517> RefEntities { get; set; }
+        public DbSet<Entity13517> Entities
+            => Set<Entity13517>();
+
+        public DbSet<RefEntity13517> RefEntities
+            => Set<RefEntity13517>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RefEntity13517>().HasQueryFilter(f => f.Public);
@@ -370,7 +377,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
             public int? RefEntityId { get; set; }
-            public RefEntity13517 RefEntity { get; set; }
+            public RefEntity13517? RefEntity { get; set; }
         }
 
         public class RefEntity13517
@@ -383,7 +390,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
             public int? RefEntityId { get; set; }
-            public RefEntityDto13517 RefEntity { get; set; }
+            public RefEntityDto13517? RefEntity { get; set; }
         }
 
         public class RefEntityDto13517
@@ -417,17 +424,20 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
 
     protected class Context17253(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<EntityWithQueryFilterSelfReference17253> EntitiesWithQueryFilterSelfReference { get; set; }
+        public DbSet<EntityWithQueryFilterSelfReference17253> EntitiesWithQueryFilterSelfReference
+            => Set<EntityWithQueryFilterSelfReference17253>();
 
         public DbSet<EntityReferencingEntityWithQueryFilterSelfReference17253> EntitiesReferencingEntityWithQueryFilterSelfReference
-        {
-            get;
-            set;
-        }
+            => Set<EntityReferencingEntityWithQueryFilterSelfReference17253>();
 
-        public DbSet<EntityWithQueryFilterCycle17253_1> EntitiesWithQueryFilterCycle1 { get; set; }
-        public DbSet<EntityWithQueryFilterCycle17253_2> EntitiesWithQueryFilterCycle2 { get; set; }
-        public DbSet<EntityWithQueryFilterCycle17253_3> EntitiesWithQueryFilterCycle3 { get; set; }
+        public DbSet<EntityWithQueryFilterCycle17253_1> EntitiesWithQueryFilterCycle1
+            => Set<EntityWithQueryFilterCycle17253_1>();
+
+        public DbSet<EntityWithQueryFilterCycle17253_2> EntitiesWithQueryFilterCycle2
+            => Set<EntityWithQueryFilterCycle17253_2>();
+
+        public DbSet<EntityWithQueryFilterCycle17253_3> EntitiesWithQueryFilterCycle3
+            => Set<EntityWithQueryFilterCycle17253_3>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -460,31 +470,31 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         public class EntityWithQueryFilterSelfReference17253
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         public class EntityReferencingEntityWithQueryFilterSelfReference17253
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         public class EntityWithQueryFilterCycle17253_1
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class EntityWithQueryFilterCycle17253_2
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class EntityWithQueryFilterCycle17253_3
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
     }
 
@@ -509,7 +519,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
 
     protected class Context18510(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MyEntity18510> Entities { get; set; }
+        public DbSet<MyEntity18510> Entities
+            => Set<MyEntity18510>();
 
         public int TenantId { get; set; }
 
@@ -518,17 +529,17 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
             modelBuilder.Entity<MyEntity18510>().HasQueryFilter(x => x.Name != "Foo");
 
             var entityType = modelBuilder.Model.GetEntityTypes().Single(et => et.ClrType == typeof(MyEntity18510));
-            var queryFilter = entityType.GetDeclaredQueryFilters().FirstOrDefault();
+            var queryFilter = entityType.GetDeclaredQueryFilters().FirstOrDefault()!;
             Expression<Func<int>> tenantFunc = () => TenantId;
             var tenant = Expression.Invoke(tenantFunc);
 
-            var efPropertyMethod = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property)).MakeGenericMethod(typeof(int));
-            var prm = queryFilter.Expression.Parameters[0];
+            var efPropertyMethod = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property))!.MakeGenericMethod(typeof(int));
+            var prm = queryFilter.Expression!.Parameters[0];
             var efPropertyMethodCall = Expression.Call(efPropertyMethod, prm, Expression.Constant("TenantId"));
 
             var updatedQueryFilter = Expression.Lambda(
                 Expression.AndAlso(
-                    queryFilter.Expression.Body,
+                    queryFilter.Expression!.Body,
                     Expression.Equal(
                         efPropertyMethodCall,
                         tenant)),
@@ -558,7 +569,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         public class MyEntity18510
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
             public int TenantId { get; set; }
         }
@@ -578,7 +589,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
 
     protected class Context18759(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Person18759> People { get; set; }
+        public DbSet<Person18759> People
+            => Set<Person18759>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Person18759>().HasQueryFilter(p => p.UserDelete != null);
@@ -586,7 +598,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         public class Person18759
         {
             public int Id { get; set; }
-            public User18759 UserDelete { get; set; }
+            public User18759? UserDelete { get; set; }
         }
 
         public class User18759
@@ -598,8 +610,6 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     #endregion
 
     #region 26428
-
-#nullable enable
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsDeleted_query_filter_with_conversion_to_int_works(bool async)
@@ -676,8 +686,6 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         public bool IsDeleted { get; set; }
     }
 
-#nullable disable
-
     #endregion
 
     #region 27163
@@ -693,11 +701,11 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
             .Select(g => new
             {
                 Test1 = g
-                    .Select(x => x.Child1.Value1)
+                    .Select(x => x.Child1!.Value1)
                     .Distinct()
                     .Count(),
                 Test2 = g
-                    .Select(x => x.Child2.Value2)
+                    .Select(x => x.Child2!.Value2)
                     .Distinct()
                     .Count()
             });
@@ -718,11 +726,11 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
             .Select(g => new
             {
                 Test1 = g
-                    .Select(x => x.ChildFilter1.Value1)
+                    .Select(x => x.ChildFilter1!.Value1)
                     .Distinct()
                     .Count(),
                 Test2 = g
-                    .Select(x => x.ChildFilter2.Value2)
+                    .Select(x => x.ChildFilter2!.Value2)
                     .Distinct()
                     .Count()
             });
@@ -734,7 +742,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
 
     protected class Context27163(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents
+            => Set<Parent>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -746,36 +755,36 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     public class Parent
     {
         public int Id { get; set; }
-        public Child1 Child1 { get; set; }
-        public Child2 Child2 { get; set; }
-        public ChildFilter1 ChildFilter1 { get; set; }
-        public ChildFilter2 ChildFilter2 { get; set; }
+        public Child1? Child1 { get; set; }
+        public Child2? Child2 { get; set; }
+        public ChildFilter1? ChildFilter1 { get; set; }
+        public ChildFilter2? ChildFilter2 { get; set; }
     }
 
     public class Child1
     {
         public int Id { get; set; }
-        public string Value1 { get; set; }
+        public string Value1 { get; set; } = null!;
     }
 
     public class Child2
     {
         public int Id { get; set; }
-        public string Value2 { get; set; }
+        public string Value2 { get; set; } = null!;
     }
 
     public class ChildFilter1
     {
         public int Id { get; set; }
-        public string Filter1 { get; set; }
-        public string Value1 { get; set; }
+        public string Filter1 { get; set; } = null!;
+        public string Value1 { get; set; } = null!;
     }
 
     public class ChildFilter2
     {
         public int Id { get; set; }
-        public string Filter2 { get; set; }
-        public string Value2 { get; set; }
+        public string Filter2 { get; set; } = null!;
+        public string Value2 { get; set; } = null!;
     }
 
     #endregion
@@ -797,7 +806,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     {
         public int Foo { get; set; }
         public long? Bar { get; set; }
-        public List<long> Baz { get; set; }
+        public List<long> Baz { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<FooBar35111>()
@@ -845,7 +854,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     public class Entity38132
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public Guid TenantId { get; set; }
     }
 

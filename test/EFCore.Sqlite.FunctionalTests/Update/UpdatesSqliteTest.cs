@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public class UpdatesSqliteTest(UpdatesSqliteTest.UpdatesSqliteFixture fixture)
     : UpdatesRelationalTestBase<UpdatesSqliteTest.UpdatesSqliteFixture>(fixture)
 {
@@ -20,7 +18,7 @@ public class UpdatesSqliteTest(UpdatesSqliteTest.UpdatesSqliteFixture fixture)
         var entityType = context.Model.FindEntityType(
             typeof(
                 LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly
-            ));
+            ))!;
         Assert.Equal(
             "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly",
             entityType.GetTableName());

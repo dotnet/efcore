@@ -14,8 +14,8 @@ public class EntityTypeConfigurationAttributeConventionTest
 
         builder.Entity<Customer>();
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
-        Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
+        Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name))!.GetMaxLength());
     }
 
     [Fact]
@@ -25,8 +25,8 @@ public class EntityTypeConfigurationAttributeConventionTest
 
         builder.Entity<CustomerGeneric>();
 
-        var entityType = builder.Model.FindEntityType(typeof(CustomerGeneric));
-        Assert.Equal(1000, entityType.FindProperty(nameof(CustomerGeneric.Name)).GetMaxLength());
+        var entityType = builder.Model.FindEntityType(typeof(CustomerGeneric))!;
+        Assert.Equal(1000, entityType.FindProperty(nameof(CustomerGeneric.Name))!.GetMaxLength());
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public class EntityTypeConfigurationAttributeConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class CustomerConfiguration : IEntityTypeConfiguration<Customer>
@@ -79,7 +79,7 @@ public class EntityTypeConfigurationAttributeConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [EntityTypeConfigurationAttribute<CustomerGenericConfiguration, CustomerGeneric>]
@@ -87,7 +87,7 @@ public class EntityTypeConfigurationAttributeConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [EntityTypeConfiguration(typeof(CustomerConfiguration))]
@@ -95,6 +95,6 @@ public class EntityTypeConfigurationAttributeConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

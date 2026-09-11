@@ -19,7 +19,7 @@ public class KeyPropagatorTest
         var contextServices = CreateContextServices(model);
         model = contextServices.GetRequiredService<IModel>();
         var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-        var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
+        var property = model.FindEntityType(typeof(Product))!.FindProperty("CategoryId")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
         if (async)
@@ -259,9 +259,9 @@ public class KeyPropagatorTest
     {
         public int CategoryId { get; set; }
 
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
 
-        public ProductDetail Detail { get; set; }
+        public ProductDetail Detail { get; set; } = null!;
 
         public ICollection<OrderLine> OrderLines { get; } = new List<OrderLine>();
     }
@@ -269,7 +269,7 @@ public class KeyPropagatorTest
     private class ProductDetail
     {
         public int Id { get; set; }
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
     }
 
     private class Order : BaseType
@@ -282,10 +282,10 @@ public class KeyPropagatorTest
         public int OrderId { get; set; }
         public int ProductId { get; set; }
 
-        public virtual Order Order { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual Order Order { get; set; } = null!;
+        public virtual Product Product { get; set; } = null!;
 
-        public virtual OrderLineDetail Detail { get; set; }
+        public virtual OrderLineDetail Detail { get; set; } = null!;
     }
 
     private class OrderLineDetail
@@ -293,7 +293,7 @@ public class KeyPropagatorTest
         public int OrderId { get; set; }
         public int ProductId { get; set; }
 
-        public virtual OrderLine OrderLine { get; set; }
+        public virtual OrderLine OrderLine { get; set; } = null!;
     }
 
     private static IModel BuildModel(bool generateTemporary = false)

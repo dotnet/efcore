@@ -84,8 +84,8 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
     private static IRelationalTypeMappingSource CreateTypeMapper()
         => TestServiceFactory.Instance.Create<SqliteTypeMappingSource>();
 
-    public static RelationalTypeMapping? GetMapping(Type type)
-        => CreateTypeMapper().FindMapping(type);
+    public static RelationalTypeMapping GetMapping(Type type)
+        => Assert.IsAssignableFrom<RelationalTypeMapping>(CreateTypeMapper().FindMapping(type));
 
     public override void DateTimeOffset_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(

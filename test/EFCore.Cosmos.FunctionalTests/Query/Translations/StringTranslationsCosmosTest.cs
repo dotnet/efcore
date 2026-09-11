@@ -14,9 +14,9 @@ public class StringTranslationsCosmosTest : StringTranslationsTestBase<BasicType
 
     #region Equals
 
-    public override async Task Equals()
+    public override async Task Instance_Equals()
     {
-        await base.Equals();
+        await base.Instance_Equals();
 
         AssertSql(
             """

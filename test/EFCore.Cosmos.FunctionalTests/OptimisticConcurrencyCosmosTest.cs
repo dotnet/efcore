@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
     : OptimisticConcurrencyTestBase<F1CosmosFixture<byte[]>, byte[]>(fixture), IAsyncLifetime
 {

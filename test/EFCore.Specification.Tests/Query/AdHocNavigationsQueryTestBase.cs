@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -81,8 +79,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context3409(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
-        public DbSet<Child> Children { get; set; }
+        public DbSet<Parent> Parents { get; set; } = null!;
+        public DbSet<Child> Children { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -135,7 +133,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public ICollection<IChild> ChildCollection { get; set; }
+            public ICollection<IChild> ChildCollection { get; set; } = null!;
         }
 
         public class Child : IChild
@@ -143,11 +141,11 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             public int Id { get; set; }
 
             public int? ParentBackNavigationId { get; set; }
-            public IParent ParentBackNavigation { get; set; }
+            public IParent ParentBackNavigation { get; set; } = null!;
 
-            public ICollection<IChild> SelfReferenceCollection { get; set; }
+            public ICollection<IChild> SelfReferenceCollection { get; set; } = null!;
             public int? SelfReferenceBackNavigationId { get; set; }
-            public IChild SelfReferenceBackNavigation { get; set; }
+            public IChild SelfReferenceBackNavigation { get; set; } = null!;
         }
     }
 
@@ -197,8 +195,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     protected class Context3758(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>(b =>
@@ -266,18 +264,18 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class Customer
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
-            public ICollection<Order> Orders1 { get; set; }
-            public MyGenericCollection<Order> Orders2 { get; set; }
-            public MyNonGenericCollection Orders3 { get; set; }
-            public MyInvalidCollection<Order> Orders4 { get; set; }
+            public ICollection<Order> Orders1 { get; set; } = null!;
+            public MyGenericCollection<Order> Orders2 { get; set; } = null!;
+            public MyNonGenericCollection Orders3 { get; set; } = null!;
+            public MyInvalidCollection<Order> Orders4 { get; set; } = null!;
         }
 
         public class Order
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class MyGenericCollection<TElement> : List<TElement>;
@@ -313,9 +311,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context7312(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Proposal> Proposals { get; set; }
-        public DbSet<ProposalCustom> ProposalCustoms { get; set; }
-        public DbSet<ProposalLeave> ProposalLeaves { get; set; }
+        public DbSet<Proposal> Proposals { get; set; } = null!;
+        public DbSet<ProposalCustom> ProposalCustoms { get; set; } = null!;
+        public DbSet<ProposalLeave> ProposalLeaves { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -334,19 +332,19 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
         public class ProposalCustom : Proposal
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class ProposalLeave : Proposal
         {
             public DateTime LeaveStart { get; set; }
-            public virtual ProposalLeaveType LeaveType { get; set; }
+            public virtual ProposalLeaveType? LeaveType { get; set; }
         }
 
         public class ProposalLeaveType
         {
             public int Id { get; set; }
-            public ICollection<ProposalLeave> ProposalLeaves { get; set; }
+            public ICollection<ProposalLeave> ProposalLeaves { get; set; } = null!;
         }
     }
 
@@ -363,8 +361,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             var result = await context.People.OfType<Context9038.PersonTeacher9038>()
                 .Include(m => m.Students)
-                .ThenInclude(m => m.Family)
-                .ThenInclude(m => m.Members)
+                .ThenInclude(m => m.Family!)
+                .ThenInclude(m => m!.Members)
                 .ToListAsync();
 
             Assert.Equal(2, result.Count);
@@ -374,7 +372,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         using (var context = contextFactory.CreateDbContext())
         {
             var result = await context.Set<Context9038.PersonTeacher9038>()
-                .Include(m => m.Family.Members)
+                .Include(m => m.Family!.Members)
                 .Include(m => m.Students)
                 .ToListAsync();
 
@@ -388,9 +386,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context9038(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Person9038> People { get; set; }
+        public DbSet<Person9038> People { get; set; } = null!;
 
-        public DbSet<PersonFamily9038> Families { get; set; }
+        public DbSet<PersonFamily9038> Families { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -443,32 +441,32 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public int? TeacherId { get; set; }
 
-            public PersonFamily9038 Family { get; set; }
+            public PersonFamily9038? Family { get; set; }
         }
 
         public class PersonKid9038 : Person9038
         {
             public int Grade { get; set; }
 
-            public PersonTeacher9038 Teacher { get; set; }
+            public PersonTeacher9038 Teacher { get; set; } = null!;
         }
 
         public class PersonTeacher9038 : Person9038
         {
-            public ICollection<PersonKid9038> Students { get; set; }
+            public ICollection<PersonKid9038> Students { get; set; } = null!;
         }
 
         public class PersonFamily9038
         {
             public int Id { get; set; }
 
-            public string LastName { get; set; }
+            public string LastName { get; set; } = null!;
 
-            public ICollection<Person9038> Members { get; set; }
+            public ICollection<Person9038> Members { get; set; } = null!;
         }
     }
 
@@ -494,8 +492,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context10635(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent10635> Parents { get; set; }
-        public DbSet<Child10635> Children { get; set; }
+        public DbSet<Parent10635> Parents { get; set; } = null!;
+        public DbSet<Child10635> Children { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -519,14 +517,14 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class Parent10635 : IEntity10635
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public virtual ICollection<Child10635> Children { get; set; }
+            public string Name { get; set; } = null!;
+            public virtual ICollection<Child10635> Children { get; set; } = null!;
         }
 
         public class Child10635 : IEntity10635
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public int ParentId { get; set; }
         }
     }
@@ -568,9 +566,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context11923(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -624,7 +622,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             }
 
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public List<Post> Posts1 { get; } = posts1;
             public CustomCollection Posts2 { get; } = posts2;
@@ -634,9 +632,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class Post
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
-            public List<Comment> Comments { get; set; }
+            public List<Comment> Comments { get; set; } = null!;
         }
 
         public class Comment
@@ -677,9 +675,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     protected class Context11944(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Student> Students { get; set; }
-        public DbSet<School> Schools { get; set; }
-        public DbSet<ElementarySchool> ElementarySchools { get; set; }
+        public DbSet<Student> Students { get; set; } = null!;
+        public DbSet<School> Schools { get; set; } = null!;
+        public DbSet<ElementarySchool> ElementarySchools { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<ElementarySchool>().HasMany(s => s.Students).WithOne(s => s.School);
@@ -701,7 +699,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class Student
         {
             public int Id { get; set; }
-            public ElementarySchool School { get; set; }
+            public ElementarySchool School { get; set; } = null!;
         }
 
         public class School
@@ -711,7 +709,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
         public abstract class PrimarySchool : School
         {
-            public List<Student> Students { get; set; }
+            public List<Student> Students { get; set; } = null!;
         }
 
         public class ElementarySchool : PrimarySchool;
@@ -756,28 +754,28 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context12456(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Activity> Activities { get; set; }
-        public DbSet<CompetitionSeason> CompetitionSeasons { get; set; }
+        public DbSet<Activity> Activities { get; set; } = null!;
+        public DbSet<CompetitionSeason> CompetitionSeasons { get; set; } = null!;
 
         public class CompetitionSeason
         {
             public int Id { get; set; }
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
-            public List<ActivityTypePoints> ActivityTypePoints { get; set; }
+            public List<ActivityTypePoints> ActivityTypePoints { get; set; } = null!;
         }
 
         public class Point
         {
             public int Id { get; set; }
-            public CompetitionSeason CompetitionSeason { get; set; }
+            public CompetitionSeason CompetitionSeason { get; set; } = null!;
             public int? Points { get; set; }
         }
 
         public class ActivityType
         {
             public int Id { get; set; }
-            public List<ActivityTypePoints> Points { get; set; }
+            public List<ActivityTypePoints> Points { get; set; } = null!;
         }
 
         public class ActivityTypePoints
@@ -787,8 +785,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             public int CompetitionSeasonId { get; set; }
             public int Points { get; set; }
 
-            public ActivityType ActivityType { get; set; }
-            public CompetitionSeason CompetitionSeason { get; set; }
+            public ActivityType ActivityType { get; set; } = null!;
+            public CompetitionSeason CompetitionSeason { get; set; } = null!;
         }
 
         public class Activity
@@ -797,7 +795,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             public int ActivityTypeId { get; set; }
             public DateTime DateTime { get; set; }
             public int? Points { get; set; }
-            public ActivityType ActivityType { get; set; }
+            public ActivityType ActivityType { get; set; } = null!;
         }
     }
 
@@ -838,8 +836,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context12582(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Employee> Employees { get; set; }
-        public DbSet<EmployeeDevice> Devices { get; set; }
+        public DbSet<Employee> Employees { get; set; } = null!;
+        public DbSet<EmployeeDevice> Devices { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -860,21 +858,21 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class Employee : IEmployee
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public ICollection<EmployeeDevice> Devices { get; set; }
+            public string Name { get; set; } = null!;
+            public ICollection<EmployeeDevice> Devices { get; set; } = null!;
         }
 
         public interface IEmployeeDevice
         {
-            string Device { get; set; }
+            string? Device { get; set; }
         }
 
         public class EmployeeDevice : IEmployeeDevice
         {
             public int Id { get; set; }
             public int EmployeeId { get; set; }
-            public string Device { get; set; }
-            public Employee Employee { get; set; }
+            public string? Device { get; set; }
+            public Employee Employee { get; set; } = null!;
         }
     }
 
@@ -896,8 +894,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context12748(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -909,16 +907,16 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class Blog
         {
             [Key]
-            public byte[] Name { get; set; }
+            public byte[] Name { get; set; } = null!;
 
-            public List<Comment> Comments { get; set; }
+            public List<Comment> Comments { get; set; } = null!;
         }
 
         public class Comment
         {
             public int Id { get; set; }
-            public byte[] BlogName { get; set; }
-            public Blog Blog { get; set; }
+            public byte[] BlogName { get; set; } = null!;
+            public Blog Blog { get; set; } = null!;
         }
     }
 
@@ -938,9 +936,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     protected class Context20609(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<BaseClass> BaseClasses { get; set; }
-        public DbSet<SubA> SubAs { get; set; }
-        public DbSet<SubB> SubBs { get; set; }
+        public DbSet<BaseClass> BaseClasses { get; set; } = null!;
+        public DbSet<SubA> SubAs { get; set; } = null!;
+        public DbSet<SubB> SubBs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -950,17 +948,17 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
         public class BaseClass
         {
-            public string Id { get; set; }
+            public string Id { get; set; } = null!;
         }
 
         public class ClassA : BaseClass
         {
-            public SubA SubA { get; set; }
+            public SubA SubA { get; set; } = null!;
         }
 
         public class ClassB : BaseClass
         {
-            public SubB SubB { get; set; }
+            public SubB SubB { get; set; } = null!;
         }
 
         public class SubA
@@ -1002,17 +1000,17 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context20813(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<Order> Orders { get; set; } = null!;
 
         public class Order
         {
-            private ICollection<IdentityDocument> _identityDocuments;
+            private ICollection<IdentityDocument> _identityDocuments = null!;
 
             public Guid Id { get; set; }
 
             public Guid CustomerId { get; set; }
 
-            public string ExternalReferenceId { get; set; }
+            public string ExternalReferenceId { get; set; } = null!;
 
             public ICollection<IdentityDocument> IdentityDocuments
             {
@@ -1023,14 +1021,14 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
         public class IdentityDocument
         {
-            private ICollection<IdentityDocumentImage> _images;
+            private ICollection<IdentityDocumentImage> _images = null!;
 
             public Guid Id { get; set; }
 
             [ForeignKey(nameof(Order))]
             public Guid OrderId { get; set; }
 
-            public Order Order { get; set; }
+            public Order Order { get; set; } = null!;
 
             public ICollection<IdentityDocumentImage> Images
             {
@@ -1046,9 +1044,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             [ForeignKey(nameof(IdentityDocument))]
             public Guid IdentityDocumentId { get; set; }
 
-            public byte[] Image { get; set; }
+            public byte[] Image { get; set; } = null!;
 
-            public IdentityDocument IdentityDocument { get; set; }
+            public IdentityDocument IdentityDocument { get; set; } = null!;
         }
     }
 
@@ -1069,7 +1067,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
                         ? new Context21768.PageViewModel
                         {
                             Uri = b.FrontCover.Illustrations
-                                .FirstOrDefault(i => i.State >= Context21768.IllustrationState.Approved).Uri
+                            .FirstOrDefault(i => i.State >= Context21768.IllustrationState.Approved)!.Uri
                         }
                         : null,
             };
@@ -1080,9 +1078,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context21768(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Book> Books { get; set; }
-        public DbSet<BookCover> BookCovers { get; set; }
-        public DbSet<CoverIllustration> CoverIllustrations { get; set; }
+        public DbSet<Book> Books { get; set; } = null!;
+        public DbSet<BookCover> BookCovers { get; set; } = null!;
+        public DbSet<CoverIllustration> CoverIllustrations { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1094,12 +1092,12 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
         public class BookViewModel
         {
-            public PageViewModel FirstPage { get; set; }
+            public PageViewModel? FirstPage { get; set; }
         }
 
         public class PageViewModel
         {
-            public string Uri { get; set; }
+            public string Uri { get; set; } = null!;
         }
 
         public interface IBook
@@ -1132,10 +1130,10 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public BookCover FrontCover { get; set; }
+            public BookCover FrontCover { get; set; } = null!;
             public int FrontCoverId { get; set; }
 
-            public BookCover BackCover { get; set; }
+            public BookCover BackCover { get; set; } = null!;
             public int BackCoverId { get; set; }
 
             IBookCover IBook.FrontCover
@@ -1148,7 +1146,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class BookCover : IBookCover
         {
             public int Id { get; set; }
-            public ICollection<CoverIllustration> Illustrations { get; set; }
+            public ICollection<CoverIllustration> Illustrations { get; set; } = null!;
 
             IEnumerable<ICoverIllustration> IBookCover.Illustrations
                 => Illustrations;
@@ -1157,9 +1155,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class CoverIllustration : ICoverIllustration
         {
             public int Id { get; set; }
-            public BookCover Cover { get; set; }
+            public BookCover Cover { get; set; } = null!;
             public int CoverId { get; set; }
-            public string Uri { get; set; }
+            public string Uri { get; set; } = null!;
             public IllustrationState State { get; set; }
 
             IBookCover ICoverIllustration.Cover
@@ -1272,7 +1270,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class PrincipalOneToOne
         {
             public int Id { get; set; }
-            public DependentOneToOne Dependent { get; set; }
+            public DependentOneToOne Dependent { get; set; } = null!;
         }
 
         public class DependentOneToOne
@@ -1282,13 +1280,13 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             [ForeignKey("Principal")]
             public int PrincipalId { get; set; }
 
-            public PrincipalOneToOne Principal { get; set; }
+            public PrincipalOneToOne Principal { get; set; } = null!;
         }
 
         public class PrincipalOneToMany
         {
             public int Id { get; set; }
-            public List<DependentOneToMany> Dependents { get; set; }
+            public List<DependentOneToMany> Dependents { get; set; } = null!;
         }
 
         public class DependentOneToMany
@@ -1298,31 +1296,31 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             [ForeignKey("Principal")]
             public int PrincipalId { get; set; }
 
-            public PrincipalOneToMany Principal { get; set; }
+            public PrincipalOneToMany Principal { get; set; } = null!;
         }
 
         public class PrincipalManyToMany
         {
             public int Id { get; set; }
-            public List<DependentManyToMany> Dependents { get; set; }
+            public List<DependentManyToMany> Dependents { get; set; } = null!;
         }
 
         public class DependentManyToMany
         {
             public int Id { get; set; }
-            public List<PrincipalManyToMany> Principals { get; set; }
+            public List<PrincipalManyToMany> Principals { get; set; } = null!;
         }
 
         public class CycleA
         {
             public int Id { get; set; }
-            public List<CycleB> Bs { get; set; }
+            public List<CycleB> Bs { get; set; } = null!;
         }
 
         public class CycleB
         {
             public int Id { get; set; }
-            public CycleC C { get; set; }
+            public CycleC C { get; set; } = null!;
         }
 
         public class CycleC
@@ -1332,8 +1330,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             [ForeignKey("B")]
             public int BId { get; set; }
 
-            private CycleB B { get; set; }
-            public List<CycleA> As { get; set; }
+            private CycleB B { get; set; } = null!;
+            public List<CycleA> As { get; set; } = null!;
         }
     }
 
@@ -1350,7 +1348,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             var query = context.Set<Context23674.Principal>()
                 .Include(p => p.ManyDependents)
-                .ThenInclude(m => m.Principal.SingleDependent);
+                .ThenInclude(m => m.Principal!.SingleDependent);
 
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
@@ -1369,7 +1367,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
         using (var context = contextFactory.CreateDbContext())
         {
-            var query = context.Set<Context23674.Principal>().Include(p => p.SingleDependent.Principal.ManyDependents);
+            var query = context.Set<Context23674.Principal>().Include(p => p.SingleDependent!.Principal.ManyDependents);
 
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
@@ -1390,7 +1388,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             // This does not warn because after round-tripping from one-to-many from dependent side, the number of dependents could be larger.
             var query = context.Set<Context23674.ManyDependent>()
-                .Include(p => p.Principal.ManyDependents)
+                .Include(p => p.Principal!.ManyDependents)
                 .ThenInclude(m => m.SingleDependent)
                 .ToList();
         }
@@ -1403,7 +1401,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
         using (var context = contextFactory.CreateDbContext())
         {
-            var query = context.Set<Context23674.SingleDependent>().Include(p => p.ManyDependent.SingleDependent.Principal);
+            var query = context.Set<Context23674.SingleDependent>().Include(p => p.ManyDependent.SingleDependent!.Principal);
 
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
@@ -1424,24 +1422,24 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class Principal
         {
             public int Id { get; set; }
-            public List<ManyDependent> ManyDependents { get; set; }
-            public SingleDependent SingleDependent { get; set; }
+            public List<ManyDependent> ManyDependents { get; set; } = null!;
+            public SingleDependent? SingleDependent { get; set; }
         }
 
         public class ManyDependent
         {
             public int Id { get; set; }
-            public Principal Principal { get; set; }
-            public SingleDependent SingleDependent { get; set; }
+            public Principal? Principal { get; set; }
+            public SingleDependent? SingleDependent { get; set; }
         }
 
         public class SingleDependent
         {
             public int Id { get; set; }
-            public Principal Principal { get; set; }
+            public Principal Principal { get; set; } = null!;
             public int PrincipalId { get; set; }
             public int ManyDependentId { get; set; }
-            public ManyDependent ManyDependent { get; set; }
+            public ManyDependent ManyDependent { get; set; } = null!;
         }
     }
 
@@ -1500,37 +1498,37 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context23676(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<PersonEntity> Persons { get; set; }
+        public DbSet<PersonEntity> Persons { get; set; } = null!;
 
         public class PersonEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string Surname { get; set; }
+            public string Name { get; set; } = null!;
+            public string Surname { get; set; } = null!;
             public DateTime Birthday { get; set; }
-            public string Hometown { get; set; }
-            public string Bio { get; set; }
-            public string AvatarUrl { get; set; }
+            public string Hometown { get; set; } = null!;
+            public string Bio { get; set; } = null!;
+            public string AvatarUrl { get; set; } = null!;
 
-            public ActorEntity Actor { get; set; }
-            public DirectorEntity Director { get; set; }
+            public ActorEntity Actor { get; set; } = null!;
+            public DirectorEntity Director { get; set; } = null!;
             public IList<PersonImageEntity> Images { get; } = new List<PersonImageEntity>();
         }
 
         public class PersonImageEntity
         {
             public int Id { get; set; }
-            public string ImageUrl { get; set; }
+            public string ImageUrl { get; set; } = null!;
             public int Height { get; set; }
             public int Width { get; set; }
-            public PersonEntity Person { get; set; }
+            public PersonEntity Person { get; set; } = null!;
         }
 
         public class ActorEntity
         {
             public int Id { get; set; }
             public int PersonId { get; set; }
-            public PersonEntity Person { get; set; }
+            public PersonEntity Person { get; set; } = null!;
 
             public IList<MovieActorEntity> Movies { get; } = new List<MovieActorEntity>();
         }
@@ -1539,12 +1537,12 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
             public int ActorId { get; set; }
-            public ActorEntity Actor { get; set; }
+            public ActorEntity Actor { get; set; } = null!;
 
             public int MovieId { get; set; }
-            public MovieEntity Movie { get; set; }
+            public MovieEntity Movie { get; set; } = null!;
 
-            public string RoleInFilm { get; set; }
+            public string RoleInFilm { get; set; } = null!;
 
             public int Order { get; set; }
         }
@@ -1553,7 +1551,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
             public int PersonId { get; set; }
-            public PersonEntity Person { get; set; }
+            public PersonEntity Person { get; set; } = null!;
 
             public IList<MovieDirectorEntity> Movies { get; } = new List<MovieDirectorEntity>();
         }
@@ -1562,23 +1560,23 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
             public int DirectorId { get; set; }
-            public DirectorEntity Director { get; set; }
+            public DirectorEntity Director { get; set; } = null!;
 
             public int MovieId { get; set; }
-            public MovieEntity Movie { get; set; }
+            public MovieEntity Movie { get; set; } = null!;
         }
 
         public class MovieEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public double Rating { get; set; }
-            public string Description { get; set; }
+            public string Description { get; set; } = null!;
             public DateTime ReleaseDate { get; set; }
             public int DurationInMins { get; set; }
             public int Budget { get; set; }
             public int Revenue { get; set; }
-            public string PosterUrl { get; set; }
+            public string PosterUrl { get; set; } = null!;
 
             public IList<MovieDirectorEntity> Directors { get; set; } = new List<MovieDirectorEntity>();
             public IList<MovieActorEntity> Actors { get; set; } = new List<MovieActorEntity>();
@@ -1607,8 +1605,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     protected class Context26433(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Book> Books { get; set; }
-        public DbSet<Author> Authors { get; set; }
+        public DbSet<Book> Books { get; set; } = null!;
+        public DbSet<Author> Authors { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1633,9 +1631,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             [Key]
             public int AuthorId { get; set; }
 
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public IReadOnlyCollection<Book> Books { get; set; }
+            public string FirstName { get; set; } = null!;
+            public string LastName { get; set; } = null!;
+            public IReadOnlyCollection<Book> Books { get; set; } = null!;
         }
 
         public class Book
@@ -1643,9 +1641,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             [Key]
             public int BookId { get; set; }
 
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
             public int AuthorId { get; set; }
-            public Author Author { get; set; }
+            public Author Author { get; set; } = null!;
         }
     }
 
@@ -1686,8 +1684,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
 
     protected class Context35706(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Employer35706> Employers { get; set; }
-        public DbSet<Person35706> People { get; set; }
+        public DbSet<Employer35706> Employers { get; set; } = null!;
+        public DbSet<Person35706> People { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1715,16 +1713,16 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
         public class Employer35706
         {
             public int EmployerId { get; set; }
-            public string Name { get; set; }
-            public IList<Person35706> Employees { get; set; }
+            public string Name { get; set; } = null!;
+            public IList<Person35706> Employees { get; set; } = null!;
         }
 
         public class Person35706
         {
             public int PersonId { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public int? EmployerId { get; set; }
-            public Employer35706 Employer { get; set; }
+            public Employer35706 Employer { get; set; } = null!;
         }
     }
 

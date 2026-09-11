@@ -29,7 +29,7 @@ public class KeyDiscoveryConventionTest
     public void Primary_key_is_set_when_shadow_property_not_defined_by_convention_matches()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-        var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.DataAnnotation);
+        var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.DataAnnotation)!;
 
         RunConvention(propertyBuilder);
 
@@ -42,7 +42,7 @@ public class KeyDiscoveryConventionTest
     public void Primary_key_is_not_set_when_shadow_property_defined_by_convention_matches()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-        var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+        var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention)!;
 
         RunConvention(propertyBuilder);
 
@@ -131,7 +131,7 @@ public class KeyDiscoveryConventionTest
 
         CreateKeyDiscoveryConvention().ProcessEntityTypeMemberIgnored(entityBuilder, "ID", context);
 
-        Assert.Equal("Id", entityBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
+        Assert.Equal("Id", entityBuilder.Metadata.FindPrimaryKey()!.Properties.Single().Name);
     }
 
     public ListLoggerFactory ListLoggerFactory { get; }
@@ -180,7 +180,7 @@ public class KeyDiscoveryConventionTest
     private InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
-        var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention)!;
 
         var context = new ConventionContext<IConventionEntityTypeBuilder>(modelBuilder.Metadata.ConventionDispatcher);
         new PropertyDiscoveryConvention(CreateDependencies())
@@ -191,7 +191,7 @@ public class KeyDiscoveryConventionTest
 
     private class EntityWithNoId
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime ModifiedDate { get; set; }
     }
 }

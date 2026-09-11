@@ -14,7 +14,7 @@ public class ModificationCommandTest
     public void ModificationCommand_initialized_correctly_for_added_entities_with_temp_generated_key()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
+        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey()!.Properties[0], -1);
 
         var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, false, null);
         command.AddEntry(entry, true);
@@ -28,7 +28,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col1", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.True(columnMod.IsRead);
@@ -38,7 +38,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col2", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name1", columnMod.Property.Name);
+        Assert.Equal("Name1", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -48,7 +48,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col3", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name2", columnMod.Property.Name);
+        Assert.Equal("Name2", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -72,7 +72,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col1", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -82,7 +82,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col2", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name1", columnMod.Property.Name);
+        Assert.Equal("Name1", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -92,7 +92,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col3", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name2", columnMod.Property.Name);
+        Assert.Equal("Name2", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -116,7 +116,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col1", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -126,7 +126,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col2", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name1", columnMod.Property.Name);
+        Assert.Equal("Name1", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -136,7 +136,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col3", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name2", columnMod.Property.Name);
+        Assert.Equal("Name2", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -160,7 +160,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col1", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -170,7 +170,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col2", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name1", columnMod.Property.Name);
+        Assert.Equal("Name1", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -180,7 +180,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col3", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name2", columnMod.Property.Name);
+        Assert.Equal("Name2", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -204,7 +204,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col1", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -214,7 +214,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col2", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name1", columnMod.Property.Name);
+        Assert.Equal("Name1", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -224,7 +224,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col3", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name2", columnMod.Property.Name);
+        Assert.Equal("Name2", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -248,7 +248,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col1", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -258,7 +258,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col2", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name1", columnMod.Property.Name);
+        Assert.Equal("Name1", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.True(columnMod.IsRead);
@@ -268,7 +268,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col3", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name2", columnMod.Property.Name);
+        Assert.Equal("Name2", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.True(columnMod.IsRead);
@@ -292,7 +292,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col1", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -316,7 +316,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col1", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -326,7 +326,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col2", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name1", columnMod.Property.Name);
+        Assert.Equal("Name1", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -336,7 +336,7 @@ public class ModificationCommandTest
 
         Assert.Equal("Col3", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Name2", columnMod.Property.Name);
+        Assert.Equal("Name2", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -374,8 +374,8 @@ public class ModificationCommandTest
     private class T1
     {
         public int Id { get; set; }
-        public string Name1 { get; set; }
-        public string Name2 { get; set; }
+        public string? Name1 { get; set; }
+        public string? Name2 { get; set; }
     }
 
     private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
@@ -384,18 +384,18 @@ public class ModificationCommandTest
         var model = modelBuilder.Model;
         var entityType = model.AddEntityType(typeof(T1));
 
-        var key = entityType.FindProperty("Id");
+        var key = entityType.FindProperty("Id")!;
         key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
         key.SetColumnName("Col1");
         entityType.SetPrimaryKey(key);
 
-        var nonKey1 = entityType.FindProperty("Name1");
+        var nonKey1 = entityType.FindProperty("Name1")!;
         nonKey1.IsConcurrencyToken = computeNonKeyValue;
 
         nonKey1.SetColumnName("Col2");
         nonKey1.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
-        var nonKey2 = entityType.FindProperty("Name2");
+        var nonKey2 = entityType.FindProperty("Name2")!;
         nonKey2.IsConcurrencyToken = computeNonKeyValue;
 
         nonKey2.SetColumnName("Col3");
@@ -427,7 +427,7 @@ public class ModificationCommandTest
         InternalEntityEntry entry,
         Func<string> generateParameterName,
         bool sensitiveLoggingEnabled,
-        IComparer<IUpdateEntry> comparer)
+        IComparer<IUpdateEntry>? comparer)
         => new ModificationCommandFactory().CreateModificationCommand(
             new ModificationCommandParameters(
                 entry.EntityType.GetTableMappings().Single().Table,

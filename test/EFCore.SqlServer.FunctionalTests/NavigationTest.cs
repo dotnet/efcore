@@ -5,8 +5,6 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class NavigationTest(NavigationTestFixture fixture) : IClassFixture<NavigationTestFixture>
 {
     [Fact]
@@ -61,18 +59,18 @@ public class NavigationTest(NavigationTestFixture fixture) : IClassFixture<Navig
 public class GoTPerson
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public List<GoTPerson> Siblings { get; set; }
-    public GoTPerson Lover { get; set; }
-    public GoTPerson LoverReverse { get; set; }
-    public GoTPerson SiblingReverse { get; set; }
+    public List<GoTPerson> Siblings { get; set; } = null!;
+    public GoTPerson? Lover { get; set; }
+    public GoTPerson? LoverReverse { get; set; }
+    public GoTPerson? SiblingReverse { get; set; }
 }
 
 public class GoTContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<GoTPerson> People { get; set; }
-    public Func<ModelBuilder, int> ConfigAction { get; set; }
+    public DbSet<GoTPerson> People { get; set; } = null!;
+    public Func<ModelBuilder, int> ConfigAction { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         => ConfigAction.Invoke(modelBuilder);

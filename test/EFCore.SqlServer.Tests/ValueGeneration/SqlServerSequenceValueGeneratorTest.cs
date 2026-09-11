@@ -70,10 +70,10 @@ public class SqlServerSequenceValueGeneratorTest
         for (var i = 1; i <= 27; i++)
         {
             var value = async
-                ? await generator.NextAsync(null)
-                : generator.Next(null);
+                ? await generator.NextAsync(null!)
+                : generator.Next(null!);
 
-            Assert.Equal(i, (int)Convert.ChangeType(value, typeof(int), CultureInfo.InvariantCulture));
+            Assert.Equal(i, (int)Convert.ChangeType(value, typeof(int), CultureInfo.InvariantCulture)!);
         }
     }
 
@@ -135,8 +135,8 @@ public class SqlServerSequenceValueGeneratorTest
                     var generator = new SqlServerSequenceHiLoValueGenerator<long>(executor, sqlGenerator, state, connection, logger);
 
                     var value = j % 2 == 0
-                        ? await generator.NextAsync(null)
-                        : generator.Next(null);
+                        ? await generator.NextAsync(null!)
+                        : generator.Next(null!);
 
                     generatedValues[testNumber].Add(value);
                 }
@@ -177,7 +177,7 @@ public class SqlServerSequenceValueGeneratorTest
         Assert.False(generator.GeneratesTemporaryValues);
     }
 
-    private static ISqlServerConnection CreateConnection(IServiceProvider serviceProvider = null)
+    private static ISqlServerConnection CreateConnection(IServiceProvider? serviceProvider = null)
     {
         serviceProvider ??= SqlServerTestHelpers.Instance.CreateServiceProvider();
 
@@ -192,14 +192,14 @@ public class SqlServerSequenceValueGeneratorTest
         public IRelationalCommand Build(string sql)
             => new FakeRelationalCommand(this);
 
-        public RawSqlCommand Build(string sql, IEnumerable<object> parameters)
+        public RawSqlCommand Build(string sql, IEnumerable<object?> parameters)
             => throw new NotImplementedException();
 
         public RawSqlCommand Build(
             string sql,
-            IEnumerable<object> parameters,
+            IEnumerable<object?> parameters,
             IModel model)
-            => new(new FakeRelationalCommand(this), new Dictionary<string, object>());
+            => new(new FakeRelationalCommand(this), new Dictionary<string, object?>());
 
         private class FakeRelationalCommand(FakeRawSqlCommandBuilder commandBuilder) : IRelationalCommand
         {
@@ -214,7 +214,7 @@ public class SqlServerSequenceValueGeneratorTest
             public IReadOnlyList<IRelationalParameter> Parameters
                 => throw new NotImplementedException();
 
-            public IReadOnlyDictionary<string, object> ParameterValues
+            public IReadOnlyDictionary<string, object?> ParameterValues
                 => throw new NotImplementedException();
 
             public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
@@ -228,10 +228,10 @@ public class SqlServerSequenceValueGeneratorTest
             public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
                 => Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize);
 
-            public Task<object> ExecuteScalarAsync(
+            public Task<object?> ExecuteScalarAsync(
                 RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = default)
-                => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
+                => Task.FromResult<object?>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
 
             public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
                 => throw new NotImplementedException();

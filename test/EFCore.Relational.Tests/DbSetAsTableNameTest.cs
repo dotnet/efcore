@@ -133,29 +133,29 @@ public abstract class DbSetAsTableNameTest
 
     protected abstract class SetsContext : DbContext
     {
-        public DbSet<Cheese> Cheeses { get; set; }
-        public DbSet<Chocolate> Chocolates { get; set; }
-        public DbSet<Galaxy> Galaxies { get; set; }
-        public DbSet<DairyMilk> DairyMilks { get; set; }
-        public DbSet<Apple> Apples { get; set; }
-        public DbSet<Trisket> Triskets { get; set; }
-        public DbSet<WheatThin> WheatThins { get; set; }
-        public DbSet<Marmite> Food { get; set; }
-        public DbSet<Marmite> Beverage { get; set; }
+        public DbSet<Cheese> Cheeses { get; set; } = null!;
+        public DbSet<Chocolate> Chocolates { get; set; } = null!;
+        public DbSet<Galaxy> Galaxies { get; set; } = null!;
+        public DbSet<DairyMilk> DairyMilks { get; set; } = null!;
+        public DbSet<Apple> Apples { get; set; } = null!;
+        public DbSet<Trisket> Triskets { get; set; } = null!;
+        public DbSet<WheatThin> WheatThins { get; set; } = null!;
+        public DbSet<Marmite> Food { get; set; } = null!;
+        public DbSet<Marmite> Beverage { get; set; } = null!;
 
         public DbSet<ReallyLongNameA>
             ReallyLongNames12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890A
         {
             get;
             set;
-        }
+        } = null!;
 
         public DbSet<ReallyLongNameB>
             ReallyLongNames12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890B
         {
             get;
             set;
-        }
+        } = null!;
 
         public DbSet<BothEntity> Bovrils
             => Set<BothEntity>("Bovril");

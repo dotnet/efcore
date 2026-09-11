@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using Identity30.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -699,7 +697,7 @@ GO
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.MigrationsNotFound.ToString(),
                     RelationalResources.LogNoMigrationsFound(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(typeof(DbContext).Assembly.GetName().Name),
+                        .GenerateMessage(typeof(DbContext).Assembly.GetName().Name!),
                     "RelationalEventId.MigrationsNotFound"),
                 Assert.Throws<InvalidOperationException>(context.Database.Migrate).Message);
         }
@@ -718,7 +716,7 @@ GO
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.MigrationsNotFound.ToString(),
                     RelationalResources.LogNoMigrationsFound(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(typeof(DbContext).Assembly.GetName().Name),
+                        .GenerateMessage(typeof(DbContext).Assembly.GetName().Name!),
                     "RelationalEventId.MigrationsNotFound"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
@@ -738,7 +736,7 @@ GO
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.ModelSnapshotNotFound.ToString(),
                     RelationalResources.LogNoModelSnapshotFound(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(typeof(MigrationsContext).Assembly.GetName().Name),
+                        .GenerateMessage(typeof(MigrationsContext).Assembly.GetName().Name!),
                     "RelationalEventId.ModelSnapshotNotFound"),
                 Assert.Throws<InvalidOperationException>(context.Database.Migrate).Message);
         }
@@ -758,7 +756,7 @@ GO
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.ModelSnapshotNotFound.ToString(),
                     RelationalResources.LogNoModelSnapshotFound(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(typeof(MigrationsContext).Assembly.GetName().Name),
+                        .GenerateMessage(typeof(MigrationsContext).Assembly.GetName().Name!),
                     "RelationalEventId.ModelSnapshotNotFound"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
@@ -1088,7 +1086,7 @@ SELECT @result
         private class BloggingContext(DbContextOptions options, bool? randomData = null) : DbContext(options)
         {
             // ReSharper disable once UnusedMember.Local
-            public DbSet<Blog> Blogs { get; set; }
+            public DbSet<Blog> Blogs { get; set; } = null!;
 
             // ReSharper disable once ClassNeverInstantiated.Local
             public class Blog
@@ -1096,7 +1094,7 @@ SELECT @result
                 // ReSharper disable UnusedMember.Local
                 public int Id { get; set; }
 
-                public string Name { get; set; }
+                public string? Name { get; set; }
                 // ReSharper restore UnusedMember.Local
             }
 
@@ -2024,19 +2022,19 @@ namespace ModelSnapshot22
     public class Blog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<Post> Posts { get; set; } = null!;
     }
 
     public class Post
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public string? Title { get; set; }
+        public string? Content { get; set; }
         public DateTime EditDate { get; set; }
 
-        public Blog Blog { get; set; }
+        public Blog? Blog { get; set; }
     }
 
     public class BloggingContext : DbContext
@@ -2044,7 +2042,7 @@ namespace ModelSnapshot22
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Test;ConnectRetryCount=0");
 
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Blog>().HasData(

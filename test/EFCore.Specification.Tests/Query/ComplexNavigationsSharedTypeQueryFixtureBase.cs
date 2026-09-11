@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavigationsQueryFixtureBase
 {
     protected override string StoreName
@@ -40,12 +38,14 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
         var level2 = level1.Model.AddEntityType("Level1.OneToOne_Required_PK1#Level2", typeof(Level2));
         using (var batch = ((Model)modelBuilder.Model).ConventionDispatcher.DelayConventions())
         {
-            level2Fk = (ForeignKey)level2.AddForeignKey(level2.FindProperty(nameof(Level2.Id)), level1.FindPrimaryKey(), level1);
+            level2Fk = (ForeignKey)level2.AddForeignKey(
+                level2.FindProperty(nameof(Level2.Id))!, level1.FindPrimaryKey()!, level1);
             level2Fk.IsUnique = true;
             level2Fk.SetPrincipalToDependent(nameof(Level1.OneToOne_Required_PK1), ConfigurationSource.Explicit);
             level2Fk.SetDependentToPrincipal(nameof(Level2.OneToOne_Required_PK_Inverse2), ConfigurationSource.Explicit);
+            level2Fk.IsRequiredDependent = false;
             level2Fk.DeleteBehavior = DeleteBehavior.Restrict;
-            level2Fk = (ForeignKey)batch.Run(level2Fk);
+            level2Fk = (ForeignKey)batch.Run(level2Fk)!;
         }
 
         Configure(new OwnedNavigationBuilder<Level1, Level2>(level2Fk));
@@ -127,6 +127,7 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
+        l2.Property<int?>("OneToMany_Optional_Inverse2Id");
         l2.HasOne(e => e.OneToMany_Optional_Inverse2)
             .WithMany(e => e.OneToMany_Optional1)
             .IsRequired(false);
@@ -135,12 +136,14 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
         var level3 = level2.Model.AddEntityType("Level1.OneToOne_Required_PK1#Level2.OneToOne_Required_PK2#Level3", typeof(Level3));
         using (var batch = ((Model)level2.Model).ConventionDispatcher.DelayConventions())
         {
-            level3Fk = (ForeignKey)level3.AddForeignKey(level3.FindProperty(nameof(Level3.Id)), level2.FindPrimaryKey(), level2);
+            level3Fk = (ForeignKey)level3.AddForeignKey(
+                level3.FindProperty(nameof(Level3.Id))!, level2.FindPrimaryKey()!, level2);
             level3Fk.IsUnique = true;
             level3Fk.SetPrincipalToDependent(nameof(Level2.OneToOne_Required_PK2), ConfigurationSource.Explicit);
             level3Fk.SetDependentToPrincipal(nameof(Level3.OneToOne_Required_PK_Inverse3), ConfigurationSource.Explicit);
+            level3Fk.IsRequiredDependent = false;
             level3Fk.DeleteBehavior = DeleteBehavior.Restrict;
-            level3Fk = (ForeignKey)batch.Run(level3Fk);
+            level3Fk = (ForeignKey)batch.Run(level3Fk)!;
         }
 
         Configure(new OwnedNavigationBuilder<Level2, Level3>(level3Fk));
@@ -188,12 +191,14 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
             typeof(Level4));
         using (var batch = ((Model)level3.Model).ConventionDispatcher.DelayConventions())
         {
-            level4Fk = (ForeignKey)level4.AddForeignKey(level4.FindProperty(nameof(Level4.Id)), level3.FindPrimaryKey(), level3);
+            level4Fk = (ForeignKey)level4.AddForeignKey(
+                level4.FindProperty(nameof(Level4.Id))!, level3.FindPrimaryKey()!, level3);
             level4Fk.IsUnique = true;
             level4Fk.SetPrincipalToDependent(nameof(Level3.OneToOne_Required_PK3), ConfigurationSource.Explicit);
             level4Fk.SetDependentToPrincipal(nameof(Level4.OneToOne_Required_PK_Inverse4), ConfigurationSource.Explicit);
+            level4Fk.IsRequiredDependent = false;
             level4Fk.DeleteBehavior = DeleteBehavior.Restrict;
-            level4Fk = (ForeignKey)batch.Run(level4Fk);
+            level4Fk = (ForeignKey)batch.Run(level4Fk)!;
         }
 
         Configure(new OwnedNavigationBuilder<Level3, Level4>(level4Fk));

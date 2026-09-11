@@ -6,13 +6,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class LoggingTestBase
 {
     [Fact]
     public void Logs_context_initialization_default_options()
-        => Assert.Equal(ExpectedMessage(DefaultOptions), ActualMessage(CreateOptionsBuilder));
+        => Assert.Equal(ExpectedMessage(DefaultOptions!), ActualMessage(CreateOptionsBuilder));
 
     [Fact]
     public void Logs_context_initialization_no_tracking()
@@ -57,22 +55,22 @@ public abstract class LoggingTestBase
     protected class Animal
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public Person FavoritePerson { get; set; }
+        public string Name { get; set; } = null!;
+        public Person FavoritePerson { get; set; } = null!;
     }
 
     protected class Cat : Animal
     {
-        public string Breed { get; set; }
-        public string Type { get; set; }
+        public string Breed { get; set; } = null!;
+        public string Type { get; set; } = null!;
         public int Identity { get; set; }
     }
 
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string FavoriteBreed { get; set; }
+        public string Name { get; set; } = null!;
+        public string FavoriteBreed { get; set; } = null!;
     }
 
     protected abstract TestLogger CreateTestLogger();
@@ -83,7 +81,7 @@ public abstract class LoggingTestBase
 
     protected abstract string ProviderVersion { get; }
 
-    protected virtual string DefaultOptions
+    protected virtual string? DefaultOptions
         => null;
 
     protected virtual string ActualMessage(Func<IServiceCollection, DbContextOptionsBuilder> optionsActions)
@@ -96,7 +94,7 @@ public abstract class LoggingTestBase
             var _ = context.Model;
         }
 
-        return loggerFactory.Log.Single(t => t.Id.Id == CoreEventId.ContextInitialized.Id).Message;
+        return loggerFactory.Log.Single(t => t.Id.Id == CoreEventId.ContextInitialized.Id).Message!;
     }
 
     protected class LoggingContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options);

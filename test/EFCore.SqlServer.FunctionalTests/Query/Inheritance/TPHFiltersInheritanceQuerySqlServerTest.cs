@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPHFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<TPHFiltersInheritanceQuerySqlServerFixture>
 {
     public TPHFiltersInheritanceQuerySqlServerTest(TPHFiltersInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

@@ -5,16 +5,14 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public class NorthwindContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public virtual DbSet<Customer> Customers { get; set; }
-    public virtual DbSet<Employee> Employees { get; set; }
-    public virtual DbSet<Order> Orders { get; set; }
-    public virtual DbSet<OrderDetail> OrderDetails { get; set; }
-    public virtual DbSet<Product> Products { get; set; }
-    public virtual DbSet<CustomerQuery> CustomerQueries { get; set; }
+    public virtual DbSet<Customer> Customers { get; set; } = null!;
+    public virtual DbSet<Employee> Employees { get; set; } = null!;
+    public virtual DbSet<Order> Orders { get; set; } = null!;
+    public virtual DbSet<OrderDetail> OrderDetails { get; set; } = null!;
+    public virtual DbSet<Product> Products { get; set; } = null!;
+    public virtual DbSet<CustomerQuery> CustomerQueries { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -92,7 +90,7 @@ public class NorthwindContext(DbContextOptions options) : PoolableDbContext(opti
         modelBuilder.Entity<Customer>().HasQueryFilter(c => c.CompanyName.StartsWith(TenantPrefix));
         modelBuilder.Entity<Order>().HasQueryFilter(o => o.Customer != null && o.Customer.CompanyName != null);
         modelBuilder.Entity<OrderDetail>().HasQueryFilter(od => od.Order != null && EF.Property<short>(od, "Quantity") > _quantity);
-        modelBuilder.Entity<Employee>().HasQueryFilter(e => e.Address.StartsWith("A"));
+        modelBuilder.Entity<Employee>().HasQueryFilter(e => e.Address!.StartsWith("A"));
         modelBuilder.Entity<Product>().HasQueryFilter(p => ClientMethod(p));
         modelBuilder.Entity<CustomerQueryWithQueryFilter>().HasQueryFilter(cq => cq.CompanyName.StartsWith(SearchTerm));
     }

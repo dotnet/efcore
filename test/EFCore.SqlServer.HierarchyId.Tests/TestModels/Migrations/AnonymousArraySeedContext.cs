@@ -17,7 +17,7 @@ internal sealed class AnonymousArraySeedContext : MigrationContext<Patriarch, Co
         modelBuilder.Entity<ConvertedPatriarch>(b =>
         {
             b.Property(e => e.HierarchyId)
-                .HasConversion(v => HierarchyId.Parse(v), v => v.ToString());
+                .HasConversion(v => HierarchyId.Parse(v!), v => v.ToString());
 
             b.HasData(
                 new ConvertedPatriarch

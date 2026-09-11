@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public class RelationalModelAsserter : ModelAsserter
 {
     public static new RelationalModelAsserter Instance { get; } = new();
@@ -60,10 +58,10 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations)),
             () =>
             {
-                var expectedRelationalModel = (IRelationalModel)((IModel)expected)
-                    ?.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel);
-                var actualRelationalModel = (IRelationalModel)((IModel)actual)
-                    ?.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel);
+                var expectedRelationalModel = (IRelationalModel)((IModel)expected)?
+                    .FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel)!;
+                var actualRelationalModel = (IRelationalModel)((IModel)actual)?
+                    .FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel)!;
                 if (expectedRelationalModel != null)
                 {
                     AssertEqual(expectedRelationalModel, actualRelationalModel, compareMemberAnnotations);
@@ -182,8 +180,8 @@ public class RelationalModelAsserter : ModelAsserter
     }
 
     public override bool AssertEqual(
-        IReadOnlyEntityType expected,
-        IReadOnlyEntityType actual,
+        IReadOnlyEntityType? expected,
+        IReadOnlyEntityType? actual,
         IEnumerable<IAnnotation> expectedAnnotations,
         IEnumerable<IAnnotation> actualAnnotations,
         bool compareBackreferences = false,
@@ -410,8 +408,8 @@ public class RelationalModelAsserter : ModelAsserter
     }
 
     public virtual bool AssertEqual(
-        IReadOnlyStoredProcedure expected,
-        IReadOnlyStoredProcedure actual,
+        IReadOnlyStoredProcedure? expected,
+        IReadOnlyStoredProcedure? actual,
         bool compareBackreferences = false,
         bool compareAnnotations = false)
     {
@@ -420,6 +418,8 @@ public class RelationalModelAsserter : ModelAsserter
             Assert.Null(actual);
             return true;
         }
+
+        Assert.NotNull(actual);
 
         var expectedAnnotations = compareAnnotations ? expected.GetAnnotations() : [];
         var actualAnnotations = compareAnnotations ? actual.GetAnnotations() : [];
@@ -719,8 +719,8 @@ public class RelationalModelAsserter : ModelAsserter
     }
 
     public override bool AssertEqual(
-        IReadOnlyProperty expected,
-        IReadOnlyProperty actual,
+        IReadOnlyProperty? expected,
+        IReadOnlyProperty? actual,
         IEnumerable<IAnnotation> expectedAnnotations,
         IEnumerable<IAnnotation> actualAnnotations,
         bool compareBackreferences = false,
@@ -1482,10 +1482,10 @@ public class RelationalModelAsserter : ModelAsserter
                 {
                     AssertEqualBase(
                         expected.ReturnValue,
-                        actual.ReturnValue,
+                        actual.ReturnValue!,
                         compareMemberAnnotations ? expected.GetAnnotations() : [],
                         compareMemberAnnotations ? actual.GetAnnotations() : []);
-                    Assert.Same(actual, actual.ReturnValue.StoredProcedure);
+                    Assert.Same(actual, actual.ReturnValue!.StoredProcedure);
                     Assert.Equal(
                         expected.ReturnValue.PropertyMappings.Select(x => x), actual.ReturnValue.PropertyMappings,
                         (expected, actual) =>
@@ -1668,8 +1668,8 @@ public class RelationalModelAsserter : ModelAsserter
     }
 
     public virtual bool AssertEqual(
-        IStoredProcedureMapping expected,
-        IStoredProcedureMapping actual,
+        IStoredProcedureMapping? expected,
+        IStoredProcedureMapping? actual,
         bool compareMemberAnnotations)
     {
         if (expected == null)
@@ -1677,6 +1677,8 @@ public class RelationalModelAsserter : ModelAsserter
             Assert.Null(actual);
             return true;
         }
+
+        Assert.NotNull(actual);
 
         return AssertEqual(
             expected,
@@ -1696,7 +1698,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Equal(expected.StoredProcedure.GetSchemaQualifiedName(), actual.StoredProcedure.GetSchemaQualifiedName()),
-            () => Assert.Contains(expected.TableMapping?.Table.SchemaQualifiedName, actual.TableMapping?.Table.SchemaQualifiedName),
+            () => Assert.Contains(expected.TableMapping?.Table.SchemaQualifiedName!, actual.TableMapping?.Table.SchemaQualifiedName),
             () => Assert.Equal(
                 expected.ResultColumnMappings.Select(x => x), actual.ResultColumnMappings,
                 (expected, actual) =>

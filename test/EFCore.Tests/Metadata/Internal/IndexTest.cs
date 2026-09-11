@@ -35,11 +35,11 @@ public class IndexTest
     [Fact]
     public void Gets_expected_default_values()
     {
-        var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
-        var property1 = entityType.AddProperty(Customer.IdProperty);
-        var property2 = entityType.AddProperty(Customer.NameProperty);
+        var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer))!;
+        var property1 = entityType.AddProperty(Customer.IdProperty)!;
+        var property2 = entityType.AddProperty(Customer.NameProperty)!;
 
-        var index = entityType.AddIndex([property1, property2]);
+        var index = entityType.AddIndex([property1, property2])!;
 
         Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
         Assert.False(index.IsUnique);
@@ -107,16 +107,16 @@ public class IndexTest
 
     private class Customer
     {
-        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id")!;
+        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name")!;
 
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Order
     {
-        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id")!;
 
         public int Id { get; set; }
     }
@@ -124,27 +124,27 @@ public class IndexTest
     private sealed class Blog
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
         public List<Post> Posts { get; set; } = [];
-        public Address Owner { get; set; }
+        public Address Owner { get; set; } = null!;
     }
 
     private sealed class Post
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
         public int Rating { get; set; }
         public List<Comment> Comments { get; } = [];
     }
 
     private sealed class Comment
     {
-        public string Text { get; set; }
+        public string Text { get; set; } = null!;
     }
 
     private sealed class Address
     {
-        public string City { get; set; }
-        public string Country { get; set; }
+        public string City { get; set; } = null!;
+        public string Country { get; set; } = null!;
     }
 
     private static ModelBuilder CreateComplexModelBuilder()
@@ -527,7 +527,7 @@ public class IndexTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(Blog))!;
         var titleProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType.FindProperty("Title")!;
 
-        var original = entityType.AddIndex([titleProp], [[5]], "IX_Reattach", ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([titleProp], [[5]], "IX_Reattach", ConfigurationSource.Explicit)!;
         original.SetIsUnique(true, ConfigurationSource.Explicit);
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
@@ -552,7 +552,7 @@ public class IndexTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(Blog))!;
         var titleProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType.FindProperty("Title")!;
 
-        var original = entityType.AddIndex([titleProp], [[null]], ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([titleProp], [[null]], ConfigurationSource.Explicit)!;
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
         Assert.Null(entityType.FindIndex([titleProp], [[null]]));
@@ -575,7 +575,7 @@ public class IndexTest
         var textProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType
             .FindComplexProperty("Comments")!.ComplexType.FindProperty("Text")!;
 
-        var original = entityType.AddIndex([textProp], [[0, 1]], "IX_NestedReattach", ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([textProp], [[0, 1]], "IX_NestedReattach", ConfigurationSource.Explicit)!;
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
         var reattached = detached.Attach(entityType.Builder);
@@ -599,7 +599,7 @@ public class IndexTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(Blog))!;
         var postsProp = (PropertyBase)entityType.FindComplexProperty("Posts")!;
 
-        var original = entityType.AddIndex([postsProp], [[7]], "IX_LeafCollectionReattach", ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([postsProp], [[7]], "IX_LeafCollectionReattach", ConfigurationSource.Explicit)!;
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
         var reattached = detached.Attach(entityType.Builder);
@@ -622,7 +622,7 @@ public class IndexTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(Blog))!;
         var postsProp = (PropertyBase)entityType.FindComplexProperty("Posts")!;
 
-        var original = entityType.AddIndex([postsProp], [[null]], ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([postsProp], [[null]], ConfigurationSource.Explicit)!;
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
         var reattached = detached.Attach(entityType.Builder);

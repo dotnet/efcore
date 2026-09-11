@@ -93,7 +93,7 @@ public class SqlServerModificationCommandBatchFactoryTest
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,
-        string schema,
+        string? schema,
         bool sensitiveLoggingEnabled)
     {
         var modificationCommand = new ModificationCommandFactory().CreateNonTrackedModificationCommand(

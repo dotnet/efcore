@@ -693,20 +693,20 @@ public class SharedTypeDbSetTest
     private class Category
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Product
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public decimal Price { get; set; }
     }
 
     private class TheGu
     {
         public Guid Id { get; set; }
-        public string ShirtColor { get; set; }
+        public string ShirtColor { get; set; } = null!;
     }
 
     private class EarlyLearningCenter : DbContext

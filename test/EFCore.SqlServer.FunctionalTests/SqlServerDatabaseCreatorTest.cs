@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 // Tests are split into classes to enable parallel execution
 // Some combinations are skipped to reduce run time
 [SkipOnCI("Flaky on CI")]
@@ -216,7 +214,7 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
         await using var context = new BloggingContext(testDatabase);
         if (createDatabase)
         {
-            await testDatabase.InitializeAsync(null, (Func<DbContext>)null);
+            await testDatabase.InitializeAsync(null, (Func<DbContext>)null!);
         }
         else
         {
@@ -371,7 +369,7 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
     public async Task Returns_true_when_database_exists_and_has_any_tables(bool async, bool ambientTransaction)
     {
         await using var testDatabase = await SqlServerTestStore.GetOrCreate("ExistingTables")
-            .InitializeSqlServerAsync(null, t => new BloggingContext(t), null);
+            .InitializeSqlServerAsync(null!, t => new BloggingContext(t), null!);
         var creator = GetDatabaseCreator(testDatabase);
 
         await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
@@ -695,14 +693,14 @@ public abstract class SqlServerDatabaseCreatorTestBase
                 b.Property(e => e.AndRow).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
             });
 
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
     }
 
     public class Blog
     {
-        public string Key1 { get; set; }
-        public byte[] Key2 { get; set; }
-        public string Cheese { get; set; }
+        public string Key1 { get; set; } = null!;
+        public byte[] Key2 { get; set; } = null!;
+        public string? Cheese { get; set; }
         public int ErMilan { get; set; }
         public bool George { get; set; }
         public Guid TheGu { get; set; }
@@ -712,8 +710,8 @@ public abstract class SqlServerDatabaseCreatorTestBase
         public short Fuse { get; set; }
         public long WayRound { get; set; }
         public float On { get; set; }
-        public byte[] AndChew { get; set; }
-        public byte[] AndRow { get; set; }
+        public byte[]? AndChew { get; set; }
+        public byte[]? AndRow { get; set; }
     }
 
     public class TestDatabaseCreator(

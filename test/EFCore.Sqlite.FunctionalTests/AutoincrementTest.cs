@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class AutoincrementTest(AutoincrementTest.AutoincrementFixture fixture) : IClassFixture<AutoincrementTest.AutoincrementFixture>
 {
     protected AutoincrementFixture Fixture { get; } = fixture;
@@ -50,12 +48,12 @@ public class AutoincrementTest(AutoincrementTest.AutoincrementFixture fixture) :
 
     protected class BatContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public DbSet<PersonA> People { get; set; }
+        public DbSet<PersonA> People { get; set; } = null!;
     }
 
     protected class PersonA
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

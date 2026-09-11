@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : Ef6GroupByTestBase<TFixture>.Ef6GroupByFixtureBase, new()
 {
@@ -380,7 +378,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   from o in ps
                   select new { Customer = c, o.Id },
             ss => from c in ss.Set<CustomerForLinq>()
-                  join o in ss.Set<OrderForLinq>() on c.Id equals o.Customer.Id into ps
+                join o in ss.Set<OrderForLinq>() on c.Id equals o.Customer!.Id into ps
                   from o in ps
                   select new { Customer = c, o.Id },
             r => (r.Id, r.Customer.Id),
@@ -401,7 +399,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                   from o in ps.DefaultIfEmpty()
                   select new { Customer = c, OrderId = o == null ? -1 : o.Id },
             ss => from c in ss.Set<CustomerForLinq>()
-                  join o in ss.Set<OrderForLinq>() on c.Id equals o.Customer.Id into ps
+                join o in ss.Set<OrderForLinq>() on c.Id equals o.Customer!.Id into ps
                   from o in ps.DefaultIfEmpty()
                   select new { Customer = c, OrderId = o == null ? -1 : o.Id },
             r => (r.OrderId, r.Customer.Id),
@@ -440,7 +438,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 .Where(e => e.MiddleInitial == "Q" && e.Age == 20)
                 .GroupBy(e => e.LastName)
                 .Select(g => g.First().LastName)
-                .OrderBy(e => e.Length),
+                .OrderBy(e => e!.Length),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))] // From #18037
@@ -487,15 +485,15 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
         return AssertQuery(
             async,
             ss => ss.Set<Person>()
-                .Where(p => p.Feet.Size == size
+                .Where(p => p.Feet!.Size == size
                     && p.MiddleInitial != null
                     && p.Feet.Id != 1)
-                .GroupBy(p => new { p.Feet.Size, p.Feet.Person.LastName })
+                .GroupBy(p => new { p.Feet!.Size, p.Feet.Person!.LastName })
                 .Select(g => new
                 {
                     g.Key.LastName,
                     g.Key.Size,
-                    Min = g.Min(p => p.Feet.Size),
+                    Min = g.Min(p => p.Feet!.Size),
                 }));
     }
 
@@ -506,14 +504,14 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
             ss => ss.Set<Person>()
                 .Include(x => x.Shoes)
                 .Include(x => x.Feet)
-                .GroupBy(x => new { x.Feet.Id, x.Feet.Size })
+                .GroupBy(x => new { x.Feet!.Id, x.Feet.Size })
                 .Select(x => new
                 {
                     Key = x.Key.Id + x.Key.Size,
                     Count = x.Count(),
                     Sum = x.Sum(el => el.Id),
                     SumOver60 = x.Sum(el => el.Id) / (decimal)60,
-                    TotalCallOutCharges = x.Sum(el => el.Feet.Size == 11 ? 1 : 0)
+                    TotalCallOutCharges = x.Sum(el => el.Feet!.Size == 11 ? 1 : 0)
                 }));
 
     [Theory, MemberData(nameof(IsAsyncData))] // From #24591
@@ -522,7 +520,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
             async,
             ss => ss.Set<Person>()
                 .GroupBy(n => n.FirstName)
-                .Select(g => new { Feet = g.Key, Total = g.Sum(n => n.Feet.Size) }));
+                .Select(g => new { Feet = g.Key, Total = g.Sum(n => n.Feet!.Size) }));
 
     [Theory, MemberData(nameof(IsAsyncData))] // From #24695
     public virtual Task Whats_new_2021_sample_10(bool async)
@@ -584,7 +582,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 })
                 .OrderByDescending(e => e.LastName)
                 .Select(e => e),
-            r => (r.First.FirstName, r.First.MiddleInitial, r.First.LastName),
+            r => (r.First!.FirstName, r.First.MiddleInitial, r.First.LastName),
             (l, r) =>
             {
                 Assert.Equal(l.LastName, r.LastName);
@@ -677,7 +675,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
     public abstract class Ef6GroupByFixtureBase : QueryFixtureBase<ArubaContext>
     {
-        private ArubaData _expectedData;
+        private ArubaData _expectedData = null!;
 
         protected override string StoreName
             => "Ef6GroupByTest";
@@ -731,11 +729,11 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
         public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
         {
-            { typeof(CustomerForLinq), e => ((CustomerForLinq)e)?.Id },
-            { typeof(OrderForLinq), e => ((OrderForLinq)e)?.Id },
-            { typeof(Person), e => ((Person)e)?.Id },
-            { typeof(Shoes), e => ((Shoes)e)?.Id },
-            { typeof(Feet), e => ((Feet)e)?.Id }
+            { typeof(CustomerForLinq), e => ((CustomerForLinq)e).Id },
+            { typeof(OrderForLinq), e => ((OrderForLinq)e).Id },
+            { typeof(Person), e => ((Person)e).Id },
+            { typeof(Shoes), e => ((Shoes)e).Id },
+            { typeof(Feet), e => ((Feet)e).Id }
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
         public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
@@ -747,7 +745,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
                     if (a != null)
                     {
-                        var ee = (CustomerForLinq)e;
+                        var ee = (CustomerForLinq)e!;
                         var aa = (CustomerForLinq)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -763,7 +761,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
                     if (a != null)
                     {
-                        var ee = (OrderForLinq)e;
+                        var ee = (OrderForLinq)e!;
                         var aa = (OrderForLinq)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -779,7 +777,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
                     if (a != null)
                     {
-                        var ee = (Person)e;
+                        var ee = (Person)e!;
                         var aa = (Person)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -797,7 +795,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
                     if (a != null)
                     {
-                        var ee = (Shoes)e;
+                        var ee = (Shoes)e!;
                         var aa = (Shoes)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -813,7 +811,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
                     if (a != null)
                     {
-                        var ee = (Feet)e;
+                        var ee = (Feet)e!;
                         var aa = (Feet)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -829,9 +827,9 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
     public class ArubaOwner
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Alias { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Alias { get; set; }
     }
 
     public class NumberForLinq(int value, string name)
@@ -844,8 +842,8 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
     public class ProductForLinq
     {
         public int Id { get; set; }
-        public string ProductName { get; set; }
-        public string Category { get; set; }
+        public string? ProductName { get; set; }
+        public string? Category { get; set; }
         public decimal UnitPrice { get; set; }
         public int UnitsInStock { get; set; }
     }
@@ -855,8 +853,8 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
     public class CustomerForLinq
     {
         public int Id { get; set; }
-        public string Region { get; set; }
-        public string CompanyName { get; set; }
+        public string? Region { get; set; }
+        public string? CompanyName { get; set; }
         public ICollection<OrderForLinq> Orders { get; } = [];
     }
 
@@ -865,17 +863,17 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
         public int Id { get; set; }
         public decimal Total { get; set; }
         public DateTime OrderDate { get; set; }
-        public CustomerForLinq Customer { get; set; }
+        public CustomerForLinq? Customer { get; set; }
     }
 
     public class Person
     {
         public int Id { get; set; }
         public int Age { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string MiddleInitial { get; set; }
-        public Feet Feet { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? MiddleInitial { get; set; }
+        public Feet? Feet { get; set; }
         public ICollection<Shoes> Shoes { get; } = [];
     }
 
@@ -883,15 +881,15 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
     {
         public int Id { get; set; }
         public int Age { get; set; }
-        public string Style { get; set; }
-        public Person Person { get; set; }
+        public string? Style { get; set; }
+        public Person? Person { get; set; }
     }
 
     public class Feet
     {
         public int Id { get; set; }
         public int Size { get; set; }
-        public Person Person { get; set; }
+        public Person? Person { get; set; }
     }
 
     public class ArubaData : ISetSource
@@ -1210,7 +1208,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
             foreach (var order in orders)
             {
-                order.Customer.Orders.Add(order);
+                order.Customer!.Orders.Add(order);
             }
 
             return orders;
@@ -1530,7 +1528,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
 
             foreach (var person in people)
             {
-                person.Feet.Person = person;
+                person.Feet!.Person = person;
 
                 foreach (var shoes in person.Shoes)
                 {
@@ -1542,7 +1540,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
         }
 
         private static IReadOnlyList<Feet> CreateFeet(IReadOnlyList<Person> people)
-            => people.Select(e => e.Feet).ToList();
+            => people.Select(e => e.Feet!).ToList();
 
         private static IReadOnlyList<Shoes> CreateShoes(IReadOnlyList<Person> people)
             => people.SelectMany(e => e.Shoes).ToList();

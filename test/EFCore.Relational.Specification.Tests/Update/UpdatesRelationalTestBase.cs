@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : UpdatesTestBase<TFixture>(fixture)
     where TFixture : UpdatesRelationalTestBase<TFixture>.UpdatesRelationalFixture
 {
@@ -306,9 +304,9 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<ProductViewTable>().HasBaseType((string)null).ToTable("ProductView");
-            modelBuilder.Entity<ProductTableWithView>().HasBaseType((string)null).ToView("ProductView").ToTable("ProductTable");
-            modelBuilder.Entity<ProductTableView>().HasBaseType((string)null).ToView("ProductTable");
+            modelBuilder.Entity<ProductViewTable>().HasBaseType((string?)null).ToTable("ProductView");
+            modelBuilder.Entity<ProductTableWithView>().HasBaseType((string?)null).ToView("ProductView").ToTable("ProductTable");
+            modelBuilder.Entity<ProductTableView>().HasBaseType((string?)null).ToView("ProductTable");
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique();
 

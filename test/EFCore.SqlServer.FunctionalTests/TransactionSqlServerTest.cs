@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlServerFixture fixture)
     : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>(fixture)
 {
@@ -67,7 +65,7 @@ public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlSer
     protected override DbContext CreateContextWithConnectionString()
         => CreateContextWithConnectionString(null);
 
-    protected DbContext CreateContextWithConnectionString(string connectionString)
+    protected DbContext CreateContextWithConnectionString(string? connectionString)
     {
         var options = Fixture.AddOptions(
                 new DbContextOptionsBuilder()

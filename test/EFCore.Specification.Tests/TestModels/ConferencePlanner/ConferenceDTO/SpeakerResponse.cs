@@ -6,5 +6,5 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceD
 public class SpeakerResponse : Speaker
 {
     // TODO: Set order of JSON proeprties so this shows up last not first
-    public ICollection<Session> Sessions { get; set; } = [];
+    public ICollection<Session>? Sessions { get; set; }
 }

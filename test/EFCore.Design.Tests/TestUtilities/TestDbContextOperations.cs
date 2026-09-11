@@ -11,9 +11,9 @@ public class TestDbContextOperations(
     Assembly startupAssembly,
     string project,
     string projectDir,
-    string rootNamespace,
-    string language,
+    string? rootNamespace,
+    string? language,
     bool nullable,
-    string[] args,
+    string[]? args,
     AppServiceProviderFactory appServicesFactory) : DbContextOperations(
     reporter, assembly, startupAssembly, project, projectDir, rootNamespace, language, nullable, args, appServicesFactory);

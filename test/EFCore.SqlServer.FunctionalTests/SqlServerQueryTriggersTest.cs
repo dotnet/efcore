@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTriggersFixture fixture)
     : IClassFixture<SqlServerQueryTriggersTest.SqlServerTriggersFixture>
 {
@@ -80,7 +78,7 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
 
     protected class QueryTriggersContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Product> Products { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Product>(eb =>
@@ -95,8 +93,8 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
     protected class Product
     {
         public virtual int Id { get; set; }
-        public virtual byte[] Version { get; set; }
-        public virtual string Name { get; set; }
+        public virtual byte[]? Version { get; set; }
+        public virtual string? Name { get; set; }
         public virtual int StoreUpdated { get; set; }
     }
 

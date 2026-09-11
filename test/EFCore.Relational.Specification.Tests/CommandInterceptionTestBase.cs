@@ -3,11 +3,10 @@
 
 using System.Collections;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
-
-#nullable disable
 
 public abstract class CommandInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture) : InterceptionTestBase(fixture)
 {
@@ -472,7 +471,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
     public virtual async Task Intercept_non_query_to_mutate_command(bool async, bool inject)
     {
         var interceptor = new MutatingNonQueryCommandInterceptor(this);
-        var context = inject ? await CreateContextAsync(null, interceptor) : await CreateContextAsync(interceptor);
+        var context = inject ? await CreateContextAsync(null!, interceptor) : await CreateContextAsync(interceptor);
         using (context)
         {
             using (context.Database.BeginTransaction())
@@ -580,7 +579,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
 
         private static DbCommand CreateNewCommand(DbCommand command)
         {
-            var newCommand = command.Connection.CreateCommand();
+            var newCommand = command.Connection!.CreateCommand();
             newCommand.CommandText = command.CommandText.Replace("Singularity", "Brane");
 
             return newCommand;
@@ -626,7 +625,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
             base.ScalarExecuting(command, eventData, result);
 
             // Note: this DbCommand will not get disposed...can be problematic on some providers
-            return InterceptionResult<object>.SuppressWithResult(CreateNewCommand(command).ExecuteScalar());
+            return InterceptionResult<object>.SuppressWithResult(CreateNewCommand(command).ExecuteScalar()!);
         }
 
         public override async ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
@@ -638,12 +637,12 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
             await base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
 
             // Note: this DbCommand will not get disposed...can be problematic on some providers
-            return InterceptionResult<object>.SuppressWithResult(await CreateNewCommand(command).ExecuteScalarAsync(cancellationToken));
+            return InterceptionResult<object>.SuppressWithResult((await CreateNewCommand(command).ExecuteScalarAsync(cancellationToken))!);
         }
 
         private static DbCommand CreateNewCommand(DbCommand command)
         {
-            var newCommand = command.Connection.CreateCommand();
+            var newCommand = command.Connection!.CreateCommand();
             newCommand.CommandText = "SELECT 2";
 
             return newCommand;
@@ -654,7 +653,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
     public virtual async Task Intercept_non_query_to_replace_execution(bool async, bool inject)
     {
         var interceptor = new QueryReplacingNonQueryCommandInterceptor(this);
-        var context = inject ? await CreateContextAsync(null, interceptor) : await CreateContextAsync(interceptor);
+        var context = inject ? await CreateContextAsync(null!, interceptor) : await CreateContextAsync(interceptor);
         using (context)
         {
             using (context.Database.BeginTransaction())
@@ -708,7 +707,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
 
         private DbCommand CreateNewCommand(DbCommand command)
         {
-            var newCommand = command.Connection.CreateCommand();
+            var newCommand = command.Connection!.CreateCommand();
             newCommand.Transaction = command.Transaction;
             newCommand.CommandText = commandText;
 
@@ -884,20 +883,20 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
     {
         public const string InterceptedResult = "Bet you weren't expecting a string!";
 
-        public override object ScalarExecuted(
+        public override object? ScalarExecuted(
             DbCommand command,
             CommandExecutedEventData eventData,
-            object result)
+            object? result)
         {
             base.ScalarExecuted(command, eventData, result);
 
             return InterceptedResult;
         }
 
-        public override async ValueTask<object> ScalarExecutedAsync(
+        public override async ValueTask<object?> ScalarExecutedAsync(
             DbCommand command,
             CommandExecutedEventData eventData,
-            object result,
+            object? result,
             CancellationToken cancellationToken = default)
         {
             await base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
@@ -1217,7 +1216,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         var injectedInterceptor1 = new MutatingReaderCommandInterceptor();
         var injectedInterceptor2 = new ResultReplacingReaderCommandInterceptor();
 
-        using var context = await CreateContextAsync(null, injectedInterceptor1, injectedInterceptor2);
+        using var context = await CreateContextAsync(null!, injectedInterceptor1, injectedInterceptor2);
         await TestCompoisteQueryInterceptors(context, injectedInterceptor2, injectedInterceptor1, async);
     }
 
@@ -1225,7 +1224,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
     public virtual async Task Intercept_scalar_with_two_injected_interceptors(bool async)
     {
         using var context = await CreateContextAsync(
-            null,
+            null!,
             new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor());
         await TestCompositeScalarInterceptors(context, async);
     }
@@ -1234,7 +1233,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
     public virtual async Task Intercept_non_query_with_two_injected_interceptors(bool async)
     {
         using var context = await CreateContextAsync(
-            null,
+            null!,
             new MutatingNonQueryCommandInterceptor(this), new ResultReplacingNonQueryCommandInterceptor());
         await TestCompositeNonQueryInterceptors(context, async);
     }
@@ -1392,12 +1391,13 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         public override int ExecuteNonQuery()
             => _command.ExecuteNonQuery();
 
-        public override object ExecuteScalar()
+        public override object? ExecuteScalar()
             => _command.ExecuteScalar();
 
         public override void Prepare()
             => _command.Prepare();
 
+        [AllowNull]
         public override string CommandText
         {
             get => _command.CommandText;
@@ -1422,7 +1422,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
             set => _command.UpdatedRowSource = value;
         }
 
-        protected override DbConnection DbConnection
+        protected override DbConnection? DbConnection
         {
             get => _command.Connection;
             set => _command.Connection = value;
@@ -1431,7 +1431,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         protected override DbParameterCollection DbParameterCollection
             => _command.Parameters;
 
-        protected override DbTransaction DbTransaction
+        protected override DbTransaction? DbTransaction
         {
             get => _command.Transaction;
             set => _command.Transaction = value;
@@ -1481,13 +1481,13 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         public override byte GetByte(int ordinal)
             => throw new NotImplementedException();
 
-        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+        public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
             => throw new NotImplementedException();
 
         public override char GetChar(int ordinal)
             => throw new NotImplementedException();
 
-        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+        public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
             => throw new NotImplementedException();
 
         public override string GetDataTypeName(int ordinal)
@@ -1574,8 +1574,8 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
 
     protected static void AssertExecutedEvents(ITestDiagnosticListener listener)
         => listener.AssertEventsInOrder(
-            RelationalEventId.CommandExecuting.Name,
-            RelationalEventId.CommandExecuted.Name);
+            RelationalEventId.CommandExecuting.Name!,
+            RelationalEventId.CommandExecuted.Name!);
 
     protected static void AssertSql(string expected, string actual)
         => Assert.Equal(
@@ -1584,9 +1584,9 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
 
     protected abstract class CommandInterceptorBase(DbCommandMethod commandMethod) : IDbCommandInterceptor
     {
-        public DbContext Context { get; set; }
-        public Exception Exception { get; set; }
-        public string CommandText { get; set; }
+        public DbContext Context { get; set; } = null!;
+        public Exception Exception { get; set; } = null!;
+        public string CommandText { get; set; } = null!;
         public Guid CommandId { get; set; }
         public Guid ConnectionId { get; set; }
         public CommandSource CommandSource { get; set; }
@@ -1716,10 +1716,10 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
             return result;
         }
 
-        public virtual object ScalarExecuted(
+        public virtual object? ScalarExecuted(
             DbCommand command,
             CommandExecutedEventData eventData,
-            object result)
+            object? result)
         {
             Assert.False(eventData.IsAsync);
             SyncCalled = true;
@@ -1753,10 +1753,10 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
             return ValueTask.FromResult(result);
         }
 
-        public virtual ValueTask<object> ScalarExecutedAsync(
+        public virtual ValueTask<object?> ScalarExecutedAsync(
             DbCommand command,
             CommandExecutedEventData eventData,
-            object result,
+            object? result,
             CancellationToken cancellationToken = default)
         {
             Assert.True(eventData.IsAsync);

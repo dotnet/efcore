@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) : OwnedQueryTestBase<TFixture>(fixture)
     where TFixture : OwnedQueryRelationalTestBase<TFixture>.RelationalOwnedQueryFixture, new()
 {
@@ -27,6 +25,45 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
     // Since this is FirstOrDefault with a filter, we don't issue our usual "missing ordering" warning (see #33997).
     public override Task FirstOrDefault_over_owned_collection(bool async)
         => Task.CompletedTask;
+
+    // Relational only: the in-memory provider throws reading the missing dependent's value instead of treating it as absent.
+    // Both Bartons land in one group, so the aggregates run over a present and an absent dependent together.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_on_optional_owned_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Barton>()
+                .GroupBy(e => e.Simple != null)
+                .Select(g => new
+                {
+                    g.Key,
+                    Sum = g.Sum(e => e.Throned!.Value),
+                    Above = g.Count(e => e.Throned!.Value > 40)
+                }),
+            ss => ss.Set<Barton>()
+                .GroupBy(e => e.Simple != null)
+                .Select(g => new
+                {
+                    g.Key,
+                    Sum = g.Sum(e => e.Throned == null ? 0 : e.Throned.Value),
+                    Above = g.Count(e => e.Throned != null && e.Throned.Value > 40)
+                }),
+            elementSorter: e => e.Key);
+
+    // Relational only: Cosmos cannot reference a second root entity type in one query.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_on_navigation_reached_through_owned_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(e => (int)e.PersonAddress!["ZipCode"] > 20000)
+                .Select(g => new
+                {
+                    g.Key,
+                    Sum = g.Sum(e => (int)e.PersonAddress!["ZipCode"]),
+                    Planet = g.Max(e => e.PersonAddress!.Country!.Planet!.Name)
+                }),
+            elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Query_for_base_type_loads_all_owned_navs_split(bool async)
@@ -60,7 +97,7 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
                 {
                     p.Orders,
                     p.PersonAddress,
-                    p.PersonAddress.Country.Planet
+                    p.PersonAddress!.Country!.Planet
                 }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -74,7 +111,7 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_split(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.PersonAddress.Country.Planet.Moons).AsSplitQuery(),
+            ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.PersonAddress!.Country!.Planet!.Moons).AsSplitQuery(),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 

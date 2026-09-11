@@ -5,8 +5,6 @@ using Microsoft.Data.SqlTypes;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-#nullable enable
-
 public class SqlServerAutoLoadConventionTest
 {
     [Fact]

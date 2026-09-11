@@ -6,16 +6,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public abstract class CircuitTpt
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public ulong ULongVersion { get; init; }
 
     [NotMapped]
-    public List<byte> BinaryVersion { get; init; }
+    public List<byte> BinaryVersion { get; init; } = null!;
 }
 
 public class StreetCircuitTpt : CircuitTpt, IStreetCircuit<CityTpt>
@@ -30,7 +28,7 @@ public class StreetCircuitTpt : CircuitTpt, IStreetCircuit<CityTpt>
     public int Length { get; set; }
 
     [Required]
-    public CityTpt City { get; set; }
+    public CityTpt City { get; set; } = null!;
 }
 
 public class OvalCircuitTpt : CircuitTpt

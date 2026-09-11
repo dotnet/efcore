@@ -586,7 +586,7 @@ public class ExecutionStrategyTest : IDisposable
 
                         Assert.True(false);
                         return Task.FromResult(0);
-                    }))).InnerException.InnerException);
+                    }))).InnerException!.InnerException);
 
         Assert.Equal(3, executionCount);
     }
@@ -655,14 +655,14 @@ public class ExecutionStrategyTest : IDisposable
 
     public class TestExecutionStrategy : ExecutionStrategy
     {
-        private readonly Func<Exception, bool> _shouldRetryOn;
-        private readonly Func<Exception, TimeSpan?> _getNextDelay;
+        private readonly Func<Exception, bool>? _shouldRetryOn;
+        private readonly Func<Exception, TimeSpan?>? _getNextDelay;
 
         public TestExecutionStrategy(
             DbContext context,
             int? retryCount = null,
-            Func<Exception, bool> shouldRetryOn = null,
-            Func<Exception, TimeSpan?> getNextDelay = null)
+            Func<Exception, bool>? shouldRetryOn = null,
+            Func<Exception, TimeSpan?>? getNextDelay = null)
             : base(
                 context,
                 retryCount ?? DefaultMaxRetryCount,
@@ -674,7 +674,7 @@ public class ExecutionStrategyTest : IDisposable
 
         protected TestExecutionStrategy()
             : base(
-                (ExecutionStrategyDependencies)null,
+                (ExecutionStrategyDependencies)null!,
                 DefaultMaxRetryCount,
                 DefaultMaxDelay)
         {

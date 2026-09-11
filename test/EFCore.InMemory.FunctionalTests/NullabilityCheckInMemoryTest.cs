@@ -175,14 +175,14 @@ public class NullabilityCheckInMemoryTest(InMemoryFixture fixture) : IClassFixtu
         public int Id { get; set; }
 
         [Required]
-        public string RequiredProperty { get; set; }
+        public string? RequiredProperty { get; set; }
     }
 
     private class SomeEntity
     {
         public int Id { get; set; }
 
-        public string Property { get; set; }
+        public string? Property { get; set; }
     }
 
     private class AnotherEntityWithRequiredAttribute
@@ -190,9 +190,9 @@ public class NullabilityCheckInMemoryTest(InMemoryFixture fixture) : IClassFixtu
         public int Id { get; set; }
 
         [Required]
-        public string RequiredProperty { get; set; }
+        public string? RequiredProperty { get; set; }
 
-        public string Property { get; set; }
+        public string? Property { get; set; }
     }
 
     private class AnotherEntityWithCompositeKeys
@@ -201,6 +201,6 @@ public class NullabilityCheckInMemoryTest(InMemoryFixture fixture) : IClassFixtu
 
         public int SecondId { get; set; }
 
-        public string Property { get; set; }
+        public string? Property { get; set; }
     }
 }

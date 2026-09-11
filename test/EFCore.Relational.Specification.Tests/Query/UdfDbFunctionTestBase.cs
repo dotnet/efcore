@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : SharedStoreFixtureBase<DbContext>, new()
 {
@@ -34,22 +32,22 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     public class Customer
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public List<Order> Orders { get; set; }
-        public List<Address> Addresses { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public List<Order> Orders { get; set; } = null!;
+        public List<Address> Addresses { get; set; } = null!;
     }
 
     public class Order
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime OrderDate { get; set; }
 
         public int CustomerId { get; set; }
 
-        public Customer Customer { get; set; }
-        public List<LineItem> Items { get; set; }
+        public Customer Customer { get; set; } = null!;
+        public List<LineItem> Items { get; set; } = null!;
     }
 
     public class LineItem
@@ -59,25 +57,25 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         public int ProductId { get; set; }
         public int Quantity { get; set; }
 
-        public Order Order { get; set; }
-        public Product Product { get; set; }
+        public Order Order { get; set; } = null!;
+        public Product Product { get; set; } = null!;
     }
 
     public class Product
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public class Address
     {
         public int Id { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
+        public string Street { get; set; } = null!;
+        public string? City { get; set; }
+        public string? State { get; set; }
 
         public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 
     public class OrderByYear
@@ -91,7 +89,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     {
         public int OrderId { get; set; }
 
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
         public int CustomerId { get; set; }
 
         public DateTime OrderDate { get; set; }
@@ -99,7 +97,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     public class TopSellingProduct
     {
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
         public int? ProductId { get; set; }
 
         public int? AmountSold { get; set; }
@@ -121,31 +119,31 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     public class MapLocation
     {
         public int Id { get; set; }
-        public ComplexGpsCoordinates GpsCoordinates { get; set; }
+        public ComplexGpsCoordinates GpsCoordinates { get; set; } = null!;
     }
 
     public class MapLocationData
     {
         public int Id { get; set; }
-        public ComplexGpsCoordinates GpsCoordinates { get; set; }
+        public ComplexGpsCoordinates GpsCoordinates { get; set; } = null!;
     }
 
     public class CustomerData
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
     }
 
     protected class UDFSqlContext(DbContextOptions options) : PoolableDbContext(options)
     {
         #region DbSets
 
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<MapLocation> MapLocations { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<Address> Addresses { get; set; } = null!;
+        public DbSet<MapLocation> MapLocations { get; set; } = null!;
 
         #endregion
 
@@ -299,42 +297,42 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Static
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountStatic))).HasName("CustomerOrderCount");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientStatic)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountStatic))!).HasName("CustomerOrderCount");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientStatic))!)
                 .HasName("CustomerOrderCount");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValueStatic))).HasName("StarValue");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomerStatic))).HasName("IsTopCustomer");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDateStatic)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValueStatic))!).HasName("StarValue");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomerStatic))!).HasName("IsTopCustomer");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDateStatic))!)
                 .HasName("GetCustomerWithMostOrdersAfterDate");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateStatic)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateStatic))!)
                 .HasName("GetReportingPeriodStartDate");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetSqlFragmentStatic)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetSqlFragmentStatic))!)
                 .HasTranslation(args => new SqlFragmentExpression("'Two'"));
-            var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic));
+            var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic))!;
             modelBuilder.HasDbFunction(isDateMethodInfo).HasName("IsDate").IsBuiltIn();
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), [typeof(int), typeof(int)]));
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), [typeof(int), typeof(int)])!);
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringPropagateNull), [typeof(string)]))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringPropagateNull), [typeof(string)])!)
                 .HasParameter("s").PropagatesNullability();
 
             modelBuilder.HasDbFunction(
-                    typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), [typeof(string)]))
+                    typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), [typeof(string)])!)
                 .IsNullable(false);
 
             var abc = new[] { "A", "B", "C" };
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), [typeof(string)]))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), [typeof(string)])!)
                 .HasTranslation(args => new InExpression(
                     args.First(),
                     [
                         new SqlConstantExpression(abc[0], typeMapping: null),
                         new SqlConstantExpression(abc[1], typeMapping: null),
-                        new SqlConstantExpression(abc[2], typeMapping: null)
+                        new SqlConstantExpression(abc[2], typeMapping: null!)
                     ], // args.First().TypeMapping)
-                    typeMapping: null));
+                    typeMapping: null!));
 
             var trueFalse = new[] { true, false };
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), [typeof(string)]))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), [typeof(string)])!)
                 .HasTranslation(args => new InExpression(
                     new InExpression(
                         args.First(),
@@ -343,14 +341,14 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                             new SqlConstantExpression(abc[1], args.First().TypeMapping),
                             new SqlConstantExpression(abc[2], args.First().TypeMapping)
                         ],
-                        typeMapping: null),
+                        typeMapping: null!),
                     [
                         new SqlConstantExpression(trueFalse[0], typeMapping: null),
                         new SqlConstantExpression(trueFalse[1], typeMapping: null)
                     ],
-                    typeMapping: null));
+                    typeMapping: null!));
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), []))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), [])!)
                 .HasTranslation(_ => new SqlFunctionExpression(
                     "foo",
                     nullable: true,
@@ -358,38 +356,38 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                     typeMapping: null));
 
             //Instance
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountInstance)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountInstance))!)
                 .HasName("CustomerOrderCount");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientInstance)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientInstance))!)
                 .HasName("CustomerOrderCount");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValueInstance))).HasName("StarValue");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomerInstance))).HasName("IsTopCustomer");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDateInstance)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValueInstance))!).HasName("StarValue");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomerInstance))!).HasName("IsTopCustomer");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDateInstance))!)
                 .HasName("GetCustomerWithMostOrdersAfterDate");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateInstance)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateInstance))!)
                 .HasName("GetReportingPeriodStartDate");
-            var isDateMethodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(IsDateInstance));
+            var isDateMethodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(IsDateInstance))!;
             modelBuilder.HasDbFunction(isDateMethodInfo2).HasName("IsDate").IsBuiltIn();
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(DollarValueInstance))).HasName("DollarValue");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(DollarValueInstance))!).HasName("DollarValue");
 
-            var methodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthInstance));
+            var methodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthInstance))!;
 
             modelBuilder.HasDbFunction(methodInfo2).HasName("len").IsBuiltIn();
 
             modelBuilder.Entity<MultProductOrders>().ToTable("MultProductOrders").HasKey(mpo => mpo.OrderId);
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StringLength), [typeof(string)]))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StringLength), [typeof(string)])!)
                 .HasParameter("s").PropagatesNullability();
 
             //Table
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), [typeof(int)]));
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), [typeof(int)])!);
             modelBuilder.HasDbFunction(
-                typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), [typeof(int), typeof(bool)]));
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts)));
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerData)));
+                typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), [typeof(int), typeof(bool)])!);
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts))!);
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer))!);
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts))!);
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerData))!);
 
             modelBuilder.Entity<OrderByYear>().HasNoKey();
             modelBuilder.Entity<TopSellingProduct>().HasNoKey().ToFunction("GetTopTwoSellingProducts");
@@ -584,7 +582,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     {
         using var context = CreateContext();
 
-        var len = context.Customers.Count(c => UDFSqlContext.IsDateStatic(c.FirstName) == false);
+        var len = context.Customers.Count(c => UDFSqlContext.IsDateStatic(c.FirstName!) == false);
 
         Assert.Equal(4, len);
     }
@@ -596,7 +594,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         var customerId = 3;
 
         var len = context.Customers.Where(c => c.Id == customerId)
-            .Select(c => UDFSqlContext.MyCustomLengthStatic(c.LastName)).Single();
+            .Select(c => UDFSqlContext.MyCustomLengthStatic(c.LastName!)).Single();
 
         Assert.Equal(5, len);
     }
@@ -972,7 +970,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Orders
             .OrderBy(o => o.Id)
-            .Select(o => UDFSqlContext.IdentityString(o.Customer.FirstName))
+            .Select(o => UDFSqlContext.IdentityString(o.Customer.FirstName!))
             .FirstOrDefault();
 
         Assert.Equal("Customer", result);
@@ -985,7 +983,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(c => UDFSqlContext.IdentityString(c.FirstName) != null)
+            .Where(c => UDFSqlContext.IdentityString(c.FirstName!) != null)
             .ToList();
 
         Assert.Equal(4, result.Count);
@@ -998,7 +996,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(c => UDFSqlContext.IdentityStringPropagateNull(c.FirstName) != null)
+            .Where(c => UDFSqlContext.IdentityStringPropagateNull(c.FirstName!) != null)
             .ToList();
 
         Assert.Equal(4, result.Count);
@@ -1011,8 +1009,8 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(c => UDFSqlContext.IdentityStringNonNullable(c.FirstName) != null
-                && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName) != null)
+            .Where(c => UDFSqlContext.IdentityStringNonNullable(c.FirstName!) != null
+                && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName!) != null)
             .ToList();
 
         Assert.Equal(4, result.Count);
@@ -1025,7 +1023,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(c => context.StringLength(c.FirstName) != context.StringLength(c.LastName))
+            .Where(c => context.StringLength(c.FirstName!) != context.StringLength(c.LastName!))
             .ToList();
 
         Assert.Equal(4, result.Count);
@@ -1045,7 +1043,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     public virtual void Scalar_Function_with_InExpression_translation()
     {
         using var context = CreateContext();
-        var query = context.Customers.Where(c => UDFSqlContext.IsABC(c.FirstName.Substring(0, 1))).ToList();
+        var query = context.Customers.Where(c => UDFSqlContext.IsABC(c.FirstName!.Substring(0, 1))).ToList();
 
         Assert.Equal(4, query.Count);
     }
@@ -1054,27 +1052,30 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     public virtual void Scalar_Function_with_nested_InExpression_translation()
     {
         using var context = CreateContext();
-        var query = context.Customers.Where(c => UDFSqlContext.IsOrIsNotABC(c.FirstName.Substring(0, 1))).ToList();
+        var query = context.Customers.Where(c => UDFSqlContext.IsOrIsNotABC(c.FirstName!.Substring(0, 1))).ToList();
 
         Assert.Equal(4, query.Count);
     }
 
-#if RELEASE
     [Fact]
     public virtual void Scalar_Function_with_nullable_value_return_type_throws()
     {
         using var context = CreateContext();
 
+#if RELEASE
         var exception = Assert.Throws<InvalidOperationException>(
             () => context.Customers.Where(c => c.Id == UDFSqlContext.NullableValueReturnType()).ToList());
 
         Assert.Equal(
             RelationalStrings.DbFunctionNullableValueReturnType(
-                context.Model.FindDbFunction(typeof(UDFSqlContext).GetMethod(nameof(UDFSqlContext.NullableValueReturnType)))!.ModelName,
+                context.Model.FindDbFunction(typeof(UDFSqlContext).GetMethod(nameof(UDFSqlContext.NullableValueReturnType))!)!.ModelName,
                 "int?"),
             exception.Message);
-    }
+#else
+        Assert.Throws<UnreachableException>(
+            () => context.Customers.Where(c => c.Id == UDFSqlContext.NullableValueReturnType()).ToList());
 #endif
+    }
 
     #endregion
 
@@ -1087,7 +1088,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var custName = (from c in context.Customers
                         where c.Id == 1
-                        select new { Id = context.StarValueInstance(4, c.Id), LastName = context.DollarValueInstance(2, c.LastName) })
+                        select new { Id = context.StarValueInstance(4, c.Id), LastName = context.DollarValueInstance(2, c.LastName!) })
             .Single();
 
         Assert.Equal("$$One", custName.LastName);
@@ -1098,7 +1099,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     {
         using var context = CreateContext();
 
-        var len = context.Customers.Count(c => context.IsDateInstance(c.FirstName) == false);
+        var len = context.Customers.Count(c => context.IsDateInstance(c.FirstName!) == false);
 
         Assert.Equal(4, len);
     }
@@ -1110,7 +1111,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         var customerId = 3;
 
         var len = context.Customers.Where(c => c.Id == customerId)
-            .Select(c => context.MyCustomLengthInstance(c.LastName)).Single();
+            .Select(c => context.MyCustomLengthInstance(c.LastName!)).Single();
 
         Assert.Equal(5, len);
     }
@@ -2120,7 +2121,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
             .Where(c => !context.Set<TopSellingProduct>().Select(x => x.ProductId).Contains(25))
             .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
             .GroupBy(x => new { x.LastName })
-            .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
+            .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName!.Length) })
             .ToList();
 
         Assert.Equal(3, query.Count);
@@ -2138,11 +2139,11 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     {
         using var context = CreateContext();
         var query = context.Orders
-            .Where(c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault().Id)
+            .Where(c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault()!.Id)
                 .Select(x => x.CustomerId).Contains(25))
             .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
             .GroupBy(x => new { x.LastName })
-            .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
+            .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName!.Length) })
             .ToList();
 
         Assert.Equal(3, query.Count);

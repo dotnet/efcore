@@ -197,8 +197,8 @@ public class ReverseEngineerScaffolderTest
 
     private class TestDatabaseModelFactory : IDatabaseModelFactory
     {
-        public string ConnectionString { get; set; }
-        public string ScaffoldedConnectionString { get; set; }
+        public string ConnectionString { get; set; } = null!;
+        public string? ScaffoldedConnectionString { get; set; }
 
         public DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {

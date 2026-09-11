@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqliteComplianceTest : RelationalComplianceTestBase
 {
     protected override ICollection<Type> IgnoredTestBases { get; } =

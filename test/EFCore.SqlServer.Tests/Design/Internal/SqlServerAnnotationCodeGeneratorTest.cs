@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
-#nullable enable
-
 public class SqlServerAnnotationCodeGeneratorTest
 {
     [Fact]

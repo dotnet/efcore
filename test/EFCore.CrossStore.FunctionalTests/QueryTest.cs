@@ -229,20 +229,20 @@ public class QueryTest
     private class Blog
     {
         public int Id { get; set; }
-        public List<Post> Posts { get; set; }
+        public List<Post> Posts { get; set; } = null!;
     }
 
     private class Post
     {
         public int Id { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
     }
 
     private abstract class QueryContextBase : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

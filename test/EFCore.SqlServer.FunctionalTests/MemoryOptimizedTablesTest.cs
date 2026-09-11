@@ -8,8 +8,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported))]
 public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture fixture)
     : IClassFixture<MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture>
@@ -40,7 +38,7 @@ public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimized
         }
     }
 
-    protected TestStore TestStore { get; set; }
+    protected TestStore TestStore { get; set; } = null!;
 
     protected Task<TestStore> CreateTestStoreAsync()
     {
@@ -59,7 +57,7 @@ public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimized
 
     private class MemoryOptimizedContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<FastUn> FastUns { get; set; }
+        public DbSet<FastUn> FastUns { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -78,13 +76,13 @@ public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimized
     private class BigUn
     {
         public int Id { get; set; }
-        public ICollection<FastUn> FastUns { get; set; }
+        public ICollection<FastUn> FastUns { get; set; } = null!;
     }
 
     private class FastUn
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public BigUn BigUn { get; set; }
+        public string Name { get; set; } = null!;
+        public BigUn BigUn { get; set; } = null!;
     }
 }

@@ -1959,6 +1959,40 @@ ALTER TABLE [People] ALTER COLUMN [SomeProperty] nvarchar(max) SPARSE NULL;
 """);
     }
 
+    [Fact]
+    public virtual async Task Alter_column_make_sparse_with_index()
+    {
+        await Test(
+            builder => builder.Entity(
+                "People",
+                e =>
+                {
+                    e.Property<string>("SomeProperty");
+                    e.HasIndex("SomeProperty");
+                }),
+            builder => { },
+            builder => builder.Entity("People").Property<string>("SomeProperty").IsSparse(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns);
+                Assert.True((bool?)column[SqlServerAnnotationNames.Sparse]);
+                Assert.Single(table.Indexes);
+            });
+
+        AssertSql(
+            """
+DROP INDEX [IX_People_SomeProperty] ON [People];
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeProperty';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [People] ALTER COLUMN [SomeProperty] nvarchar(450) SPARSE NULL;
+CREATE INDEX [IX_People_SomeProperty] ON [People] ([SomeProperty]);
+""");
+    }
+
     public override async Task Drop_column()
     {
         await base.Drop_column();

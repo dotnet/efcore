@@ -192,11 +192,11 @@ public class CustomTypesIdentityContextInt(DbContextOptions options)
 
 public class CustomUserInt : IdentityUser<int>
 {
-    public string CustomTag { get; set; }
-    public virtual ICollection<CustomUserClaimInt> Claims { get; set; }
-    public virtual ICollection<CustomUserLoginInt> Logins { get; set; }
-    public virtual ICollection<CustomUserTokenInt> Tokens { get; set; }
-    public virtual ICollection<CustomUserRoleInt> UserRoles { get; set; }
+    public string? CustomTag { get; set; }
+    public virtual ICollection<CustomUserClaimInt> Claims { get; set; } = null!;
+    public virtual ICollection<CustomUserLoginInt> Logins { get; set; } = null!;
+    public virtual ICollection<CustomUserTokenInt> Tokens { get; set; } = null!;
+    public virtual ICollection<CustomUserRoleInt> UserRoles { get; set; } = null!;
 }
 
 public class CustomRoleInt : IdentityRole<int>;

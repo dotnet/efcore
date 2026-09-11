@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindSelectQuerySqliteTest : NorthwindSelectQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
     public NorthwindSelectQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -33,7 +31,7 @@ FROM "Orders" AS "o"
     {
         await AssertQueryScalar(
             async,
-            ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Year));
+            ss => ss.Set<Order>().Select(o => o.OrderDate!.Value.AddYears(1).Year));
 
         AssertSql(
             """

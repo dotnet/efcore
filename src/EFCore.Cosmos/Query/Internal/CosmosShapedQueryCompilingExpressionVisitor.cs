@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using Microsoft.EntityFrameworkCore.Internal;
 using static System.Linq.Expressions.Expression;
 
@@ -42,7 +40,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var shaperBody = shapedQueryExpression.ShaperExpression;
 
         var (paging, maxItemCount, continuationToken, responseContinuationTokenLimitInKb) =
-            (false, (SqlParameterExpression)null, (SqlParameterExpression)null, (SqlParameterExpression)null);
+            (false, (SqlParameterExpression?)null, (SqlParameterExpression?)null, (SqlParameterExpression?)null);
 
         // If the query is terminated ToPageAsync(), CosmosQueryableMethodTranslatingExpressionVisitor composed a PagingExpression on top
         // of the shaper. We remove that to get the shaper for each actual document being read (as opposed to the page of those documents),
@@ -108,9 +106,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
                 threadSafetyConstant,
-                Constant(maxItemCount.Name),
-                Constant(continuationToken.Name),
-                Constant(responseContinuationTokenLimitInKb.Name)),
+                Constant(maxItemCount!.Name),
+                Constant(continuationToken!.Name),
+                Constant(responseContinuationTokenLimitInKb!.Name)),
 
             _ => New(
                 typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0], cosmosQueryContextConstant,
@@ -129,7 +127,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     private static PartitionKey GeneratePartitionKey(
         IEntityType rootEntityType,
         List<Expression> partitionKeyPropertyValues,
-        IReadOnlyDictionary<string, object> parameterValues)
+        IReadOnlyDictionary<string, object?> parameterValues)
     {
         if (partitionKeyPropertyValues.Count == 0)
         {

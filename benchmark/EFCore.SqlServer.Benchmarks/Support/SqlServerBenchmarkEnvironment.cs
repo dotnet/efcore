@@ -33,6 +33,6 @@ public static class SqlServerBenchmarkEnvironment
     public static string DefaultConnection
         => Config["DefaultConnection"] ?? DefaultConnectionString;
 
-    public static string CreateConnectionString(string name, string fileName = null, bool? multipleActiveResultSets = null)
+    public static string CreateConnectionString(string name, string? fileName = null, bool? multipleActiveResultSets = null)
         => new SqlConnectionStringBuilder(DefaultConnection) { InitialCatalog = name }.ToString();
 }

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCInheritanceQuerySqliteTest(TPCInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : TPCInheritanceQueryTestBase<TPCInheritanceQuerySqliteFixture>(fixture, testOutputHelper)
 {

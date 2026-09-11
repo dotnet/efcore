@@ -87,7 +87,7 @@ public class MigrationsOperationsTest
 
     private class AssemblyTestContext : DbContext
     {
-        public static Assembly MigrationsAssembly { get; set; }
+        public static Assembly MigrationsAssembly { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(o => o.MigrationsAssembly(MigrationsAssembly));

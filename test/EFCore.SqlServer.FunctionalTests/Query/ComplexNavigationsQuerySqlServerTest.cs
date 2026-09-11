@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqlServerFixture>
 {
     public ComplexNavigationsQuerySqlServerTest(
@@ -30,7 +28,7 @@ public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelat
             ss => from l1 in ss.Set<Level1>()
                   where l1.Id < 3
                   select (from l3 in ss.Set<Level3>()
-                          select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+                          select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault()!.Name);
 
         AssertSql(
             """
@@ -59,7 +57,7 @@ WHERE [l].[Id] < 3
             ss => from l1 in ss.Set<Level1>()
                   where l1.Id < 3
                   select (from l3 in ss.Set<Level3>()
-                          select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+                          select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault()!.Name);
 
         AssertSql(
             """
@@ -1328,7 +1326,7 @@ INNER JOIN (
         using var context = CreateContext();
         var query = context.LevelOne.FromSqlRaw("SELECT * FROM [LevelOne]")
             .Include(e => e.OneToOne_Optional_FK1)
-            .ThenInclude(e => e.OneToMany_Optional2)
+            .ThenInclude(e => e!.OneToMany_Optional2)
             .Include(e => e.OneToMany_Optional1)
             .ThenInclude(e => e.OneToOne_Optional_FK2);
 

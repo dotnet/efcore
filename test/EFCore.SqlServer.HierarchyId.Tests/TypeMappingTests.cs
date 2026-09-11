@@ -32,18 +32,19 @@ public class TypeMappingTests
     [Fact]
     public void Maps_hierarchyid_column()
     {
-        var mapping = CreateMapper().FindMapping(
-            new RelationalTypeMappingInfo(
-                storeTypeName: "hierarchyid",
-                storeTypeNameBase: "hierarchyid",
-                unicode: null,
-                size: null,
-                precision: null,
-                scale: null));
+        var mapping = Assert.IsAssignableFrom<RelationalTypeMapping>(
+            CreateMapper().FindMapping(
+                new RelationalTypeMappingInfo(
+                    storeTypeName: "hierarchyid",
+                    storeTypeNameBase: "hierarchyid",
+                    unicode: null,
+                    size: null,
+                    precision: null,
+                    scale: null)));
 
         AssertMapping<HierarchyId>(mapping);
 
-        Assert.Same(SqlServerJsonHierarchyIdReaderWriter.Instance, mapping!.JsonValueReaderWriter);
+        Assert.Same(SqlServerJsonHierarchyIdReaderWriter.Instance, mapping.JsonValueReaderWriter);
     }
 
     [Fact]

@@ -3,14 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class JoinOneToThreePayloadFull
 {
     public virtual int OneId { get; set; }
     public virtual int ThreeId { get; set; }
-    public virtual EntityOne One { get; set; }
-    public virtual EntityThree Three { get; set; }
+    public virtual EntityOne One { get; set; } = null!;
+    public virtual EntityThree Three { get; set; } = null!;
 
-    public virtual string Payload { get; set; }
+    public virtual string? Payload { get; set; }
 }

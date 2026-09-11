@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
 {
     protected override string StoreName
@@ -73,7 +71,7 @@ public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
     public class OptimisticOptionalChild
     {
         public Guid Id { get; set; }
-        public ICollection<OptimisticParent> Parents { get; set; }
+        public ICollection<OptimisticParent> Parents { get; set; } = null!;
 
         [Timestamp]
         public long Version { get; set; }
@@ -82,7 +80,7 @@ public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
     public class OptimisticParent
     {
         public Guid Id { get; set; }
-        public OptimisticOptionalChild OptionalChild { get; set; }
+        public OptimisticOptionalChild? OptionalChild { get; set; }
     }
 }
 
@@ -133,13 +131,13 @@ public class F1SqlServerFixture : F1SqlServerFixtureBase<byte[]>
     }
 
     private class BinaryVersionConverter() : ValueConverter<List<byte>, byte[]>(
-        v => v == null ? null : v.ToArray(),
-        v => v == null ? null : v.ToList());
+        v => v == null ? null! : v.ToArray(),
+        v => v == null ? null! : v.ToList());
 
     private class BinaryVersionComparer() : ValueComparer<List<byte>>(
         (l, r) => (l == null && r == null) || (l != null && r != null && l.SequenceEqual(r)),
         v => CalculateHashCode(v),
-        v => v == null ? null : v.ToList())
+        v => v == null ? null! : v.ToList())
     {
         private static int CalculateHashCode(List<byte> source)
         {

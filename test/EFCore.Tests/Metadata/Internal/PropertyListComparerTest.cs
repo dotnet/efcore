@@ -9,7 +9,7 @@ public class PropertyListComparerTest
     public void Distinguishes_properties_with_same_name_in_different_complex_types()
     {
         var model = new Model();
-        var entityType = model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit);
+        var entityType = model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit)!;
 
         var homeAddress = entityType.AddComplexProperty(
             nameof(Customer.HomeAddress), typeof(Address), typeof(Address), collection: false, ConfigurationSource.Explicit)!;
@@ -41,7 +41,7 @@ public class PropertyListComparerTest
     public void Allows_index_with_same_property_names_through_different_complex_paths()
     {
         var model = new Model();
-        var entityType = model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit);
+        var entityType = model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit)!;
 
         var homeAddress = entityType.AddComplexProperty(
             nameof(Customer.HomeAddress), typeof(Address), typeof(Address), collection: false, ConfigurationSource.Explicit)!;
@@ -65,7 +65,7 @@ public class PropertyListComparerTest
     public void Distinguishes_properties_with_same_name_through_nested_complex_paths()
     {
         var model = new Model();
-        var entityType = model.AddEntityType(typeof(Order), owned: false, ConfigurationSource.Explicit);
+        var entityType = model.AddEntityType(typeof(Order), owned: false, ConfigurationSource.Explicit)!;
 
         var oldDetails = entityType.AddComplexProperty(
             nameof(Order.OldDetails), typeof(Details), typeof(Details), collection: false, ConfigurationSource.Explicit)!;
@@ -96,7 +96,7 @@ public class PropertyListComparerTest
     public void PropertyNameComparer_orders_keys_with_same_name_in_different_complex_types_independently()
     {
         var model = new Model();
-        var entityType = model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit);
+        var entityType = model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit)!;
 
         var homeAddress = entityType.AddComplexProperty(
             nameof(Customer.HomeAddress), typeof(Address), typeof(Address), collection: false, ConfigurationSource.Explicit)!;

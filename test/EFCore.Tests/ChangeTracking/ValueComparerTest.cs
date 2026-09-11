@@ -48,7 +48,7 @@ public class ValueComparerTest
             => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>((ValueComparer)null, new FakeValueComparer());
+            => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>((ValueComparer)null!, new FakeValueComparer());
     }
 
     [Theory,
@@ -76,7 +76,7 @@ public class ValueComparerTest
 
     private static ValueComparer CompareTest(Type type, object value1, object value2, int? hashCode, bool toNullable)
     {
-        var comparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), [false]);
+        var comparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), [false])!;
         if (toNullable)
         {
             comparer = ToNonNullNullableComparer(comparer);
@@ -92,7 +92,7 @@ public class ValueComparerTest
 
         Assert.Equal(hashCode ?? value1.GetHashCode(), comparer.GetHashCode(value1));
 
-        var keyComparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), [true]);
+        var keyComparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), [true])!;
         if (toNullable)
         {
             keyComparer = ToNonNullNullableComparer(keyComparer);
@@ -142,7 +142,7 @@ public class ValueComparerTest
         LambdaExpression equalsExpression,
         LambdaExpression hashCodeExpression,
         LambdaExpression snapshotExpression) : ValueComparer<T>(
-        (Expression<Func<T, T, bool>>)equalsExpression,
+        (Expression<Func<T?, T?, bool>>)equalsExpression,
         (Expression<Func<T, int>>)hashCodeExpression,
         (Expression<Func<T, T>>)snapshotExpression);
 
@@ -191,7 +191,7 @@ public class ValueComparerTest
         private bool Equals(JustAStructWithEquality other)
             => A == other.A;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is JustAStructWithEquality o && Equals(o);
 
         public override int GetHashCode()
@@ -253,7 +253,7 @@ public class ValueComparerTest
         private bool Equals(JustAClassWithEquality other)
             => A == other.A;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is not null
                 && (ReferenceEquals(this, obj)
                     || obj is JustAClassWithEquality o
@@ -316,8 +316,8 @@ public class ValueComparerTest
         Assert.False(keyEquals(value1, value2));
         Assert.False(keyEquals(value2, value1));
 
-        Assert.Equal(hashCode ?? value1.GetHashCode(), getHashCode(value1));
-        Assert.Equal(hashCode ?? value1.GetHashCode(), getKeyHashCode(value1));
+        Assert.Equal(hashCode ?? value1!.GetHashCode(), getHashCode(value1));
+        Assert.Equal(hashCode ?? value1!.GetHashCode(), getKeyHashCode(value1));
     }
 
     private void GenericCompareTestWithNulls<T>(T value1, T value2, int? hashCode = null)
@@ -534,11 +534,11 @@ public class ValueComparerTest
     public void Can_define_different_custom_equals_for_key_and_non_key()
     {
         var comparer = new ValueComparer<Binary>(
-            (v1, v2) => v1.Equals(v2),
+            (v1, v2) => v1!.Equals(v2),
             v => v.GetHashCode());
 
         var keyComparer = new ValueComparer<Binary>(
-            (v1, v2) => v1.Value0 == v2.Value0 && v1.Value1 == v2.Value1,
+            (v1, v2) => v1!.Value0 == v2!.Value0 && v1.Value1 == v2.Value1,
             v => v.Value0 << 8 | v.Value1);
 
         var equals = comparer.EqualsExpression.Compile();
@@ -569,10 +569,10 @@ public class ValueComparerTest
     }
 
     private static readonly MethodInfo _getValue0Method
-        = typeof(DeepBinary).GetProperty(nameof(DeepBinary.Value0)).GetMethod;
+        = typeof(DeepBinary).GetProperty(nameof(DeepBinary.Value0))!.GetMethod!;
 
     private static readonly MethodInfo _getValue1Method
-        = typeof(DeepBinary).GetProperty(nameof(DeepBinary.Value1)).GetMethod;
+        = typeof(DeepBinary).GetProperty(nameof(DeepBinary.Value1))!.GetMethod!;
 
     [Fact]
     public void Can_create_new_comparer_composing_existing_comparers()
@@ -581,11 +581,11 @@ public class ValueComparerTest
         var bytesKeyComparer = new ValueComparer<byte[]>(true);
 
         var comparer = new ValueComparer<DeepBinary>(
-            (Expression<Func<DeepBinary, DeepBinary, bool>>)CreateAndExpression(bytesComparer),
+            (Expression<Func<DeepBinary?, DeepBinary?, bool>>)CreateAndExpression(bytesComparer),
             (Expression<Func<DeepBinary, int>>)CreateHashCodeExpression(bytesComparer));
 
         var keyComparer = new ValueComparer<DeepBinary>(
-            (Expression<Func<DeepBinary, DeepBinary, bool>>)CreateAndExpression(bytesKeyComparer),
+            (Expression<Func<DeepBinary?, DeepBinary?, bool>>)CreateAndExpression(bytesKeyComparer),
             (Expression<Func<DeepBinary, int>>)CreateHashCodeExpression(bytesKeyComparer));
 
         var equals = comparer.EqualsExpression.Compile();

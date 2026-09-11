@@ -34,7 +34,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     protected class WithNestedCollection
     {
         public int Id { get; set; }
-        public string[][] SomeStrings { get; set; }
+        public string[][] SomeStrings { get; set; } = null!;
     }
 
     [Fact]
@@ -382,8 +382,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Cat)).GetDeclaredIndexes().Single().GetDatabaseName());
-        Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Dog)).GetDeclaredIndexes().Single().GetDatabaseName());
+        Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Cat))!.GetDeclaredIndexes().Single().GetDatabaseName());
+        Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Dog))!.GetDeclaredIndexes().Single().GetDatabaseName());
     }
 
     [Fact]
@@ -1222,10 +1222,10 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
         Validate(modelBuilder);
 
-        var entity = modelBuilder.Model.FindEntityType(typeof(Human));
+        var entity = modelBuilder.Model.FindEntityType(typeof(Human))!;
 
-        Assert.Equal(2, entity.FindProperty("Start").GetPrecision());
-        Assert.Equal(2, entity.FindProperty("End").GetPrecision());
+        Assert.Equal(2, entity.FindProperty("Start")!.GetPrecision());
+        Assert.Equal(2, entity.FindProperty("End")!.GetPrecision());
     }
 
     [Fact]
@@ -1249,13 +1249,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
         Validate(modelBuilder);
 
-        var ownerEntity = modelBuilder.Model.FindEntityType(typeof(Owner));
-        var ownedEntity = modelBuilder.Model.FindEntityType(typeof(OwnedEntity));
+        var ownerEntity = modelBuilder.Model.FindEntityType(typeof(Owner))!;
+        var ownedEntity = modelBuilder.Model.FindEntityType(typeof(OwnedEntity))!;
 
-        Assert.Equal(2, ownerEntity.FindProperty("Start").GetPrecision());
-        Assert.Equal(2, ownerEntity.FindProperty("End").GetPrecision());
-        Assert.Equal(2, ownedEntity.FindProperty("Start").GetPrecision());
-        Assert.Equal(2, ownedEntity.FindProperty("End").GetPrecision());
+        Assert.Equal(2, ownerEntity.FindProperty("Start")!.GetPrecision());
+        Assert.Equal(2, ownerEntity.FindProperty("End")!.GetPrecision());
+        Assert.Equal(2, ownedEntity.FindProperty("Start")!.GetPrecision());
+        Assert.Equal(2, ownedEntity.FindProperty("End")!.GetPrecision());
     }
 
     #endregion Temporal tables
@@ -1381,7 +1381,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public class VectorInsideJsonEntity
     {
         public int Id { get; set; }
-        public VectorContainer VectorContainer { get; set; }
+        public VectorContainer VectorContainer { get; set; } = null!;
     }
 
     public class VectorContainer
@@ -1399,7 +1399,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public class VectorEntityWithNonVector
     {
         public int Id { get; set; }
-        public string NonVectorProperty { get; set; }
+        public string NonVectorProperty { get; set; } = null!;
     }
 
     [Fact]
@@ -1569,8 +1569,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public class FullTextEntityWithTwoIndexes
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Body { get; set; }
+        public string Title { get; set; } = null!;
+        public string Body { get; set; } = null!;
     }
 
     public class FullTextEntityWithIntColumn
@@ -1582,26 +1582,26 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public class FullTextEntityValid
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
     }
 
     public class FullTextEntityWithBinary
     {
         public int Id { get; set; }
-        public byte[] Document { get; set; }
+        public byte[] Document { get; set; } = null!;
     }
 
     public class FullTextEntityWithMixedColumns
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public byte[] Document { get; set; }
+        public string Title { get; set; } = null!;
+        public byte[] Document { get; set; } = null!;
     }
 
     public class FullTextEntityWithMixedValidInvalid
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
         public int Count { get; set; }
     }
 
@@ -1616,13 +1616,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public class Splitting1
     {
         public int Id { get; set; }
-        public Splitting2 Details { get; set; }
+        public Splitting2 Details { get; set; } = null!;
     }
 
     public class Splitting2
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime Detail { get; set; }
     }
 
@@ -1630,7 +1630,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [Fact]

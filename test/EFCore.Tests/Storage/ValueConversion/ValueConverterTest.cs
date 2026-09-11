@@ -27,6 +27,7 @@ public class ValueConverterTest
         using (var context = new InMemoryConvertersContext())
         {
             var person = context.Set<Person>().Find(async ? 1L : 2L);
+            Assert.NotNull(person);
 
             Assert.Equal(DateTimeKind.Utc, person.ConvertedGoingIn.Kind);
             Assert.Equal(new DateTime(2015, 1, 10, 8, 8, 8, DateTimeKind.Utc), person.ConvertedGoingIn);
@@ -223,7 +224,7 @@ public class ValueConverterTest
             {
                 var converter = (ValueConverter)Activator.CreateInstance(
                     typeof(CastingConverter<,>).MakeGenericType(fromType, toType),
-                    [null]);
+                    [null])!;
 
                 var resultToProvider = Expression.Lambda<Func<object>>(
                         Expression.Convert(
@@ -367,7 +368,7 @@ public class ValueConverterTest
 
     private class BytesComparer : IComparer<byte[]>
     {
-        public int Compare(byte[] x, byte[] y)
+        public int Compare(byte[]? x, byte[]? y)
             => StructuralComparisons.StructuralComparer.Compare(x, y);
     }
 }

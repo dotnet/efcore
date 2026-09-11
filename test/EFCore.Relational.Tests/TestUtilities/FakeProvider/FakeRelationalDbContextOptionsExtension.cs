@@ -7,19 +7,19 @@ public static class FakeRelationalDbContextOptionsExtension
 {
     public static DbContextOptionsBuilder UseFakeRelational(
         this DbContextOptionsBuilder optionsBuilder,
-        Action<FakeRelationalDbContextOptionsBuilder> fakeRelationalOptionsAction = null)
+        Action<FakeRelationalDbContextOptionsBuilder>? fakeRelationalOptionsAction = null)
         => optionsBuilder.UseFakeRelational("Database=Fake", fakeRelationalOptionsAction);
 
     public static DbContextOptionsBuilder UseFakeRelational(
         this DbContextOptionsBuilder optionsBuilder,
         string connectionString,
-        Action<FakeRelationalDbContextOptionsBuilder> fakeRelationalOptionsAction = null)
+        Action<FakeRelationalDbContextOptionsBuilder>? fakeRelationalOptionsAction = null)
         => optionsBuilder.UseFakeRelational(new FakeDbConnection(connectionString), fakeRelationalOptionsAction);
 
     public static DbContextOptionsBuilder UseFakeRelational(
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
-        Action<FakeRelationalDbContextOptionsBuilder> fakeRelationalOptionsAction = null)
+        Action<FakeRelationalDbContextOptionsBuilder>? fakeRelationalOptionsAction = null)
     {
         var extension = (FakeRelationalOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnection(connection);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);

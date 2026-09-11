@@ -18,7 +18,7 @@ public class StringToTimeSpanConverterTest
 
         Assert.Equal(new TimeSpan(), converter("00:00:00"));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
         Assert.Throws<FormatException>(() => converter("Not a TimeSpan"));
     }
 

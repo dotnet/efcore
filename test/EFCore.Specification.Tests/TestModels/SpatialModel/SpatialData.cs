@@ -5,8 +5,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 
-#nullable disable
-
 public class SpatialData(GeometryFactory factory) : ISetSource
 {
     private readonly IReadOnlyList<PointEntity> _pointEntities = CreatePointEntities(factory);

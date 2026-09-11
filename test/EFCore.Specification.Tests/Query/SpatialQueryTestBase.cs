@@ -8,8 +8,6 @@ using NetTopologySuite.Operation.Union;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : SpatialQueryFixtureBase, new()
 {
@@ -66,8 +64,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task AsBinary(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point.AsBinary() }),
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point == null ? null : e.Point.AsBinary() }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point!.AsBinary() }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point == null ? null! : e.Point.AsBinary() }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -91,8 +89,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task AsText(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point.AsText() }),
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point == null ? null : e.Point.AsText() }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point!.AsText() }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point == null ? null! : e.Point.AsText() }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -116,8 +114,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task Buffer(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon.Buffer(1.0) }),
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon == null ? null : e.Polygon.Buffer(1.0) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon!.Buffer(1.0) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon == null ? null! : e.Polygon.Buffer(1.0) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -130,7 +128,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
                 else if (AssertDistances)
                 {
-                    Assert.Equal(e.Buffer.Area, a.Buffer.Area, precision: 0);
+                    Assert.Equal(e.Buffer.Area, a.Buffer!.Area, precision: 0);
                 }
             });
 
@@ -138,8 +136,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task Buffer_quadrantSegments(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon.Buffer(1.0, 8) }),
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon == null ? null : e.Polygon.Buffer(1.0, 8) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon!.Buffer(1.0, 8) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon == null ? null! : e.Polygon.Buffer(1.0, 8) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -152,7 +150,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
                 else if (AssertDistances)
                 {
-                    Assert.Equal(e.Buffer.Area, a.Buffer.Area, precision: 0);
+                    Assert.Equal(e.Buffer.Area, a.Buffer!.Area, precision: 0);
                 }
             });
 
@@ -211,7 +209,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Contains = (bool?)e.Polygon.Contains(point) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Contains = (bool?)e.Polygon!.Contains(point) }),
             ss => ss.Set<PolygonEntity>()
                 .Select(e => new { e.Id, Contains = e.Polygon == null ? (bool?)null : e.Polygon.Contains(point) }),
             elementSorter: x => x.Id);
@@ -221,8 +219,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task ConvexHull(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ConvexHull = e.Polygon.ConvexHull() }),
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ConvexHull = e.Polygon == null ? null : e.Polygon.ConvexHull() }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ConvexHull = e.Polygon!.ConvexHull() }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ConvexHull = e.Polygon == null ? null! : e.Polygon.ConvexHull() }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -268,7 +266,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, CoveredBy = (bool?)e.Point.CoveredBy(polygon) }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, CoveredBy = (bool?)e.Point!.CoveredBy(polygon) }),
             ss => ss.Set<PointEntity>()
                 .Select(e => new { e.Id, CoveredBy = e.Point == null ? (bool?)null : e.Point.CoveredBy(polygon) }),
             elementSorter: x => x.Id);
@@ -281,7 +279,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Covers = (bool?)e.Polygon.Covers(point) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Covers = (bool?)e.Polygon!.Covers(point) }),
             ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Covers = e.Polygon == null ? (bool?)null : e.Polygon.Covers(point) }),
             elementSorter: x => x.Id);
     }
@@ -293,7 +291,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Crosses = (bool?)e.LineString.Crosses(lineString) }),
+            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Crosses = (bool?)e.LineString!.Crosses(lineString) }),
             ss => ss.Set<LineStringEntity>()
                 .Select(e => new { e.Id, Crosses = e.LineString == null ? (bool?)null : e.LineString.Crosses(lineString) }),
             elementSorter: x => x.Id);
@@ -307,9 +305,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Difference = e.Polygon.Difference(polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Difference = e.Polygon!.Difference(polygon) }),
             ss => ss.Set<PolygonEntity>()
-                .Select(e => new { e.Id, Difference = e.Polygon == null ? null : e.Polygon.Difference(polygon) }),
+                .Select(e => new { e.Id, Difference = e.Polygon == null ? null! : e.Polygon.Difference(polygon) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -332,7 +330,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Disjoint = (bool?)e.Polygon.Disjoint(point) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Disjoint = (bool?)e.Polygon!.Disjoint(point) }),
             ss => ss.Set<PolygonEntity>()
                 .Select(e => new { e.Id, Disjoint = e.Polygon == null ? (bool?)null : e.Polygon.Disjoint(point) }),
             elementSorter: x => x.Id);
@@ -357,7 +355,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point.Distance(point) }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point!.Distance(point) }),
             ss => ss.Set<PointEntity>()
                 .Select(e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(point) }),
             elementSorter: e => e.Id,
@@ -383,7 +381,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point.Distance(point) }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point!.Distance(point) }),
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(point) }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -408,7 +406,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Geometry.Distance(point) }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Geometry!.Distance(point) }),
             ss => ss.Set<PointEntity>()
                 .Select(e => new { e.Id, Distance = e.Geometry == null ? (double?)null : e.Geometry.Distance(point) }),
             elementSorter: e => e.Id,
@@ -431,7 +429,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task Distance_constant(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point.Distance(new Point(0, 1)) }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point!.Distance(new Point(0, 1)) }),
             ss => ss.Set<PointEntity>()
                 .Select(e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(0, 1)) }),
             elementSorter: e => e.Id,
@@ -454,7 +452,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
         => AssertQuery(
             async,
             ss => ss.Set<PointEntity>()
-                .Select(e => new { e.Id, Distance = (double?)e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
+                .Select(e => new { e.Id, Distance = (double?)e.Point!.Distance(new Point(1, 1) { SRID = 4326 }) }),
             ss => ss.Set<PointEntity>().Select(e
                 => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
             elementSorter: e => e.Id,
@@ -574,7 +572,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, EqualsTopologically = (bool?)e.Point.EqualsTopologically(point) }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, EqualsTopologically = (bool?)e.Point!.EqualsTopologically(point) }),
             ss => ss.Set<PointEntity>().Select(e
                 => new { e.Id, EqualsTopologically = e.Point == null ? (bool?)null : e.Point.EqualsTopologically(point) }),
             elementSorter: x => x.Id);
@@ -598,9 +596,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task GetGeometryN(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = e.MultiLineString.GetGeometryN(0) }),
+            ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = e.MultiLineString!.GetGeometryN(0) }),
             ss => ss.Set<MultiLineStringEntity>().Select(e
-                => new { e.Id, Geometry0 = e.MultiLineString == null ? null : e.MultiLineString.GetGeometryN(0) }),
+                => new { e.Id, Geometry0 = e.MultiLineString == null ? null! : e.MultiLineString.GetGeometryN(0) }),
             elementSorter: x => x.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -610,9 +608,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             ss => ss.Set<MultiLineStringEntity>().Select(e => new
             {
                 e.Id,
-                Geometry0 = e.MultiLineString.GetGeometryN(ss.Set<MultiLineStringEntity>().Where(ee => false).Max(ee => ee.Id))
+                Geometry0 = e.MultiLineString!.GetGeometryN(ss.Set<MultiLineStringEntity>().Where(ee => false).Max(ee => ee.Id))
             }),
-            ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = default(Geometry) }),
+            ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = default(Geometry)! }),
             elementSorter: x => x.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -622,9 +620,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             ss => ss.Set<PolygonEntity>().Select(e => new
             {
                 e.Id,
-                InteriorRing0 = e.Polygon.NumInteriorRings == 0
+                InteriorRing0 = e.Polygon!.NumInteriorRings == 0
                     ? null
-                    : e.Polygon.GetInteriorRingN(0)
+                    : e.Polygon!.GetInteriorRingN(0)
             }),
             ss => ss.Set<PolygonEntity>().Select(e => new
             {
@@ -639,9 +637,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task GetPointN(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Point0 = e.LineString.GetPointN(0) }),
+            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Point0 = e.LineString!.GetPointN(0) }),
             ss => ss.Set<LineStringEntity>()
-                .Select(e => new { e.Id, Point0 = e.LineString == null ? null : e.LineString.GetPointN(0) }),
+                .Select(e => new { e.Id, Point0 = e.LineString == null ? null! : e.LineString.GetPointN(0) }),
             elementSorter: x => x.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -665,7 +663,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
                 else
                 {
-                    Assert.True(a.Polygon.Contains(e.InteriorPoint));
+                    Assert.True(a.Polygon!.Contains(e.InteriorPoint));
                 }
             });
 
@@ -677,9 +675,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Intersection = e.Polygon.Intersection(polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Intersection = e.Polygon!.Intersection(polygon) }),
             ss => ss.Set<PolygonEntity>()
-                .Select(e => new { e.Id, Intersection = e.Polygon == null ? null : e.Polygon.Intersection(polygon) }),
+                .Select(e => new { e.Id, Intersection = e.Polygon == null ? null! : e.Polygon.Intersection(polygon) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -695,7 +693,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Intersects = (bool?)e.LineString.Intersects(lineString) }),
+            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Intersects = (bool?)e.LineString!.Intersects(lineString) }),
             ss => ss.Set<LineStringEntity>().Select(e
                 => new { e.Id, Intersects = e.LineString == null ? (bool?)null : e.LineString.Intersects(lineString) }),
             elementSorter: x => x.Id);
@@ -756,7 +754,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, IsWithinDistance = (bool?)e.Point.IsWithinDistance(point, 1) }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, IsWithinDistance = (bool?)e.Point!.IsWithinDistance(point, 1) }),
             ss => ss.Set<PointEntity>().Select(e
                 => new { e.Id, IsWithinDistance = e.Point == null ? (bool?)null : e.Point.IsWithinDistance(point, 1) }),
             elementSorter: e => e.Id,
@@ -779,9 +777,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task Item(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Item0 = e.MultiLineString[0] }),
+            ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Item0 = e.MultiLineString![0] }),
             ss => ss.Set<MultiLineStringEntity>()
-                .Select(e => new { e.Id, Item0 = e.MultiLineString == null ? null : e.MultiLineString[0] }),
+                .Select(e => new { e.Id, Item0 = e.MultiLineString == null ? null! : e.MultiLineString[0] }),
             elementSorter: x => x.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -829,8 +827,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task Normalized(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Normalized = e.Polygon.Normalized() }),
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Normalized = e.Polygon == null ? null : e.Polygon.Normalized() }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Normalized = e.Polygon!.Normalized() }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Normalized = e.Polygon == null ? null! : e.Polygon.Normalized() }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -878,7 +876,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Overlaps = (bool?)e.Polygon.Overlaps(polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Overlaps = (bool?)e.Polygon!.Overlaps(polygon) }),
             ss => ss.Set<PolygonEntity>()
                 .Select(e => new { e.Id, Overlaps = e.Polygon == null ? (bool?)null : e.Polygon.Overlaps(polygon) }),
             elementSorter: x => x.Id);
@@ -905,7 +903,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }
                 else
                 {
-                    Assert.True(a.Polygon.Contains(e.PointOnSurface));
+                    Assert.True(a.Polygon!.Contains(e.PointOnSurface));
                 }
             });
 
@@ -917,7 +915,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Relate = (bool?)e.Polygon.Relate(polygon, "212111212") }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Relate = (bool?)e.Polygon!.Relate(polygon, "212111212") }),
             ss => ss.Set<PolygonEntity>().Select(e
                 => new { e.Id, Relate = e.Polygon == null ? (bool?)null : e.Polygon.Relate(polygon, "212111212") }),
             elementSorter: x => x.Id);
@@ -927,8 +925,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task Reverse(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Reverse = e.LineString.Reverse() }),
-            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Reverse = e.LineString == null ? null : e.LineString.Reverse() }),
+            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Reverse = e.LineString!.Reverse() }),
+            ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Reverse = e.LineString == null ? null! : e.LineString.Reverse() }),
             elementSorter: x => x.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -961,9 +959,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, SymmetricDifference = e.Polygon.SymmetricDifference(polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, SymmetricDifference = e.Polygon!.SymmetricDifference(polygon) }),
             ss => ss.Set<PolygonEntity>().Select(e
-                => new { e.Id, SymmetricDifference = e.Polygon == null ? null : e.Polygon.SymmetricDifference(polygon) }),
+                => new { e.Id, SymmetricDifference = e.Polygon == null ? null! : e.Polygon.SymmetricDifference(polygon) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -976,8 +974,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task ToBinary(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point.ToBinary() }),
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point == null ? null : e.Point.ToBinary() }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point!.ToBinary() }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point == null ? null! : e.Point.ToBinary() }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -989,8 +987,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task ToText(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point.ToText() }),
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point == null ? null : e.Point.ToText() }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point!.ToText() }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point == null ? null! : e.Point.ToText() }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1006,7 +1004,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Touches = (bool?)e.Polygon.Touches(polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Touches = (bool?)e.Polygon!.Touches(polygon) }),
             ss => ss.Set<PolygonEntity>()
                 .Select(e => new { e.Id, Touches = e.Polygon == null ? (bool?)null : e.Polygon.Touches(polygon) }),
             elementSorter: x => x.Id);
@@ -1020,8 +1018,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Union = e.Polygon.Union(polygon) }),
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Union = e.Polygon == null ? null : e.Polygon.Union(polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Union = e.Polygon!.Union(polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Union = e.Polygon == null ? null! : e.Polygon.Union(polygon) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1049,9 +1047,9 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
     public virtual Task Union_void(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Union = e.MultiLineString.Union() }),
+            ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Union = e.MultiLineString!.Union() }),
             ss => ss.Set<MultiLineStringEntity>()
-                .Select(e => new { e.Id, Union = e.MultiLineString == null ? null : e.MultiLineString.Union() }),
+                .Select(e => new { e.Id, Union = e.MultiLineString == null ? null! : e.MultiLineString.Union() }),
             elementSorter: x => x.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1062,7 +1060,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
         return AssertQuery(
             async,
-            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Within = (bool?)e.Point.Within(polygon) }),
+            ss => ss.Set<PointEntity>().Select(e => new { e.Id, Within = (bool?)e.Point!.Within(polygon) }),
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, Within = e.Point == null ? (bool?)null : e.Point.Within(polygon) }),
             elementSorter: x => x.Id);
     }
@@ -1115,7 +1113,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
                 }),
             asserter: (e, a) =>
             {
-                AssertEqual(e.Id, a.Id);
+                AssertEqual(e!.Id, a!.Id);
                 AssertEqual(e.I, a.I);
                 AssertCollection(e.List, a.List);
             });
@@ -1125,7 +1123,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
         => AssertQueryScalar(
             async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-            ss => ss.Set<PointEntity>().Where(e => e.Point.IsEmpty == null).Select(e => e.Id),
+            ss => ss.Set<PointEntity>().Where(e => e.Point!.IsEmpty == null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             ss => ss.Set<PointEntity>().Where(e => e.Point == null).Select(e => e.Id));
 
@@ -1134,7 +1132,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
         => AssertQueryScalar(
             async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-            ss => ss.Set<PointEntity>().Where(e => e.Point.IsEmpty != null).Select(e => e.Id),
+            ss => ss.Set<PointEntity>().Where(e => e.Point!.IsEmpty != null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             ss => ss.Set<PointEntity>().Where(e => e.Point != null).Select(e => e.Id));
 
@@ -1146,7 +1144,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
         await AssertQueryScalar(
             async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-            ss => ss.Set<LineStringEntity>().Where(e => e.LineString.Intersects(lineString) == null).Select(e => e.Id),
+            ss => ss.Set<LineStringEntity>().Where(e => e.LineString!.Intersects(lineString) == null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             ss => ss.Set<LineStringEntity>().Where(e => e.LineString == null).Select(e => e.Id));
 
@@ -1166,7 +1164,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
         await AssertQueryScalar(
             async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-            ss => ss.Set<LineStringEntity>().Where(e => e.LineString.Intersects(lineString) != null).Select(e => e.Id),
+            ss => ss.Set<LineStringEntity>().Where(e => e.LineString!.Intersects(lineString) != null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             ss => ss.Set<LineStringEntity>().Where(e => e.LineString != null).Select(e => e.Id));
 
