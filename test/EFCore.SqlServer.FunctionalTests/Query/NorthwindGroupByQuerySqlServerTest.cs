@@ -2422,6 +2422,184 @@ GROUP BY [o].[EmployeeID]
 """);
     }
 
+    public override async Task GroupBy_Any_with_predicate(bool async)
+    {
+        await base.GroupBy_Any_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [o].[OrderID] > 10500 THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnyBig]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_All_with_predicate(bool async)
+    {
+        await base.GroupBy_All_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [o].[OrderID] > 10500 THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [AllBig]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_without_predicate(bool async)
+    {
+        await base.GroupBy_Any_without_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CAST(1 AS bit) AS [HasAny]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_guarding_aggregate_expression(bool async)
+    {
+        await base.GroupBy_Any_guarding_aggregate_expression(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) / COUNT(*) AS [Average]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_with_predicate_and_other_aggregate(bool async)
+    {
+        await base.GroupBy_Any_with_predicate_and_other_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Total], CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [o].[OrderID] > 10500 THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnyBig]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_with_predicate_guarding_nullable_Sum(bool async)
+    {
+        await base.GroupBy_Any_with_predicate_guarding_nullable_Sum(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [o].[EmployeeID] IS NOT NULL THEN 1
+    END) > CAST(0 AS bigint) THEN ISNULL(SUM([o].[EmployeeID]), 0)
+END AS [Employees]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_with_nullable_predicate(bool async)
+    {
+        await base.GroupBy_Any_with_nullable_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [o].[EmployeeID] > 5 THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnySenior]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_All_with_nullable_predicate(bool async)
+    {
+        await base.GroupBy_All_with_nullable_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [o].[EmployeeID] > 5 THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [AllSenior]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Select_Distinct_Any_with_nullable_element(bool async)
+    {
+        await base.GroupBy_Select_Distinct_Any_with_nullable_element(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], COUNT(DISTINCT ([o].[EmployeeID])) AS [Employees], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o0].[EmployeeID] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnyUnassigned]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Where_Any_over_grouping_element(bool async)
+    {
+        await base.GroupBy_Where_Any_over_grouping_element(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [o].[OrderID] > 10500 THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnyBig]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Where_quantifiers_over_empty_filtered_grouping_element(bool async)
+    {
+        await base.GroupBy_Where_quantifiers_over_empty_filtered_grouping_element(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [o].[OrderID] > 999999 THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Any], ~CAST(COUNT_BIG(CASE
+    WHEN [o].[OrderID] > 999999 THEN CASE
+        WHEN [o].[OrderID] > 0 THEN NULL
+        ELSE 1
+    END
+END) ^ CAST(0 AS bigint) AS bit) AS [All]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_Any_with_predicate_through_navigation_property(bool async)
     {
         await base.GroupBy_Any_with_predicate_through_navigation_property(async);
@@ -2429,14 +2607,13 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -2447,15 +2624,12 @@ GROUP BY [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN NOT EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND ([c].[City] <> N'London' OR [c].[City] IS NULL)) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Londons]
+SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [c].[City] = N'London' THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -2467,14 +2641,13 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -2485,15 +2658,12 @@ GROUP BY [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN NOT EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND ([c].[City] <> N'London' OR [c].[City] IS NULL)) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Londons]
+SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [c].[City] = N'London' THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -2504,13 +2674,7 @@ GROUP BY [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [HasOrders], COUNT(CASE
+SELECT [o].[EmployeeID] AS [Key], CAST(1 AS bit) AS [HasOrders], COUNT(CASE
     WHEN [c].[City] = N'London' THEN 1
 END) AS [Londons]
 FROM [Orders] AS [o]
@@ -2525,13 +2689,10 @@ GROUP BY [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN NOT EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [o0].[OrderID] <= 10250) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [AllLate], COUNT(CASE
+SELECT [o].[EmployeeID] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [o].[OrderID] > 10250 THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [AllLate], COUNT(CASE
     WHEN [c].[City] = N'London' THEN 1
 END) AS [Londons]
 FROM [Orders] AS [o]
@@ -2547,20 +2708,14 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c0].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END AS [AnyLondon], CASE
-    WHEN NOT EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o1]
-        LEFT JOIN [Customers] AS [c1] ON [o1].[CustomerID] = [c1].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o1].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) AND ([c1].[City] <> N'London' OR [c1].[City] IS NULL)) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [AllLondon], COUNT(*) AS [Count]
+END AS [AnyLondon], ~CAST(COUNT_BIG(CASE
+    WHEN [c].[City] = N'London' THEN NULL
+    ELSE 1
+END) ^ CAST(0 AS bigint) AS bit) AS [AllLondon], COUNT(*) AS [Count]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
@@ -2574,15 +2729,14 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[ProductID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Order Details] AS [o0]
-        INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-        LEFT JOIN [Customers] AS [c] ON [o1].[CustomerID] = [c].[CustomerID]
-        WHERE [o].[ProductID] = [o0].[ProductID] AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[ProductID]
 """);
     }
@@ -2594,11 +2748,9 @@ GROUP BY [o].[ProductID]
         AssertSql(
             """
 SELECT [c].[City] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-        WHERE ([c].[City] = [c0].[City] OR ([c].[City] IS NULL AND [c0].[City] IS NULL)) AND [c0].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
@@ -2614,14 +2766,13 @@ GROUP BY [c].[City]
         AssertSql(
             """
 SELECT [o].[EmployeeID] AS [Key], CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o0]
-        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    WHEN COUNT_BIG(CASE
+        WHEN [c].[City] = N'London' THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Londons]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }

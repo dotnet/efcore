@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -13,6 +14,36 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
+
+    // SQLite evaluates random() per row, where SQL Server's RAND() is a runtime constant - so this is the provider that
+    // can catch the grouping element's filter being emitted more than once. Every order has OrderID > 0, so All holds for
+    // every group whichever rows the filter samples, which is what the expected query asserts directly; EF.Functions.Random
+    // has no client translation, so the two queries cannot be the same one.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_All_over_volatile_filtered_grouping_element(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, All = g.Where(o => EF.Functions.Random() > 0.5).All(o => o.OrderID > 0) }),
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, All = true }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT "o"."CustomerID" AS "Key", COUNT(CASE
+    WHEN abs(random() / 9.2233720368547799E+18) > 0.5 THEN CASE
+        WHEN "o"."OrderID" > 0 THEN NULL
+        ELSE 1
+    END
+END) = 0 AS "All"
+FROM "Orders" AS "o"
+GROUP BY "o"."CustomerID"
+""");
     }
 
     public override Task Select_uncorrelated_collection_with_groupby_multiple_collections_work(bool async)
