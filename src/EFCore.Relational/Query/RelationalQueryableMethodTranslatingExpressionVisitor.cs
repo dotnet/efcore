@@ -22,6 +22,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private readonly bool _subquery;
     private readonly ParameterTranslationMode _collectionParameterTranslationMode;
 
+    private Expression? _rootExpression;
+    private bool _isRootOperator;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -260,6 +263,23 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        // Operators are translated after their source has been visited, so this needs restoring rather than just clearing: by the time
+        // the query's last operator is translated, the ones nested inside it have already had their turn.
+        var parentIsRootOperator = _isRootOperator;
+        _isRootOperator = ReferenceEquals(methodCallExpression, _rootExpression);
+
+        try
+        {
+            return VisitMethodCallCore(methodCallExpression);
+        }
+        finally
+        {
+            _isRootOperator = parentIsRootOperator;
+        }
+    }
+
+    private Expression VisitMethodCallCore(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
 
@@ -815,8 +835,88 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         newResultSelectorBody = ExpandSharedTypeEntities(selectExpression, newResultSelectorBody);
 
+        if (TryTranslateGroupingElementProjection(source, groupByShaper, newResultSelectorBody) is { } liftedGroupBy)
+        {
+            return liftedGroupBy;
+        }
+
         return source.UpdateShaperExpression(
             _projectionBindingExpressionVisitor.Translate(selectExpression, newResultSelectorBody));
+    }
+
+    /// <summary>
+    ///     Attempts to translate a projection over a grouping which doesn't aggregate the grouping, but only enumerates its elements
+    ///     (e.g. <c>GroupBy(e => e.Key).Select(g => g.Select(e => e.Id).ToList())</c>).
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Such a projection needs no GROUP BY on the server: the same rows the grouping was computed from are the rows being
+    ///         projected. Translating it as a correlated collection over the grouping would instead group on the server and then join the
+    ///         source back to itself to get the elements back, reading everything twice (see issue #35991).
+    ///     </para>
+    ///     <para>
+    ///         So instead the element projection is pushed into the grouping's element selector - where it composes over the very same
+    ///         rows - and the rest of the projection is recorded as a selector applied on the client to each grouping, once it has been
+    ///         materialized. This leaves the shaper a <see cref="RelationalGroupByShaperExpression" />, which makes
+    ///         <see
+    ///             cref="SelectExpression.ApplyProjection(Expression, ResultCardinality, QuerySplittingBehavior)" />
+    ///         stream the source rows in key order rather than aggregate them.
+    ///     </para>
+    /// </remarks>
+    private ShapedQueryExpression? TryTranslateGroupingElementProjection(
+        ShapedQueryExpression source,
+        RelationalGroupByShaperExpression groupByShaper,
+        Expression projection)
+    {
+        if (groupByShaper.ResultSelector != null)
+        {
+            // Already projected out of the grouping once; the shaper is a client-side projection which can't be composed over.
+            return null;
+        }
+
+        if (_subquery || !_isRootOperator)
+        {
+            // Anything composing over the projection - another operator, or an outer query - would compose over the rows rather than
+            // over the groupings, since the GROUP BY is what's being traded away here. So only the query's last operator is lifted.
+            return null;
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        if (selectExpression.Limit != null
+            || selectExpression.Offset != null
+            || selectExpression.IsDistinct
+            || selectExpression.Having != null
+            || selectExpression.Orderings.Any(o => !selectExpression.GroupBy.Contains(o.Expression)))
+        {
+            // Operators between the GroupBy and the projection have already left state on the SelectExpression which counts groups
+            // rather than rows: a limit, an offset, a HAVING, an ordering over an aggregate. Dropping the GROUP BY out from under any
+            // of those would silently reinterpret them as being about the source rows.
+            return null;
+        }
+
+        var analyzer = new GroupingElementProjectionAnalyzer(groupByShaper);
+        if (!analyzer.Analyze(projection))
+        {
+            return null;
+        }
+
+        // Build the client-side selector before anything gets composed into the SelectExpression: composing mutates it, and there's no
+        // way back to the correlated subquery translation afterwards.
+        var groupingParameter = Expression.Parameter(
+            typeof(IGrouping<,>).MakeGenericType(
+                groupByShaper.KeySelector.Type,
+                analyzer.ElementSelector?.ReturnType ?? groupByShaper.ElementSelector.Type),
+            "g");
+
+        var resultSelector = Expression.Lambda(analyzer.Rewrite(projection, groupingParameter), groupingParameter);
+
+        var elementShaper = analyzer.ElementSelector is { } elementSelector
+            ? TranslateSelect(source.UpdateShaperExpression(groupByShaper.ElementSelector), elementSelector).ShaperExpression
+            : groupByShaper.ElementSelector;
+
+        return source.UpdateShaperExpression(
+            new RelationalGroupByShaperExpression(
+                groupByShaper.KeySelector, elementShaper, groupByShaper.GroupingEnumerable, resultSelector));
     }
 
     private Expression? TranslateGroupingKey(Expression expression)
@@ -1275,6 +1375,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     }
 
     /// <inheritdoc />
+    public override Expression Translate(Expression expression)
+    {
+        _rootExpression ??= expression;
+        return base.Translate(expression);
+    }
+
+    /// <inheritdoc />
+    /// <inheritdoc />
     protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
     {
         if (selector.Body == selector.Parameters[0])
@@ -1289,6 +1397,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var newSelectorBody = RemapLambdaBody(source, selector);
+
+        if (source.ShaperExpression is RelationalGroupByShaperExpression groupByShaper
+            && TryTranslateGroupingElementProjection(source, groupByShaper, newSelectorBody) is { } liftedGroupBy)
+        {
+            return liftedGroupBy;
+        }
 
         return source.UpdateShaperExpression(_projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody));
     }
@@ -1336,6 +1450,221 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Recognizes projections which use a grouping only through its key and a single, unfiltered enumeration of its elements, and
+    ///     splits them into the element projection (which gets composed into the grouping's element selector, server-side) and the rest
+    ///     of the projection (which gets applied on the client to each materialized grouping).
+    /// </summary>
+    private sealed class GroupingElementProjectionAnalyzer(RelationalGroupByShaperExpression groupByShaper) : ExpressionVisitor
+    {
+        private static readonly MethodInfo[] ElementEnumerationMethods =
+            [EnumerableMethods.ToList, EnumerableMethods.ToArray, EnumerableMethods.AsEnumerable];
+
+        private List<MethodInfo> _enumerationMethods = [];
+        private Expression? _elements;
+        private ParameterExpression? _groupingParameter;
+        private bool _unsupported;
+
+        /// <summary>
+        ///     The projection applied to the elements of the grouping, or <see langword="null" /> if they're enumerated as-is.
+        /// </summary>
+        public LambdaExpression? ElementSelector { get; private set; }
+
+        /// <summary>
+        ///     Checks whether the given projection over the grouping can be applied on the client, over materialized groupings.
+        /// </summary>
+        public bool Analyze(Expression projection)
+        {
+            Visit(projection);
+
+            // Projections which don't enumerate the elements at all (aggregates, or just the key) are better off translated as usual,
+            // on the server.
+            return !_unsupported && _elements != null;
+        }
+
+        /// <summary>
+        ///     Rewrites the projection into one over a materialized <see cref="IGrouping{TKey,TElement}" />, with the element projection
+        ///     taken out of it (it gets applied on the server instead).
+        /// </summary>
+        public Expression Rewrite(Expression projection, ParameterExpression groupingParameter)
+        {
+            _groupingParameter = groupingParameter;
+
+            return Visit(projection);
+        }
+
+        [return: NotNullIfNotNull(nameof(expression))]
+        public override Expression? Visit(Expression? expression)
+        {
+            if (expression is null || _unsupported)
+            {
+                return expression;
+            }
+
+            // g.Key was replaced by the grouping's key selector when the lambda body was remapped; the materialized grouping exposes
+            // the same value as its key.
+            if (ReferenceEquals(expression, groupByShaper.KeySelector))
+            {
+                return _groupingParameter is null
+                    ? expression
+                    : Expression.MakeMemberAccess(
+                        _groupingParameter, _groupingParameter.Type.GetProperty(nameof(IGrouping<object, object>.Key))!);
+            }
+
+            if (_elements is null)
+            {
+                if (TryMatchElements(expression, out var elementSelector, out var enumerationMethods))
+                {
+                    _elements = expression;
+                    ElementSelector = elementSelector;
+                    _enumerationMethods = enumerationMethods;
+
+                    return _groupingParameter is null ? expression : RewriteElements();
+                }
+            }
+            else if (ReferenceEquals(expression, _elements))
+            {
+                return _groupingParameter is null ? expression : RewriteElements();
+            }
+
+            switch (expression)
+            {
+                // Assembling the key and the elements into a result is all the client selector is allowed to do. Anything computed -
+                // g.Key.ToUpper(), EF.Functions.DateDiffDay(g.Key, ...), string.Join over the elements - has a server translation which
+                // moving it to the client would quietly replace with CLR semantics, or with a FunctionOnClient throw.
+                case NewExpression:
+                case MemberInitExpression:
+                case NewArrayExpression:
+                case ConstantExpression:
+                case ParameterExpression:
+                case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked }:
+                    return base.Visit(expression);
+
+                default:
+                    _unsupported = true;
+                    return expression;
+            }
+        }
+
+        private bool TryMatchElements(
+            Expression expression,
+            out LambdaExpression? elementSelector,
+            out List<MethodInfo> enumerationMethods)
+        {
+            enumerationMethods = [];
+            elementSelector = null;
+            var current = expression;
+
+            // g.Select(...).ToList()/.ToArray()/.AsEnumerable(), or any of those over the grouping itself. Note that the query has been
+            // preprocessed by now, so the enumeration typically reads g.AsQueryable().Select(...) rather than g.Select(...).
+            while (current is MethodCallExpression
+                   {
+                       Object: null, Method.IsGenericMethod: true, Arguments: [var enumerationSource]
+                   } enumeration
+                   && ElementEnumerationMethods.Contains(enumeration.Method.GetGenericMethodDefinition()))
+            {
+                enumerationMethods.Add(enumeration.Method.GetGenericMethodDefinition());
+                current = enumerationSource;
+            }
+
+            if (current is MethodCallExpression
+                {
+                    Object: null, Method.IsGenericMethod: true, Arguments: [var selectSource, var selectorArgument]
+                } select
+                && (select.Method.GetGenericMethodDefinition() == EnumerableMethods.Select
+                    || select.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
+                && (selectorArgument is LambdaExpression
+                    or UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression })
+                && selectorArgument.UnwrapLambdaFromQuote() is { Parameters.Count: 1 } selectorLambda)
+            {
+                elementSelector = selectorLambda;
+                current = selectSource;
+            }
+
+            // The AsQueryable the preprocessor introduced is only peeled off as part of an enumeration recognized above; on its own it
+            // says nothing about what's being done with the grouping.
+            if ((enumerationMethods.Count > 0 || elementSelector != null)
+                && current is MethodCallExpression
+                {
+                    Object: null, Method.IsGenericMethod: true, Arguments: [var queryableSource]
+                } asQueryable
+                && asQueryable.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
+            {
+                current = queryableSource;
+            }
+
+            if (!ReferenceEquals(current, groupByShaper)
+                || (elementSelector != null && !IsComposableElementSelector(elementSelector)))
+            {
+                elementSelector = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        private Expression RewriteElements()
+        {
+            var elementType = _groupingParameter!.Type.GetGenericArguments()[1];
+            var elements = (Expression)_groupingParameter;
+
+            // The elements are enumerated as a queryable (over the grouping) rather than as a plain sequence; keep that type, the
+            // enumeration around it may well depend on it.
+            if (_elements!.Type.IsGenericType && _elements.Type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+            {
+                elements = Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(elementType), elements);
+            }
+
+            // The element projection now happens on the server, so only the materialization (ToList/ToArray/...) is left to do here.
+            for (var i = _enumerationMethods.Count - 1; i >= 0; i--)
+            {
+                elements = Expression.Call(_enumerationMethods[i].MakeGenericMethod(elementType), elements);
+            }
+
+            return elements;
+        }
+
+        /// <summary>
+        ///     Checks whether an element projection can be composed into the grouping's element selector, i.e. whether it's a projection
+        ///     of the grouping's own rows and nothing else.
+        /// </summary>
+        private bool IsComposableElementSelector(LambdaExpression elementSelector)
+        {
+            var validator = new ElementSelectorValidator(groupByShaper);
+            validator.Visit(elementSelector.Body);
+
+            return !validator.Unsupported;
+        }
+
+        private sealed class ElementSelectorValidator(RelationalGroupByShaperExpression groupByShaper) : ExpressionVisitor
+        {
+            public bool Unsupported { get; private set; }
+
+            [return: NotNullIfNotNull(nameof(expression))]
+            public override Expression? Visit(Expression? expression)
+            {
+                if (expression is null || Unsupported)
+                {
+                    return expression;
+                }
+
+                if (expression is GroupByShaperExpression
+                    || ReferenceEquals(expression, groupByShaper.KeySelector)
+                    // A collection (navigation, subquery, ...) would be translated as a correlated collection over the element; once the
+                    // GROUP BY is dropped, that correlation would be to the grouping rather than to the element.
+                    || (expression.Type != typeof(string)
+                        && expression.Type != typeof(byte[])
+                        && expression.Type.TryGetSequenceType() is not null))
+                {
+                    Unsupported = true;
+                    return expression;
+                }
+
+                return base.Visit(expression);
+            }
+        }
     }
 
     private sealed class CorrelationFindingExpressionVisitor : ExpressionVisitor

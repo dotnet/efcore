@@ -292,8 +292,40 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     ? relatedDataLoaders!
                     : (Expression)Constant(null, typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>));
 
-                return Call(
-                    CreateGroupBySplitQueryingEnumerableMethodInfo.MakeGenericMethod(keySelector.ReturnType, elementSelector.ReturnType),
+                return ApplyGroupByResultSelector(
+                    relationalGroupByResultExpression,
+                    Call(
+                        CreateGroupBySplitQueryingEnumerableMethodInfo.MakeGenericMethod(
+                            keySelector.ReturnType, elementSelector.ReturnType),
+                        Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+                        relationalCommandResolver,
+                        readerColumnsExpression,
+                        keySelector,
+                        keyIdentifier,
+                        Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                            relationalGroupByResultExpression.KeyIdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals)
+                                .ToArray(),
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                NewArrayInit(
+                                    typeof(Func<object, object, bool>),
+                                    relationalGroupByResultExpression.KeyIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                            "keyIdentifierValueComparers",
+                            typeof(Func<object, object, bool>[])),
+                        elementSelector,
+                        relatedDataLoadersParameter,
+                        relatedDataLoadersAsyncParameter,
+                        Constant(_contextType),
+                        Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+                        Constant(_detailedErrorsEnabled),
+                        Constant(_threadSafetyChecksEnabled)));
+            }
+
+            return ApplyGroupByResultSelector(
+                relationalGroupByResultExpression,
+                Call(
+                    CreateGroupBySingleQueryingEnumerableMethodInfo.MakeGenericMethod(
+                        keySelector.ReturnType, elementSelector.ReturnType),
                     Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                     relationalCommandResolver,
                     readerColumnsExpression,
@@ -310,36 +342,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                         "keyIdentifierValueComparers",
                         typeof(Func<object, object, bool>[])),
                     elementSelector,
-                    relatedDataLoadersParameter,
-                    relatedDataLoadersAsyncParameter,
                     Constant(_contextType),
                     Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
                     Constant(_detailedErrorsEnabled),
-                    Constant(_threadSafetyChecksEnabled));
-            }
-
-            return Call(
-                CreateGroupBySingleQueryingEnumerableMethodInfo.MakeGenericMethod(keySelector.ReturnType, elementSelector.ReturnType),
-                Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                relationalCommandResolver,
-                readerColumnsExpression,
-                keySelector,
-                keyIdentifier,
-                Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                    relationalGroupByResultExpression.KeyIdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals)
-                        .ToArray(),
-                    Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                        NewArrayInit(
-                            typeof(Func<object, object, bool>),
-                            relationalGroupByResultExpression.KeyIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
-                        Parameter(typeof(MaterializerLiftableConstantContext), "_")),
-                    "keyIdentifierValueComparers",
-                    typeof(Func<object, object, bool>[])),
-                elementSelector,
-                Constant(_contextType),
-                Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                Constant(_detailedErrorsEnabled),
-                Constant(_threadSafetyChecksEnabled));
+                    Constant(_threadSafetyChecksEnabled)));
         }
         else
         {
@@ -437,6 +443,35 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     private static readonly MethodInfo CreateGroupBySplitQueryingEnumerableMethodInfo
         = typeof(GroupBySplitQueryingEnumerable)
             .GetMethod(nameof(GroupBySplitQueryingEnumerable.Create))!;
+
+    private static readonly MethodInfo CreateProjectedQueryingEnumerableMethodInfo
+        = typeof(ProjectedQueryingEnumerable)
+            .GetMethod(nameof(ProjectedQueryingEnumerable.Create))!;
+
+    /// <summary>
+    ///     Applies the client-side projection of a GroupBy which projects out of the groupings without aggregating them, by projecting
+    ///     each grouping as it comes out of the querying enumerable.
+    /// </summary>
+    private static Expression ApplyGroupByResultSelector(
+        RelationalGroupByResultExpression relationalGroupByResultExpression,
+        Expression groupingEnumerable)
+    {
+        if (relationalGroupByResultExpression.ResultSelector is not { } resultSelector)
+        {
+            return groupingEnumerable;
+        }
+
+        Check.DebugAssert(
+            resultSelector.Parameters[0].Type == groupingEnumerable.Type.GetInterfaces()
+                .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)).GetGenericArguments()[0],
+            "The result selector of a GroupBy doesn't accept the grouping type produced by the querying enumerable.");
+
+        return Call(
+            CreateProjectedQueryingEnumerableMethodInfo.MakeGenericMethod(
+                resultSelector.Parameters[0].Type, resultSelector.ReturnType),
+            groupingEnumerable,
+            resultSelector);
+    }
 
     private static Expression CreateReaderColumnsExpression(
         IReadOnlyList<ReaderColumn?>? readerColumns,
