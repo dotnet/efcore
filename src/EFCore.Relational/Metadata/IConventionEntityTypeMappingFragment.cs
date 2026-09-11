@@ -40,4 +40,18 @@ public interface IConventionEntityTypeMappingFragment : IReadOnlyEntityTypeMappi
     /// </summary>
     /// <returns>The <see cref="ConfigurationSource" /> for <see cref="IReadOnlyEntityTypeMappingFragment.IsTableExcludedFromMigrations" />.</returns>
     ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource();
+
+    /// <summary>
+    ///     Sets a value indicating whether a row might not exist for this fragment's store object even when the
+    ///     principal row exists in the main table for the entity type.
+    /// </summary>
+    /// <param name="optional">A value indicating whether a row for this fragment is optional.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    bool? SetIsOptional(bool? optional, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IReadOnlyEntityTypeMappingFragment.IsOptional" />.
+    /// </summary>
+    /// <returns>The <see cref="ConfigurationSource" /> for <see cref="IReadOnlyEntityTypeMappingFragment.IsOptional" />.</returns>
+    ConfigurationSource? GetIsOptionalConfigurationSource();
 }

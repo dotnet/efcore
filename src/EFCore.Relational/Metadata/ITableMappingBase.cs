@@ -41,6 +41,13 @@ public interface ITableMappingBase : IAnnotatable
     bool? IsSplitEntityTypePrincipal { get; }
 
     /// <summary>
+    ///     Gets the value indicating whether a row for this mapping might not exist even when a row exists in the
+    ///     principal table-like object for the entity type. Always <see langword="false" /> for the principal mapping.
+    /// </summary>
+    bool IsSplitFragmentOptional
+        => false;
+
+    /// <summary>
     ///     Gets the value indicating whether the mapped table-like object includes rows for the derived entity types.
     ///     Set to <see langword="false" /> for inherited mappings. <see langword="null" /> if the entity type has no derived types.
     /// </summary>
@@ -109,6 +116,11 @@ public interface ITableMappingBase : IAnnotatable
                 }
 
                 builder.Append("IsSplitEntityTypePrincipal");
+            }
+
+            if (IsSplitFragmentOptional)
+            {
+                builder.Append(" IsSplitFragmentOptional");
             }
 
             if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
