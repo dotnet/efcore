@@ -1795,15 +1795,22 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
+        // An aggregate selector may capture the grouping parameter as g.Key, which the scanner allows. The lifted aggregate
+        // becomes a lambda over the pre-GroupBy source, where that parameter is out of scope, so rebind g.Key to the key
+        // expression itself: evaluated per source row it yields that row's group key, which is exactly what g.Key means
+        // inside the aggregate.
+        var keyBody = RemapLambdaExpression(parentShape, originalKeySelector);
+        var capturedKeyRebinder = new CapturedGroupingKeyRebinder(selector.Parameters[0], keyBody);
+
         // Expand every body on the parent first (this applies the joins and may widen the parent's
         // element shape), then generate all lambdas over the final parameter. Re-expanding the key
         // selector is idempotent with respect to joins already applied by ProcessGroupBy.
-        var keyBody = ExpandNavigationsForSource(parent, RemapLambdaExpression(parentShape, originalKeySelector));
+        keyBody = ExpandNavigationsForSource(parent, keyBody);
         for (var i = 0; i < aggregateBodies.Length; i++)
         {
             if (aggregateBodies[i] is Expression aggregateBody)
             {
-                aggregateBodies[i] = ExpandNavigationsForSource(parent, aggregateBody);
+                aggregateBodies[i] = ExpandNavigationsForSource(parent, capturedKeyRebinder.Visit(aggregateBody));
             }
         }
 
@@ -1903,6 +1910,20 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
             return base.VisitMember(memberExpression);
         }
+    }
+
+    /// <summary>
+    ///     Replaces g.Key captured inside a lifted aggregate's selector with the key expression, which reads the same value
+    ///     from the source row the aggregate is now evaluated over.
+    /// </summary>
+    private sealed class CapturedGroupingKeyRebinder(ParameterExpression groupingParameter, Expression keyBody)
+        : ExpressionVisitor
+    {
+        protected override Expression VisitMember(MemberExpression memberExpression)
+            => memberExpression.Expression == groupingParameter
+                && memberExpression.Member.Name == nameof(IGrouping<object, object>.Key)
+                    ? keyBody
+                    : base.VisitMember(memberExpression);
     }
 
     private sealed record GroupingAggregateCall(MethodCallExpression Call, LambdaExpression? Selector, bool SourceAsQueryable);

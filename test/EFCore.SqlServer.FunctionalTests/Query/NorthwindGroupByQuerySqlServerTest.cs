@@ -2905,6 +2905,38 @@ GROUP BY [o].[EmployeeID]
         AssertSql();
     }
 
+    public override async Task GroupBy_aggregate_capturing_key_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_aggregate_capturing_key_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_aggregate_capturing_key_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
     public override async Task GroupBy_with_aggregate_containing_complex_where(bool async)
     {
         await base.GroupBy_with_aggregate_containing_complex_where(async);
