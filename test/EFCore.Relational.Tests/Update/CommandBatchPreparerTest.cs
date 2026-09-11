@@ -599,6 +599,40 @@ FakeEntity [Deleted]"
         Assert.Equal(2, batch.ModificationCommands.Count);
     }
 
+    [Fact] // Issue #38917
+    public void BatchCommands_orders_unique_index_release_before_reacquisition_with_unreliable_original_value()
+    {
+        var model = CreateModelWithUniqueIndexOnly();
+        var configuration = CreateContextServices(model);
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        // Releases "Test" by changing UniqueValue away from it. Uses a higher Id than the acquiring entry below so
+        // that the default (primary-key-based) command ordering alone would produce the wrong (unsafe) order,
+        // and only the dependency edge asserted by this test can produce the correct order.
+        var releasingEntry = stateManager.GetOrCreateEntry(
+            new FakeEntity { Id = 2, UniqueValue = "Other" });
+        releasingEntry.SetEntityState(EntityState.Modified);
+        releasingEntry.SetOriginalValue(releasingEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue))!, "Test");
+
+        // Simulates an attached entity whose original value snapshot ends up matching its (newly assigned) current
+        // value; it still needs to wait for another command to release "Test" before it can claim it.
+        var acquiringEntry = stateManager.GetOrCreateEntry(
+            new FakeEntity { Id = 1, UniqueValue = "Test" });
+        acquiringEntry.SetEntityState(EntityState.Modified);
+        acquiringEntry.SetOriginalValue(acquiringEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue))!, "Test");
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        var batches = CreateBatches([acquiringEntry, releasingEntry], modelData);
+        var batch = Assert.Single(batches);
+
+        // The command releasing "Test" must be ordered before the command acquiring it, otherwise we'd get a
+        // unique constraint violation.
+        Assert.Equal(
+            [releasingEntry, acquiringEntry],
+            batch.ModificationCommands.Select(c => c.Entries.Single()));
+    }
+
     [Fact]
     public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
     {
@@ -1059,6 +1093,19 @@ FakeEntity [Deleted]"
         modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
             .WithOne()
             .HasForeignKey<RelatedFakeEntity>(c => c.Id));
+
+        return modelBuilder.Model.FinalizeModel();
+    }
+
+    private static IModel CreateModelWithUniqueIndexOnly()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<FakeEntity>(b =>
+        {
+            b.Ignore(c => c.RelatedId);
+            b.HasIndex(c => c.UniqueValue).IsUnique();
+        });
 
         return modelBuilder.Model.FinalizeModel();
     }
