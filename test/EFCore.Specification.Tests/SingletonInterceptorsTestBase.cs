@@ -35,7 +35,7 @@ public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture f
 
     public class TestEntity30244
     {
-        [DatabaseGenerated((DatabaseGeneratedOption.None))]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public string? Title { get; set; }
@@ -52,27 +52,21 @@ public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture f
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Book>(b =>
-            {
-                b.Property<string?>("Author");
-            });
+            modelBuilder.Entity<Book>(b => b.Property<string?>("Author"));
 
-            modelBuilder.Entity<Pamphlet>(b =>
-            {
-                b.Property<string?>("Author");
-            });
+            modelBuilder.Entity<Pamphlet>(b => b.Property<string?>("Author"));
         }
     }
 
     public async Task<TContext> CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject, bool usePooling)
     {
-        var contextFactory = await base.InitializeAsync<TContext>(
+        var contextFactory = await base.InitializeNonSharedTest<TContext>(
             onConfiguring: inject ? null : o => o.AddInterceptors(interceptors),
             addServices: inject ? s => InjectInterceptors(s, interceptors) : null,
             usePooling: usePooling,
             useServiceProvider: inject);
 
-        return contextFactory.CreateContext();
+        return contextFactory.CreateDbContext();
     }
 
     protected virtual IServiceCollection InjectInterceptors(

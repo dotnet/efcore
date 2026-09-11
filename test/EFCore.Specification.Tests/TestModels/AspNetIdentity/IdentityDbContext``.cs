@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
-#nullable disable
-
 public abstract class
     IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> : IdentityUserContext<TUser, TKey,
     TUserClaim, TUserLogin, TUserToken>
@@ -26,17 +24,14 @@ public abstract class
     {
     }
 
-    public virtual DbSet<TUserRole> UserRoles { get; set; }
-    public virtual DbSet<TRole> Roles { get; set; }
-    public virtual DbSet<TRoleClaim> RoleClaims { get; set; }
+    public virtual DbSet<TUserRole> UserRoles { get; set; } = null!;
+    public virtual DbSet<TRole> Roles { get; set; } = null!;
+    public virtual DbSet<TRoleClaim> RoleClaims { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.Entity<TUser>(b =>
-        {
-            b.HasMany<TUserRole>().WithOne().HasForeignKey(ur => ur.UserId).IsRequired();
-        });
+        builder.Entity<TUser>(b => b.HasMany<TUserRole>().WithOne().HasForeignKey(ur => ur.UserId).IsRequired());
 
         builder.Entity<TRole>(b =>
         {
@@ -51,14 +46,8 @@ public abstract class
             b.HasMany<TRoleClaim>().WithOne().HasForeignKey(rc => rc.RoleId).IsRequired();
         });
 
-        builder.Entity<TRoleClaim>(b =>
-        {
-            b.HasKey(rc => rc.Id);
-        });
+        builder.Entity<TRoleClaim>(b => b.HasKey(rc => rc.Id));
 
-        builder.Entity<TUserRole>(b =>
-        {
-            b.HasKey(r => new { r.UserId, r.RoleId });
-        });
+        builder.Entity<TUserRole>(b => b.HasKey(r => new { r.UserId, r.RoleId }));
     }
 }

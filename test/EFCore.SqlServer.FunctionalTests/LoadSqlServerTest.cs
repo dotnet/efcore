@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class LoadSqlServerTest : LoadTestBase<LoadSqlServerTest.LoadSqlServerFixture>
 {
     public LoadSqlServerTest(LoadSqlServerFixture fixture)
@@ -1797,7 +1795,7 @@ WHERE 0 = 1
     private const string FileNewLine = @"
 ";
 
-    private void AssertSql(string expected = null)
+    private void AssertSql(string? expected = null)
     {
         var sql = Sql ?? "";
         expected ??= "";
@@ -1813,18 +1811,17 @@ WHERE 0 = 1
                 StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
-            var testName = methodCallLine.Substring(0, indexMethodEnding);
+            var testName = methodCallLine[..indexMethodEnding];
             var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
             var fileName = parts[1][..^5];
             var lineNumber = int.Parse(parts[2]);
 
             var currentDirectory = Directory.GetCurrentDirectory();
-            var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf(
-                        $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                        StringComparison.Ordinal)
-                    + 1)
+            var logFile = currentDirectory[
+                    ..(currentDirectory.LastIndexOf(
+                            $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
+                            StringComparison.Ordinal)
+                        + 1)]
                 + "QueryBaseline.txt";
 
             var testInfo = testName + " : " + lineNumber + FileNewLine;
@@ -1841,7 +1838,7 @@ WHERE 0 = 1
         }
     }
 
-    private string Sql { get; set; }
+    private string? Sql { get; set; }
 
     public class LoadSqlServerFixture : LoadFixtureBase
     {

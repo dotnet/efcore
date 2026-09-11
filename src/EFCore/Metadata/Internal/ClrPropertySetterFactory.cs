@@ -244,7 +244,9 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                                 previousLevel,
                                 indicesParameter,
                                 fromDeclaringType: true,
-                                fromEntity: false)));
+                                fromEntity: false,
+                                shouldThrowIfMissing: true,
+                                isMissingExpression: out _)));
 
                     var indexExpression = MakeIndex(
                         indicesParameter,
@@ -304,7 +306,9 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                             i == (chainCount - 1) ? instanceParameter : variables[chainCount - 2 - i],
                             indicesParameter,
                             fromDeclaringType: true,
-                            fromEntity: false);
+                            fromEntity: false,
+                            shouldThrowIfMissing: true,
+                            isMissingExpression: out _);
 
                         statements.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
                     }

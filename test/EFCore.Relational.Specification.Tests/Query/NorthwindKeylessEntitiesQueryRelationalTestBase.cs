@@ -1,17 +1,15 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(TFixture fixture)
     : NorthwindKeylessEntitiesQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_collection_correlated_with_keyless_entity_throws(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
@@ -26,14 +24,15 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Collection_of_entities_projecting_correlated_collection_of_keyless_entities(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => new
             {
-                c.City, Collection = ss.Set<CustomerQuery>().Where(cq => cq.City == c.City).ToList(),
+                c.City,
+                Collection = ss.Set<CustomerQuery>().Where(cq => cq.City == c.City).ToList(),
             })))).Message;
 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
@@ -54,8 +53,4 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(
 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

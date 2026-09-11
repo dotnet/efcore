@@ -61,7 +61,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <param name="materializationCondition">
     ///     An expression of <see cref="Func{ValueBuffer, ITypeBase}" /> to determine which structural type to materialize.
     /// </param>
-    /// <param name="clrType">CLR type for this expression as returned from <see cref="Type"/>.</param>
+    /// <param name="clrType">CLR type for this expression as returned from <see cref="Type" />.</param>
     protected StructuralTypeShaperExpression(
         ITypeBase type,
         Expression valueBufferExpression,
@@ -84,7 +84,8 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
         ValueBufferExpression = valueBufferExpression;
         IsNullable = nullable;
         MaterializationCondition = materializationCondition!;
-        Check.DebugAssert(clrType == StructuralType.ClrType || clrType == StructuralType.ClrType.MakeNullable(),
+        Check.DebugAssert(
+            clrType == StructuralType.ClrType || clrType == StructuralType.ClrType.MakeNullable(),
             $"The CLR type '{clrType}' must be equal to the structural type '{StructuralType.ClrType}' or a nullable version of it.");
         _clrType = clrType;
     }
@@ -277,7 +278,8 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     [EntityFrameworkInternal]
     public virtual StructuralTypeShaperExpression MakeClrTypeNullable()
         => Type != Type.MakeNullable()
-            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.MakeNullable())
+            ? new StructuralTypeShaperExpression(
+                StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.MakeNullable())
             : this;
 
     /// <summary>
@@ -286,7 +288,8 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     [EntityFrameworkInternal]
     public virtual StructuralTypeShaperExpression MakeClrTypeNonNullable()
         => Type != Type.UnwrapNullableType()
-            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.UnwrapNullableType())
+            ? new StructuralTypeShaperExpression(
+                StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.UnwrapNullableType())
             : this;
 
     /// <inheritdoc />

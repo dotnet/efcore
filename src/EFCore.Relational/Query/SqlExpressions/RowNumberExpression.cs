@@ -88,7 +88,8 @@ public class RowNumberExpression : SqlExpression
         => New(
             _quotingConstructor ??= typeof(RowNumberExpression).GetConstructor(
                 [typeof(IReadOnlyList<SqlExpression>), typeof(IReadOnlyList<OrderingExpression>), typeof(RelationalTypeMapping)])!,
-            NewArrayInit(typeof(SqlExpression), initializers: Orderings.Select(o => o.Quote())),
+            NewArrayInit(typeof(SqlExpression), initializers: Partitions.Select(p => p.Quote())),
+            NewArrayInit(typeof(OrderingExpression), initializers: Orderings.Select(o => o.Quote())),
             RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
@@ -111,8 +112,8 @@ public class RowNumberExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is RowNumberExpression rowNumberExpression
-                && Equals(rowNumberExpression));
+                || (obj is RowNumberExpression rowNumberExpression
+                    && Equals(rowNumberExpression)));
 
     private bool Equals(RowNumberExpression rowNumberExpression)
         => base.Equals(rowNumberExpression)

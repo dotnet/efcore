@@ -95,14 +95,14 @@ public class ProjectionBindingExpression : Expression, IPrintableExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ProjectionBindingExpression projectionBindingExpression
-                && Equals(projectionBindingExpression));
+                || (obj is ProjectionBindingExpression projectionBindingExpression
+                    && Equals(projectionBindingExpression)));
 
     private bool Equals(ProjectionBindingExpression projectionBindingExpression)
         => QueryExpression.Equals(projectionBindingExpression.QueryExpression)
             && Type == projectionBindingExpression.Type
             && (ProjectionMember?.Equals(projectionBindingExpression.ProjectionMember)
-                ?? projectionBindingExpression.ProjectionMember == null)
+                ?? (projectionBindingExpression.ProjectionMember == null))
             && Index == projectionBindingExpression.Index;
 
     /// <inheritdoc />

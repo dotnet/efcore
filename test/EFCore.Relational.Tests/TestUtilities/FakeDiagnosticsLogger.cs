@@ -24,8 +24,8 @@ public class FakeDiagnosticsLogger<T> : IDiagnosticsLogger<T>, ILogger
         LogLevel logLevel,
         EventId eventId,
         TState state,
-        Exception exception,
-        Func<TState, Exception, string> formatter)
+        Exception? exception,
+        Func<TState, Exception?, string> formatter)
     {
     }
 
@@ -35,10 +35,11 @@ public class FakeDiagnosticsLogger<T> : IDiagnosticsLogger<T>, ILogger
     public bool IsEnabled(EventId eventId, LogLevel logLevel)
         => true;
 
-    public IDisposable BeginScope<TState>(TState state)
+    public IDisposable? BeginScope<TState>(TState state)
+        where TState : notnull
         => null;
 
     public virtual LoggingDefinitions Definitions { get; } = new TestRelationalLoggingDefinitions();
 
-    public IInterceptors Interceptors { get; }
+    public IInterceptors Interceptors { get; } = null!;
 }

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DbFunctionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Like_on_client_throws()
         => Assert.Equal(
             CoreStrings.FunctionOnClient(nameof(DbFunctionsExtensions.Like)),

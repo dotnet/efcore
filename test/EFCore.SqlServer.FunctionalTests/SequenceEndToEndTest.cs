@@ -5,11 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SequenceEndToEndTest : IAsyncLifetime
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_sequence_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -58,7 +56,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         context.SaveChanges();
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.IsNotCI)]
+    [Fact, SkipOnCI("Flaky on CI")]
     public void Can_use_sequence_end_to_end_on_multiple_databases()
     {
         var serviceProvider = new ServiceCollection()
@@ -125,7 +123,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         context2.SaveChanges();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_sequence_end_to_end_async()
     {
         var serviceProvider = new ServiceCollection()
@@ -174,7 +172,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         await context.SaveChangesAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
     {
         var serviceProvider = new ServiceCollection()
@@ -214,7 +212,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_explicit_values()
     {
         var serviceProvider = new ServiceCollection()
@@ -248,7 +246,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
 
                 for (var j = 0; j < 6; j++)
                 {
-                    pegasuses.Single(p => p.Identifier == i * 100 + j);
+                    pegasuses.Single(p => p.Identifier == (i * 100) + j);
                 }
             }
         }
@@ -260,9 +258,9 @@ public class SequenceEndToEndTest : IAsyncLifetime
         for (var i = 1; i < 11; i++)
         {
             context.Add(
-                new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
+                new Pegasus { Name = "Rainbow Dash " + i, Identifier = (i * 100) + idOffset });
             context.Add(
-                new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
+                new Pegasus { Name = "Fluttershy " + i, Identifier = (i * 100) + idOffset + 1 });
         }
 
         context.SaveChanges();
@@ -274,7 +272,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         private readonly string _databaseName = databaseName;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Pegasus> Pegasuses { get; set; }
+        public DbSet<Pegasus> Pegasuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -292,10 +290,10 @@ public class SequenceEndToEndTest : IAsyncLifetime
     private class Pegasus
     {
         public int Identifier { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
-    [ConditionalFact] // Issue #478
+    [Fact] // Issue #478
     public void Can_use_sequence_with_nullable_key_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -323,7 +321,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         }
     }
 
-    [ConditionalFact] // Issue #478
+    [Fact] // Issue #478
     public void Can_use_identity_with_nullable_key_end_to_end()
     {
         var serviceProvider = new ServiceCollection()
@@ -372,7 +370,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         private readonly bool _useSequence = useSequence;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Unicon> Unicons { get; set; }
+        public DbSet<Unicon> Unicons { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -397,14 +395,14 @@ public class SequenceEndToEndTest : IAsyncLifetime
     private class Unicon
     {
         public int? Identifier { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
-    protected SqlServerTestStore TestStore { get; private set; }
+    protected SqlServerTestStore TestStore { get; private set; } = null!;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("SequenceEndToEndTest");
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();
 }

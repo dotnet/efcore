@@ -9,12 +9,12 @@ public class OrderLine
     public int Quantity { get; set; }
     public double Price { get; set; }
     public bool IsSubjectToTax { get; set; }
-    public string SpecialRequests { get; set; }
+    public string? SpecialRequests { get; set; }
     public bool IsShipped { get; set; }
 
     public int OrderId { get; set; }
-    public Order Order { get; set; }
+    public Order Order { get; set; } = null!;
 
     public int ProductId { get; set; }
-    public Product Product { get; set; }
+    public Product Product { get; set; } = null!;
 }

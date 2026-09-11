@@ -57,6 +57,30 @@ public class DbContextOptions<TContext> : DbContextOptions
         return new DbContextOptions<TContext>(ExtensionsMap.SetItem(type, (extension, ordinal)));
     }
 
+    /// <inheritdoc />
+    public override DbContextOptions WithoutExtension<TExtension>()
+    {
+        var type = typeof(TExtension);
+        if (!ExtensionsMap.TryGetValue(type, out var removedValue))
+        {
+            return this;
+        }
+
+        var removedOrdinal = removedValue.Ordinal;
+        var newMap = ExtensionsMap.Remove(type);
+
+        // Renormalize ordinals for extensions that followed the removed one
+        foreach (var (key, value) in newMap)
+        {
+            if (value.Ordinal > removedOrdinal)
+            {
+                newMap = newMap.SetItem(key, (value.Extension, value.Ordinal - 1));
+            }
+        }
+
+        return new DbContextOptions<TContext>(newMap);
+    }
+
     /// <summary>
     ///     The type of context that these options are for (<typeparamref name="TContext" />).
     /// </summary>

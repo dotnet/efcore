@@ -16,6 +16,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 {
     private static readonly MethodInfo GetParameterValueMethodInfo
         = typeof(RelationalProjectionBindingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
+    private static readonly bool UseOldBehavior38838
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38838", out var enabled) && enabled;
 
     private readonly RelationalQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -24,10 +26,12 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     private SelectExpression _selectExpression;
 
     private bool _indexBasedBinding;
+    private bool _rootIsTransparentIdentifier;
     private Dictionary<StructuralTypeProjectionExpression, ProjectionBindingExpression>? _projectionBindingCache;
     private List<Expression>? _clientProjections;
+    private Dictionary<object, Expression>? _loweredSingleResultSubqueries;
 
-    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = [];
     private readonly Stack<ProjectionMember> _projectionMembers = new();
 
     /// <summary>
@@ -46,6 +50,62 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         _selectExpression = null!;
     }
 
+    private sealed class MarkerNullCheckSimplifyingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            if (node is { NodeType: ExpressionType.Equal or ExpressionType.NotEqual, Method: null }
+                && ((IsNull(node.Left) && TryGetNullCheck(node.Right, out var nullCheck))
+                    || (IsNull(node.Right) && TryGetNullCheck(node.Left, out nullCheck))))
+            {
+                nullCheck = Visit(nullCheck);
+                return node.NodeType == ExpressionType.Equal
+                    ? nullCheck
+                    : Expression.Not(nullCheck);
+            }
+
+            return base.VisitBinary(node);
+        }
+
+        private static bool IsNull(Expression expression)
+            => expression is ConstantExpression { Value: null }
+                or DefaultExpression { Type.IsValueType: false };
+
+        private static bool TryGetNullCheck(Expression expression, [NotNullWhen(true)] out Expression? nullCheck)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+            if (expression is ConditionalExpression
+                {
+                    Test: var test,
+                    IfTrue: var ifTrue,
+                    IfFalse: NewExpression or MemberInitExpression
+                }
+                && IsNull(ifTrue)
+                && IsMarkerNullCheck(test))
+            {
+                nullCheck = test;
+                return true;
+            }
+
+            nullCheck = null;
+            return false;
+        }
+
+        private static bool IsMarkerNullCheck(Expression expression)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+            return expression is BinaryExpression
+                {
+                    NodeType: ExpressionType.Equal,
+                    Method: null,
+                    Left: var left,
+                    Right: var right
+                }
+                && ((IsNull(left) && right.UnwrapTypeConversion(out _) is ProjectionBindingExpression)
+                    || (IsNull(right) && left.UnwrapTypeConversion(out _) is ProjectionBindingExpression));
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -57,6 +117,13 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         _selectExpression = selectExpression;
         _indexBasedBinding = false;
 
+        // #30915: a projection whose root is a TransparentIdentifier New is an intermediate join-result projection that EF Core
+        // will compose further (e.g. a subsequent Where/Join member-accesses its parts). The recorded non-entity object can appear
+        // nested inside it; gating it there would replace the bare New that downstream member-folding relies on, breaking
+        // translation. The marker only needs to gate the *final* user projection (which is never a TransparentIdentifier), so
+        // suppress gating whenever this projection root is a TransparentIdentifier.
+        _rootIsTransparentIdentifier = IsTransparentIdentifierProjection(expression);
+
         _projectionMembers.Push(new ProjectionMember());
 
         var result = Visit(expression);
@@ -64,14 +131,16 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         if (result == QueryCompilationContext.NotTranslatedExpression)
         {
             _indexBasedBinding = true;
-            _projectionBindingCache = new Dictionary<StructuralTypeProjectionExpression, ProjectionBindingExpression>();
+            _projectionBindingCache = [];
             _projectionMapping.Clear();
             _clientProjections = [];
+            _loweredSingleResultSubqueries = null;
 
             result = Visit(expression);
 
             _selectExpression.ReplaceProjection(_clientProjections);
             _clientProjections.Clear();
+            _projectionMapping.Clear();
         }
         else
         {
@@ -83,6 +152,36 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         _projectionMembers.Clear();
 
         result = MatchTypes(result, expression.Type);
+
+        return result;
+    }
+
+    internal virtual Expression? TryTranslateToServerProjection(SelectExpression selectExpression, Expression expression)
+    {
+        if (UseOldBehavior38838)
+        {
+            return null;
+        }
+
+        _selectExpression = selectExpression;
+        _indexBasedBinding = false;
+        _rootIsTransparentIdentifier = IsTransparentIdentifierProjection(expression);
+        _projectionMembers.Push(new ProjectionMember());
+
+        expression = new MarkerNullCheckSimplifyingExpressionVisitor().Visit(expression);
+        var result = Visit(expression);
+        if (result == QueryCompilationContext.NotTranslatedExpression)
+        {
+            result = null;
+        }
+        else
+        {
+            _selectExpression.ReplaceProjection(_projectionMapping);
+            result = MatchTypes(result, expression.Type);
+        }
+        _selectExpression = null!;
+        _projectionMapping.Clear();
+        _projectionMembers.Clear();
 
         return result;
     }
@@ -125,6 +224,14 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         {
                             StructuralTypeProjectionExpression projection => AddClientProjection(projection, typeof(ValueBuffer)),
                             SqlExpression mappedSqlExpression => AddClientProjection(mappedSqlExpression, expression.Type.MakeNullable()),
+                            // A single-result subquery (e.g. the group element of GroupBy(k).Select(g => g.First()))
+                            // being composed over: lower it into the current select as a to-one join so the result
+                            // has a bindable shape, instead of failing.
+                            ShapedQueryExpression
+                            {
+                                ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault
+                            } singleResultSubquery
+                                => LowerSingleResultSubquery(projectionBindingExpression, singleResultSubquery),
                             _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()))
                         };
 
@@ -175,9 +282,17 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
 
-                if (_sqlTranslator.TranslateProjection(expression) is SqlExpression sqlExpression)
+                switch (_sqlTranslator.TranslateProjection(expression))
                 {
-                    return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
+                    case SqlExpression sqlExpression:
+                        return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
+
+                    // This handles the case of a complex type being projected out of a Select.
+                    case RelationalStructuralTypeShaperExpression { StructuralType: IComplexType } shaper:
+                        return base.Visit(shaper);
+
+                    case CollectionResultExpression collectionResult:
+                        return base.Visit(collectionResult);
                 }
 
                 if (expression is MethodCallExpression methodCallExpression)
@@ -322,10 +437,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
 #pragma warning disable EF1001
                     return shaper.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
-                            // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
-                            // This mirrors for structural types what we do for scalars.
-                            .MakeClrTypeNullable();
+                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
+                        // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                        // This mirrors for structural types what we do for scalars.
+                        .MakeClrTypeNullable();
 #pragma warning restore EF1001
                 }
 
@@ -359,7 +474,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
 #pragma warning disable EF1001
                         return shaper.Update(
-                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
+                                new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
                             // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
                             // This mirrors for structural types what we do for scalars.
                             .MakeClrTypeNullable();
@@ -537,6 +652,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
     {
+        // #30915: if the whole non-entity object is being projected from the nullable side of an outer join, gate its
+        // materialization on the recorded marker so it becomes null (rather than a constructed all-NULL object) on no-match rows.
+        var hasNullabilityMarker = _selectExpression.TryGetNonEntityNullabilityMarker(memberInitExpression, out var markerBinding);
+
         var newExpression = Visit(memberInitExpression.NewExpression);
         if (newExpression == QueryCompilationContext.NotTranslatedExpression)
         {
@@ -559,7 +678,20 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        return memberInitExpression.Update((NewExpression)newExpression, newBindings);
+        var visited = memberInitExpression.Update((NewExpression)newExpression, newBindings);
+
+        if (hasNullabilityMarker && _rootIsTransparentIdentifier)
+        {
+            // See the matching comment in VisitNew: at the intermediate TransparentIdentifier-rooted projection we suppress
+            // gating but must rebind the (now stale) marker and re-key the recorded entry onto the rebuilt node, so the final
+            // whole-object projection over the same SelectExpression still finds a valid node and marker binding to gate on.
+            var reboundMarker = BindNullabilityMarker(markerBinding!);
+            _selectExpression.RemapNonEntityNullabilityMarker(memberInitExpression, visited, reboundMarker);
+        }
+
+        return hasNullabilityMarker
+            ? GateNonEntityOnNullabilityMarker(visited, markerBinding!, memberInitExpression.Type)
+            : visited;
     }
 
     /// <summary>
@@ -620,6 +752,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
+        // #30915: if the whole non-entity object is being projected from the nullable side of an outer join, gate its
+        // materialization on the recorded marker so it becomes null (rather than a constructed all-NULL object) on no-match rows.
+        var hasNullabilityMarker = _selectExpression.TryGetNonEntityNullabilityMarker(newExpression, out var markerBinding);
+
         var newArguments = new Expression[newExpression.Arguments.Count];
         for (var i = 0; i < newArguments.Length; i++)
         {
@@ -645,7 +781,96 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             newArguments[i] = MatchTypes(visitedArgument, argument.Type);
         }
 
-        return newExpression.Update(newArguments);
+        var visited = newExpression.Update(newArguments);
+
+        if (hasNullabilityMarker && _rootIsTransparentIdentifier)
+        {
+            // Intermediate (TransparentIdentifier-rooted) projection: do not gate here; the recorded object is composed further
+            // and must remain a bare New for downstream member-folding. But this phase rebinds the node's columns into the final
+            // projection representation (index-/member-based) and may rebuild the node instance, so the originally-recorded marker
+            // binding (a member binding valid only against the pre-rebind projection) goes stale. Rebind the marker through this
+            // phase's projection mechanism and re-key it onto the rebuilt node, so the *final* user projection (a later Translate
+            // pass over the same SelectExpression, where the whole object is projected) finds a still-valid marker binding.
+            var reboundMarker = BindNullabilityMarker(markerBinding!);
+            _selectExpression.RemapNonEntityNullabilityMarker(newExpression, visited, reboundMarker);
+        }
+
+        return hasNullabilityMarker
+            ? GateNonEntityOnNullabilityMarker(visited, markerBinding!, newExpression.Type)
+            : visited;
+    }
+
+    // #30915: returns true iff the root of the projection expression is a TransparentIdentifier New. A transparent identifier
+    // (produced by TransparentIdentifierFactory.Create) is the intermediate outer/inner result of a join that EF Core composes
+    // further (a subsequent Where/Join/Select member-accesses its Outer/Inner parts). When the projection root is such a node, a
+    // recorded non-entity object lives nested inside it and must stay a bare New so that downstream member-folding keeps working;
+    // the marker only needs to gate the final user projection, which is never itself a transparent identifier.
+    private static bool IsTransparentIdentifierProjection(Expression expression)
+        => expression is NewExpression newExpression && TransparentIdentifierFactory.IsTransparentIdentifierType(newExpression.Type);
+
+    // #30915: builds a Condition that gates the materialization of a non-entity object projected from the nullable side of an
+    // outer join: it returns the default (null) for the object's CLR type when the recorded marker column reads NULL (no-match
+    // row), otherwise it constructs the object as usual. The marker is bound through the same projection mechanism the visitor
+    // uses for every other projected sub-expression, so it survives to the reader as a readable nullable scalar projection.
+    private Expression GateNonEntityOnNullabilityMarker(Expression visited, Expression markerBinding, Type objectType)
+    {
+        // objectType is always the shaper node's own CLR type: the reference type for a reference-type New/MemberInit, or the
+        // (non-nullable) struct for a value-type MemberInit. It is never Nullable<T> here -- see the Nullable<T> note below.
+        //
+        // Reference type: Expression.Default(objectType) is null, gating the whole object to null on a no-match row (the #30915
+        // case). Value type (mutable struct / record struct projected via MemberInit): Expression.Default(objectType) is a zeroed
+        // struct rather than null -- which is exactly right, mirroring LINQ-to-Objects DefaultIfEmpty semantics for a value-type
+        // sequence (a no-match row yields default(T), not an exception). Both are gated here.
+        //
+        // Two shapes reach SelectExpression.AddJoin's New/MemberInit recording condition (so a markerBinding is produced) but are
+        // NOT meaningfully gated here:
+        //  - Constructor-bound structs (positional record structs, read-only DTOs, ValueTuple) are NewExpressions, so a marker is
+        //    injected, but they fail to TRANSLATE at an earlier, deferred point before the query ever reaches this gate (tracked
+        //    separately); the injected marker is simply never consumed.
+        //  - A user-visible Nullable<T> whole-object arrives as Convert(MemberInit, T?): the marker is recorded against the inner
+        //    MemberInit, so this gate DOES fire -- but with objectType = the underlying struct, producing a zeroed struct that the
+        //    outer Convert then lifts to a non-null T? (HasValue == true). That is correct: casting a real (if zeroed) struct to
+        //    Nullable<T> can never itself yield null, matching DefaultIfEmpty over a value-type sequence.
+        //
+        // Intermediate (TransparentIdentifier-rooted) projections are suppressed: there the recorded object is composed further
+        // and must stay a bare New for downstream member-folding.
+        if (_rootIsTransparentIdentifier)
+        {
+            return visited;
+        }
+
+        var boundMarker = BindNullabilityMarker(markerBinding);
+
+        if (visited.Type != objectType)
+        {
+            visited = Expression.Convert(visited, objectType);
+        }
+
+        return Expression.Condition(
+            Expression.Equal(boundMarker, Expression.Constant(null, boundMarker.Type)),
+            Expression.Default(objectType),
+            visited);
+    }
+
+    // #30915: binds the recorded marker ProjectionBindingExpression (typed int?, bound against _selectExpression) into the
+    // projection currently being built, returning a readable ProjectionBindingExpression. This reuses the visitor's two binding
+    // representations (client projections vs. projection mapping). A unique synthetic projection member is used in mapping mode
+    // so the marker never collides with a real projected member.
+    private Expression BindNullabilityMarker(Expression markerBinding)
+    {
+        var mappedSqlExpression = _selectExpression.GetProjection((ProjectionBindingExpression)markerBinding);
+
+        if (_indexBasedBinding)
+        {
+            return AddClientProjection(mappedSqlExpression, typeof(int?));
+        }
+
+        // Reuse SelectExpression's synthetic marker member so that when the outer SelectExpression applies this projection mapping,
+        // SelectExpression.GetProjectionAlias forces the lowercase "marker" alias for the marker column on the outer SELECT too,
+        // keeping the synthesized internal column consistently lowercase (cf. ApplyDefaultIfEmpty's "empty").
+        var projectionMember = _projectionMembers.Peek().Append(SelectExpression.NullabilityMarkerMemberInfo);
+        _projectionMapping[projectionMember] = mappedSqlExpression;
+        return new ProjectionBindingExpression(_selectExpression, projectionMember, typeof(int?));
     }
 
     /// <summary>
@@ -685,11 +910,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
             return expression switch
             {
-#pragma warning disable EF1001
                 RelationalStructuralTypeShaperExpression structuralShaper => structuralShaper.MakeClrTypeNonNullable(),
-#pragma warning restore EF1001
-
-                _ =>  Expression.Convert(expression, targetType),
+                _ => Expression.Convert(expression, targetType),
             };
         }
 
@@ -708,6 +930,24 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
     }
 
+    private Expression LowerSingleResultSubquery(
+        ProjectionBindingExpression projectionBindingExpression,
+        ShapedQueryExpression singleResultSubquery)
+    {
+        // The lowering mutates the select expression (pushdown + to-one join), so it must run
+        // once per projection slot — a second reference to the same slot reuses the shaper
+        // produced by the first, instead of adding a duplicate join.
+        _loweredSingleResultSubqueries ??= [];
+        var key = projectionBindingExpression.Index is int index ? index : (object)projectionBindingExpression.ProjectionMember!;
+        if (!_loweredSingleResultSubqueries.TryGetValue(key, out var loweredShaper))
+        {
+            loweredShaper = _selectExpression.LowerSingleResultSubquery(singleResultSubquery, _clientProjections!);
+            _loweredSingleResultSubqueries[key] = loweredShaper;
+        }
+
+        return loweredShaper;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -715,7 +955,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-#pragma warning restore IDE0052 // Remove unread private members
         => (T)queryContext.Parameters[parameterName]!;
 
     private sealed class IncludeFindingExpressionVisitor : ExpressionVisitor

@@ -106,13 +106,9 @@ public class SqlServerByteArrayTypeMapping : ByteArrayTypeMapping
                 // Fixed-sized parameters get exact length to avoid padding/truncation.
                 parameter.Size = IsFixedLength ? length.Value : maxSpecificSize;
             }
-            else if (length is <= MaxSize)
-            {
-                parameter.Size = IsFixedLength ? length.Value : MaxSize;
-            }
             else
             {
-                parameter.Size = -1;
+                parameter.Size = length is <= MaxSize ? IsFixedLength ? length.Value : MaxSize : -1;
             }
         }
     }

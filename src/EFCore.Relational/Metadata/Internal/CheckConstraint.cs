@@ -37,7 +37,7 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
         var constraints = GetConstraintsDictionary(EntityType);
         if (constraints == null)
         {
-            constraints = new SortedDictionary<string, ICheckConstraint>(StringComparer.Ordinal);
+            constraints = [with(StringComparer.Ordinal)];
             ((IMutableEntityType)EntityType).SetOrRemoveAnnotation(RelationalAnnotationNames.CheckConstraints, constraints);
         }
 
@@ -81,14 +81,9 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static IEnumerable<IReadOnlyCheckConstraint> GetDeclaredCheckConstraints(IReadOnlyEntityType entityType)
-    {
-        if (entityType is RuntimeEntityType)
-        {
-            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
-        }
-
-        return GetConstraintsDictionary(entityType)?.Values ?? Enumerable.Empty<ICheckConstraint>();
-    }
+        => entityType is RuntimeEntityType
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (IEnumerable<IReadOnlyCheckConstraint>)(GetConstraintsDictionary(entityType)?.Values ?? Enumerable.Empty<ICheckConstraint>());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -198,25 +193,16 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
         IReadOnlyCheckConstraint duplicateCheckConstraint,
         in StoreObjectIdentifier storeObject,
         bool shouldThrow)
-    {
-        if (checkConstraint.Sql != duplicateCheckConstraint.Sql)
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+        => checkConstraint.Sql == duplicateCheckConstraint.Sql
+            || (shouldThrow
+                ? throw new InvalidOperationException(
                     RelationalStrings.DuplicateCheckConstraintSqlMismatch(
                         checkConstraint.ModelName,
                         checkConstraint.EntityType.DisplayName(),
                         duplicateCheckConstraint.ModelName,
                         duplicateCheckConstraint.EntityType.DisplayName(),
-                        checkConstraint.GetName(storeObject)));
-            }
-
-            return false;
-        }
-
-        return true;
-    }
+                        checkConstraint.GetName(storeObject)))
+                : false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

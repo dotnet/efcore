@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NullKeysSqliteTest(NullKeysSqliteTest.NullKeysSqliteFixture fixture)
     : NullKeysTestBase<NullKeysSqliteTest.NullKeysSqliteFixture>(fixture)
 {

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -7,16 +7,16 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
 {
     #region 19708
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task GroupJoin_SelectMany_gets_flattened()
     {
-        var contextFactory = await InitializeAsync<Context19708>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context19708>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.CustomerFilters.ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Set<Context19708.CustomerView19708>().ToList();
 
@@ -44,17 +44,17 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
 
     protected class Context19708(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Customer19708> Customers { get; set; }
-        public DbSet<CustomerMembership19708> CustomerMemberships { get; set; }
-        public DbSet<CustomerFilter19708> CustomerFilters { get; set; }
+        public DbSet<Customer19708> Customers { get; set; } = null!;
+        public DbSet<CustomerMembership19708> CustomerMemberships { get; set; } = null!;
+        public DbSet<CustomerFilter19708> CustomerFilters { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CustomerFilter19708>()
-                .HasQueryFilter(e => (from a in (from c in Customers
-                                                 join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
-                                                 from cm in g.DefaultIfEmpty()
-                                                 select new { c.Id, CustomerMembershipId = (int?)cm.Id })
+                .HasQueryFilter(e => (from a in from c in Customers
+                                                join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
+                                                from cm in g.DefaultIfEmpty()
+                                                select new { c.Id, CustomerMembershipId = (int?)cm.Id }
                                       where a.CustomerMembershipId != null && a.Id == e.CustomerId
                                       select a).Count()
                     > 0)
@@ -99,16 +99,16 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
         public class Customer19708
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class CustomerMembership19708
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public int CustomerId { get; set; }
-            public Customer19708 Customer { get; set; }
+            public Customer19708 Customer { get; set; } = null!;
         }
 
         public class CustomerFilter19708
@@ -120,14 +120,14 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
         public class CustomerView19708
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public int? CustomerMembershipId { get; set; }
-            public string CustomerMembershipName { get; set; }
+            public string CustomerMembershipName { get; set; } = null!;
         }
     }
 
     #endregion
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 }

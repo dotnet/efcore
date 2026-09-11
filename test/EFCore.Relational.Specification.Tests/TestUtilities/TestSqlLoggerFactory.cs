@@ -11,14 +11,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class TestSqlLoggerFactory : ListLoggerFactory
 {
-    private readonly bool _proceduralQueryGeneration = false;
-
     private const string FileNewLine = @"
 ";
 
     private static readonly string _eol = Environment.NewLine;
 
-    private static readonly object _queryBaselineFileLock = new();
     private static readonly ConcurrentDictionary<string, QueryBaselineRewritingFileInfo> _queryBaselineRewritingFileInfos = new();
 
     public TestSqlLoggerFactory()
@@ -45,13 +42,26 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         Logger.TestOutputHelper?.WriteLine(Sql);
     }
 
-    public void AssertBaseline(string[] expected, bool assertOrder = true, bool forUpdate = false)
+    public override void WriteTestOutput()
     {
-        if (_proceduralQueryGeneration)
+        var failedSqlStatements = ((TestSqlLogger)Logger).FailedSqlStatements;
+        if (Logger.TestOutputHelper is ITestOutputHelper outputHelper && failedSqlStatements.Count > 0)
         {
-            return;
+            outputHelper.WriteLine("Failed SQL queries that resulted in database errors:");
+            outputHelper.WriteLine("");
+
+            foreach (var sql in failedSqlStatements)
+            {
+                outputHelper.WriteLine(sql);
+                outputHelper.WriteLine("");
+            }
         }
 
+        base.WriteTestOutput();
+    }
+
+    public void AssertBaseline(string[] expected, bool assertOrder = true, bool forUpdate = false)
+    {
         var offset = forUpdate ? 1 : 0;
         var count = SqlStatements.Count - offset - offset;
         try
@@ -83,21 +93,11 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                 StringSplitOptions.RemoveEmptyEntries)[3][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
-            var testName = methodCallLine.Substring(0, indexMethodEnding);
+            var testName = methodCallLine[..indexMethodEnding];
             var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
             var fileName = parts[1][..^5];
             var lineNumber = int.Parse(parts[2]);
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf(
-                        $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                        StringComparison.Ordinal)
-                    + 1)
-                + "QueryBaseline.txt";
-
-            var testInfo = testName + " : " + lineNumber + FileNewLine;
             const string indent = FileNewLine + "                ";
 
             if (Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE")
@@ -121,13 +121,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
             Logger.TestOutputHelper?.WriteLine(newBaseLine);
-
-            var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
-
-            lock (_queryBaselineFileLock)
-            {
-                File.AppendAllText(logFile, contents);
-            }
 
             throw;
         }
@@ -183,7 +176,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         inputStream.ReadExactly(buffer, 0, 3);
                         inputStream.Position = 0;
 
-                        var hasUtf8ByteOrderMark = (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF);
+                        var hasUtf8ByteOrderMark = buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF;
 
                         using var reader = new StreamReader(inputStream);
                         using var writer = new StreamWriter(outputStream, new UTF8Encoding(hasUtf8ByteOrderMark));
@@ -306,6 +299,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         public List<string> SqlStatements { get; } = [];
         public List<string> Parameters { get; } = [];
 
+        public List<string> FailedSqlStatements { get; } = [];
+
         private readonly StringBuilder _stringBuilder = new();
 
         protected override void UnsafeClear()
@@ -314,6 +309,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             SqlStatements.Clear();
             Parameters.Clear();
+            FailedSqlStatements.Clear();
         }
 
         protected override void UnsafeLog<TState>(
@@ -351,9 +347,11 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         {
                             var c = parameters[i];
                             if (c == ','
-                                && TryGetChar(parameters, i + 1, out var nextChar1) && nextChar1 == ' '
+                                && TryGetChar(parameters, i + 1, out var nextChar1)
+                                && nextChar1 == ' '
                                 && TryGetChar(parameters, i - 1, out var prevChar1)
-                                && (prevChar1 == '\'' || prevChar1 == ')'
+                                && (prevChar1 == '\''
+                                    || prevChar1 == ')'
                                     // handles NULL (matching only 'LL' as "good enough")
                                     || (prevChar1 == 'L' && TryGetChar(parameters, i - 2, out var prevChar2) && prevChar2 == 'L')))
                             {
@@ -361,6 +359,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                                 i++;
                                 continue;
                             }
+
                             _stringBuilder.Append(c);
                         }
 
@@ -368,7 +367,13 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         parameters = _stringBuilder.ToString();
                     }
 
-                    SqlStatements.Add(parameters + commandText);
+                    var sqlStatement = parameters + commandText;
+                    SqlStatements.Add(sqlStatement);
+
+                    if (eventId.Id == RelationalEventId.CommandError.Id)
+                    {
+                        FailedSqlStatements.Add(sqlStatement);
+                    }
                 }
             }
             else
@@ -383,13 +388,14 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     c = default;
                     return false;
                 }
+
                 c = s[index];
                 return true;
             }
         }
     }
 
-    private struct QueryBaselineRewritingFileInfo
+    private readonly struct QueryBaselineRewritingFileInfo
     {
         public QueryBaselineRewritingFileInfo() { }
 
@@ -406,6 +412,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         ///     numbers for later errors. The keys are (pre-rewriting) line numbers, and the values are offsets that have been applied to
         ///     them.
         /// </summary>
-        public readonly SortedDictionary<int, int> LineDisplacements = new();
+        public readonly SortedDictionary<int, int> LineDisplacements = [];
     }
 }

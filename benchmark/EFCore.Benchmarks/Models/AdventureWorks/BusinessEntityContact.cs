@@ -15,7 +15,7 @@ public class BusinessEntityContact
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
-    public virtual BusinessEntity BusinessEntity { get; set; }
-    public virtual ContactType ContactType { get; set; }
-    public virtual Person Person { get; set; }
+    public virtual BusinessEntity BusinessEntity { get; set; } = null!;
+    public virtual ContactType ContactType { get; set; } = null!;
+    public virtual Person Person { get; set; } = null!;
 }

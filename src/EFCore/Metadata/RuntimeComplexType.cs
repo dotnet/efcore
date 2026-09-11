@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///     Represents the type of a complex property of a structural type.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
 {
@@ -123,13 +123,11 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
     {
         get => !ClrType.IsAbstract
             ? NonCapturingLazyInitializer.EnsureInitialized(
-                ref _constructorBinding, this, static complexType =>
-                {
-                    ((IModel)complexType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
+                ref _constructorBinding, this, static complexType => ((IModel)complexType.Model).GetModelDependencies()
+                    .ConstructorBindingFactory.GetBindings(
                         complexType,
                         out complexType._constructorBinding,
-                        out complexType._serviceOnlyConstructorBinding);
-                })
+                        out complexType._serviceOnlyConstructorBinding))
             : _constructorBinding;
 
         [DebuggerStepThrough]

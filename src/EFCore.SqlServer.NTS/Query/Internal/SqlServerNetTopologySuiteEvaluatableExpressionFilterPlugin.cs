@@ -18,13 +18,6 @@ public class SqlServerNetTopologySuiteEvaluatableExpressionFilterPlugin : IEvalu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsEvaluatableExpression(Expression expression)
-    {
-        if (expression is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.DeclaringType == typeof(SqlServerNetTopologySuiteDbFunctionsExtensions))
-        {
-            return false;
-        }
-
-        return true;
-    }
+        => expression is not MethodCallExpression methodCallExpression
+            || methodCallExpression.Method.DeclaringType != typeof(SqlServerNetTopologySuiteDbFunctionsExtensions);
 }

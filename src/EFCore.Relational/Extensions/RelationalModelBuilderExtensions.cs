@@ -70,7 +70,7 @@ public static class RelationalModelBuilderExtensions
     {
         Check.NotNull(builderAction);
 
-        builderAction(HasSequence(modelBuilder, name, schema));
+        builderAction(modelBuilder.HasSequence(name, schema));
 
         return modelBuilder;
     }
@@ -139,7 +139,7 @@ public static class RelationalModelBuilderExtensions
     {
         Check.NotNull(builderAction);
 
-        builderAction(HasSequence(modelBuilder, type, name, schema));
+        builderAction(modelBuilder.HasSequence(type, name, schema));
 
         return modelBuilder;
     }
@@ -203,7 +203,7 @@ public static class RelationalModelBuilderExtensions
     {
         Check.NotNull(builderAction);
 
-        builderAction(HasSequence<T>(modelBuilder, name, schema));
+        builderAction(modelBuilder.HasSequence<T>(name, schema));
 
         return modelBuilder;
     }
@@ -294,12 +294,9 @@ public static class RelationalModelBuilderExtensions
 
         var methodInfo = (expression.Body as MethodCallExpression)?.Method;
 
-        if (methodInfo == null)
-        {
-            throw new ArgumentException(RelationalStrings.DbFunctionExpressionIsNotMethodCall(expression));
-        }
-
-        return modelBuilder.HasDbFunction(methodInfo);
+        return methodInfo == null
+            ? throw new ArgumentException(RelationalStrings.DbFunctionExpressionIsNotMethodCall(expression))
+            : modelBuilder.HasDbFunction(methodInfo);
     }
 
     /// <summary>
@@ -319,7 +316,7 @@ public static class RelationalModelBuilderExtensions
     {
         Check.NotNull(builderAction);
 
-        builderAction(HasDbFunction(modelBuilder, methodInfo));
+        builderAction(modelBuilder.HasDbFunction(methodInfo));
 
         return modelBuilder;
     }

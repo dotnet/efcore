@@ -9,11 +9,9 @@ using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
 {
-    [ConditionalFact]
+    [Fact]
     public void AmbientTransactionWarning_throws_by_default()
     {
         using var context = new AmbientTransactionWarningContext(CreateOptionsBuilder(new ServiceCollection()));
@@ -38,7 +36,7 @@ public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOption
 
     protected override DbContextOptionsBuilder CreateOptionsBuilder(
         IServiceCollection services,
-        Action<RelationalDbContextOptionsBuilder<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>> relationalAction)
+        Action<RelationalDbContextOptionsBuilder<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>>? relationalAction)
         => new DbContextOptionsBuilder()
             .UseInternalServiceProvider(services.AddEntityFrameworkSqlite().BuildServiceProvider(validateScopes: true))
             .UseSqlite("Data Source=LoggingSqliteTest.db", relationalAction);
@@ -51,5 +49,5 @@ public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOption
 
     protected override string ProviderVersion
         => typeof(SqliteOptionsExtension).Assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
 }

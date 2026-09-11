@@ -5,8 +5,6 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class ManyToManyData : ISetSource
 {
     private readonly bool _useGeneratedKeys;
@@ -184,8 +182,8 @@ public class ManyToManyData : ISetSource
         ManyToManyContext context,
         int id,
         string name,
-        EntityOne referenceInverse,
-        EntityOne collectionInverse)
+        EntityOne? referenceInverse,
+        EntityOne? collectionInverse)
         => CreateInstance(
             context?.EntityTwos, (e, p) =>
             {
@@ -232,8 +230,8 @@ public class ManyToManyData : ISetSource
         ManyToManyContext context,
         int id,
         string name,
-        EntityTwo referenceInverse,
-        EntityTwo collectionInverse)
+        EntityTwo? referenceInverse,
+        EntityTwo? collectionInverse)
         => CreateInstance(
             context?.EntityThrees, (e, p) =>
             {
@@ -1360,8 +1358,8 @@ public class ManyToManyData : ISetSource
         ManyToManyContext context,
         int id,
         string name,
-        UnidirectionalEntityOne referenceInverse,
-        UnidirectionalEntityOne collectionInverse)
+        UnidirectionalEntityOne? referenceInverse,
+        UnidirectionalEntityOne? collectionInverse)
         => CreateInstance(
             context?.UnidirectionalEntityTwos, (e, p) =>
             {
@@ -1414,8 +1412,8 @@ public class ManyToManyData : ISetSource
         ManyToManyContext context,
         int id,
         string name,
-        UnidirectionalEntityTwo referenceInverse,
-        UnidirectionalEntityTwo collectionInverse)
+        UnidirectionalEntityTwo? referenceInverse,
+        UnidirectionalEntityTwo? collectionInverse)
         => CreateInstance(
             context?.UnidirectionalEntityThrees, (e, p) =>
             {
@@ -2568,7 +2566,7 @@ public class ManyToManyData : ISetSource
     private static ICollection<TEntity> CreateCollection<TEntity>(bool proxy)
         => proxy ? new ObservableCollection<TEntity>() : new List<TEntity>();
 
-    private static TEntity CreateInstance<TEntity>(DbSet<TEntity> set, Action<TEntity, bool> configureEntity)
+    private static TEntity CreateInstance<TEntity>(DbSet<TEntity>? set, Action<TEntity, bool> configureEntity)
         where TEntity : class, new()
     {
         if (set != null)

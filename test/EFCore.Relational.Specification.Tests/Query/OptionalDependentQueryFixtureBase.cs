@@ -5,27 +5,21 @@ using Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase<OptionalDependentContext>,
-    IQueryFixtureBase,
+public abstract class OptionalDependentQueryFixtureBase : QueryFixtureBase<OptionalDependentContext>,
     ITestSqlLoggerFactory
 {
-    private OptionalDependentData _expectedData;
+    private OptionalDependentData? _expectedData;
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => _expectedData ??= new OptionalDependentData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object?>>
     {
         { typeof(OptionalDependentEntityAllOptional), e => ((OptionalDependentEntityAllOptional)e)?.Id },
         { typeof(OptionalDependentEntitySomeRequired), e => ((OptionalDependentEntitySomeRequired)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
     {
         {
             typeof(OptionalDependentEntityAllOptional), (e, a) =>
@@ -33,7 +27,7 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (OptionalDependentEntityAllOptional)e;
+                    var ee = (OptionalDependentEntityAllOptional)e!;
                     var aa = (OptionalDependentEntityAllOptional)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -41,7 +35,7 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
 
                     if (ee.Json is not null || aa.Json is not null)
                     {
-                        AssertOptionalDependentJsonAllOptional(ee.Json, aa.Json);
+                        AssertOptionalDependentJsonAllOptional(ee.Json!, aa.Json!);
                     }
                 }
             }
@@ -52,7 +46,7 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (OptionalDependentEntitySomeRequired)e;
+                    var ee = (OptionalDependentEntitySomeRequired)e!;
                     var aa = (OptionalDependentEntitySomeRequired)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -60,7 +54,7 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
 
                     if (ee.Json is not null || aa.Json is not null)
                     {
-                        AssertOptionalDependentJsonSomeRequired(ee.Json, aa.Json);
+                        AssertOptionalDependentJsonSomeRequired(ee.Json!, aa.Json!);
                     }
                 }
             }
@@ -76,12 +70,12 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
 
         if (expected.OpNav1 is not null || actual.OpNav1 is not null)
         {
-            AssertOptionalDependentNestedJsonAllOptional(expected.OpNav1, actual.OpNav1);
+            AssertOptionalDependentNestedJsonAllOptional(expected.OpNav1!, actual.OpNav1!);
         }
 
         if (expected.OpNav2 is not null || actual.OpNav2 is not null)
         {
-            AssertOptionalDependentNestedJsonSomeRequired(expected.OpNav2, actual.OpNav2);
+            AssertOptionalDependentNestedJsonSomeRequired(expected.OpNav2!, actual.OpNav2!);
         }
     }
 
@@ -95,12 +89,12 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
 
         if (expected.OpNav1 is not null || actual.OpNav1 is not null)
         {
-            AssertOptionalDependentNestedJsonAllOptional(expected.OpNav1, actual.OpNav1);
+            AssertOptionalDependentNestedJsonAllOptional(expected.OpNav1!, actual.OpNav1!);
         }
 
         if (expected.OpNav2 is not null || actual.OpNav2 is not null)
         {
-            AssertOptionalDependentNestedJsonSomeRequired(expected.OpNav2, actual.OpNav2);
+            AssertOptionalDependentNestedJsonSomeRequired(expected.OpNav2!, actual.OpNav2!);
         }
 
         AssertOptionalDependentNestedJsonAllOptional(expected.ReqNav1, actual.ReqNav1);

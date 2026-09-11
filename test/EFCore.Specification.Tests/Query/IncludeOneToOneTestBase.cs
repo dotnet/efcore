@@ -5,14 +5,12 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : IncludeOneToOneTestBase<TFixture>.OneToOneQueryFixtureBase, new()
 {
     public TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address()
     {
         using var context = CreateContext();
@@ -26,7 +24,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_EF_Property()
     {
         using var context = CreateContext();
@@ -40,7 +38,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_shadow()
     {
         using var context = CreateContext();
@@ -54,7 +52,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_no_tracking()
     {
         using var context = CreateContext();
@@ -69,7 +67,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_no_tracking_EF_Property()
     {
         using var context = CreateContext();
@@ -84,7 +82,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person()
     {
         using var context = CreateContext();
@@ -98,7 +96,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_EF_Property()
     {
         using var context = CreateContext();
@@ -112,7 +110,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_shadow()
     {
         using var context = CreateContext();
@@ -126,7 +124,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_no_tracking()
     {
         using var context = CreateContext();
@@ -141,7 +139,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_no_tracking_EF_Property()
     {
         using var context = CreateContext();
@@ -156,7 +154,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_address_when_person_already_tracked()
     {
         using var context = CreateContext();
@@ -175,7 +173,7 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_person_when_address_already_tracked()
     {
         using var context = CreateContext();
@@ -262,32 +260,32 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public Address Address { get; set; }
+        public string Name { get; set; } = null!;
+        public Address? Address { get; set; }
     }
 
     protected class Address
     {
         public int Id { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public Person Resident { get; set; }
+        public string Street { get; set; } = null!;
+        public string City { get; set; } = null!;
+        public Person Resident { get; set; } = null!;
     }
 
     protected class Person2
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public Address2 Address { get; set; }
+        public Address2 Address { get; set; } = null!;
     }
 
     protected class Address2
     {
-        public string Id { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public Person2 Resident { get; set; }
+        public string Id { get; set; } = null!;
+        public string Street { get; set; } = null!;
+        public string City { get; set; } = null!;
+        public Person2 Resident { get; set; } = null!;
     }
 }

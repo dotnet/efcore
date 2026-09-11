@@ -48,21 +48,16 @@ public static class ForeignKeyExtensions
     public static IEnumerable<IReadOnlyNavigation> FindNavigationsFrom(
         this IReadOnlyForeignKey foreignKey,
         IReadOnlyEntityType entityType)
-    {
-        if (foreignKey.DeclaringEntityType != entityType
-            && foreignKey.PrincipalEntityType != entityType)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.EntityTypeNotInRelationshipStrict(
-                    entityType.DisplayName(),
-                    foreignKey.DeclaringEntityType.DisplayName(),
-                    foreignKey.PrincipalEntityType.DisplayName()));
-        }
-
-        return foreignKey.IsSelfReferencing()
-            ? foreignKey.GetNavigations()
-            : foreignKey.FindNavigations(foreignKey.DeclaringEntityType == entityType);
-    }
+        => foreignKey.DeclaringEntityType != entityType
+            && foreignKey.PrincipalEntityType != entityType
+                ? throw new InvalidOperationException(
+                    CoreStrings.EntityTypeNotInRelationshipStrict(
+                        entityType.DisplayName(),
+                        foreignKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.PrincipalEntityType.DisplayName()))
+                : foreignKey.IsSelfReferencing()
+                    ? foreignKey.GetNavigations()
+                    : foreignKey.FindNavigations(foreignKey.DeclaringEntityType == entityType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,22 +68,17 @@ public static class ForeignKeyExtensions
     public static IEnumerable<IReadOnlyNavigation> FindNavigationsFromInHierarchy(
         this IReadOnlyForeignKey foreignKey,
         IReadOnlyEntityType entityType)
-    {
-        if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
-            && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
-        {
-            throw new InvalidOperationException(
-                CoreStrings.EntityTypeNotInRelationship(
-                    entityType.DisplayName(),
-                    foreignKey.DeclaringEntityType.DisplayName(),
-                    foreignKey.PrincipalEntityType.DisplayName()));
-        }
-
-        return foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
-            || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-                ? foreignKey.GetNavigations()
-                : foreignKey.FindNavigations(foreignKey.DeclaringEntityType.IsAssignableFrom(entityType));
-    }
+        => !foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+            && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType)
+                ? throw new InvalidOperationException(
+                    CoreStrings.EntityTypeNotInRelationship(
+                        entityType.DisplayName(),
+                        foreignKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.PrincipalEntityType.DisplayName()))
+                : foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
+                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
+                    ? foreignKey.GetNavigations()
+                    : foreignKey.FindNavigations(foreignKey.DeclaringEntityType.IsAssignableFrom(entityType));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,21 +89,16 @@ public static class ForeignKeyExtensions
     public static IEnumerable<IReadOnlyNavigation> FindNavigationsTo(
         this IReadOnlyForeignKey foreignKey,
         IReadOnlyEntityType entityType)
-    {
-        if (foreignKey.DeclaringEntityType != entityType
-            && foreignKey.PrincipalEntityType != entityType)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.EntityTypeNotInRelationshipStrict(
-                    entityType.DisplayName(),
-                    foreignKey.DeclaringEntityType.DisplayName(),
-                    foreignKey.PrincipalEntityType.DisplayName()));
-        }
-
-        return foreignKey.IsSelfReferencing()
-            ? foreignKey.GetNavigations()
-            : foreignKey.FindNavigations(foreignKey.PrincipalEntityType == entityType);
-    }
+        => foreignKey.DeclaringEntityType != entityType
+            && foreignKey.PrincipalEntityType != entityType
+                ? throw new InvalidOperationException(
+                    CoreStrings.EntityTypeNotInRelationshipStrict(
+                        entityType.DisplayName(),
+                        foreignKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.PrincipalEntityType.DisplayName()))
+                : foreignKey.IsSelfReferencing()
+                    ? foreignKey.GetNavigations()
+                    : foreignKey.FindNavigations(foreignKey.PrincipalEntityType == entityType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -124,21 +109,16 @@ public static class ForeignKeyExtensions
     public static IEnumerable<IReadOnlyNavigation> FindNavigationsToInHierarchy(
         this IReadOnlyForeignKey foreignKey,
         IReadOnlyEntityType entityType)
-    {
-        if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
-            && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
-        {
-            throw new InvalidOperationException(
-                CoreStrings.EntityTypeNotInRelationship(
-                    entityType.DisplayName(), foreignKey.DeclaringEntityType.DisplayName(),
-                    foreignKey.PrincipalEntityType.DisplayName()));
-        }
-
-        return foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
-            || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-                ? foreignKey.GetNavigations()
-                : foreignKey.FindNavigations(foreignKey.PrincipalEntityType.IsAssignableFrom(entityType));
-    }
+        => !foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+            && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType)
+                ? throw new InvalidOperationException(
+                    CoreStrings.EntityTypeNotInRelationship(
+                        entityType.DisplayName(), foreignKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.PrincipalEntityType.DisplayName()))
+                : foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
+                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
+                    ? foreignKey.GetNavigations()
+                    : foreignKey.FindNavigations(foreignKey.PrincipalEntityType.IsAssignableFrom(entityType));
 
     private static IEnumerable<IReadOnlyNavigation> FindNavigations(
         this IReadOnlyForeignKey foreignKey,
@@ -187,8 +167,8 @@ public static class ForeignKeyExtensions
         for (var i = 0; i < count; i++)
         {
             var dependentProperty = foreignKey.Properties[i];
-
-            if (dependentProperty.GetContainingForeignKeys().Count() > 1)
+            if (dependentProperty.GetContainingForeignKeys().Count() > 1
+                || dependentProperty.IsKey())
             {
                 if (ReferenceEquals(foreignKeyProperties, foreignKey.Properties))
                 {

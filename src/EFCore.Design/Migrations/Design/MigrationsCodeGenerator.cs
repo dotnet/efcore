@@ -76,12 +76,14 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     /// <param name="contextType">The model snapshot's <see cref="DbContext" /> type.</param>
     /// <param name="modelSnapshotName">The model snapshot's name.</param>
     /// <param name="model">The model.</param>
+    /// <param name="latestMigrationId">The ID of the latest migration that has been applied to the model.</param>
     /// <returns>The model snapshot code.</returns>
     public abstract string GenerateSnapshot(
         string? modelSnapshotNamespace,
         Type contextType,
         string modelSnapshotName,
-        IModel model);
+        IModel model,
+        string? latestMigrationId = null);
 
     /// <summary>
     ///     Gets the namespaces required for a list of <see cref="MigrationOperation" /> objects.

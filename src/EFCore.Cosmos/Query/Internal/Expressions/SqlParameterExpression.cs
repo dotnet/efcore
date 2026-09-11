@@ -58,8 +58,8 @@ public sealed class SqlParameterExpression(string name, Type type, CoreTypeMappi
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlParameterExpression sqlParameterExpression
-                && Equals(sqlParameterExpression));
+                || (obj is SqlParameterExpression sqlParameterExpression
+                    && Equals(sqlParameterExpression)));
 
     private bool Equals(SqlParameterExpression sqlParameterExpression)
         => base.Equals(sqlParameterExpression) && Name == sqlParameterExpression.Name;

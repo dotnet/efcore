@@ -9,15 +9,13 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture>(TFixture fixture)
     : NorthwindIncludeNoTrackingQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly MethodInfo _asSplitIncludeMethodInfo
         = typeof(RelationalQueryableExtensions)
-            .GetTypeInfo().GetDeclaredMethod(nameof(RelationalQueryableExtensions.AsSplitQuery));
+            .GetTypeInfo().GetDeclaredMethod(nameof(RelationalQueryableExtensions.AsSplitQuery))!;
 
     public override async Task Include_closes_reader(bool async)
     {
@@ -39,7 +37,7 @@ public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture>(TFi
         using var context = CreateContext();
         var orders = context.Set<Order>().Where(o => o.CustomerID == "ALFKI").ToList();
         Assert.Equal(6, context.ChangeTracker.Entries().Count());
-        Assert.True(orders.All(o => o.Customer.CustomerID == null));
+        Assert.True(orders.All(o => o.Customer!.CustomerID == null));
 
         var customer
             = async
@@ -59,7 +57,7 @@ public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture>(TFi
         Assert.True(customer.Orders.All(e => ReferenceEquals(e.Customer, customer)));
 
         Assert.Equal(6, context.ChangeTracker.Entries().Count());
-        Assert.True(orders.All(o => o.Customer.CustomerID == null));
+        Assert.True(orders.All(o => o.Customer!.CustomerID == null));
     }
 
     public override async Task Include_collection_principal_already_tracked(bool async)

@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 internal abstract class TestContext<TEntity>(
-    string dbName = null,
+    string? dbName = null,
     bool useLazyLoading = false,
     bool useChangeDetection = false,
     bool checkEquality = true,

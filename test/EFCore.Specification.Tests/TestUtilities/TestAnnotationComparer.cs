@@ -26,15 +26,12 @@ public class TestAnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<
 
     public bool Equals(IAnnotation? x, IAnnotation? y)
     {
-        if (x == null)
-        {
-            return y == null;
-        }
-
-        return y != null
-            && (x.Name == y.Name
-                && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
-                    || CompareAnnotations()));
+        return x == null
+            ? y == null
+            : y != null
+            && x.Name == y.Name
+            && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
+                || CompareAnnotations());
 
         bool CompareAnnotations()
         {
@@ -63,5 +60,5 @@ public class TestAnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<
     }
 
     public int GetHashCode(IAnnotation obj)
-        => obj.Name.GetHashCode() ^ obj.Value?.GetHashCode() ?? 0;
+        => (obj.Name.GetHashCode() ^ obj.Value?.GetHashCode()) ?? 0;
 }

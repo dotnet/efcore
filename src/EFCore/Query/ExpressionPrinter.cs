@@ -63,7 +63,7 @@ public class ExpressionPrinter : ExpressionVisitor
     public ExpressionPrinter()
     {
         _stringBuilder = new IndentedStringBuilder();
-        _parametersInScope = new Dictionary<ParameterExpression, string?>();
+        _parametersInScope = [];
         _namelessParameters = [];
         _encounteredParameters = [];
     }
@@ -1004,7 +1004,7 @@ public class ExpressionPrinter : ExpressionVisitor
         Visit(indexExpression.Object);
         _stringBuilder.Append("[");
         VisitArguments(
-            indexExpression.Arguments, s => { _stringBuilder.Append(s); });
+            indexExpression.Arguments, s => _stringBuilder.Append(s));
         _stringBuilder.Append("]");
 
         return indexExpression;

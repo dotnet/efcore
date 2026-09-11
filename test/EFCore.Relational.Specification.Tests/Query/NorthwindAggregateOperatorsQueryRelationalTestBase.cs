@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixture>(TFixture fixture)
     : NorthwindAggregateOperatorsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
@@ -28,22 +26,26 @@ public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixtur
 
     public override async Task Min_no_data_subquery(bool async)
         => Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_subquery(async))).Message);
 
     public override async Task Max_no_data_subquery(bool async)
         => Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_no_data_subquery(async))).Message);
+
+    public override async Task MinBy_no_data_subquery_value_type(bool async)
+        => Assert.Equal(
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.MinBy_no_data_subquery_value_type(async))).Message);
+
+    public override async Task MaxBy_no_data_subquery_value_type(bool async)
+        => Assert.Equal(
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.MaxBy_no_data_subquery_value_type(async))).Message);
 
     public override async Task Average_no_data_subquery(bool async)
         => Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_subquery(async))).Message);
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture,
-            RewriteExpectedQueryExpression,
-            RewriteServerQueryExpression);
 }

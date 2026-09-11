@@ -82,22 +82,16 @@ public class CurrentValueComparerFactory
                     return comparerType;
                 }
 
-                if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableProviderType))
-                {
-                    return typeof(StructuralEntryCurrentProviderValueComparer);
-                }
-
-                if (typeof(IComparable).IsAssignableFrom(nonNullableProviderType))
-                {
-                    return typeof(EntryCurrentProviderValueComparer);
-                }
-
-                throw new InvalidOperationException(
-                    CoreStrings.NonComparableKeyTypes(
-                        propertyBase.DeclaringType.DisplayName(),
-                        propertyBase.Name,
-                        modelType.ShortDisplayName(),
-                        providerType.ShortDisplayName()));
+                return typeof(IStructuralComparable).IsAssignableFrom(nonNullableProviderType)
+                    ? typeof(StructuralEntryCurrentProviderValueComparer)
+                    : typeof(IComparable).IsAssignableFrom(nonNullableProviderType)
+                        ? typeof(EntryCurrentProviderValueComparer)
+                        : throw new InvalidOperationException(
+                            CoreStrings.NonComparableKeyTypes(
+                                propertyBase.DeclaringType.DisplayName(),
+                                propertyBase.Name,
+                                modelType.ShortDisplayName(),
+                                providerType.ShortDisplayName()));
             }
         }
 

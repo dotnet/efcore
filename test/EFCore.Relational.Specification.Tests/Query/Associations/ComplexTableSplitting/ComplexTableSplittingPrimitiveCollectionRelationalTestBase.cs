@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexTableSplitting;
 
-public abstract class ComplexTableSplittingPrimitiveCollectionRelationalTestBase<TFixture> : ComplexPropertiesPrimitiveCollectionTestBase<TFixture>
+public abstract class
+    ComplexTableSplittingPrimitiveCollectionRelationalTestBase<TFixture> : ComplexPropertiesPrimitiveCollectionTestBase<TFixture>
     where TFixture : ComplexTableSplittingRelationalFixtureBase, new()
 {
     public ComplexTableSplittingPrimitiveCollectionRelationalTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)

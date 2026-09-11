@@ -165,7 +165,7 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
         var snapshot = new Dictionary<string, TElement?>();
         foreach (var pair in sourceDictionary)
         {
-            snapshot[pair.Key] = pair.Value == null ? default : (TElement?)elementSnapshot(pair.Value);
+            snapshot[pair.Key] = pair.Value == null ? default : elementSnapshot(pair.Value);
         }
 
         return snapshot;

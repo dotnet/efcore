@@ -42,7 +42,7 @@ public class InMemoryTypeMapping : CoreTypeMapping
     {
     }
 
-    private InMemoryTypeMapping(CoreTypeMappingParameters parameters)
+    private protected InMemoryTypeMapping(CoreTypeMappingParameters parameters)
         : base(parameters)
     {
     }

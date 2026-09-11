@@ -1,11 +1,10 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using CustomTestNamespace;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
         : ModelCodeGeneratorTestBase(fixture, output)
     {
-        [ConditionalFact]
+        [Fact]
         public Task Empty_model()
             => TestAsync(
                 modelBuilder => { },
@@ -58,7 +57,7 @@ public partial class TestDbContext : DbContext
                 },
                 model => Assert.Empty(model.GetEntityTypes()));
 
-        [ConditionalFact]
+        [Fact]
         public Task SuppressConnectionStringWarning_works()
             => TestAsync(
                 modelBuilder => { },
@@ -101,7 +100,7 @@ public partial class TestDbContext : DbContext
                 },
                 model => Assert.Empty(model.GetEntityTypes()));
 
-        [ConditionalFact]
+        [Fact]
         public Task SuppressOnConfiguring_works()
             => TestAsync(
                 modelBuilder => { },
@@ -137,7 +136,7 @@ public partial class TestDbContext : DbContext
                 },
                 null);
 
-        [ConditionalFact]
+        [Fact]
         public Task DbSets_without_nrt()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity"),
@@ -154,7 +153,7 @@ public partial class TestDbContext : DbContext
                 },
                 null);
 
-        [ConditionalFact]
+        [Fact]
         public Task DbSets_with_nrt()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity"),
@@ -171,7 +170,7 @@ public partial class TestDbContext : DbContext
                 },
                 null);
 
-        [ConditionalFact]
+        [Fact]
         public void Required_options_to_GenerateModel_are_not_null()
         {
             var generator = CreateServices()
@@ -196,7 +195,7 @@ public partial class TestDbContext : DbContext
                         new ModelCodeGenerationOptions { ContextName = "TestDbContext", ConnectionString = null })).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Plugins_work()
         {
             var generator = CreateServices()
@@ -224,20 +223,17 @@ optionsBuilder
                 scaffoldedModel.ContextFile.Code);
         }
 
-        [ConditionalFact]
+        [Fact]
         public Task IsRequired_is_generated_for_ref_property_without_nrt()
             => TestAsync(
-                modelBuilder =>
-                {
-                    modelBuilder.Entity(
-                        "Entity", x =>
-                        {
-                            x.Property<string>("RequiredString").IsRequired();
-                            x.Property<string>("NonRequiredString");
-                            x.Property<int>("RequiredInt");
-                            x.Property<int?>("NonRequiredInt");
-                        });
-                },
+                modelBuilder => modelBuilder.Entity(
+                    "Entity", x =>
+                    {
+                        x.Property<string>("RequiredString").IsRequired();
+                        x.Property<string>("NonRequiredString");
+                        x.Property<int>("RequiredInt");
+                        x.Property<int?>("NonRequiredInt");
+                    }),
                 new ModelCodeGenerationOptions { UseNullableReferenceTypes = false },
                 code =>
                 {
@@ -248,27 +244,24 @@ optionsBuilder
                 },
                 model =>
                 {
-                    var entityType = model.FindEntityType("TestNamespace.Entity");
+                    var entityType = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.False(entityType.GetProperty("RequiredString").IsNullable);
                     Assert.True(entityType.GetProperty("NonRequiredString").IsNullable);
                     Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
                     Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task IsRequired_is_not_generated_for_ref_property_with_nrt()
             => TestAsync(
-                modelBuilder =>
-                {
-                    modelBuilder.Entity(
-                        "Entity", x =>
-                        {
-                            x.Property<string>("RequiredString").IsRequired();
-                            x.Property<string>("NonRequiredString");
-                            x.Property<int>("RequiredInt");
-                            x.Property<int?>("NonRequiredInt");
-                        });
-                },
+                modelBuilder => modelBuilder.Entity(
+                    "Entity", x =>
+                    {
+                        x.Property<string>("RequiredString").IsRequired();
+                        x.Property<string>("NonRequiredString");
+                        x.Property<int>("RequiredInt");
+                        x.Property<int?>("NonRequiredInt");
+                    }),
                 new ModelCodeGenerationOptions { UseNullableReferenceTypes = true },
                 code =>
                 {
@@ -279,14 +272,14 @@ optionsBuilder
                 },
                 model =>
                 {
-                    var entityType = model.FindEntityType("TestNamespace.Entity");
+                    var entityType = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.False(entityType.GetProperty("RequiredString").IsNullable);
                     Assert.True(entityType.GetProperty("NonRequiredString").IsNullable);
                     Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
                     Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Comments_use_fluent_api()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity(
@@ -303,26 +296,23 @@ optionsBuilder
                     code.ContextFile.Code),
                 model => Assert.Equal(
                     "An int property",
-                    model.FindEntityType("TestNamespace.Entity").GetProperty("Property").GetComment()));
+                    model.FindEntityType("TestNamespace.Entity")!.GetProperty("Property").GetComment()));
 
-        [ConditionalFact]
+        [Fact]
         public Task Entity_comments_use_fluent_api()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity(
                     "Entity",
-                    x =>
-                    {
-                        x.ToTable(tb => tb.HasComment("An entity comment"));
-                    }),
+                    x => x.ToTable(tb => tb.HasComment("An entity comment"))),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(
                     ".HasComment(\"An entity comment\")",
                     code.ContextFile.Code),
                 model => Assert.Equal(
                     "An entity comment",
-                    model.FindEntityType("TestNamespace.Entity").GetComment()));
+                    model.FindEntityType("TestNamespace.Entity")!.GetComment()));
 
-        [ConditionalFact]
+        [Fact]
         public Task Views_work()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Vista").ToView("Vista"),
@@ -330,7 +320,7 @@ optionsBuilder
                 code => Assert.Contains(".ToView(\"Vista\")", code.ContextFile.Code),
                 model =>
                 {
-                    var entityType = model.FindEntityType("TestNamespace.Vista");
+                    var entityType = model.FindEntityType("TestNamespace.Vista")!;
 
                     Assert.NotNull(entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql));
                     Assert.Equal("Vista", entityType.GetViewName());
@@ -339,12 +329,13 @@ optionsBuilder
                     Assert.Null(entityType.GetSchema());
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task ModelInDifferentNamespaceDbContext_works()
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
-                ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
+                ContextNamespace = "TestNamespace",
+                ModelNamespace = "AnotherNamespaceOfModel"
             };
 
             const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
@@ -357,7 +348,7 @@ optionsBuilder
             );
         }
 
-        [ConditionalFact]
+        [Fact]
         public Task ModelSameNamespaceDbContext_works()
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions { ContextNamespace = "TestNamespace" };
@@ -372,7 +363,7 @@ optionsBuilder
             );
         }
 
-        [ConditionalFact]
+        [Fact]
         public Task ValueGenerated_works()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity(
@@ -396,7 +387,7 @@ optionsBuilder
                 },
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.Equal(ValueGenerated.OnAdd, entity.GetProperty("ValueGeneratedOnAdd").ValueGenerated);
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, entity.GetProperty("ValueGeneratedOnAddOrUpdate").ValueGenerated);
                     Assert.True(entity.GetProperty("ConcurrencyToken").IsConcurrencyToken);
@@ -404,7 +395,7 @@ optionsBuilder
                     Assert.Equal(ValueGenerated.Never, entity.GetProperty("ValueGeneratedNever").ValueGenerated);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task HasPrecision_works()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity(
@@ -422,14 +413,14 @@ optionsBuilder
                 },
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.Equal(12, entity.GetProperty("HasPrecision").GetPrecision());
                     Assert.Null(entity.GetProperty("HasPrecision").GetScale());
                     Assert.Equal(14, entity.GetProperty("HasPrecisionAndScale").GetPrecision());
                     Assert.Equal(7, entity.GetProperty("HasPrecisionAndScale").GetScale());
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Collation_works()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("UseCollation").UseCollation("Some Collation"),
@@ -437,11 +428,11 @@ optionsBuilder
                 code => Assert.Contains("Property(e => e.UseCollation).UseCollation(\"Some Collation\")", code.ContextFile.Code),
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.Equal("Some Collation", entity.GetProperty("UseCollation").GetCollation());
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task ComputedColumnSql_works()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn").HasComputedColumnSql("1 + 2"),
@@ -449,14 +440,14 @@ optionsBuilder
                 code => Assert.Contains(".HasComputedColumnSql(\"1 + 2\")", code.ContextFile.Code),
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.Equal("1 + 2", entity.GetProperty("ComputedColumn").GetComputedColumnSql());
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Column_with_default_value_only_uses_default_value()
             => TestAsync(
-                serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
+                serviceProvider => serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
                     BuildModelWithColumn("nvarchar(max)", null, "Hot"), new ModelReverseEngineerOptions()),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(".HasDefaultValue(\"Hot\")", code.ContextFile.Code),
@@ -467,10 +458,10 @@ optionsBuilder
                     Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValueSql));
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Column_with_default_value_sql_only_uses_default_value_sql()
             => TestAsync(
-                serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
+                serviceProvider => serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
                     BuildModelWithColumn("nvarchar(max)", "('Hot')", null), new ModelReverseEngineerOptions()),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(".HasDefaultValueSql(\"('Hot')\")", code.ContextFile.Code),
@@ -481,10 +472,10 @@ optionsBuilder
                     Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValue));
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Column_with_default_value_sql_and_default_value_uses_default_value()
             => TestAsync(
-                serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
+                serviceProvider => serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
                     BuildModelWithColumn("nvarchar(max)", "('Hot')", "Hot"), new ModelReverseEngineerOptions()),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(".HasDefaultValue(\"Hot\")", code.ContextFile.Code),
@@ -495,10 +486,10 @@ optionsBuilder
                     Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValueSql));
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Column_with_default_value_sql_and_default_value_where_value_is_CLR_default_uses_neither()
             => TestAsync(
-                serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
+                serviceProvider => serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
                     BuildModelWithColumn("int", "((0))", 0), new ModelReverseEngineerOptions()),
                 new ModelCodeGenerationOptions(),
                 code => Assert.DoesNotContain("HasDefaultValue", code.ContextFile.Code),
@@ -509,7 +500,7 @@ optionsBuilder
                     Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValueSql));
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task IsUnicode_works()
             => TestAsync(
                 modelBuilder =>
@@ -525,12 +516,12 @@ optionsBuilder
                 },
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.True(entity.GetProperty("UnicodeColumn").IsUnicode());
                     Assert.False(entity.GetProperty("NonUnicodeColumn").IsUnicode());
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task ComputedColumnSql_works_stored()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn")
@@ -539,11 +530,11 @@ optionsBuilder
                 code => Assert.Contains(".HasComputedColumnSql(\"1 + 2\", true)", code.ContextFile.Code),
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.True(entity.GetProperty("ComputedColumn").GetIsStored());
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task ComputedColumnSql_works_unspecified()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn").HasComputedColumnSql(),
@@ -551,11 +542,11 @@ optionsBuilder
                 code => Assert.Contains(".HasComputedColumnSql()", code.ContextFile.Code),
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
-                    Assert.Empty(entity.GetProperty("ComputedColumn").GetComputedColumnSql());
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
+                    Assert.Empty(entity.GetProperty("ComputedColumn").GetComputedColumnSql()!);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task DefaultValue_works_unspecified()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("DefaultedColumn").HasDefaultValue(),
@@ -563,11 +554,11 @@ optionsBuilder
                 code => Assert.Contains(".HasDefaultValue()", code.ContextFile.Code),
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.Equal(DBNull.Value, entity.GetProperty("DefaultedColumn").GetDefaultValue());
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task DefaultValueSql_works_unspecified()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("DefaultedColumn").HasDefaultValueSql(),
@@ -575,11 +566,11 @@ optionsBuilder
                 code => Assert.Contains(".HasDefaultValueSql()", code.ContextFile.Code),
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
-                    Assert.Empty(entity.GetProperty("DefaultedColumn").GetDefaultValueSql());
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
+                    Assert.Empty(entity.GetProperty("DefaultedColumn").GetDefaultValueSql()!);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Entity_with_indexes_and_use_data_annotations_false_always_generates_fluent_API()
             => TestAsync(
                 modelBuilder => modelBuilder
@@ -600,10 +591,8 @@ optionsBuilder
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -646,12 +635,11 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
-                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
+                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes")!.GetIndexes().Count()));
 
-        [ConditionalFact]
+        [Fact]
         public Task Entity_with_indexes_and_use_data_annotations_true_generates_fluent_API_only_for_indexes_with_annotations()
             => TestAsync(
                 modelBuilder => modelBuilder
@@ -672,10 +660,8 @@ public partial class TestDbContext : DbContext
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -714,12 +700,11 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
-                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
+                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes")!.GetIndexes().Count()));
 
-        [ConditionalFact]
+        [Fact]
         public Task Indexes_with_descending()
             => TestAsync(
                 modelBuilder => modelBuilder
@@ -743,10 +728,8 @@ public partial class TestDbContext : DbContext
                                 .IsDescending(false, true, false);
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -791,8 +774,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes")!;
@@ -814,7 +796,7 @@ public partial class TestDbContext : DbContext
                     Assert.Equal([false, true, false], mixedIndex.IsDescending);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Entity_lambda_uses_correct_identifiers()
             => TestAsync(
                 modelBuilder =>
@@ -839,10 +821,8 @@ public partial class TestDbContext : DbContext
                         });
                 },
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -890,11 +870,10 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model => { });
 
-        [ConditionalFact]
+        [Fact]
         public Task Column_type_is_not_scaffolded_as_annotation()
             => TestAsync(
                 modelBuilder => modelBuilder
@@ -906,10 +885,8 @@ public partial class TestDbContext : DbContext
                             x.Property<DateTime>("HireDate").HasColumnType("date").HasColumnName("hiring_date");
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -948,12 +925,11 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
-                    Assert.Equal("date", model.FindEntityType("TestNamespace.Employee").GetProperty("HireDate").GetConfiguredColumnType()));
+                    Assert.Equal("date", model.FindEntityType("TestNamespace.Employee")!.GetProperty("HireDate").GetConfiguredColumnType()));
 
-        [ConditionalFact]
+        [Fact]
         public Task Is_fixed_length_annotation_should_be_scaffolded_without_optional_parameter()
             => TestAsync(
                 modelBuilder => modelBuilder
@@ -967,9 +943,9 @@ public partial class TestDbContext : DbContext
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code => Assert.Contains(".IsFixedLength()", code.ContextFile.Code),
                 model =>
-                    Assert.True(model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
+                    Assert.True(model.FindEntityType("TestNamespace.Employee")!.GetProperty("Name").IsFixedLength()));
 
-        [ConditionalFact]
+        [Fact]
         public Task Global_namespace_works()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("MyEntity"),
@@ -1016,12 +992,9 @@ public partial class TestDbContext : DbContext
 
                     Assert.DoesNotContain("namespace ", Assert.Single(code.AdditionalFiles).Code);
                 },
-                model =>
-                {
-                    Assert.NotNull(model.FindEntityType("MyEntity"));
-                });
+                model => Assert.NotNull(model.FindEntityType("MyEntity")));
 
-        [ConditionalFact]
+        [Fact]
         public Task Global_namespace_works_just_context()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("MyEntity"),
@@ -1032,12 +1005,9 @@ public partial class TestDbContext : DbContext
                     Assert.DoesNotContain("namespace ", code.ContextFile.Code);
                     Assert.Contains("namespace TestNamespace", Assert.Single(code.AdditionalFiles).Code);
                 },
-                model =>
-                {
-                    Assert.NotNull(model.FindEntityType("TestNamespace.MyEntity"));
-                });
+                model => Assert.NotNull(model.FindEntityType("TestNamespace.MyEntity")));
 
-        [ConditionalFact]
+        [Fact]
         public Task Global_namespace_works_just_model()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("MyEntity"),
@@ -1047,12 +1017,9 @@ public partial class TestDbContext : DbContext
                     Assert.Contains("namespace TestNamespace", code.ContextFile.Code);
                     Assert.DoesNotContain("namespace ", Assert.Single(code.AdditionalFiles).Code);
                 },
-                model =>
-                {
-                    Assert.NotNull(model.FindEntityType("MyEntity"));
-                });
+                model => Assert.NotNull(model.FindEntityType("MyEntity")));
 
-        [ConditionalFact]
+        [Fact]
         public Task Fluent_calls_in_custom_namespaces_work()
             => TestAsync(
                 modelBuilder => TestModelBuilderExtensions.TestFluentApiCall(modelBuilder),
@@ -1092,26 +1059,20 @@ public partial class TestDbContext : DbContext
                 model => Assert.Empty(model.GetEntityTypes()),
                 skipBuild: true);
 
-        [ConditionalFact]
-        public async Task Temporal_table_works()
-            // Shadow properties. Issue #26007.
-            => Assert.Equal(
-                SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState("Customer", "PeriodStart"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                    TestAsync(
-                        modelBuilder => modelBuilder.Entity(
-                            "Customer", e =>
-                            {
-                                e.Property<int>("Id");
-                                e.Property<string>("Name");
-                                e.HasKey("Id");
-                                e.ToTable(tb => tb.IsTemporal());
-                            }),
-                        new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                        code =>
-                        {
-                            AssertFileContents(
-                                $$"""
+        [Fact]
+        public Task Temporal_table_works()
+            => TestAsync(
+                modelBuilder => modelBuilder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+                        e.ToTable(tb => tb.IsTemporal());
+                    }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1157,14 +1118,16 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                                code.ContextFile);
-                        },
-                        model =>
-                        {
-                            // TODO
-                        }))).Message);
+                    code.ContextFile),
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.Customer")!;
+                    Assert.True(entityType.IsTemporal());
+                    Assert.Equal("PeriodStart", entityType.GetPeriodStartPropertyName());
+                    Assert.Equal("PeriodEnd", entityType.GetPeriodEndPropertyName());
+                });
 
-        [ConditionalFact]
+        [Fact]
         public Task Sequences_work()
             => TestAsync(
                 modelBuilder => modelBuilder.HasSequence<int>("EvenNumbers", "dbo")
@@ -1197,7 +1160,7 @@ public partial class TestDbContext : DbContext
                     Assert.True(sequence.IsCyclic);
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task Trigger_works()
             => TestAsync(
                 modelBuilder => modelBuilder
@@ -1213,10 +1176,8 @@ public partial class TestDbContext : DbContext
                             });
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1259,8 +1220,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.Employee")!;
@@ -1272,21 +1232,16 @@ public partial class TestDbContext : DbContext
                         t => Assert.Equal("Trigger2", t.GetDatabaseName()));
                 });
 
-        [ConditionalFact]
+        [Fact]
         public Task ValueGenerationStrategy_works_when_none()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity(
                     "Channel",
-                    x =>
-                    {
-                        x.Property<int>("Id")
-                            .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
-                    }),
+                    x => x.Property<int>("Id")
+                        .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None)),
                 new ModelCodeGenerationOptions(),
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1324,16 +1279,15 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                 {
                     var entityType = Assert.Single(model.GetEntityTypes());
                     var property = Assert.Single(entityType.GetProperties());
-                    Assert.Equal(SqlServerValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
+                    Assert.Equal(SqlServerValueGenerationStrategy.None, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 });
 
-        [ConditionalTheory, InlineData(false), InlineData(true)]
+        [Theory, InlineData(false), InlineData(true)]
         public Task ColumnOrder_is_ignored(bool useDataAnnotations)
             => TestAsync(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("Property").HasColumnOrder(1),
@@ -1345,7 +1299,7 @@ public partial class TestDbContext : DbContext
                 },
                 model =>
                 {
-                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    var entity = model.FindEntityType("TestNamespace.Entity")!;
                     Assert.Null(entity.GetProperty("Property").GetColumnOrder());
                 });
 
@@ -1379,7 +1333,7 @@ public partial class TestDbContext : DbContext
                 = typeof(TestModelBuilderExtensions).GetRuntimeMethod(
                     nameof(TestModelBuilderExtensions.TestFluentApiCall), [typeof(ModelBuilder)])!;
 
-            protected override MethodCallCodeFragment GenerateFluentApi(IModel model, IAnnotation annotation)
+            protected override MethodCallCodeFragment? GenerateFluentApi(IModel model, IAnnotation annotation)
                 => annotation.Name switch
                 {
                     "Test:TestModelAnnotation" => new MethodCallCodeFragment(_testFluentApiCallMethodInfo),
@@ -1391,11 +1345,11 @@ public partial class TestDbContext : DbContext
         {
             private static readonly MethodInfo _setProviderOptionMethodInfo
                 = typeof(TestCodeGeneratorPlugin).GetRuntimeMethod(
-                    nameof(SetProviderOption), [typeof(SqlServerDbContextOptionsBuilder)]);
+                    nameof(SetProviderOption), [typeof(SqlServerDbContextOptionsBuilder)])!;
 
             private static readonly MethodInfo _setContextOptionMethodInfo
                 = typeof(TestCodeGeneratorPlugin).GetRuntimeMethod(
-                    nameof(SetContextOption), [typeof(DbContextOptionsBuilder)]);
+                    nameof(SetContextOption), [typeof(DbContextOptionsBuilder)])!;
 
             public override MethodCallCodeFragment GenerateProviderOptions()
                 => new(_setProviderOptionMethodInfo);

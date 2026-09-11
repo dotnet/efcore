@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Utilities;
 
 internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
@@ -31,7 +29,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         {
             if (successorSet.TryGetValue(to, out var edges))
             {
-                return edges is IEnumerable<Edge> edgeList ? edgeList.Select(e => e.Payload) : ( [((Edge)edges!).Payload]);
+                return edges is IEnumerable<Edge> edgeList ? edgeList.Select(e => e.Payload) : [((Edge)edges!).Payload];
             }
         }
 
@@ -329,7 +327,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
             if (withBatching
                 && _predecessorMap[vertex].Any(kv =>
                     (kv.Value is Edge { RequiresBatchingBoundary: true }
-                        || kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary))
+                        || (kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary)))
                     && currentBatchSet.Contains(kv.Key)))
             {
                 batchBoundaryRequired = true;

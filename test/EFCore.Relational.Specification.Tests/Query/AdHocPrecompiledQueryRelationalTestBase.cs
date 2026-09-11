@@ -14,10 +14,10 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         : base(fixture)
         => TestOutputHelper = testOutputHelper;
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Index_no_evaluatability()
     {
-        var contextFactory = await InitializeAsync<JsonContext>();
+        var contextFactory = await InitializeNonSharedTest<JsonContext>();
         var options = contextFactory.GetOptions();
 
         await Test(
@@ -31,10 +31,10 @@ var blogs = context.JsonEntities.Where(b => b.IntList[b.Id] == 2).ToList();
             options);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Index_with_captured_variable()
     {
-        var contextFactory = await InitializeAsync<JsonContext>();
+        var contextFactory = await InitializeNonSharedTest<JsonContext>();
         var options = contextFactory.GetOptions();
 
         await Test(
@@ -49,10 +49,10 @@ var blogs = context.JsonEntities.Where(b => b.IntList[id] == 2).ToList();
             options);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task JsonScalar()
     {
-        var contextFactory = await InitializeAsync<JsonContext>();
+        var contextFactory = await InitializeNonSharedTest<JsonContext>();
         var options = contextFactory.GetOptions();
 
         await Test(
@@ -86,10 +86,10 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
         public string StringProperty { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Materialize_non_public()
     {
-        var contextFactory = await InitializeAsync<NonPublicContext>();
+        var contextFactory = await InitializeNonSharedTest<NonPublicContext>();
         var options = contextFactory.GetOptions();
 
         await Test(
@@ -190,7 +190,7 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
 #pragma warning restore CS0649
 #pragma warning restore CS0169
 
-//     [ConditionalFact]
+//     [Fact]
 //     public virtual Task JsonScalar()
 //         => Test(
 //             // TODO: Remove Select() to Id after JSON is supported in materialization
@@ -221,10 +221,10 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
 // }
 // """);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_property_requiring_converter_with_closure_is_not_supported()
     {
-        var contextFactory = await InitializeAsync<PrecompiledContext34760>();
+        var contextFactory = await InitializeNonSharedTest<PrecompiledContext34760>();
         var options = contextFactory.GetOptions();
 
         await Test(
@@ -240,10 +240,10 @@ var publishDates = await context.Books.Select(x => x.PublishDate).ToListAsync();
                     errors.Single().Exception.Message));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_expression_requiring_converter_without_closure_works()
     {
-        var contextFactory = await InitializeAsync<PrecompiledContext34760>();
+        var contextFactory = await InitializeNonSharedTest<PrecompiledContext34760>();
         var options = contextFactory.GetOptions();
 
         await Test(
@@ -255,10 +255,10 @@ var audiobookDates = await context.Books.Select(x => x.AudiobookDate).ToListAsyn
             options);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_entity_with_property_requiring_converter_with_closure_works()
     {
-        var contextFactory = await InitializeAsync<PrecompiledContext34760>();
+        var contextFactory = await InitializeNonSharedTest<PrecompiledContext34760>();
         var options = contextFactory.GetOptions();
 
         await Test(
@@ -339,6 +339,86 @@ var books = await context.Books.ToListAsync();
         }
     }
 
+    #region Invalid runtime constant name
+
+    [Fact]
+    public virtual async Task Invalid_identifier_json_property_name()
+    {
+        var contextFactory = await InitializeNonSharedTest<InvalidNameContext>();
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.InvalidNameContext(dbContextOptions);
+var books = await context.Entities.ToListAsync();
+""",
+            typeof(InvalidNameContext),
+            options,
+            interceptorCodeAsserter: (code) =>
+            {
+                Assert.Contains("_1_NOT_VALID_Bytes = ", code);
+                Assert.Contains("_1_NOT_VALID_Bytes0 = ", code);
+            });
+    }
+
+    public class InvalidNameContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<InvalidNameEntity> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<InvalidNameEntity>().ComplexProperty(x => x.Nested, b =>
+            {
+                b.ToJson();
+                b.Property(x => x.Name).HasJsonPropertyName("1!NOT VALID;");
+                b.Property(x => x.Name2).HasJsonPropertyName("1-NOT VALID!");
+            });
+    }
+
+    public class InvalidNameEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public InvalidNameNestedEntity Nested { get; set; } = new();
+    }
+
+    public class InvalidNameNestedEntity
+    {
+        public string Name { get; set; } = "";
+        public string Name2 { get; set; } = "";
+    }
+
+    [Fact]
+    public virtual async Task Invalid_identifier_shadow_property_name()
+    {
+        var contextFactory = await InitializeNonSharedTest<InvalidShadowNameContext>(
+            onConfiguring: o => o.ConfigureWarnings(w => w.Ignore(CoreEventId.ShadowPropertyNameNotValidIdentifierWarning)));
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.InvalidShadowNameContext(dbContextOptions);
+var entities = await context.Entities.ToListAsync();
+""",
+            typeof(InvalidShadowNameContext),
+            options);
+    }
+
+    public class InvalidShadowNameContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<InvalidShadowNameEntity> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<InvalidShadowNameEntity>()
+                .Property<string>("NOT VALID !!!1").HasConversion<int>(x => 0, x => "");
+    }
+
+    public class InvalidShadowNameEntity
+    {
+        public Guid Id { get; set; }
+    }
+
+    #endregion
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
@@ -369,6 +449,6 @@ var books = await context.Books.ToListAsync();
         => base.AddServices(serviceCollection)
             .AddScoped<IQueryCompiler, NonCompilingQueryCompiler>();
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocPrecompiledQueryTest";
 }

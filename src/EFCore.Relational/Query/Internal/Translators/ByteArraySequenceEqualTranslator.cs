@@ -36,14 +36,9 @@ public class ByteArraySequenceEqualTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.IsGenericMethod
+        => method.IsGenericMethod
             && method.GetGenericMethodDefinition().Equals(EnumerableMethods.SequenceEqual)
-            && arguments[0].Type == typeof(byte[]))
-        {
-            return _sqlExpressionFactory.Equal(arguments[0], arguments[1]);
-        }
-
-        return null;
-    }
+            && arguments[0].Type == typeof(byte[])
+                ? _sqlExpressionFactory.Equal(arguments[0], arguments[1])
+                : null;
 }

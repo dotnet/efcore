@@ -28,7 +28,9 @@ public interface IConventionElementType : IReadOnlyElementType, IConventionAnnot
     ///     Returns the configuration source for this element.
     /// </summary>
     /// <returns>The configuration source.</returns>
-    ConfigurationSource GetConfigurationSource();
+    [Obsolete("The element type is now a creation-time concern; its configuration source is always that of its collection property. Use CollectionProperty.GetConfigurationSource() instead.")]
+    ConfigurationSource GetConfigurationSource()
+        => CollectionProperty.GetConfigurationSource();
 
     /// <summary>
     ///     Gets the builder that can be used to configure this element.
@@ -40,7 +42,7 @@ public interface IConventionElementType : IReadOnlyElementType, IConventionAnnot
     ///     Sets a value indicating whether elements in the collection can be <see langword="null" />.
     /// </summary>
     /// <param name="nullable">
-    ///     A value indicating whether whether elements in the collection can be <see langword="null" />, or <see langword="null" /> to
+    ///     A value indicating whether elements in the collection can be <see langword="null" />, or <see langword="null" /> to
     ///     reset to the default.
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>

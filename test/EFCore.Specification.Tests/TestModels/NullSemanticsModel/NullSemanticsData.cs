@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
 public class NullSemanticsData : ISetSource
@@ -24,19 +27,11 @@ public class NullSemanticsData : ISetSource
 
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
-    {
-        if (typeof(TEntity) == typeof(NullSemanticsEntity1))
-        {
-            return (IQueryable<TEntity>)Entities1.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(NullSemanticsEntity2))
-        {
-            return (IQueryable<TEntity>)Entities2.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
-    }
+        => typeof(TEntity) == typeof(NullSemanticsEntity1)
+            ? (IQueryable<TEntity>)Entities1.AsQueryable()
+            : typeof(TEntity) == typeof(NullSemanticsEntity2)
+                ? (IQueryable<TEntity>)Entities2.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
 
     private static IReadOnlyList<TEntity> CreateNullSemanticsEntityBases<TEntity>()
         where TEntity : NullSemanticsEntityBase, new()

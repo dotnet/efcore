@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public class IndexWithPropertyEventData : EventData
 {
     /// <summary>
-    ///     Constructs the event payload for indexes with a invalid property.
+    ///     Constructs the event payload for indexes with an invalid property.
     /// </summary>
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>

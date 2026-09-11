@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -8,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ServiceProviderCacheTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Returns_same_provider_for_same_type_of_configured_extensions()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -27,7 +28,7 @@ public class ServiceProviderCacheTest
             loggerFactory.Log[0].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_different_provider_for_different_type_of_configured_extensions()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -57,7 +58,7 @@ public class ServiceProviderCacheTest
             loggerFactory.Log[1].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_different_provider_for_extensions_configured_in_different_order()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -90,19 +91,19 @@ public class ServiceProviderCacheTest
         Assert.Equal(new[] { nameof(FakeDbContextOptionsExtension2), nameof(FakeDbContextOptionsExtension1) }, config2Log);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_same_provider_for_same_type_of_configured_extensions_and_replaced_service_types()
     {
         var loggerFactory = new ListLoggerFactory();
 
         var config1 = CreateOptions<CoreOptionsExtension>(loggerFactory);
         config1 = config1.WithExtension(
-            config1.FindExtension<CoreOptionsExtension>()
+            config1.FindExtension<CoreOptionsExtension>()!
                 .WithReplacedService(typeof(object), typeof(Random)));
 
         var config2 = CreateOptions<CoreOptionsExtension>(loggerFactory);
         config2 = config2.WithExtension(
-            config2.FindExtension<CoreOptionsExtension>()
+            config2.FindExtension<CoreOptionsExtension>()!
                 .WithReplacedService(typeof(object), typeof(Random)));
 
         var cache = new ServiceProviderCache();
@@ -116,19 +117,19 @@ public class ServiceProviderCacheTest
             loggerFactory.Log[0].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_different_provider_for_different_replaced_service_types()
     {
         var loggerFactory = new ListLoggerFactory();
 
         var config1 = CreateOptions<CoreOptionsExtension>(loggerFactory);
         config1 = config1.WithExtension(
-            config1.FindExtension<CoreOptionsExtension>()
+            config1.FindExtension<CoreOptionsExtension>()!
                 .WithReplacedService(typeof(object), typeof(Random)));
 
         var config2 = CreateOptions<CoreOptionsExtension>(loggerFactory);
         config2 = config2.WithExtension(
-            config2.FindExtension<CoreOptionsExtension>()
+            config2.FindExtension<CoreOptionsExtension>()!
                 .WithReplacedService(typeof(object), typeof(string)));
 
         var cache = new ServiceProviderCache();
@@ -150,7 +151,7 @@ public class ServiceProviderCacheTest
             loggerFactory.Log[1].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Different_ILoggerFactory_instances_does_not_trigger_new_internal_provider()
     {
         var config1 = CreateOptions<CoreOptionsExtension>(new ListLoggerFactory());
@@ -167,7 +168,7 @@ public class ServiceProviderCacheTest
         Assert.Same(first, second);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Reports_debug_info_for_most_similar_existing_service_provider()
     {
         // Do this a bunch of times since in the past this exposed issues with cache collisions
@@ -250,10 +251,10 @@ public class ServiceProviderCacheTest
 
     private class FakeDbContextOptionsExtension1(List<string> log) : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private readonly List<string> _log = log;
 
-        public string Something { get; set; }
+        public string Something { get; set; } = null!;
 
         public DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);
@@ -291,7 +292,7 @@ public class ServiceProviderCacheTest
 
     private class FakeDbContextOptionsExtension2(List<string> log) : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private readonly List<string> _log = log;
 
         public DbContextOptionsExtensionInfo Info
@@ -326,5 +327,25 @@ public class ServiceProviderCacheTest
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["Fake2"] = "1";
         }
+    }
+
+    [Fact]
+    public void Service_provider_cache_can_be_cleared()
+    {
+        var cache = new ServiceProviderCache();
+        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("TestDB").Options;
+
+        var provider1 = cache.GetOrAdd(options, providerRequired: false);
+        cache.Clear();
+
+        var field = typeof(ServiceProviderCache).GetField("_configurations", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var dict = (IDictionary)field.GetValue(cache)!;
+
+        Assert.Equal(0, dict.Count);
+
+        var provider2 = cache.GetOrAdd(options, providerRequired: false);
+
+        Assert.NotNull(provider2);
+        Assert.NotSame(provider1, provider2);
     }
 }

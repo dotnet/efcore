@@ -5,8 +5,6 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
-#nullable disable
-
 public class ManyToManyData : ISetSource
 {
     private readonly bool _useGeneratedKeys;
@@ -76,17 +74,11 @@ public class ManyToManyData : ISetSource
             return (IQueryable<TEntity>)_roots.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(EntityBranch))
-        {
-            return (IQueryable<TEntity>)_roots.OfType<EntityBranch>().AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(EntityLeaf))
-        {
-            return (IQueryable<TEntity>)_roots.OfType<EntityLeaf>().AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(EntityBranch)
+            ? (IQueryable<TEntity>)_roots.OfType<EntityBranch>().AsQueryable()
+            : typeof(TEntity) == typeof(EntityLeaf)
+                ? (IQueryable<TEntity>)_roots.OfType<EntityLeaf>().AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     private EntityOne[] CreateOnes(ManyToManyContext context)
@@ -163,8 +155,8 @@ public class ManyToManyData : ISetSource
         ManyToManyContext context,
         int id,
         string name,
-        EntityOne referenceInverse,
-        EntityOne collectionInverse)
+        EntityOne? referenceInverse,
+        EntityOne? collectionInverse)
         => CreateInstance(
             context?.EntityTwos, (e, p) =>
             {
@@ -211,8 +203,8 @@ public class ManyToManyData : ISetSource
         ManyToManyContext context,
         int id,
         string name,
-        EntityTwo referenceInverse,
-        EntityTwo collectionInverse)
+        EntityTwo? referenceInverse,
+        EntityTwo? collectionInverse)
         => CreateInstance(
             context?.EntityThrees, (e, p) =>
             {
@@ -1259,7 +1251,7 @@ public class ManyToManyData : ISetSource
                 e["CompositeKeySkipSharedKey3"] = composite.Key3;
             });
 
-    private static TEntity CreateInstance<TEntity>(DbSet<TEntity> set, Action<TEntity, bool> configureEntity)
+    private static TEntity CreateInstance<TEntity>(DbSet<TEntity>? set, Action<TEntity, bool> configureEntity)
         where TEntity : class, new()
     {
         if (set != null)

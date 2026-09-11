@@ -121,10 +121,12 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PropertyBuilder Property(string propertyName)
-        => new(
-            Builder.Property(
-                Check.NotEmpty(propertyName),
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new PropertyBuilder(innerBuilder.Property(leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -141,10 +143,12 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PropertyBuilder<TProperty> Property<TProperty>(string propertyName)
-        => new(
-            Builder.Property(
-                typeof(TProperty),
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new PropertyBuilder<TProperty>(innerBuilder.Property(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -161,10 +165,13 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PropertyBuilder Property(Type propertyType, string propertyName)
-        => new(
-            Builder.Property(
-                Check.NotNull(propertyType),
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyType);
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new PropertyBuilder(innerBuilder.Property(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -179,9 +186,12 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PrimitiveCollectionBuilder PrimitiveCollection(string propertyName)
-        => new(
-            Builder.PrimitiveCollection(
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new PrimitiveCollectionBuilder(innerBuilder.PrimitiveCollection(leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -199,10 +209,13 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
-        => new(
-            Builder.PrimitiveCollection(
-                typeof(TProperty),
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new PrimitiveCollectionBuilder<TProperty>(
+            innerBuilder.PrimitiveCollection(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -220,10 +233,14 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PrimitiveCollectionBuilder PrimitiveCollection(Type propertyType, string propertyName)
-        => new(
-            Builder.PrimitiveCollection(
-                Check.NotNull(propertyType),
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyType);
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new PrimitiveCollectionBuilder(
+            innerBuilder.PrimitiveCollection(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -280,13 +297,14 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder ComplexProperty(string propertyName)
-        => new(
-            Builder.ComplexProperty(
-                propertyType: null,
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: false,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new ComplexPropertyBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType: null, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the entity type.
@@ -304,13 +322,14 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
         where TProperty : notnull
-        => new(
-            Builder.ComplexProperty(
-                typeof(TProperty),
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: false,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                typeof(TProperty), leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the entity type.
@@ -354,13 +373,15 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder ComplexProperty(Type propertyType, string propertyName)
-        => new(
-            Builder.ComplexProperty(
-                Check.NotNull(propertyType),
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: false,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyType);
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new ComplexPropertyBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the entity type.
@@ -531,13 +552,14 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexCollectionBuilder ComplexCollection(string propertyName)
-        => new(
-            Builder.ComplexProperty(
-                propertyType: null,
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType: null, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection of the entity type.
@@ -557,13 +579,14 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
-        => new(
-            Builder.ComplexProperty(
-                typeof(TProperty),
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                typeof(TProperty), leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection of the entity type.
@@ -607,13 +630,15 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexCollectionBuilder ComplexCollection(Type propertyType, string propertyName)
-        => new(
-            Builder.ComplexProperty(
-                Check.NotNull(propertyType),
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyType);
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection of the entity type.
@@ -795,7 +820,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     {
         Check.NotEmpty(propertyName);
 
-        Builder.Ignore(propertyName, ConfigurationSource.Explicit);
+        var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
+        innerBuilder.Ignore(leafName, ConfigurationSource.Explicit);
 
         return this;
     }
@@ -1428,20 +1454,13 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
                     !.Metadata;
         }
 
-        ForeignKey foreignKey;
-        if (navigationId.MemberInfo != null)
-        {
-            foreignKey = Builder.HasRelationship(
+        var foreignKey = navigationId.MemberInfo != null
+            ? Builder.HasRelationship(
                 relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
-                targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : null)!.Metadata;
-        }
-        else
-        {
-            foreignKey = Builder.HasRelationship(
+                targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : null)!.Metadata
+            : Builder.HasRelationship(
                 relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
                 targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : null)!.Metadata;
-        }
-
         return foreignKey;
     }
 
@@ -1497,17 +1516,14 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
         var elementType = memberType.TryGetElementType(typeof(IEnumerable<>));
 
-        if (elementType == null)
-        {
-            throw new InvalidOperationException(
+        return elementType == null
+            ? throw new InvalidOperationException(
                 CoreStrings.NavigationCollectionWrongClrType(
                     navigationName,
                     Metadata.DisplayName(),
                     memberType.ShortDisplayName(),
-                    "T"));
-        }
-
-        return HasMany(elementType, navigationName);
+                    "T"))
+            : HasMany(elementType, navigationName);
     }
 
     /// <summary>

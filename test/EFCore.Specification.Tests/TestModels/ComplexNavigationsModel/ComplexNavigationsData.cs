@@ -127,35 +127,34 @@ public abstract class ComplexNavigationsData : ISetSource
         if (!tableSplitting)
         {
             result.AddRange(
-                new List<Level1>
+            [
+                new()
                 {
-                    new()
-                    {
-                        Id = 11,
-                        Name = "L1 11",
-                        Date = new DateTime(2009, 11, 11)
-                    },
-                    new()
-                    {
-                        Id = 12,
-                        Name = "L1 12",
-                        Date = new DateTime(2008, 12, 12)
-                    },
-                    new()
-                    {
-                        Id = 13,
-                        Name = "L1 13",
-                        Date = new DateTime(2007, 1, 1)
-                    }
-                });
+                    Id = 11,
+                    Name = "L1 11",
+                    Date = new DateTime(2009, 11, 11)
+                },
+                new()
+                {
+                    Id = 12,
+                    Name = "L1 12",
+                    Date = new DateTime(2008, 12, 12)
+                },
+                new()
+                {
+                    Id = 13,
+                    Name = "L1 13",
+                    Date = new DateTime(2007, 1, 1)
+                }
+            ]);
         }
 
         foreach (var l1 in result)
         {
-            l1.OneToMany_Optional1 = new List<Level2>();
-            l1.OneToMany_Optional_Self1 = new List<Level1>();
-            l1.OneToMany_Required1 = new List<Level2>();
-            l1.OneToMany_Required_Self1 = new List<Level1>();
+            l1.OneToMany_Optional1 = [];
+            l1.OneToMany_Optional_Self1 = [];
+            l1.OneToMany_Required1 = [];
+            l1.OneToMany_Required_Self1 = [];
         }
 
         return result;
@@ -230,23 +229,22 @@ public abstract class ComplexNavigationsData : ISetSource
         if (!tableSplitting)
         {
             result.AddRange(
-                new List<Level2>
+            [
+                new()
                 {
-                    new()
-                    {
-                        Id = 11,
-                        Name = "L2 11",
-                        Date = new DateTime(2000, 1, 1)
-                    }
-                });
+                    Id = 11,
+                    Name = "L2 11",
+                    Date = new DateTime(2000, 1, 1)
+                }
+            ]);
         }
 
         foreach (var l2 in result)
         {
-            l2.OneToMany_Optional2 = new List<Level3>();
-            l2.OneToMany_Optional_Self2 = new List<Level2>();
-            l2.OneToMany_Required2 = new List<Level3>();
-            l2.OneToMany_Required_Self2 = new List<Level2>();
+            l2.OneToMany_Optional2 = [];
+            l2.OneToMany_Optional_Self2 = [];
+            l2.OneToMany_Required2 = [];
+            l2.OneToMany_Required_Self2 = [];
         }
 
         return result;
@@ -270,10 +268,10 @@ public abstract class ComplexNavigationsData : ISetSource
 
         foreach (var l3 in result)
         {
-            l3.OneToMany_Optional3 = new List<Level4>();
-            l3.OneToMany_Optional_Self3 = new List<Level3>();
-            l3.OneToMany_Required3 = new List<Level4>();
-            l3.OneToMany_Required_Self3 = new List<Level3>();
+            l3.OneToMany_Optional3 = [];
+            l3.OneToMany_Optional_Self3 = [];
+            l3.OneToMany_Required3 = [];
+            l3.OneToMany_Required_Self3 = [];
         }
 
         return result;
@@ -297,8 +295,8 @@ public abstract class ComplexNavigationsData : ISetSource
 
         foreach (var l4 in result)
         {
-            l4.OneToMany_Optional_Self4 = new List<Level4>();
-            l4.OneToMany_Required_Self4 = new List<Level4>();
+            l4.OneToMany_Optional_Self4 = [];
+            l4.OneToMany_Required_Self4 = [];
         }
 
         return result;
@@ -423,8 +421,8 @@ public abstract class ComplexNavigationsData : ISetSource
             l1s[10].OneToOne_Required_FK1 = l2s[10];
         }
 
-        l1s[0].OneToMany_Required1 = new List<Level2>
-        {
+        l1s[0].OneToMany_Required1 =
+        [
             l2s[0],
             l2s[1],
             l2s[2],
@@ -435,38 +433,38 @@ public abstract class ComplexNavigationsData : ISetSource
             l2s[7],
             l2s[8],
             l2s[9]
-        };
+        ];
 
         if (!tableSplitting)
         {
             l1s[0].OneToMany_Required1.Add(l2s[10]);
         }
 
-        l1s[0].OneToMany_Required_Self1 = new List<Level1> { l1s[0], l1s[1] };
+        l1s[0].OneToMany_Required_Self1 = [l1s[0], l1s[1]];
         if (!tableSplitting)
         {
             l1s[0].OneToMany_Required_Self1.Add(l1s[11]);
         }
 
-        l1s[1].OneToMany_Required_Self1 = new List<Level1> { l1s[2] };
+        l1s[1].OneToMany_Required_Self1 = [l1s[2]];
         if (!tableSplitting)
         {
             l1s[1].OneToMany_Required_Self1.Add(l1s[12]);
         }
 
-        l1s[2].OneToMany_Required_Self1 = new List<Level1> { l1s[3] };
-        l1s[3].OneToMany_Required_Self1 = new List<Level1> { l1s[4] };
-        l1s[4].OneToMany_Required_Self1 = new List<Level1> { l1s[5] };
-        l1s[5].OneToMany_Required_Self1 = new List<Level1> { l1s[6] };
-        l1s[6].OneToMany_Required_Self1 = new List<Level1> { l1s[7] };
-        l1s[7].OneToMany_Required_Self1 = new List<Level1> { l1s[8] };
-        l1s[8].OneToMany_Required_Self1 = new List<Level1> { l1s[9] };
-        l1s[9].OneToMany_Required_Self1 = new List<Level1>();
+        l1s[2].OneToMany_Required_Self1 = [l1s[3]];
+        l1s[3].OneToMany_Required_Self1 = [l1s[4]];
+        l1s[4].OneToMany_Required_Self1 = [l1s[5]];
+        l1s[5].OneToMany_Required_Self1 = [l1s[6]];
+        l1s[6].OneToMany_Required_Self1 = [l1s[7]];
+        l1s[7].OneToMany_Required_Self1 = [l1s[8]];
+        l1s[8].OneToMany_Required_Self1 = [l1s[9]];
+        l1s[9].OneToMany_Required_Self1 = [];
         if (!tableSplitting)
         {
-            l1s[10].OneToMany_Required_Self1 = new List<Level1> { l1s[10] };
-            l1s[11].OneToMany_Required_Self1 = new List<Level1>();
-            l1s[12].OneToMany_Required_Self1 = new List<Level1>();
+            l1s[10].OneToMany_Required_Self1 = [l1s[10]];
+            l1s[11].OneToMany_Required_Self1 = [];
+            l1s[12].OneToMany_Required_Self1 = [];
         }
 
         l2s[0].OneToOne_Required_PK2 = l3s[0];
@@ -507,8 +505,8 @@ public abstract class ComplexNavigationsData : ISetSource
             l2s[9].OneToOne_Required_FK2 = l3s[0];
         }
 
-        l2s[0].OneToMany_Required2 = new List<Level3>
-        {
+        l2s[0].OneToMany_Required2 =
+        [
             l3s[0],
             l3s[1],
             l3s[2],
@@ -519,26 +517,26 @@ public abstract class ComplexNavigationsData : ISetSource
             l3s[7],
             l3s[8],
             l3s[9]
-        };
+        ];
 
-        l2s[0].OneToMany_Required_Self2 = new List<Level2> { l2s[0], l2s[1] };
+        l2s[0].OneToMany_Required_Self2 = [l2s[0], l2s[1]];
         if (!tableSplitting)
         {
             l2s[0].OneToMany_Required_Self2.Add(l2s[10]);
         }
 
-        l2s[1].OneToMany_Required_Self2 = new List<Level2> { l2s[2] };
-        l2s[2].OneToMany_Required_Self2 = new List<Level2> { l2s[3] };
-        l2s[3].OneToMany_Required_Self2 = new List<Level2> { l2s[4] };
-        l2s[4].OneToMany_Required_Self2 = new List<Level2> { l2s[5] };
-        l2s[5].OneToMany_Required_Self2 = new List<Level2> { l2s[6] };
-        l2s[6].OneToMany_Required_Self2 = new List<Level2> { l2s[7] };
-        l2s[7].OneToMany_Required_Self2 = new List<Level2> { l2s[8] };
-        l2s[8].OneToMany_Required_Self2 = new List<Level2> { l2s[9] };
-        l2s[9].OneToMany_Required_Self2 = new List<Level2>();
+        l2s[1].OneToMany_Required_Self2 = [l2s[2]];
+        l2s[2].OneToMany_Required_Self2 = [l2s[3]];
+        l2s[3].OneToMany_Required_Self2 = [l2s[4]];
+        l2s[4].OneToMany_Required_Self2 = [l2s[5]];
+        l2s[5].OneToMany_Required_Self2 = [l2s[6]];
+        l2s[6].OneToMany_Required_Self2 = [l2s[7]];
+        l2s[7].OneToMany_Required_Self2 = [l2s[8]];
+        l2s[8].OneToMany_Required_Self2 = [l2s[9]];
+        l2s[9].OneToMany_Required_Self2 = [];
         if (!tableSplitting)
         {
-            l2s[10].OneToMany_Required_Self2 = new List<Level2>();
+            l2s[10].OneToMany_Required_Self2 = [];
         }
 
         l3s[0].OneToOne_Required_PK3 = l4s[0];
@@ -579,8 +577,8 @@ public abstract class ComplexNavigationsData : ISetSource
             l3s[9].OneToOne_Required_FK3 = l4s[0];
         }
 
-        l3s[0].OneToMany_Required3 = new List<Level4>
-        {
+        l3s[0].OneToMany_Required3 =
+        [
             l4s[0],
             l4s[1],
             l4s[2],
@@ -591,29 +589,29 @@ public abstract class ComplexNavigationsData : ISetSource
             l4s[7],
             l4s[8],
             l4s[9]
-        };
+        ];
 
-        l3s[0].OneToMany_Required_Self3 = new List<Level3> { l3s[0], l3s[1] };
-        l3s[1].OneToMany_Required_Self3 = new List<Level3> { l3s[2] };
-        l3s[2].OneToMany_Required_Self3 = new List<Level3> { l3s[3] };
-        l3s[3].OneToMany_Required_Self3 = new List<Level3> { l3s[4] };
-        l3s[4].OneToMany_Required_Self3 = new List<Level3> { l3s[5] };
-        l3s[5].OneToMany_Required_Self3 = new List<Level3> { l3s[6] };
-        l3s[6].OneToMany_Required_Self3 = new List<Level3> { l3s[7] };
-        l3s[7].OneToMany_Required_Self3 = new List<Level3> { l3s[8] };
-        l3s[8].OneToMany_Required_Self3 = new List<Level3> { l3s[9] };
-        l3s[9].OneToMany_Required_Self3 = new List<Level3>();
+        l3s[0].OneToMany_Required_Self3 = [l3s[0], l3s[1]];
+        l3s[1].OneToMany_Required_Self3 = [l3s[2]];
+        l3s[2].OneToMany_Required_Self3 = [l3s[3]];
+        l3s[3].OneToMany_Required_Self3 = [l3s[4]];
+        l3s[4].OneToMany_Required_Self3 = [l3s[5]];
+        l3s[5].OneToMany_Required_Self3 = [l3s[6]];
+        l3s[6].OneToMany_Required_Self3 = [l3s[7]];
+        l3s[7].OneToMany_Required_Self3 = [l3s[8]];
+        l3s[8].OneToMany_Required_Self3 = [l3s[9]];
+        l3s[9].OneToMany_Required_Self3 = [];
 
-        l4s[0].OneToMany_Required_Self4 = new List<Level4> { l4s[0], l4s[1] };
-        l4s[1].OneToMany_Required_Self4 = new List<Level4> { l4s[2] };
-        l4s[2].OneToMany_Required_Self4 = new List<Level4> { l4s[3] };
-        l4s[3].OneToMany_Required_Self4 = new List<Level4> { l4s[4] };
-        l4s[4].OneToMany_Required_Self4 = new List<Level4> { l4s[5] };
-        l4s[5].OneToMany_Required_Self4 = new List<Level4> { l4s[6] };
-        l4s[6].OneToMany_Required_Self4 = new List<Level4> { l4s[7] };
-        l4s[7].OneToMany_Required_Self4 = new List<Level4> { l4s[8] };
-        l4s[8].OneToMany_Required_Self4 = new List<Level4> { l4s[9] };
-        l4s[9].OneToMany_Required_Self4 = new List<Level4>();
+        l4s[0].OneToMany_Required_Self4 = [l4s[0], l4s[1]];
+        l4s[1].OneToMany_Required_Self4 = [l4s[2]];
+        l4s[2].OneToMany_Required_Self4 = [l4s[3]];
+        l4s[3].OneToMany_Required_Self4 = [l4s[4]];
+        l4s[4].OneToMany_Required_Self4 = [l4s[5]];
+        l4s[5].OneToMany_Required_Self4 = [l4s[6]];
+        l4s[6].OneToMany_Required_Self4 = [l4s[7]];
+        l4s[7].OneToMany_Required_Self4 = [l4s[8]];
+        l4s[8].OneToMany_Required_Self4 = [l4s[9]];
+        l4s[9].OneToMany_Required_Self4 = [];
     }
 
     private static void WireUpInversePart1(
@@ -921,20 +919,20 @@ public abstract class ComplexNavigationsData : ISetSource
         l1s[7].OneToOne_Optional_FK1 = l2s[2];
         l1s[9].OneToOne_Optional_FK1 = l2s[0];
 
-        l1s[0].OneToMany_Optional1 = new List<Level2>
-        {
+        l1s[0].OneToMany_Optional1 =
+        [
             l2s[1],
             l2s[3],
             l2s[5],
             l2s[7],
             l2s[9]
-        };
+        ];
 
-        l1s[1].OneToMany_Optional_Self1 = new List<Level1> { l1s[0] };
-        l1s[3].OneToMany_Optional_Self1 = new List<Level1> { l1s[2] };
-        l1s[5].OneToMany_Optional_Self1 = new List<Level1> { l1s[4] };
-        l1s[7].OneToMany_Optional_Self1 = new List<Level1> { l1s[6] };
-        l1s[9].OneToMany_Optional_Self1 = new List<Level1> { l1s[8] };
+        l1s[1].OneToMany_Optional_Self1 = [l1s[0]];
+        l1s[3].OneToMany_Optional_Self1 = [l1s[2]];
+        l1s[5].OneToMany_Optional_Self1 = [l1s[4]];
+        l1s[7].OneToMany_Optional_Self1 = [l1s[6]];
+        l1s[9].OneToMany_Optional_Self1 = [l1s[8]];
 
         l1s[0].OneToOne_Optional_Self1 = l1s[9];
         l1s[1].OneToOne_Optional_Self1 = l1s[8];
@@ -954,19 +952,19 @@ public abstract class ComplexNavigationsData : ISetSource
         l2s[6].OneToOne_Optional_FK2 = l3s[2];
         l2s[8].OneToOne_Optional_FK2 = l3s[0];
 
-        l2s[0].OneToMany_Optional2 = new List<Level3>
-        {
+        l2s[0].OneToMany_Optional2 =
+        [
             l3s[1],
             l3s[5],
             l3s[9]
-        };
-        l2s[1].OneToMany_Optional2 = new List<Level3> { l3s[3], l3s[7] };
+        ];
+        l2s[1].OneToMany_Optional2 = [l3s[3], l3s[7]];
 
-        l2s[1].OneToMany_Optional_Self2 = new List<Level2> { l2s[0] };
-        l2s[3].OneToMany_Optional_Self2 = new List<Level2> { l2s[2] };
-        l2s[5].OneToMany_Optional_Self2 = new List<Level2> { l2s[4] };
-        l2s[7].OneToMany_Optional_Self2 = new List<Level2> { l2s[6] };
-        l2s[9].OneToMany_Optional_Self2 = new List<Level2> { l2s[8] };
+        l2s[1].OneToMany_Optional_Self2 = [l2s[0]];
+        l2s[3].OneToMany_Optional_Self2 = [l2s[2]];
+        l2s[5].OneToMany_Optional_Self2 = [l2s[4]];
+        l2s[7].OneToMany_Optional_Self2 = [l2s[6]];
+        l2s[9].OneToMany_Optional_Self2 = [l2s[8]];
 
         l2s[0].OneToOne_Optional_Self2 = l2s[9];
         l2s[1].OneToOne_Optional_Self2 = l2s[8];
@@ -986,20 +984,20 @@ public abstract class ComplexNavigationsData : ISetSource
         l3s[7].OneToOne_Optional_FK3 = l4s[2];
         l3s[9].OneToOne_Optional_FK3 = l4s[0];
 
-        l3s[0].OneToMany_Optional3 = new List<Level4>
-        {
+        l3s[0].OneToMany_Optional3 =
+        [
             l4s[1],
             l4s[3],
             l4s[5],
             l4s[7],
             l4s[9]
-        };
+        ];
 
-        l3s[1].OneToMany_Optional_Self3 = new List<Level3> { l3s[0] };
-        l3s[3].OneToMany_Optional_Self3 = new List<Level3> { l3s[2] };
-        l3s[5].OneToMany_Optional_Self3 = new List<Level3> { l3s[4] };
-        l3s[7].OneToMany_Optional_Self3 = new List<Level3> { l3s[6] };
-        l3s[9].OneToMany_Optional_Self3 = new List<Level3> { l3s[8] };
+        l3s[1].OneToMany_Optional_Self3 = [l3s[0]];
+        l3s[3].OneToMany_Optional_Self3 = [l3s[2]];
+        l3s[5].OneToMany_Optional_Self3 = [l3s[4]];
+        l3s[7].OneToMany_Optional_Self3 = [l3s[6]];
+        l3s[9].OneToMany_Optional_Self3 = [l3s[8]];
 
         l3s[0].OneToOne_Optional_Self3 = l3s[9];
         l3s[1].OneToOne_Optional_Self3 = l3s[8];
@@ -1007,11 +1005,11 @@ public abstract class ComplexNavigationsData : ISetSource
         l3s[3].OneToOne_Optional_Self3 = l3s[6];
         l3s[4].OneToOne_Optional_Self3 = l3s[5];
 
-        l4s[1].OneToMany_Optional_Self4 = new List<Level4> { l4s[0] };
-        l4s[3].OneToMany_Optional_Self4 = new List<Level4> { l4s[2] };
-        l4s[5].OneToMany_Optional_Self4 = new List<Level4> { l4s[4] };
-        l4s[7].OneToMany_Optional_Self4 = new List<Level4> { l4s[6] };
-        l4s[9].OneToMany_Optional_Self4 = new List<Level4> { l4s[8] };
+        l4s[1].OneToMany_Optional_Self4 = [l4s[0]];
+        l4s[3].OneToMany_Optional_Self4 = [l4s[2]];
+        l4s[5].OneToMany_Optional_Self4 = [l4s[4]];
+        l4s[7].OneToMany_Optional_Self4 = [l4s[6]];
+        l4s[9].OneToMany_Optional_Self4 = [l4s[8]];
     }
 
     private static void WireUpInversePart2(

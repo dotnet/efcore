@@ -13,47 +13,40 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
     private IServiceProvider? _serviceProvider;
 
     public IServiceProvider ServiceProvider
-        => _serviceProvider
+    {
+        get => _serviceProvider
             ?? throw new InvalidOperationException(
                 $"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(ServiceProvider)} property will be available.");
+        private set => _serviceProvider = value;
+    }
 
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
     protected virtual bool RecreateStore { get; } = false;
 
-    private TestStore? _testStore;
-
     public TestStore TestStore
-        => _testStore
+    {
+        get => field
             ?? throw new InvalidOperationException(
                 $"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(TestStore)} property will be available.");
+        private set;
+    }
 
     protected virtual bool UsePooling
         => true;
 
-    private object? _contextFactory;
-
     private object ContextFactory
-        => _contextFactory ??= ServiceProvider
+        => field ??= ServiceProvider
             .GetRequiredService(typeof(IDbContextFactory<>).MakeGenericType(ContextType));
 
-    private ListLoggerFactory? _listLoggerFactory;
-
     public ListLoggerFactory ListLoggerFactory
-        => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        => field ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
     private MethodInfo? _createDbContext;
 
-    public virtual async Task InitializeAsync()
+    public virtual async ValueTask InitializeAsync()
     {
-        if (RecreateStore)
-        {
-            _testStore = TestStoreFactory.Create(StoreName);
-        }
-        else
-        {
-            _testStore = TestStoreFactory.GetOrCreate(StoreName);
-        }
+        TestStore = RecreateStore ? TestStoreFactory.Create(StoreName) : TestStoreFactory.GetOrCreate(StoreName);
 
         var services = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()));
         services = UsePooling
@@ -73,7 +66,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
                         && mi.GetGenericArguments().Length == 0);
         }
 
-        _serviceProvider = services.BuildServiceProvider(validateScopes: true);
+        ServiceProvider = services.BuildServiceProvider(validateScopes: true);
 
         await TestStore.InitializeAsync(ServiceProvider, CreateContext, c => SeedAsync((TContext)c), CleanAsync);
 
@@ -120,6 +113,22 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
         return Task.CompletedTask;
     }
 
-    public virtual async Task DisposeAsync()
-        => await TestStore.DisposeAsync();
+    public virtual async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await TestStore.DisposeAsync();
+        }
+        finally
+        {
+            if (_serviceProvider is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync();
+            }
+            else if (_serviceProvider is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
+    }
 }

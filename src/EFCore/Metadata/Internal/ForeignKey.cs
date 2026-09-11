@@ -17,6 +17,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     private DeleteBehavior? _deleteBehavior;
     private bool? _isUnique;
     private bool _isRequired;
+    private bool _isConstrained;
     private bool? _isRequiredDependent;
     private bool? _isOwnership;
     private InternalForeignKeyBuilder? _builder;
@@ -26,6 +27,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     private ConfigurationSource? _principalKeyConfigurationSource;
     private ConfigurationSource? _isUniqueConfigurationSource;
     private ConfigurationSource? _isRequiredConfigurationSource;
+    private ConfigurationSource? _isConstrainedConfigurationSource;
     private ConfigurationSource? _isRequiredDependentConfigurationSource;
     private ConfigurationSource? _deleteBehaviorConfigurationSource;
     private ConfigurationSource? _principalEndConfigurationSource;
@@ -62,6 +64,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         PrincipalEntityType = principalEntityType;
         _configurationSource = configurationSource;
         _isRequired = DefaultIsRequired;
+        _isConstrained = DefaultIsConstrained;
 
         if (principalEntityType.FindKey(principalKey.Properties) != principalKey)
         {
@@ -542,24 +545,17 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         {
             Check.DebugAssert(oldNavigation.Name != null, "oldNavigation.Name is null");
 
-            string? removedNavigationName;
-            if (pointsToPrincipal)
-            {
-                removedNavigationName = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+            var removedNavigationName = pointsToPrincipal
+                ? DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
                     DeclaringEntityType.Builder,
                     PrincipalEntityType.Builder,
                     oldNavigation.Name,
-                    oldNavigation.GetIdentifyingMemberInfo());
-            }
-            else
-            {
-                removedNavigationName = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+                    oldNavigation.GetIdentifyingMemberInfo())
+                : DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
                     PrincipalEntityType.Builder,
                     DeclaringEntityType.Builder,
                     oldNavigation.Name,
                     oldNavigation.GetIdentifyingMemberInfo());
-            }
-
             if (navigation == null)
             {
                 DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyNullNavigationSet(Builder, pointsToPrincipal);
@@ -707,6 +703,53 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     /// </summary>
     public virtual void SetIsRequiredConfigurationSource(ConfigurationSource? configurationSource)
         => _isRequiredConfigurationSource = configurationSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsConstrained
+    {
+        get => _isConstrained;
+        set => SetIsConstrained(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool? SetIsConstrained(bool? constrained, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        var oldConstrained = IsConstrained;
+        _isConstrained = constrained ?? DefaultIsConstrained;
+
+        _isConstrainedConfigurationSource = constrained == null
+            ? null
+            : configurationSource.Max(_isConstrainedConfigurationSource);
+
+        return IsConstrained != oldConstrained
+            ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyConstrainednessChanged(Builder)
+            : oldConstrained;
+    }
+
+    private static bool DefaultIsConstrained
+        => true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public virtual ConfigurationSource? GetIsConstrainedConfigurationSource()
+        => _isConstrainedConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -951,6 +994,8 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
             if (field == null)
             {
                 EnsureReadOnly();
+                // The principal key value factory creates the dependent key value factory
+                _ = ((IKey)PrincipalKey).GetPrincipalKeyValueFactory();
             }
 
             return field!;
@@ -1089,38 +1134,30 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         Check.NotNull(principalEntityType);
         Check.NotNull(dependentEntityType);
 
-        if (navigationToPrincipal != null
-            && !Internal.Navigation.IsCompatible(
-                navigationToPrincipal.Name,
-                navigationToPrincipal,
-                dependentEntityType,
-                principalEntityType,
-                shouldBeCollection: false,
-                shouldThrow: shouldThrow))
-        {
-            return false;
-        }
-
-        if (navigationToDependent != null
-            && !Internal.Navigation.IsCompatible(
-                navigationToDependent.Name,
-                navigationToDependent,
-                principalEntityType,
-                dependentEntityType,
-                shouldBeCollection: !unique,
-                shouldThrow: shouldThrow))
-        {
-            return false;
-        }
-
-        return principalProperties == null
-            || dependentProperties == null
-            || AreCompatible(
-                principalProperties,
-                dependentProperties,
-                principalEntityType,
-                dependentEntityType,
-                shouldThrow);
+        return (navigationToPrincipal == null
+                || Internal.Navigation.IsCompatible(
+                    navigationToPrincipal.Name,
+                    navigationToPrincipal,
+                    dependentEntityType,
+                    principalEntityType,
+                    shouldBeCollection: false,
+                    shouldThrow: shouldThrow))
+            && (navigationToDependent == null
+                || Internal.Navigation.IsCompatible(
+                    navigationToDependent.Name,
+                    navigationToDependent,
+                    principalEntityType,
+                    dependentEntityType,
+                    shouldBeCollection: !unique,
+                    shouldThrow: shouldThrow))
+            && (principalProperties == null
+                || dependentProperties == null
+                || AreCompatible(
+                    principalProperties,
+                    dependentProperties,
+                    principalEntityType,
+                    dependentEntityType,
+                    shouldThrow));
     }
 
     /// <summary>
@@ -1141,37 +1178,27 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         Check.NotNull(principalEntityType);
         Check.NotNull(dependentEntityType);
 
-        if (!ArePropertyCountsEqual(principalProperties, dependentProperties))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+        return !ArePropertyCountsEqual(principalProperties, dependentProperties)
+            ? shouldThrow
+                ? throw new InvalidOperationException(
                     CoreStrings.ForeignKeyCountMismatch(
                         dependentProperties.Format(),
                         dependentEntityType.DisplayName(),
                         principalProperties.Format(),
-                        principalEntityType.DisplayName()));
-            }
-
-            return false;
-        }
-
-        if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+                        principalEntityType.DisplayName()))
+                : false
+            : ArePropertyTypesCompatible(principalProperties, dependentProperties)
+            || (principalEntityType.Model is Model model
+                && ReferenceEquals(model, dependentEntityType.Model)
+                && model.IsInModelSnapshot)
+            || (shouldThrow
+                ? throw new InvalidOperationException(
                     CoreStrings.ForeignKeyTypeMismatch(
                         dependentProperties.Format(includeTypes: true),
                         dependentEntityType.DisplayName(),
                         principalProperties.Format(includeTypes: true),
-                        principalEntityType.DisplayName()));
-            }
-
-            return false;
-        }
-
-        return true;
+                        principalEntityType.DisplayName()))
+                : false);
     }
 
     private static bool ArePropertyCountsEqual(
@@ -1593,6 +1620,12 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     [DebuggerStepThrough]
     bool? IConventionForeignKey.SetIsRequired(bool? required, bool fromDataAnnotation)
         => SetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool? IConventionForeignKey.SetIsConstrained(bool? constrained, bool fromDataAnnotation)
+        => SetIsConstrained(
+            constrained, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]

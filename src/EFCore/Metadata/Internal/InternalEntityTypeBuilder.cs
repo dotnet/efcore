@@ -63,6 +63,17 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalKeyBuilder? PrimaryKey(
+        IReadOnlyList<IReadOnlyList<MemberInfo>>? memberChains,
+        ConfigurationSource configurationSource)
+        => PrimaryKey(GetOrCreateProperties(memberChains, configurationSource), configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalKeyBuilder? PrimaryKey(
         IReadOnlyList<Property>? properties,
         ConfigurationSource configurationSource)
     {
@@ -170,15 +181,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         }
 
         var previousPrimaryKey = Metadata.FindPrimaryKey();
-        if (previousPrimaryKey != null
-            && previousPrimaryKey.Properties.Select(p => p.Name).SequenceEqual(propertyNames))
-        {
-            return true;
-        }
-
-        return configurationSource.Overrides(Metadata.GetPrimaryKeyConfigurationSource())
-            && (!Metadata.IsKeyless
-                || configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource()));
+        return (previousPrimaryKey != null
+                && previousPrimaryKey.Properties.Select(p => p.Name).SequenceEqual(propertyNames))
+            || (configurationSource.Overrides(Metadata.GetPrimaryKeyConfigurationSource())
+                && (!Metadata.IsKeyless
+                    || configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())));
     }
 
     /// <summary>
@@ -228,6 +235,17 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     /// </summary>
     public virtual InternalKeyBuilder? HasKey(IReadOnlyList<MemberInfo> clrMembers, ConfigurationSource configurationSource)
         => HasKeyInternal(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalKeyBuilder? HasKey(
+        IReadOnlyList<IReadOnlyList<MemberInfo>> memberChains,
+        ConfigurationSource configurationSource)
+        => HasKeyInternal(GetOrCreateProperties(memberChains, configurationSource), configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -541,8 +559,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             if (conflictingNavigation.GetConfigurationSource() == ConfigurationSource.Explicit)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ConflictingPropertyOrNavigation(
-                        propertyName, Metadata.DisplayName(), conflictingNavigation.DeclaringEntityType.DisplayName()));
+                    conflictingNavigation.FormatConflictingMemberMessage(propertyName, Metadata));
             }
 
             var foreignKey = conflictingNavigation.ForeignKey;
@@ -875,9 +892,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
     private bool CanBeNavigation(Type type, ConfigurationSource configurationSource)
         => configurationSource == ConfigurationSource.Explicit
-            || ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() != false
-            && (type.TryGetSequenceType() is not { } sequenceType
-                || ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() != false);
+            || (ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() != false
+                && (type.TryGetSequenceType() is not { } sequenceType
+                    || ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() != false));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -948,9 +965,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 var navigationConfigurationSource = navigation.GetConfigurationSource();
                 if ((navigation.IsOnDependent
                         && foreignKey.IsOwnership)
-                    || (foreignKey.GetConfigurationSource() != navigationConfigurationSource)
-                    && (navigation.IsOnDependent
-                        || !foreignKey.IsOwnership))
+                    || ((foreignKey.GetConfigurationSource() != navigationConfigurationSource)
+                        && (navigation.IsOnDependent
+                            || !foreignKey.IsOwnership)))
                 {
                     var removedNavigation = foreignKey.Builder.HasNavigation(
                         (MemberInfo?)null, navigation.IsOnDependent, configurationSource);
@@ -1150,14 +1167,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         {
             if (navigation.DeclaringEntityType != Metadata)
             {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
+                return shouldThrow
+                    ? throw new InvalidOperationException(
                         CoreStrings.InheritedPropertyCannotBeIgnored(
-                            name, Metadata.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
-                }
-
-                return false;
+                            name, Metadata.DisplayName(), navigation.DeclaringEntityType.DisplayName()))
+                    : false;
             }
 
             if (!configurationSource.Overrides(navigation.GetConfigurationSource()))
@@ -1172,14 +1186,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             {
                 if (property.DeclaringType != Metadata)
                 {
-                    if (shouldThrow)
-                    {
-                        throw new InvalidOperationException(
+                    return shouldThrow
+                        ? throw new InvalidOperationException(
                             CoreStrings.InheritedPropertyCannotBeIgnored(
-                                name, Metadata.DisplayName(), property.DeclaringType.DisplayName()));
-                    }
-
-                    return false;
+                                name, Metadata.DisplayName(), property.DeclaringType.DisplayName()))
+                        : false;
                 }
 
                 if (!property.DeclaringType.Builder.CanRemoveProperty(
@@ -1195,14 +1206,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 {
                     if (complexProperty.DeclaringType != Metadata)
                     {
-                        if (shouldThrow)
-                        {
-                            throw new InvalidOperationException(
+                        return shouldThrow
+                            ? throw new InvalidOperationException(
                                 CoreStrings.InheritedPropertyCannotBeIgnored(
-                                    name, Metadata.DisplayName(), complexProperty.DeclaringType.DisplayName()));
-                        }
-
-                        return false;
+                                    name, Metadata.DisplayName(), complexProperty.DeclaringType.DisplayName()))
+                            : false;
                     }
 
                     if (!configurationSource.Overrides(complexProperty.GetConfigurationSource()))
@@ -1217,14 +1225,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     {
                         if (skipNavigation.DeclaringEntityType != Metadata)
                         {
-                            if (shouldThrow)
-                            {
-                                throw new InvalidOperationException(
+                            return shouldThrow
+                                ? throw new InvalidOperationException(
                                     CoreStrings.InheritedPropertyCannotBeIgnored(
-                                        name, Metadata.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()));
-                            }
-
-                            return false;
+                                        name, Metadata.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()))
+                                : false;
                         }
 
                         if (!configurationSource.Overrides(skipNavigation.GetConfigurationSource()))
@@ -1239,14 +1244,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         {
                             if (serviceProperty.DeclaringEntityType != Metadata)
                             {
-                                if (shouldThrow)
-                                {
-                                    throw new InvalidOperationException(
+                                return shouldThrow
+                                    ? throw new InvalidOperationException(
                                         CoreStrings.InheritedPropertyCannotBeIgnored(
-                                            name, Metadata.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()));
-                                }
-
-                                return false;
+                                            name, Metadata.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()))
+                                    : false;
                             }
 
                             if (!configurationSource.Overrides(serviceProperty.GetConfigurationSource()))
@@ -1591,7 +1593,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     {
                         if (key.ReferencingForeignKeys == null
                             || !key.ReferencingForeignKeys.Any()
-                            || !key.Properties.Any(p => removedInheritedProperties.Contains(p)))
+                            || !key.Properties.Any(removedInheritedProperties.Contains))
                         {
                             continue;
                         }
@@ -1622,9 +1624,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         var shouldBeDetached = false;
                         foreach (var property in index.Properties)
                         {
-                            if (removedInheritedProperties.Contains(property))
+                            if (property is Property scalarProperty
+                                && property.DeclaringType is EntityType
+                                && removedInheritedProperties.Contains(scalarProperty))
                             {
-                                removedInheritedPropertiesToDuplicate.Add(property);
+                                removedInheritedPropertiesToDuplicate.Add(scalarProperty);
                                 shouldBeDetached = true;
                             }
                         }
@@ -2083,7 +2087,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalIndexBuilder? HasIndex(IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-        => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
+        => HasIndex(propertyNames, name: null, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2093,70 +2097,20 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     /// </summary>
     public virtual InternalIndexBuilder? HasIndex(
         IReadOnlyList<string> propertyNames,
-        string name,
-        ConfigurationSource configurationSource)
-        => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), name, configurationSource);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual InternalIndexBuilder? HasIndex(
-        IReadOnlyList<MemberInfo> clrMembers,
-        ConfigurationSource configurationSource)
-        => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual InternalIndexBuilder? HasIndex(
-        IReadOnlyList<MemberInfo> clrMembers,
-        string name,
-        ConfigurationSource configurationSource)
-        => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), name, configurationSource);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual InternalIndexBuilder? HasIndex(
-        IReadOnlyList<Property>? properties,
+        string? name,
         ConfigurationSource configurationSource)
     {
-        if (properties == null)
+        var parsed = MatchComplexPathList(propertyNames);
+        if (parsed is null)
         {
             return null;
         }
 
-        List<InternalIndexBuilder>? detachedIndexes = null;
-        var existingIndex = Metadata.FindIndex(properties);
-        if (existingIndex == null)
-        {
-            detachedIndexes = Metadata.FindDerivedIndexes(properties).ToList().Select(DetachIndex).ToList();
-        }
-        else if (existingIndex.DeclaringEntityType != Metadata)
-        {
-            return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, null, configurationSource);
-        }
-
-        var indexBuilder = HasIndex(existingIndex, properties, null, configurationSource);
-
-        if (detachedIndexes != null)
-        {
-            foreach (var detachedIndex in detachedIndexes)
-            {
-                detachedIndex.Attach(detachedIndex.Metadata.DeclaringEntityType.Builder);
-            }
-        }
-
-        return indexBuilder;
+        var (names, isCollection, collectionIndices) = parsed.Value;
+        var properties = GetOrCreateProperties(names, isCollection, configurationSource);
+        return properties is null
+            ? null
+            : HasIndex(properties, collectionIndices, name, configurationSource);
     }
 
     /// <summary>
@@ -2166,32 +2120,73 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalIndexBuilder? HasIndex(
-        IReadOnlyList<Property>? properties,
+        IReadOnlyList<MemberInfo> clrMembers,
+        ConfigurationSource configurationSource)
+        => HasIndex(ToPropertyBaseList(GetOrCreateProperties(clrMembers, configurationSource)), configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<MemberInfo> clrMembers,
         string name,
         ConfigurationSource configurationSource)
+        => HasIndex(ToPropertyBaseList(GetOrCreateProperties(clrMembers, configurationSource)), name, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<PropertyBase>? properties,
+        ConfigurationSource configurationSource)
+        => HasIndex(properties, name: null, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<PropertyBase>? properties,
+        string? name,
+        ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name);
+        if (name is not null)
+        {
+            Check.NotEmpty(name);
+        }
 
         if (properties == null)
         {
             return null;
         }
 
-        List<InternalIndexBuilder>? detachedIndexes = null;
+        var existingIndex = name is null
+            ? Metadata.FindIndex(properties)
+            : Metadata.FindIndex(name);
 
-        var existingIndex = Metadata.FindIndex(name);
-        if (existingIndex != null
+        if (existingIndex is not null
+            && name is not null
             && !existingIndex.Properties.SequenceEqual(properties))
         {
-            // use existing index only if properties match
+            // use existing named index only if properties match
             existingIndex = null;
         }
 
+        List<InternalIndexBuilder>? detachedIndexes = null;
         if (existingIndex == null)
         {
-            detachedIndexes = Metadata.FindDerivedIndexes(name)
-                .Where(i => i.Properties.SequenceEqual(properties))
-                .ToList().Select(DetachIndex).ToList();
+            var derived = name is null
+                ? Metadata.FindDerivedIndexes(properties)
+                : Metadata.FindDerivedIndexes(name).Where(i => i.Properties.SequenceEqual(properties));
+            detachedIndexes = derived.ToList().Select(DetachIndex).ToList();
         }
         else if (existingIndex.DeclaringEntityType != Metadata)
         {
@@ -2213,7 +2208,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
     private InternalIndexBuilder? HasIndex(
         Index? index,
-        IReadOnlyList<Property> properties,
+        IReadOnlyList<PropertyBase> properties,
         string? name,
         ConfigurationSource configurationSource)
     {
@@ -2229,6 +2224,140 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         }
 
         return index?.Builder;
+    }
+
+    private static IReadOnlyList<PropertyBase>? ToPropertyBaseList(IReadOnlyList<Property>? properties)
+        => properties == null ? null : (IReadOnlyList<PropertyBase>)properties.Cast<PropertyBase>().ToList();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<Property>? properties,
+        ConfigurationSource configurationSource)
+        => HasIndex(ToPropertyBaseList(properties), configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<Property>? properties,
+        string name,
+        ConfigurationSource configurationSource)
+        => HasIndex(ToPropertyBaseList(properties), name, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Configures an index whose leaves may traverse complex properties (including complex collections).
+    ///     <paramref name="collectionIndices" /> runs parallel to <paramref name="properties" />, holding the
+    ///     constant indexer values for each complex-collection segment on the path to each leaf.
+    /// </remarks>
+    public virtual InternalIndexBuilder? HasIndex(
+        IReadOnlyList<PropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices,
+        string? name,
+        ConfigurationSource configurationSource)
+    {
+        collectionIndices = AppendLeafWildcards(properties, collectionIndices);
+
+        // Walk the hierarchy looking for an existing index that exactly matches (properties, CollectionIndices),
+        // which together form the unnamed-index identity.
+        var existingIndex = name is null
+            ? Metadata.FindIndex(properties, collectionIndices)
+            : Metadata.FindIndex(name);
+
+        if (existingIndex is not null
+            && name is not null
+            && (!existingIndex.Properties.SequenceEqual(properties)
+                || !Index.CollectionIndicesEqual(existingIndex.CollectionIndices, collectionIndices)))
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ConflictingNamedIndex(
+                    name,
+                    Metadata.DisplayName(),
+                    properties.Format()));
+        }
+
+        if (existingIndex is not null)
+        {
+            existingIndex.UpdateConfigurationSource(configurationSource);
+            return existingIndex.Builder;
+        }
+
+        // No matching index in the hierarchy. Detach equivalent indexes on derived types so they can be
+        // promoted to this type.
+        List<InternalIndexBuilder>? detachedIndexes = null;
+        var derivedCandidates = name is null
+            ? Metadata.FindDerivedIndexes(properties, collectionIndices)
+            : Metadata.FindDerivedIndexes(name).Where(i => i.Properties.SequenceEqual(properties)
+                && Index.CollectionIndicesEqual(i.CollectionIndices, collectionIndices));
+        var derivedToDetach = derivedCandidates.ToList();
+        if (derivedToDetach.Count > 0)
+        {
+            detachedIndexes = derivedToDetach.Select(DetachIndex).ToList();
+        }
+
+        var index = name is null
+            ? Metadata.AddIndex(properties, collectionIndices, configurationSource)
+            : Metadata.AddIndex(properties, collectionIndices, name, configurationSource);
+
+        if (detachedIndexes is not null)
+        {
+            foreach (var detachedIndex in detachedIndexes)
+            {
+                detachedIndex.Attach(detachedIndex.Metadata.DeclaringEntityType.Builder);
+            }
+        }
+
+        return index?.Builder;
+    }
+
+    // The trailing `[]` on a complex-collection leaf is optional in a path string. When the parser
+    // produces one fewer indexer entry than the path needs (because the user wrote `Posts` or
+    // `Posts[0].Comments` instead of `Posts[]` / `Posts[0].Comments[]`), append a wildcard so the
+    // resulting `collectionIndices` aligns with `Index.NormalizeCollectionIndices`. Indices already
+    // present for parent collections are preserved.
+    private static IReadOnlyList<IReadOnlyList<int?>?>? AppendLeafWildcards(
+        IReadOnlyList<PropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices)
+    {
+        IReadOnlyList<int?>?[]? synthesized = null;
+        for (var i = 0; i < properties.Count; i++)
+        {
+            if (properties[i] is not IReadOnlyComplexProperty { IsCollection: true })
+            {
+                continue;
+            }
+
+            var existing = collectionIndices?[i];
+            var existingCount = existing?.Count ?? 0;
+            if (existingCount != CountComplexCollectionsInPath(properties[i]) - 1)
+            {
+                continue;
+            }
+
+            var entry = new int?[existingCount + 1];
+            for (var j = 0; j < existingCount; j++)
+            {
+                entry[j] = existing![j];
+            }
+
+            synthesized ??= collectionIndices is null ? new IReadOnlyList<int?>?[properties.Count] : [.. collectionIndices];
+            synthesized[i] = entry;
+        }
+
+        return synthesized ?? collectionIndices;
     }
 
     /// <summary>
@@ -2272,12 +2401,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             return null;
         }
 
-        var removedIndex = index.Name == null
-            ? Metadata.RemoveIndex(index.Properties)
-            : Metadata.RemoveIndex(index.Name);
+        var removedIndex = Metadata.RemoveIndex(index);
         Check.DebugAssert(removedIndex == index, "removedIndex != index");
 
-        RemoveUnusedImplicitProperties(index.Properties);
+        RemoveUnusedImplicitProperties(index.Properties.OfType<IConventionProperty>().ToList());
 
         return this;
     }
@@ -2887,9 +3014,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 }
             }
 
-            if (inverseNavigation == null)
-            {
-                relationship = navigationProperty != null
+            relationship = inverseNavigation == null
+                ? navigationProperty != null
                     ? relationship.HasNavigation(
                         navigationProperty,
                         pointsToPrincipal: true,
@@ -2897,26 +3023,20 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     : relationship.HasNavigation(
                         navigationToTarget!.Value.Name,
                         pointsToPrincipal: true,
-                        configurationSource);
-            }
-            else if (navigationToTarget == null)
-            {
-                relationship = inverseProperty != null
-                    ? relationship.HasNavigation(
-                        inverseProperty,
-                        pointsToPrincipal: false,
                         configurationSource)
-                    : relationship.HasNavigation(
-                        inverseNavigation.Value.Name,
-                        pointsToPrincipal: false,
-                        configurationSource);
-            }
-            else
-            {
-                relationship = navigationProperty != null || inverseProperty != null
-                    ? relationship.HasNavigations(navigationProperty, inverseProperty, configurationSource)
-                    : relationship.HasNavigations(navigationToTarget.Value.Name, inverseNavigation.Value.Name, configurationSource);
-            }
+                : navigationToTarget == null
+                    ? inverseProperty != null
+                        ? relationship.HasNavigation(
+                            inverseProperty,
+                            pointsToPrincipal: false,
+                            configurationSource)
+                        : relationship.HasNavigation(
+                            inverseNavigation.Value.Name,
+                            pointsToPrincipal: false,
+                            configurationSource)
+                    : navigationProperty != null || inverseProperty != null
+                        ? relationship.HasNavigations(navigationProperty, inverseProperty, configurationSource)
+                        : relationship.HasNavigations(navigationToTarget.Value.Name, inverseNavigation.Value.Name, configurationSource);
 
             if (relationship != null)
             {
@@ -3408,12 +3528,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (!configurationSource.OverridesStrictly(entityType.GetConfigurationSource()))
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
-                    }
-
-                    return false;
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()))
+                        : false;
                 }
             }
 
@@ -3422,13 +3539,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 if (!derivedType.IsOwned()
                     && !configurationSource.OverridesStrictly(derivedType.GetConfigurationSource()))
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ClashingNonOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()));
-                    }
-
-                    return false;
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(
+                            CoreStrings.ClashingNonOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()))
+                        : false;
                 }
             }
         }
@@ -3437,13 +3551,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             if (entityType.IsOwned()
                 && !configurationSource.OverridesStrictly(entityType.GetConfigurationSource()))
             {
-                if (configurationSource == ConfigurationSource.Explicit)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ClashingOwnedEntityType(entityType.DisplayName()));
-                }
-
-                return false;
+                return configurationSource == ConfigurationSource.Explicit
+                    ? throw new InvalidOperationException(
+                        CoreStrings.ClashingOwnedEntityType(entityType.DisplayName()))
+                    : false;
             }
 
             foreach (EntityType derivedType in entityType.GetDerivedTypes())
@@ -3451,13 +3562,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 if (derivedType.IsOwned()
                     && !configurationSource.OverridesStrictly(derivedType.GetConfigurationSource()))
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ClashingOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()));
-                    }
-
-                    return false;
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(
+                            CoreStrings.ClashingOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()))
+                        : false;
                 }
             }
         }
@@ -3695,14 +3803,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (targetEntityType is { IsNamed: true, Type: not null })
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(
                             CoreStrings.ClashingNamedOwnedType(
-                                targetTypeName, Metadata.DisplayName(), navigation.Name));
-                    }
-
-                    return null;
+                                targetTypeName, Metadata.DisplayName(), navigation.Name))
+                        : null;
                 }
 
                 if (existingOwnership.Builder.MakeDeclaringTypeShared(configurationSource) == null)

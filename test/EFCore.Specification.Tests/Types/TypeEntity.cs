@@ -9,4 +9,6 @@ public class TypeEntity<T>
 
     public required T Value { get; set; }
     public required T OtherValue { get; set; }
+
+    public required T[] ArrayValue { get; set; }
 }

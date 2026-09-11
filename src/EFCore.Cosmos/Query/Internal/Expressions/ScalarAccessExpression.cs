@@ -78,8 +78,8 @@ public class ScalarAccessExpression(Expression @object, string propertyName, Typ
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ScalarAccessExpression keyAccessExpression
-                && Equals(keyAccessExpression));
+                || (obj is ScalarAccessExpression keyAccessExpression
+                    && Equals(keyAccessExpression)));
 
     private bool Equals(ScalarAccessExpression scalarAccessExpression)
         => base.Equals(scalarAccessExpression)

@@ -8,25 +8,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class CSharpEntityTypeGeneratorTest : ModelCodeGeneratorTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Class_with_HierarchyId_key_is_generated()
         => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Entity(
-                    "Patriarch",
-                    b =>
-                    {
-                        b.Property<HierarchyId>("Id");
-                        b.HasKey("Id");
-                        b.Property<string>("Name");
-                    });
-            },
+            modelBuilder => modelBuilder.Entity(
+                "Patriarch",
+                b =>
+                {
+                    b.Property<HierarchyId>("Id");
+                    b.HasKey("Id");
+                    b.Property<string>("Name");
+                }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    @"using System;
+            code => AssertFileContents(
+                @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -42,29 +37,23 @@ public partial class Patriarch
     public string Name { get; set; }
 }
 ",
-                    code.AdditionalFiles.Single(f => f.Path == "Patriarch.cs"));
-            });
+                code.AdditionalFiles.Single(f => f.Path == "Patriarch.cs")));
 
-    [ConditionalFact]
+    [Fact]
     public void Class_with_HierarchyId_property_is_generated()
         => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Entity(
-                    "Patriarch",
-                    b =>
-                    {
-                        b.Property<int>("Id");
-                        b.HasKey("Id");
-                        b.Property<string>("Name");
-                        b.Property<HierarchyId>("Hierarchy");
-                    });
-            },
+            modelBuilder => modelBuilder.Entity(
+                "Patriarch",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.HasKey("Id");
+                    b.Property<string>("Name");
+                    b.Property<HierarchyId>("Hierarchy");
+                }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    @"using System;
+            code => AssertFileContents(
+                @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -82,29 +71,23 @@ public partial class Patriarch
     public string Name { get; set; }
 }
 ",
-                    code.AdditionalFiles.Single(f => f.Path == "Patriarch.cs"));
-            });
+                code.AdditionalFiles.Single(f => f.Path == "Patriarch.cs")));
 
-    [ConditionalFact]
+    [Fact]
     public void Class_with_multiple_HierarchyId_properties_are_generated()
         => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Entity(
-                    "Patriarch",
-                    b =>
-                    {
-                        b.Property<HierarchyId>("Id");
-                        b.HasKey("Id");
-                        b.Property<string>("Name");
-                        b.Property<HierarchyId>("Hierarchy");
-                    });
-            },
+            modelBuilder => modelBuilder.Entity(
+                "Patriarch",
+                b =>
+                {
+                    b.Property<HierarchyId>("Id");
+                    b.HasKey("Id");
+                    b.Property<string>("Name");
+                    b.Property<HierarchyId>("Hierarchy");
+                }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    @"using System;
+            code => AssertFileContents(
+                @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -122,6 +105,5 @@ public partial class Patriarch
     public string Name { get; set; }
 }
 ",
-                    code.AdditionalFiles.Single(f => f.Path == "Patriarch.cs"));
-            });
+                code.AdditionalFiles.Single(f => f.Path == "Patriarch.cs")));
 }

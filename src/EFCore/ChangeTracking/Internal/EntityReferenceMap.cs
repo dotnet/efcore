@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 /// <summary>
@@ -12,7 +14,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 public class EntityReferenceMap
 {
     private readonly bool _hasSubMap;
-    private Dictionary<object, InternalEntityEntry>? _detachedReferenceMap;
+
+    // Detached entries are held weakly: an InternalEntityEntry can be created for an untracked entity
+    // (e.g. by DbContext.Entry) and cached so the same entry is returned for the same instance, but the
+    // context must not keep the entity alive once nothing else references it (issue #33557).
+    private ConditionalWeakTable<object, InternalEntityEntry>? _detachedReferenceMap;
     private Dictionary<object, InternalEntityEntry>? _unchangedReferenceMap;
     private Dictionary<object, InternalEntityEntry>? _addedReferenceMap;
     private Dictionary<object, InternalEntityEntry>? _modifiedReferenceMap;
@@ -43,7 +49,7 @@ public class EntityReferenceMap
         if (_hasSubMap
             && entityType.HasSharedClrType)
         {
-            _sharedTypeReferenceMap ??= new Dictionary<IEntityType, EntityReferenceMap>();
+            _sharedTypeReferenceMap ??= [];
 
             if (!_sharedTypeReferenceMap.TryGetValue(entityType, out var sharedMap))
             {
@@ -68,24 +74,24 @@ public class EntityReferenceMap
                 switch (state)
                 {
                     case EntityState.Detached:
-                        _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                        _detachedReferenceMap[mapKey] = entry;
+                        _detachedReferenceMap ??= [];
+                        _detachedReferenceMap.AddOrUpdate(mapKey, entry);
                         break;
                     case EntityState.Unchanged:
                         _unchangedReferenceMap ??=
-                            new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                            [with(ReferenceEqualityComparer.Instance)];
                         _unchangedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Deleted:
-                        _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _deletedReferenceMap ??= [with(ReferenceEqualityComparer.Instance)];
                         _deletedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Modified:
-                        _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _modifiedReferenceMap ??= [with(ReferenceEqualityComparer.Instance)];
                         _modifiedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Added:
-                        _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _addedReferenceMap ??= [with(ReferenceEqualityComparer.Instance)];
                         _addedReferenceMap[mapKey] = entry;
                         break;
                 }

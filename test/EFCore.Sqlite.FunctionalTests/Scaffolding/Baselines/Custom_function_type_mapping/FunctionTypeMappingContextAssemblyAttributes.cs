@@ -6,4 +6,4 @@ using TestNamespace;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-[assembly: DbContextModel(typeof(CompiledModelRelationalTestBase.FunctionTypeMappingContext), typeof(FunctionTypeMappingContextModel))]
+[assembly: DbContextModel(typeof(CompiledModelRelationalTestBase.FunctionTypeMappingContext), typeof(FunctionTypeMappingContextModel), ProviderName = "Microsoft.EntityFrameworkCore.Sqlite")]

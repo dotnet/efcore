@@ -5,8 +5,6 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public class Sponsor
 {
     public class SponsorDoubleProxy : SponsorProxy
@@ -33,7 +31,7 @@ public class Sponsor
     private readonly ObservableCollection<Team> _teams = [];
 
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<Team> Teams
         => _teams;

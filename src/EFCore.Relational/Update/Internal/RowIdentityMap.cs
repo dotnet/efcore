@@ -28,7 +28,7 @@ public class RowIdentityMap<TKey> : IRowIdentityMap
     {
         _key = key;
         _principalKeyValueFactory = (IRowKeyValueFactory<TKey>)((UniqueConstraint)_key).GetRowKeyValueFactory();
-        _identityMap = new Dictionary<TKey, INonTrackedModificationCommand>(_principalKeyValueFactory.EqualityComparer);
+        _identityMap = [with(_principalKeyValueFactory.EqualityComparer)];
     }
 
     /// <summary>

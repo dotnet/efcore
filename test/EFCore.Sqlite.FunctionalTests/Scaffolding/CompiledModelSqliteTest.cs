@@ -11,7 +11,7 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-[SpatialiteRequired]
+[ConditionalClass(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.SpatialiteAvailable))]
 public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRelationalTestBase(fixture)
 {
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
@@ -34,14 +34,11 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
             eb.Property<string>("Name");
         });
 
-        modelBuilder.Entity<PrincipalBase>(eb =>
-        {
-            eb.Property<Point>("Point")
-                .HasColumnType("geometry")
-                .HasDefaultValue(
-                    NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
-                .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
-        });
+        modelBuilder.Entity<PrincipalBase>(eb => eb.Property<Point>("Point")
+            .HasColumnType("geometry")
+            .HasDefaultValue(
+                NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
+            .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>());
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -109,12 +106,12 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
     protected override TestHelpers TestHelpers
         => SqliteTestHelpers.Instance;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
     {
-        builder = base.AddOptions(builder)
+        builder = base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w
                 .Ignore(SqliteEventId.SchemaConfiguredWarning)
                 .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));

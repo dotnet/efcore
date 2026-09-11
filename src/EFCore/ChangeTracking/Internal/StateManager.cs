@@ -272,7 +272,22 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Obsolete("Use the overload that accepts a dictionary keyed by " + nameof(IProperty) + " instead.")]
     public virtual InternalEntityEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType)
+    {
+        var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
+        UpdateReferenceMaps(entry, EntityState.Detached, null);
+
+        return entry;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry CreateEntry(IReadOnlyDictionary<IProperty, object?> values, IEntityType entityType)
     {
         var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
 
@@ -458,7 +473,7 @@ public class StateManager : IStateManager
             return _identityMap1;
         }
 
-        _identityMaps ??= new Dictionary<IKey, IIdentityMap>();
+        _identityMaps ??= [];
 
         if (!_identityMaps.TryGetValue(key, out var identityMap))
         {
@@ -470,33 +485,19 @@ public class StateManager : IStateManager
     }
 
     private IIdentityMap? FindIdentityMap(IKey? key)
-    {
-        if (_identityMap0 == null
-            || key == null)
-        {
-            return null;
-        }
-
-        if (_identityMap0.Key == key)
-        {
-            return _identityMap0;
-        }
-
-        if (_identityMap1 == null)
-        {
-            return null;
-        }
-
-        if (_identityMap1.Key == key)
-        {
-            return _identityMap1;
-        }
-
-        return _identityMaps == null
-            || !_identityMaps.TryGetValue(key, out var identityMap)
+        => _identityMap0 == null
+            || key == null
                 ? null
-                : identityMap;
-    }
+                : _identityMap0.Key == key
+                    ? _identityMap0
+                    : _identityMap1 == null
+                        ? null
+                        : _identityMap1.Key == key
+                            ? _identityMap1
+                            : _identityMaps == null
+                            || !_identityMaps.TryGetValue(key, out var identityMap)
+                                ? null
+                                : identityMap;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -823,11 +824,11 @@ public class StateManager : IStateManager
         InternalEntityEntry referencedFromEntry)
     {
         _referencedUntrackedEntities ??=
-            new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance);
+            [with(ReferenceEqualityComparer.Instance)];
 
         if (!_referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
         {
-            danglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();
+            danglers = [];
             _referencedUntrackedEntities.Add(referencedEntity, danglers);
         }
 
@@ -851,7 +852,7 @@ public class StateManager : IStateManager
         {
             if (!_referencedUntrackedEntities.TryGetValue(newReferencedEntity, out var newDanglers))
             {
-                newDanglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();
+                newDanglers = [];
                 _referencedUntrackedEntities.Add(newReferencedEntity, newDanglers);
             }
 
@@ -1208,6 +1209,14 @@ public class StateManager : IStateManager
     /// </summary>
     public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey>? foreignKeys = null)
     {
+        // When an owned entity is replaced (e.g., via record 'with' expression), the old entry is
+        // marked Deleted and a new entry with the same key is linked via SharedIdentityEntry.
+        // Skip cascade from the old entry since the replacement handles its own dependents.
+        if (entry.SharedIdentityEntry != null)
+        {
+            return;
+        }
+
         var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
         var principalIsDetached = entry.EntityState == EntityState.Detached;
 
@@ -1267,8 +1276,12 @@ public class StateManager : IStateManager
 
                         foreach (var dependentProperty in fkProperties)
                         {
+                            var valueToSet = fk.DeleteBehavior is DeleteBehavior.SetDefault or DeleteBehavior.ClientSetDefault
+                                ? dependentProperty.Sentinel
+                                : null;
+
                             dependent.SetProperty(
-                                dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
+                                dependentProperty, valueToSet, isMaterialization: false, setModified: true, isCascadeDelete: true);
                         }
 
                         if (dependent.HasConceptualNull)

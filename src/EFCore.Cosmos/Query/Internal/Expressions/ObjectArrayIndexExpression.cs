@@ -94,8 +94,8 @@ public class ObjectArrayIndexExpression(Expression array, Expression index, Type
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ObjectArrayIndexExpression other
-                && Equals(other));
+                || (obj is ObjectArrayIndexExpression other
+                    && Equals(other)));
 
     private bool Equals(ObjectArrayIndexExpression other)
         => Array.Equals(other.Array) && Index.Equals(other.Index);

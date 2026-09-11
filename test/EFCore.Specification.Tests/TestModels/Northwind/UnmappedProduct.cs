@@ -5,12 +5,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public class UnmappedProduct
 {
     public int ProductID { get; set; }
-    public string ProductName { get; set; }
+    public string ProductName { get; set; } = null!;
     public int? SupplierID { get; set; }
 
     [NotMapped]

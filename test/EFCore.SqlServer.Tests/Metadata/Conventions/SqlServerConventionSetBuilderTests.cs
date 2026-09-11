@@ -5,7 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class SqlServerConventionSetBuilderTests : ConventionSetBuilderTests
 {
-    public override IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI()
+#pragma warning disable xUnit1028
+    public override IMutableModel Can_build_a_model_with_default_conventions_without_DI()
+#pragma warning restore xUnit1028
     {
         var model = base.Can_build_a_model_with_default_conventions_without_DI();
 

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public class EngineSupplier
 {
     public class EngineSupplierProxy(
@@ -16,8 +14,8 @@ public class EngineSupplier
         public bool InitializedCalled { get; set; }
     }
 
-    private readonly ILazyLoader _loader;
-    private ICollection<Engine> _engines;
+    private readonly ILazyLoader _loader = null!;
+    private ICollection<Engine>? _engines;
 
     public EngineSupplier()
     {
@@ -31,11 +29,11 @@ public class EngineSupplier
         Assert.IsType<EngineSupplierProxy>(this);
     }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<Engine> Engines
     {
-        get => _loader.Load(this, ref _engines);
+        get => _loader.Load(this, ref _engines)!;
         set => _engines = value;
     }
 }

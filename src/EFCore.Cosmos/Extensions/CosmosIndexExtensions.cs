@@ -32,18 +32,8 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="indexType">The index type to use.</param>
-    /// <param name="vectorIndex">The value indicating whether the index is configured as a vector index.</param>
-    public static void SetVectorIndexType(this IMutableIndex index, VectorIndexType? indexType, bool? vectorIndex)
-    {
-        if (vectorIndex == true)
-        {
-            index.SetAnnotation(CosmosAnnotationNames.VectorIndexType, indexType);
-        }
-        else
-        {
-            index.RemoveAnnotation(CosmosAnnotationNames.VectorIndexType);
-        }
-    }
+    public static void SetVectorIndexType(this IMutableIndex index, VectorIndexType? indexType)
+        => index.SetOrRemoveAnnotation(CosmosAnnotationNames.VectorIndexType, indexType);
 
     /// <summary>
     ///     Sets the vector index type to use, such as "flat", "diskANN", or "quantizedFlat".
@@ -51,15 +41,13 @@ public static class CosmosIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="indexType">The index type to use.</param>
-    /// <param name="vectorIndex">The value indicating whether the index is configured as a vector index.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static string? SetVectorIndexType(
         this IConventionIndex index,
         VectorIndexType? indexType,
-        bool? vectorIndex,
         bool fromDataAnnotation = false)
-        => (string?)index.SetAnnotation(
+        => (string?)index.SetOrRemoveAnnotation(
             CosmosAnnotationNames.VectorIndexType,
             indexType,
             fromDataAnnotation)?.Value;
@@ -92,7 +80,7 @@ public static class CosmosIndexExtensions
     /// <param name="index">The index.</param>
     /// <param name="fullTextIndex">The value indicating whether the index is configured for full-text search.</param>
     public static void SetIsFullTextIndex(this IMutableIndex index, bool? fullTextIndex)
-        => index.SetAnnotation(CosmosAnnotationNames.FullTextIndex, fullTextIndex);
+        => index.SetOrRemoveAnnotation(CosmosAnnotationNames.FullTextIndex, fullTextIndex);
 
     /// <summary>
     ///     Configures the index for full-text search.
@@ -103,11 +91,11 @@ public static class CosmosIndexExtensions
     /// <param name="fullTextIndex">The value indicating whether the index is configured for full-text search.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    public static string? SetIsFullTextIndex(
+    public static bool? SetIsFullTextIndex(
         this IConventionIndex index,
         bool? fullTextIndex,
         bool fromDataAnnotation = false)
-        => (string?)index.SetAnnotation(
+        => (bool?)index.SetOrRemoveAnnotation(
             CosmosAnnotationNames.FullTextIndex,
             fullTextIndex,
             fromDataAnnotation)?.Value;

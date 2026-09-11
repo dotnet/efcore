@@ -13,7 +13,7 @@ public class ContactType
 
     public int ContactTypeID { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<BusinessEntityContact> BusinessEntityContact { get; set; }
 }

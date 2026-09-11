@@ -174,7 +174,7 @@ WHERE date("b"."DateTime") IN (@dateOnly, '1998-05-04')
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_AddYears_Year()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddYears(3).Year == 1993));
@@ -187,7 +187,7 @@ WHERE CAST(strftime('%Y', "b"."DateOnly", CAST(3 AS TEXT) || ' years') AS INTEGE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_AddYears_AddMonths()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddYears(3).AddMonths(3) == new DateOnly(1994, 2, 10)));
@@ -202,40 +202,40 @@ WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' mon
 
     public override async Task ToDateTime_property_with_constant_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_property_with_constant_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_property_with_constant_TimeOnly);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_property_with_property_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_property_with_property_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_property_with_property_TimeOnly);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_constant_DateTime_with_property_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_constant_DateTime_with_property_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_constant_DateTime_with_property_TimeOnly);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_with_complex_DateTime()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_with_complex_DateTime());
+        await AssertTranslationFailed(base.ToDateTime_with_complex_DateTime);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_with_complex_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_with_complex_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_with_complex_TimeOnly);
 
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

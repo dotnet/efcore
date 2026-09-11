@@ -46,31 +46,26 @@ public class SqliteLineStringMemberTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (MemberToFunctionName.TryGetValue(member, out var functionName)
-            && instance != null)
-        {
-            return returnType == typeof(bool)
-                ? _sqlExpressionFactory.Case(
-                    [
-                        new CaseWhenClause(
-                            _sqlExpressionFactory.IsNotNull(instance),
-                            _sqlExpressionFactory.Function(
-                                functionName,
-                                [instance],
-                                nullable: false,
-                                argumentsPropagateNullability: Statics.FalseArrays[1],
-                                returnType))
-                    ],
-                    null)
-                : _sqlExpressionFactory.Function(
-                    functionName,
-                    [instance],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                    returnType);
-        }
-
-        return null;
-    }
+        => MemberToFunctionName.TryGetValue(member, out var functionName)
+            && instance != null
+                ? returnType == typeof(bool)
+                    ? _sqlExpressionFactory.Case(
+                        [
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.IsNotNull(instance),
+                                _sqlExpressionFactory.Function(
+                                    functionName,
+                                    [instance],
+                                    nullable: false,
+                                    argumentsPropagateNullability: Statics.FalseArrays[1],
+                                    returnType))
+                        ],
+                        null)
+                    : _sqlExpressionFactory.Function(
+                        functionName,
+                        [instance],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                        returnType)
+                : null;
 }

@@ -18,7 +18,7 @@ public static class TestExtensions
         => caller is not null ? result(caller) : null;
 
     public static IEnumerable<TResult?> MaybeDefaultIfEmpty<TResult>(this IEnumerable<TResult>? caller)
-        => caller is null ? new List<TResult?> { default } : caller.DefaultIfEmpty();
+        => caller is null ? [default] : caller.DefaultIfEmpty();
 
     public static void ZipAssert<T>(
         this IReadOnlyCollection<T> expected,

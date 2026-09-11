@@ -73,8 +73,8 @@ public class CollateExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is CollateExpression collateExpression
-                && Equals(collateExpression));
+                || (obj is CollateExpression collateExpression
+                    && Equals(collateExpression)));
 
     private bool Equals(CollateExpression collateExpression)
         => base.Equals(collateExpression)

@@ -24,16 +24,11 @@ public class CosmosStringMemberTranslator(ISqlExpressionFactory sqlExpressionFac
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (member.Name == nameof(string.Length)
-            && member.DeclaringType == typeof(string))
-        {
-            return sqlExpressionFactory.Function(
-                "LENGTH",
-                [instance!],
-                returnType);
-        }
-
-        return null;
-    }
+        => member.Name == nameof(string.Length)
+            && member.DeclaringType == typeof(string)
+                ? sqlExpressionFactory.Function(
+                    "LENGTH",
+                    [instance!],
+                    returnType)
+                : null;
 }

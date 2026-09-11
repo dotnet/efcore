@@ -16,12 +16,12 @@ public class StoredProcedure :
     IConventionStoredProcedure
 {
     private readonly List<StoredProcedureParameter> _parameters = [];
-    private readonly Dictionary<string, StoredProcedureParameter> _currentValueParameters = new();
-    private readonly Dictionary<string, StoredProcedureParameter> _originalValueParameters = new();
+    private readonly Dictionary<string, StoredProcedureParameter> _currentValueParameters = [];
+    private readonly Dictionary<string, StoredProcedureParameter> _originalValueParameters = [];
     private StoredProcedureParameter? _rowsAffectedParameter;
     private readonly List<StoredProcedureResultColumn> _resultColumns = [];
     private StoredProcedureResultColumn? _rowsAffectedResultColumn;
-    private readonly Dictionary<string, StoredProcedureResultColumn> _propertyResultColumns = new();
+    private readonly Dictionary<string, StoredProcedureResultColumn> _propertyResultColumns = [];
     private string? _schema;
     private string? _name;
     private InternalStoredProcedureBuilder? _builder;
@@ -97,19 +97,12 @@ public class StoredProcedure :
         StoreObjectType sprocType)
     {
         var storedProcedure = FindDeclaredStoredProcedure(entityType, sprocType);
-        if (storedProcedure != null)
-        {
-            return storedProcedure;
-        }
-
-        if ((entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
-            == RelationalAnnotationNames.TphMappingStrategy
-            && entityType.BaseType != null)
-        {
-            return FindStoredProcedure(entityType.GetRootType(), sprocType);
-        }
-
-        return null;
+        return storedProcedure
+            ?? ((entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                == RelationalAnnotationNames.TphMappingStrategy
+                && entityType.BaseType != null
+                    ? FindStoredProcedure(entityType.GetRootType(), sprocType)
+                    : null);
     }
 
     /// <summary>

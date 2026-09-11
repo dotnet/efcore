@@ -117,8 +117,8 @@ public abstract class TableExpressionBase : Expression, IRelationalQuotableExpre
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TableExpressionBase tableExpressionBase
-                && Equals(tableExpressionBase));
+                || (obj is TableExpressionBase tableExpressionBase
+                    && Equals(tableExpressionBase)));
 
     private bool Equals(TableExpressionBase tableExpressionBase)
         => Alias == tableExpressionBase.Alias;

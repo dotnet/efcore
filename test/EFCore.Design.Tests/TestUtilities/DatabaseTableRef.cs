@@ -7,25 +7,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 internal class DatabaseTableRef : DatabaseTable
 {
-    public DatabaseTableRef(string name, string schema = null)
+    public DatabaseTableRef(string name, string? schema = null)
     {
         Name = name;
         Schema = schema;
     }
 
-    public override DatabaseModel Database
+    public override DatabaseModel? Database
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override string Comment
+    public override string? Comment
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override DatabasePrimaryKey PrimaryKey
+    public override DatabasePrimaryKey? PrimaryKey
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();

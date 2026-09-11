@@ -231,12 +231,12 @@ public class ValuesExpression : TableExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ValuesExpression valuesExpression
-                && Equals(valuesExpression));
+                || (obj is ValuesExpression valuesExpression
+                    && Equals(valuesExpression)));
 
     private bool Equals(ValuesExpression? valuesExpression)
         => base.Equals(valuesExpression)
-            && (ValuesParameter?.Equals(valuesExpression.ValuesParameter) ?? valuesExpression.ValuesParameter == null)
+            && (ValuesParameter?.Equals(valuesExpression.ValuesParameter) ?? (valuesExpression.ValuesParameter == null))
             && (ReferenceEquals(RowValues, valuesExpression.RowValues)
                 || (RowValues is not null
                     && valuesExpression.RowValues is not null

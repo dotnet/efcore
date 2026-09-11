@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class DbSetFinderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void All_non_static_DbSet_properties_are_discovered()
     {
         using var context = new The();
@@ -31,22 +31,22 @@ public class DbSetFinderTest
 
     public class Streets : DbContext
     {
-        public DbSet<You> Yous { get; set; }
-        protected DbSet<Better> Betters { get; set; }
+        public DbSet<You> Yous { get; set; } = null!;
+        protected DbSet<Better> Betters { get; set; } = null!;
 
         internal DbSet<Stop> Stops
-            => null;
+            => null!;
     }
 
     public class The : Streets
     {
-        public DbSet<Drinking> Drinkings { get; set; }
-        private DbSet<Brandy> Brandies { get; set; }
+        public DbSet<Drinking> Drinkings { get; set; } = null!;
+        private DbSet<Brandy> Brandies { get; set; } = null!;
 
-        public static DbSet<Random> NotMe1 { get; set; }
-        public Random NotMe2 { get; set; }
-        public List<Random> NotMe3 { get; set; }
-        public NotANormalSet<Random> NotMe4 { get; set; }
+        public static DbSet<Random> NotMe1 { get; set; } = null!;
+        public Random NotMe2 { get; set; } = null!;
+        public List<Random> NotMe3 { get; set; } = null!;
+        public NotANormalSet<Random> NotMe4 { get; set; } = null!;
     }
 
     public class You;

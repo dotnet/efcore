@@ -73,7 +73,10 @@ public ref struct Utf8JsonReaderManager
     ///     that a new <see cref="Utf8JsonReaderManager" /> can later be created to pick up at the same position in the JSON document.
     /// </summary>
     public void CaptureState()
-        => Data.CaptureState(ref this);
+    {
+        Data.CaptureState(ref this);
+        CurrentReader = Data.CreateReader();
+    }
 
     /// <summary>
     ///     Logger for logging events that happen when reading/writing JSON values, or <see langword="null" /> if logging is not available.

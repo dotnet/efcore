@@ -5,14 +5,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class SqlServerMigrationBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void IsSqlServer_when_using_SqlServer()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
         Assert.True(migrationBuilder.IsSqlServer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Not_IsSqlServer_when_using_different_provider()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.InMemory");

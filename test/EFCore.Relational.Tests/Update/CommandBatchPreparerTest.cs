@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class CommandBatchPreparerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_added_entities()
     {
         var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -37,7 +37,7 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Id", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -47,14 +47,14 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Value", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Value", columnMod.Property.Name);
+        Assert.Equal("Value", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
         Assert.True(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_modified_entities()
     {
         var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -78,7 +78,7 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Id", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
@@ -88,14 +88,14 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Value", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Value", columnMod.Property.Name);
+        Assert.Equal("Value", columnMod.Property!.Name);
         Assert.False(columnMod.IsCondition);
         Assert.False(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
         Assert.True(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_deleted_entities()
     {
         var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -119,14 +119,14 @@ public class CommandBatchPreparerTest
 
         Assert.Equal("Id", columnMod.ColumnName);
         Assert.Same(entry, columnMod.Entry);
-        Assert.Equal("Id", columnMod.Property.Name);
+        Assert.Equal("Id", columnMod.Property!.Name);
         Assert.True(columnMod.IsCondition);
         Assert.True(columnMod.IsKey);
         Assert.False(columnMod.IsRead);
         Assert.False(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_does_not_create_separate_batch_without_principal_key_database_generation()
     {
         var configuration = CreateContextServices(CreateFKOneToManyModelWithGeneratedIds());
@@ -147,7 +147,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_separate_batch_with_principal_key_database_generation()
     {
         var configuration = CreateContextServices(CreateFKOneToManyModelWithGeneratedIds());
@@ -171,7 +171,7 @@ public class CommandBatchPreparerTest
             b => Assert.Equal([relatedEntry1, relatedEntry2], b.ModificationCommands.Select(m => m.Entries.Single())));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_related_added_entities()
     {
         var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -195,7 +195,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_added_and_related_modified_entities()
     {
         var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -219,7 +219,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(mc => mc.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_unrelated_entities()
     {
         var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -243,7 +243,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_entities_when_reparenting()
     {
         var configuration = CreateContextServices(CreateCyclicFKModel());
@@ -260,7 +260,7 @@ public class CommandBatchPreparerTest
         var relatedEntry = stateManager.GetOrCreateEntry(
             new RelatedFakeEntity { Id = 1, RelatedId = 3 });
         relatedEntry.SetEntityState(EntityState.Modified);
-        relatedEntry.SetOriginalValue(relatedEntry.EntityType.FindProperty("RelatedId"), 42);
+        relatedEntry.SetOriginalValue(relatedEntry.EntityType.FindProperty("RelatedId")!, 42);
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -272,7 +272,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_when_reassigning_child()
     {
         var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -300,7 +300,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_entities_while_reassigning_child_tree()
     {
         var configuration = CreateContextServices(CreateTwoLevelFKModel());
@@ -336,7 +336,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_batches_lazily()
     {
         var configuration = FakeRelationalTestHelpers.Instance.CreateContextServices(
@@ -352,7 +352,7 @@ public class CommandBatchPreparerTest
         var relatedEntry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { RelatedId = temporaryIdValue });
         relatedEntry.SetEntityState(EntityState.Added);
 
-        var factory = (TestModificationCommandBatchFactory)configuration.GetService<IModificationCommandBatchFactory>();
+        var factory = (TestModificationCommandBatchFactory)configuration.GetService<IModificationCommandBatchFactory>()!;
 
         var batches = CreateCommandBatchPreparer(factory).BatchCommands([relatedEntry, entry], new UpdateAdapter(stateManager));
 
@@ -366,7 +366,7 @@ public class CommandBatchPreparerTest
         Assert.Equal(2, factory.CreateCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Batch_command_does_not_order_non_unique_index_values()
     {
         var model = CreateCyclicFKModel();
@@ -389,7 +389,7 @@ public class CommandBatchPreparerTest
                 Value = "Test2"
             });
         fakeEntry2.SetEntityState(EntityState.Modified);
-        fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test");
+        fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value))!, "Test");
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -401,7 +401,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_throws_on_non_store_generated_temporary_values()
     {
         var configuration = CreateContextServices(CreateTwoLevelFKModel());
@@ -414,10 +414,10 @@ public class CommandBatchPreparerTest
         Assert.Equal(
             CoreStrings.TempValue(nameof(FakeEntity.Value), nameof(FakeEntity)),
             Assert.Throws<InvalidOperationException>(() => entry.SetTemporaryValue(
-                entry.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test")).Message);
+                entry.EntityType.FindProperty(nameof(FakeEntity.Value))!, "Test")).Message);
     }
 
-    [InlineData(true), InlineData(false), ConditionalTheory]
+    [InlineData(true), InlineData(false), Theory]
     public void Batch_command_throws_on_commands_with_circular_dependencies(bool sensitiveLogging)
     {
         var model = CreateCyclicFKModel();
@@ -449,7 +449,7 @@ ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
                 .Message);
     }
 
-    [InlineData(true), InlineData(false), ConditionalTheory]
+    [InlineData(true), InlineData(false), Theory]
     public void Batch_command_throws_on_commands_with_circular_dependencies_including_indexes(bool sensitiveLogging)
     {
         var model = CreateCyclicFKModel();
@@ -472,7 +472,7 @@ ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
                 UniqueValue = "Test2"
             });
         fakeEntry2.SetEntityState(EntityState.Modified);
-        fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
+        fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue))!, "Test");
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -493,7 +493,7 @@ Index { 'UniqueValue' } FakeEntity [Added]"
                 [fakeEntry, relatedFakeEntry, fakeEntry2], modelData, sensitiveLogging)).Message);
     }
 
-    [InlineData(true), InlineData(false), ConditionalTheory]
+    [InlineData(true), InlineData(false), Theory]
     public void Batch_command_throws_on_delete_commands_with_circular_dependencies(bool sensitiveLogging)
     {
         var model = CreateCyclicFkWithTailModel();
@@ -530,7 +530,7 @@ FakeEntity [Deleted]"
                 () => CreateBatches([anotherFakeEntry, fakeEntry, relatedFakeEntry], modelData, sensitiveLogging)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_works_with_duplicate_values_for_unique_indexes()
     {
         var model = CreateCyclicFKModel();
@@ -544,7 +544,7 @@ FakeEntity [Deleted]"
         var fakeEntry2 = stateManager.GetOrCreateEntry(
             new FakeEntity { Id = 2, UniqueValue = "Test2" });
         fakeEntry2.SetEntityState(EntityState.Modified);
-        fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
+        fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue))!, "Test");
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -558,7 +558,48 @@ FakeEntity [Deleted]"
             e => Assert.Equal(EntityState.Modified, e.EntityState));
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void BatchCommands_skips_unique_index_edges_for_unchanged_store_generated_values()
+    {
+        var model = CreateCompositeKeyModelWithGeneratedUniqueIndex();
+        var configuration = CreateContextServices(model);
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var testId = Guid.NewGuid();
+
+        var modifiedBasic = stateManager.GetOrCreateEntry(
+            new CompositeKeyEntity
+            {
+                TestId = testId,
+                Category = CompositeCategory.Basic,
+                Payload = "new-basic"
+            });
+        modifiedBasic.SetEntityState(EntityState.Modified);
+        modifiedBasic.SetOriginalValue(modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload))!, "old-basic");
+
+        var modifiedPro = stateManager.GetOrCreateEntry(
+            new CompositeKeyEntity
+            {
+                TestId = testId,
+                Category = CompositeCategory.Pro,
+                Payload = "new-pro"
+            });
+        modifiedPro.SetEntityState(EntityState.Modified);
+        modifiedPro.SetOriginalValue(modifiedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload))!, "old-pro");
+
+        var clusteringKeyProperty = modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey))!;
+        modifiedBasic.SetOriginalValue(clusteringKeyProperty, 0);
+        modifiedPro.SetOriginalValue(clusteringKeyProperty, 0);
+
+        Assert.Equal(0, modifiedBasic.GetCurrentValue<int>(clusteringKeyProperty));
+        Assert.Equal(0, modifiedPro.GetCurrentValue<int>(clusteringKeyProperty));
+        var batches = CreateBatches([modifiedBasic, modifiedPro], new UpdateAdapter(stateManager));
+        var batch = Assert.Single(batches);
+
+        Assert.Equal(2, batch.ModificationCommands.Count);
+    }
+
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -613,7 +654,7 @@ FakeEntity [Deleted]"
         Assert.True(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_shared_table_modified_entities()
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -666,7 +707,7 @@ FakeEntity [Deleted]"
         Assert.True(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_shared_table_deleted_entities()
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -712,7 +753,7 @@ FakeEntity [Deleted]"
         Assert.False(columnMod.IsWrite);
     }
 
-    [InlineData(true), InlineData(false), ConditionalTheory]
+    [InlineData(true), InlineData(false), Theory]
     public void BatchCommands_throws_on_conflicting_updates_for_shared_table_added_entities(bool sensitiveLogging)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -747,7 +788,7 @@ FakeEntity [Deleted]"
         }
     }
 
-    [InlineData(true, true), InlineData(true, false), InlineData(false, true), InlineData(false, false), ConditionalTheory]
+    [InlineData(true, true), InlineData(true, false), InlineData(false, true), InlineData(false, false), Theory]
     public void BatchCommands_throws_on_conflicting_values_for_shared_table_added_entities(bool useCurrentValues, bool sensitiveLogging)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -817,7 +858,7 @@ FakeEntity [Deleted]"
         }
     }
 
-    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), ConditionalTheory]
+    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), Theory]
     public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_principal(EntityState state)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -893,7 +934,7 @@ FakeEntity [Deleted]"
         // Assert.True(columnMod.IsWrite);
     }
 
-    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), ConditionalTheory]
+    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), Theory]
     public void BatchCommands_works_with_incomplete_updates_for_shared_table_no_leaf_dependent(EntityState state)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -914,7 +955,7 @@ FakeEntity [Deleted]"
         Assert.Single(batches);
     }
 
-    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), ConditionalTheory]
+    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), Theory]
     public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_middle_dependent(EntityState state)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -981,8 +1022,8 @@ FakeEntity [Deleted]"
             .ToList();
 
     public ICommandBatchPreparer CreateCommandBatchPreparer(
-        IModificationCommandBatchFactory modificationCommandBatchFactory = null,
-        IUpdateAdapter updateAdapter = null,
+        IModificationCommandBatchFactory? modificationCommandBatchFactory = null,
+        IUpdateAdapter? updateAdapter = null,
         bool sensitiveLogging = false)
     {
         modificationCommandBatchFactory ??=
@@ -1015,12 +1056,9 @@ FakeEntity [Deleted]"
             b.Ignore(c => c.RelatedId);
         });
 
-        modelBuilder.Entity<RelatedFakeEntity>(b =>
-        {
-            b.HasOne<FakeEntity>()
-                .WithOne()
-                .HasForeignKey<RelatedFakeEntity>(c => c.Id);
-        });
+        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
+            .WithOne()
+            .HasForeignKey<RelatedFakeEntity>(c => c.Id));
 
         return modelBuilder.Model.FinalizeModel();
     }
@@ -1055,12 +1093,9 @@ FakeEntity [Deleted]"
             b.HasIndex(c => c.UniqueValue).IsUnique();
         });
 
-        modelBuilder.Entity<RelatedFakeEntity>(b =>
-        {
-            b.HasOne<FakeEntity>()
-                .WithOne()
-                .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
-        });
+        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
+            .WithOne()
+            .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId));
 
         modelBuilder
             .Entity<FakeEntity>()
@@ -1081,12 +1116,9 @@ FakeEntity [Deleted]"
             b.HasIndex(c => c.UniqueValue).IsUnique();
         });
 
-        modelBuilder.Entity<RelatedFakeEntity>(b =>
-        {
-            b.HasOne<FakeEntity>()
-                .WithOne()
-                .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
-        });
+        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
+            .WithOne()
+            .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId));
 
         modelBuilder
             .Entity<FakeEntity>()
@@ -1094,12 +1126,9 @@ FakeEntity [Deleted]"
             .WithOne()
             .HasForeignKey<FakeEntity>(c => c.RelatedId);
 
-        modelBuilder.Entity<AnotherFakeEntity>(b =>
-        {
-            b.HasOne<RelatedFakeEntity>()
-                .WithOne()
-                .HasForeignKey<AnotherFakeEntity>(e => e.AnotherId);
-        });
+        modelBuilder.Entity<AnotherFakeEntity>(b => b.HasOne<RelatedFakeEntity>()
+            .WithOne()
+            .HasForeignKey<AnotherFakeEntity>(e => e.AnotherId));
 
         return modelBuilder.Model.FinalizeModel();
     }
@@ -1110,19 +1139,13 @@ FakeEntity [Deleted]"
 
         modelBuilder.Entity<FakeEntity>();
 
-        modelBuilder.Entity<RelatedFakeEntity>(b =>
-        {
-            b.HasOne<FakeEntity>()
-                .WithOne()
-                .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
-        });
+        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
+            .WithOne()
+            .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId));
 
-        modelBuilder.Entity<AnotherFakeEntity>(b =>
-        {
-            b.HasOne<RelatedFakeEntity>()
-                .WithOne()
-                .HasForeignKey<AnotherFakeEntity>(c => c.AnotherId);
-        });
+        modelBuilder.Entity<AnotherFakeEntity>(b => b.HasOne<RelatedFakeEntity>()
+            .WithOne()
+            .HasForeignKey<AnotherFakeEntity>(c => c.AnotherId));
 
         return modelBuilder.Model.FinalizeModel();
     }
@@ -1146,14 +1169,26 @@ FakeEntity [Deleted]"
             b.ToTable(nameof(FakeEntity));
         });
 
-        modelBuilder.Entity<DerivedRelatedFakeEntity>(b =>
-        {
-            b.HasOne<AnotherFakeEntity>()
-                .WithOne()
-                .HasForeignKey<AnotherFakeEntity>(c => c.Id);
-        });
+        modelBuilder.Entity<DerivedRelatedFakeEntity>(b => b.HasOne<AnotherFakeEntity>()
+            .WithOne()
+            .HasForeignKey<AnotherFakeEntity>(c => c.Id));
 
         modelBuilder.Entity<AnotherFakeEntity>().ToTable(nameof(FakeEntity));
+
+        return modelBuilder.Model.FinalizeModel();
+    }
+
+    private static IModel CreateCompositeKeyModelWithGeneratedUniqueIndex()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<CompositeKeyEntity>(b =>
+        {
+            b.HasKey(e => new { e.TestId, e.Category });
+            b.Property(e => e.ClusteringKey).ValueGeneratedOnAdd();
+            b.Property(e => e.Payload);
+            b.HasIndex(e => e.ClusteringKey).IsUnique();
+        });
 
         return modelBuilder.Model.FinalizeModel();
     }
@@ -1161,8 +1196,8 @@ FakeEntity [Deleted]"
     private class FakeEntity
     {
         public int Id { get; set; }
-        public string Value { get; set; }
-        public string UniqueValue { get; set; }
+        public string Value { get; set; } = null!;
+        public string UniqueValue { get; set; } = null!;
         public int? RelatedId { get; set; }
     }
 
@@ -1174,10 +1209,25 @@ FakeEntity [Deleted]"
 
     private class DerivedRelatedFakeEntity : RelatedFakeEntity
     {
-        public string DerivedValue { get; set; }
+        public string DerivedValue { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    private class CompositeKeyEntity
+    {
+        public Guid TestId { get; set; }
+        public CompositeCategory Category { get; set; }
+        public int ClusteringKey { get; set; }
+        public string Payload { get; set; } = null!;
+    }
+
+    private enum CompositeCategory
+    {
+        Basic,
+        Pro,
+        SuperPro
+    }
+
+    [Fact]
     public void BatchCommands_handles_null_values_when_sensitive_logging_enabled()
     {
         // Test for issue where null values in FormatValues caused NullReferenceException
@@ -1206,9 +1256,210 @@ FakeEntity [Deleted]"
         Assert.DoesNotContain("Object reference not set", exception.Message);
     }
 
+    [Fact]
+    public void BatchCommands_creates_valid_batch_for_replaced_entity_with_TPH_and_owned_type_and_concurrency_token()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<EntityBase37588>(b =>
+        {
+            b.HasDiscriminator<string>("Type")
+                .HasValue<EntityA37588>(nameof(EntityA37588))
+                .HasValue<EntityB37588>(nameof(EntityB37588));
+
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).HasMaxLength(10);
+
+            b.Property(x => x.RowVersion)
+                .IsRequired()
+                .IsRowVersion()
+                .IsConcurrencyToken()
+                .HasConversion<byte[]>();
+        });
+
+        modelBuilder.Entity<EntityA37588>(b =>
+        {
+            b.Property(x => x.SomeValue);
+            b.OwnsOne(x => x.Owned, x => x.Property(p => p.CreationDate));
+        });
+
+        modelBuilder.Entity<EntityB37588>(b => b.Property(x => x.Name).HasMaxLength(100));
+
+        var model = modelBuilder.Model.FinalizeModel();
+        var currentDbContext = CreateContextServices(model).GetRequiredService<ICurrentDbContext>();
+        var stateManager = currentDbContext.GetDependencies().StateManager;
+
+        // Create "existing" EntityA with an owned entity
+        var entityA = new EntityA37588
+        {
+            Id = "SOMEID",
+            SomeValue = true,
+            Owned = new OwnedEntity37588 { CreationDate = DateTime.UtcNow }
+        };
+        var entityAEntry = stateManager.GetOrCreateEntry(entityA);
+        entityAEntry.SetEntityState(EntityState.Unchanged);
+
+        // Track the owned entity
+        var ownedEntityType = model.FindEntityType(
+            typeof(OwnedEntity37588), "Owned", model.FindEntityType(typeof(EntityA37588))!)!;
+        var ownedEntry = stateManager.GetOrCreateEntry(entityA.Owned, ownedEntityType);
+        ownedEntry.SetEntityState(EntityState.Unchanged);
+
+        // Delete EntityA (owned will cascade)
+        entityAEntry.SetEntityState(EntityState.Deleted);
+        ownedEntry.SetEntityState(EntityState.Deleted);
+
+        // Add EntityB with the same PK
+        var entityB = new EntityB37588 { Id = "SOMEID", Name = "Any" };
+        var entityBEntry = stateManager.GetOrCreateEntry(entityB);
+        entityBEntry.SetEntityState(EntityState.Added);
+
+        // Verify SharedIdentityEntry is set bidirectionally
+        Assert.NotNull(entityBEntry.SharedIdentityEntry);
+        Assert.Same(entityAEntry, entityBEntry.SharedIdentityEntry);
+        Assert.NotNull(entityAEntry.SharedIdentityEntry);
+        Assert.Same(entityBEntry, entityAEntry.SharedIdentityEntry);
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        var commandBatches = CreateBatches(
+            stateManager.GetEntriesToSave(cascadeChanges: true).ToArray(), modelData);
+
+        // Should create valid batch(es) without errors
+        Assert.NotEmpty(commandBatches);
+
+        // Find the command for the replaced entity
+        var allCommands = commandBatches.SelectMany(b => b.ModificationCommands).ToList();
+
+        // The owned entity entry should be part of the same Modified command, not a separate Deleted command
+        var deletedCommands = allCommands.Where(c => c.EntityState == EntityState.Deleted).ToList();
+        Assert.Empty(deletedCommands);
+
+        Assert.Single(allCommands);
+        var modifiedCommand = Assert.Single(allCommands);
+        Assert.Equal(EntityState.Modified, modifiedCommand.EntityState);
+
+        // The modified command should contain both EntityB and OwnedEntity entries
+        Assert.True(
+            modifiedCommand.Entries.Count() >= 2,
+            $"Expected at least 2 entries in Modified command, but got {modifiedCommand.Entries.Count()}. "
+            + $"Total commands: {allCommands.Count}, states: [{string.Join(", ", allCommands.Select(c => c.EntityState))}]");
+
+        // RowVersion should be a condition (used in WHERE clause)
+        var rvModification = modifiedCommand.ColumnModifications
+            .FirstOrDefault(cm => cm.ColumnName == "RowVersion");
+        Assert.NotNull(rvModification);
+        Assert.True(rvModification.IsCondition);
+    }
+
+    private abstract class EntityBase37588
+    {
+        public string Id { get; set; } = null!;
+        public long RowVersion { get; set; }
+    }
+
+    private class OwnedEntity37588
+    {
+        public DateTime CreationDate { get; set; }
+    }
+
+    private class EntityA37588 : EntityBase37588
+    {
+        public bool SomeValue { get; set; }
+        public OwnedEntity37588 Owned { get; set; } = null!;
+    }
+
+    private class EntityB37588 : EntityBase37588
+    {
+        public string Name { get; set; } = null!;
+    }
+
     private class AnotherFakeEntity
     {
         public int Id { get; set; }
         public int? AnotherId { get; set; }
+    }
+
+    [Fact]
+    public void BatchCommands_sorts_added_entities_with_TPC_abstract_principal()
+    {
+        var configuration = CreateContextServices(CreateTpcFKModel());
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var principalEntry = stateManager.GetOrCreateEntry(
+            new ConcretePrincipal { Id = 1 });
+        principalEntry.SetEntityState(EntityState.Added);
+
+        var dependentEntry = stateManager.GetOrCreateEntry(
+            new TpcDependent { Id = 1, PrincipalId = 1 });
+        dependentEntry.SetEntityState(EntityState.Added);
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        var batches = CreateBatches([dependentEntry, principalEntry], modelData);
+        var batch = Assert.Single(batches);
+
+        Assert.Equal(
+            [principalEntry, dependentEntry],
+            batch.ModificationCommands.Select(c => c.Entries.Single()));
+    }
+
+    [Fact]
+    public void BatchCommands_sorts_deleted_entities_with_TPC_abstract_principal()
+    {
+        var configuration = CreateContextServices(CreateTpcFKModel());
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var principalEntry = stateManager.GetOrCreateEntry(
+            new ConcretePrincipal { Id = 1 });
+        principalEntry.SetEntityState(EntityState.Deleted);
+
+        var dependentEntry = stateManager.GetOrCreateEntry(
+            new TpcDependent { Id = 1, PrincipalId = 1 });
+        dependentEntry.SetEntityState(EntityState.Deleted);
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        var batches = CreateBatches([principalEntry, dependentEntry], modelData);
+        var batch = Assert.Single(batches);
+
+        Assert.Equal(
+            [dependentEntry, principalEntry],
+            batch.ModificationCommands.Select(c => c.Entries.Single()));
+    }
+
+    private static IModel CreateTpcFKModel()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<AbstractPrincipal>()
+            .UseTpcMappingStrategy()
+            .ToTable((string?)null)
+            .Property(e => e.Id)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<ConcretePrincipal>()
+            .ToTable(nameof(ConcretePrincipal));
+
+        modelBuilder.Entity<TpcDependent>(b => b.HasOne<AbstractPrincipal>()
+            .WithMany()
+            .HasForeignKey(c => c.PrincipalId));
+
+        return modelBuilder.Model.FinalizeModel();
+    }
+
+    private abstract class AbstractPrincipal
+    {
+        public int Id { get; set; }
+    }
+
+    private class ConcretePrincipal : AbstractPrincipal
+    {
+    }
+
+    private class TpcDependent
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
     }
 }

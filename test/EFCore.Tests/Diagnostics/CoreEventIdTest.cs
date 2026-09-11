@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -9,24 +9,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 public class CoreEventIdTest : EventIdTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
-        var propertyInfo = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now));
+        var propertyInfo = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now))!;
         var model = new Model();
-        var entityType = model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention);
-        var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
+        var entityType = model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention)!;
+        var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention)!;
         var otherEntityType = new EntityType(typeof(object), entityType.Model, owned: false, ConfigurationSource.Convention);
         var otherProperty = otherEntityType.AddProperty(
             "A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
-        var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);
+        var otherKey = otherEntityType.AddKey(otherProperty!, ConfigurationSource.Convention)!;
         var foreignKey = new ForeignKey([property], otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
         var navigation = new Navigation("N", propertyInfo, null, foreignKey);
         var skipNavigation = new SkipNavigation(
             "SN", null, propertyInfo, null, entityType, otherEntityType, true, false, ConfigurationSource.Convention);
         var navigationBase = new FakeNavigationBase("FNB", ConfigurationSource.Convention, entityType);
         var complexProperty = entityType.AddComplexProperty(
-            "C", typeof(object), typeof(object), true, ConfigurationSource.Convention);
+            "C", typeof(object), typeof(object), true, ConfigurationSource.Convention)!;
 
         entityType.Model.FinalizeModel();
         var options = new DbContextOptionsBuilder()
@@ -56,7 +56,7 @@ public class CoreEventIdTest : EventIdTestBase
             {
                 typeof(Func<DbContext, DbUpdateConcurrencyException, IReadOnlyList<IUpdateEntry>, EventDefinition<Exception>,
                     ConcurrencyExceptionEventData>),
-                () => null
+                () => null!
             },
             { typeof(IReadOnlyList<IReadOnlyPropertyBase>), () => new[] { property } },
             { typeof(IEnumerable<Tuple<MemberInfo, Type>>), () => new[] { new Tuple<MemberInfo, Type>(propertyInfo, typeof(object)) } },
@@ -93,7 +93,7 @@ public class CoreEventIdTest : EventIdTestBase
 
     private class FakeServiceProvider : IServiceProvider
     {
-        public object GetService(Type serviceType)
+        public object? GetService(Type serviceType)
             => null;
     }
 
@@ -104,7 +104,7 @@ public class CoreEventIdTest : EventIdTestBase
             => (IEntityType)DeclaringType;
 
         public IEntityType TargetEntityType
-            => throw new NotImplementedException();
+            => (IEntityType)DeclaringType;
 
         public INavigationBase Inverse
             => throw new NotImplementedException();
@@ -114,6 +114,9 @@ public class CoreEventIdTest : EventIdTestBase
 
         public override TypeBase DeclaringType { get; } = entityType;
 
+        public override bool IsInModel
+            => true;
+
         public override Type ClrType
             => throw new NotImplementedException();
 
@@ -121,7 +124,7 @@ public class CoreEventIdTest : EventIdTestBase
             => (IReadOnlyEntityType)DeclaringType;
 
         IReadOnlyEntityType IReadOnlyNavigationBase.TargetEntityType
-            => throw new NotImplementedException();
+            => (IReadOnlyEntityType)DeclaringType;
 
         IReadOnlyNavigationBase IReadOnlyNavigationBase.Inverse
             => throw new NotImplementedException();

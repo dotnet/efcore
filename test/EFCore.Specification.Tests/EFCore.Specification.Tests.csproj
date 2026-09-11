@@ -8,6 +8,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <IsShipping>true</IsShipping>
+    <!-- This project contains base tests to be used by providers, but is not itself a test project with
+         tests to be executed. Disable test discovery. -->
+    <IsTestProject>false</IsTestProject>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
     <!-- HACK: Work around dotnet/arcade#13798 -->
@@ -43,7 +46,6 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Xunit" />
-    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,6 +54,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Abstractions\EFCore.Abstractions.csproj" />
@@ -61,10 +64,11 @@
   <ItemGroup>
     <PackageReference Include="NetTopologySuite" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" />
-    <!-- Workaround for https://github.com/dotnet/arcade/issues/13798 -->
-    <PackageReference Include="xunit.assert" VersionOverride="$(XUnitVersion)" />
-    <PackageReference Include="xunit.core" VersionOverride="$(XUnitVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" VersionOverride="$(XUnitRunnerVisualstudioVersion)" />
+    <!-- xunit.v3 packages: this is a shipped library (IsTestProject=false) so Arcade does not
+         auto-inject the v3 packages. -->
+    <PackageReference Include="xunit.v3.extensibility.core" VersionOverride="$(XUnitV3Version)" />
+    <PackageReference Include="xunit.v3.assert" VersionOverride="$(XUnitV3Version)" />
+    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
     <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 

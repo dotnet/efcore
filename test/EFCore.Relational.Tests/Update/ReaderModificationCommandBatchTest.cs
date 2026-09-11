@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class ReaderModificationCommandBatchTest
 {
-    [ConditionalFact]
+    [Fact]
     public void TryAddCommand_adds_command_if_batch_is_valid()
     {
         var parameterNameGenerator = new ParameterNameGenerator();
@@ -72,7 +72,7 @@ RETURNING 1;
             ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TryAddCommand_does_not_add_command_batch_is_invalid()
     {
         var parameterNameGenerator = new ParameterNameGenerator();
@@ -129,7 +129,7 @@ RETURNING 1;
         Assert.Equal(1, batch.StoreCommand.ParameterValues.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Parameters_are_properly_managed_when_command_adding_fails()
     {
         var entry1 = CreateEntry(EntityState.Added);
@@ -164,7 +164,7 @@ RETURNING 1;
         Assert.Equal(1, batch2.FakeSqlGenerator.AppendInsertOperationCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TryAddCommand_with_insert()
     {
         var entry = CreateEntry(EntityState.Added);
@@ -180,7 +180,7 @@ RETURNING 1;
         Assert.Equal(1, batch.FakeSqlGenerator.AppendInsertOperationCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TryAddCommand_with_update()
     {
         var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
@@ -196,7 +196,7 @@ RETURNING 1;
         Assert.Equal(1, batch.FakeSqlGenerator.AppendUpdateOperationCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TryAddCommand_with_delete()
     {
         var entry = CreateEntry(EntityState.Deleted);
@@ -212,7 +212,7 @@ RETURNING 1;
         Assert.Equal(1, batch.FakeSqlGenerator.AppendDeleteOperationCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TryAddCommand_twice()
     {
         var entry = CreateEntry(EntityState.Added);
@@ -232,7 +232,7 @@ RETURNING 1;
         Assert.Equal(2, batch.FakeSqlGenerator.AppendInsertOperationCalls);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_executes_batch_commands_and_consumes_reader()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -254,18 +254,18 @@ RETURNING 1;
         Assert.Equal(1, dbDataReader.GetInt32Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_saves_store_generated_values()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
+        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey()!.Properties[0], -1);
 
         var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
             CreateFakeDataReader(
-                ["Col1"], new List<object[]> { new object[] { 42 } }));
+                ["Col1"], [new object[] { 42 }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -273,23 +273,23 @@ RETURNING 1;
 
         await batch.ExecuteAsync(connection);
 
-        Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
-        Assert.Equal("Test", entry[entry.EntityType.FindProperty("Name")]);
+        Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")!]);
+        Assert.Equal("Test", entry[entry.EntityType.FindProperty("Name")!]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_saves_store_generated_values_on_non_key_columns()
     {
         var entry = CreateEntry(
             EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
-        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
+        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey()!.Properties[0], -1);
 
         var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
             CreateFakeDataReader(
-                ["Col1", "Col2"], new List<object[]> { new object[] { 42, "FortyTwo" } }));
+                ["Col1", "Col2"], [new object[] { 42, "FortyTwo" }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -297,11 +297,11 @@ RETURNING 1;
 
         await batch.ExecuteAsync(connection);
 
-        Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
-        Assert.Equal("FortyTwo", entry[entry.EntityType.FindProperty("Name")]);
+        Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")!]);
+        Assert.Equal("FortyTwo", entry[entry.EntityType.FindProperty("Name")!]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_saves_store_generated_values_when_updating()
     {
         var entry = CreateEntry(
@@ -312,7 +312,7 @@ RETURNING 1;
 
         var connection = CreateConnection(
             CreateFakeDataReader(
-                ["Col2"], new List<object[]> { new object[] { "FortyTwo" } }));
+                ["Col2"], [new object[] { "FortyTwo" }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -320,15 +320,15 @@ RETURNING 1;
 
         await batch.ExecuteAsync(connection);
 
-        Assert.Equal(1, entry[entry.EntityType.FindProperty("Id")]);
-        Assert.Equal("FortyTwo", entry[entry.EntityType.FindProperty("Name")]);
+        Assert.Equal(1, entry[entry.EntityType.FindProperty("Id")!]);
+        Assert.Equal("FortyTwo", entry[entry.EntityType.FindProperty("Name")!]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Exception_not_thrown_for_more_than_one_row_returned_for_single_command()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
+        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey()!.Properties[0], -1);
 
         var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
@@ -336,7 +336,7 @@ RETURNING 1;
         var connection = CreateConnection(
             CreateFakeDataReader(
                 ["Col1"],
-                new List<object[]> { new object[] { 42 }, new object[] { 43 } }));
+                [new object[] { 42 }, new object[] { 43 }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -344,10 +344,10 @@ RETURNING 1;
 
         await batch.ExecuteAsync(connection);
 
-        Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
+        Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")!]);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Exception_thrown_if_rows_returned_for_command_without_store_generated_values_is_not_1(bool async)
     {
         var entry = CreateEntry(EntityState.Modified);
@@ -357,7 +357,7 @@ RETURNING 1;
 
         var connection = CreateConnection(
             CreateFakeDataReader(
-                ["Col1"], new List<object[]> { new object[] { 42 } }));
+                ["Col1"], [new object[] { 42 }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -370,17 +370,17 @@ RETURNING 1;
         Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 42), exception.Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values(bool async)
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
+        entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey()!.Properties[0], -1);
 
         var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
-            CreateFakeDataReader(["Col1"], new List<object[]>()));
+            CreateFakeDataReader(["Col1"], []));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -393,7 +393,7 @@ RETURNING 1;
         Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 0), exception.Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task DbException_is_wrapped_with_DbUpdateException(bool async)
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -419,7 +419,7 @@ RETURNING 1;
         Assert.Same(originalException, actualException.InnerException);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task OperationCanceledException_is_not_wrapped_with_DbUpdateException(bool async)
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
@@ -445,11 +445,11 @@ RETURNING 1;
         Assert.Same(originalException, actualException);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateStoreCommand_creates_parameters_for_each_ModificationCommand()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        var property = entry.EntityType.FindProperty("Id");
+        var property = entry.EntityType.FindProperty("Id")!;
         entry.SetTemporaryValue(property, 1);
 
         var batch = new ModificationCommandBatchFake();
@@ -498,11 +498,11 @@ RETURNING 1;
         Assert.Equal(1, storeCommand.ParameterValues["p1"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PopulateParameters_creates_parameter_for_write_ModificationCommand()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        var property = entry.EntityType.FindProperty("Id");
+        var property = entry.EntityType.FindProperty("Id")!;
         entry.SetTemporaryValue(property, 1);
 
         var batch = new ModificationCommandBatchFake();
@@ -534,11 +534,11 @@ RETURNING 1;
         Assert.Equal(1, storeCommand.ParameterValues["p0"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PopulateParameters_creates_parameter_for_condition_ModificationCommand()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        var property = entry.EntityType.FindProperty("Id");
+        var property = entry.EntityType.FindProperty("Id")!;
         entry.SetTemporaryValue(property, 1);
 
         var batch = new ModificationCommandBatchFake();
@@ -570,11 +570,11 @@ RETURNING 1;
         Assert.Equal(1, storeCommand.ParameterValues["p0"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PopulateParameters_creates_parameters_for_write_and_condition_ModificationCommand()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        var property = entry.EntityType.FindProperty("Id");
+        var property = entry.EntityType.FindProperty("Id")!;
         entry.SetTemporaryValue(property, 1);
 
         var batch = new ModificationCommandBatchFake();
@@ -608,11 +608,11 @@ RETURNING 1;
         Assert.Equal(1, storeCommand.ParameterValues["p1"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PopulateParameters_does_not_create_parameter_for_read_ModificationCommand()
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-        var property = entry.EntityType.FindProperty("Id");
+        var property = entry.EntityType.FindProperty("Id")!;
         entry.SetTemporaryValue(property, -1);
 
         var batch = new ModificationCommandBatchFake();
@@ -643,7 +643,7 @@ RETURNING 1;
     private class T1
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
@@ -678,9 +678,9 @@ RETURNING 1;
             model, entityState, new T1 { Id = overrideKeyValues ? 1 : default, Name = computeNonKeyValue ? null : "Test" });
     }
 
-    private static FakeDbDataReader CreateFakeDataReader(string[] columnNames = null, IList<object[]> results = null)
+    private static FakeDbDataReader CreateFakeDataReader(string[]? columnNames = null, IList<object[]>? results = null)
     {
-        results ??= new List<object[]> { new object[] { 1 } };
+        results ??= [new object[] { 1 }];
         columnNames ??= ["RowsAffected"];
 
         return new FakeDbDataReader(columnNames, results);
@@ -688,18 +688,16 @@ RETURNING 1;
 
     private class ModificationCommandBatchFake : AffectedCountModificationCommandBatch
     {
-        private readonly FakeSqlGenerator _fakeSqlGenerator;
-
-        public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null, int? maxBatchSize = null)
+        public ModificationCommandBatchFake(IUpdateSqlGenerator? sqlGenerator = null, int? maxBatchSize = null)
             : base(CreateDependencies(sqlGenerator), maxBatchSize)
         {
             ShouldBeValid = true;
 
-            _fakeSqlGenerator = Dependencies.UpdateSqlGenerator as FakeSqlGenerator;
+            FakeSqlGenerator = Dependencies.UpdateSqlGenerator as FakeSqlGenerator;
         }
 
         private static ModificationCommandBatchFactoryDependencies CreateDependencies(
-            IUpdateSqlGenerator sqlGenerator)
+            IUpdateSqlGenerator? sqlGenerator)
         {
             var typeMappingSource = new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
@@ -734,10 +732,10 @@ RETURNING 1;
             => ShouldBeValid;
 
         public new RawSqlCommand StoreCommand
-            => base.StoreCommand;
+            => base.StoreCommand!;
 
         public FakeSqlGenerator FakeSqlGenerator
-            => _fakeSqlGenerator ?? throw new InvalidOperationException("Not using FakeSqlGenerator");
+            => field ?? throw new InvalidOperationException("Not using FakeSqlGenerator");
     }
 
     private class FakeDbContext : DbContext;
@@ -756,10 +754,10 @@ RETURNING 1;
                 executeReaderAsync: (c, b, ct) => Task.FromResult(dbDataReader),
                 executeReader: (c, b) => dbDataReader));
 
-    private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
+    private static FakeRelationalConnection CreateConnection(IDbContextOptions? options = null)
         => new(options ?? CreateOptions());
 
-    public static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
+    public static IDbContextOptions CreateOptions(RelationalOptionsExtension? optionsExtension = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
 
@@ -775,7 +773,7 @@ RETURNING 1;
         InternalEntityEntry entry,
         Func<string> generateParameterName,
         bool sensitiveLoggingEnabled,
-        IComparer<IUpdateEntry> comparer)
+        IComparer<IUpdateEntry>? comparer)
     {
         var modificationCommandParameters = new ModificationCommandParameters(
             entry.EntityType.GetTableMappings().Single().Table,
@@ -789,7 +787,7 @@ RETURNING 1;
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,
-        string schema,
+        string? schema,
         bool sensitiveLoggingEnabled,
         IReadOnlyList<ColumnModificationParameters> columnModifications)
     {

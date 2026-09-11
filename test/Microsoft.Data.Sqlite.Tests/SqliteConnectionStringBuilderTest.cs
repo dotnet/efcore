@@ -108,9 +108,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void DataSource_works()
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder.DataSource = "test.db";
+        var builder = new SqliteConnectionStringBuilder { DataSource = "test.db" };
 
         Assert.Equal("test.db", builder.DataSource);
     }
@@ -122,9 +120,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void Mode_works()
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder.Mode = SqliteOpenMode.Memory;
+        var builder = new SqliteConnectionStringBuilder { Mode = SqliteOpenMode.Memory };
 
         Assert.Equal(SqliteOpenMode.Memory, builder.Mode);
     }
@@ -185,8 +181,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void Item_resets_value_when_null()
     {
-        var builder = new SqliteConnectionStringBuilder();
-        builder.DataSource = "test.db";
+        var builder = new SqliteConnectionStringBuilder { DataSource = "test.db" };
 
         builder["Data Source"] = null;
 
@@ -196,8 +191,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void Item_gets_value()
     {
-        var builder = new SqliteConnectionStringBuilder();
-        builder.DataSource = "test.db";
+        var builder = new SqliteConnectionStringBuilder { DataSource = "test.db" };
 
         Assert.Equal("test.db", builder["Data Source"]);
     }
@@ -205,9 +199,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void Item_sets_value()
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder["Data Source"] = "test.db";
+        var builder = new SqliteConnectionStringBuilder { ["Data Source"] = "test.db" };
 
         Assert.Equal("test.db", builder.DataSource);
     }
@@ -215,9 +207,7 @@ public class SqliteConnectionStringBuilderTest
     [Theory, InlineData("Shared"), InlineData("SHARED"), InlineData(SqliteCacheMode.Shared), InlineData((int)SqliteCacheMode.Shared)]
     public void Item_converts_to_enum_on_set(object value)
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder["Cache"] = value;
+        var builder = new SqliteConnectionStringBuilder { ["Cache"] = value };
 
         Assert.Equal(SqliteCacheMode.Shared, builder["Cache"]);
     }
@@ -234,9 +224,7 @@ public class SqliteConnectionStringBuilderTest
      InlineData("", null)]
     public void Item_converts_to_bool_on_set(object? value, bool? expected)
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder["Foreign Keys"] = value;
+        var builder = new SqliteConnectionStringBuilder { ["Foreign Keys"] = value };
 
         Assert.Equal(expected, builder["Foreign Keys"]);
     }

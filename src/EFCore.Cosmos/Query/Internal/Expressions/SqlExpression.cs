@@ -70,8 +70,8 @@ public abstract class SqlExpression(Type type, CoreTypeMapping? typeMapping) : E
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlExpression sqlExpression
-                && Equals(sqlExpression));
+                || (obj is SqlExpression sqlExpression
+                    && Equals(sqlExpression)));
 
     private bool Equals(SqlExpression other)
         => Type == other.Type && TypeMapping?.Equals(other.TypeMapping) == true;

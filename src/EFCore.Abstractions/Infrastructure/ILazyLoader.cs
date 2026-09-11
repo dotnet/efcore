@@ -60,9 +60,7 @@ public interface ILazyLoader
     /// <param name="navigationName">The navigation property name.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-#pragma warning disable CA1068 // CancellationToken parameters must come last
     Task LoadAsync(
-#pragma warning restore CA1068 // CancellationToken parameters must come last
         object entity,
         CancellationToken cancellationToken = default,
         [CallerMemberName] string navigationName = "");

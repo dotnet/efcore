@@ -17,12 +17,12 @@ public class ProductModel
 
     public int ProductModelID { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-    public string CatalogDescription { get; set; }
-    public string Instructions { get; set; }
+    public string? CatalogDescription { get; set; }
+    public string? Instructions { get; set; }
 
     public virtual ICollection<Product> Product { get; set; }
     public virtual ICollection<ProductModelIllustration> ProductModelIllustration { get; set; }

@@ -11,38 +11,31 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ManyToManyLoaderFactory
+public class ManyToManyLoaderFactory : IManyToManyLoaderFactory
 {
     private static readonly MethodInfo GenericCreate
         = typeof(ManyToManyLoaderFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateManyToMany))!;
 
-    private ManyToManyLoaderFactory()
-    {
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly ManyToManyLoaderFactory Instance = new();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual ICollectionLoader Create(ISkipNavigation skipNavigation)
         => (ICollectionLoader)GenericCreate.MakeGenericMethod(
                 skipNavigation.TargetEntityType.ClrType,
                 skipNavigation.DeclaringEntityType.ClrType)
-            .Invoke(null, [skipNavigation])!;
+            .Invoke(this, [skipNavigation])!;
 
-    [UsedImplicitly]
-    private static ICollectionLoader CreateManyToMany<TEntity, TTargetEntity>(ISkipNavigation skipNavigation)
+    /// <inheritdoc />
+    public virtual ICollectionLoader Create<TEntity, TSourceEntity>(ISkipNavigation skipNavigation)
         where TEntity : class
-        where TTargetEntity : class
-        => new ManyToManyLoader<TEntity, TTargetEntity>(skipNavigation);
+        where TSourceEntity : class
+        => new ManyToManyLoader<TEntity, TSourceEntity>(skipNavigation);
+
+    // Invoked via reflection by the non-generic Create above (GenericCreate). It deliberately
+    // forwards to the virtual Create<,> so that a provider overriding Create<,> is still honored
+    // on the reflection path. Do not inline this into MakeGenericMethod against Create<,> directly:
+    // Create is overloaded, so GetDeclaredMethod(nameof(Create)) would be ambiguous.
+    [UsedImplicitly]
+    private ICollectionLoader CreateManyToMany<TEntity, TSourceEntity>(ISkipNavigation skipNavigation)
+        where TEntity : class
+        where TSourceEntity : class
+        => Create<TEntity, TSourceEntity>(skipNavigation);
 }

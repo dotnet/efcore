@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqliteRelationalConnectionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Sets_DefaultTimeout_when_connectionString()
     {
         var services = SqliteTestHelpers.Instance.CreateContextServices(
@@ -20,7 +20,7 @@ public class SqliteRelationalConnectionTest
         Assert.Equal(42, connection.DefaultTimeout);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sets_DefaultTimeout_when_connection()
     {
         var originalConnection = new SqliteConnection("Data Source=:memory:") { DefaultTimeout = 21 };

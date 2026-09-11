@@ -26,28 +26,25 @@ public class SqliteDateOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpres
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType != typeof(DateOnly) || instance is null)
-        {
-            return null;
-        }
+        return member.DeclaringType != typeof(DateOnly) || instance is null
+            ? null
+            : member.Name switch
+            {
+                nameof(DateOnly.Year) => DatePart("%Y"),
+                nameof(DateOnly.Month) => DatePart("%m"),
+                nameof(DateOnly.DayOfYear) => DatePart("%j"),
+                nameof(DateOnly.Day) => DatePart("%d"),
+                nameof(DateOnly.DayOfWeek) => DatePart("%w"),
 
-        return member.Name switch
-        {
-            nameof(DateOnly.Year) => DatePart("%Y"),
-            nameof(DateOnly.Month) => DatePart("%m"),
-            nameof(DateOnly.DayOfYear) => DatePart("%j"),
-            nameof(DateOnly.Day) => DatePart("%d"),
-            nameof(DateOnly.DayOfWeek) => DatePart("%w"),
+                nameof(DateOnly.DayNumber)
+                    => sqlExpressionFactory.Convert(
+                        sqlExpressionFactory.Subtract(
+                            JulianDay(instance),
+                            JulianDay(sqlExpressionFactory.Constant(new DateOnly(1, 1, 1)))),
+                        typeof(int)),
 
-            nameof(DateOnly.DayNumber)
-                => sqlExpressionFactory.Convert(
-                    sqlExpressionFactory.Subtract(
-                        JulianDay(instance),
-                        JulianDay(sqlExpressionFactory.Constant(new DateOnly(1, 1, 1)))),
-                    typeof(int)),
-
-            _ => null
-        };
+                _ => null
+            };
 
         SqlExpression DatePart(string datePart)
             => sqlExpressionFactory.Convert(

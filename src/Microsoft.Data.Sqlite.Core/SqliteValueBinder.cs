@@ -35,7 +35,7 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
 
     protected abstract void BindText(string value);
 
-    protected abstract void BindBlob(byte[] value);
+    protected abstract void BindBlob(ReadOnlySpan<byte> value);
 
     protected abstract void BindNull();
 
@@ -63,6 +63,16 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         {
             var value1 = (byte[])value;
             BindBlob(value1);
+        }
+        else if (type == typeof(Memory<byte>))
+        {
+            var value1 = (Memory<byte>)value;
+            BindBlob(value1.Span);
+        }
+        else if (type == typeof(ReadOnlyMemory<byte>))
+        {
+            var value1 = (ReadOnlyMemory<byte>)value;
+            BindBlob(value1.Span);
         }
         else if (type == typeof(char))
         {
@@ -109,7 +119,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
                 BindText(value);
             }
         }
-#if NET6_0_OR_GREATER
         else if (type == typeof(DateOnly))
         {
             var dateOnly = (DateOnly)value;
@@ -140,7 +149,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
                 BindText(value);
             }
         }
-#endif
         else if (type == typeof(DBNull))
         {
             BindNull();
@@ -158,6 +166,11 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         else if (type == typeof(float))
         {
             var value1 = (double)(float)value;
+            BindDouble(value1);
+        }
+        else if (type == typeof(Half))
+        {
+            var value1 = (double)(Half)value;
             BindDouble(value1);
         }
         else if (type == typeof(Guid))
@@ -228,6 +241,10 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             var value1 = (long)(ushort)value;
             BindInt64(value1);
         }
+        else if (type == typeof(UInt128))
+        {
+            BindText(((UInt128)value).ToString("D39", CultureInfo.InvariantCulture));
+        }
         else
         {
             throw new InvalidOperationException(Resources.UnknownDataType(type));
@@ -240,17 +257,19 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             { typeof(bool), SqliteType.Integer },
             { typeof(byte), SqliteType.Integer },
             { typeof(byte[]), SqliteType.Blob },
+            { typeof(Memory<byte>), SqliteType.Blob },
+            { typeof(ReadOnlyMemory<byte>), SqliteType.Blob },
             { typeof(char), SqliteType.Text },
             { typeof(DateTime), SqliteType.Text },
             { typeof(DateTimeOffset), SqliteType.Text },
-#if NET6_0_OR_GREATER
             { typeof(DateOnly), SqliteType.Text },
             { typeof(TimeOnly), SqliteType.Text },
-#endif
             { typeof(DBNull), SqliteType.Text },
+            { typeof(UInt128), SqliteType.Text },
             { typeof(decimal), SqliteType.Text },
             { typeof(double), SqliteType.Real },
             { typeof(float), SqliteType.Real },
+            { typeof(Half), SqliteType.Real },
             { typeof(Guid), SqliteType.Text },
             { typeof(int), SqliteType.Integer },
             { typeof(long), SqliteType.Integer },
@@ -271,12 +290,9 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         }
 
         var type = value.GetType().UnwrapNullableType().UnwrapEnumType();
-        if (_sqliteTypeMapping.TryGetValue(type, out var sqliteType))
-        {
-            return sqliteType;
-        }
-
-        throw new InvalidOperationException(Resources.UnknownDataType(type));
+        return _sqliteTypeMapping.TryGetValue(type, out var sqliteType)
+            ? sqliteType
+            : throw new InvalidOperationException(Resources.UnknownDataType(type));
     }
 
     private static double ToJulianDate(DateTime dateTime)
@@ -302,14 +318,14 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         var X2 = 306001 * (M + 1) / 10000;
         var iJD = (long)((X1 + X2 + D + B - 1524.5) * 86400000);
 
-        iJD += hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
+        iJD += (hour * 3600000) + (minute * 60000) + (long)((second + (millisecond / 1000.0)) * 1000);
 
         return iJD / 86400000.0;
     }
 
     private static double GetTotalDays(int hour, int minute, int second, int millisecond)
     {
-        var iJD = hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
+        var iJD = (hour * 3600000) + (minute * 60000) + (long)((second + (millisecond / 1000.0)) * 1000);
 
         return iJD / 86400000.0;
     }

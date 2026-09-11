@@ -20,7 +20,7 @@ public class NestedClosureCodeFragment
     public NestedClosureCodeFragment(string parameter, MethodCallCodeFragment methodCall)
     {
         Parameter = parameter;
-        MethodCalls = new List<MethodCallCodeFragment> { methodCall };
+        MethodCalls = [methodCall];
     }
 
     /// <summary>

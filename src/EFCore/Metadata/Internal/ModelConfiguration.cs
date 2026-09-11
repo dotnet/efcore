@@ -13,11 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public class ModelConfiguration
 {
-    private readonly Dictionary<Type, PropertyConfiguration> _properties = new();
-    private readonly Dictionary<Type, PropertyConfiguration> _typeMappings = new();
-    private readonly Dictionary<Type, ComplexPropertyConfiguration> _complexProperties = new();
+    private readonly Dictionary<Type, PropertyConfiguration> _properties = [];
+    private readonly Dictionary<Type, PropertyConfiguration> _typeMappings = [];
+    private readonly Dictionary<Type, ComplexPropertyConfiguration> _complexProperties = [];
     private readonly HashSet<Type> _ignoredTypes = [];
-    private readonly Dictionary<Type, TypeConfigurationType?> _configurationTypes = new();
+    private readonly Dictionary<Type, TypeConfigurationType?> _configurationTypes = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,8 +41,8 @@ public class ModelConfiguration
     {
         Type? configuredType = null;
         var stringType = GetConfigurationType(typeof(string), null, ref configuredType);
-        if (stringType != null
-            && stringType != TypeConfigurationType.Property)
+        if (stringType is not null
+            and not TypeConfigurationType.Property)
         {
             throw new InvalidOperationException(
                 CoreStrings.UnconfigurableType(
@@ -54,8 +54,8 @@ public class ModelConfiguration
 
         configuredType = null;
         var intType = GetConfigurationType(typeof(int?), null, ref configuredType);
-        if (intType != null
-            && intType != TypeConfigurationType.Property)
+        if (intType is not null
+            and not TypeConfigurationType.Property)
         {
             throw new InvalidOperationException(
                 CoreStrings.UnconfigurableType(
@@ -67,18 +67,15 @@ public class ModelConfiguration
 
         configuredType = null;
         var propertyBagType = GetConfigurationType(Model.DefaultPropertyBagType, null, ref configuredType);
-        if (propertyBagType != null
-            && !propertyBagType.Value.IsEntityType())
-        {
-            throw new InvalidOperationException(
-                CoreStrings.UnconfigurableType(
-                    Model.DefaultPropertyBagType.DisplayName(fullName: false),
-                    propertyBagType,
-                    TypeConfigurationType.SharedTypeEntityType,
-                    configuredType!.DisplayName(fullName: false)));
-        }
-
-        return this;
+        return propertyBagType != null
+            && !propertyBagType.Value.IsEntityType()
+                ? throw new InvalidOperationException(
+                    CoreStrings.UnconfigurableType(
+                        Model.DefaultPropertyBagType.DisplayName(fullName: false),
+                        propertyBagType,
+                        TypeConfigurationType.SharedTypeEntityType,
+                        configuredType!.DisplayName(fullName: false)))
+                : this;
     }
 
     /// <summary>

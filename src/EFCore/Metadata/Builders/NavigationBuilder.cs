@@ -176,17 +176,12 @@ public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilde
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual NavigationBuilder IsRequired(bool required = true)
     {
-        if (InternalNavigationBuilder != null)
-        {
-            InternalNavigationBuilder = InternalNavigationBuilder.IsRequired(required, ConfigurationSource.Explicit);
-        }
-        else
-        {
-            throw new InvalidOperationException(
+        InternalNavigationBuilder = InternalNavigationBuilder != null
+            ? InternalNavigationBuilder.IsRequired(required, ConfigurationSource.Explicit)
+            : throw new InvalidOperationException(
                 CoreStrings.RequiredSkipNavigation(
                     InternalSkipNavigationBuilder!.Metadata.DeclaringEntityType.DisplayName(),
                     InternalSkipNavigationBuilder.Metadata.Name));
-        }
 
         return this;
     }

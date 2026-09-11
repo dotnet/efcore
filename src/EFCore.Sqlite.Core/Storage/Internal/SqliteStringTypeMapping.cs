@@ -195,7 +195,7 @@ public class SqliteStringTypeMapping : StringTypeMapping
                 return;
             }
 
-            var mid = start + count / 2;
+            var mid = start + (count / 2);
             newBuilder.Append('(');
             GenerateBalancedTree(start, mid);
             newBuilder.Append(" || ");

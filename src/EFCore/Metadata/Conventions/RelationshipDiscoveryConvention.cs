@@ -274,15 +274,15 @@ public class RelationshipDiscoveryConvention :
                 new RelationshipCandidate(
                     candidateTargetEntityTypeBuilder, navigations, inverseNavigationCandidates, shouldBeOwnership);
 
-            Continue: ;
+            Continue:;
         }
 
         return UpdateTargetEntityTypes(entityTypeBuilder, relationshipCandidates);
 
         bool IsNewSharedType(Type targetClrType, IConventionEntityType entityType)
             => (entityType.Model.IsShared(targetClrType)
-                    || targetClrType.IsGenericType
-                    && targetClrType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                    || (targetClrType.IsGenericType
+                        && targetClrType.GetGenericTypeDefinition() == typeof(Dictionary<,>)))
                 && ShouldBeOwned(targetClrType, entityType.Model) != true
                 && !entityType.Model.IsOwned(targetClrType)
                 && !entityType.IsInOwnershipPath(targetClrType);
@@ -902,8 +902,8 @@ public class RelationshipDiscoveryConvention :
     private bool RemoveIfAmbiguous(IConventionEntityType entityType, RelationshipCandidate relationshipCandidate)
     {
         var targetEntityType = relationshipCandidate.TargetTypeBuilder.Metadata;
-        var isAmbiguousOnBase = entityType.BaseType != null
-            && HasAmbiguousNavigationsTo(entityType.BaseType, targetEntityType.ClrType)
+        var isAmbiguousOnBase = (entityType.BaseType != null
+                && HasAmbiguousNavigationsTo(entityType.BaseType, targetEntityType.ClrType))
             || (targetEntityType.BaseType != null
                 && HasAmbiguousNavigationsTo(targetEntityType.BaseType, entityType.ClrType));
         if ((relationshipCandidate.NavigationProperties.Count > 1
@@ -972,22 +972,15 @@ public class RelationshipDiscoveryConvention :
             var removed = true;
             if (existingNavigation.ForeignKey.IsOwnership)
             {
-                if (existingNavigation.IsOnDependent)
-                {
-                    removed = existingNavigation.ForeignKey.Builder.HasNavigation((string?)null, existingNavigation.IsOnDependent)
-                        != null;
-                }
-                else if (IsImplicitlyCreatedUnusedType(existingNavigation.TargetEntityType))
-                {
-                    removed = declaringEntityType.Builder.ModelBuilder.HasNoEntityType(existingNavigation.TargetEntityType)
-                        != null;
-                }
-                else
-                {
-                    removed = existingNavigation.ForeignKey.DeclaringEntityType.Builder
+                removed = existingNavigation.IsOnDependent
+                    ? existingNavigation.ForeignKey.Builder.HasNavigation((string?)null, existingNavigation.IsOnDependent)
+                    != null
+                    : IsImplicitlyCreatedUnusedType(existingNavigation.TargetEntityType)
+                        ? declaringEntityType.Builder.ModelBuilder.HasNoEntityType(existingNavigation.TargetEntityType)
+                        != null
+                        : existingNavigation.ForeignKey.DeclaringEntityType.Builder
                             .HasNoRelationship(existingNavigation.ForeignKey)
                         != null;
-                }
             }
             else if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
                          .HasNoRelationship(existingNavigation.ForeignKey)
@@ -1115,9 +1108,8 @@ public class RelationshipDiscoveryConvention :
             && sourceEntityTypeBuilder.Metadata.FindNavigation(navigationName) == null
             && IsCandidateNavigationProperty(
                 sourceEntityTypeBuilder.Metadata, navigationName, memberInfo)
-            && Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
-                memberInfo, targetEntityTypeBuilder.Metadata.Model, UseAttributes, out _)
-            != null)
+            && Dependencies.MemberClassifier.IsCandidateNavigationProperty(
+                memberInfo, targetEntityTypeBuilder.Metadata.Model, UseAttributes, out _, out _, out _))
         {
             Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo, context);
         }
@@ -1146,7 +1138,7 @@ public class RelationshipDiscoveryConvention :
         IConventionEntityType sourceEntityType,
         string navigationName,
         MemberInfo memberInfo)
-        => sourceEntityType.Builder.IsIgnored(navigationName) == false
+        => !sourceEntityType.Builder.IsIgnored(navigationName)
             && sourceEntityType.FindProperty(navigationName) == null
             && sourceEntityType.FindServiceProperty(navigationName) == null
             && sourceEntityType.FindComplexProperty(navigationName) == null

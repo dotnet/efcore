@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
-#nullable disable
-
 public class JoinTwoToThree
 {
     public int TwoId;
     public int ThreeId;
-    public EntityTwo Two;
-    public EntityThree Three;
+    public EntityTwo Two = null!;
+    public EntityThree Three = null!;
 }

@@ -161,38 +161,32 @@ public class InversePropertyAttributeConvention :
             && (targetOwnership == null
                 || targetOwnership.PrincipalEntityType == entityType))
         {
-            if (navigationMemberInfo.DeclaringType != entityType.ClrType
+            return navigationMemberInfo.DeclaringType != entityType.ClrType
                 && (entityType.Model.FindEntityType(navigationMemberInfo.DeclaringType!) != null
                     || (navigationMemberInfo.DeclaringType != entityType.ClrType.BaseType
-                        && entityType.Model.FindEntityType(entityType.ClrType.BaseType!) != null)))
-            {
-                return null;
-            }
-
-            return entityTypeBuilder.HasOwnership(
-                targetEntityType,
-                navigationMemberInfo,
-                inverseNavigationPropertyInfo,
-                fromDataAnnotation: true);
+                        && entityType.Model.FindEntityType(entityType.ClrType.BaseType!) != null))
+                    ? null
+                    : entityTypeBuilder.HasOwnership(
+                        targetEntityType,
+                        navigationMemberInfo,
+                        inverseNavigationPropertyInfo,
+                        fromDataAnnotation: true);
         }
 
         if (entityType.IsOwned()
             && (ownership == null
                 || ownership.PrincipalEntityType == targetEntityType))
         {
-            if (navigationMemberInfo.DeclaringType != entityType.ClrType
+            return navigationMemberInfo.DeclaringType != entityType.ClrType
                 && (entityType.Model.FindEntityType(navigationMemberInfo.DeclaringType!) != null
                     || (navigationMemberInfo.DeclaringType != entityType.ClrType.BaseType
-                        && entityType.Model.FindEntityType(entityType.ClrType.BaseType!) != null)))
-            {
-                return null;
-            }
-
-            return targetEntityTypeBuilder.HasOwnership(
-                entityTypeBuilder.Metadata,
-                inverseNavigationPropertyInfo,
-                navigationMemberInfo,
-                fromDataAnnotation: true);
+                        && entityType.Model.FindEntityType(entityType.ClrType.BaseType!) != null))
+                    ? null
+                    : targetEntityTypeBuilder.HasOwnership(
+                        entityTypeBuilder.Metadata,
+                        inverseNavigationPropertyInfo,
+                        navigationMemberInfo,
+                        fromDataAnnotation: true);
         }
 
         if (ownership != null
@@ -684,7 +678,7 @@ public class InversePropertyAttributeConvention :
         var inverseNavigations = GetInverseNavigations(targetEntityType);
         if (inverseNavigations == null)
         {
-            inverseNavigations = new Dictionary<string, (MemberInfo, List<(MemberInfo, IConventionEntityType)>)>();
+            inverseNavigations = [];
             SetInverseNavigations(targetEntityType.Builder, inverseNavigations);
         }
 

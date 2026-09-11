@@ -39,14 +39,14 @@ public abstract class ExpressionMutator(DbContext context)
 
     protected static bool IsQueryableResult(Expression expression)
         => IsQueryableType(expression.Type)
-            || expression.Type.GetInterfaces().Any(i => IsQueryableType(i));
+            || expression.Type.GetInterfaces().Any(IsQueryableType);
 
     private static bool IsOrderedQueryableType(Type type)
         => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>);
 
     protected static bool IsOrderedQueryableResult(Expression expression)
         => IsOrderedQueryableType(expression.Type)
-            || expression.Type.GetInterfaces().Any(i => IsOrderedQueryableType(i));
+            || expression.Type.GetInterfaces().Any(IsOrderedQueryableType);
 
     protected static bool IsOrderedableType(Type type)
         => !typeof(Geometry).IsAssignableFrom(type)
@@ -62,10 +62,10 @@ public abstract class ExpressionMutator(DbContext context)
         if (type.IsGenericType
             && type.GetGenericTypeDefinition() == typeof(List<>))
         {
-            properties = properties.Where(p => p.Name != "Item" && p.Name != "Capacity").ToList();
+            properties = properties.Where(p => p.Name is not "Item" and not "Capacity").ToList();
         }
 
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>)
+        if ((type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>))
             || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>)))
         {
             properties = properties.Where(p => p.Name != "IsReadOnly").ToList();
@@ -73,7 +73,7 @@ public abstract class ExpressionMutator(DbContext context)
 
         if (type.IsArray)
         {
-            properties = properties.Where(p => p.Name != "Rank" && p.Name != "IsFixedSize" && p.Name != "IsSynchronized").ToList();
+            properties = properties.Where(p => p.Name is not "Rank" and not "IsFixedSize" and not "IsSynchronized").ToList();
         }
 
         if (type.IsGenericType
@@ -102,13 +102,6 @@ public abstract class ExpressionMutator(DbContext context)
     {
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
-        {
-            if (node == expressionToInject)
-            {
-                return injectionPattern(node);
-            }
-
-            return base.Visit(node);
-        }
+            => node == expressionToInject ? injectionPattern(node) : base.Visit(node);
     }
 }

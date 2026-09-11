@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class InMemoryDatabaseFacadeExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void IsInMemory_when_using_in_memory()
     {
         using var context = new ProviderContext();

@@ -133,7 +133,7 @@ public class ShoppingCart
             };
 
             // Set the order total of the shopping cart
-            orderTotal += (item.Count * album.Price);
+            orderTotal += item.Count * album.Price;
 
             _dbContext.OrderDetails.Add(orderDetail);
         }

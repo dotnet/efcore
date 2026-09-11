@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalNavigationBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_HasField()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -36,14 +36,14 @@ public class InternalNavigationBuilderTest
         Assert.Equal(Order.OtherDetailsField, metadata.FieldInfo);
         Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetFieldInfoConfigurationSource());
 
-        Assert.True(builder.CanSetField((string)null, ConfigurationSource.DataAnnotation));
-        Assert.NotNull(builder.HasField((string)null, ConfigurationSource.DataAnnotation));
+        Assert.True(builder.CanSetField((string?)null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasField((string?)null, ConfigurationSource.DataAnnotation));
 
         Assert.Null(metadata.FieldInfo);
         Assert.Null(metadata.GetFieldInfoConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_HasField_string()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -72,14 +72,14 @@ public class InternalNavigationBuilderTest
         Assert.Equal("_otherDetails", metadata.FieldInfo?.Name);
         Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetFieldInfoConfigurationSource());
 
-        Assert.True(builder.CanSetField((string)null, ConfigurationSource.DataAnnotation));
-        Assert.NotNull(builder.HasField((string)null, ConfigurationSource.DataAnnotation));
+        Assert.True(builder.CanSetField((string?)null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasField((string?)null, ConfigurationSource.DataAnnotation));
 
         Assert.Null(metadata.FieldInfo);
         Assert.Null(metadata.GetFieldInfoConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_PropertyAccessMode()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -118,7 +118,7 @@ public class InternalNavigationBuilderTest
         Assert.Null(metadata.GetPropertyAccessModeConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_IsEagerLoaded()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -154,7 +154,7 @@ public class InternalNavigationBuilderTest
         Assert.Null(metadata.GetIsEagerLoadedConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_LazyLoadingEnabled()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -190,7 +190,7 @@ public class InternalNavigationBuilderTest
         Assert.Null(metadata.GetLazyLoadingEnabledConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Configuring_IsRequired_on_to_dependent_nonUnique_throws()
     {
         var builder = CreateInternalNavigationBuilder();
@@ -200,42 +200,42 @@ public class InternalNavigationBuilderTest
             Assert.Throws<InvalidOperationException>(() => builder.IsRequired(true, ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_IsRequired_on_to_principal_nonUnique()
     {
         var builder = CreateInternalNavigationBuilder()
             .Metadata.ForeignKey.Builder.HasNavigation(
                 nameof(OrderDetails.Order), pointsToPrincipal: true, ConfigurationSource.Explicit)
-            .Metadata.DependentToPrincipal.Builder;
+            !.Metadata.DependentToPrincipal!.Builder;
         builder.IsRequired(true, ConfigurationSource.Explicit);
 
         Assert.True(builder.Metadata.ForeignKey.IsRequired);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_IsRequired_on_to_dependent_unique()
     {
         var foreignKey = CreateInternalNavigationBuilder()
             .Metadata.ForeignKey;
         foreignKey = foreignKey.Builder.HasNavigations(
                 nameof(OrderDetails.Order), nameof(Order.SingleDetails), ConfigurationSource.Explicit)
-            .Metadata;
+            !.Metadata;
 
-        foreignKey.PrincipalToDependent.Builder.IsRequired(true, ConfigurationSource.Explicit);
+        foreignKey.PrincipalToDependent!.Builder.IsRequired(true, ConfigurationSource.Explicit);
 
         Assert.True(foreignKey.IsRequiredDependent);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_configure_IsRequired_on_to_principal_unique()
     {
         var foreignKey = CreateInternalNavigationBuilder()
             .Metadata.ForeignKey;
         foreignKey = foreignKey.Builder.HasNavigations(
                 nameof(OrderDetails.Order), nameof(Order.SingleDetails), ConfigurationSource.Explicit)
-            .Metadata;
+            !.Metadata;
 
-        foreignKey.PrincipalToDependent.Builder.IsRequired(true, ConfigurationSource.Explicit);
+        foreignKey.PrincipalToDependent!.Builder.IsRequired(true, ConfigurationSource.Explicit);
 
         Assert.True(foreignKey.IsRequiredDependent);
     }
@@ -244,13 +244,13 @@ public class InternalNavigationBuilderTest
     {
         var modelBuilder = (InternalModelBuilder)
             InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
-        var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
-        var detailsEntityBuilder = modelBuilder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
+        var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)!;
+        var detailsEntityBuilder = modelBuilder.Entity(typeof(OrderDetails), ConfigurationSource.Convention)!;
         orderEntityBuilder
             .HasRelationship(
                 detailsEntityBuilder.Metadata, nameof(Order.Details), ConfigurationSource.DataAnnotation, targetIsPrincipal: false)
-            .IsUnique(false, ConfigurationSource.Convention);
-        var navigation = (Navigation)orderEntityBuilder.Navigation(nameof(Order.Details));
+            !.IsUnique(false, ConfigurationSource.Convention);
+        var navigation = (Navigation)orderEntityBuilder.Navigation(nameof(Order.Details))!;
 
         return new InternalNavigationBuilder(navigation, modelBuilder);
     }
@@ -258,22 +258,22 @@ public class InternalNavigationBuilderTest
     protected class Order
     {
         public static readonly FieldInfo DetailsField = typeof(Order)
-            .GetField(nameof(_details), BindingFlags.Instance | BindingFlags.NonPublic);
+            .GetField(nameof(_details), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
         public static readonly FieldInfo OtherDetailsField = typeof(Order)
-            .GetField(nameof(_otherDetails), BindingFlags.Instance | BindingFlags.NonPublic);
+            .GetField(nameof(_otherDetails), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
         public int OrderId { get; set; }
 
-        private ICollection<OrderDetails> _details;
+        private ICollection<OrderDetails> _details = null!;
         private readonly ICollection<OrderDetails> _otherDetails = new List<OrderDetails>();
-        public OrderDetails SingleDetails { get; set; }
+        public OrderDetails SingleDetails { get; set; } = null!;
         public ICollection<OrderDetails> Details { get => _details; set => _details = value; }
     }
 
     protected class OrderDetails
     {
         public int Id { get; set; }
-        public Order Order { get; set; }
+        public Order Order { get; set; } = null!;
     }
 }

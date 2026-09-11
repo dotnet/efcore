@@ -337,7 +337,8 @@ public class CollectionEntry : NavigationEntry
     [field: AllowNull, MaybeNull]
     private ICollectionLoader TargetLoader
         => field ??= Metadata is IRuntimeSkipNavigation skipNavigation
-            ? skipNavigation.GetManyToManyLoader()
+            ? skipNavigation.GetManyToManyLoader(
+                InternalEntry.Context.GetDependencies().ManyToManyLoaderFactory)
             : new EntityFinderCollectionLoaderAdapter(
                 InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType),
                 (INavigation)Metadata);

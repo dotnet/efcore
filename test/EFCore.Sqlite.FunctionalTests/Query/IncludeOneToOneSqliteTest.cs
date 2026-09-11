@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class IncludeOneToOneSqliteTest(IncludeOneToOneSqliteTest.OneToOneQuerySqliteFixture fixture)
     : IncludeOneToOneTestBase<IncludeOneToOneSqliteTest.OneToOneQuerySqliteFixture>(fixture)
 {

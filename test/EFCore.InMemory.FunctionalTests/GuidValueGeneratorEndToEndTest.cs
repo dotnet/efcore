@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class GuidValueGeneratorEndToEndTest
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_GUIDs_end_to_end_async()
     {
         var serviceProvider = new ServiceCollection()
@@ -50,12 +50,12 @@ public class GuidValueGeneratorEndToEndTest
                 .UseInternalServiceProvider(_serviceProvider);
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Pegasus> Pegasuses { get; set; }
+        public DbSet<Pegasus> Pegasuses { get; set; } = null!;
     }
 
     private class Pegasus
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

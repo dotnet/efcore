@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
-#nullable disable
-
 public abstract class NullSemanticsEntityBase
 {
     public int Id { get; set; }
@@ -16,13 +14,13 @@ public abstract class NullSemanticsEntityBase
     public bool? NullableBoolB { get; set; }
     public bool? NullableBoolC { get; set; }
 
-    public string StringA { get; set; }
-    public string StringB { get; set; }
-    public string StringC { get; set; }
+    public string StringA { get; set; } = null!;
+    public string StringB { get; set; } = null!;
+    public string StringC { get; set; } = null!;
 
-    public string NullableStringA { get; set; }
-    public string NullableStringB { get; set; }
-    public string NullableStringC { get; set; }
+    public string? NullableStringA { get; set; }
+    public string? NullableStringB { get; set; }
+    public string? NullableStringC { get; set; }
 
     public int IntA { get; set; }
     public int IntB { get; set; }

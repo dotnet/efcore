@@ -13,7 +13,7 @@ public class NullableValueComparer
 <[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T> : ValueComparer<T?>, IInfrastructure<ValueComparer>
+T> : ValueComparer<T?>, IInfrastructure<ValueComparer>
     where T : struct
 {
     private static readonly PropertyInfo _hasValueProperty = typeof(T?).GetProperty("HasValue")!;

@@ -55,6 +55,12 @@ public interface IMutableForeignKey : IReadOnlyForeignKey, IMutableAnnotatable
     new bool IsRequired { get; set; }
 
     /// <summary>
+    ///     Sets a value indicating whether the relationship is constrained, that is, backed by a guarantee
+    ///     that a matching principal key exists for every set foreign key value.
+    /// </summary>
+    new bool IsConstrained { get; set; }
+
+    /// <summary>
     ///     Sets a value indicating whether the dependent entity is required.
     ///     If <see langword="true" />, the principal entity must always have a valid dependent entity assigned.
     /// </summary>

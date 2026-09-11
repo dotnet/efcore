@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class DbContextAttributeTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Create_attribute()
     {
         var attribute = new DbContextAttribute(typeof(MyContext));

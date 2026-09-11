@@ -10,6 +10,7 @@ internal partial class DatabaseDropCommand : ContextCommandBase
 {
     private CommandOption? _force;
     private CommandOption? _dryRun;
+    private CommandOption? _connection;
 
     public override void Configure(CommandLineApplication command)
     {
@@ -17,6 +18,7 @@ internal partial class DatabaseDropCommand : ContextCommandBase
 
         _force = command.Option("-f|--force", Resources.DatabaseDropForceDescription);
         _dryRun = command.Option("--dry-run", Resources.DatabaseDropDryRunDescription);
+        _connection = command.Option("--connection <CONNECTION>", Resources.DbContextConnectionDescription);
 
         base.Configure(command);
     }

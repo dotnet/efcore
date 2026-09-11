@@ -5,14 +5,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ComplianceTestBase
 {
     protected abstract Assembly TargetAssembly { get; }
-    protected virtual ICollection<Type> IgnoredTestBases { get; } = new List<Type>();
+    protected virtual ICollection<Type> IgnoredTestBases { get; } = [];
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_test_bases_must_be_implemented()
     {
         var concreteTests = TargetAssembly.GetTypes().Where(c => c.BaseType != typeof(object)
@@ -67,13 +65,13 @@ public abstract class ComplianceTestBase
 
     private static IEnumerable<Type> GetBaseTypes(Type type)
     {
-        type = type.BaseType;
+        type = type.BaseType!;
 
         while (type != null)
         {
             yield return type;
 
-            type = type.BaseType;
+            type = type.BaseType!;
         }
     }
 }

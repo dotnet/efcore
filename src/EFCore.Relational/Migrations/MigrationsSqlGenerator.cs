@@ -1367,7 +1367,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         {
             builder
                 .Append(" COLLATE ")
-                .Append(operation.Collation);
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Collation));
         }
 
         builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
@@ -1844,7 +1844,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     /// <returns><see langword="true" /> if the version could be retrieved.</returns>
     protected virtual bool TryGetVersion([NotNullWhen(true)] IModel? model, [NotNullWhen(true)] out string? version)
     {
-        if (!(model?.GetProductVersion() is { } versionString))
+        if (model?.GetProductVersion() is not
+            { } versionString)
         {
             version = null;
 

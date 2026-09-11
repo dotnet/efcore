@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture)
     : InterceptionTestBase(fixture)
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Intercept_query_passively(bool async)
     {
         var (context, interceptor) = await CreateContextAsync<TestQueryExpressionInterceptor>(inject: true);
@@ -25,14 +23,14 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
         Assert.Contains(""".Where(e => e.Type == "Black Hole")""", interceptor.QueryExpression);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Intercept_query_with_multiple_interceptors(bool async)
     {
         var interceptor1 = new TestQueryExpressionInterceptor();
         var interceptor2 = new QueryChangingExpressionInterceptor();
 
         using var context = await CreateContextAsync(
-            appInterceptor: null, interceptor1, interceptor2);
+            appInterceptor: null!, interceptor1, interceptor2);
 
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
 
@@ -45,13 +43,13 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
         AssertNormalOutcome(context, interceptor2);
 
         listener.AssertEventsInOrder(
-            CoreEventId.QueryCompilationStarting.Name,
-            CoreEventId.QueryExecutionPlanned.Name);
+            CoreEventId.QueryCompilationStarting.Name!,
+            CoreEventId.QueryExecutionPlanned.Name!);
 
         _ = async ? await query.ToListAsync() : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Intercept_to_change_query_expression(bool async)
     {
         var (context, interceptor) = await CreateContextAsync<QueryChangingExpressionInterceptor>(inject: true);
@@ -68,7 +66,7 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
         Assert.Contains(""".Where(e => e.Type == "Bing Bang")""", interceptor.QueryExpression);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Interceptor_does_not_leak_across_contexts(bool async)
     {
         // Create one context with QueryChangingExpressionInterceptor, and another with TestQueryExpressionInterceptor (which is a no-op).
@@ -120,15 +118,15 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
     protected class TestQueryExpressionInterceptor : IQueryExpressionInterceptor
     {
         public bool QueryCompilationStartingCalled { get; set; }
-        public string QueryExpression { get; set; }
-        public DbContext Context { get; set; }
+        public string QueryExpression { get; set; } = null!;
+        public DbContext Context { get; set; } = null!;
 
         public virtual Expression QueryCompilationStarting(
             Expression queryExpression,
             QueryExpressionEventData eventData)
         {
             QueryCompilationStartingCalled = true;
-            Context = eventData.Context;
+            Context = eventData.Context!;
             QueryExpression = eventData.ExpressionPrinter.PrintExpression(queryExpression);
 
             return queryExpression;

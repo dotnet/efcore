@@ -52,8 +52,8 @@ public class SqlFragmentExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlFragmentExpression sqlFragmentExpression
-                && Equals(sqlFragmentExpression));
+                || (obj is SqlFragmentExpression sqlFragmentExpression
+                    && Equals(sqlFragmentExpression)));
 
     private bool Equals(SqlFragmentExpression sqlFragmentExpression)
         => base.Equals(sqlFragmentExpression)

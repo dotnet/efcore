@@ -309,6 +309,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                 }
                 else
                 {
+                    _resultCoordinator!.VerifyNoOrphanedChildRows();
                     Current = default!;
                 }
 
@@ -493,6 +494,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                 }
                 else
                 {
+                    _resultCoordinator!.VerifyNoOrphanedChildRows();
                     Current = default!;
                 }
 

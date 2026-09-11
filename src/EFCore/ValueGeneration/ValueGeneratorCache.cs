@@ -48,9 +48,9 @@ public class ValueGeneratorCache : IValueGeneratorCache
         private readonly string? _typeBase = typeBase.Name;
 
         public bool Equals(CacheKey other)
-            => (_property!.Equals(other._property, StringComparison.Ordinal)
+            => _property!.Equals(other._property, StringComparison.Ordinal)
                 && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
-                && _modelId.Equals(other._modelId));
+                && _modelId.Equals(other._modelId);
 
         public override bool Equals(object? obj)
             => obj is CacheKey cacheKey && Equals(cacheKey);

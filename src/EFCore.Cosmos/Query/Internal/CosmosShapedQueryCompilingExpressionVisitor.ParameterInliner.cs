@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -11,7 +9,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed class ParameterInliner(
         ISqlExpressionFactory sqlExpressionFactory,
-        IReadOnlyDictionary<string, object> parametersValues)
+        IReadOnlyDictionary<string, object?> parametersValues)
         : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression expression)
@@ -37,7 +35,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             var typeMapping = valuesParameter.TypeMapping;
                             var mutableValues = new List<SqlExpression>();
-                            foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name])
+                            foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name]!)
                             {
                                 mutableValues.Add(sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
                             }
@@ -58,17 +56,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // Converts Offset and Limit parameters to constants when ORDER BY RANK is detected in the SelectExpression (i.e. we order by scoring function)
                 // Cosmos only supports constants in Offset and Limit for this scenario currently (ORDER BY RANK limitation)
                 case SelectExpression
-                    {
-                        Orderings: [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }], Limit: var limit,
-                        Offset: var offset
-                    } hybridSearch
+                {
+                    Orderings: [{ Expression: SqlFunctionExpression { IsScoringFunction: true } }], Limit: var limit,
+                    Offset: var offset
+                } hybridSearch
                     when limit is SqlParameterExpression || offset is SqlParameterExpression:
                 {
                     if (hybridSearch.Limit is SqlParameterExpression limitPrm)
                     {
                         hybridSearch.ApplyLimit(
                             sqlExpressionFactory.Constant(
-                                parametersValues[limitPrm.Name],
+                                parametersValues[limitPrm.Name]!,
                                 limitPrm.TypeMapping));
                     }
 
@@ -76,7 +74,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         hybridSearch.ApplyOffset(
                             sqlExpressionFactory.Constant(
-                                parametersValues[offsetPrm.Name],
+                                parametersValues[offsetPrm.Name]!,
                                 offsetPrm.TypeMapping));
                     }
 
@@ -86,19 +84,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2))
                 // we do this for FullTextContainsAll, FullTextContainsAny and FullTextScore
                 case SqlFunctionExpression
-                    {
-                        Name: { } name,
-                        IsScoringFunction: var scoringFunction,
-                        Arguments:
+                {
+                    Name: { } name,
+                    IsScoringFunction: var scoringFunction,
+                    Arguments:
                         [
                             var property,
-                            SqlParameterExpression { TypeMapping: { ElementTypeMapping: var elementTypeMapping }, Type: { } type } keywords
+                            SqlParameterExpression { TypeMapping.ElementTypeMapping: var elementTypeMapping, Type: { } type } keywords
                         ]
-                    } fullTextContainsAllAnyFunction
+                } fullTextContainsAllAnyFunction
                     when (name is "FullTextContainsAny" or "FullTextContainsAll" or "FullTextScore") && type == typeof(string[]):
                 {
                     var keywordValues = new List<SqlExpression>();
-                    foreach (var value in (IEnumerable)parametersValues[keywords.Name])
+                    foreach (var value in (IEnumerable)parametersValues[keywords.Name]!)
                     {
                         keywordValues.Add(sqlExpressionFactory.Constant(value, typeof(string), elementTypeMapping));
                     }

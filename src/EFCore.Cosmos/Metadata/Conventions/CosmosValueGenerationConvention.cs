@@ -44,7 +44,7 @@ public class CosmosValueGenerationConvention :
         IConventionContext<IConventionAnnotation> context)
     {
         if (name != CosmosAnnotationNames.ContainerName
-            || (annotation == null) == (oldAnnotation == null))
+            || annotation == null == (oldAnnotation == null))
         {
             return;
         }
@@ -68,10 +68,9 @@ public class CosmosValueGenerationConvention :
     /// <returns>The store value generation strategy to set for the given property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-        var entityType = property.DeclaringType as IConventionEntityType;
         var propertyType = property.ClrType.UnwrapNullableType();
         if (propertyType == typeof(int)
-            && entityType != null)
+            && property.DeclaringType is IConventionEntityType entityType)
         {
             var ownership = entityType.FindOwnership();
             if (ownership is { IsUnique: false }

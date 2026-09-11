@@ -48,8 +48,19 @@ WHERE CAST(JSON_VALUE([r].[RequiredAssociate], '$.Ints[0]') AS int) = 1
     {
         await base.Contains();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
+FROM [RootEntity] AS [r]
+WHERE JSON_CONTAINS(JSON_QUERY([r].[RequiredAssociate], '$.Ints'), 3) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE 3 IN (
@@ -57,14 +68,26 @@ WHERE 3 IN (
     FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) WITH ([value] int '$') AS [i]
 )
 """);
+        }
     }
 
     public override async Task Any_predicate()
     {
         await base.Any_predicate();
 
-        AssertSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
+FROM [RootEntity] AS [r]
+WHERE JSON_CONTAINS(JSON_QUERY([r].[RequiredAssociate], '$.Ints'), 2) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE 2 IN (
@@ -72,6 +95,7 @@ WHERE 2 IN (
     FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) WITH ([value] int '$') AS [i]
 )
 """);
+        }
     }
 
     public override async Task Nested_Count()
@@ -95,16 +119,16 @@ WHERE (
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([i0].[value]), 0)
+    SELECT ISNULL(SUM([i0].[value]), 0)
     FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) WITH ([value] int '$') AS [i0])
 FROM [RootEntity] AS [r]
 WHERE (
-    SELECT COALESCE(SUM([i].[value]), 0)
+    SELECT ISNULL(SUM([i].[value]), 0)
     FROM OPENJSON(JSON_QUERY([r].[RequiredAssociate], '$.Ints')) WITH ([value] int '$') AS [i]) >= 6
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

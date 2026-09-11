@@ -27,31 +27,28 @@ public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionF
     {
         var declaringType = member.DeclaringType;
 
-        if (declaringType != typeof(DateTime) && declaringType != typeof(DateTimeOffset))
-        {
-            return null;
-        }
+        return declaringType != typeof(DateTime) && declaringType != typeof(DateTimeOffset)
+            ? null
+            : member.Name switch
+            {
+                nameof(DateTime.Year) => DateTimePart("yyyy"),
+                nameof(DateTime.Month) => DateTimePart("mm"),
+                nameof(DateTime.Day) => DateTimePart("dd"),
+                nameof(DateTime.Hour) => DateTimePart("hh"),
+                nameof(DateTime.Minute) => DateTimePart("mi"),
+                nameof(DateTime.Second) => DateTimePart("ss"),
+                nameof(DateTime.Millisecond) => DateTimePart("ms"),
+                nameof(DateTime.Microsecond) => sqlExpressionFactory.Modulo(DateTimePart("mcs"), sqlExpressionFactory.Constant(1000)),
+                nameof(DateTime.Nanosecond) => sqlExpressionFactory.Modulo(DateTimePart("ns"), sqlExpressionFactory.Constant(1000)),
 
-        return member.Name switch
-        {
-            nameof(DateTime.Year) => DateTimePart("yyyy"),
-            nameof(DateTime.Month) => DateTimePart("mm"),
-            nameof(DateTime.Day) => DateTimePart("dd"),
-            nameof(DateTime.Hour) => DateTimePart("hh"),
-            nameof(DateTime.Minute) => DateTimePart("mi"),
-            nameof(DateTime.Second) => DateTimePart("ss"),
-            nameof(DateTime.Millisecond) => DateTimePart("ms"),
-            nameof(DateTime.Microsecond) => sqlExpressionFactory.Modulo(DateTimePart("mcs"), sqlExpressionFactory.Constant(1000)),
-            nameof(DateTime.Nanosecond) => sqlExpressionFactory.Modulo(DateTimePart("ns"), sqlExpressionFactory.Constant(1000)),
+                nameof(DateTime.UtcNow)
+                    => sqlExpressionFactory.Function(
+                        "GetCurrentDateTime",
+                        [],
+                        returnType),
 
-            nameof(DateTime.UtcNow)
-                => sqlExpressionFactory.Function(
-                    "GetCurrentDateTime",
-                    [],
-                    returnType),
-
-            _ => null
-        };
+                _ => null
+            };
 
         SqlExpression DateTimePart(string part)
             => sqlExpressionFactory.Function(

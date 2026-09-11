@@ -172,7 +172,7 @@ public abstract class CompositeRowValueFactory(IReadOnlyList<IColumn> columns)
 
                     if (!fromOriginalValues
                         && (entry.EntityState == EntityState.Added
-                            || entry.EntityState == EntityState.Modified && entry.IsModified(property)))
+                            || (entry.EntityState == EntityState.Modified && entry.IsModified(property))))
                     {
                         break;
                     }

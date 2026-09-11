@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 public class FakeRelationalOptionsExtension : RelationalOptionsExtension
 {
-    private DbContextOptionsExtensionInfo _info;
+    private DbContextOptionsExtensionInfo? _info;
 
     public FakeRelationalOptionsExtension()
     {
@@ -35,7 +35,7 @@ public class FakeRelationalOptionsExtension : RelationalOptionsExtension
             .TryAdd<IMigrationsSqlGenerator, TestRelationalMigrationSqlGenerator>()
             .TryAdd<IProviderConventionSetBuilder, TestRelationalConventionSetBuilder>()
             .TryAdd<IRelationalConnection, FakeRelationalConnection>()
-            .TryAdd<IHistoryRepository>(_ => null)
+            .TryAdd<IHistoryRepository>(_ => null!)
             .TryAdd<IUpdateSqlGenerator, FakeSqlGenerator>()
             .TryAdd<IModificationCommandBatchFactory, TestModificationCommandBatchFactory>()
             .TryAdd<IRelationalDatabaseCreator, FakeRelationalDatabaseCreator>()

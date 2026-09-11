@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
@@ -11,7 +11,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
 {
     protected CosmosDefaultKeyValuesTestFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_key_value_with_single_partition_key_must_have_key_set()
     {
         using var context = CreateContext();
@@ -29,7 +29,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Composite_key_value_with_single_partition_key_must_have_key_set()
     {
         using var context = CreateContext();
@@ -114,7 +114,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_key_value_with_composite_partition_key_must_have_key_set()
     {
         using var context = CreateContext();
@@ -166,7 +166,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Composite_key_value_with_composite_partition_key_must_have_key_set()
     {
         using var context = CreateContext();
@@ -268,7 +268,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_same_key_and_partition_key_must_have_key_set()
     {
         using var context = CreateContext();
@@ -280,7 +280,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Composite_same_key_and_partition_key_must_have_key_set()
     {
         using var context = CreateContext();
@@ -307,7 +307,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_key_value_with_single_partition_key_can_use_generated_value()
     {
         using var context = CreateContext();
@@ -325,7 +325,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Composite_key_value_with_single_partition_key_can_use_generated_value()
     {
         using var context = CreateContext();
@@ -410,7 +410,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_key_value_with_composite_partition_key_can_use_generated_value()
     {
         using var context = CreateContext();
@@ -462,7 +462,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Composite_key_value_with_composite_partition_key_can_use_generated_value()
     {
         using var context = CreateContext();
@@ -564,7 +564,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Single_same_key_and_partition_key_can_use_generated_value()
     {
         using var context = CreateContext();
@@ -576,7 +576,7 @@ public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTes
         await AssertSaves(context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Composite_same_key_and_partition_key_can_use_generated_value()
     {
         using var context = CreateContext();

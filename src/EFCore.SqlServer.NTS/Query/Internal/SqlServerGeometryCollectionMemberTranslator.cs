@@ -39,19 +39,14 @@ public class SqlServerGeometryCollectionMemberTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (Equals(member, Count))
-        {
-            return _sqlExpressionFactory.Function(
+        => Equals(member, Count)
+            ? _sqlExpressionFactory.Function(
                 instance!,
                 "STNumGeometries",
                 [],
                 nullable: true,
                 instancePropagatesNullability: true,
                 argumentsPropagateNullability: [],
-                returnType);
-        }
-
-        return null;
-    }
+                returnType)
+            : null;
 }

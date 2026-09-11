@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -11,12 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class QueryFilterRewritingConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void QueryFilter_containing_db_set_with_not_included_type()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
         Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Post>().Single().Id == e.Id;
-        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)!
             .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
         Assert.Equal(
@@ -24,13 +24,13 @@ public class QueryFilterRewritingConventionTest
             Assert.Throws<InvalidOperationException>(() => RunConvention(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QueryFilter_containing_db_set_with_shared_type_without_name()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
         modelBuilder.SharedTypeEntity("Post1", typeof(Post), ConfigurationSource.Explicit);
         Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Post>().Single().Id == e.Id;
-        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)!
             .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
         Assert.Equal(
@@ -38,13 +38,13 @@ public class QueryFilterRewritingConventionTest
             Assert.Throws<InvalidOperationException>(() => RunConvention(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QueryFilter_containing_db_set_of_incorrect_type()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
         modelBuilder.SharedTypeEntity("Post1", typeof(Post), ConfigurationSource.Explicit);
         Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Blog>("Post1").Single().Id == e.Id;
-        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)!
             .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
         Assert.Equal(
@@ -52,15 +52,15 @@ public class QueryFilterRewritingConventionTest
             Assert.Throws<InvalidOperationException>(() => RunConvention(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void QueryFilter_containing_db_set_of_owned()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
-        modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)!
             .HasOwnership(typeof(Blog), "Blog", ConfigurationSource.Explicit);
 
         Expression<Func<Owner, bool>> lambda = e => new MyContext().Set<Blog>().Single().Id == e.Id;
-        modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)
+        modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)!
             .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
         Assert.Equal(
@@ -94,7 +94,7 @@ public class QueryFilterRewritingConventionTest
     protected class Owner
     {
         public int Id { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
     }
 
     protected class MyContext : DbContext;

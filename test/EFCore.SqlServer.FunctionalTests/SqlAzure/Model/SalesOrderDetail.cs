@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 [Table("SalesOrderDetail", Schema = "SalesLT")]
 public class SalesOrderDetail
 {
@@ -21,8 +19,8 @@ public class SalesOrderDetail
     public Guid rowguid { get; set; }
 
     [ForeignKey("ProductID"), InverseProperty("OrderDetails")]
-    public virtual Product Product { get; set; }
+    public virtual Product Product { get; set; } = null!;
 
     [ForeignKey("SalesOrderID"), InverseProperty("Details")]
-    public virtual SalesOrder SalesOrder { get; set; }
+    public virtual SalesOrder SalesOrder { get; set; } = null!;
 }

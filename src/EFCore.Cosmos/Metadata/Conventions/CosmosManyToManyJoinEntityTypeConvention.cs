@@ -124,15 +124,9 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         {
             var principalProperty = principalKey.Properties[i];
             var partitionKeyProperty = partitionKeyProperties.FirstOrDefault(p => p.Name == principalProperty.Name);
-            if (partitionKeyProperty != null)
-            {
-                dependentProperties[i] = partitionKeyProperty;
-            }
-            else
-            {
-                dependentProperties[i] = joinEntityTypeBuilder.CreateUniqueProperty(
+            dependentProperties[i] = partitionKeyProperty
+                ?? joinEntityTypeBuilder.CreateUniqueProperty(
                     principalProperty.ClrType, principalProperty.Name, required: true)!.Metadata;
-            }
         }
 
         var foreignKey = joinEntityTypeBuilder.HasRelationship(skipNavigation.DeclaringEntityType, dependentProperties, principalKey)!
@@ -171,7 +165,7 @@ public class CosmosManyToManyJoinEntityTypeConvention :
             {
                 var partitionKeyProperties = joinEntityType.GetPartitionKeyProperties();
                 if (partitionKeyProperties.Any()
-                    && joinEntityTypeBuilder.HasPartitionKey((IReadOnlyList<string>?)null) != null
+                    && joinEntityTypeBuilder.HasPartitionKey(null) != null
                     && ((partitionKeyProperties.Any(p => skipNavigation.ForeignKey!.Properties.Contains(p))
                             && skipNavigation.Builder.CanSetForeignKey(null))
                         || (partitionKeyProperties.Any(p => inverseSkipNavigation.ForeignKey!.Properties.Contains(p))

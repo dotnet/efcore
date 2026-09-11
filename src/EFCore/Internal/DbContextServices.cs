@@ -38,18 +38,12 @@ public class DbContextServices : IDbContextServices
         var providers = _scopedProvider.GetService<IEnumerable<IDatabaseProvider>>()?.ToList();
         var providerCount = providers?.Count ?? 0;
 
-        if (providerCount > 1)
-        {
-            throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(providers!)));
-        }
-
-        if (providerCount == 0
-            || !providers![0].IsConfigured(contextOptions))
-        {
-            throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
-        }
-
-        return this;
+        return providerCount > 1
+            ? throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(providers!)))
+            : providerCount == 0
+            || !providers![0].IsConfigured(contextOptions)
+                ? throw new InvalidOperationException(CoreStrings.NoProviderConfigured)
+                : (IDbContextServices)this;
     }
 
     private static string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)
@@ -67,7 +61,22 @@ public class DbContextServices : IDbContextServices
             _inOnModelCreating = true;
 
             var dependencies = _scopedProvider!.GetRequiredService<ModelCreationDependencies>();
-            var modelFromOptions = CoreOptions?.Model ?? FindCompiledModel(_currentContext!.Context.GetType());
+
+            string? mismatchedProviderName = null;
+            var modelFromOptions = CoreOptions?.Model;
+            if (modelFromOptions == null)
+            {
+                var providers = _scopedProvider!.GetService<IEnumerable<IDatabaseProvider>>()?.ToList();
+                var providerName = providers is [var provider] ? provider.Name : null;
+
+                modelFromOptions = FindCompiledModel(_currentContext!.Context.GetType(), providerName, out mismatchedProviderName);
+
+                if (mismatchedProviderName != null)
+                {
+                    var logger = _scopedProvider!.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+                    logger.CompiledModelProviderMismatchWarning(mismatchedProviderName, providerName!);
+                }
+            }
 
             var modelVersion = modelFromOptions?.GetProductVersion();
             if (modelVersion != null)
@@ -84,7 +93,7 @@ public class DbContextServices : IDbContextServices
             }
 
             if (modelFromOptions == null
-                || (designTime && !(modelFromOptions is Model)))
+                || (designTime && modelFromOptions is not Metadata.Internal.Model))
             {
                 return RuntimeFeature.IsDynamicCodeSupported
                     ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
@@ -105,14 +114,24 @@ public class DbContextServices : IDbContextServices
             _inOnModelCreating = false;
         }
 
-        static IModel? FindCompiledModel(Type contextType)
+        static IModel? FindCompiledModel(Type contextType, string? providerName, out string? mismatchedProviderName)
         {
+            mismatchedProviderName = null;
             var contextAssembly = contextType.Assembly;
             IModel? model = null;
+            string? firstMismatchedProvider = null;
             foreach (var modelAttribute in contextAssembly.GetCustomAttributes<DbContextModelAttribute>())
             {
                 if (modelAttribute.ContextType != contextType)
                 {
+                    continue;
+                }
+
+                if (modelAttribute.ProviderName != null
+                    && providerName != null
+                    && modelAttribute.ProviderName != providerName)
+                {
+                    firstMismatchedProvider ??= modelAttribute.ProviderName;
                     continue;
                 }
 
@@ -133,6 +152,11 @@ public class DbContextServices : IDbContextServices
                 }
 
                 model = (IModel)instanceProperty.GetValue(null)!;
+            }
+
+            if (model == null)
+            {
+                mismatchedProviderName = firstMismatchedProvider;
             }
 
             return model;

@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public class TestCosmosExecutionStrategy : CosmosExecutionStrategy
 {
     protected static new readonly int DefaultMaxRetryCount = 10;
@@ -19,8 +17,8 @@ public class TestCosmosExecutionStrategy : CosmosExecutionStrategy
                 new DbContextOptionsBuilder()
                     .EnableServiceProviderCaching(false)
                     .UseCosmos(
-                        TestEnvironment.DefaultConnection,
-                        TestEnvironment.AuthToken,
+                        CosmosTestEnvironment.DefaultConnection,
+                        CosmosTestEnvironment.AuthToken,
                         "NonExistent").Options),
             DefaultMaxRetryCount, DefaultMaxDelay)
     {

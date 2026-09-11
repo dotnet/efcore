@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
@@ -7,9 +7,7 @@ using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-[SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
 public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeographyFixture>
 {
     public SpatialQuerySqlServerGeographyTest(SpatialQuerySqlServerGeographyFixture fixture, ITestOutputHelper testOutputHelper)
@@ -88,10 +86,7 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-SELECT [p].[Id], CASE
-    WHEN [p].[Point] IS NULL THEN NULL
-    ELSE [p].[Point].STAsBinary()
-END AS [Binary]
+SELECT [p].[Id], [p].[Point].STAsBinary() AS [Binary]
 FROM [PointEntity] AS [p]
 """);
     }
@@ -218,13 +213,13 @@ FROM [LineStringEntity] AS [l]
     public override Task Crosses(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task CurveToLine(bool async)
     {
         await AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = EF.Functions.CurveToLine(e.Polygon) }),
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = (Geometry)e.Polygon }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = EF.Functions.CurveToLine(e.Polygon!) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = (Geometry)e.Polygon! }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -284,10 +279,7 @@ FROM [PolygonEntity] AS [p]
             """
 @point='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
 
-SELECT [p].[Id], CASE
-    WHEN [p].[Polygon] IS NULL THEN NULL
-    ELSE [p].[Polygon].STDisjoint(@point)
-END AS [Disjoint]
+SELECT [p].[Id], [p].[Polygon].STDisjoint(@point) AS [Disjoint]
 FROM [PolygonEntity] AS [p]
 """);
     }

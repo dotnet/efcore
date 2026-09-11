@@ -49,13 +49,10 @@ public class RelationalKeyDiscoveryConvention : KeyDiscoveryConvention, IEntityT
 
         // Don't discover key properties for owned collection types mapped to JSON so that we can persist properties
         // called `Id` without attempting to persist key values.
-        if (ownership?.IsUnique == false
-            && entityType.GetContainerColumnName() is not null)
-        {
-            return [];
-        }
-
-        return base.DiscoverKeyProperties(entityType);
+        return ownership?.IsUnique == false
+            && entityType.GetContainerColumnName() is not null
+                ? []
+                : base.DiscoverKeyProperties(entityType);
     }
 
     /// <inheritdoc />

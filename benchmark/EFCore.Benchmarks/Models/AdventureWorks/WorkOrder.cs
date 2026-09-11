@@ -23,6 +23,6 @@ public class WorkOrder
     public int StockedQty { get; set; }
 
     public virtual ICollection<WorkOrderRouting> WorkOrderRouting { get; set; }
-    public virtual Product Product { get; set; }
-    public virtual ScrapReason ScrapReason { get; set; }
+    public virtual Product Product { get; set; } = null!;
+    public virtual ScrapReason? ScrapReason { get; set; }
 }

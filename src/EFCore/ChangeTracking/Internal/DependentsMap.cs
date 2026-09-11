@@ -31,7 +31,7 @@ public class DependentsMap<TKey> : IDependentsMap
         _foreignKey = foreignKey;
         _principalKeyValueFactory = principalKeyValueFactory;
         _dependentKeyValueFactory = dependentKeyValueFactory;
-        _map = new Dictionary<TKey, HashSet<IUpdateEntry>>(principalKeyValueFactory.EqualityComparer);
+        _map = [with(principalKeyValueFactory.EqualityComparer)];
     }
 
     /// <summary>

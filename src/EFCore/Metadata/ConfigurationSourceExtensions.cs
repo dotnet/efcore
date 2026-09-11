@@ -24,29 +24,11 @@ public static class ConfigurationSourceExtensions
     /// <returns><see langword="true" /> if the new configuration source can override configuration set with the old configuration source.</returns>
     [ContractAnnotation("oldConfigurationSource:null => true")]
     public static bool Overrides(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource)
-    {
-        if (oldConfigurationSource == null)
-        {
-            return true;
-        }
-
-        if (newConfigurationSource == ConfigurationSource.Explicit)
-        {
-            return true;
-        }
-
-        if (oldConfigurationSource == ConfigurationSource.Explicit)
-        {
-            return false;
-        }
-
-        if (newConfigurationSource == ConfigurationSource.DataAnnotation)
-        {
-            return true;
-        }
-
-        return oldConfigurationSource != ConfigurationSource.DataAnnotation;
-    }
+        => oldConfigurationSource == null
+            || newConfigurationSource == ConfigurationSource.Explicit
+            || (oldConfigurationSource != ConfigurationSource.Explicit
+                && (newConfigurationSource == ConfigurationSource.DataAnnotation
+                    || oldConfigurationSource != ConfigurationSource.DataAnnotation));
 
     /// <summary>
     ///     Returns a value indicating whether the new configuration source can override configuration set with the old configuration source.
@@ -58,7 +40,7 @@ public static class ConfigurationSourceExtensions
     /// <param name="oldConfigurationSource">The old configuration source.</param>
     /// <returns><see langword="true" /> if the new configuration source can override configuration set with the old configuration source.</returns>
     public static bool Overrides(this ConfigurationSource? newConfigurationSource, ConfigurationSource? oldConfigurationSource)
-        => newConfigurationSource?.Overrides(oldConfigurationSource) ?? oldConfigurationSource == null;
+        => newConfigurationSource?.Overrides(oldConfigurationSource) ?? (oldConfigurationSource == null);
 
     /// <summary>
     ///     Returns a value indicating whether the configuration source always takes precedence over the other configuration source.

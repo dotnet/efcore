@@ -140,7 +140,7 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ElementTypeBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion>()
+    TConversion>()
         => HasConversion(typeof(TConversion));
 
     /// <summary>
@@ -183,7 +183,7 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ElementTypeBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion>(
+    TConversion>(
         ValueComparer? valueComparer)
         => HasConversion(typeof(TConversion), valueComparer);
 
@@ -239,9 +239,9 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ElementTypeBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer>()
+    TComparer>()
         where TComparer : ValueComparer
         => HasConversion(typeof(TConversion), typeof(TComparer));
 

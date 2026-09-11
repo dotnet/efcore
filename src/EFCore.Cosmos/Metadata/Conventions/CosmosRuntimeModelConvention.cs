@@ -66,6 +66,8 @@ public class CosmosRuntimeModelConvention : RuntimeModelConvention
             annotations.Remove(CosmosAnnotationNames.AnalyticalStoreTimeToLive);
             annotations.Remove(CosmosAnnotationNames.DefaultTimeToLive);
             annotations.Remove(CosmosAnnotationNames.Throughput);
+            annotations.Remove(CosmosAnnotationNames.AutomaticIndexingExceptions);
+            annotations.Remove(CosmosAnnotationNames.AutomaticIndexingEnabled);
         }
     }
 }

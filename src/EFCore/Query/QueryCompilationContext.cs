@@ -242,7 +242,7 @@ public class QueryCompilationContext
             throw new ArgumentException(CoreStrings.RuntimeParameterMissingParameter, nameof(valueExtractor));
         }
 
-        _runtimeParameters ??= new Dictionary<string, LambdaExpression>();
+        _runtimeParameters ??= [];
 
         _runtimeParameters[name] = valueExtractor;
         return new QueryParameterExpression(name, valueExtractor.ReturnType);

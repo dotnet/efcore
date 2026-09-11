@@ -12,7 +12,7 @@ public abstract class NorthwindQueryTaggingQueryTestBase<TFixture>(TFixture fixt
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Single_query_tag()
     {
         using var context = CreateContext();
@@ -25,7 +25,7 @@ public abstract class NorthwindQueryTaggingQueryTestBase<TFixture>(TFixture fixt
         Assert.NotNull(customer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Single_query_multiple_tags()
     {
         using var context = CreateContext();
@@ -39,7 +39,7 @@ public abstract class NorthwindQueryTaggingQueryTestBase<TFixture>(TFixture fixt
         Assert.NotNull(customer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Duplicate_tags()
     {
         using var context = CreateContext();
@@ -53,7 +53,7 @@ public abstract class NorthwindQueryTaggingQueryTestBase<TFixture>(TFixture fixt
         Assert.NotNull(customer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Tags_on_subquery()
     {
         using var context = CreateContext();
@@ -65,7 +65,7 @@ public abstract class NorthwindQueryTaggingQueryTestBase<TFixture>(TFixture fixt
         Assert.Equal(5, customers.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Tag_on_include_query()
     {
         using var context = CreateContext();
@@ -79,7 +79,7 @@ public abstract class NorthwindQueryTaggingQueryTestBase<TFixture>(TFixture fixt
         Assert.NotNull(customer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Tag_on_scalar_query()
     {
         using var context = CreateContext();
@@ -93,7 +93,7 @@ public abstract class NorthwindQueryTaggingQueryTestBase<TFixture>(TFixture fixt
         Assert.NotNull(customer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Single_query_multiline_tag()
     {
         using var context = CreateContext();
@@ -109,7 +109,7 @@ Laurel")
         Assert.NotNull(customer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Single_query_multiple_multiline_tag()
     {
         using var context = CreateContext();
@@ -130,7 +130,7 @@ Tag")
         Assert.NotNull(customer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Single_query_multiline_tag_with_empty_lines()
     {
         using var context = CreateContext();

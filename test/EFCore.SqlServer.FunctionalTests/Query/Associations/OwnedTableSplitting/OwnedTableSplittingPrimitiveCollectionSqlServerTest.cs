@@ -28,7 +28,7 @@ LEFT JOIN [RequiredRelated_NestedCollection] AS [r3] ON [r].[Id] = [r3].[Associa
 WHERE (
     SELECT COUNT(*)
     FROM OPENJSON([r].[RequiredAssociate_Ints]) AS [r0]) = 3
-ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r3].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r3].[AssociateTypeRootEntityId], [r3].[Id]
 """);
     }
 
@@ -50,7 +50,7 @@ LEFT JOIN [OptionalRelated_NestedCollection] AS [o] ON CASE
 END = [o].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r2] ON [r].[Id] = [r2].[AssociateTypeRootEntityId]
 WHERE CAST(JSON_VALUE([r].[RequiredAssociate_Ints], '$[0]') AS int) = 1
-ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r2].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r2].[AssociateTypeRootEntityId], [r2].[Id]
 """);
     }
 
@@ -75,7 +75,7 @@ WHERE 3 IN (
     SELECT [r0].[value]
     FROM OPENJSON([r].[RequiredAssociate_Ints]) WITH ([value] int '$') AS [r0]
 )
-ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r3].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r3].[AssociateTypeRootEntityId], [r3].[Id]
 """);
     }
 
@@ -100,7 +100,7 @@ WHERE 2 IN (
     SELECT [r0].[value]
     FROM OPENJSON([r].[RequiredAssociate_Ints]) WITH ([value] int '$') AS [r0]
 )
-ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r3].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r3].[AssociateTypeRootEntityId], [r3].[Id]
 """);
     }
 
@@ -124,7 +124,7 @@ LEFT JOIN [RequiredRelated_NestedCollection] AS [r3] ON [r].[Id] = [r3].[Associa
 WHERE (
     SELECT COUNT(*)
     FROM OPENJSON([r].[RequiredAssociate_RequiredNestedAssociate_Ints]) AS [r0]) = 3
-ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r3].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r3].[AssociateTypeRootEntityId], [r3].[Id]
 """);
     }
 
@@ -135,16 +135,16 @@ ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([r1].[value]), 0)
+    SELECT ISNULL(SUM([r1].[value]), 0)
     FROM OPENJSON([r].[RequiredAssociate_Ints]) WITH ([value] int '$') AS [r1])
 FROM [RootEntity] AS [r]
 WHERE (
-    SELECT COALESCE(SUM([r0].[value]), 0)
+    SELECT ISNULL(SUM([r0].[value]), 0)
     FROM OPENJSON([r].[RequiredAssociate_Ints]) WITH ([value] int '$') AS [r0]) >= 6
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

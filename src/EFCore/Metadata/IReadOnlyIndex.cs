@@ -16,7 +16,7 @@ public interface IReadOnlyIndex : IReadOnlyAnnotatable
     /// <summary>
     ///     Gets the properties that this index is defined on.
     /// </summary>
-    IReadOnlyList<IReadOnlyProperty> Properties { get; }
+    IReadOnlyList<IReadOnlyPropertyBase> Properties { get; }
 
     /// <summary>
     ///     Gets the name of this index.
@@ -32,6 +32,38 @@ public interface IReadOnlyIndex : IReadOnlyAnnotatable
     ///     A set of values indicating whether each corresponding index column has descending sort order.
     /// </summary>
     IReadOnlyList<bool>? IsDescending { get; }
+
+    /// <summary>
+    ///     Gets the complex-collection indices traversed to reach each indexed property.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When non-<see langword="null" />, this list has the same length as <see cref="Properties" />.
+    ///         Each entry corresponds to the property at the same position and is either:
+    ///     </para>
+    ///     <para>
+    ///         <list type="bullet">
+    ///             <item>
+    ///                 <description>
+    ///                     <see langword="null" />, indicating the property is not reached through any complex collection.
+    ///                 </description>
+    ///             </item>
+    ///             <item>
+    ///                 <description>
+    ///                     A list with one entry per complex-collection segment between the entity root and the property,
+    ///                     ordered outermost-first (the entry at index 0 resolves the complex collection closest to the
+    ///                     entity root). A <see langword="null" /> entry means the index applies to all elements of that
+    ///                     collection (e.g. <c>Posts.Select(p => p.Title)</c>); a non-<see langword="null" /> entry means
+    ///                     the index applies only to the element at that fixed position (e.g. <c>Posts[0].Title</c>).
+    ///                 </description>
+    ///             </item>
+    ///         </list>
+    ///     </para>
+    ///     <para>
+    ///         A <see langword="null" /> top-level value means no property in this index traverses any complex collection.
+    ///     </para>
+    /// </remarks>
+    IReadOnlyList<IReadOnlyList<int?>?>? CollectionIndices { get; }
 
     /// <summary>
     ///     Gets the entity type the index is defined on. This may be different from the type that <see cref="Properties" />

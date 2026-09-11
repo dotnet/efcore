@@ -20,6 +20,6 @@ public class WorkOrderRouting
     public DateTime ScheduledEndDate { get; set; }
     public DateTime ScheduledStartDate { get; set; }
 
-    public virtual Location Location { get; set; }
-    public virtual WorkOrder WorkOrder { get; set; }
+    public virtual Location Location { get; set; } = null!;
+    public virtual WorkOrder WorkOrder { get; set; } = null!;
 }

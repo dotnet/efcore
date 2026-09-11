@@ -4,4 +4,4 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-[assembly: DbContextModel(typeof(GlobalNamespaceContext), typeof(GlobalNamespaceContextModel))]
+[assembly: DbContextModel(typeof(GlobalNamespaceContext), typeof(GlobalNamespaceContextModel), ProviderName = "Microsoft.EntityFrameworkCore.InMemory")]

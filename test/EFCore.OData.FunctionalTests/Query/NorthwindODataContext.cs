@@ -1,17 +1,20 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindODataContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public virtual DbSet<Customer> Customers { get; set; }
-    public virtual DbSet<Employee> Employees { get; set; }
-    public virtual DbSet<Order> Orders { get; set; }
-    public virtual DbSet<OrderDetail> OrderDetails { get; set; }
-    public virtual DbSet<Product> Products { get; set; }
+    public virtual DbSet<Customer> Customers { get; set; } = null!;
+    public virtual DbSet<Employee> Employees { get; set; } = null!;
+    public virtual DbSet<Order> Orders { get; set; } = null!;
+    public virtual DbSet<OrderDetail> OrderDetails { get; set; } = null!;
+    public virtual DbSet<Product> Products { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,10 +58,7 @@ public class NorthwindODataContext(DbContextOptions options) : PoolableDbContext
             e.Ignore(o => o.ShippedDate);
         });
 
-        modelBuilder.Entity<OrderDetail>(e =>
-        {
-            e.HasKey(od => new { od.OrderID, od.ProductID });
-        });
+        modelBuilder.Entity<OrderDetail>(e => e.HasKey(od => new { od.OrderID, od.ProductID }));
 
         modelBuilder.Entity<Customer>()
             .Property(c => c.CustomerID)
