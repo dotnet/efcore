@@ -3050,6 +3050,20 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_with_result_selector_selecting_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(
+                o => o.CustomerID,
+                (key, elements) => new { Key = key, Orders = elements.Select(e => e.OrderID).ToList() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                AssertCollection(e.Orders, a.Orders);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Take_selecting_grouping_element_list(bool async)
         => AssertQuery(
             async,

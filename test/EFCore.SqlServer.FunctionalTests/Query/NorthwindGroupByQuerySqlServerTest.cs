@@ -3981,6 +3981,18 @@ WHERE [o0].[OrderID] = [t].[c]
 """);
     }
 
+    public override async Task GroupBy_with_result_selector_selecting_grouping_element_list(bool async)
+    {
+        await base.GroupBy_with_result_selector_selecting_grouping_element_list(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[OrderID]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_Take_selecting_grouping_element_list(bool async)
     {
         await base.GroupBy_Take_selecting_grouping_element_list(async);
