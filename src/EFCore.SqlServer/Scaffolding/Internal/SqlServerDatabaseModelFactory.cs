@@ -933,25 +933,25 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
             }
 
             if (type == typeof(DateTime)
-                && DateTime.TryParse(defaultValueSql, out var dateTime))
+                && DateTime.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTime))
             {
                 return dateTime;
             }
 
             if (type == typeof(DateOnly)
-                && DateOnly.TryParse(defaultValueSql, out var dateOnly))
+                && DateOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateOnly))
             {
                 return dateOnly;
             }
 
             if (type == typeof(TimeOnly)
-                && TimeOnly.TryParse(defaultValueSql, out var timeOnly))
+                && TimeOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var timeOnly))
             {
                 return timeOnly;
             }
 
             if (type == typeof(DateTimeOffset)
-                && DateTimeOffset.TryParse(defaultValueSql, out var dateTimeOffset))
+                && DateTimeOffset.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTimeOffset))
             {
                 return dateTimeOffset;
             }

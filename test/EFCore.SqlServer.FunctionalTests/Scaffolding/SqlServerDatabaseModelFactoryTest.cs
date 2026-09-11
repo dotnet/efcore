@@ -4483,6 +4483,43 @@ CREATE TABLE MyTable (
             "DROP TABLE MyTable;");
 
     [Fact]
+    public void Simple_date_literals_are_parsed_for_HasDefaultValue_with_Persian_locale()
+    {
+        var currentCulture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("fa-IR");
+            Test(
+                @"
+CREATE TABLE MyTable (
+    Id int,
+    A datetime2 DEFAULT (1968-10-23),
+    B date DEFAULT (1968-10-23),
+);",
+                [],
+                [],
+                (dbModel, scaffoldingFactory) =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    var column = columns.Single(c => c.Name == "A");
+                    Assert.Equal("(1968-10-23)", column.DefaultValueSql);
+                    Assert.Equal(new DateTime(1968, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "B");
+                    Assert.Equal("(1968-10-23)", column.DefaultValueSql);
+                    Assert.Equal(new DateOnly(1968, 10, 23), column.DefaultValue);
+                },
+                "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = currentCulture;
+        }
+    }
+
+    [Fact]
     public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
