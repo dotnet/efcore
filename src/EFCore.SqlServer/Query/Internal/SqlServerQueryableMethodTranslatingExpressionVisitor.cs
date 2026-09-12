@@ -80,6 +80,19 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     {
         var method = methodCallExpression.Method;
 
+        // A temporal operator normally executes while the query is being built, returning a
+        // temporal query root. Inside EF.CompileQuery/CompileAsyncQuery it is never executed -- the
+        // lambda is only an expression tree -- so the call reaches translation intact. It cannot be
+        // honoured here: the point-in-time is emitted into the SQL as a literal
+        // (SqlServerQuerySqlGenerator, GenerateSqlLiteral), and a compiled query caches one SQL
+        // string across invocations, so a value that varies per invocation has nowhere to go.
+        // Report that rather than letting it fall through to a generic "could not be translated".
+        if (method.DeclaringType == typeof(SqlServerDbSetExtensions))
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.TemporalOperatorRequiresConstantArgumentInCompiledQuery(method.Name));
+        }
+
         if (method.DeclaringType == typeof(SqlServerQueryableExtensions)
             && Visit(methodCallExpression.Arguments[0]) is ShapedQueryExpression source)
         {
