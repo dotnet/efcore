@@ -27,12 +27,34 @@ public class RelationalGroupByResultExpression : Expression, IPrintableExpressio
         IReadOnlyList<ValueComparer> keyIdentifierValueComparers,
         Expression keyShaper,
         Expression elementShaper)
+        : this(keyIdentifier, keyIdentifierValueComparers, keyShaper, elementShaper, resultSelector: null)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="RelationalGroupByResultExpression" /> class.
+    /// </summary>
+    /// <param name="keyIdentifier">An identifier for the parent element.</param>
+    /// <param name="keyIdentifierValueComparers">A list of value comparers to compare parent identifier.</param>
+    /// <param name="keyShaper">An expression used to create individual elements of the collection.</param>
+    /// <param name="elementShaper">An expression used to create individual elements of the collection.</param>
+    /// <param name="resultSelector">
+    ///     A client-side projection applied to each materialized grouping, or <see langword="null" /> if the groupings themselves are
+    ///     the result of the query.
+    /// </param>
+    public RelationalGroupByResultExpression(
+        Expression keyIdentifier,
+        IReadOnlyList<ValueComparer> keyIdentifierValueComparers,
+        Expression keyShaper,
+        Expression elementShaper,
+        LambdaExpression? resultSelector)
     {
         KeyIdentifier = keyIdentifier;
         KeyIdentifierValueComparers = keyIdentifierValueComparers;
         KeyShaper = keyShaper;
         ElementShaper = elementShaper;
-        Type = typeof(IGrouping<,>).MakeGenericType(keyShaper.Type, elementShaper.Type);
+        ResultSelector = resultSelector;
+        Type = resultSelector?.ReturnType ?? typeof(IGrouping<,>).MakeGenericType(keyShaper.Type, elementShaper.Type);
     }
 
     /// <summary>
@@ -54,6 +76,18 @@ public class RelationalGroupByResultExpression : Expression, IPrintableExpressio
     ///     The expression to create elements in the group.
     /// </summary>
     public virtual Expression ElementShaper { get; }
+
+    /// <summary>
+    ///     <para>
+    ///         A projection applied on the client to each grouping produced by this expression, or <see langword="null" /> when the
+    ///         groupings are themselves the result of the query.
+    ///     </para>
+    ///     <para>
+    ///         Since this is applied outside of the shaper, on already materialized groupings, it is deliberately not visited as a child
+    ///         of this expression.
+    ///     </para>
+    /// </summary>
+    public virtual LambdaExpression? ResultSelector { get; }
 
     /// <inheritdoc />
     public override Type Type { get; }
@@ -87,7 +121,8 @@ public class RelationalGroupByResultExpression : Expression, IPrintableExpressio
         => keyIdentifier != KeyIdentifier
             || keyShaper != KeyShaper
             || elementShaper != ElementShaper
-                ? new RelationalGroupByResultExpression(keyIdentifier, KeyIdentifierValueComparers, keyShaper, elementShaper)
+                ? new RelationalGroupByResultExpression(
+                    keyIdentifier, KeyIdentifierValueComparers, keyShaper, elementShaper, ResultSelector)
                 : this;
 
     /// <inheritdoc />
