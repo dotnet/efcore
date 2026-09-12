@@ -19,6 +19,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private static readonly PropertyInfo QueryContextContextPropertyInfo
         = typeof(QueryContext).GetTypeInfo().GetDeclaredProperty(nameof(QueryContext.Context))!;
 
+    private static readonly bool UseOldBehavior38965
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38965", out var enabled) && enabled;
+
     private static readonly Dictionary<MethodInfo, MethodInfo> PredicateLessMethodInfo = new()
     {
         { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
@@ -1747,7 +1750,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             navigationAccessDetector.Visit(RemapLambdaExpression(parent, aggregate.Selector));
-            if (navigationAccessDetector.FoundFilteredRequiredNavigation)
+            if (!UseOldBehavior38965
+                && navigationAccessDetector.FoundFilteredRequiredNavigation)
             {
                 // The required navigation's inner join would allow its query filter to remove grouping elements.
                 return null;

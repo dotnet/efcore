@@ -138,6 +138,6 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
         public int PrincipalId { get; set; }
         public Principal38965 Principal { get; set; } = null!;
     }
-    #endregion
+
     #endregion
 }

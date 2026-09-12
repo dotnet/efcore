@@ -15,9 +15,13 @@ public class AdHocQueryFiltersQuerySqliteTest(NonSharedFixture fixture) : AdHocQ
         AssertSql(
             """
 SELECT "d"."GroupId" AS "Key", COUNT(*) AS "Count", (
-    SELECT MAX("p"."Value")
+    SELECT MAX("p0"."Value")
     FROM "Dependents" AS "d0"
-    INNER JOIN "Principals" AS "p" ON "d0"."PrincipalId" = "p"."Id" AND NOT ("p"."Filtered")
+    INNER JOIN (
+        SELECT "p"."Id", "p"."Value"
+        FROM "Principals" AS "p"
+        WHERE NOT ("p"."Filtered")
+    ) AS "p0" ON "d0"."PrincipalId" = "p0"."Id"
     WHERE "d"."GroupId" = "d0"."GroupId") AS "MaxValue"
 FROM "Dependents" AS "d"
 GROUP BY "d"."GroupId"
