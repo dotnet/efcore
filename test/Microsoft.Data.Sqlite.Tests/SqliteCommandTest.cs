@@ -872,6 +872,9 @@ CREATE TABLE "Products" (
     public Task ExecuteScalar_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(command =>
         {
+            // Shorter than the five seconds the reader is held for, so this still times out
+            command.CommandTimeout = 1;
+
             var ex = Assert.Throws<SqliteException>(() => command.ExecuteScalar());
 
             AssertBusy(ex.SqliteErrorCode);
@@ -881,6 +884,9 @@ CREATE TABLE "Products" (
     public Task ExecuteNonQuery_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(command =>
         {
+            // Shorter than the five seconds the reader is held for, so this still times out
+            command.CommandTimeout = 1;
+
             var ex = Assert.Throws<SqliteException>(() => command.ExecuteNonQuery());
 
             AssertBusy(ex.SqliteErrorCode);
@@ -922,43 +928,65 @@ CREATE TABLE "Products" (
     [Fact]
     public void NextResult_throws_instead_of_losing_the_write_when_commit_stays_busy_with_returning()
         => Execute_with_returning_while_reader_is_open(
-            releaseReaderAfter: null,
-            command =>
+            releaseReader: false,
+            (command, startRelease) =>
             {
                 command.CommandTimeout = 1;
 
                 using var reader = command.ExecuteReader();
                 Assert.True(reader.Read());
 
+                startRelease();
+                var timer = Stopwatch.StartNew();
+
                 var ex = Assert.Throws<SqliteException>(() => reader.NextResult());
 
                 AssertBusy(ex.SqliteErrorCode);
+
+                // It waited for the command timeout instead of giving up on the first busy
+                Assert.True(timer.Elapsed >= TimeSpan.FromSeconds(1), $"Threw after {timer.Elapsed}");
             },
             expectedCount: 1);
 
     [Fact]
     public void NextResult_waits_for_the_commit_when_busy_with_returning()
         => Execute_with_returning_while_reader_is_open(
-            releaseReaderAfter: TimeSpan.FromMilliseconds(500),
-            command =>
+            releaseReader: true,
+            (command, startRelease) =>
             {
                 using var reader = command.ExecuteReader();
                 Assert.True(reader.Read());
 
+                startRelease();
+                var timer = Stopwatch.StartNew();
+
                 Assert.False(reader.NextResult());
+
+                // The commit could only succeed once the reader was gone, so it has to have waited for it
+                Assert.True(timer.Elapsed >= ReaderReleaseDelay, $"Returned after {timer.Elapsed}");
             },
             expectedCount: 2);
 
     [Fact]
     public void ExecuteNonQuery_waits_for_the_commit_when_busy_with_returning()
         => Execute_with_returning_while_reader_is_open(
-            releaseReaderAfter: TimeSpan.FromMilliseconds(500),
-            command => Assert.Equal(1, command.ExecuteNonQuery()),
+            releaseReader: true,
+            (command, startRelease) =>
+            {
+                startRelease();
+                var timer = Stopwatch.StartNew();
+
+                Assert.Equal(1, command.ExecuteNonQuery());
+
+                Assert.True(timer.Elapsed >= ReaderReleaseDelay, $"Returned after {timer.Elapsed}");
+            },
             expectedCount: 2);
 
+    private static readonly TimeSpan ReaderReleaseDelay = TimeSpan.FromMilliseconds(500);
+
     private static void Execute_with_returning_while_reader_is_open(
-        TimeSpan? releaseReaderAfter,
-        Action<SqliteCommand> action,
+        bool releaseReader,
+        Action<SqliteCommand, Action> action,
         long expectedCount)
     {
         var connectionString = $"Data Source={Guid.NewGuid()}.db";
@@ -979,14 +1007,21 @@ CREATE TABLE "Products" (
             var reader = readerConnection.ExecuteReader("SELECT * FROM Data;");
             Assert.True(reader.Read());
 
-            var release = releaseReaderAfter == null
-                ? Task.CompletedTask
-                : Task.Run(
-                    async () =>
-                    {
-                        await Task.Delay(releaseReaderAfter.Value);
-                        reader.Dispose();
-                    });
+            // The action starts this just before the call that has to wait, so the wait is not spent
+            // opening the second connection
+            Task? release = null;
+            var startRelease = () =>
+            {
+                if (releaseReader)
+                {
+                    release = Task.Run(
+                        async () =>
+                        {
+                            await Task.Delay(ReaderReleaseDelay);
+                            reader.Dispose();
+                        });
+                }
+            };
 
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -994,10 +1029,10 @@ CREATE TABLE "Products" (
                 var command = connection.CreateCommand();
                 command.CommandText = "INSERT INTO Data VALUES (1) RETURNING rowid;";
 
-                action(command);
+                action(command, startRelease);
             }
 
-            release.Wait();
+            release?.Wait();
             reader.Dispose();
 
             Assert.Equal(expectedCount, readerConnection.ExecuteScalar<long>("SELECT COUNT(*) FROM Data;"));
