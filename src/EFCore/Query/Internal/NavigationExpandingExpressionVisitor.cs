@@ -19,6 +19,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private static readonly PropertyInfo QueryContextContextPropertyInfo
         = typeof(QueryContext).GetTypeInfo().GetDeclaredProperty(nameof(QueryContext.Context))!;
 
+    private static readonly bool UseOldBehavior38965
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38965", out var enabled) && enabled;
+
     private static readonly Dictionary<MethodInfo, MethodInfo> PredicateLessMethodInfo = new()
     {
         { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
@@ -1737,18 +1740,25 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
 
         // Flat-aggregate queries keep the existing translation unchanged.
-        var traversesNavigation = false;
+        var navigationAccessDetector = new ReferenceNavigationAccessDetector(
+            entityType => GetApplicableQueryFilters(entityType.GetRootType()).Count > 0);
         foreach (var aggregate in scanner.Aggregates)
         {
-            if (aggregate.Selector != null
-                && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, aggregate.Selector)))
+            if (aggregate.Selector == null)
             {
-                traversesNavigation = true;
-                break;
+                continue;
+            }
+
+            navigationAccessDetector.Visit(RemapLambdaExpression(parent, aggregate.Selector));
+            if (!UseOldBehavior38965
+                && navigationAccessDetector.FoundFilteredRequiredNavigation)
+            {
+                // The required navigation's inner join would allow its query filter to remove grouping elements.
+                return null;
             }
         }
 
-        if (!traversesNavigation)
+        if (!navigationAccessDetector.Found)
         {
             return null;
         }
@@ -1803,16 +1813,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     ///     Detects member chains rooted at an entity navigation tree node whose first member is a
     ///     non-collection navigation — accesses that would otherwise translate as a correlated subquery.
     /// </summary>
-    private static bool ContainsReferenceNavigationAccess(Expression body)
-    {
-        var detector = new ReferenceNavigationAccessDetector();
-        detector.Visit(body);
-        return detector.Found;
-    }
-
-    private sealed class ReferenceNavigationAccessDetector : ExpressionVisitor
+    private sealed class ReferenceNavigationAccessDetector(Func<IEntityType, bool> hasApplicableQueryFilter) : ExpressionVisitor
     {
         public bool Found { get; private set; }
+        public bool FoundFilteredRequiredNavigation { get; private set; }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -1825,11 +1829,36 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             if (current is NavigationTreeExpression { Value: EntityReference entityReference }
-                && chain.Count > 1
-                && entityReference.EntityType.FindNavigation(chain[0].Name) is INavigation { IsCollection: false })
+                && chain.Count > 1)
             {
-                Found = true;
-                return memberExpression;
+                var entityType = entityReference.EntityType;
+                var requiredPath = !entityReference.IsOptional;
+
+                foreach (var member in chain)
+                {
+                    if (entityType.FindNavigation(member) is not { IsCollection: false } navigation)
+                    {
+                        break;
+                    }
+
+                    Found = true;
+                    requiredPath = requiredPath
+                        && navigation.IsOnDependent
+                        && navigation.ForeignKey.IsEffectivelyRequired();
+                    entityType = navigation.TargetEntityType;
+
+                    if (requiredPath
+                        && hasApplicableQueryFilter(entityType))
+                    {
+                        FoundFilteredRequiredNavigation = true;
+                        break;
+                    }
+                }
+
+                if (Found)
+                {
+                    return memberExpression;
+                }
             }
 
             return base.VisitMember(memberExpression);
