@@ -1382,7 +1382,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     }
 
     /// <inheritdoc />
-    /// <inheritdoc />
     protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
     {
         if (selector.Body == selector.Parameters[0])

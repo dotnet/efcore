@@ -4904,6 +4904,17 @@ ORDER BY [s1].[Key]
 """);
     }
 
+    public override async Task GroupBy_selecting_grouping_element_list_with_captured_instance(bool async)
+    {
+        Assert.Equal(
+            CoreStrings.ClientProjectionCapturingConstantInTree(
+                "Microsoft.EntityFrameworkCore.Query.NorthwindGroupByQuerySqlServerTest"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupBy_selecting_grouping_element_list_with_captured_instance(async))).Message);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
