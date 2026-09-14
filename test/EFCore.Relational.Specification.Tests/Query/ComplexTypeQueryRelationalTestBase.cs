@@ -296,6 +296,75 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
 
     #endregion 38077
 
+    #region 38928
+
+    [Fact]
+    public virtual async Task Project_json_complex_collection_together_with_collection_navigation()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38928>(
+            seed: async context =>
+            {
+                context.Set<Context38928.Parent>().Add(
+                    new Context38928.Parent
+                    {
+                        Items = [new Context38928.ChildItem { Value = "/x" }],
+                        Links = [new Context38928.Link()]
+                    });
+
+                await context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<Context38928.Parent>()
+            .AsSplitQuery()
+            .Select(p => new
+            {
+                p.Id,
+                p.Items,
+                Links = p.Links.Select(l => new { l.Id }).ToList()
+            })
+            .SingleAsync();
+
+        Assert.NotEqual(0, result.Id);
+        Assert.NotNull(result.Items);
+        var item = Assert.Single(result.Items);
+        Assert.Equal("/x", item.Value);
+        Assert.Single(result.Links);
+    }
+
+    private class Context38928(DbContextOptions options) : DbContext(options)
+    {
+        public class Parent
+        {
+            public int Id { get; set; }
+            public List<ChildItem>? Items { get; set; }
+            public List<Link> Links { get; set; } = [];
+        }
+
+        public class ChildItem
+        {
+            public required string Value { get; init; }
+        }
+
+        public class Link
+        {
+            public int Id { get; set; }
+            public List<Parent> Parents { get; set; } = [];
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.ComplexCollection(p => p.Items).ToJson();
+                b.HasMany(p => p.Links).WithMany(l => l.Parents).UsingEntity("ParentLinks");
+            });
+        }
+    }
+
+    #endregion 38928
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
