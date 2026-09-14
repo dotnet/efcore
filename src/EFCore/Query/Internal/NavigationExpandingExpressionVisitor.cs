@@ -19,9 +19,6 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private static readonly PropertyInfo QueryContextContextPropertyInfo
         = typeof(QueryContext).GetTypeInfo().GetDeclaredProperty(nameof(QueryContext.Context))!;
 
-    private static readonly bool UseOldBehavior38965
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38965", out var enabled) && enabled;
-
     private static readonly Dictionary<MethodInfo, MethodInfo> PredicateLessMethodInfo = new()
     {
         { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
@@ -1750,8 +1747,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             navigationAccessDetector.Visit(RemapLambdaExpression(parent, aggregate.Selector));
-            if (!UseOldBehavior38965
-                && navigationAccessDetector.FoundFilteredRequiredNavigation)
+            if (navigationAccessDetector.FoundFilteredRequiredNavigation)
             {
                 // The required navigation's inner join would allow its query filter to remove grouping elements.
                 return null;
@@ -1900,7 +1896,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             [nameof(Enumerable.Sum), nameof(Enumerable.Min), nameof(Enumerable.Max), nameof(Enumerable.Average)];
 
         private static readonly string[] PredicateAggregateMethodNames =
-            [nameof(Enumerable.Count), nameof(Enumerable.LongCount)];
+            [nameof(Enumerable.Any), nameof(Enumerable.All), nameof(Enumerable.Count), nameof(Enumerable.LongCount)];
 
         public List<GroupingAggregateCall> Aggregates { get; } = [];
         public bool HasUnsupportedUsage { get; private set; }

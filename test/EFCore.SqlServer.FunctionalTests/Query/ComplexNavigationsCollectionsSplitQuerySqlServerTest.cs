@@ -3719,30 +3719,10 @@ ORDER BY [l].[Id], [l15].[Date], [l17].[Name], [l17].[Date]
 @validIds1='L1 01' (Size = 4000)
 @validIds2='L1 02' (Size = 4000)
 
-SELECT [l].[Date]
+SELECT [l].[Date], [l].[Id]
 FROM [LevelOne] AS [l]
 WHERE [l].[Name] IN (@validIds1, @validIds2)
-GROUP BY [l].[Date]
 ORDER BY [l].[Date]
-""",
-            //
-            """
-@validIds3='L1 01' (Size = 4000)
-@validIds4='L1 02' (Size = 4000)
-
-SELECT [l5].[Id], [l4].[Date]
-FROM (
-    SELECT [l].[Date]
-    FROM [LevelOne] AS [l]
-    WHERE [l].[Name] IN (@validIds3, @validIds4)
-    GROUP BY [l].[Date]
-) AS [l4]
-INNER JOIN (
-    SELECT [l3].[Id], [l3].[Date]
-    FROM [LevelOne] AS [l3]
-    WHERE [l3].[Name] IN (@validIds3, @validIds4)
-) AS [l5] ON [l4].[Date] = [l5].[Date]
-ORDER BY [l4].[Date]
 """);
     }
 

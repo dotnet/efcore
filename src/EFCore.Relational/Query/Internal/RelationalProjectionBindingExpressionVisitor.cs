@@ -16,8 +16,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 {
     private static readonly MethodInfo GetParameterValueMethodInfo
         = typeof(RelationalProjectionBindingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
-    private static readonly bool UseOldBehavior38838
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38838", out var enabled) && enabled;
 
     private readonly RelationalQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -158,11 +156,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
     internal virtual Expression? TryTranslateToServerProjection(SelectExpression selectExpression, Expression expression)
     {
-        if (UseOldBehavior38838)
-        {
-            return null;
-        }
-
         _selectExpression = selectExpression;
         _indexBasedBinding = false;
         _rootIsTransparentIdentifier = IsTransparentIdentifierProjection(expression);
@@ -557,11 +550,12 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 if (_indexBasedBinding)
                 {
                     _clientProjections!.Add(jsonQuery);
+
+                    return collectionResult.Update(
+                        new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, collectionResult.Type));
                 }
-                else
-                {
-                    _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
-                }
+
+                _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
 
                 return collectionResult.Update(
                     new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), collectionResult.Type));

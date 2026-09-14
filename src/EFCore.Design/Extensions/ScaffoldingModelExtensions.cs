@@ -202,6 +202,11 @@ public static class ScaffoldingModelExtensions
             yield return new AttributeCodeFragment(typeof(RequiredAttribute));
         }
 
+        if (IsRowVersion(property))
+        {
+            yield return new AttributeCodeFragment(typeof(TimestampAttribute));
+        }
+
         var columnName = property.GetColumnName();
         if (columnName == property.Name)
         {
@@ -634,6 +639,8 @@ public static class ScaffoldingModelExtensions
             root = root?.Chain(isUnicode) ?? isUnicode;
         }
 
+        var isRowVersion = IsRowVersion(property);
+
         var valueGenerated = property.ValueGenerated;
         if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is { } valueGeneratedConfigurationSource
             && valueGeneratedConfigurationSource != ConfigurationSource.Convention
@@ -649,14 +656,20 @@ public static class ScaffoldingModelExtensions
                     ValueGenerated.OnUpdate => nameof(PropertyBuilder.ValueGeneratedOnUpdate),
                     ValueGenerated.Never => nameof(PropertyBuilder.ValueGeneratedNever),
                     _ => throw new InvalidOperationException(DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
-                });
+                })
+            {
+                IsHandledByDataAnnotations = isRowVersion
+            };
 
             root = root?.Chain(valueGeneratedCall) ?? valueGeneratedCall;
         }
 
         if (property.IsConcurrencyToken)
         {
-            var isConcurrencyToken = new FluentApiCodeFragment(nameof(PropertyBuilder.IsConcurrencyToken));
+            var isConcurrencyToken = new FluentApiCodeFragment(nameof(PropertyBuilder.IsConcurrencyToken))
+            {
+                IsHandledByDataAnnotations = isRowVersion
+            };
 
             root = root?.Chain(isConcurrencyToken) ?? isConcurrencyToken;
         }
@@ -816,6 +829,10 @@ public static class ScaffoldingModelExtensions
 
         return root;
     }
+
+    private static bool IsRowVersion(IProperty property)
+        => property.IsConcurrencyToken
+            && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
 
     private static FluentApiCodeFragment? GenerateAnnotations(
         IAnnotatable annotatable,

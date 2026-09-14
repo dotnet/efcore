@@ -269,6 +269,10 @@ _ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
     public virtual Task Final_GroupBy()
         => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).ToListAsync();""");
 
+    [Fact]
+    public virtual Task Final_GroupBy_projecting_grouping_elements()
+        => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.Select(b => b.Id).ToList()).ToListAsync();""");
+
     #endregion Regular operators
 
     #region Terminating operators
