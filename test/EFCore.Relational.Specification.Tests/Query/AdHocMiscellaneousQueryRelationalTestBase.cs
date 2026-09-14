@@ -2196,6 +2196,86 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region 38775
+
+        // The aggregate's source is typed as an interface the grouping element implements, so its TSource is not the
+        // grouping element type; lifting it over a navigation still rebuilds it over the widened element.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_lifted_aggregate_over_supertype_of_grouping_element(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context38775>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Employees
+                .GroupBy(e => e.ManagerId)
+                .Select(g => new
+                {
+                    g.Key,
+                    MaxManager = g.Max(e => e.Manager.Name),
+                    MaxName = g.Max((Context38775.INamed e) => e.Name)
+                });
+
+            var results = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                results.OrderBy(r => r.Key),
+                r =>
+                {
+                    Assert.Equal("Ada", r.MaxManager);
+                    Assert.Equal("Dara", r.MaxName);
+                },
+                r =>
+                {
+                    Assert.Equal("Grace", r.MaxManager);
+                    Assert.Equal("Fen", r.MaxName);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context38775(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Employee> Employees
+                => Set<Employee>();
+
+            public Task SeedAsync()
+            {
+                var ada = new Manager { Id = 1, Name = "Ada" };
+                var grace = new Manager { Id = 2, Name = "Grace" };
+                AddRange(
+                    new Employee { Name = "Alice", DepartmentName = "Engineering", Manager = ada },
+                    new Employee { Name = "Bob", DepartmentName = "Engineering", Manager = ada },
+                    new Employee { Name = "Cheng", DepartmentName = "Engineering", Manager = grace },
+                    new Employee { Name = "Fen", DepartmentName = "engineering", Manager = grace },
+                    new Employee { Name = "Dara", DepartmentName = "Sales", Manager = ada });
+
+                return SaveChangesAsync();
+            }
+
+            public interface INamed
+            {
+                string Name { get; }
+            }
+
+            public class Employee : INamed
+            {
+                public int Id { get; set; }
+                public string Name { get; set; } = null!;
+                public string DepartmentName { get; set; } = null!;
+                public int ManagerId { get; set; }
+                public Manager Manager { get; set; } = null!;
+            }
+
+            public class Manager
+            {
+                [DatabaseGenerated(DatabaseGeneratedOption.None)]
+                public int Id { get; set; }
+
+                public string Name { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
         #region 30233
 
         [Theory, MemberData(nameof(IsAsyncData))]
