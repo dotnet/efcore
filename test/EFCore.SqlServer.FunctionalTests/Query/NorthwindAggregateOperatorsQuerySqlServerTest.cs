@@ -3482,6 +3482,62 @@ FROM [Order Details] AS [o]
 """);
     }
 
+    public override async Task Sum_over_expression_with_outer_reference(bool async)
+    {
+        await base.Sum_over_expression_with_outer_reference(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], (
+    SELECT ISNULL(SUM([s].[value]), 0)
+    FROM [Order Details] AS [o0]
+    OUTER APPLY (
+        SELECT [o0].[ProductID] * [o].[OrderID] AS [value]
+    ) AS [s]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Total]
+FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Sum_over_members_of_single_result_subquery_with_outer_reference(bool async)
+    {
+        await base.Sum_over_members_of_single_result_subquery_with_outer_reference(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT ISNULL(SUM([s].[value]), 0)
+    FROM [Orders] AS [o]
+    LEFT JOIN (
+        SELECT [o1].[ProductID], [o1].[OrderID0]
+        FROM (
+            SELECT [o0].[ProductID], [o0].[OrderID] AS [OrderID0], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[ProductID]) AS [row]
+            FROM [Order Details] AS [o0]
+        ) AS [o1]
+        WHERE [o1].[row] <= 1
+    ) AS [o2] ON [o].[OrderID] = [o2].[OrderID0]
+    OUTER APPLY (
+        SELECT [o2].[ProductID] * CAST(LEN([c].[CustomerID]) AS int) AS [value]
+    ) AS [s]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [TotalProducts], (
+    SELECT ISNULL(SUM([s0].[value]), 0)
+    FROM [Orders] AS [o3]
+    LEFT JOIN (
+        SELECT [o5].[OrderID], [o5].[OrderID0]
+        FROM (
+            SELECT [o4].[OrderID], [o4].[OrderID] AS [OrderID0], ROW_NUMBER() OVER(PARTITION BY [o4].[OrderID] ORDER BY [o4].[ProductID]) AS [row]
+            FROM [Order Details] AS [o4]
+        ) AS [o5]
+        WHERE [o5].[row] <= 1
+    ) AS [o6] ON [o3].[OrderID] = [o6].[OrderID0]
+    OUTER APPLY (
+        SELECT [o6].[OrderID] * CAST(LEN([c].[CustomerID]) AS int) AS [value]
+    ) AS [s0]
+    WHERE [c].[CustomerID] = [o3].[CustomerID]) AS [TotalOrders]
+FROM [Customers] AS [c]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
