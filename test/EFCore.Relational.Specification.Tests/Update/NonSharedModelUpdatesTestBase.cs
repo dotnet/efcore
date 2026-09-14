@@ -119,6 +119,77 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public string? Name { get; set; }
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #38917
+    public virtual async Task Reassigning_dependent_with_unique_FK_to_attached_entity_orders_updates_correctly(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<WorkItemGroup38917>()
+                .HasOne(g => g.Color)
+                .WithOne(c => c.Group)
+                .HasForeignKey<RgbColor38917>("GroupId"),
+            seed: async context =>
+            {
+                var group0 = new WorkItemGroup38917 { Name = "G0" };
+                var group1 = new WorkItemGroup38917 { Name = "G1" };
+                var color0 = new RgbColor38917 { Id = "0x9a79e4", DisplayName = "red" };
+                var color1 = new RgbColor38917 { Id = "0xb4e6b9", DisplayName = "turquoise" };
+
+                group0.Color = color0;
+                group1.Color = color1;
+                context.AddRange(group0, group1);
+
+                await context.SaveChangesAsync();
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                var g1 = await context.Set<WorkItemGroup38917>()
+                    .Include(g => g.Color)
+                    .SingleAsync(g => g.Name == "G1");
+
+                var c0 = new RgbColor38917 { Id = "0x9a79e4" };
+                context.Attach(c0);
+                g1.Color = c0;
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var g1 = await context.Set<WorkItemGroup38917>()
+                    .Include(g => g.Color)
+                    .SingleAsync(g => g.Name == "G1");
+                Assert.Equal("0x9a79e4", g1.Color!.Id);
+
+                var g0 = await context.Set<WorkItemGroup38917>()
+                    .Include(g => g.Color)
+                    .SingleAsync(g => g.Name == "G0");
+                Assert.Null(g0.Color);
+            });
+    }
+
+    public class WorkItemGroup38917
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Name { get; set; } = "";
+        public RgbColor38917? Color { get; set; }
+    }
+
+    public class RgbColor38917
+    {
+        public string Id { get; set; } = "";
+        public string? DisplayName { get; set; }
+        public WorkItemGroup38917? Group { get; set; }
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_entity_with_not_loaded_property_excludes_column_from_SQL(bool async)
     {
