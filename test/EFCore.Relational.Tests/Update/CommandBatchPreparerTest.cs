@@ -473,6 +473,26 @@ ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
             b => Assert.Same(relatedFakeEntry, b.ModificationCommands.Single().Entries.Single()));
     }
 
+    [Fact]
+    public void Batch_command_does_not_break_cycle_for_unconstrained_foreign_key_with_store_generated_principal_key()
+    {
+        var model = CreateCyclicFKModel(unconstrainedPrincipalGenerated: true);
+        var configuration = CreateContextServices(model);
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var fakeEntry = stateManager.GetOrCreateEntry(
+            new FakeEntity { RelatedId = 1 });
+        fakeEntry.SetEntityState(EntityState.Added);
+
+        var temporaryIdValue = fakeEntry.GetCurrentValue<int>(fakeEntry.EntityType.GetProperty(nameof(FakeEntity.Id)));
+        var relatedFakeEntry = stateManager.GetOrCreateEntry(
+            new RelatedFakeEntity { Id = 1, RelatedId = temporaryIdValue });
+        relatedFakeEntry.SetEntityState(EntityState.Added);
+
+        Assert.Throws<InvalidOperationException>(
+            () => CreateBatches([fakeEntry, relatedFakeEntry], new UpdateAdapter(stateManager)));
+    }
+
     [InlineData(true), InlineData(false), Theory]
     public void Batch_command_throws_on_commands_with_circular_dependencies_including_indexes(bool sensitiveLogging)
     {
@@ -1107,7 +1127,7 @@ FakeEntity [Deleted]"
         return modelBuilder.Model.FinalizeModel();
     }
 
-    private static IModel CreateCyclicFKModel(bool unconstrained = false)
+    private static IModel CreateCyclicFKModel(bool unconstrained = false, bool unconstrainedPrincipalGenerated = false)
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
@@ -1119,11 +1139,16 @@ FakeEntity [Deleted]"
 
         modelBuilder.Entity<RelatedFakeEntity>(b =>
         {
-            b.HasOne<FakeEntity>()
+            var foreignKeyBuilder = b.HasOne<FakeEntity>()
                 .WithOne()
                 .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
 
-            if (unconstrained)
+            if (unconstrainedPrincipalGenerated)
+            {
+                foreignKeyBuilder.IsConstrained(false);
+            }
+
+            if (unconstrained || unconstrainedPrincipalGenerated)
             {
                 b.Property(c => c.Id).ValueGeneratedNever();
             }
