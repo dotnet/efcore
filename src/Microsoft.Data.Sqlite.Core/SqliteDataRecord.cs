@@ -297,6 +297,14 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
         var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
+        if (blobDatabaseName == null
+            || blobTableName == null)
+        {
+            // The value came from an expression, so there is no row to open a blob on. Looking for a rowid
+            // column would also hand these nulls to sqlite3_table_column_metadata, which is misuse
+            return new MemoryStream(GetCachedBlob(ordinal), false);
+        }
+
         var rowidkey = $"{blobDatabaseName}_{blobTableName}";
         if (!RowIds.TryGetValue(rowidkey, out var rowIdForOrdinal))
         {
