@@ -63,35 +63,39 @@ jobs:
             let major;
             let minor;
 
-            const releaseBranchMatch = targetBranch.match(/^release\/(\d+)\.(\d+)(?:-(?:preview|rc)\d+)?$/);
+            const prereleaseBranchMatch = targetBranch.match(/^release\/(\d+)\.(\d+)-(?:preview|rc)\d+$/);
+            const releaseBranchMatch = prereleaseBranchMatch ?? targetBranch.match(/^release\/(\d+)\.(\d+)$/);
             if (releaseBranchMatch) {
               // Release branch (e.g. release/10.0 or release/11.0-rc1):
-              // find the next patch version from tags
               major = releaseBranchMatch[1];
               minor = releaseBranchMatch[2];
 
-              const tagRefs = await github.paginate(
-                github.rest.git.listMatchingRefs,
-                {
-                  owner,
-                  repo,
-                  ref: `tags/v${major}.${minor}.`,
-                  per_page: 100
-                }
-              );
+              if (prereleaseBranchMatch) {
+                targetMilestoneName = `${major}.${minor}.0`;
+              } else {
+                const tagRefs = await github.paginate(
+                  github.rest.git.listMatchingRefs,
+                  {
+                    owner,
+                    repo,
+                    ref: `tags/v${major}.${minor}.`,
+                    per_page: 100
+                  }
+                );
 
-              let highestPatch = -1;
-              for (const ref of tagRefs) {
-                const m = ref.ref.match(/^refs\/tags\/v\d+\.\d+\.(\d+)$/);
-                if (m) {
-                  const patch = parseInt(m[1]);
-                  if (patch < 100 && patch > highestPatch) {
-                    highestPatch = patch;
+                let highestPatch = -1;
+                for (const ref of tagRefs) {
+                  const m = ref.ref.match(/^refs\/tags\/v\d+\.\d+\.(\d+)$/);
+                  if (m) {
+                    const patch = parseInt(m[1]);
+                    if (patch < 100 && patch > highestPatch) {
+                      highestPatch = patch;
+                    }
                   }
                 }
-              }
 
-              targetMilestoneName = `${major}.${minor}.${highestPatch + 1}`;
+                targetMilestoneName = `${major}.${minor}.${highestPatch + 1}`;
+              }
 
               const { data: versionFileData } = await github.rest.repos.getContent({
                 owner,
