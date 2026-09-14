@@ -23,6 +23,11 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
             () => base.Final_GroupBy_property_entity_non_nullable(async),
             InMemoryStrings.NonComposedGroupByNotSupported);
 
+    public override Task Final_GroupBy_property_entity_by_identifier(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Final_GroupBy_property_entity_by_identifier(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
+
     public override Task Final_GroupBy_property_anonymous_type(bool async)
         => AssertTranslationFailedWithDetails(
             () => base.Final_GroupBy_property_anonymous_type(async),

@@ -13147,6 +13147,9 @@
           "Member": "RelationalGroupByResultExpression(System.Linq.Expressions.Expression keyIdentifier, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer> keyIdentifierValueComparers, System.Linq.Expressions.Expression keyShaper, System.Linq.Expressions.Expression elementShaper);"
         },
         {
+          "Member": "RelationalGroupByResultExpression(System.Linq.Expressions.Expression keyIdentifier, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer> keyIdentifierValueComparers, System.Linq.Expressions.Expression keyShaper, System.Linq.Expressions.Expression elementShaper, System.Linq.Expressions.LambdaExpression? resultSelector);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.RelationalGroupByResultExpression Update(System.Linq.Expressions.Expression keyIdentifier, System.Linq.Expressions.Expression keyShaper, System.Linq.Expressions.Expression elementShaper);"
         },
         {
@@ -13170,6 +13173,9 @@
           "Member": "sealed override System.Linq.Expressions.ExpressionType NodeType { get; }"
         },
         {
+          "Member": "virtual System.Linq.Expressions.LambdaExpression? ResultSelector { get; }"
+        },
+        {
           "Member": "override System.Type Type { get; }"
         }
       ]
@@ -13181,6 +13187,9 @@
           "Member": "RelationalGroupByShaperExpression(System.Linq.Expressions.Expression keySelector, System.Linq.Expressions.Expression elementSelector, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression groupingEnumerable);"
         },
         {
+          "Member": "RelationalGroupByShaperExpression(System.Linq.Expressions.Expression keySelector, System.Linq.Expressions.Expression elementSelector, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression groupingEnumerable, System.Linq.Expressions.LambdaExpression? resultSelector);"
+        },
+        {
           "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
         },
         {
@@ -13190,6 +13199,12 @@
       "Properties": [
         {
           "Member": "virtual System.Linq.Expressions.Expression ElementSelector { get; }"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.LambdaExpression? ResultSelector { get; }"
+        },
+        {
+          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -15454,6 +15469,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TransformJsonQueryToTable(Microsoft.EntityFrameworkCore.Query.JsonQueryExpression jsonQueryExpression);"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression Translate(System.Linq.Expressions.Expression expression);"
         },
         {
           "Member": "override Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateAll(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression predicate);"

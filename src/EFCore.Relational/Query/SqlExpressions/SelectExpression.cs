@@ -575,7 +575,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 shaperExpression = new RelationalGroupByShaperExpression(
                     relationalGroupByShaperExpression.KeySelector,
                     innerShaperExpression,
-                    relationalGroupByShaperExpression.GroupingEnumerable);
+                    relationalGroupByShaperExpression.GroupingEnumerable,
+                    relationalGroupByShaperExpression.ResultSelector);
             }
 
             // Convert GroupBy to OrderBy
@@ -661,9 +662,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                     this, newClientProjections, projectionBindingMap, groupByShaper.KeySelector);
                 var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(
                     this, newClientProjections, projectionBindingMap, _identifier);
-                _identifier.Clear();
-                _identifier.AddRange(_preGroupByIdentifier!);
-                _preGroupByIdentifier!.Clear();
+                // ApplyGrouping only sets this aside when it replaced the identifier with the grouping terms; when the identifier was
+                // already part of the key (e.g. grouping by the primary key) it left it alone, and there's nothing to restore.
+                if (_preGroupByIdentifier is not null)
+                {
+                    _identifier.Clear();
+                    _identifier.AddRange(_preGroupByIdentifier);
+                    _preGroupByIdentifier.Clear();
+                }
 
                 Expression AddGroupByKeySelectorToProjection(
                     SelectExpression selectExpression,
@@ -791,7 +797,8 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                 remappingRequired = true;
                 shaperExpression = new RelationalGroupByResultExpression(
-                    keyIdentifier, keyIdentifierValueComparers, keySelector, groupByShaper.ElementSelector);
+                    keyIdentifier, keyIdentifierValueComparers, keySelector, groupByShaper.ElementSelector,
+                    groupByShaper.ResultSelector);
             }
 
             SelectExpression? baseSelectExpression = null;
