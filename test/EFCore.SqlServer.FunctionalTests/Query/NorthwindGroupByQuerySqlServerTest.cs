@@ -2812,6 +2812,402 @@ GROUP BY [o].[EmployeeID]
 """);
     }
 
+    public override async Task GroupBy_element_selector_with_aggregates_through_navigation_property(bool async)
+    {
+        await base.GroupBy_element_selector_with_aggregates_through_navigation_property(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons], ISNULL(SUM([o].[OrderID]), 0) AS [Total], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_projecting_navigation_with_aggregate(bool async)
+    {
+        await base.GroupBy_element_selector_projecting_navigation_with_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_aggregate_through_two_level_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_aggregate_through_two_level_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[ProductID] AS [Key], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[ProductID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_predicate_aggregate_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_predicate_aggregate_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], COUNT(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_without_aggregate_selector_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_without_aggregate_selector_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], (
+    SELECT MAX(CAST(LEN([c].[City]) AS int))
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_identity_aggregate_selector_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_identity_aggregate_selector_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX(CAST(LEN([c].[City]) AS int)) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_projecting_constructor_bound_type_with_aggregate(bool async)
+    {
+        await base.GroupBy_element_selector_projecting_constructor_bound_type_with_aggregate(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_element_selector_projecting_cast_constructor_bound_type_with_aggregate(bool async)
+    {
+        await base.GroupBy_element_selector_projecting_cast_constructor_bound_type_with_aggregate(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_aggregate_capturing_computed_key_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_computed_key_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT MAX([s].[value])
+    FROM (
+        SELECT [o2].[CustomerID], SUBSTRING([o2].[CustomerID], 0 + 1, 2) AS [Key]
+        FROM [Orders] AS [o2]
+    ) AS [o1]
+    LEFT JOIN [Customers] AS [c] ON [o1].[CustomerID] = [c].[CustomerID]
+    OUTER APPLY (
+        SELECT CASE
+            WHEN [c].[Region] IS NOT NULL THEN [o0].[Key]
+        END AS [value]
+    ) AS [s]
+    WHERE [o0].[Key] = [o1].[Key] OR ([o0].[Key] IS NULL AND [o1].[Key] IS NULL))
+FROM (
+    SELECT SUBSTRING([o].[CustomerID], 0 + 1, 2) AS [Key]
+    FROM [Orders] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_key_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_aggregate_capturing_key_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_aggregate_capturing_key_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_composite_key_member_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_composite_key_member_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID], [o].[CustomerID], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID], [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_aggregate_capturing_composite_key_member_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_aggregate_capturing_composite_key_member_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID], [o].[CustomerID], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID], [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_dto_key_member_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_dto_key_member_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[EmployeeID], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[CustomerID], [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_tuple_key_member_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_tuple_key_member_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID], [o].[CustomerID], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID], [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_key_read_through_EF_Property_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_read_through_EF_Property_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE COALESCE([o].[EmployeeID], 0)
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_key_computed_with_Math_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_computed_with_Math_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [s].[Key], MAX(CASE
+    WHEN [s].[Region] IS NULL THEN 0
+    ELSE ABS([s].[OrderID] % 3 - 1)
+END) AS [Max]
+FROM (
+    SELECT [o].[OrderID], [c].[Region], ABS([o].[OrderID] % 3 - 1) AS [Key]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+) AS [s]
+GROUP BY [s].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_key_reading_static_member_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_reading_static_member_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], (
+    SELECT MAX([s].[value])
+    FROM (
+        SELECT [o2].[CustomerID], CASE
+            WHEN [o2].[OrderDate] < GETDATE() THEN [o2].[OrderID] % 2
+            ELSE 2
+        END AS [Key]
+        FROM [Orders] AS [o2]
+    ) AS [o1]
+    LEFT JOIN [Customers] AS [c] ON [o1].[CustomerID] = [c].[CustomerID]
+    OUTER APPLY (
+        SELECT CASE
+            WHEN [c].[Region] IS NULL THEN 0
+            ELSE [o0].[Key]
+        END AS [value]
+    ) AS [s]
+    WHERE [o0].[Key] = [o1].[Key] OR ([o0].[Key] IS NULL AND [o1].[Key] IS NULL)) AS [Max]
+FROM (
+    SELECT CASE
+        WHEN [o].[OrderDate] < GETDATE() THEN [o].[OrderID] % 2
+        ELSE 2
+    END AS [Key]
+    FROM [Orders] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(bool async)
+    {
+        // The lift declines an aggregate over the grouping nested inside another aggregate's selector, leaving the
+        // correlated-subquery translation, which nests the inner aggregate inside the outer one. The database rejects that,
+        // as it did before the lift existed.
+        await Assert.ThrowsAsync<Microsoft.Data.SqlClient.SqlException>(
+            () => base.GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(async));
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], (
+    SELECT ISNULL(SUM(CASE
+        WHEN [c].[Region] IS NULL THEN 0
+        ELSE 1
+    END * COUNT(*)), 0)
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [Sum]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    // A member the selector reads off a value it constructs itself is its own, not one left unbound by inlining a projection,
+    // and doesn't stop the lift.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_reading_member_of_constructed_value_through_navigation(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<TestModels.Northwind.Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Max = g.Max(o => o.Customer!.Region == null ? 0 : new DateTimeOffset(o.OrderDate!.Value, TimeSpan.Zero).Year)
+                }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX(CASE
+    WHEN [c].[Region] IS NULL THEN 0
+    ELSE DATEPART(year, TODATETIMEOFFSET([o].[OrderDate], '+00:00'))
+END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_key_computed_with_Random_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_computed_with_Random_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], (
+    SELECT MAX([s].[value])
+    FROM (
+        SELECT [o2].[CustomerID], CAST(RAND() * 0.0E0 AS int) AS [Key]
+        FROM [Orders] AS [o2]
+    ) AS [o1]
+    LEFT JOIN [Customers] AS [c] ON [o1].[CustomerID] = [c].[CustomerID]
+    OUTER APPLY (
+        SELECT CASE
+            WHEN [c].[Region] IS NULL THEN 0
+            ELSE [o0].[Key] + 1
+        END AS [value]
+    ) AS [s]
+    WHERE [o0].[Key] = [o1].[Key] OR ([o0].[Key] IS NULL AND [o1].[Key] IS NULL)) AS [Max]
+FROM (
+    SELECT CAST(RAND() * 0.0E0 AS int) AS [Key]
+    FROM [Orders] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_string_key_member_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_string_key_member_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID], [o].[CustomerID], (
+    SELECT MAX([s].[value])
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+    OUTER APPLY (
+        SELECT CASE
+            WHEN [c].[Region] IS NOT NULL THEN [o].[CustomerID]
+        END AS [value]
+    ) AS [s]
+    WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID], [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_with_aggregate_containing_complex_where(bool async)
     {
         await base.GroupBy_with_aggregate_containing_complex_where(async);

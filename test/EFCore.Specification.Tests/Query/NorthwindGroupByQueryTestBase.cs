@@ -650,6 +650,197 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_with_aggregates_through_navigation_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => new { o.Customer!.Region, o.Customer!.City, o.OrderID })
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(x => x.Region),
+                    Londons = g.Sum(x => x.City == "London" ? 1 : 0),
+                    Total = g.Sum(x => x.OrderID),
+                    Count = g.Count()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_projecting_navigation_with_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => o.Customer)
+                .Select(g => new { g.Key, Region = g.Max(c => c!.Region) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_with_aggregate_through_two_level_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.ProductID, od => new { od.Order!.Customer!.City, od.Quantity })
+                .Select(g => new { g.Key, Londons = g.Sum(x => x.City == "London" ? 1 : 0) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_with_predicate_aggregate_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => new { o.Customer!.City, o.OrderID })
+                .Select(g => new { g.Key, Londons = g.Count(x => x.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_without_aggregate_selector_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => o.Customer!.City!.Length)
+                .Select(g => new { g.Key, Max = g.Max() }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_with_identity_aggregate_selector_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => o.Customer!.City!.Length)
+                .Select(g => new { g.Key, Max = g.Max(x => x) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_key_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : (int)(g.Key ?? 0)) }),
+            elementSorter: e => e.Key);
+
+    // A key containing a function call is not recomputed inside a lifted aggregate: the lift projects the key once for
+    // the GROUP BY and would evaluate it a second time in the aggregate, which agrees only while the function is
+    // deterministic. The lift is abandoned rather than assume that, leaving the correlated-subquery translation, which
+    // reads g.Key from the grouping key itself and so is right for any key.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_computed_key_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID!.Substring(0, 2))
+                .Select(g => g.Max(o => o.Customer!.Region != null ? g.Key : null)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_with_aggregate_capturing_key_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => new { o.Customer!.Region, o.OrderID })
+                .Select(g => new { g.Key, Max = g.Max(x => x.Region == null ? 0 : (int)(g.Key ?? 0)) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_composite_key_member_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new { o.EmployeeID, o.CustomerID })
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : (int)(g.Key.EmployeeID ?? 0)) }),
+            elementSorter: e => (e.Key.EmployeeID, e.Key.CustomerID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_with_aggregate_capturing_composite_key_member_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new { o.EmployeeID, o.CustomerID }, o => new { o.Customer!.Region, o.OrderID })
+                .Select(g => new { g.Key, Max = g.Max(x => x.Region == null ? 0 : (int)(g.Key.EmployeeID ?? 0)) }),
+            elementSorter: e => (e.Key.EmployeeID, e.Key.CustomerID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_dto_key_member_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new NominalType { CustomerID = o.CustomerID, EmployeeID = o.EmployeeID })
+                .Select(g => new
+                {
+                    g.Key.CustomerID,
+                    g.Key.EmployeeID,
+                    Max = g.Max(o => o.Customer!.Region == null ? 0 : (int)(g.Key.EmployeeID ?? 0))
+                }),
+            elementSorter: e => (e.EmployeeID, e.CustomerID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_tuple_key_member_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new Tuple<uint?, string?>(o.EmployeeID, o.CustomerID))
+                .Select(g => new
+                {
+                    EmployeeID = g.Key.Item1,
+                    CustomerID = g.Key.Item2,
+                    Max = g.Max(o => o.Customer!.Region == null ? 0 : (int)(g.Key.Item1 ?? 0))
+                }),
+            elementSorter: e => (e.EmployeeID, e.CustomerID));
+
+    // EF.Property reads the row like a member access does, so a key read through it - a shadow key - is still lifted.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_key_read_through_EF_Property_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => EF.Property<uint?>(o, nameof(Order.EmployeeID)))
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : (int)(g.Key ?? 0)) }),
+            elementSorter: e => e.Key);
+
+    // A deterministic function evaluates to the same value twice, so a key computed with one is still recomputed inside the
+    // lifted aggregate.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_key_computed_with_Math_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => Math.Abs(o.OrderID % 3 - 1))
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : g.Key) }),
+            elementSorter: e => e.Key);
+
+    // A key reading ambient state can evaluate differently inside the aggregate than it did for the GROUP BY, so it is not
+    // recomputed there, and the lift is abandoned.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_key_reading_static_member_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.OrderDate < DateTime.Now ? o.OrderID % 2 : 2)
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : g.Key) }),
+            elementSorter: e => e.Key);
+
+    // An aggregate over the grouping nested inside another aggregate's selector cannot be rebound onto the pre-GroupBy source.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Sum = g.Sum(o => (o.Customer!.Region == null ? 0 : 1) * g.Count()) }),
+            elementSorter: e => e.Key);
+
+    // Rows the database groups together can still hold different string values (case, trailing spaces), so a string key
+    // read per row inside a lifted aggregate would not always be the group's key. The lift is abandoned for it, leaving the
+    // correlated-subquery translation, which reads the grouping's own key.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_string_key_member_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new { o.EmployeeID, o.CustomerID })
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region != null ? g.Key.CustomerID : null) }),
+            elementSorter: e => (e.Key.EmployeeID, e.Key.CustomerID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_aggregate_containing_complex_where(bool async)
         => AssertQuery(
             async,
