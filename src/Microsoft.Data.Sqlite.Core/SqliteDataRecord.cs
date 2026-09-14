@@ -434,21 +434,33 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
         var timer = SharedStopwatch.StartNew();
 
-        while (IsBusy(rc = sqlite3_reset(Handle)))
+        // A write that has not been stepped to the end commits when it is reset. If that commit is busy,
+        // sqlite3_reset reports it only once: resetting again returns SQLITE_OK while the write has been
+        // rolled back. So retry by stepping, which retries the commit, and reset only once at the end.
+        if (timeout != -1
+            && !_alreadyThrown
+            && sqlite3_stmt_readonly(Handle) == 0
+            && sqlite3_stmt_busy(Handle) != 0)
         {
-            if (timeout == -1)
+            while ((rc = sqlite3_step(Handle)) == SQLITE_ROW
+                || IsBusy(rc))
             {
-                break;
-            }
+                if (rc == SQLITE_ROW)
+                {
+                    continue;
+                }
 
-            if (timeout != 0
-                && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= timeout * 1000L)
-            {
-                break;
-            }
+                if (timeout != 0
+                    && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= timeout * 1000L)
+                {
+                    break;
+                }
 
-            Thread.Sleep(150);
+                Thread.Sleep(150);
+            }
         }
+
+        rc = sqlite3_reset(Handle);
 
         if (!_alreadyThrown)
         {
