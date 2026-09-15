@@ -23,12 +23,10 @@ public class ConcurrencyDetector : IConcurrencyDetector, IResettableService
     /// </summary>
     public virtual ConcurrencyDetectorCriticalSectionDisposer EnterCriticalSection()
     {
-        if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
+        var acquired = Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 0;
+        if (!acquired && ThreadAcquiredLocksCount.Value == 0)
         {
-            if (ThreadAcquiredLocksCount.Value == 0)
-            {
-                throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
-            }
+            throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
         }
 
         try
@@ -37,8 +35,8 @@ public class ConcurrencyDetector : IConcurrencyDetector, IResettableService
         }
         catch
         {
-            // The AsyncLocal write allocates and can throw; no disposer is returned, so release the flag here.
-            if (_currentContextRefCount == 0)
+            // The AsyncLocal write allocates and can throw; no disposer is returned, so release the flag this call took.
+            if (acquired)
             {
                 _inCriticalSection = 0;
             }
