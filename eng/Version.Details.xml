@@ -68,6 +68,10 @@
       <Uri>https://github.com/dotnet/dotnet</Uri>
       <Sha>7cfa7a8277e6c63b36482018162a9c2dd8922a96</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.DotNet.Helix.JobMonitor" Version="12.0.0-beta.26461.114">
+      <Uri>https://github.com/dotnet/dotnet</Uri>
+      <Sha>7cfa7a8277e6c63b36482018162a9c2dd8922a96</Sha>
+    </Dependency>
     <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="12.0.0-beta.26461.114">
       <Uri>https://github.com/dotnet/dotnet</Uri>
       <Sha>7cfa7a8277e6c63b36482018162a9c2dd8922a96</Sha>
