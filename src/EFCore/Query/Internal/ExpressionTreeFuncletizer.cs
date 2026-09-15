@@ -1177,7 +1177,40 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 throw new UnreachableException();
         }
 
-        return methodCall.Update(@object, ((IReadOnlyList<Expression>?)arguments) ?? methodCall.Arguments);
+        var finalArguments = ((IReadOnlyList<Expression>?)arguments) ?? methodCall.Arguments;
+
+        // Evaluating a DbSet-typed argument inlines its query root, which is typed IQueryable<T>
+        // rather than DbSet<T> (see the IQueryable case in ProcessEvaluatableRoot). That is what we
+        // want for e.g. Queryable.Count(IQueryable<T>), but it cannot be rebuilt into a method whose
+        // parameter is declared DbSet<T> -- FromSql and the SQL Server temporal operators are the
+        // notable cases -- and Update would throw ArgumentException. VisitMember already declines to
+        // inline DbSet-typed members for this reason, but that guard is bypassed when the parent
+        // processes the member as an evaluatable root instead. Keep the original argument in that
+        // case: a query root needs no inlining, it already is the root.
+        ParameterInfo[]? finalParameters = null;
+        for (var i = 0; i < finalArguments.Count; i++)
+        {
+            if (!ReferenceEquals(finalArguments[i], methodCall.Arguments[i]))
+            {
+                finalParameters ??= methodCall.Method.GetParameters();
+                var parameterType = finalParameters[i].ParameterType;
+                if (parameterType.IsConstructedGenericType
+                    && parameterType.GetGenericTypeDefinition() == typeof(DbSet<>)
+                    && !parameterType.IsAssignableFrom(finalArguments[i].Type)
+                    && parameterType.IsAssignableFrom(methodCall.Arguments[i].Type))
+                {
+                    if (finalArguments is not List<Expression> mutableArguments)
+                    {
+                        mutableArguments = finalArguments.ToList();
+                        finalArguments = mutableArguments;
+                    }
+
+                    mutableArguments[i] = methodCall.Arguments[i];
+                }
+            }
+        }
+
+        return methodCall.Update(@object, finalArguments);
 
         Expression HandleParameter(MethodCallExpression methodCall, string methodName)
         {
