@@ -315,10 +315,10 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
     private static bool IsRootKeyProjection(ProjectionExpression projection, IEntityType rootEntityType, IProperty primaryKeyProperty)
         => projection.Expression is ScalarAccessExpression
-            {
-                Object: ObjectReferenceExpression { StructuralType: IEntityType entityType },
-                PropertyName: var propertyName
-            }
+        {
+            Object: ObjectReferenceExpression { StructuralType: IEntityType entityType },
+            PropertyName: var propertyName
+        }
             && IsRootEntityType(entityType, rootEntityType)
             && string.Equals(primaryKeyProperty.GetJsonPropertyName(), propertyName, StringComparison.Ordinal);
 
@@ -727,7 +727,8 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
         {
-            _projectionMapping = projectionMapping, ReadItemInfo = ReadItemInfo
+            _projectionMapping = projectionMapping,
+            ReadItemInfo = ReadItemInfo
         };
     }
 
@@ -740,7 +741,8 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     public SelectExpression WithReadItemInfo(ReadItemInfo readItemInfo)
         => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
         {
-            _projectionMapping = _projectionMapping, ReadItemInfo = readItemInfo
+            _projectionMapping = _projectionMapping,
+            ReadItemInfo = readItemInfo
         };
 
     /// <summary>

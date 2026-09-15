@@ -6,8 +6,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ConcurrencyDetectorEnabledTestBase<TFixture>(TFixture fixture) : ConcurrencyDetectorTestBase<TFixture>(fixture)
     where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()
 {
@@ -30,7 +28,7 @@ public abstract class ConcurrencyDetectorEnabledTestBase<TFixture>(TFixture fixt
         using var context = CreateContext();
 
         var concurrencyDetector = context.GetService<IConcurrencyDetector>();
-        IDisposable disposer = null;
+        IDisposable disposer = null!;
 
         await Task.Run(() => disposer = concurrencyDetector.EnterCriticalSection());
 

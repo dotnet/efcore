@@ -175,10 +175,7 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
             ss => ss.Set<Country>()
                 .OrderBy(c => c.Name)
                 .Include(c => c.Animals),
-            elementAsserter: (e, a) =>
-            {
-                AssertInclude(e, a, new ExpectedInclude<Country>(x => x.Animals));
-            });
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Country>(x => x.Animals)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_include_prey(bool async)
@@ -186,10 +183,7 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
             async,
             ss => ss.Set<Eagle>()
                 .Include(e => e.Prey),
-            asserter: (e, a) =>
-            {
-                AssertInclude(e, a, new ExpectedInclude<Eagle>(x => x.Prey));
-            });
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Eagle>(x => x.Prey)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_use_of_type_kiwi_where_south_on_derived_property(bool async)
@@ -230,7 +224,7 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
             async,
             ss => ss.Set<Animal>()
                 .Where(b => "Kiwi" == EF.Property<string>(b, "Discriminator"))
-                .Select(k => new { Predator = EF.Property<string>((Bird)k, "Name") }),
+                .Select(k => new { Predator = EF.Property<string?>((Bird)k, "Name") }),
             ss => ss.Set<Animal>()
                 .Where(b => b is Kiwi)
                 .Select(k => new { Predator = ((Bird)k).Name }),
@@ -267,21 +261,21 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
                 await context.SaveChangesAsync();
             }, async context =>
             {
-                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species.EndsWith("owenii"));
+                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species!.EndsWith("owenii"));
 
                 kiwi.EagleId = eagleId;
 
                 await context.SaveChangesAsync();
             }, async context =>
             {
-                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species.EndsWith("owenii"));
+                var kiwi = await context.Set<Kiwi>().SingleAsync(k => k.Species!.EndsWith("owenii"));
 
                 context.Set<Bird>().Remove(kiwi);
 
                 await context.SaveChangesAsync();
             }, async context =>
             {
-                var count = await context.Set<Kiwi>().CountAsync(k => k.Species.EndsWith("owenii"));
+                var count = await context.Set<Kiwi>().CountAsync(k => k.Species!.EndsWith("owenii"));
 
                 Assert.Equal(0, count);
             });

@@ -28,16 +28,13 @@ public class BuildReference
                           from r in l.ResolveReferencePaths()
                           where IOPath.GetFileNameWithoutExtension(r) == name
                           select MetadataReference.CreateFromFile(r)).ToList();
-        if (references.Count == 0)
-        {
-            throw new InvalidOperationException(
+        return references.Count == 0
+            ? throw new InvalidOperationException(
                 $"Assembly '{name}' not found. "
-                + "You may be missing '<PreserveCompilationContext>true</PreserveCompilationContext>' in your test project's csproj.");
-        }
-
-        return new BuildReference(
-            references,
-            copyLocal);
+                + "You may be missing '<PreserveCompilationContext>true</PreserveCompilationContext>' in your test project's csproj.")
+            : new BuildReference(
+                references,
+                copyLocal);
     }
 
     public static BuildReference ByPath(string path)

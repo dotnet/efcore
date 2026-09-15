@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 [Table("ProductModelProductDescription", Schema = "SalesLT")]
 public class ProductModelProductDescription
 {
@@ -15,14 +13,14 @@ public class ProductModelProductDescription
     public int ProductDescriptionID { get; set; }
 
     [MaxLength(6)]
-    public string Culture { get; set; }
+    public string Culture { get; set; } = null!;
 
     public DateTime ModifiedDate { get; set; }
     public Guid rowguid { get; set; }
 
     [ForeignKey("ProductDescriptionID"), InverseProperty("ProductModelProductDescription")]
-    public virtual ProductDescription ProductDescription { get; set; }
+    public virtual ProductDescription ProductDescription { get; set; } = null!;
 
     [ForeignKey("ProductModelID"), InverseProperty("ProductModelProductDescription")]
-    public virtual ProductModel ProductModel { get; set; }
+    public virtual ProductModel ProductModel { get; set; } = null!;
 }

@@ -52,7 +52,7 @@ public class PropertyExtensionsTest
         property.SetValueConverter(converter);
         Assert.Same(converter, property.GetValueConverter());
 
-        property.SetValueConverter((ValueConverter)null);
+        property.SetValueConverter((ValueConverter?)null);
         Assert.Null(property.GetValueConverter());
     }
 
@@ -188,22 +188,22 @@ public class PropertyExtensionsTest
         var model = BuildModel();
 
         Assert.Equal(
-            (IProperty)model.FindEntityType(typeof(Product)).FindProperty("Id"),
-            ((IProperty)model.FindEntityType(typeof(ProductDetails)).GetForeignKeys().Single().Properties[0]).FindGenerationProperty());
+            (IProperty)model.FindEntityType(typeof(Product))!.FindProperty("Id")!,
+            ((IProperty)model.FindEntityType(typeof(ProductDetails))!.GetForeignKeys().Single().Properties[0]).FindGenerationProperty());
 
         Assert.Equal(
-            (IProperty)model.FindEntityType(typeof(Product)).FindProperty("Id"),
-            ((IProperty)model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[0])
+            (IProperty)model.FindEntityType(typeof(Product))!.FindProperty("Id")!,
+            ((IProperty)model.FindEntityType(typeof(ProductDetailsTag))!.GetForeignKeys().Single().Properties[0])
             .FindGenerationProperty());
 
         Assert.Equal(
-            (IProperty)model.FindEntityType(typeof(ProductDetails)).FindProperty("Id2"),
-            ((IProperty)model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[1])
+            (IProperty)model.FindEntityType(typeof(ProductDetails))!.FindProperty("Id2")!,
+            ((IProperty)model.FindEntityType(typeof(ProductDetailsTag))!.GetForeignKeys().Single().Properties[1])
             .FindGenerationProperty());
 
         Assert.Equal(
-            (IProperty)model.FindEntityType(typeof(ProductDetails)).FindProperty("Id2"),
-            ((IProperty)model.FindEntityType(typeof(ProductDetailsTagDetails)).GetForeignKeys().Single().Properties[0])
+            (IProperty)model.FindEntityType(typeof(ProductDetails))!.FindProperty("Id2")!,
+            ((IProperty)model.FindEntityType(typeof(ProductDetailsTagDetails))!.GetForeignKeys().Single().Properties[0])
             .FindGenerationProperty());
     }
 
@@ -213,13 +213,13 @@ public class PropertyExtensionsTest
         var model = BuildModel();
 
         Assert.Equal(
-            (IProperty)model.FindEntityType(typeof(Order)).FindProperty("Id"),
-            ((IProperty)model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "OrderId")
+            (IProperty)model.FindEntityType(typeof(Order))!.FindProperty("Id")!,
+            ((IProperty)model.FindEntityType(typeof(OrderDetails))!.GetForeignKeys().Single(k => k.Properties.First().Name == "OrderId")
                 .Properties[0]).FindGenerationProperty());
 
         Assert.Equal(
-            (IProperty)model.FindEntityType(typeof(Product)).FindProperty("Id"),
-            ((IProperty)model.FindEntityType(typeof(OrderDetails)).GetForeignKeys()
+            (IProperty)model.FindEntityType(typeof(Product))!.FindProperty("Id")!,
+            ((IProperty)model.FindEntityType(typeof(OrderDetails))!.GetForeignKeys()
                 .Single(k => k.Properties.First().Name == "ProductId")
                 .Properties[0]).FindGenerationProperty());
     }
@@ -228,7 +228,7 @@ public class PropertyExtensionsTest
     {
         public int Id { get; set; }
 
-        public List<Product> Products { get; set; }
+        public List<Product> Products { get; set; } = [];
     }
 
     private class Product
@@ -236,11 +236,11 @@ public class PropertyExtensionsTest
         public int Id { get; set; }
 
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
 
-        public ProductDetails Details { get; set; }
+        public ProductDetails Details { get; set; } = null!;
 
-        public List<OrderDetails> OrderDetails { get; set; }
+        public List<OrderDetails> OrderDetails { get; set; } = [];
     }
 
     private class ProductDetails
@@ -248,9 +248,9 @@ public class PropertyExtensionsTest
         public int Id1 { get; set; }
         public int Id2 { get; set; }
 
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
 
-        public ProductDetailsTag Tag { get; set; }
+        public ProductDetailsTag Tag { get; set; } = null!;
     }
 
     private class ProductDetailsTag
@@ -258,23 +258,23 @@ public class PropertyExtensionsTest
         public int Id1 { get; set; }
         public int Id2 { get; set; }
 
-        public ProductDetails Details { get; set; }
+        public ProductDetails Details { get; set; } = null!;
 
-        public ProductDetailsTagDetails TagDetails { get; set; }
+        public ProductDetailsTagDetails TagDetails { get; set; } = null!;
     }
 
     private class ProductDetailsTagDetails
     {
         public int Id { get; }
 
-        public ProductDetailsTag Tag { get; }
+        public ProductDetailsTag Tag { get; } = null!;
     }
 
     private class Order
     {
         public int Id { get; set; }
 
-        public List<OrderDetails> OrderDetails { get; }
+        public List<OrderDetails> OrderDetails { get; } = [];
     }
 
     private class OrderDetails
@@ -282,8 +282,8 @@ public class PropertyExtensionsTest
         public int OrderId { get; set; }
         public int ProductId { get; set; }
 
-        public Order Order { get; set; }
-        public Product Product { get; set; }
+        public Order Order { get; set; } = null!;
+        public Product Product { get; set; } = null!;
     }
 
     private static IMutableModel CreateModel()

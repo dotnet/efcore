@@ -366,8 +366,8 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is JsonQueryExpression jsonQueryExpression
-                && Equals(jsonQueryExpression));
+                || (obj is JsonQueryExpression jsonQueryExpression
+                    && Equals(jsonQueryExpression)));
 
     private bool Equals(JsonQueryExpression jsonQueryExpression)
         => StructuralType.Equals(jsonQueryExpression.StructuralType)

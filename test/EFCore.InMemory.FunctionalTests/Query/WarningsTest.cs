@@ -27,7 +27,7 @@ public class WarningsTest
                 InMemoryEventId.TransactionIgnoredWarning,
                 InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                 "InMemoryEventId.TransactionIgnoredWarning"),
-            Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.BeginTransaction).Message);
     }
 
     [Fact]
@@ -238,7 +238,7 @@ public class WarningsTest
         private readonly EventId? _toThrow = toThrow;
         private readonly (EventId Id, LogLevel Level)? _toChangeLevel = toChangeLevel;
 
-        public DbSet<WarningAsErrorEntity> WarningAsErrorEntities { get; set; }
+        public DbSet<WarningAsErrorEntity> WarningAsErrorEntities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
@@ -272,8 +272,7 @@ public class WarningsTest
 
     private class WarningAsErrorEntity
     {
-        private readonly Action<object, string> _loader;
-        private IncludedEntity _nav;
+        private readonly Action<object, string> _loader = null!;
 
         public WarningAsErrorEntity()
         {
@@ -284,11 +283,11 @@ public class WarningsTest
 
         public IncludedEntity Nav
         {
-            get => _loader.Load(this, ref _nav);
-            set => _nav = value;
-        }
+            get => _loader.Load(this, ref field);
+            set;
+        } = null!;
 
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 
     private class IncludedEntity

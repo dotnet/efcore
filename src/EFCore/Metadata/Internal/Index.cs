@@ -51,11 +51,12 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
 
             if ((property.DeclaringType is EntityType
                     ? declaringEntityType.FindProperty(property.Name) != property
-                        && declaringEntityType.FindComplexProperty(property.Name) != property
+                    && declaringEntityType.FindComplexProperty(property.Name) != property
                     : property.DeclaringType.ContainingEntityType != declaringEntityType)
                 || !property.IsInModel)
             {
-                throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(properties.Format(), declaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.IndexPropertiesWrongEntity(properties.Format(), declaringEntityType.DisplayName()));
             }
         }
 
@@ -339,7 +340,7 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
         }
 
         var oldIsDescending = IsDescending;
-        var isChanging = descending is null != _isDescending is null
+        var isChanging = (descending is null) != (_isDescending is null)
             || (descending is not null && _isDescending is not null && !descending.SequenceEqual(_isDescending));
         _isDescending = descending;
 

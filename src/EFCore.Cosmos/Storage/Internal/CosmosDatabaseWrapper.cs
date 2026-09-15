@@ -90,6 +90,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             {
                 tasks.Add(SaveAsync(write, cancellationToken));
             }
+
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
             foreach (var result in results)
             {
@@ -137,7 +138,8 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         var operationIndex = 0;
         foreach (var batch in batches)
         {
-            if (batch.UpdateEntries.Count == 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
+            if (batch.UpdateEntries.Count == 1
+                && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
             {
                 // Skip the operations that were already processed by a previous execution strategy attempt.
                 if (operationIndex < state.CommittedOperations)
@@ -168,14 +170,15 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 var suppressed = false;
                 try
                 {
-                    await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken).ConfigureAwait(false);
+                    await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException concurrencyException)
                 {
                     var allEntries = transaction.Entries.Select(x => x.Entry).ToArray();
                     if (!(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                            allEntries[0].Context, allEntries, concurrencyException, null, cancellationToken)
-                        .ConfigureAwait(false)).IsSuppressed)
+                                allEntries[0].Context, allEntries, concurrencyException, null, cancellationToken)
+                            .ConfigureAwait(false)).IsSuppressed)
                     {
                         throw;
                     }
@@ -219,8 +222,9 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             {
                 // @TODO: Seems expensive. Can we move this to the change tracker?
                 // #14121 ?
-                if (entry.EntityType.GetFlattenedPropertiesInHierarchy().Where(entry.IsModified).All(prop => prop.GetJsonPropertyName() == "") &&
-                    !entry.EntityType.GetFlattenedComplexProperties().Any(entry.IsModified))
+                if (entry.EntityType.GetFlattenedPropertiesInHierarchy().Where(entry.IsModified)
+                        .All(prop => prop.GetJsonPropertyName() == "")
+                    && !entry.EntityType.GetFlattenedComplexProperties().Any(entry.IsModified))
                 {
                     continue;
                 }
@@ -247,9 +251,10 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
         var cosmosUpdateEntries = rootEntriesToSave.Select(x => CreateCosmosUpdateEntry(x)!).Where(x => x != null).ToList();
 
-        if (cosmosUpdateEntries.Count == 0 ||
-            _currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never ||
-            (cosmosUpdateEntries.Count <= 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always))
+        if (cosmosUpdateEntries.Count == 0
+            || _currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never
+            || (cosmosUpdateEntries.Count <= 1
+                && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always))
         {
             return new SaveGroups
             {
@@ -282,28 +287,16 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 }
 
                 // There is only 1 entry, and it has a trigger
-                return new SaveGroups
-                {
-                    BatchableUpdateEntries = [],
-                    SingleUpdateEntries = singleUpdateEntries
-                };
+                return new SaveGroups { BatchableUpdateEntries = [], SingleUpdateEntries = singleUpdateEntries };
             }
 
             var firstEntry = batchableEntries[0];
             var key = new Grouping(firstEntry.CollectionId, _cosmosClient.GetPartitionKeyValue(firstEntry.Entry));
-            if (batchableEntries.Count > 100 ||
-                !batchableEntries.All(entry =>
-                    entry.CollectionId == key.ContainerId &&
-                    _cosmosClient.GetPartitionKeyValue(entry.Entry) == key.PartitionKeyValue))
-            {
-                throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity);
-            }
-
-            return new SaveGroups
-            {
-                BatchableUpdateEntries = [(key, batchableEntries)],
-                SingleUpdateEntries = []
-            };
+            return batchableEntries.Count > 100
+                || !batchableEntries.All(entry =>
+                    entry.CollectionId == key.ContainerId && _cosmosClient.GetPartitionKeyValue(entry.Entry) == key.PartitionKeyValue)
+                    ? throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity)
+                    : new SaveGroups { BatchableUpdateEntries = [(key, batchableEntries)], SingleUpdateEntries = [] };
         }
 
         var batches = CreateBatches(batchableEntries);
@@ -313,20 +306,16 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         {
             for (var i = batches.Count - 1; i >= 0; i--)
             {
-                var batch = batches[i];
-                if (batch.UpdateEntries.Count == 1)
+                var (Key, UpdateEntries) = batches[i];
+                if (UpdateEntries.Count == 1)
                 {
                     batches.RemoveAt(i);
-                    singleUpdateEntries.Add(batch.UpdateEntries[0]);
+                    singleUpdateEntries.Add(UpdateEntries[0]);
                 }
             }
         }
 
-        return new SaveGroups
-        {
-            BatchableUpdateEntries = batches,
-            SingleUpdateEntries = singleUpdateEntries
-        };
+        return new SaveGroups { BatchableUpdateEntries = batches, SingleUpdateEntries = singleUpdateEntries };
     }
 
     private List<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)> CreateBatches(List<CosmosUpdateEntry> entries)
@@ -383,7 +372,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         }
 
         if (operation == CosmosCudOperation.Create)
-        { 
+        {
             var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey != null)
             {
@@ -434,14 +423,14 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                     try
                     {
                         if (firstNonPartitionKeyProperty != null
-                        && propertyNeedsValue)
+                            && propertyNeedsValue)
                         {
                             // There were non-partition key properties, so only throw if it is one of these that is not set,
                             // ignoring partition key properties.
                             Dependencies.Logger.PrimaryKeyValueNotSet(firstNonPartitionKeyProperty!);
                         }
                         else if (firstNonPartitionKeyProperty == null
-                                    && partitionPropertyNeedsValue)
+                                 && partitionPropertyNeedsValue)
                         {
                             // There were no non-partition key properties in the primary key, so in this case check if any of these is not set.
                             Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
@@ -475,7 +464,9 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
         foreach (var updateEntry in batch.UpdateEntries)
         {
-            var document = updateEntry.Operation != CosmosCudOperation.Delete ? updateEntry.Serializer.Serialize(updateEntry.Entry) : default;
+            var document = updateEntry.Operation != CosmosCudOperation.Delete
+                ? updateEntry.Serializer.Serialize(updateEntry.Entry)
+                : default;
 
             // With AutoTransactionBehavior.Always, AddToTransaction will always return true.
             if (!AddToTransaction(transaction, updateEntry, document))
@@ -499,7 +490,10 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         }
     }
 
-    private bool AddToTransaction(ICosmosTransactionalBatchWrapper transaction, CosmosUpdateEntry updateEntry, ReadOnlyMemory<byte> document)
+    private bool AddToTransaction(
+        ICosmosTransactionalBatchWrapper transaction,
+        CosmosUpdateEntry updateEntry,
+        ReadOnlyMemory<byte> document)
     {
         var id = updateEntry.Serializer.GetJsonId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
         return updateEntry.Operation switch
@@ -519,25 +513,25 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             return updateEntry.Operation switch
             {
                 CosmosCudOperation.Create => await _cosmosClient.CreateItemAsync(
-                                    updateEntry.CollectionId,
-                                    id,
-                                    updateEntry.Serializer.Serialize(updateEntry.Entry),
-                                    updateEntry.Entry,
-                                    SessionTokenStorage,
-                                    cancellationToken).ConfigureAwait(false),
+                    updateEntry.CollectionId,
+                    id,
+                    updateEntry.Serializer.Serialize(updateEntry.Entry),
+                    updateEntry.Entry,
+                    SessionTokenStorage,
+                    cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
-                                    updateEntry.CollectionId,
-                                    id,
-                                    updateEntry.Serializer.Serialize(updateEntry.Entry),
-                                    updateEntry.Entry,
-                                    SessionTokenStorage,
-                                    cancellationToken).ConfigureAwait(false),
+                    updateEntry.CollectionId,
+                    id,
+                    updateEntry.Serializer.Serialize(updateEntry.Entry),
+                    updateEntry.Entry,
+                    SessionTokenStorage,
+                    cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Delete => await _cosmosClient.DeleteItemAsync(
-                                    updateEntry.CollectionId,
-                                    id,
-                                    updateEntry.Entry,
-                                    SessionTokenStorage,
-                                    cancellationToken).ConfigureAwait(false),
+                    updateEntry.CollectionId,
+                    id,
+                    updateEntry.Entry,
+                    SessionTokenStorage,
+                    cancellationToken).ConfigureAwait(false),
                 _ => throw new UnreachableException(),
             };
         }
@@ -546,15 +540,12 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             var errorEntries = new[] { updateEntry.Entry };
             var exception = WrapUpdateException(ex, errorEntries);
 
-            if (exception is not DbUpdateConcurrencyException
+            return exception is not DbUpdateConcurrencyException
                 || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
                         updateEntry.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
-                    .ConfigureAwait(false)).IsSuppressed)
-            {
-                throw exception;
-            }
-
-            return false;
+                    .ConfigureAwait(false)).IsSuppressed
+                    ? throw exception
+                    : false;
         }
     }
 
@@ -596,9 +587,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     }
 
     void IResettableService.ResetState()
-    {
-        SessionTokenStorage.Clear();
-    }
+        => SessionTokenStorage.Clear();
 
     Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
     {

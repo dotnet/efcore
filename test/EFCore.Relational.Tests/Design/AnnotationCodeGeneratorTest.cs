@@ -35,7 +35,7 @@ public class AnnotationCodeGeneratorTest
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder.Entity("Blog", x => x.Property<string>("Name").UseCollation("foo"));
-        var property = modelBuilder.Model.FindEntityType("Blog").FindProperty("Name");
+        var property = modelBuilder.Model.FindEntityType("Blog")!.FindProperty("Name")!;
 
         var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var result = CreateGenerator().GenerateFluentApiCalls((IProperty)property, annotations).Single();
@@ -48,13 +48,14 @@ public class AnnotationCodeGeneratorTest
     public void IsForeignKeyExcludedFromMigrations_false_is_handled_by_convention()
     {
         var modelBuilder = CreateModelBuilder();
-        modelBuilder.Entity("Blog", x =>
-        {
-            x.Property<int>("Id");
-            x.Property<int>("ParentId");
-            x.HasOne("Blog").WithMany().HasForeignKey("ParentId");
-        });
-        var foreignKey = modelBuilder.Model.FindEntityType("Blog").GetForeignKeys().Single();
+        modelBuilder.Entity(
+            "Blog", x =>
+            {
+                x.Property<int>("Id");
+                x.Property<int>("ParentId");
+                x.HasOne("Blog").WithMany().HasForeignKey("ParentId");
+            });
+        var foreignKey = modelBuilder.Model.FindEntityType("Blog")!.GetForeignKeys().Single();
 
         var annotations = foreignKey.GetAnnotations().ToDictionary(a => a.Name, a => a);
         CreateGenerator().RemoveAnnotationsHandledByConventions((IForeignKey)foreignKey, annotations);
@@ -66,13 +67,14 @@ public class AnnotationCodeGeneratorTest
     public void GenerateFluentApi_IForeignKey_works_with_ExcludeForeignKeyFromMigrations()
     {
         var modelBuilder = CreateModelBuilder();
-        modelBuilder.Entity("Blog", x =>
-        {
-            x.Property<int>("Id");
-            x.Property<int>("ParentId");
-            x.HasOne("Blog").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations();
-        });
-        var foreignKey = modelBuilder.Model.FindEntityType("Blog").GetForeignKeys().Single();
+        modelBuilder.Entity(
+            "Blog", x =>
+            {
+                x.Property<int>("Id");
+                x.Property<int>("ParentId");
+                x.HasOne("Blog").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations();
+            });
+        var foreignKey = modelBuilder.Model.FindEntityType("Blog")!.GetForeignKeys().Single();
 
         var annotations = foreignKey.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var result = CreateGenerator().GenerateFluentApiCalls((IForeignKey)foreignKey, annotations).Single();

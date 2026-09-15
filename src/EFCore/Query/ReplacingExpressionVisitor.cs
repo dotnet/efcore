@@ -97,14 +97,11 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
         }
 
         var mayBeMemberInitExpression = innerExpression.UnwrapTypeConversion(out _);
-        if (mayBeMemberInitExpression is MemberInitExpression memberInitExpression
+        return mayBeMemberInitExpression is MemberInitExpression memberInitExpression
             && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment
-                memberAssignment)
-        {
-            return memberAssignment.Expression;
-        }
-
-        return memberExpression.Update(innerExpression);
+                memberAssignment
+                ? memberAssignment.Expression
+                : memberExpression.Update(innerExpression);
     }
 
     // The compiler only populates NewExpression.Members for anonymous types; it is always null for every other type
@@ -187,13 +184,10 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
                 }
             }
 
-            if (unwrappedEntityExpression is MemberInitExpression memberInitExpression
-                && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment)
-            {
-                return memberAssignment.Expression;
-            }
-
-            return methodCallExpression.Update(null, [newEntityExpression, methodCallExpression.Arguments[1]]);
+            return unwrappedEntityExpression is MemberInitExpression memberInitExpression
+                && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment
+                    ? memberAssignment.Expression
+                    : methodCallExpression.Update(null, [newEntityExpression, methodCallExpression.Arguments[1]]);
         }
 
         return base.VisitMethodCall(methodCallExpression);

@@ -20,20 +20,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 public sealed class CosmosJsonNumberProjectionReaderWriter<T> : JsonValueReaderWriter<T>
     where T : INumber<T>
 {
-    private static readonly PropertyInfo InstanceProperty = typeof(CosmosJsonNumberProjectionReaderWriter<T>).GetProperty(nameof(Instance))!;
+    private static readonly PropertyInfo
+        InstanceProperty = typeof(CosmosJsonNumberProjectionReaderWriter<T>).GetProperty(nameof(Instance))!;
 
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
     /// </summary>
     public static CosmosJsonNumberProjectionReaderWriter<T> Instance { get; } = new();
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override T FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.TryGetDouble(out var d)
-         ? T.CreateChecked(d) // #38138
-         : throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+            ? T.CreateChecked(d) // #38138
+            : throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, T value)
     {
         if (typeof(T) == typeof(int)

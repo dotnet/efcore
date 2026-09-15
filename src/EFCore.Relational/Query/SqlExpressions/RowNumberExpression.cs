@@ -112,8 +112,8 @@ public class RowNumberExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is RowNumberExpression rowNumberExpression
-                && Equals(rowNumberExpression));
+                || (obj is RowNumberExpression rowNumberExpression
+                    && Equals(rowNumberExpression)));
 
     private bool Equals(RowNumberExpression rowNumberExpression)
         => base.Equals(rowNumberExpression)

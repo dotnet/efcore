@@ -66,7 +66,8 @@ public class GuidToBytesConverter : ValueConverter<Guid, byte[]>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(Guid), typeof(byte[]),
+        = new(
+            typeof(Guid), typeof(byte[]),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new GuidToBytesConverter(i.MappingHints),
             DefaultHints);
 }

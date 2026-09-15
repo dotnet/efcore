@@ -210,7 +210,7 @@ FROM [JsonTypeEntity] AS [j]
 
     #endregion JSON
 
-    public class ByteArrayTypeFixture() : SqlServerTypeFixture<byte[]>
+    public class ByteArrayTypeFixture : SqlServerTypeFixture<byte[]>
     {
         public override byte[] Value { get; } = [1, 2, 3];
         public override byte[] OtherValue { get; } = [4, 5, 6, 7];
@@ -225,4 +225,3 @@ FROM [JsonTypeEntity] AS [j]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }
-

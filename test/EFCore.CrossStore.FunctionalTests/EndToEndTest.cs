@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
@@ -11,7 +10,7 @@ public abstract class EndToEndTest(CrossStoreFixture fixture) : IAsyncLifetime
 {
     protected CrossStoreFixture Fixture { get; } = fixture;
     protected abstract ITestStoreFactory TestStoreFactory { get; }
-    protected TestStore TestStore { get; private set; }
+    protected TestStore TestStore { get; private set; } = null!;
 
     [Fact]
     public virtual void Can_save_changes_and_query()

@@ -35,7 +35,7 @@ public class SqlServerRetryingExecutionStrategyTests
         {
             Assert.True(
                 Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds)
-                <= expectedDelays[i].TotalMilliseconds * 0.1 + 1,
+                <= (expectedDelays[i].TotalMilliseconds * 0.1) + 1,
                 $"Expected: {expectedDelays[i]}; Actual: {delays[i]}");
         }
     }

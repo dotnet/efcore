@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexPropertyBuilder>
 {
@@ -123,7 +123,7 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.Property(leafName, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionTypePropertyBuilder(innerBuilder.Property(leafName, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -145,7 +145,8 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.Property(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionTypePropertyBuilder<TProperty>(
+            innerBuilder.Property(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -168,7 +169,8 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.Property(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionTypePropertyBuilder(
+            innerBuilder.Property(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -188,7 +190,8 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.PrimitiveCollection(leafName, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexTypePrimitiveCollectionBuilder(
+            innerBuilder.PrimitiveCollection(leafName, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -211,7 +214,8 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.PrimitiveCollection(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexTypePrimitiveCollectionBuilder<TProperty>(
+            innerBuilder.PrimitiveCollection(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -235,7 +239,8 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.PrimitiveCollection(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexTypePrimitiveCollectionBuilder(
+            innerBuilder.PrimitiveCollection(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -297,8 +302,9 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            propertyType: null, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType: null, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -321,8 +327,9 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            typeof(TProperty), leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                typeof(TProperty), leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -370,8 +377,9 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            propertyType, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -547,8 +555,9 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            propertyType: null, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType: null, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -573,8 +582,9 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            typeof(TProperty), leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                typeof(TProperty), leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -624,8 +634,9 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            propertyType, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>

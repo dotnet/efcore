@@ -203,10 +203,10 @@ WHERE ([b].[Int] = 12 AND [b].[Short] = CAST(12 AS smallint)) OR [b].[String] = 
     }
 
     public override Task Left_shift()
-        => AssertTranslationFailed(() => base.Left_shift());
+        => AssertTranslationFailed(base.Left_shift);
 
     public override Task Right_shift()
-        => AssertTranslationFailed(() => base.Right_shift());
+        => AssertTranslationFailed(base.Right_shift);
 
     [Fact]
     public virtual void Check_all_tests_overridden()

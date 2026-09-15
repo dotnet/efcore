@@ -5,17 +5,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO;
 
-#nullable disable
-
 public class Session
 {
     public int Id { get; set; }
 
     [Required, StringLength(200)]
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
     [StringLength(4000)]
-    public virtual string Abstract { get; set; }
+    public virtual string Abstract { get; set; } = null!;
 
     public virtual DateTimeOffset? StartTime { get; set; }
 

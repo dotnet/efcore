@@ -53,12 +53,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     CoreTypeMapping GetTypeMapping()
     {
         var mapping = FindTypeMapping();
-        if (mapping == null)
-        {
-            throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetTypeMapping)));
-        }
-
-        return mapping;
+        return mapping ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetTypeMapping)));
     }
 
     /// <summary>

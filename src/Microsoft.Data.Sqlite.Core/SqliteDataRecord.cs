@@ -31,7 +31,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     private Dictionary<string, int>? _columnNameOrdinalCache;
     private string[]? _columnNameCache;
     private bool _stepped;
-    private readonly Dictionary<string, RowIdInfo> RowIds = new();
+    private readonly Dictionary<string, RowIdInfo> RowIds = [];
 
     private bool _alreadyThrown;
     private bool _alreadyAddedChanges;
@@ -69,19 +69,11 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         => sqlite3_column_text(Handle, ordinal).utf8_to_string();
 
     public override T GetFieldValue<T>(int ordinal)
-    {
-        if (typeof(T) == typeof(Stream))
-        {
-            return (T)(object)GetStream(ordinal);
-        }
-
-        if (typeof(T) == typeof(TextReader))
-        {
-            return (T)(object)GetTextReader(ordinal);
-        }
-
-        return base.GetFieldValue<T>(ordinal)!;
-    }
+        => typeof(T) == typeof(Stream)
+            ? (T)(object)GetStream(ordinal)
+            : typeof(T) == typeof(TextReader)
+                ? (T)(object)GetTextReader(ordinal)
+                : base.GetFieldValue<T>(ordinal)!;
 
     protected override byte[] GetBlob(int ordinal)
         => base.GetBlob(ordinal)!;
@@ -127,7 +119,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     {
         if (_columnNameOrdinalCache == null)
         {
-            _columnNameOrdinalCache = new Dictionary<string, int>();
+            _columnNameOrdinalCache = [];
             for (var i = 0; i < FieldCount; i++)
             {
                 _columnNameOrdinalCache[GetName(i)] = i;
@@ -174,7 +166,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
             return i == -1
                 ? typeName
-                : typeName.Substring(0, i);
+                : typeName[..i];
         }
 
         var sqliteType = GetSqliteType(ordinal);
@@ -305,9 +297,16 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
         var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
-        RowIdInfo? rowIdForOrdinal = null;
+        if (blobDatabaseName == null
+            || blobTableName == null)
+        {
+            // The value came from an expression, so there is no row to open a blob on. Looking for a rowid
+            // column would also hand these nulls to sqlite3_table_column_metadata, which is misuse
+            return new MemoryStream(GetCachedBlob(ordinal), false);
+        }
+
         var rowidkey = $"{blobDatabaseName}_{blobTableName}";
-        if (!RowIds.TryGetValue(rowidkey, out rowIdForOrdinal))
+        if (!RowIds.TryGetValue(rowidkey, out var rowIdForOrdinal))
         {
             var pkColumns = -1L;
             for (var i = 0; i < FieldCount; i++)
@@ -353,13 +352,11 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
                 {
                     if (pkColumns < 0L)
                     {
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
-                            command.Parameters.AddWithValue("$table", tableName);
+                        using var command = connection.CreateCommand();
+                        command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
+                        command.Parameters.AddWithValue("$table", tableName);
 
-                            pkColumns = (long)command.ExecuteScalar()!;
-                        }
+                        pkColumns = (long)command.ExecuteScalar()!;
                     }
 
                     if (pkColumns == 1L)
@@ -437,7 +434,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     }
 
     public void Dispose()
-            => DisposeWithBusyHandling(timeout: -1, totalElapsedTime: default);
+        => DisposeWithBusyHandling(timeout: -1, totalElapsedTime: default);
 
     internal void DisposeWithBusyHandling(int timeout, TimeSpan totalElapsedTime)
     {
@@ -445,20 +442,33 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
         var timer = SharedStopwatch.StartNew();
 
-        while (IsBusy(rc = sqlite3_reset(Handle)))
+        // A write that has not been stepped to the end commits when it is reset. If that commit is busy,
+        // sqlite3_reset reports it only once: resetting again returns SQLITE_OK while the write has been
+        // rolled back. So retry by stepping, which retries the commit, and reset only once at the end.
+        if (timeout != -1
+            && !_alreadyThrown
+            && sqlite3_stmt_readonly(Handle) == 0
+            && sqlite3_stmt_busy(Handle) != 0)
         {
-            if (timeout == -1)
+            while ((rc = sqlite3_step(Handle)) == SQLITE_ROW
+                || IsBusy(rc))
             {
-                break;
-            }
-            if (timeout != 0
-                && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= timeout * 1000L)
-            {
-                break;
-            }
+                if (rc == SQLITE_ROW)
+                {
+                    continue;
+                }
 
-            Thread.Sleep(150);
+                if (timeout != 0
+                    && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= timeout * 1000L)
+                {
+                    break;
+                }
+
+                Thread.Sleep(150);
+            }
         }
+
+        rc = sqlite3_reset(Handle);
 
         if (!_alreadyThrown)
         {

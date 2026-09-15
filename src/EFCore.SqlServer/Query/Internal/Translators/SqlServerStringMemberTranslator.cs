@@ -36,20 +36,15 @@ public class SqlServerStringMemberTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (member.Name == nameof(string.Length)
-            && member.DeclaringType == typeof(string))
-        {
-            return _sqlExpressionFactory.Convert(
-                _sqlExpressionFactory.Function(
-                    "LEN",
-                    [instance!],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                    typeof(long)),
-                returnType);
-        }
-
-        return null;
-    }
+        => member.Name == nameof(string.Length)
+            && member.DeclaringType == typeof(string)
+                ? _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Function(
+                        "LEN",
+                        [instance!],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                        typeof(long)),
+                    returnType)
+                : null;
 }

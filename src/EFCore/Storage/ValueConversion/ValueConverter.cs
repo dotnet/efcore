@@ -189,16 +189,13 @@ public abstract class ValueConverter
         Check.NotNull(converterType);
         Check.NotEmpty(supportedTypes);
 
-        if (!supportedTypes.Contains(type))
-        {
-            throw new InvalidOperationException(
+        return !supportedTypes.Contains(type)
+            ? throw new InvalidOperationException(
                 CoreStrings.ConverterBadType(
                     converterType.ShortDisplayName(),
                     type.ShortDisplayName(),
-                    string.Join(", ", supportedTypes.Select(t => $"'{t.ShortDisplayName()}'"))));
-        }
-
-        return type;
+                    string.Join(", ", supportedTypes.Select(t => $"'{t.ShortDisplayName()}'"))))
+            : type;
     }
 
     /// <summary>
@@ -265,8 +262,7 @@ public abstract class ValueConverter
     /// <summary>
     ///     The expression representing construction of this object without <see cref="ConverterMappingHints" />.
     /// </summary>
-    [EntityFrameworkInternal]
-    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    [EntityFrameworkInternal, Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public virtual Expression ConstructorExpressionWithoutMappingHints
         => ConstructorExpression;
 }

@@ -7,7 +7,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
@@ -383,11 +382,10 @@ ORDER BY [v1].[Id]
 
         var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => ctx.VectorEntities
-                .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
-                .WithApproximate()
-                .ToListAsync());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .WithApproximate()
+            .ToListAsync());
 
         Assert.Equal(SqlServerStrings.WithApproximateRequiresTake, exception.Message);
     }
@@ -400,14 +398,13 @@ ORDER BY [v1].[Id]
 
         var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => ctx.VectorEntities
-                .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
-                .OrderBy(r => r.Distance)
-                .Skip(1)
-                .Take(3)
-                .WithApproximate()
-                .ToListAsync());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .OrderBy(r => r.Distance)
+            .Skip(1)
+            .Take(3)
+            .WithApproximate()
+            .ToListAsync());
 
         Assert.Equal(SqlServerStrings.WithApproximateNotSupportedWithSkipAndTake, exception.Message);
     }
@@ -428,7 +425,8 @@ ORDER BY [v1].[Id]
             .Take(1)
             .ToListAsync();
 
-        var warning = Assert.Single(Fixture.TestSqlLoggerFactory.Log, l => l.Id == SqlServerEventId.VectorSearchWithoutApproximateIndexWarning);
+        var warning = Assert.Single(
+            Fixture.TestSqlLoggerFactory.Log, l => l.Id == SqlServerEventId.VectorSearchWithoutApproximateIndexWarning);
         Assert.Equal(LogLevel.Warning, warning.Level);
         Assert.Contains("IndexedVector", warning.Message);
         Assert.Contains("VectorEntity", warning.Message);
@@ -472,13 +470,12 @@ WHERE VECTORPROPERTY([v].[Vector], 'Dimensions') = 3
         public static async Task SeedAsync(VectorQueryContext context)
         {
             // SQL Server vector indexes require at least 100 rows.
-            var vectorEntities = Enumerable.Range(1, 100).Select(
-                i => new VectorEntity
-                {
-                    Id = i,
-                    Vector = new SqlVector<float>(new float[] { i * 0.01f, i * 0.02f, i * 0.03f }),
-                    IndexedVector = new SqlVector<float>(new float[] { i * 0.01f, i * 0.02f, i * 0.03f })
-                }).ToList();
+            var vectorEntities = Enumerable.Range(1, 100).Select(i => new VectorEntity
+            {
+                Id = i,
+                Vector = new SqlVector<float>(new float[] { i * 0.01f, i * 0.02f, i * 0.03f }),
+                IndexedVector = new SqlVector<float>(new float[] { i * 0.01f, i * 0.02f, i * 0.03f })
+            }).ToList();
 
             // Override specific rows we use in test assertions
             vectorEntities[0] = new VectorEntity
@@ -505,7 +502,8 @@ WHERE VECTORPROPERTY([v].[Vector], 'Dimensions') = 3
 
             await context.Database.ExecuteSqlAsync($"ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON");
 
-            await context.Database.ExecuteSqlAsync($"""
+            await context.Database.ExecuteSqlAsync(
+                $"""
 CREATE VECTOR INDEX vec_idx ON VectorEntities(IndexedVector)
 WITH (METRIC = 'Cosine', TYPE = 'DiskANN');
 """);

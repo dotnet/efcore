@@ -9,11 +9,11 @@ public class WrapperTests
 {
     [Theory, InlineData(null, 1), InlineData("/", 1), InlineData("/0.5/", 1), InlineData("/1/", 0), InlineData("/2/", -1),
      InlineData("/1/1/", -1)]
-    public void CompareTo_works(string value, int expected)
+    public void CompareTo_works(string? value, int expected)
         => Assert.Equal(expected, HierarchyId.Parse("/1/").CompareTo(HierarchyId.Parse(value)));
 
     [Theory, InlineData(null, false), InlineData("/", false), InlineData("/1/", true)]
-    public void Equals_works(string value, bool expected)
+    public void Equals_works(string? value, bool expected)
         => Assert.Equal(expected, HierarchyId.Parse("/1/").Equals(HierarchyId.Parse(value)));
 
     [Fact]
@@ -50,7 +50,7 @@ public class WrapperTests
 
     [Fact]
     public void Parse_overloads_works_when_parentHierarchy_is_null_and_parentId_is_empty()
-        => Assert.Equal(HierarchyId.Parse(null, []), HierarchyId.Parse("/"));
+        => Assert.Equal(HierarchyId.Parse(null!, []), HierarchyId.Parse("/"));
 
     private readonly HierarchyId _parent = HierarchyId.Parse("/1/");
 }

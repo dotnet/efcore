@@ -57,12 +57,12 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     private class WithRowVersion
     {
         public int Id { get; set; }
-        public byte[] Version { get; set; }
+        public byte[] Version { get; set; } = null!;
     }
 
     private class OptimisticContext : DbContext
     {
-        public DbSet<WithRowVersion> _ { get; set; }
+        public DbSet<WithRowVersion> _ { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -91,7 +91,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             null,
             [FakeTypeMapping.CreateParameters(typeof(SqlServerDateTimeTypeMapping)), SqlDbType.SmallDateTime],
             null,
-            null);
+            null)!;
 
         var clone = AssertClone(typeof(SqlServerDateTimeTypeMapping), mapping);
 
@@ -181,7 +181,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<SqlServerSingletonOptions>())
-            .FindMapping(type);
+            .FindMapping(type)!;
 
     public override void ByteArray_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(GetMapping(typeof(byte[])), new byte[] { 0xDA, 0x7A }, "0xDA7A");
@@ -380,18 +380,16 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(DbType.String, parameter.DbType);
     }
 
-    [Theory]
-    [InlineData("<r>a</r>", "<r>a</r>")]
+    [Theory, InlineData("<r>a</r>", "<r>a</r>"), InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><r>a</r>", "<r>a</r>"),
+     InlineData(" <?xml version=\"1.0\" encoding=\"utf-8\" ?> <r>a</r>", " <r>a</r>"),
+     InlineData(
+         "<?xml version=\"1.1\" encoding=\"utf-8\"?><?xml-stylesheet href=\"s.xsl\"?><r>a</r>",
+         "<?xml-stylesheet href=\"s.xsl\"?><r>a</r>"), InlineData("", ""), InlineData("text fragment", "text fragment"),
+     InlineData("<a/><b/>", "<a/><b/>")]
     // The XML declaration is removed so the value can be sent as a string without an encoding conflict.
-    [InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><r>a</r>", "<r>a</r>")]
     // The declaration's closing '>' is found even when a space precedes it, and any leading whitespace is dropped too.
-    [InlineData(" <?xml version=\"1.0\" encoding=\"utf-8\" ?> <r>a</r>", " <r>a</r>")]
     // Only the declaration is removed; a following stylesheet PI and the rest are kept verbatim.
-    [InlineData("<?xml version=\"1.1\" encoding=\"utf-8\"?><?xml-stylesheet href=\"s.xsl\"?><r>a</r>", "<?xml-stylesheet href=\"s.xsl\"?><r>a</r>")]
-    [InlineData("", "")]
-    [InlineData("text fragment", "text fragment")]
     // Content after the prolog is sent verbatim, so the original formatting is preserved.
-    [InlineData("<a/><b/>", "<a/><b/>")]
     public virtual void Xml_parameter_is_sent_as_string_with_prolog_removed(string value, string expected)
     {
         var mapping = GetMapping("xml");
@@ -504,7 +502,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     #endregion Vector
 
     public static RelationalTypeMapping GetMapping(string type)
-        => GetTypeMappingSource().FindMapping(type);
+        => GetTypeMappingSource().FindMapping(type)!;
 
     public static SqlServerTypeMappingSource GetTypeMappingSource()
         => new(

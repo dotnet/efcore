@@ -52,7 +52,8 @@ public class GuidToStringConverter : StringGuidConverter<Guid, string>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(Guid), typeof(string),
+        = new(
+            typeof(Guid), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new GuidToStringConverter(i.MappingHints),
             DefaultHints);
 }

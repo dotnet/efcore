@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
+#nullable disable
+
 public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
@@ -80,13 +82,11 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
 
     [Fact]
     public virtual Task Where_bitwise_and_nullable_enum_with_null_constant()
-    {
-        return AssertQuery(
+        => AssertQuery(
 #pragma warning disable CS0458 // The result of the expression is always 'null'
             ss => ss.Set<NullableBasicTypesEntity>().Where(w => (w.FlagsEnum & null) > 0),
 #pragma warning restore CS0458 // The result of the expression is always 'null'
             assertEmpty: true);
-    }
 
     [Fact]
     public virtual Task Where_bitwise_and_nullable_enum_with_non_nullable_parameter()
@@ -151,7 +151,8 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
             .Where(b => b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight))
             .Select(b => new
             {
-                hasFlagTrue = b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight), hasFlagFalse = b.FlagsEnum.HasFlag(BasicFlagsEnum.Four)
+                hasFlagTrue = b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight),
+                hasFlagFalse = b.FlagsEnum.HasFlag(BasicFlagsEnum.Four)
             }));
     }
 
@@ -170,6 +171,30 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
 
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.FlagsEnum.HasFlag(flagsEnum)));
     }
+
+     [Theory, MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_enum_property_projection(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<BasicTypesEntity>().Select(g => g.Enum.ToString()));
+
+     [Theory, MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_nullable_enum_property_projection(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<NullableBasicTypesEntity>().Select(w => w.Enum.ToString()));
+
+     [Theory, MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_enum_contains(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<BasicTypesEntity>().Where(g => g.Enum.ToString().Contains("One")).Select(g => g.Enum));
+
+     [Theory, MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_nullable_enum_contains(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<NullableBasicTypesEntity>().Where(w => w.Enum.ToString().Contains("One")).Select(g => g.Enum));
 
     protected BasicTypesContext CreateContext()
         => Fixture.CreateContext();

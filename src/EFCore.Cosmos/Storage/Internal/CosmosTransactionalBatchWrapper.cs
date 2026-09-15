@@ -20,10 +20,8 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     private long _size;
 
     private readonly TransactionalBatch _transactionalBatch;
-    private readonly string _collectionId;
-    private readonly PartitionKey _partitionKeyValue;
     private readonly bool _checkSize;
-    private readonly List<CosmosTransactionalBatchEntry> _entries = new();
+    private readonly List<CosmosTransactionalBatchEntry> _entries = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,8 +36,8 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
         bool checkSize)
     {
         _transactionalBatch = transactionalBatch;
-        _collectionId = collectionId;
-        _partitionKeyValue = partitionKeyValue;
+        CollectionId = collectionId;
+        PartitionKeyValue = partitionKeyValue;
         _checkSize = checkSize;
     }
 
@@ -49,7 +47,8 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IReadOnlyList<CosmosTransactionalBatchEntry> Entries => _entries;
+    public IReadOnlyList<CosmosTransactionalBatchEntry> Entries
+        => _entries;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,7 +56,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public PartitionKey PartitionKeyValue => _partitionKeyValue;
+    public PartitionKey PartitionKeyValue { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,7 +64,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public string CollectionId => _collectionId;
+    public string CollectionId { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,6 +84,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
             {
                 return false;
             }
+
             _size += size;
         }
 
@@ -113,12 +113,16 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
 
         if (_checkSize)
         {
-            var size = document.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
+            var size = document.Length
+                + itemRequestOptionsLength
+                + OperationSerializationOverheadOverEstimateInBytes
+                + Encoding.UTF8.GetByteCount(documentId);
 
             if (_size + size > MaxSize && _size != 0)
             {
                 return false;
             }
+
             _size += size;
         }
 
@@ -147,12 +151,15 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
 
         if (_checkSize)
         {
-            var size = itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
+            var size = itemRequestOptionsLength
+                + OperationSerializationOverheadOverEstimateInBytes
+                + Encoding.UTF8.GetByteCount(documentId);
 
             if (_size + size > MaxSize && _size != 0)
             {
                 return false;
             }
+
             _size += size;
         }
 
@@ -168,7 +175,8 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TransactionalBatch GetTransactionalBatch() => _transactionalBatch;
+    public TransactionalBatch GetTransactionalBatch()
+        => _transactionalBatch;
 
     private TransactionalBatchItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, out int size)
     {

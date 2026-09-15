@@ -360,23 +360,17 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                 return (IQueryable<TEntity>)SharedContainerEntities2Children.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(SharedContainerEntity3) || typeof(TEntity) == typeof(SharedContainerEntity3Child))
-            {
-                return (IQueryable<TEntity>)SharedContainerEntities3Children.AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(FancyDiscriminatorEntity))
-            {
-                return (IQueryable<TEntity>)Cat35224Entities.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(SharedContainerEntity3) || typeof(TEntity) == typeof(SharedContainerEntity3Child)
+                ? (IQueryable<TEntity>)SharedContainerEntities3Children.AsQueryable()
+                : typeof(TEntity) == typeof(FancyDiscriminatorEntity)
+                    ? (IQueryable<TEntity>)Cat35224Entities.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
 
         private static List<HierarchicalPartitionKeyEntity> CreateHierarchicalPartitionKeyEntities()
             =>
             [
-                new HierarchicalPartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("31887258-BDF9-49B8-89B2-01B6AA741A4A"),
                     PartitionKey1 = "PK1",
@@ -385,7 +379,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                     Payload = "Payload1"
                 },
 
-                new HierarchicalPartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("31887258-BDF9-49B8-89B2-01B6AA741A4A"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
@@ -394,7 +388,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                     Payload = "Payload2"
                 },
 
-                new HierarchicalPartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("BBA46A5D-BDB8-40F0-BA80-BA5731147B9A"), // Different Id.
                     PartitionKey1 = "PK1",
@@ -403,7 +397,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                     Payload = "Payload3"
                 },
 
-                new HierarchicalPartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("BBA46A5D-BDB8-40F0-BA80-BA5731147B9A"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
@@ -416,28 +410,28 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
         private static List<SinglePartitionKeyEntity> CreateSinglePartitionKeyEntities()
             =>
             [
-                new SinglePartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34"),
                     PartitionKey = "PK1",
                     Payload = "Payload1"
                 },
 
-                new SinglePartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34"),
                     PartitionKey = "PK2",
                     Payload = "Payload2"
                 },
 
-                new SinglePartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("3307A33B-7F28-49EF-9857-48F4E3EBCAED"),
                     PartitionKey = "PK1",
                     Payload = "Payload3"
                 },
 
-                new SinglePartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("3307A33B-7F28-49EF-9857-48F4E3EBCAED"),
                     PartitionKey = "PK2",
@@ -448,7 +442,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
         private static List<OnlyHierarchicalPartitionKeyEntity> CreateOnlyHierarchicalPartitionKeyEntities()
             =>
             [
-                new OnlyHierarchicalPartitionKeyEntity
+                new()
                 {
                     PartitionKey1 = "PK1a",
                     PartitionKey2 = 1,
@@ -456,7 +450,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                     Payload = "Payload1"
                 },
 
-                new OnlyHierarchicalPartitionKeyEntity
+                new()
                 {
                     PartitionKey1 = "PK2a",
                     PartitionKey2 = 2,
@@ -464,7 +458,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                     Payload = "Payload2"
                 },
 
-                new OnlyHierarchicalPartitionKeyEntity
+                new()
                 {
                     PartitionKey1 = "PK1b",
                     PartitionKey2 = 1,
@@ -472,7 +466,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                     Payload = "Payload3"
                 },
 
-                new OnlyHierarchicalPartitionKeyEntity
+                new()
                 {
                     PartitionKey1 = "PK2b",
                     PartitionKey2 = 2,
@@ -484,40 +478,40 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
         private static List<OnlySinglePartitionKeyEntity> CreateOnlySinglePartitionKeyEntities()
             =>
             [
-                new OnlySinglePartitionKeyEntity { PartitionKey = "PK1a", Payload = "Payload1" },
-                new OnlySinglePartitionKeyEntity { PartitionKey = "PK2a", Payload = "Payload2" },
-                new OnlySinglePartitionKeyEntity { PartitionKey = "PK1b", Payload = "Payload3" },
-                new OnlySinglePartitionKeyEntity { PartitionKey = "PK2b", Payload = "Payload4" }
+                new() { PartitionKey = "PK1a", Payload = "Payload1" },
+                new() { PartitionKey = "PK2a", Payload = "Payload2" },
+                new() { PartitionKey = "PK1b", Payload = "Payload3" },
+                new() { PartitionKey = "PK2b", Payload = "Payload4" }
             ];
 
         private static List<NoPartitionKeyEntity> CreateNoPartitionKeyEntities()
-            => [new NoPartitionKeyEntity { Id = 1, Payload = "Payload1" }, new NoPartitionKeyEntity { Id = 2, Payload = "Payload2" }];
+            => [new() { Id = 1, Payload = "Payload1" }, new() { Id = 2, Payload = "Payload2" }];
 
         private static List<SharedContainerEntity1> CreateSharedContainerEntities1()
             =>
             [
-                new SharedContainerEntity1
+                new()
                 {
                     Id = "1",
                     PartitionKey = "PK1",
                     Payload1 = "Payload1"
                 },
 
-                new SharedContainerEntity1
+                new()
                 {
                     Id = "1",
                     PartitionKey = "PK2",
                     Payload1 = "Payload2"
                 },
 
-                new SharedContainerEntity1
+                new()
                 {
                     Id = "2",
                     PartitionKey = "PK1",
                     Payload1 = "Payload3"
                 },
 
-                new SharedContainerEntity1
+                new()
                 {
                     Id = "2",
                     PartitionKey = "PK2",
@@ -528,14 +522,14 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
         private static List<SharedContainerEntity2> CreateSharedContainerEntities2()
             =>
             [
-                new SharedContainerEntity2
+                new()
                 {
                     Id = 4,
                     PartitionKey = "PK1",
                     Payload2 = "Payload4"
                 },
 
-                new SharedContainerEntity2
+                new()
                 {
                     Id = 4,
                     PartitionKey = "PK2",
@@ -546,7 +540,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
         private static List<SharedContainerEntity2Child> CreateSharedContainerEntities2Children()
             =>
             [
-                new SharedContainerEntity2Child
+                new()
                 {
                     Id = 5,
                     PartitionKey = "PK1",
@@ -554,7 +548,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                     ChildPayload = "Child1"
                 },
 
-                new SharedContainerEntity2Child
+                new()
                 {
                     Id = 5,
                     PartitionKey = "PK2",
@@ -566,7 +560,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
         private static List<SharedContainerEntity3Child> CreateSharedContainerEntities3Children1()
             =>
             [
-                new SharedContainerEntity3Child
+                new()
                 {
                     Id = 6,
                     PartitionKey = "PK1",
@@ -574,7 +568,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
                     Child1Payload = "Child1"
                 },
 
-                new SharedContainerEntity3Child
+                new()
                 {
                     Id = 6,
                     PartitionKey = "PK2",
@@ -586,10 +580,10 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
         private static List<FancyDiscriminatorEntity> CreateCat35224Entities()
             =>
             [
-                new FancyDiscriminatorEntity { Id = "Cat|1", Name = "Smokey" },
-                new FancyDiscriminatorEntity { Id = "Cat2||", Name = "Clippy" },
-                new FancyDiscriminatorEntity { Id = "Cat|3|$|5", Name = "Sid" },
-                new FancyDiscriminatorEntity { Id = "|Cat|", Name = "Killes" }
+                new() { Id = "Cat|1", Name = "Smokey" },
+                new() { Id = "Cat2||", Name = "Clippy" },
+                new() { Id = "Cat|3|$|5", Name = "Sid" },
+                new() { Id = "|Cat|", Name = "Killes" }
             ];
     }
 }

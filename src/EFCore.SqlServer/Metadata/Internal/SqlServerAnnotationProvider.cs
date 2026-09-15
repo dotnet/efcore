@@ -69,7 +69,7 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             yield return new Annotation(SqlServerAnnotationNames.EditionOptions, options.ToString());
         }
 
-        if (model.Tables.Any(t => !t.IsExcludedFromMigrations && (t[SqlServerAnnotationNames.MemoryOptimized] as bool? == true)))
+        if (model.Tables.Any(t => !t.IsExcludedFromMigrations && ((t[SqlServerAnnotationNames.MemoryOptimized] as bool?) == true)))
         {
             yield return new Annotation(SqlServerAnnotationNames.MemoryOptimized, true);
         }
@@ -213,8 +213,6 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
         // Model validation ensures that these facets are the same on all mapped indexes
         var modelIndex = index.MappedIndexes.First();
         var table = StoreObjectIdentifier.Table(index.Table.Name, index.Table.Schema);
-
-#pragma warning disable EF9105 // Vector indexes are experimental
         if (modelIndex.GetVectorMetric(table) is { } vectorMetric)
         {
             yield return new Annotation(SqlServerAnnotationNames.VectorIndexMetric, vectorMetric);
@@ -224,7 +222,6 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
                 yield return new Annotation(SqlServerAnnotationNames.VectorIndexType, vectorType);
             }
         }
-#pragma warning restore EF9105
 
         if (modelIndex.GetFullTextKeyIndex(table) is { } keyIndex)
         {

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixture fixture) : AdHocAdvancedMappingsQueryTestBase(fixture)
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -33,8 +31,8 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
         var resultElement = query.Single();
         foreach (var variation in resultElement.Variations)
         {
-            Assert.NotEqual(variation.Payment.Brutto, variation.Nested.Payment.Brutto);
-            Assert.NotEqual(variation.Payment.Netto, variation.Nested.Payment.Netto);
+            Assert.NotEqual(variation.Payment.Brutto, variation.Nested!.Payment.Brutto);
+            Assert.NotEqual(variation.Payment.Netto, variation.Nested!.Payment.Netto);
         }
     }
 
@@ -52,8 +50,8 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
         foreach (var variation in query.Variations)
         {
-            Assert.NotEqual(variation.Payment.Brutto, variation.Nested.Payment.Brutto);
-            Assert.NotEqual(variation.Payment.Netto, variation.Nested.Payment.Netto);
+            Assert.NotEqual(variation.Payment.Brutto, variation.Nested!.Payment.Brutto);
+            Assert.NotEqual(variation.Payment.Netto, variation.Nested!.Payment.Netto);
         }
     }
 
@@ -65,12 +63,13 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
         using var context = contextFactory.CreateDbContext();
 
         var query = context.Cs
-            .Where(x => x.B.AId.Value == 1)
+            .Where(x => x.B.AId!.Value == 1)
             .OrderBy(x => x.Id)
             .Take(10)
             .Select(x => new
             {
-                x.B.A.Id, x.B.Info.Created,
+                x.B.A.Id,
+                x.B.Info.Created,
             }).ToList();
 
         Assert.Equal(new DateTime(2000, 1, 1), query[0].Created);
@@ -78,7 +77,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
     protected class Context32911(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Offer> Offers { get; set; }
+        public DbSet<Offer> Offers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -128,12 +127,12 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
                 new Offer
                 {
                     Id = 1,
-                    Variations = new List<Variation>
-                    {
+                    Variations =
+                    [
                         v1,
                         v2,
                         v3
-                    }
+                    ]
                 });
 
             await SaveChangesAsync();
@@ -146,14 +145,14 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
         public class Offer : EntityBase
         {
-            public ICollection<Variation> Variations { get; set; }
+            public ICollection<Variation> Variations { get; set; } = null!;
         }
 
         public class Variation : EntityBase
         {
             public Payment Payment { get; set; } = new(0, 0);
 
-            public NestedEntity Nested { get; set; }
+            public NestedEntity? Nested { get; set; }
         }
 
         public class NestedEntity : EntityBase
@@ -166,9 +165,9 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
     protected class Context32911_2(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<A> As { get; set; }
-        public DbSet<B> Bs { get; set; }
-        public DbSet<C> Cs { get; set; }
+        public DbSet<A> As { get; set; } = null!;
+        public DbSet<B> Bs { get; set; } = null!;
+        public DbSet<C> Cs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -211,19 +210,19 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
         public class B
         {
             public int Id { get; set; }
-            public Metadata Info { get; set; }
+            public Metadata Info { get; set; } = null!;
             public int? AId { get; set; }
 
-            public A A { get; set; }
+            public A A { get; set; } = null!;
         }
 
         public class C
         {
             public int Id { get; set; }
-            public Metadata Info { get; set; }
+            public Metadata Info { get; set; } = null!;
             public int BId { get; set; }
 
-            public B B { get; set; }
+            public B B { get; set; } = null!;
         }
     }
 
@@ -325,7 +324,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
         public class ReproEntity<T> : BaseEntity
         {
-            public T Value { get; set; }
+            public T Value { get; set; } = default!;
         }
     }
 

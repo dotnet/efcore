@@ -25,9 +25,10 @@ public class CosmosQueryRawJsonTypeMapping : CosmosTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosQueryRawJsonTypeMapping() : base(
-        typeof(object), null, null, null,
-        CosmosJsonQueryRawJsonReaderWriter.Instance)
+    public CosmosQueryRawJsonTypeMapping()
+        : base(
+            typeof(object), null, null, null,
+            CosmosJsonQueryRawJsonReaderWriter.Instance)
     {
     }
 
@@ -37,15 +38,16 @@ public class CosmosQueryRawJsonTypeMapping : CosmosTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected CosmosQueryRawJsonTypeMapping(CoreTypeMappingParameters parameters) : base(parameters)
+    protected CosmosQueryRawJsonTypeMapping(CoreTypeMappingParameters parameters)
+        : base(parameters)
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
         => new CosmosQueryRawJsonTypeMapping(parameters);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override SqlParameter CreateParameter(string name, object? value)
         => new SqlRawJsonParameter(name, (ReadOnlyMemory<byte>)value!);
 }

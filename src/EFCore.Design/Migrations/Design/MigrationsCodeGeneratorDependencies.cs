@@ -39,9 +39,7 @@ public sealed record MigrationsCodeGeneratorDependencies
     [EntityFrameworkInternal]
     public MigrationsCodeGeneratorDependencies(
         IAnnotationCodeGenerator annotationCodeGenerator)
-    {
-        AnnotationCodeGenerator = annotationCodeGenerator;
-    }
+        => AnnotationCodeGenerator = annotationCodeGenerator;
 
     /// <summary>
     ///     The annotation code generator.

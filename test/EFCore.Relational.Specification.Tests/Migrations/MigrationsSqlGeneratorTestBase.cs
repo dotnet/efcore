@@ -6,17 +6,15 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 public abstract class MigrationsSqlGeneratorTestBase(
     TestHelpers testHelpers,
-    IServiceCollection customServices = null,
-    DbContextOptions options = null)
+    IServiceCollection? customServices = null,
+    DbContextOptions? options = null)
 {
     protected static string EOL
         => Environment.NewLine;
 
-    protected virtual string Sql { get; set; }
+    protected virtual string Sql { get; set; } = null!;
 
     [Fact]
     public void All_tests_must_be_overriden()
@@ -178,17 +176,21 @@ public abstract class MigrationsSqlGeneratorTestBase(
             new SqlOperation { Sql = "-- I <3 DDL" });
 
     private static readonly LineString _lineString1 = new(
-        [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)]) { SRID = 4326 };
+        [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)])
+    { SRID = 4326 };
 
     private static readonly LineString _lineString2 = new(
-        [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)]) { SRID = 4326 };
+        [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)])
+    { SRID = 4326 };
 
     private static readonly MultiPoint _multiPoint = new(
-        [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)]) { SRID = 4326 };
+        [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)])
+    { SRID = 4326 };
 
     private static readonly Polygon _polygon1 = new(
         new LinearRing(
-            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)])) { SRID = 4326 };
+            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]))
+    { SRID = 4326 };
 
     private static readonly Polygon _polygon2 = new(
         new LinearRing(
@@ -200,13 +202,16 @@ public abstract class MigrationsSqlGeneratorTestBase(
     private static readonly Point _point1 = new(1.1, 2.2, 3.3) { SRID = 4326 };
 
     private static readonly MultiLineString _multiLineString = new(
-        [_lineString1, _lineString2]) { SRID = 4326 };
+        [_lineString1, _lineString2])
+    { SRID = 4326 };
 
     private static readonly MultiPolygon _multiPolygon = new(
-        [_polygon2, _polygon1]) { SRID = 4326 };
+        [_polygon2, _polygon1])
+    { SRID = 4326 };
 
     private static readonly GeometryCollection _geometryCollection = new(
-        [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon]) { SRID = 4326 };
+        [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon])
+    { SRID = 4326 };
 
     [Fact]
     public virtual void InsertDataOperation_all_args_spatial()
@@ -219,13 +224,13 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 ColumnTypes = ["int", "varchar(40)", GetGeometryCollectionStoreType()],
                 Values = new object[,]
                 {
-                    { 0, null, null },
-                    { 1, "Daenerys Targaryen", null },
-                    { 2, "John Snow", null },
-                    { 3, "Arya Stark", null },
-                    { 4, "Harry Strickland", null },
-                    { 5, "The Imp", null },
-                    { 6, "The Kingslayer", null },
+                    { 0, null!, null! },
+                    { 1, "Daenerys Targaryen", null! },
+                    { 2, "John Snow", null! },
+                    { 3, "Arya Stark", null! },
+                    { 4, "Harry Strickland", null! },
+                    { 5, "The Imp", null! },
+                    { 6, "The Kingslayer", null! },
                     { 7, "Aemon Targaryen", _geometryCollection }
                 }
             });
@@ -291,7 +296,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Schema = "dbo",
                         Columns = ["First Name"],
                         ColumnTypes = ["char[]"],
-                        Values = new object[,] { { null } }
+                        Values = new object[,] { { null! } }
                     })).Message);
 
     [Fact]
@@ -372,7 +377,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 KeyColumns = ["First Name", "Last Name"],
                 KeyValues = new object[,]
                 {
-                    { "Hodor", null }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
+                    { "Hodor", null! }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
                 }
             });
 
@@ -460,7 +465,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
             {
                 Table = "People",
                 KeyColumns = ["First Name", "Last Name"],
-                KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } },
+                KeyValues = new object[,] { { "Hodor", null! }, { "Daenerys", "Targaryen" } },
                 Columns = ["House Allegiance"],
                 Values = new object[,] { { "Stark" }, { "Targaryen" } }
             });
@@ -473,7 +478,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
             {
                 Table = "People",
                 KeyColumns = ["First Name", "Last Name"],
-                KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } },
+                KeyValues = new object[,] { { "Hodor", null! }, { "Daenerys", "Targaryen" } },
                 Columns = ["Birthplace", "House Allegiance", "Culture"],
                 Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
             });
@@ -724,8 +729,8 @@ public abstract class MigrationsSqlGeneratorTestBase(
             });
 
     protected TestHelpers TestHelpers { get; } = testHelpers;
-    protected DbContextOptions ContextOptions { get; } = options;
-    protected IServiceCollection CustomServices { get; } = customServices;
+    protected DbContextOptions? ContextOptions { get; } = options;
+    protected IServiceCollection? CustomServices { get; } = customServices;
 
     protected virtual void Generate(MigrationOperation operation, MigrationsSqlGenerationOptions options)
         => Generate(null, [operation], options);
@@ -734,7 +739,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
         => Generate(null, operation);
 
     protected virtual void Generate(
-        Action<ModelBuilder> buildAction,
+        Action<ModelBuilder>? buildAction,
         Action<MigrationBuilder> migrateAction,
         MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
     {
@@ -744,19 +749,19 @@ public abstract class MigrationsSqlGeneratorTestBase(
         Generate(buildAction, migrationBuilder.Operations.ToArray(), options);
     }
 
-    protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
+    protected virtual void Generate(Action<ModelBuilder>? buildAction, params MigrationOperation[] operation)
         => Generate(buildAction, operation, MigrationsSqlGenerationOptions.Default);
 
     protected virtual void Generate(
-        Action<ModelBuilder> buildAction,
+        Action<ModelBuilder>? buildAction,
         MigrationOperation[] operation,
         MigrationsSqlGenerationOptions options)
     {
         var services = ContextOptions != null
-            ? TestHelpers.CreateContextServices(CustomServices, ContextOptions)
-            : TestHelpers.CreateContextServices(CustomServices);
+            ? TestHelpers.CreateContextServices(CustomServices!, ContextOptions)
+            : TestHelpers.CreateContextServices(CustomServices!);
 
-        IModel model = null;
+        IModel? model = null;
         if (buildAction != null)
         {
             var modelBuilder = TestHelpers.CreateConventionBuilder(services);
@@ -779,7 +784,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public decimal Pi { get; set; }
     }
 }

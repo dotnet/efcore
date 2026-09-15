@@ -7,8 +7,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {
@@ -73,18 +71,18 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
      InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Save_changed_optional_one_to_one(ChangeMechanism changeMechanism, bool useExistingEntities)
     {
-        OptionalSingle2 new2 = null;
-        OptionalSingle2Derived new2d = null;
-        OptionalSingle2MoreDerived new2dd = null;
-        OptionalSingle1 new1 = null;
-        OptionalSingle1Derived new1d = null;
-        OptionalSingle1MoreDerived new1dd = null;
-        OptionalSingle1 old1 = null;
-        OptionalSingle1Derived old1d = null;
-        OptionalSingle1MoreDerived old1dd = null;
-        OptionalSingle2 old2 = null;
-        OptionalSingle2Derived old2d = null;
-        OptionalSingle2MoreDerived old2dd = null;
+        OptionalSingle2 new2 = null!;
+        OptionalSingle2Derived new2d = null!;
+        OptionalSingle2MoreDerived new2dd = null!;
+        OptionalSingle1 new1 = null!;
+        OptionalSingle1Derived new1d = null!;
+        OptionalSingle1MoreDerived new1dd = null!;
+        OptionalSingle1 old1 = null!;
+        OptionalSingle1Derived old1d = null!;
+        OptionalSingle1MoreDerived old1dd = null!;
+        OptionalSingle2 old2 = null!;
+        OptionalSingle2Derived old2d = null!;
+        OptionalSingle2MoreDerived old2dd = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -114,9 +112,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.Entry(root).Reference(e => e.OptionalSingleMoreDerived).Load();
                 }
 
-                old1 = root.OptionalSingle;
-                old1d = root.OptionalSingleDerived;
-                old1dd = root.OptionalSingleMoreDerived;
+                old1 = root.OptionalSingle!;
+                old1d = root.OptionalSingleDerived!;
+                old1dd = root.OptionalSingleMoreDerived!;
 
                 if (!DoesLazyLoading)
                 {
@@ -125,22 +123,22 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.Entry(old1dd).Reference(e => e.Single).Load();
                 }
 
-                old2 = root.OptionalSingle.Single;
-                old2d = (OptionalSingle2Derived)root.OptionalSingleDerived.Single;
-                old2dd = (OptionalSingle2MoreDerived)root.OptionalSingleMoreDerived.Single;
+                old2 = old1.Single!;
+                old2d = (OptionalSingle2Derived)old1d.Single!;
+                old2dd = (OptionalSingle2MoreDerived)old1dd.Single!;
 
                 if (useExistingEntities)
                 {
-                    new1 = context.Set<OptionalSingle1>().Single(e => e.Id == new1.Id);
-                    new1d = (OptionalSingle1Derived)context.Set<OptionalSingle1>().Single(e => e.Id == new1d.Id);
-                    new1dd = (OptionalSingle1MoreDerived)context.Set<OptionalSingle1>().Single(e => e.Id == new1dd.Id);
-                    new2 = context.Set<OptionalSingle2>().Single(e => e.Id == new2.Id);
-                    new2d = (OptionalSingle2Derived)context.Set<OptionalSingle2>().Single(e => e.Id == new2d.Id);
-                    new2dd = (OptionalSingle2MoreDerived)context.Set<OptionalSingle2>().Single(e => e.Id == new2dd.Id);
+                    new1 = context.Set<OptionalSingle1>().Single(e => e.Id == new1!.Id);
+                    new1d = (OptionalSingle1Derived)context.Set<OptionalSingle1>().Single(e => e.Id == new1d!.Id);
+                    new1dd = (OptionalSingle1MoreDerived)context.Set<OptionalSingle1>().Single(e => e.Id == new1dd!.Id);
+                    new2 = context.Set<OptionalSingle2>().Single(e => e.Id == new2!.Id);
+                    new2d = (OptionalSingle2Derived)context.Set<OptionalSingle2>().Single(e => e.Id == new2d!.Id);
+                    new2dd = (OptionalSingle2MoreDerived)context.Set<OptionalSingle2>().Single(e => e.Id == new2dd!.Id);
                 }
                 else
                 {
-                    context.AddRange(new1, new1d, new1dd, new2, new2d, new2dd);
+                    context.AddRange(new1!, new1d!, new1dd!, new2!, new2d!, new2dd!);
                 }
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -199,12 +197,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             {
                 await LoadRootAsync(context);
 
-                var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1.Id);
-                var loaded1d = context.Set<OptionalSingle1>().Single(e => e.Id == old1d.Id);
-                var loaded1dd = context.Set<OptionalSingle1>().Single(e => e.Id == old1dd.Id);
-                var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2.Id);
-                var loaded2d = context.Set<OptionalSingle2>().Single(e => e.Id == old2d.Id);
-                var loaded2dd = context.Set<OptionalSingle2>().Single(e => e.Id == old2dd.Id);
+                var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1!.Id);
+                var loaded1d = context.Set<OptionalSingle1>().Single(e => e.Id == old1d!.Id);
+                var loaded1dd = context.Set<OptionalSingle1>().Single(e => e.Id == old1dd!.Id);
+                var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2!.Id);
+                var loaded2d = context.Set<OptionalSingle2>().Single(e => e.Id == old2d!.Id);
+                var loaded2dd = context.Set<OptionalSingle2>().Single(e => e.Id == old2dd!.Id);
 
                 Assert.Null(loaded1.Root);
                 Assert.Null(loaded1d.Root);
@@ -227,11 +225,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
      InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk))]
     public virtual async Task Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism)
     {
-        RequiredSingle1 old1 = null;
-        RequiredSingle2 old2 = null;
+        RequiredSingle1 old1 = null!;
+        RequiredSingle2 old2 = null!;
         Root oldRoot;
-        RequiredSingle2 new2 = null;
-        RequiredSingle1 new1 = null;
+        RequiredSingle2 new2 = null!;
+        RequiredSingle1 new1 = null!;
         await ExecuteWithStrategyInTransactionAsync(async context =>
         {
             oldRoot = await LoadRootAsync(context);
@@ -267,21 +265,21 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
             if ((changeMechanism & ChangeMechanism.Principal) != 0)
             {
-                root.RequiredSingle = new1;
+                root.RequiredSingle = new1!;
             }
 
             if ((changeMechanism & ChangeMechanism.Dependent) != 0)
             {
-                context.Add(new1);
-                new1.Root = root;
+                context.Add(new1!);
+                new1!.Root = root;
             }
 
             if ((changeMechanism & ChangeMechanism.Fk) != 0)
             {
-                context.Add(new1);
-                new1.Id = root.Id;
+                context.Add(new1!);
+                new1!.Id = root.Id;
                 context.Entry(new1).Property(e => e.Id).IsTemporary = false;
-                context.Entry(new2).Property(e => e.Id).IsTemporary = false;
+                context.Entry(new2!).Property(e => e.Id).IsTemporary = false;
             }
 
             Assert.True(context.ChangeTracker.HasChanges());
@@ -290,13 +288,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
             Assert.False(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(root.Id, new1.Id);
-            Assert.Equal(new1.Id, new2.Id);
+            Assert.Equal(root.Id, new1!.Id);
+            Assert.Equal(new1.Id, new2!.Id);
             Assert.Same(root, new1.Root);
             Assert.Same(new1, new2.Back);
 
-            Assert.NotNull(old1.Root);
-            Assert.Same(old1, old2.Back);
+            Assert.NotNull(old1!.Root);
+            Assert.Same(old1, old2!.Back);
             Assert.Equal(old1.Id, old2.Id);
             return Task.CompletedTask;
         });
@@ -315,19 +313,19 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
      InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Save_required_non_PK_one_to_one_changed_by_reference(ChangeMechanism changeMechanism, bool useExistingEntities)
     {
-        RequiredNonPkSingle2 new2 = null;
-        RequiredNonPkSingle2Derived new2d = null;
-        RequiredNonPkSingle2MoreDerived new2dd = null;
-        RequiredNonPkSingle1 new1 = null;
-        RequiredNonPkSingle1Derived new1d = null;
-        RequiredNonPkSingle1MoreDerived new1dd = null;
+        RequiredNonPkSingle2 new2 = null!;
+        RequiredNonPkSingle2Derived new2d = null!;
+        RequiredNonPkSingle2MoreDerived new2dd = null!;
+        RequiredNonPkSingle1 new1 = null!;
+        RequiredNonPkSingle1Derived new1d = null!;
+        RequiredNonPkSingle1MoreDerived new1dd = null!;
         Root newRoot;
-        RequiredNonPkSingle1 old1 = null;
-        RequiredNonPkSingle1Derived old1d = null;
-        RequiredNonPkSingle1MoreDerived old1dd = null;
-        RequiredNonPkSingle2 old2 = null;
-        RequiredNonPkSingle2Derived old2d = null;
-        RequiredNonPkSingle2MoreDerived old2dd = null;
+        RequiredNonPkSingle1 old1 = null!;
+        RequiredNonPkSingle1Derived old1d = null!;
+        RequiredNonPkSingle1MoreDerived old1dd = null!;
+        RequiredNonPkSingle2 old2 = null!;
+        RequiredNonPkSingle2Derived old2d = null!;
+        RequiredNonPkSingle2MoreDerived old2dd = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -395,12 +393,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 if (useExistingEntities)
                 {
-                    new1 = context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1.Id);
-                    new1d = (RequiredNonPkSingle1Derived)context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1d.Id);
-                    new1dd = (RequiredNonPkSingle1MoreDerived)context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1dd.Id);
-                    new2 = context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2.Id);
-                    new2d = (RequiredNonPkSingle2Derived)context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2d.Id);
-                    new2dd = (RequiredNonPkSingle2MoreDerived)context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2dd.Id);
+                    new1 = context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1!.Id);
+                    new1d = (RequiredNonPkSingle1Derived)context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1d!.Id);
+                    new1dd = (RequiredNonPkSingle1MoreDerived)context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1dd!.Id);
+                    new2 = context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2!.Id);
+                    new2d = (RequiredNonPkSingle2Derived)context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2d!.Id);
+                    new2dd = (RequiredNonPkSingle2MoreDerived)context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2dd!.Id);
 
                     new1d.RootId = old1d.RootId;
                     new1dd.RootId = old1dd.RootId;
@@ -408,10 +406,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 }
                 else
                 {
-                    new1d.RootId = old1d.RootId;
-                    new1dd.RootId = old1dd.RootId;
+                    new1d!.RootId = old1d.RootId;
+                    new1dd!.RootId = old1dd.RootId;
                     new1dd.DerivedRootId = old1dd.DerivedRootId;
-                    context.AddRange(new1, new1d, new1dd, new2, new2d, new2dd);
+                    context.AddRange(new1!, new1d, new1dd, new2!, new2d!, new2dd!);
                 }
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -467,12 +465,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             {
                 var loadedRoot = await LoadRootAsync(context);
 
-                Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1.Id));
-                Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1d.Id));
-                Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1dd.Id));
-                Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2.Id));
-                Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2d.Id));
-                Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2dd.Id));
+                Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1!.Id));
+                Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1d!.Id));
+                Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1dd!.Id));
+                Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2!.Id));
+                Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2d!.Id));
+                Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2dd!.Id));
             });
     }
 
@@ -483,8 +481,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     public virtual Task Sever_optional_one_to_one(ChangeMechanism changeMechanism)
     {
         Root root;
-        OptionalSingle1 old1 = null;
-        OptionalSingle2 old2 = null;
+        OptionalSingle1 old1 = null!;
+        OptionalSingle2 old2 = null!;
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
@@ -495,14 +493,14 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.Entry(root).Reference(e => e.OptionalSingle).Load();
                 }
 
-                old1 = root.OptionalSingle;
+                old1 = root.OptionalSingle!;
 
                 if (!DoesLazyLoading)
                 {
                     context.Entry(old1).Reference(e => e.Single).Load();
                 }
 
-                old2 = root.OptionalSingle.Single;
+                old2 = old1.Single!;
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
@@ -537,8 +535,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 {
                     await LoadRootAsync(context);
 
-                    var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1.Id);
-                    var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2.Id);
+                    var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1!.Id);
+                    var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2!.Id);
 
                     Assert.Null(loaded1.Root);
                     Assert.Same(loaded1, loaded2.Back);
@@ -552,9 +550,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
      InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent))]
     public virtual Task Sever_required_one_to_one(ChangeMechanism changeMechanism)
     {
-        Root root = null;
-        RequiredSingle1 old1 = null;
-        RequiredSingle2 old2 = null;
+        Root root = null!;
+        RequiredSingle1 old1 = null!;
+        RequiredSingle2 old2 = null!;
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
@@ -576,12 +574,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    root.RequiredSingle = null;
+                    root.RequiredSingle = null!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Dependent) != 0)
                 {
-                    old1.Root = null;
+                    old1.Root = null!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Fk) != 0)
@@ -604,8 +602,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             {
                 await LoadRootAsync(context);
 
-                Assert.False(context.Set<RequiredSingle1>().Any(e => e.Id == old1.Id));
-                Assert.False(context.Set<RequiredSingle2>().Any(e => e.Id == old2.Id));
+                Assert.False(context.Set<RequiredSingle1>().Any(e => e.Id == old1!.Id));
+                Assert.False(context.Set<RequiredSingle2>().Any(e => e.Id == old2!.Id));
             });
     }
 
@@ -614,8 +612,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     public virtual Task Sever_required_non_PK_one_to_one(ChangeMechanism changeMechanism)
     {
         Root root;
-        RequiredNonPkSingle1 old1 = null;
-        RequiredNonPkSingle2 old2 = null;
+        RequiredNonPkSingle1 old1 = null!;
+        RequiredNonPkSingle2 old2 = null!;
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
@@ -637,12 +635,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    root.RequiredNonPkSingle = null;
+                    root.RequiredNonPkSingle = null!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Dependent) != 0)
                 {
-                    old1.Root = null;
+                    old1.Root = null!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Fk) != 0)
@@ -665,8 +663,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             {
                 await LoadRootAsync(context);
 
-                Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1.Id));
-                Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2.Id));
+                Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1!.Id));
+                Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2!.Id));
             });
     }
 
@@ -683,10 +681,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
      InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Reparent_optional_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
     {
-        Root newRoot = null;
+        Root newRoot = null!;
         Root root;
-        OptionalSingle1 old1 = null;
-        OptionalSingle2 old2 = null;
+        OptionalSingle1 old1 = null!;
+        OptionalSingle2 old2 = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -704,35 +702,35 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             {
                 root = await LoadRootAsync(context);
 
-                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
+                context.Entry(newRoot!).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 if (!DoesLazyLoading)
                 {
                     context.Entry(root).Reference(e => e.OptionalSingle).Load();
                 }
 
-                old1 = root.OptionalSingle;
+                old1 = root.OptionalSingle!;
 
                 if (!DoesLazyLoading)
                 {
                     context.Entry(old1).Reference(e => e.Single).Load();
                 }
 
-                old2 = root.OptionalSingle.Single;
+                old2 = old1.Single!;
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    newRoot.OptionalSingle = old1;
+                    newRoot!.OptionalSingle = old1;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Dependent) != 0)
                 {
-                    old1.Root = newRoot;
+                    old1.Root = newRoot!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Fk) != 0)
                 {
-                    old1.RootId = context.Entry(newRoot).Property(e => e.Id).CurrentValue;
+                    old1.RootId = context.Entry(newRoot!).Property(e => e.Id).CurrentValue;
                 }
 
                 Assert.True(context.ChangeTracker.HasChanges());
@@ -745,15 +743,15 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.Same(newRoot, old1.Root);
                 Assert.Same(old1, old2.Back);
-                Assert.Equal(newRoot.Id, old1.RootId);
+                Assert.Equal(newRoot!.Id, old1.RootId);
                 Assert.Equal(old1.Id, old2.BackId);
             }, async context =>
             {
                 var loadedRoot = await LoadRootAsync(context);
 
-                newRoot = context.Set<Root>().Single(e => e.Id == newRoot.Id);
-                var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1.Id);
-                var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2.Id);
+                newRoot = context.Set<Root>().Single(e => e.Id == newRoot!.Id);
+                var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1!.Id);
+                var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2!.Id);
 
                 Assert.Same(newRoot, loaded1.Root);
                 Assert.Same(loaded1, loaded2.Back);
@@ -775,7 +773,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
      InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Reparent_required_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
     {
-        Root newRoot = null;
+        Root newRoot = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -798,7 +796,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.Entry(root).Reference(e => e.RequiredSingle).Load();
                 }
 
-                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
+                context.Entry(newRoot!).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 Assert.Equal(
                     CoreStrings.KeyReadOnly("Id", nameof(RequiredSingle1)),
@@ -806,20 +804,20 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     {
                         if ((changeMechanism & ChangeMechanism.Principal) != 0)
                         {
-                            newRoot.RequiredSingle = root.RequiredSingle;
+                            newRoot!.RequiredSingle = root.RequiredSingle;
                         }
 
                         if ((changeMechanism & ChangeMechanism.Dependent) != 0)
                         {
-                            root.RequiredSingle.Root = newRoot;
+                            root.RequiredSingle.Root = newRoot!;
                         }
 
                         if ((changeMechanism & ChangeMechanism.Fk) != 0)
                         {
-                            root.RequiredSingle.Id = newRoot.Id;
+                            root.RequiredSingle.Id = newRoot!.Id;
                         }
 
-                        newRoot.RequiredSingle = root.RequiredSingle;
+                        newRoot!.RequiredSingle = root.RequiredSingle;
 
                         context.SaveChanges();
                     }).Message);
@@ -839,10 +837,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
      InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
     public virtual Task Reparent_required_non_PK_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
     {
-        Root newRoot = null;
+        Root newRoot = null!;
         Root root;
-        RequiredNonPkSingle1 old1 = null;
-        RequiredNonPkSingle2 old2 = null;
+        RequiredNonPkSingle1 old1 = null!;
+        RequiredNonPkSingle2 old2 = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -860,7 +858,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             {
                 root = await LoadRootAsync(context);
 
-                context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
+                context.Entry(newRoot!).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
                 if (!DoesLazyLoading)
                 {
@@ -878,17 +876,17 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    newRoot.RequiredNonPkSingle = old1;
+                    newRoot!.RequiredNonPkSingle = old1;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Dependent) != 0)
                 {
-                    old1.Root = newRoot;
+                    old1.Root = newRoot!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Fk) != 0)
                 {
-                    old1.RootId = context.Entry(newRoot).Property(e => e.Id).CurrentValue;
+                    old1.RootId = context.Entry(newRoot!).Property(e => e.Id).CurrentValue;
                 }
 
                 Assert.True(context.ChangeTracker.HasChanges());
@@ -901,15 +899,15 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.Same(newRoot, old1.Root);
                 Assert.Same(old1, old2.Back);
-                Assert.Equal(newRoot.Id, old1.RootId);
+                Assert.Equal(newRoot!.Id, old1.RootId);
                 Assert.Equal(old1.Id, old2.BackId);
             }, async context =>
             {
                 var loadedRoot = await LoadRootAsync(context);
 
-                newRoot = context.Set<Root>().Single(e => e.Id == newRoot.Id);
-                var loaded1 = context.Set<RequiredNonPkSingle1>().Single(e => e.Id == old1.Id);
-                var loaded2 = context.Set<RequiredNonPkSingle2>().Single(e => e.Id == old2.Id);
+                newRoot = context.Set<Root>().Single(e => e.Id == newRoot!.Id);
+                var loaded1 = context.Set<RequiredNonPkSingle1>().Single(e => e.Id == old1!.Id);
+                var loaded2 = context.Set<RequiredNonPkSingle2>().Single(e => e.Id == old2!.Id);
 
                 Assert.Same(newRoot, loaded1.Root);
                 Assert.Same(loaded1, loaded2.Back);
@@ -943,7 +941,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.Entry(root).Reference(e => e.OptionalSingle).Load();
                 }
 
-                var removed = root.OptionalSingle;
+                var removed = root.OptionalSingle!;
 
                 if (!DoesLazyLoading)
                 {
@@ -951,7 +949,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 }
 
                 removedId = removed.Id;
-                var orphaned = removed.Single;
+                var orphaned = removed.Single!;
                 orphanedId = orphaned.Id;
 
                 context.Remove(removed);
@@ -1361,7 +1359,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.Entry(root).Reference(e => e.OptionalSingle).Load();
                 }
 
-                var removed = root.OptionalSingle;
+                var removed = root.OptionalSingle!;
 
                 if (!DoesLazyLoading)
                 {
@@ -1369,7 +1367,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 }
 
                 removedId = removed.Id;
-                orphanedId = removed.Single.Id;
+                orphanedId = removed.Single!.Id;
             },
             context =>
             {
@@ -1378,14 +1376,14 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 var root = context.Set<Root>().Include(e => e.OptionalSingle).Single(IsTheRoot);
 
-                var removed = root.OptionalSingle;
+                var removed = root.OptionalSingle!;
 
                 if (!DoesLazyLoading)
                 {
                     context.Entry(removed).Reference(e => e.Single).Load();
                 }
 
-                var orphaned = removed.Single;
+                var orphaned = removed.Single!;
 
                 context.Remove(removed);
 
@@ -1432,9 +1430,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     {
         var removedId = 0;
         var orphanedId = 0;
-        Root root = null;
-        OptionalSingle1 removed = null;
-        OptionalSingle2 orphaned = null;
+        Root root = null!;
+        OptionalSingle1 removed = null!;
+        OptionalSingle2 orphaned = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1446,22 +1444,22 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     context.Entry(root).Reference(e => e.OptionalSingle).Load();
                 }
 
-                removed = root.OptionalSingle;
+                removed = root.OptionalSingle!;
 
                 if (!DoesLazyLoading)
                 {
                     context.Entry(removed).Reference(e => e.Single).Load();
                 }
 
-                orphaned = removed.Single;
+                orphaned = removed.Single!;
             },
             context =>
             {
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                removedId = removed.Id;
-                orphanedId = orphaned.Id;
+                removedId = removed!.Id;
+                orphanedId = orphaned!.Id;
 
                 context.Remove(removed);
 
@@ -1512,9 +1510,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     {
         var removedId = 0;
         var orphanedId = 0;
-        Root root = null;
-        RequiredSingle1 removed = null;
-        RequiredSingle2 orphaned = null;
+        Root root = null!;
+        RequiredSingle1 removed = null!;
+        RequiredSingle2 orphaned = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1540,8 +1538,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                removedId = removed.Id;
-                orphanedId = orphaned.Id;
+                removedId = removed!.Id;
+                orphanedId = orphaned!.Id;
 
                 context.Remove(removed);
 
@@ -1603,9 +1601,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     {
         var removedId = 0;
         var orphanedId = 0;
-        Root root = null;
-        RequiredNonPkSingle1 removed = null;
-        RequiredNonPkSingle2 orphaned = null;
+        Root root = null!;
+        RequiredNonPkSingle1 removed = null!;
+        RequiredNonPkSingle2 orphaned = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1631,8 +1629,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                removedId = removed.Id;
-                orphanedId = orphaned.Id;
+                removedId = removed!.Id;
+                orphanedId = orphaned!.Id;
 
                 context.Remove(removed);
 

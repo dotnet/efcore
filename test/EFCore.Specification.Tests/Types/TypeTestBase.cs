@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Types;
-
 using static System.Linq.Expressions.Expression;
+
+namespace Microsoft.EntityFrameworkCore.Types;
 
 [Collection("Type tests")]
 public abstract class TypeTestBase<T, TFixture>(TFixture fixture) : IClassFixture<TFixture>

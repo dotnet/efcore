@@ -181,16 +181,13 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     protected override TimeSpan? GetNextDelay(Exception lastException)
     {
         var baseDelay = base.GetNextDelay(lastException);
-        if (baseDelay == null)
-        {
-            return null;
-        }
-
-        return CallOnWrappedException(lastException, IsMemoryOptimizedError)
-            ? TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
-            : CallOnWrappedException(lastException, IsThrottlingError)
-                ? baseDelay + DefaultMinDelayThrottling
-                : baseDelay;
+        return baseDelay == null
+            ? null
+            : CallOnWrappedException(lastException, IsMemoryOptimizedError)
+                ? TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
+                : CallOnWrappedException(lastException, IsThrottlingError)
+                    ? baseDelay + DefaultMinDelayThrottling
+                    : baseDelay;
     }
 
     private static bool IsMemoryOptimizedError(Exception exception)

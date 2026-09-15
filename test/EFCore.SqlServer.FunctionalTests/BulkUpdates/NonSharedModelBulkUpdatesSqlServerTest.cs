@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-#nullable disable
-
 public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -252,7 +250,6 @@ SET [b].[ComplexThing_Prop1] = @complex_type_p_Prop1,
     [b].[ComplexThing_Prop2] = @complex_type_p_Prop2
 FROM [Blogs] AS [b]
 """);
-
     }
 
     public override async Task Update_complex_type_property_with_view_mapping(bool async)

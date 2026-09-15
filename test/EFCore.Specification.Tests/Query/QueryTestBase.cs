@@ -43,7 +43,7 @@ public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFi
 
     public Task AssertQuery<TResult>(
         Func<ISetSource, IQueryable<TResult>> query,
-        Func<TResult, object>? elementSorter = null,
+        Func<TResult, object?>? elementSorter = null,
         Action<TResult, TResult>? elementAsserter = null,
         bool assertOrder = false,
         bool assertEmpty = false,
@@ -55,20 +55,21 @@ public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFi
     public Task AssertQuery<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Func<TResult, object>? elementSorter = null,
+        Func<TResult, object?>? elementSorter = null,
         Action<TResult, TResult>? elementAsserter = null,
         bool assertOrder = false,
         bool assertEmpty = false,
         QueryTrackingBehavior? queryTrackingBehavior = null,
         [CallerMemberName] string testMethodName = "")
         => TestOutputWrapper(() => QueryAsserter.AssertQuery(
-            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async: true, queryTrackingBehavior,
+            actualQuery, expectedQuery, elementSorter!, elementAsserter, assertOrder, assertEmpty,
+            async: true, queryTrackingBehavior,
             testMethodName));
 
     public Task AssertQuery<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Func<TResult, object>? elementSorter = null,
+        Func<TResult, object?>? elementSorter = null,
         Action<TResult, TResult>? elementAsserter = null,
         bool assertOrder = false,
         bool assertEmpty = false,
@@ -81,14 +82,15 @@ public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFi
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Func<TResult, object>? elementSorter = null,
+        Func<TResult, object?>? elementSorter = null,
         Action<TResult, TResult>? elementAsserter = null,
         bool assertOrder = false,
         bool assertEmpty = false,
         QueryTrackingBehavior? queryTrackingBehavior = null,
         [CallerMemberName] string testMethodName = "")
         => TestOutputWrapper(() => QueryAsserter.AssertQuery(
-            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, queryTrackingBehavior,
+            actualQuery, expectedQuery, elementSorter!, elementAsserter, assertOrder, assertEmpty, async,
+            queryTrackingBehavior,
             testMethodName));
 
     public Task AssertQueryScalar<TResult>(
@@ -573,7 +575,8 @@ public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFi
         Expression<Func<TResult, TSelector>> actualSelector,
         Expression<Func<TResult, TSelector>> expectedSelector,
         Action<TResult?, TResult?>? asserter = null)
-        => TestOutputWrapper(() => QueryAsserter.AssertMinBy(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertMinBy(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertMaxBy<TResult, TSelector>(
         bool async,
@@ -589,7 +592,8 @@ public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFi
         Expression<Func<TResult, TSelector>> actualSelector,
         Expression<Func<TResult, TSelector>> expectedSelector,
         Action<TResult?, TResult?>? asserter = null)
-        => TestOutputWrapper(() => QueryAsserter.AssertMaxBy(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertMaxBy(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertSum(
         bool async,

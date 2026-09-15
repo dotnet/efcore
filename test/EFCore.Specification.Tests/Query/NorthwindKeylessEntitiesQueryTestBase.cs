@@ -57,8 +57,8 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture>(TFixture f
         => AssertQuery(
             async,
             ss => ss.Set<OrderQuery>().Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
-                .OrderBy(c => c.CustomerID)
-                .Select(cv => cv.Orders.Where(cc => true).ToList()),
+                .OrderBy(c => c!.CustomerID)
+                .Select(cv => cv!.Orders.Where(cc => true).ToList()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
@@ -78,18 +78,18 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture>(TFixture f
             ss => from ov in ss.Set<OrderQuery>().Include(ov => ov.Customer)
                   where ov.CustomerID == "ALFKI"
                   select ov,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderQuery>(ov => ov.Customer)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderQuery>(ov => ov.Customer!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task KeylessEntity_with_included_navs_multi_level(bool async)
         => AssertQuery(
             async,
-            ss => from ov in ss.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
+            ss => from ov in ss.Set<OrderQuery>().Include(ov => ov.Customer!.Orders)
                   where ov.CustomerID == "ALFKI"
                   select ov,
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderQuery>(ov => ov.Customer),
+                new ExpectedInclude<OrderQuery>(ov => ov.Customer!),
                 new ExpectedInclude<Customer>(c => c.Orders, "Customer")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -97,7 +97,7 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture>(TFixture f
         => AssertQuery(
             async,
             ss => from ov in ss.Set<OrderQuery>()
-                  where ov.Customer.City == "Seattle"
+                  where ov.Customer!.City == "Seattle"
                   select ov);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -105,7 +105,7 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture>(TFixture f
         => AssertQuery(
             async,
             ss => from ov in ss.Set<OrderQuery>()
-                  where ov.Customer.Orders.Any()
+                  where ov.Customer!.Orders.Any()
                   select ov);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -118,7 +118,7 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture>(TFixture f
                 {
                     g.Key,
                     Count = g.Count(),
-                    Sum = g.Sum(e => e.Address.Length)
+                    Sum = g.Sum(e => e.Address!.Length)
                 }),
             elementSorter: e => (e.Key, e.Count, e.Sum));
 

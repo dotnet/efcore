@@ -16,7 +16,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public IEntityType EntityType { get; }
 
-        public Dictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } = new();
+        public Dictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } = [];
 
         public bool IsOptional { get; private set; }
         public IncludeTreeNode IncludePaths { get; private set; }
@@ -162,8 +162,8 @@ public partial class NavigationExpandingExpressionVisitor
         public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
-                    || obj is IncludeTreeNode includeTreeNode
-                    && Equals(includeTreeNode));
+                    || (obj is IncludeTreeNode includeTreeNode
+                        && Equals(includeTreeNode)));
 
         private bool Equals(IncludeTreeNode includeTreeNode)
         {
@@ -510,7 +510,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public Expression Parent { get; private set; } = parent;
         public new IComplexProperty Property { get; } = complexProperty;
-        public Expression OriginalExpression { get; private set; } = originalExpression;
+        public Expression OriginalExpression { get; } = originalExpression;
         public ComplexTypeReference ComplexTypeReference { get; } = new(complexProperty.ComplexType);
 
         public override Type Type

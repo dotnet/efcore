@@ -43,8 +43,7 @@ class MyDbContext : DbContext
 }
 """;
 
-    [Theory]
-    [MemberData(nameof(DoNotReportData))]
+    [Theory, MemberData(nameof(DoNotReportData))]
     public Task Constant_string_do_not_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -59,8 +58,7 @@ class C
 }
 """);
 
-    [Theory]
-    [MemberData(nameof(DoNotReportData))]
+    [Theory, MemberData(nameof(DoNotReportData))]
     public Task Constant_strings_do_not_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -76,8 +74,7 @@ class C
 }
 """);
 
-    [Theory]
-    [MemberData(nameof(DoNotReportData))]
+    [Theory, MemberData(nameof(DoNotReportData))]
     public Task Constant_string_with_parameters_do_not_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -92,8 +89,7 @@ class C
 }
 """);
 
-    [Theory]
-    [MemberData(nameof(ShouldReportData))]
+    [Theory, MemberData(nameof(ShouldReportData))]
     public Task Argument_should_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -109,8 +105,7 @@ class C
 """,
             DiagnosticResult.CompilerWarning(EFDiagnostics.StringConcatenationUsageInRawQueries).WithLocation(0));
 
-    [Theory]
-    [MemberData(nameof(ShouldReportData))]
+    [Theory, MemberData(nameof(ShouldReportData))]
     public Task Method_call_should_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -128,8 +123,7 @@ class C
 """,
             DiagnosticResult.CompilerWarning(EFDiagnostics.StringConcatenationUsageInRawQueries).WithLocation(0));
 
-    [Theory]
-    [MemberData(nameof(DoNotReportData))]
+    [Theory, MemberData(nameof(DoNotReportData))]
     public Task Constant_string_member_do_not_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -146,8 +140,7 @@ class C
 }
 """);
 
-    [Theory]
-    [MemberData(nameof(ShouldReportData))]
+    [Theory, MemberData(nameof(ShouldReportData))]
     public Task Readonly_static_string_variable_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -165,8 +158,7 @@ class C
 """,
             DiagnosticResult.CompilerWarning(EFDiagnostics.StringConcatenationUsageInRawQueries).WithLocation(0));
 
-    [Theory]
-    [MemberData(nameof(DoNotReportData))]
+    [Theory, MemberData(nameof(DoNotReportData))]
     public Task Constant_string_format_do_not_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -181,8 +173,7 @@ class C
 }
 """);
 
-    [Theory]
-    [MemberData(nameof(DoNotReportData))]
+    [Theory, MemberData(nameof(DoNotReportData))]
     public Task Constant_string_format_with_format_provider_do_not_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -197,8 +188,7 @@ class C
 }
 """);
 
-    [Theory]
-    [MemberData(nameof(ShouldReportData))]
+    [Theory, MemberData(nameof(ShouldReportData))]
     public Task String_format_with_format_provider_and_argument_should_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -214,8 +204,7 @@ class C
 """,
             DiagnosticResult.CompilerWarning(EFDiagnostics.StringConcatenationUsageInRawQueries).WithLocation(0));
 
-    [Theory]
-    [MemberData(nameof(ShouldReportData))]
+    [Theory, MemberData(nameof(ShouldReportData))]
     public Task String_format_with_argument_should_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -231,8 +220,7 @@ class C
 """,
             DiagnosticResult.CompilerWarning(EFDiagnostics.StringConcatenationUsageInRawQueries).WithLocation(0));
 
-    [Theory]
-    [MemberData(nameof(ShouldReportData))]
+    [Theory, MemberData(nameof(ShouldReportData))]
     public Task String_format_with_method_call_should_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -250,8 +238,7 @@ class C
 """,
             DiagnosticResult.CompilerWarning(EFDiagnostics.StringConcatenationUsageInRawQueries).WithLocation(0));
 
-    [Theory]
-    [MemberData(nameof(DoNotReportData))]
+    [Theory, MemberData(nameof(DoNotReportData))]
     public Task Constant_string_concat_do_not_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -266,8 +253,7 @@ class C
 }
 """);
 
-    [Theory]
-    [MemberData(nameof(ShouldReportData))]
+    [Theory, MemberData(nameof(ShouldReportData))]
     public Task String_concat_with_argument_should_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""
@@ -283,8 +269,7 @@ class C
 """,
             DiagnosticResult.CompilerWarning(EFDiagnostics.StringConcatenationUsageInRawQueries).WithLocation(0));
 
-    [Theory]
-    [MemberData(nameof(ShouldReportData))]
+    [Theory, MemberData(nameof(ShouldReportData))]
     public Task String_concat_with_method_call_should_report(string call)
         => Verify.VerifyAnalyzerAsync(
             $$"""

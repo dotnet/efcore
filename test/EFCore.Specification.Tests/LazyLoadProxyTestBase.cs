@@ -97,36 +97,34 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
      InlineData(EntityState.Deleted), InlineData(EntityState.Detached)] // Issue #13138
     public virtual void Lazy_load_one_to_one_reference_with_recursive_property(EntityState state)
     {
-        using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
+        var child = context.Set<WithRecursiveProperty>().Single();
+
+        var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+        if (state != EntityState.Detached)
         {
-            var child = context.Set<WithRecursiveProperty>().Single();
+            context.Entry(child).State = state;
+        }
 
-            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-            if (state != EntityState.Detached)
-            {
-                context.Entry(child).State = state;
-            }
+        Assert.NotNull(child.Parent);
 
-            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+        Assert.True(referenceEntry.IsLoaded);
 
-            Assert.NotNull(child.Parent);
+        context.ChangeTracker.LazyLoadingEnabled = false;
 
-            Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-            context.ChangeTracker.LazyLoadingEnabled = false;
+        if (state != EntityState.Detached)
+        {
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(parent.Id, child.IdLoadedFromParent);
 
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-                Assert.Equal(parent.Id, child.IdLoadedFromParent);
-
-                Assert.Same(parent, child.Parent);
-                Assert.Same(child, parent.WithRecursiveProperty);
-            }
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.WithRecursiveProperty);
         }
     }
 
@@ -4599,7 +4597,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         using var context = CreateContext(lazyLoadingEnabled: true);
 
         // ReSharper disable once ConvertToLocalFunction
-        bool opaquePredicate(Blog _)
+        static bool opaquePredicate(Blog _)
             => true;
 
         var blogs = context.Set<Blog>().Where(opaquePredicate);

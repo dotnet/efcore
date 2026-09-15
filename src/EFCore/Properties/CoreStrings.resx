@@ -364,7 +364,7 @@
     <value>The value for complex collection property '{property}' must be a list of dictionaries, but it was '{typeName}'.</value>
   </data>
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
-    <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
+    <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type. See https://aka.ms/efcore-docs-complex-types for more information.</value>
   </data>
   <data name="ComplexPropertyChainIntermediateNotFound" xml:space="preserve">
     <value>The intermediate complex property '{member}' was not found on type '{type}'. When using dotted property names, all intermediate segments must refer to complex properties.</value>
@@ -435,11 +435,11 @@
   <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
     <value>There are multiple [ForeignKey] attributes which are pointing to same set of properties '{propertyList}' on entity type '{entityType}' and targeting the principal entity type '{principalEntityType}'.</value>
   </data>
-  <data name="ConflictingNamedIndex" xml:space="preserve">
-    <value>The index named '{indexName}' on entity type '{entityType}' cannot be configured on properties {propertyList} because an index with the same name has already been defined on different properties or with different complex-collection indices. Use a different name for this index.</value>
-  </data>
   <data name="ConflictingKeylessAndPrimaryKeyAttributes" xml:space="preserve">
     <value>The entity type '{entity}' has both [Keyless] and [PrimaryKey] attributes; one must be removed.</value>
+  </data>
+  <data name="ConflictingNamedIndex" xml:space="preserve">
+    <value>The index named '{indexName}' on entity type '{entityType}' cannot be configured on properties {propertyList} because an index with the same name has already been defined on different properties or with different complex-collection indices. Use a different name for this index.</value>
   </data>
   <data name="ConflictingPropertyOrNavigationOnBaseType" xml:space="preserve">
     <value>The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists on the '{conflictingType}' type. Remove the existing {conflictingMemberKind} first.</value>
@@ -558,9 +558,6 @@
   <data name="DuplicateEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
   </data>
-  <data name="DuplicateOwnedEntityInstance" xml:space="preserve">
-    <value>The same object instance of type '{entityType}' is being referenced from the navigation '{firstNavigation}' on '{firstOwnerType}' and from the navigation '{secondNavigation}' on '{secondOwnerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for each navigation.</value>
-  </data>
   <data name="DuplicateForeignKey" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {keyProperties} on '{principalType}'.</value>
   </data>
@@ -572,6 +569,9 @@
   </data>
   <data name="DuplicateNamedIndex" xml:space="preserve">
     <value>The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists on entity type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="DuplicateOwnedEntityInstance" xml:space="preserve">
+    <value>The same object instance of type '{entityType}' is being referenced from the navigation '{firstNavigation}' on '{firstOwnerType}' and from the navigation '{secondNavigation}' on '{secondOwnerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for each navigation.</value>
   </data>
   <data name="DuplicatePropertiesOnBase" xml:space="preserve">
     <value>The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are in conflict.</value>
@@ -613,7 +613,7 @@
     <value>The element type '{elementType}' is not compatible with the type '{collectionType}' of the primitive collection '{entityType}.{property}'. The collection type must implement 'IEnumerable&lt;T&gt;' where 'T' is assignable to the element type.</value>
   </data>
   <data name="EmptyComplexType" xml:space="preserve">
-    <value>Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.</value>
+    <value>Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model. See https://aka.ms/efcore-docs-complex-types for more information.</value>
   </data>
   <data name="EmptyJsonString" xml:space="preserve">
     <value>The empty string is not valid JSON.</value>
@@ -806,7 +806,7 @@
     <value>The collection-indices entry for property '{property}' on index {indexProperties} has {actualCount} element(s), but the property path traverses {expectedCount} complex collection(s).</value>
   </data>
   <data name="InvalidComplexType" xml:space="preserve">
-    <value>The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type.</value>
+    <value>The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type. See https://aka.ms/efcore-docs-complex-types for more information.</value>
   </data>
   <data name="InvalidDbContext" xml:space="preserve">
     <value>A previous error has left the DbContext in an invalid state. Applications should not continue to use a DbContext instance after an InvalidOperationException has been thrown.</value>
@@ -1031,14 +1031,6 @@
     <value>The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.</value>
     <comment>Warning CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning</comment>
   </data>
-  <data name="LogInconsistentOwnedData" xml:space="preserve">
-    <value>An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
-    <comment>Warning CoreEventId.InconsistentOwnedDataWarning string string</comment>
-  </data>
-  <data name="LogInconsistentOwnedDataSensitive" xml:space="preserve">
-    <value>An owned entity of type '{entityType}' with key values {keyValues} was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.</value>
-    <comment>Warning CoreEventId.InconsistentOwnedDataWarning string string string</comment>
-  </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
     <value>The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.</value>
     <comment>Warning CoreEventId.DuplicateDependentEntityTypeInstanceWarning string string</comment>
@@ -1082,6 +1074,14 @@
   <data name="LogIncompatibleMatchingForeignKeyProperties" xml:space="preserve">
     <value>For the relationship between dependent '{dependentToPrincipalNavigationSpecification}' and principal '{principalToDependentNavigationSpecification}', the foreign key properties haven't been configured by convention because the best match {foreignKeyProperties} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified in 'OnModelCreating'.</value>
     <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string string string</comment>
+  </data>
+  <data name="LogInconsistentOwnedData" xml:space="preserve">
+    <value>An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
+    <comment>Warning CoreEventId.InconsistentOwnedDataWarning string string</comment>
+  </data>
+  <data name="LogInconsistentOwnedDataSensitive" xml:space="preserve">
+    <value>An owned entity of type '{entityType}' with key values {keyValues} was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.</value>
+    <comment>Warning CoreEventId.InconsistentOwnedDataWarning string string string</comment>
   </data>
   <data name="LogInvalidIncludePath" xml:space="preserve">
     <value>Unable to find navigation '{navigation}' specified in string based include path '{navigationChain}'.</value>
@@ -1394,7 +1394,7 @@
     <value>The property '{entityType}.{navigation}' of type '{propertyType}' appears to be a navigation to another entity type. Navigations are not supported when using 'SqlQuery". Either include this type in the model and use 'FromSql' for the query, or ignore this property using the '[NotMapped]' attribute.</value>
   </data>
   <data name="NavigationNotAddedComplexType" xml:space="preserve">
-    <value>Unable to configure navigation '{complexType}.{navigation}' of type '{propertyType}' as complex types don't support navigations. Ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+    <value>Unable to configure navigation '{complexType}.{navigation}' of type '{propertyType}' as complex types don't support navigations. Ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'. See https://aka.ms/efcore-docs-complex-types for more information.</value>
   </data>
   <data name="NavigationSingleWrongClrType" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
@@ -1508,7 +1508,7 @@
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
   <data name="NullRequiredComplexProperty" xml:space="preserve">
-    <value>The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes.</value>
+    <value>The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. See https://aka.ms/efcore-docs-complex-types for more information.</value>
   </data>
   <data name="NullRequiredPrimitiveCollection" xml:space="preserve">
     <value>The primitive collection property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Either mark the property as optional (nullable) or set a non-null value.</value>
@@ -1531,14 +1531,14 @@
   <data name="OwnedEntitiesCannotBeTrackedWithoutTheirOwner" xml:space="preserve">
     <value>A tracking query is attempting to project an owned entity without a corresponding owner in its result, but owned entities cannot be tracked without their owner. Either include the owner entity in the result or make the query non-tracking using 'AsNoTracking'.</value>
   </data>
+  <data name="OwnerlessOwnedType" xml:space="preserve">
+    <value>The entity type '{ownedType}' has been marked as owned and must be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}' or don't configure it as owned.</value>
+  </data>
   <data name="OwnershipNotCascadeDelete" xml:space="preserve">
     <value>The ownership relationship from '{principalEntityType}' to '{dependentEntityType}' is configured with '{deleteBehavior}' delete behavior. Ownership relationships must use '{cascadeBehavior}' delete behavior. Either remove the explicit delete behavior configuration or don't configure this relationship as an ownership.</value>
   </data>
   <data name="OwnershipNotRequired" xml:space="preserve">
     <value>The ownership relationship from '{principalEntityType}' to '{dependentEntityType}' is configured as optional. Ownership relationships must be required. Either remove the optional configuration or don't configure this relationship as an ownership.</value>
-  </data>
-  <data name="OwnerlessOwnedType" xml:space="preserve">
-    <value>The entity type '{ownedType}' has been marked as owned and must be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}' or don't configure it as owned.</value>
   </data>
   <data name="OwnershipToDependent" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be changed, because the foreign key between '{principalEntityType}' and '{dependentEntityType}' is an ownership. To change the navigation to the owned entity type remove the ownership.</value>

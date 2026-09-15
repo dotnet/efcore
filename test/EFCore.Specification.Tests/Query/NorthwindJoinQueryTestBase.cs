@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -101,7 +99,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss =>
                 from c in ss.Set<Customer>()
                 join o1 in
-                    (from o2 in ss.Set<Order>() orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
+                    from o2 in ss.Set<Order>() orderby o2.OrderID select o2 on c.CustomerID equals o1.CustomerID
                 where o1.CustomerID == "ALFKI"
                 select new { c.ContactName, o1.OrderID },
             e => e.OrderID);
@@ -125,9 +123,9 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss =>
                 from c in ss.Set<Customer>()
                 join o1 in
-                    (from o2 in ss.Set<Order>()
-                     orderby o2.OrderID
-                     select new { o2 }) on c.CustomerID equals o1.o2.CustomerID
+                    from o2 in ss.Set<Order>()
+                    orderby o2.OrderID
+                    select new { o2 } on c.CustomerID equals o1.o2.CustomerID
                 where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
                 select new
                 {
@@ -163,7 +161,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss =>
                 from c in ss.Set<Customer>()
                 join o1 in
-                    (from o2 in ss.Set<Order>() where o2.OrderID > 0 orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
+                    from o2 in ss.Set<Order>() where o2.OrderID > 0 orderby o2.OrderID select o2 on c.CustomerID equals o1.CustomerID
                 where o1.CustomerID == "ALFKI"
                 select new { c.ContactName, o1.OrderID },
             e => e.OrderID);
@@ -271,7 +269,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss =>
-                ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Join(
+                ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")).Join(
                     ss.Set<Order>(), o => o.CustomerID, i => i.CustomerID, (_, o) => new { _, o }),
             e => (e._.OrderID, e.o.OrderID));
 
@@ -285,7 +283,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                     c => c.CustomerID,
                     o => o.CustomerID,
                     (c, o) => new { c, o }),
-            e => (e.c.CustomerID, e.o?.OrderID));
+                    e => (e.c!.CustomerID, e.o?.OrderID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task RightJoin(bool async)
@@ -297,7 +295,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                     c => c.CustomerID,
                     o => o.CustomerID,
                     (c, o) => new { c, o }),
-            e => (e.c.CustomerID, e.o?.OrderID));
+                    e => (e.c!.CustomerID, e.o?.OrderID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task RightJoin_with_filtered_outer(bool async)
@@ -329,7 +327,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
                 .FullJoin(
-                    ss.Set<Order>().Where(o => o.CustomerID.StartsWith("B")),
+                    ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("B")),
                     c => c.CustomerID,
                     o => o.CustomerID,
                     (c, o) => new { c, o }),
@@ -337,17 +335,16 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FullJoin_with_custom_comparer_does_not_translate(bool async)
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Customer>()
-                    .FullJoin(
-                        ss.Set<Order>(),
-                        c => c.CustomerID,
-                        o => o.CustomerID,
-                        (c, o) => new { c, o },
-                        StringComparer.Ordinal),
-                e => (e.c?.CustomerID, e.o?.OrderID)));
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .FullJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o },
+                    StringComparer.Ordinal),
+            e => (e.c?.CustomerID, e.o?.OrderID)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_customers_employees_shadow(bool async)
@@ -484,9 +481,9 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss =>
-                from i in (from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                           join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                           select new { c, orders })
+                from i in from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                          join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
+                          select new { c, orders }
                 where i.c.City == "Lisboa"
                 select i,
             e => e.c.CustomerID,
@@ -501,9 +498,9 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss =>
-                from i in (from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                           join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                           select new { c, orders })
+                from i in from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                          join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
+                          select new { c, orders }
                 join c2 in ss.Set<Customer>().Where(n => n.City == "Lisboa") on i.c.CustomerID equals c2.CustomerID
                 select new { i, c2 },
             e => e.i.c.CustomerID,
@@ -549,7 +546,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss =>
                 from e in ss.Set<Employee>()
-                join o in ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")) on e.EmployeeID equals o.EmployeeID into orders
+                join o in ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")) on e.EmployeeID equals o.EmployeeID into orders
                 from o in orders.DefaultIfEmpty()
                 select new { e, o },
             e => (e.e.EmployeeID, e.o?.OrderID));
@@ -589,8 +586,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_DefaultIfEmpty_Where(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss =>
                 from c in ss.Set<Customer>()
@@ -600,7 +596,6 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 where o != null && o.CustomerID == "ALFKI"
 #pragma warning restore RCS1146 // Use conditional access.
                 select o);
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_GroupJoin_DefaultIfEmpty_Where(bool async)
@@ -676,9 +671,10 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => from c in ss.Set<Customer>()
                   join o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(100) on c.CustomerID equals o.CustomerID into lo
-                  from o in lo.Where(x => x.CustomerID.StartsWith("A"))
+                from o in lo.Where(x => x.CustomerID!.StartsWith("A"))
                   select new { c.CustomerID, o.OrderID });
 
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_aggregate_anonymous_key_selectors(bool async)
         => AssertQuery(
@@ -687,7 +683,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 ss.Set<Order>(),
                 x => new { x.CustomerID, x.City },
                 x => new { x.CustomerID, City = "London" },
-                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID.Length) }),
+                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID!.Length) }),
             elementSorter: e => e.CustomerID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -697,8 +693,8 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => ss.Set<Customer>().GroupJoin(
                 ss.Set<Order>(),
                 x => new { x.CustomerID, Year = 1996 },
-                x => new { x.CustomerID, x.OrderDate.Value.Year },
-                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID.Length) }),
+                x => new { x.CustomerID, x.OrderDate!.Value.Year },
+                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID!.Length) }),
             elementSorter: e => e.CustomerID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -709,7 +705,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 ss.Set<Order>(),
                 x => new { x.CustomerID },
                 x => new { x.CustomerID },
-                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID.Length) }),
+                (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID!.Length) }),
             elementSorter: e => e.CustomerID);
 
     [Theory(Skip = "issue 35028"), MemberData(nameof(IsAsyncData))]
@@ -719,9 +715,10 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => ss.Set<Customer>().GroupJoin(
                 ss.Set<Order>(),
                 x => new { x.CustomerID, Nested = new { x.City, Year = 1996 } },
-                x => new { x.CustomerID, Nested = new { City = "London", x.OrderDate.Value.Year } },
-                (c, g) => new { c.CustomerID, Sum = g.Sum(int (x) => x.CustomerID.Length) }),
+                x => new { x.CustomerID, Nested = new { City = "London", x.OrderDate!.Value.Year } },
+                (c, g) => new { c.CustomerID, Sum = g.Sum(int (x) => x.CustomerID!.Length) }),
             elementSorter: e => e.CustomerID));
+        #pragma warning restore CS8619
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Inner_join_with_tautology_predicate_converts_to_cross_join(bool async)
@@ -808,23 +805,17 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                     a.Views.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID));
             });
 
-    private class CustomerViewModel(string customerID, string city, OrderDetailViewModel[] views)
+    private class CustomerViewModel(string customerID, string? city, OrderDetailViewModel[] views)
     {
         public string CustomerID { get; } = customerID;
-        public string City { get; } = city;
+        public string? City { get; } = city;
         public OrderDetailViewModel[] Views { get; } = views;
 
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj)
-                || obj.GetType() == GetType()
-                && Equals((CustomerViewModel)obj);
-        }
+        public override bool Equals(object? obj)
+            => obj is not null
+                && (ReferenceEquals(this, obj)
+                    || (obj.GetType() == GetType()
+                        && Equals((CustomerViewModel)obj)));
 
         private bool Equals(CustomerViewModel customerViewModel)
             => CustomerID == customerViewModel.CustomerID
@@ -840,17 +831,11 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
         public int OrderID { get; } = orderID;
         public int ProductID { get; } = productID;
 
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj)
-                || obj.GetType() == GetType()
-                && Equals((OrderDetailViewModel)obj);
-        }
+        public override bool Equals(object? obj)
+            => obj is not null
+                && (ReferenceEquals(this, obj)
+                    || (obj.GetType() == GetType()
+                        && Equals((OrderDetailViewModel)obj)));
 
         private bool Equals(OrderDetailViewModel orderDetailViewModel)
             => OrderID == orderDetailViewModel.OrderID
@@ -939,9 +924,9 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 .Select(c => new
                 {
                     Orders = c.Orders.OrderBy(e => e.OrderDate).Take(1)
-                        .Select(o => new { Title = o.CustomerID == o.Customer.City ? "A" : "B" }).ToList()
+                        .Select(o => new { Title = o.CustomerID == o.Customer!.City ? "A" : "B" }).ToList()
                 }),
-            asserter: (e, a) => AssertCollection(e.Orders, a.Orders, ordered: true));
+            asserter: (e, a) => AssertCollection(e!.Orders, a!.Orders, ordered: true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Condition_on_entity_with_include(bool async)
@@ -953,6 +938,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                   from o in g.DefaultIfEmpty()
                   select new { a = o != null ? o.OrderID : -1 });
 
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type
     [Theory(Skip = "issue #35028"), MemberData(nameof(IsAsyncData))]
     public virtual Task Join_with_key_selectors_being_nested_anonymous_objects(bool async)
         => AssertQuery(
@@ -960,7 +946,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => ss.Set<Customer>().Order().Take(10).Join(
                 ss.Set<Order>(),
                 x => new { x.CustomerID, Nested = new { x.City, Year = 1996 } },
-                x => new { x.CustomerID, Nested = new { City = "London", x.OrderDate.Value.Year } },
+                x => new { x.CustomerID, Nested = new { City = "London", x.OrderDate!.Value.Year } },
                 (c, o) => new { c, o }),
             elementSorter: e => (e.c.CustomerID, e.o.OrderID),
             elementAsserter: (e, a) =>
@@ -968,4 +954,5 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 AssertEqual(e.c, a.c);
                 AssertEqual(e.o, a.o);
             });
+#pragma warning restore CS8619
 }

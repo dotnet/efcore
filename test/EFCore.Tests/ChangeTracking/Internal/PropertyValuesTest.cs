@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -69,8 +67,7 @@ public class PropertyValuesTest
         PropertyValues
     }
 
-    [Theory]
-    [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
+    [Theory, ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_complex_property(bool? useOriginalValues, SetValues? useSetValues)
     {
         var job = new Job { Id = 1, Name = "Job with No Error" };
@@ -81,8 +78,7 @@ public class PropertyValuesTest
         Assert.Null(result.Error);
     }
 
-    [Theory]
-    [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
+    [Theory, ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_all_nested_complex_properties_populated(bool? useOriginalValues, SetValues? useSetValues)
     {
         var job = new Job
@@ -97,11 +93,7 @@ public class PropertyValuesTest
                 {
                     Code = "501",
                     Message = "Not Implemented",
-                    InnerError = new LeafJobError
-                    {
-                        Code = "502",
-                        Message = "Bad Gateway"
-                    }
+                    InnerError = new LeafJobError { Code = "502", Message = "Bad Gateway" }
                 }
             }
         };
@@ -117,19 +109,14 @@ public class PropertyValuesTest
         Assert.Equal("502", result.Error.InnerError.InnerError!.Code);
     }
 
-    [Theory]
-    [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
+    [Theory, ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_nested_complex_property(bool? useOriginalValues, SetValues? useSetValues)
     {
         var job = new Job
         {
             Id = 1,
             Name = "Job with Error only",
-            Error = new RootJobError
-            {
-                Code = "400",
-                Message = "Bad Request"
-            }
+            Error = new RootJobError { Code = "400", Message = "Bad Request" }
         };
 
         var result = GetToObjectResult(job, useOriginalValues, useSetValues);
@@ -140,8 +127,7 @@ public class PropertyValuesTest
         Assert.Null(result.Error.InnerError);
     }
 
-    [Theory]
-    [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
+    [Theory, ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_complex_collection_containing_nested_nullable_complex_properties(
         bool? useOriginalValues,
         SetValues? useSetValues)
@@ -152,12 +138,22 @@ public class PropertyValuesTest
             Name = "Test Job",
             Errors =
             [
-                new RootJobError { Code = "400", Message = "Bad Request", InnerError = null },
+                new RootJobError
+                {
+                    Code = "400",
+                    Message = "Bad Request",
+                    InnerError = null
+                },
                 new RootJobError
                 {
                     Code = "500",
                     Message = "Server Error",
-                    InnerError = new JobError { Code = "501", Message = "Not Implemented", InnerError = null }
+                    InnerError = new JobError
+                    {
+                        Code = "501",
+                        Message = "Not Implemented",
+                        InnerError = null
+                    }
                 },
                 new RootJobError
                 {
@@ -244,8 +240,7 @@ public class PropertyValuesTest
         Assert.Equal("501", job.Errors[0].InnerErrors[0].Code);
     }
 
-    [Theory]
-    [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
+    [Theory, ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_complex_property_in_complex_collection_in_complex_collection(
         bool? useOriginalValues,
         SetValues? useSetValues)
@@ -262,7 +257,12 @@ public class PropertyValuesTest
                     Message = "Bad Request",
                     InnerErrors =
                     [
-                        new JobError { Code = "401", Message = "Unauthorized", InnerError = null },
+                        new JobError
+                        {
+                            Code = "401",
+                            Message = "Unauthorized",
+                            InnerError = null
+                        },
                         new JobError
                         {
                             Code = "402",
@@ -295,8 +295,7 @@ public class PropertyValuesTest
         Assert.Equal("403", error.InnerErrors[1].InnerError!.Code);
     }
 
-    [Theory]
-    [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
+    [Theory, ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_complex_property_in_complex_collection_element_in_complex_property(
         bool? useOriginalValues,
         SetValues? useSetValues)
@@ -311,7 +310,12 @@ public class PropertyValuesTest
                 Message = "Server Error",
                 InnerErrors =
                 [
-                    new JobError { Code = "501", Message = "Not Implemented", InnerError = null },
+                    new JobError
+                    {
+                        Code = "501",
+                        Message = "Not Implemented",
+                        InnerError = null
+                    },
                     new JobError
                     {
                         Code = "502",
@@ -322,22 +326,25 @@ public class PropertyValuesTest
             }
         };
 
-        var result = GetToObjectResult(job, useOriginalValues, useSetValues, mb =>
-        {
-            mb.Entity<Job>(b =>
+        var result = GetToObjectResult(
+            job, useOriginalValues, useSetValues, mb =>
             {
-                b.ComplexProperty(e => e.Error, eb =>
+                mb.Entity<Job>(b =>
                 {
-                    eb.ComplexProperty(ne => ne.InnerError, neb => neb.ComplexProperty(dne => dne.InnerError));
-                    eb.ComplexCollection(ne => ne.InnerErrors, neb => neb.ComplexProperty(dne => dne.InnerError));
-                });
-                b.ComplexCollection(e => e.Errors, eb =>
-                {
-                    eb.ComplexProperty(ne => ne.InnerError, neb => neb.ComplexProperty(dne => dne.InnerError));
-                    eb.ComplexCollection(ne => ne.InnerErrors, neb => neb.ComplexProperty(dne => dne.InnerError));
+                    b.ComplexProperty(
+                        e => e.Error, eb =>
+                        {
+                            eb.ComplexProperty(ne => ne.InnerError, neb => neb.ComplexProperty(dne => dne.InnerError));
+                            eb.ComplexCollection(ne => ne.InnerErrors, neb => neb.ComplexProperty(dne => dne.InnerError));
+                        });
+                    b.ComplexCollection(
+                        e => e.Errors, eb =>
+                        {
+                            eb.ComplexProperty(ne => ne.InnerError, neb => neb.ComplexProperty(dne => dne.InnerError));
+                            eb.ComplexCollection(ne => ne.InnerErrors, neb => neb.ComplexProperty(dne => dne.InnerError));
+                        });
                 });
             });
-        });
 
         Assert.Equal("Nested Collection Test", result.Name);
         Assert.NotNull(result.Error);
@@ -384,8 +391,8 @@ public class PropertyValuesTest
 
         Assert.Equal(
             CoreStrings.ComplexCollectionNotInitialized("Job", "Errors"),
-            Assert.Throws<InvalidOperationException>(
-                () => codeProperty.GetGetter().GetClrValueUsingContainingEntity(job, new[] { 0 })).Message);
+            Assert.Throws<InvalidOperationException>(() => codeProperty.GetGetter().GetClrValueUsingContainingEntity(job, new[] { 0 }))
+                .Message);
     }
 
     [Fact]
@@ -418,8 +425,8 @@ public class PropertyValuesTest
 
         Assert.Equal(
             CoreStrings.ComplexCollectionOrdinalOutOfRange(0, "Job", "Errors", 0),
-            Assert.Throws<InvalidOperationException>(
-                () => codeProperty.GetGetter().GetClrValueUsingContainingEntity(job, new[] { 0 })).Message);
+            Assert.Throws<InvalidOperationException>(() => codeProperty.GetGetter().GetClrValueUsingContainingEntity(job, new[] { 0 }))
+                .Message);
     }
 
     #region Helpers
@@ -439,20 +446,20 @@ public class PropertyValuesTest
     }
 
     private static void BuildJobModel(ModelBuilder mb)
-    {
-        mb.Entity<Job>(b =>
+        => mb.Entity<Job>(b =>
         {
-            b.ComplexProperty(e => e.Error, eb =>
-            {
-                eb.ComplexProperty(ne => ne.InnerError, neb => neb.ComplexProperty(dne => dne.InnerError));
-            });
-            b.ComplexCollection(e => e.Errors, eb =>
-            {
-                eb.ComplexProperty(ne => ne.InnerError, neb => neb.ComplexProperty(dne => dne.InnerError));
-                eb.ComplexCollection(ne => ne.InnerErrors, neb => neb.ComplexProperty(dne => dne.InnerError));
-            });
+            b.ComplexProperty(
+                e => e.Error, eb =>
+                {
+                    eb.ComplexProperty(ne => ne.InnerError, neb => neb.ComplexProperty(dne => dne.InnerError));
+                });
+            b.ComplexCollection(
+                e => e.Errors, eb =>
+                {
+                    eb.ComplexProperty(ne => ne.InnerError, neb => neb.ComplexProperty(dne => dne.InnerError));
+                    eb.ComplexCollection(ne => ne.InnerErrors, neb => neb.ComplexProperty(dne => dne.InnerError));
+                });
         });
-    }
 
     private static Job GetToObjectResult(
         Job job,
@@ -466,7 +473,7 @@ public class PropertyValuesTest
         internalEntry.SetEntityState(EntityState.Unchanged);
         var entry = new EntityEntry<Job>(internalEntry);
 
-        PropertyValues values = entry.CurrentValues;
+        var values = entry.CurrentValues;
 
         if (useSetValues != null)
         {

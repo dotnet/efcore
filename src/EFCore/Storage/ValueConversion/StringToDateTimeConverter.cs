@@ -51,7 +51,8 @@ public class StringToDateTimeConverter : StringDateTimeConverter<string, DateTim
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(DateTime),
+        = new(
+            typeof(string), typeof(DateTime),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToDateTimeConverter(i.MappingHints),
             DefaultHints);
 }

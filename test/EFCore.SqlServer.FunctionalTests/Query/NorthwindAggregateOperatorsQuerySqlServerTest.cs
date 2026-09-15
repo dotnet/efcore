@@ -6,8 +6,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateOperatorsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -331,7 +329,7 @@ FROM [Customers] AS [c]
         await base.MinBy(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]
@@ -343,7 +341,7 @@ ORDER BY [o].[OrderID]
         await base.MinBy_no_data_value_type(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
@@ -369,7 +367,7 @@ ORDER BY ISNULL([p].[SupplierID], 0)
         await base.MinBy_no_data_reference_type_source(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[SupplierID] = -1
@@ -382,7 +380,7 @@ ORDER BY [p].[ProductID]
         await base.MinBy_no_data_nullable_selector(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
@@ -395,7 +393,7 @@ ORDER BY [o].[OrderID]
         await base.MinBy_no_data_subquery_reference_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -415,7 +413,7 @@ LEFT JOIN (
         await base.MinBy_no_data_subquery_value_type(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
@@ -430,7 +428,7 @@ FROM [Customers] AS [c]
         await base.MinBy_with_coalesce(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
@@ -458,7 +456,7 @@ ORDER BY (
         await base.MinBy_over_nested_subquery(async);
 
         AssertSql(
-"""
+            """
 @p='3'
 
 SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -484,7 +482,7 @@ ORDER BY (
         await base.MinBy_over_max_subquery(async);
 
         AssertSql(
-"""
+            """
 @p='3'
 
 SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -559,7 +557,7 @@ FROM [Customers] AS [c]
         await base.MaxBy_no_data_value_type(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
@@ -585,7 +583,7 @@ ORDER BY ISNULL([p].[SupplierID], 0) DESC
         await base.MaxBy_no_data_reference_type_source(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[SupplierID] = -1
@@ -598,7 +596,7 @@ ORDER BY [p].[ProductID] DESC
         await base.MaxBy_no_data_nullable_selector(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
@@ -611,7 +609,7 @@ ORDER BY [o].[OrderID] DESC
         await base.MaxBy_no_data_subquery_reference_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -631,7 +629,7 @@ LEFT JOIN (
         await base.MaxBy_no_data_subquery_value_type(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
@@ -646,7 +644,7 @@ FROM [Customers] AS [c]
         await base.MaxBy(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID] DESC
@@ -658,7 +656,7 @@ ORDER BY [o].[OrderID] DESC
         await base.MaxBy_with_coalesce(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
@@ -686,7 +684,7 @@ ORDER BY (
         await base.MaxBy_over_nested_subquery(async);
 
         AssertSql(
-"""
+            """
 @p='3'
 
 SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -3481,6 +3479,62 @@ ORDER BY [c].[CustomerID] DESC
             """
 SELECT COALESCE(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
 FROM [Order Details] AS [o]
+""");
+    }
+
+    public override async Task Sum_over_expression_with_outer_reference(bool async)
+    {
+        await base.Sum_over_expression_with_outer_reference(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], (
+    SELECT ISNULL(SUM([s].[value]), 0)
+    FROM [Order Details] AS [o0]
+    OUTER APPLY (
+        SELECT [o0].[ProductID] * [o].[OrderID] AS [value]
+    ) AS [s]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Total]
+FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Sum_over_members_of_single_result_subquery_with_outer_reference(bool async)
+    {
+        await base.Sum_over_members_of_single_result_subquery_with_outer_reference(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT ISNULL(SUM([s].[value]), 0)
+    FROM [Orders] AS [o]
+    LEFT JOIN (
+        SELECT [o1].[ProductID], [o1].[OrderID0]
+        FROM (
+            SELECT [o0].[ProductID], [o0].[OrderID] AS [OrderID0], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[ProductID]) AS [row]
+            FROM [Order Details] AS [o0]
+        ) AS [o1]
+        WHERE [o1].[row] <= 1
+    ) AS [o2] ON [o].[OrderID] = [o2].[OrderID0]
+    OUTER APPLY (
+        SELECT [o2].[ProductID] * CAST(LEN([c].[CustomerID]) AS int) AS [value]
+    ) AS [s]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [TotalProducts], (
+    SELECT ISNULL(SUM([s0].[value]), 0)
+    FROM [Orders] AS [o3]
+    LEFT JOIN (
+        SELECT [o5].[OrderID], [o5].[OrderID0]
+        FROM (
+            SELECT [o4].[OrderID], [o4].[OrderID] AS [OrderID0], ROW_NUMBER() OVER(PARTITION BY [o4].[OrderID] ORDER BY [o4].[ProductID]) AS [row]
+            FROM [Order Details] AS [o4]
+        ) AS [o5]
+        WHERE [o5].[row] <= 1
+    ) AS [o6] ON [o3].[OrderID] = [o6].[OrderID0]
+    OUTER APPLY (
+        SELECT [o6].[OrderID] * CAST(LEN([c].[CustomerID]) AS int) AS [value]
+    ) AS [s0]
+    WHERE [c].[CustomerID] = [o3].[CustomerID]) AS [TotalOrders]
+FROM [Customers] AS [c]
 """);
     }
 

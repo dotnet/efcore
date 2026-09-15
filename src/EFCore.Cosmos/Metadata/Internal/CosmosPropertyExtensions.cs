@@ -21,8 +21,8 @@ public static class CosmosPropertyExtensions
     /// </summary>
     public static bool IsOrdinalKeyProperty(this IReadOnlyProperty property)
         => property.ClrType == typeof(int)
-        && !property.IsForeignKey()
-        && (property.ValueGenerated & ValueGenerated.OnAdd) != 0
-        && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
-        && !property.IsPersisted();
+            && !property.IsForeignKey()
+            && (property.ValueGenerated & ValueGenerated.OnAdd) != 0
+            && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
+            && !property.IsPersisted();
 }

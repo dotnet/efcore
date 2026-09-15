@@ -203,7 +203,7 @@ public class SqlServerTestStore : RelationalTestStore
             catch (SqlException e)
             {
                 if (++retryCount >= 30
-                    || e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120)
+                    || (e.Number != 233 && e.Number != -2 && e.Number != 4060 && e.Number != 1832 && e.Number != 5120))
                 {
                     throw;
                 }
@@ -488,7 +488,8 @@ END
     {
         var builder = new SqlConnectionStringBuilder(SqlServerTestEnvironment.DefaultConnection)
         {
-            MultipleActiveResultSets = multipleActiveResultSets ?? Random.Shared.Next(0, 2) == 1, InitialCatalog = name
+            MultipleActiveResultSets = multipleActiveResultSets ?? (Random.Shared.Next(0, 2) == 1),
+            InitialCatalog = name
         };
         if (fileName != null)
         {

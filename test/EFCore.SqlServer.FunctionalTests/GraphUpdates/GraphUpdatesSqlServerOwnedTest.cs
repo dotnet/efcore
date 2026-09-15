@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlServerFixture fixture)
     : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerOwnedTest.SqlServerFixture>(fixture)
 {
@@ -352,7 +350,7 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
                         v => v.Value,
                         v => new MyDiscriminator(v),
                         new ValueComparer<MyDiscriminator>(
-                            (l, r) => l.Value == r.Value,
+                            (l, r) => l!.Value == r!.Value,
                             v => v.Value.GetHashCode(),
                             v => new MyDiscriminator(v.Value)))
                     .Metadata
@@ -499,13 +497,10 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<SharedFkParent>(builder =>
-            {
-                builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
-                    .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
-                    .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-            });
+            modelBuilder.Entity<SharedFkParent>(builder => builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                .OnDelete(DeleteBehavior.ClientSetNull));
 
             modelBuilder.Entity<SharedFkDependant>();
 
@@ -594,10 +589,7 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
             {
                 b.HasAlternateKey(e => e.AlternateId);
                 b.OwnsOne(
-                    x => x.Child, b =>
-                    {
-                        b.WithOwner(e => e.Parent).HasForeignKey(e => e.ParentId);
-                    });
+                    x => x.Child, b => b.WithOwner(e => e.Parent).HasForeignKey(e => e.ParentId));
             });
         }
     }

@@ -46,6 +46,7 @@ public class TimeSpanToTicksConverter : ValueConverter<TimeSpan, long>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TimeSpan), typeof(long),
+        = new(
+            typeof(TimeSpan), typeof(long),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new TimeSpanToTicksConverter(i.MappingHints));
 }

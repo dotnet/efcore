@@ -35,6 +35,25 @@ public class SqliteConnectionFactoryTest : IDisposable
     }
 
     [Fact]
+    public void Synchronous_is_reapplied_when_pooled_connection_is_reopened()
+    {
+        using var connection = new SqliteConnection(
+            ConnectionString + ";Synchronous=Normal");
+
+        connection.Open();
+        var db = connection.Handle;
+
+        connection.ExecuteNonQuery("PRAGMA synchronous = OFF;");
+        Assert.Equal(0L, connection.ExecuteScalar<long>("PRAGMA synchronous;"));
+
+        connection.Close();
+        connection.Open();
+
+        Assert.Same(db, connection.Handle);
+        Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA synchronous;"));
+    }
+
+    [Fact]
     public void Internal_connections_are_reused_across_connections()
     {
         sqlite3 db;
@@ -102,12 +121,10 @@ public class SqliteConnectionFactoryTest : IDisposable
             {
                 for (var j = 0; j < 10000; j++)
                 {
-                    using (var connection = new SqliteConnection(connectionStrings[captured]))
-                    {
-                        connection.Open();
-                        Task.Yield();
-                        connection.Close();
-                    }
+                    using var connection = new SqliteConnection(connectionStrings[captured]);
+                    connection.Open();
+                    Task.Yield();
+                    connection.Close();
                 }
             };
         }

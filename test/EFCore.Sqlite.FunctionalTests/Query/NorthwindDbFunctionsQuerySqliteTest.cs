@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRelationalTestBase<
     NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
@@ -23,8 +21,8 @@ public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRela
             async,
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
-            c => EF.Functions.Glob(c.ContactName, "*M*"),
-            c => c.ContactName.Contains("M"));
+            c => EF.Functions.Glob(c.ContactName!, "*M*"),
+            c => c.ContactName!.Contains("M"));
 
         AssertSql(
             """

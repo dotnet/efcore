@@ -14,91 +14,91 @@ public class DateTimeOffsetTranslationsSqliteTest : DateTimeOffsetTranslationsTe
 
     public override async Task Now()
     {
-        await AssertTranslationFailed(() => base.Now());
+        await AssertTranslationFailed(base.Now);
 
         AssertSql();
     }
 
     public override async Task UtcNow()
     {
-        await AssertTranslationFailed(() => base.UtcNow());
+        await AssertTranslationFailed(base.UtcNow);
 
         AssertSql();
     }
 
     public override async Task Date()
     {
-        await AssertTranslationFailed(() => base.Date());
+        await AssertTranslationFailed(base.Date);
 
         AssertSql();
     }
 
     public override async Task Year()
     {
-        await AssertTranslationFailed(() => base.Year());
+        await AssertTranslationFailed(base.Year);
 
         AssertSql();
     }
 
     public override async Task Month()
     {
-        await AssertTranslationFailed(() => base.Month());
+        await AssertTranslationFailed(base.Month);
 
         AssertSql();
     }
 
     public override async Task DayOfYear()
     {
-        await AssertTranslationFailed(() => base.DayOfYear());
+        await AssertTranslationFailed(base.DayOfYear);
 
         AssertSql();
     }
 
     public override async Task Day()
     {
-        await AssertTranslationFailed(() => base.Day());
+        await AssertTranslationFailed(base.Day);
 
         AssertSql();
     }
 
     public override async Task Hour()
     {
-        await AssertTranslationFailed(() => base.Hour());
+        await AssertTranslationFailed(base.Hour);
 
         AssertSql();
     }
 
     public override async Task Minute()
     {
-        await AssertTranslationFailed(() => base.Minute());
+        await AssertTranslationFailed(base.Minute);
 
         AssertSql();
     }
 
     public override async Task Second()
     {
-        await AssertTranslationFailed(() => base.Second());
+        await AssertTranslationFailed(base.Second);
 
         AssertSql();
     }
 
     public override async Task Millisecond()
     {
-        await AssertTranslationFailed(() => base.Millisecond());
+        await AssertTranslationFailed(base.Millisecond);
 
         AssertSql();
     }
 
     public override async Task Microsecond()
     {
-        await AssertTranslationFailed(() => base.Microsecond());
+        await AssertTranslationFailed(base.Microsecond);
 
         AssertSql();
     }
 
     public override async Task Nanosecond()
     {
-        await AssertTranslationFailed(() => base.Nanosecond());
+        await AssertTranslationFailed(base.Nanosecond);
 
         AssertSql();
     }
@@ -116,21 +116,21 @@ FROM "BasicTypesEntities" AS "b"
 
     public override async Task DateTime()
     {
-        await AssertTranslationFailed(() => base.DateTime());
+        await AssertTranslationFailed(base.DateTime);
 
         AssertSql();
     }
 
     public override async Task UtcDateTime()
     {
-        await AssertTranslationFailed(() => base.UtcDateTime());
+        await AssertTranslationFailed(base.UtcDateTime);
 
         AssertSql();
     }
 
     public override async Task LocalDateTime()
     {
-        await AssertTranslationFailed(() => base.LocalDateTime());
+        await AssertTranslationFailed(base.LocalDateTime);
 
         AssertSql();
     }
@@ -213,19 +213,19 @@ FROM "BasicTypesEntities" AS "b"
     }
 
     public override Task ToUnixTimeMilliseconds()
-        => AssertTranslationFailed(() => base.ToUnixTimeMilliseconds());
+        => AssertTranslationFailed(base.ToUnixTimeMilliseconds);
 
     public override Task ToUnixTimeSecond()
-        => AssertTranslationFailed(() => base.ToUnixTimeSecond());
+        => AssertTranslationFailed(base.ToUnixTimeSecond);
 
     public override Task ToOffset()
-        => AssertTranslationFailed(() => base.ToOffset());
+        => AssertTranslationFailed(base.ToOffset);
 
     public override Task Ctor_DateTime()
-        => AssertTranslationFailed(() => base.Ctor_DateTime());
+        => AssertTranslationFailed(base.Ctor_DateTime);
 
     public override Task Ctor_DateTime_TimeSpan()
-        => AssertTranslationFailed(() => base.Ctor_DateTime_TimeSpan());
+        => AssertTranslationFailed(base.Ctor_DateTime_TimeSpan);
 
     public override async Task Milliseconds_parameter_and_constant()
     {

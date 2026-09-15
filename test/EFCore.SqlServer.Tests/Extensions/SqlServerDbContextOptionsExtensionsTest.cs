@@ -158,29 +158,24 @@ public class SqlServerDbContextOptionsExtensionsTest
                 sqlServerOption.MaxBatchSize(123);
                 sqlServerOption.CommandTimeout(30);
             },
-            dbContextOption =>
-            {
-                dbContextOption.EnableDetailedErrors();
-            });
+            dbContextOption => dbContextOption.EnableDetailedErrors());
 
         var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
-        using (var serviceScope = services
-                   .GetRequiredService<IServiceScopeFactory>()
-                   .CreateScope())
-        {
-            var coreOptions = serviceScope.ServiceProvider
-                .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
+        using var serviceScope = services
+            .GetRequiredService<IServiceScopeFactory>()
+            .CreateScope();
+        var coreOptions = serviceScope.ServiceProvider
+            .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
 
-            Assert.True(coreOptions.DetailedErrorsEnabled);
+        Assert.True(coreOptions.DetailedErrorsEnabled);
 
-            var sqlServerOptions = serviceScope.ServiceProvider
-                .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<SqlServerOptionsExtension>();
+        var sqlServerOptions = serviceScope.ServiceProvider
+            .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<SqlServerOptionsExtension>();
 
-            Assert.Equal(123, sqlServerOptions.MaxBatchSize);
-            Assert.Equal(30, sqlServerOptions.CommandTimeout);
-            Assert.Equal(nullConnectionString ? null : "Database=Crunchie", sqlServerOptions.ConnectionString);
-        }
+        Assert.Equal(123, sqlServerOptions.MaxBatchSize);
+        Assert.Equal(30, sqlServerOptions.CommandTimeout);
+        Assert.Equal(nullConnectionString ? null : "Database=Crunchie", sqlServerOptions.ConnectionString);
     }
 
     private class ApplicationDbContext(DbContextOptions options) : DbContext(options);

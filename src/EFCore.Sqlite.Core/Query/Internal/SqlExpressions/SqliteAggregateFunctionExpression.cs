@@ -82,10 +82,7 @@ public class SqliteAggregateFunctionExpression : SqlExpression
                 }
             }
 
-            if (arguments is not null)
-            {
-                arguments[i] = visitedArgument;
-            }
+            arguments?[i] = visitedArgument;
         }
 
         OrderingExpression[]? orderings = null;
@@ -102,10 +99,7 @@ public class SqliteAggregateFunctionExpression : SqlExpression
                 }
             }
 
-            if (orderings is not null)
-            {
-                orderings[i] = visitedOrdering;
-            }
+            orderings?[i] = visitedOrdering;
         }
 
         return arguments is not null || orderings is not null
@@ -190,11 +184,11 @@ public class SqliteAggregateFunctionExpression : SqlExpression
 
     private bool Equals(SqliteAggregateFunctionExpression? other)
         => ReferenceEquals(this, other)
-            || other is not null
-            && base.Equals(other)
-            && Name == other.Name
-            && Arguments.SequenceEqual(other.Arguments)
-            && Orderings.SequenceEqual(other.Orderings);
+            || (other is not null
+                && base.Equals(other)
+                && Name == other.Name
+                && Arguments.SequenceEqual(other.Arguments)
+                && Orderings.SequenceEqual(other.Orderings));
 
     /// <inheritdoc />
     public override int GetHashCode()

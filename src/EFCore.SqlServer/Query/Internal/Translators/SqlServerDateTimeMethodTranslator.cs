@@ -43,7 +43,7 @@ public class SqlServerDateTimeMethodTranslator(
                 nameof(DateTime.AddMinutes) => "minute",
                 nameof(DateTime.AddSeconds) => "second",
                 nameof(DateTime.AddMilliseconds) => "millisecond",
-                _ => (string?)null
+                _ => null
             };
 
             if (datePart is not null && instance is not null)

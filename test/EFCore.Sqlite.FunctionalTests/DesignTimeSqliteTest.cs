@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class DesignTimeSqliteTest(DesignTimeSqliteTest.DesignTimeSqliteFixture fixture)
     : DesignTimeTestBase<DesignTimeSqliteTest.DesignTimeSqliteFixture>(fixture)
 {

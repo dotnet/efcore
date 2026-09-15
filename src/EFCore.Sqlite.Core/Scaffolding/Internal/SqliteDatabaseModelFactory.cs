@@ -29,79 +29,87 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
         typeof(double)
     ];
 
-    private static readonly HashSet<string> _boolTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> _boolTypes =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
         "BIT",
         "BOOL",
         "BOOLEAN",
         "LOGICAL",
         "YESNO"
-    };
+    ];
 
-    private static readonly HashSet<string> _uintTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> _uintTypes =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
         "MEDIUMUINT",
         "UINT",
         "UINT32",
         "UNSIGNEDINTEGER32"
-    };
+    ];
 
-    private static readonly HashSet<string> _ulongTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> _ulongTypes =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
         "BIGUINT",
         "UINT64",
         "ULONG",
         "UNSIGNEDINTEGER",
         "UNSIGNEDINTEGER64"
-    };
+    ];
 
-    private static readonly HashSet<string> _byteTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> _byteTypes =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
         "BYTE",
         "TINYINT",
         "UINT8",
         "UNSIGNEDINTEGER8"
-    };
+    ];
 
-    private static readonly HashSet<string> _shortTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> _shortTypes =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
         "INT16",
         "INTEGER16",
         "SHORT",
         "SMALLINT"
-    };
+    ];
 
-    private static readonly HashSet<string> _longTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> _longTypes =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
         "BIGINT",
         "INT64",
         "INTEGER64",
         "LONG"
-    };
+    ];
 
-    private static readonly HashSet<string> _sbyteTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> _sbyteTypes =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
         "INT8",
         "INTEGER8",
         "SBYTE",
         "TINYSINT"
-    };
+    ];
 
-    private static readonly HashSet<string> _floatTypes = new(StringComparer.OrdinalIgnoreCase) { "SINGLE" };
+    private static readonly HashSet<string> _floatTypes = [with(StringComparer.OrdinalIgnoreCase), "SINGLE"];
 
-    private static readonly HashSet<string> _halfTypes = new(StringComparer.OrdinalIgnoreCase) { "HALF" };
+    private static readonly HashSet<string> _halfTypes = [with(StringComparer.OrdinalIgnoreCase), "HALF"];
 
-    private static readonly HashSet<string> _decimalTypes = new(StringComparer.OrdinalIgnoreCase) { "DECIMAL" };
+    private static readonly HashSet<string> _decimalTypes = [with(StringComparer.OrdinalIgnoreCase), "DECIMAL"];
 
-    private static readonly HashSet<string> _ushortTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> _ushortTypes =
+    [
+        with(StringComparer.OrdinalIgnoreCase),
         "SMALLUINT",
         "UINT16",
         "UNSIGNEDINTEGER16",
         "USHORT"
-    };
+    ];
 
-    private static readonly HashSet<string> _timeOnlyTypes = new(StringComparer.OrdinalIgnoreCase) { "TIMEONLY" };
+    private static readonly HashSet<string> _timeOnlyTypes = [with(StringComparer.OrdinalIgnoreCase), "TIMEONLY"];
 
     private static readonly Dictionary<string, Type> _typesByName = new Dictionary<string, Type>
         {
@@ -379,7 +387,7 @@ ORDER BY "cid"
                     ValueGenerated = autoIncrement != 0
                         ? ValueGenerated.OnAdd
                         : default(ValueGenerated?),
-                    ComputedColumnSql = hidden != 2L && hidden != 3L
+                    ComputedColumnSql = hidden is not 2L and not 3L
                         ? null
                         : string.Empty,
                     IsStored = hidden != 3L
@@ -449,7 +457,7 @@ ORDER BY "cid"
             else if (defaultValueSql.StartsWith('\'')
                      && defaultValueSql.EndsWith('\''))
             {
-                defaultValueSql = defaultValueSql.Substring(1, defaultValueSql.Length - 2);
+                defaultValueSql = defaultValueSql[1..^1];
 
                 if (type == typeof(string))
                 {
@@ -491,7 +499,7 @@ ORDER BY "cid"
             {
                 while (defaultValueSql.StartsWith('(') && defaultValueSql.EndsWith(')'))
                 {
-                    defaultValueSql = (defaultValueSql.Substring(1, defaultValueSql.Length - 2)).Trim();
+                    defaultValueSql = defaultValueSql[1..^1].Trim();
                 }
             }
         }
@@ -571,7 +579,7 @@ ORDER BY "cid"
             var index = column.StoreType!.IndexOf("(", StringComparison.OrdinalIgnoreCase);
             var baseColumnType = index == -1
                 ? column.StoreType
-                : column.StoreType.Substring(0, index);
+                : column.StoreType[..index];
 
             if (string.Equals(valueType, "INTEGER", StringComparison.OrdinalIgnoreCase))
             {
@@ -898,7 +906,8 @@ ORDER BY "seq"
 
         var primaryKey = new DatabasePrimaryKey
         {
-            Table = table, Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
+            Table = table,
+            Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
         };
 
         _logger.PrimaryKeyFound(name, table.Name);
@@ -987,7 +996,8 @@ ORDER BY "seq"
             var constraintName = reader1.GetString(0);
             var uniqueConstraint = new DatabaseUniqueConstraint
             {
-                Table = table, Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
+                Table = table,
+                Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
             };
 
             _logger.UniqueConstraintFound(constraintName, table.Name);

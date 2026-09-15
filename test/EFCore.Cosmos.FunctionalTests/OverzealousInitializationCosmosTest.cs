@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class OverzealousInitializationCosmosTest(OverzealousInitializationCosmosTest.OverzealousInitializationCosmosFixture fixture)
     : OverzealousInitializationTestBase<OverzealousInitializationCosmosTest.OverzealousInitializationCosmosFixture>(fixture)
 {

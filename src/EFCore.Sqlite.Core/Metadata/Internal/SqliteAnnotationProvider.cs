@@ -75,7 +75,7 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
 
         // Model validation ensures that these facets are the same on all mapped properties
         var property = column.PropertyMappings.First().Property;
-        
+
         if (property.GetValueGenerationStrategy() == SqliteValueGenerationStrategy.Autoincrement)
         {
             yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);

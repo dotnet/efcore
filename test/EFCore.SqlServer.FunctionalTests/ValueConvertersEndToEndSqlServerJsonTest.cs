@@ -3,16 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ValueConvertersEndToEndSqlServerJsonTest(ValueConvertersEndToEndSqlServerJsonTest.ValueConvertersEndToEndSqlServerJsonFixture fixture)
+public class ValueConvertersEndToEndSqlServerJsonTest(
+    ValueConvertersEndToEndSqlServerJsonTest.ValueConvertersEndToEndSqlServerJsonFixture fixture)
     : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndSqlServerJsonTest.ValueConvertersEndToEndSqlServerJsonFixture>(fixture)
 {
     protected override void Add(DbContext context, ConvertingEntity entity)
     {
-        var root = new RootEntity
-        {
-            Id = Guid.NewGuid(),
-            ConvertingEntity = entity
-        };
+        var root = new RootEntity { Id = Guid.NewGuid(), ConvertingEntity = entity };
         entity.Id = root.Id;
         context.Add(root);
     }
@@ -30,7 +27,8 @@ public class ValueConvertersEndToEndSqlServerJsonTest(ValueConvertersEndToEndSql
 
     public class ValueConvertersEndToEndSqlServerJsonFixture : ValueConvertersEndToEndFixtureBase
     {
-        protected override string StoreName => nameof(ValueConvertersEndToEndSqlServerJsonFixture);
+        protected override string StoreName
+            => nameof(ValueConvertersEndToEndSqlServerJsonFixture);
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
@@ -244,7 +242,8 @@ public class ValueConvertersEndToEndSqlServerJsonTest(ValueConvertersEndToEndSql
                         new EnumerableOfIntToJsonConverter(), new EnumerableOfIntComparer());
                 });
 
-            var complexType = modelBuilder.Model.GetEntityTypes().Single(x => x.ClrType == typeof(RootEntity)).GetComplexProperties().Single().ComplexType;
+            var complexType = modelBuilder.Model.GetEntityTypes().Single(x => x.ClrType == typeof(RootEntity)).GetComplexProperties()
+                .Single().ComplexType;
             foreach (var property in complexType.GetProperties())
             {
                 if (property.GetValueConverter() is null)

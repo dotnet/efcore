@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Types.Geography;
 public class SqlServerGeographyMultiPolygonTypeTest(
     SqlServerGeographyMultiPolygonTypeTest.MultiPolygonTypeFixture fixture,
     ITestOutputHelper testOutputHelper)
-    : SqlServerGeographyTypeTestBase<MultiPolygon, SqlServerGeographyMultiPolygonTypeTest.MultiPolygonTypeFixture>(fixture, testOutputHelper)
+    : SqlServerGeographyTypeTestBase<MultiPolygon, SqlServerGeographyMultiPolygonTypeTest.MultiPolygonTypeFixture>(
+        fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
     {
@@ -38,9 +39,7 @@ WHERE [t].[Value].STEquals('MULTIPOLYGON (((-122.35 47.62, -122.35 47.615, -122.
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -219,39 +218,47 @@ FROM [JsonTypeEntity] AS [j]
     {
         public override MultiPolygon Value { get; } = new(
         [
-            new Polygon(new LinearRing([
-                new Coordinate(-122.3500, 47.6200), // NW
-                new Coordinate(-122.3500, 47.6150), // SW
-                new Coordinate(-122.3450, 47.6150), // SE
-                new Coordinate(-122.3450, 47.6200), // NE
-                new Coordinate(-122.3500, 47.6200)
-            ])) { SRID = 4326 },
-            new Polygon(new LinearRing([
-                new Coordinate(-122.3525, 47.6230), // NW
-                new Coordinate(-122.3525, 47.6215), // SW
-                new Coordinate(-122.3510, 47.6215), // SE
-                new Coordinate(-122.3510, 47.6230), // NE
-                new Coordinate(-122.3525, 47.6230)
-            ])) { SRID = 4326 }
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-122.3500, 47.6200), // NW
+                    new Coordinate(-122.3500, 47.6150), // SW
+                    new Coordinate(-122.3450, 47.6150), // SE
+                    new Coordinate(-122.3450, 47.6200), // NE
+                    new Coordinate(-122.3500, 47.6200)
+                ])) { SRID = 4326 },
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-122.3525, 47.6230), // NW
+                    new Coordinate(-122.3525, 47.6215), // SW
+                    new Coordinate(-122.3510, 47.6215), // SE
+                    new Coordinate(-122.3510, 47.6230), // NE
+                    new Coordinate(-122.3525, 47.6230)
+                ])) { SRID = 4326 }
         ])
         { SRID = 4326 };
 
         public override MultiPolygon OtherValue { get; } = new(
         [
-            new Polygon(new LinearRing([
-                new Coordinate(-121.3600, 46.6250), // NW
-                new Coordinate(-121.3600, 46.6200), // SW
-                new Coordinate(-121.3550, 46.6200), // SE
-                new Coordinate(-121.3550, 46.6250), // NE
-                new Coordinate(-121.3600, 46.6250)
-            ])) { SRID = 4326 },
-            new Polygon(new LinearRing([
-                new Coordinate(-121.3540, 46.6240), // NW
-                new Coordinate(-121.3540, 46.6220), // SW
-                new Coordinate(-121.3525, 46.6220), // SE
-                new Coordinate(-121.3525, 46.6240), // NE
-                new Coordinate(-121.3540, 46.6240)
-            ])) { SRID = 4326 }
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-121.3600, 46.6250), // NW
+                    new Coordinate(-121.3600, 46.6200), // SW
+                    new Coordinate(-121.3550, 46.6200), // SE
+                    new Coordinate(-121.3550, 46.6250), // NE
+                    new Coordinate(-121.3600, 46.6250)
+                ])) { SRID = 4326 },
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-121.3540, 46.6240), // NW
+                    new Coordinate(-121.3540, 46.6220), // SW
+                    new Coordinate(-121.3525, 46.6220), // SE
+                    new Coordinate(-121.3525, 46.6240), // NE
+                    new Coordinate(-121.3540, 46.6240)
+                ])) { SRID = 4326 }
         ])
         { SRID = 4326 };
     }

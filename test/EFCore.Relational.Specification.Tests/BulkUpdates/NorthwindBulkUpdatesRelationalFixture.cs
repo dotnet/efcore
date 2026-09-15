@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-#nullable disable
-
 public abstract class NorthwindBulkUpdatesRelationalFixture<TModelCustomizer> : NorthwindBulkUpdatesFixture<TModelCustomizer>,
     ITestSqlLoggerFactory
     where TModelCustomizer : ITestModelCustomizer, new()

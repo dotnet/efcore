@@ -91,6 +91,72 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
 
         [Fact]
+        public virtual void Can_use_optional_table_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
+                {
+                    s.IsOptional();
+                    s.Property(o => o.CustomerId);
+                });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.True(fragment.IsOptional);
+        }
+
+        [Fact]
+        public virtual void Can_revert_optional_table_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
+                {
+                    s.IsOptional();
+                    s.IsOptional(false);
+                    s.Property(o => o.CustomerId);
+                });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.False(fragment.IsOptional);
+        }
+
+        [Fact]
+        public virtual void Table_splitting_fragment_is_not_optional_by_default()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s => s.Property(o => o.CustomerId));
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.False(fragment.IsOptional);
+        }
+
+        [Fact]
         public virtual void Can_use_view_splitting()
         {
             var modelBuilder = CreateModelBuilder();
@@ -233,7 +299,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedResultColumn())
+                Assert.Throws<InvalidOperationException>(sproc.AddRowsAffectedResultColumn)
                     .Message);
         }
 
@@ -260,7 +326,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedParameter())
+                Assert.Throws<InvalidOperationException>(sproc.AddRowsAffectedParameter)
                     .Message);
         }
 
@@ -568,7 +634,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedResultColumn())
+                Assert.Throws<InvalidOperationException>(sproc.AddRowsAffectedResultColumn)
                     .Message);
         }
 
@@ -595,7 +661,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedParameter())
+                Assert.Throws<InvalidOperationException>(sproc.AddRowsAffectedParameter)
                     .Message);
         }
 
@@ -721,17 +787,18 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b =>
-                {
-                    b.ToJson("customer_data");
-                    b.Ignore(c => c.Details);
-                    b.Ignore(c => c.Orders);
-                    b.HasDiscriminator<string>("CustomerType");
-                    // Issue #31250
-                    // .HasValue<Customer>("Customer")
-                    // .HasValue<SpecialCustomer>("Special")
-                    // .HasValue<OtherCustomer>("Other");
-                });
+                .ComplexProperty(
+                    e => e.Customer, b =>
+                    {
+                        b.ToJson("customer_data");
+                        b.Ignore(c => c.Details);
+                        b.Ignore(c => c.Orders);
+                        b.HasDiscriminator<string>("CustomerType");
+                        // Issue #31250
+                        // .HasValue<Customer>("Customer")
+                        // .HasValue<SpecialCustomer>("Special")
+                        // .HasValue<OtherCustomer>("Other");
+                    });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -790,23 +857,25 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.ToJson();
-                        cb.Ignore(c => c.Orders);
-                        cb.Ignore(c => c.Details);
-                    });
-                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>("Customer.SomeOrders", ob =>
-                    {
-                        ob.Ignore(o => o.Customer);
-                        ob.Ignore(o => o.Products);
-                        ob.Ignore(o => o.Details);
-                        ob.Ignore(o => o.OrderCombination);
-                        ob.Ignore(o => o.SpecialCustomer);
-                        ob.Ignore(o => o.BackOrder);
-                        ob.Ignore(o => o.SpecialOrderCombination);
-                        ob.Ignore(o => o.ShippingAddress);
-                    });
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
+                        {
+                            cb.ToJson();
+                            cb.Ignore(c => c.Orders);
+                            cb.Ignore(c => c.Details);
+                        });
+                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>(
+                        "Customer.SomeOrders", ob =>
+                        {
+                            ob.Ignore(o => o.Customer);
+                            ob.Ignore(o => o.Products);
+                            ob.Ignore(o => o.Details);
+                            ob.Ignore(o => o.OrderCombination);
+                            ob.Ignore(o => o.SpecialCustomer);
+                            ob.Ignore(o => o.BackOrder);
+                            ob.Ignore(o => o.SpecialOrderCombination);
+                            ob.Ignore(o => o.ShippingAddress);
+                        });
                 });
 
             var model = modelBuilder.FinalizeModel();
@@ -828,10 +897,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexCollection(
-                    e => e.QuarksCollection, b =>
-                    {
-                        b.ToJson(); // No column name specified
-                    });
+                    e => e.QuarksCollection, b => b.ToJson());
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -854,15 +920,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         cp.Ignore(x => x.Reference2);
                         cp.Ignore(x => x.Collection2);
                         cp.ComplexProperty(
-                            x => x.Reference1, np =>
-                            {
-                                np.HasJsonPropertyName("CustomNestedReference");
-                            });
+                            x => x.Reference1, np => np.HasJsonPropertyName("CustomNestedReference"));
                         cp.ComplexCollection(
-                            x => x.Collection1, nc =>
-                            {
-                                nc.HasJsonPropertyName("CustomNestedCollection");
-                            });
+                            x => x.Collection1, nc => nc.HasJsonPropertyName("CustomNestedCollection"));
                     });
                 b.ComplexProperty(
                     e => e.OwnedReference2, cp =>
@@ -871,15 +931,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         cp.Ignore(x => x.Reference1);
                         cp.Ignore(x => x.Collection1);
                         cp.ComplexProperty(
-                            x => x.Reference2, np =>
-                            {
-                                np.HasJsonPropertyName("CustomNestedReference2");
-                            });
+                            x => x.Reference2, np => np.HasJsonPropertyName("CustomNestedReference2"));
                         cp.ComplexCollection(
-                            x => x.Collection2, nc =>
-                            {
-                                nc.HasJsonPropertyName("CustomNestedCollection2");
-                            });
+                            x => x.Collection2, nc => nc.HasJsonPropertyName("CustomNestedCollection2"));
                     });
 
                 b.ComplexCollection(
@@ -889,15 +943,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         cp.Ignore(x => x.Reference2);
                         cp.Ignore(x => x.Collection2);
                         cp.ComplexProperty(
-                            x => x.Reference1, np =>
-                            {
-                                np.HasJsonPropertyName("CustomNestedReference3");
-                            });
+                            x => x.Reference1, np => np.HasJsonPropertyName("CustomNestedReference3"));
                         cp.ComplexCollection(
-                            x => x.Collection1, nc =>
-                            {
-                                nc.HasJsonPropertyName("CustomNestedCollection3");
-                            });
+                            x => x.Collection1, nc => nc.HasJsonPropertyName("CustomNestedCollection3"));
                     });
                 b.ComplexCollection(
                     e => e.OwnedCollection2, cp =>
@@ -906,17 +954,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         cp.Ignore(x => x.Reference1);
                         cp.Ignore(x => x.Collection1);
                         cp.ComplexProperty(
-                            x => x.Reference2, np =>
-                            {
-                                np.HasJsonPropertyName("CustomNestedReference4");
-                            });
+                            x => x.Reference2, np => np.HasJsonPropertyName("CustomNestedReference4"));
                         cp.ComplexCollection(
-                            x => x.Collection2, nc =>
-                            {
-                                nc.HasJsonPropertyName("CustomNestedCollection4");
-                            });
+                            x => x.Collection2, nc => nc.HasJsonPropertyName("CustomNestedCollection4"));
                     });
-                });
+            });
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(JsonEntityWithNesting))!;
@@ -1125,12 +1167,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<MotorArt>(entity =>
-            {
-                entity.HasMany(d => d.MotorBauArt)
-                    .WithMany(p => p.MotorArt)
-                    .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauart");
-            });
+            modelBuilder.Entity<MotorArt>(entity => entity.HasMany(d => d.MotorBauArt)
+                .WithMany(p => p.MotorArt)
+                .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauart"));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1854,6 +1893,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true);
 
+        public abstract TestSplitTableBuilder<TEntity> IsOptional(bool optional = true);
+
         public abstract TestTriggerBuilder HasTrigger(string name);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
@@ -1885,6 +1926,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+
+        public override TestSplitTableBuilder<TEntity> IsOptional(bool optional = true)
+            => Wrap(TableBuilder.IsOptional(optional));
 
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
@@ -1919,6 +1963,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+
+        public override TestSplitTableBuilder<TEntity> IsOptional(bool optional = true)
+            => Wrap(TableBuilder.IsOptional(optional));
 
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));

@@ -91,7 +91,6 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                     "SkipNavigation: Tag.PostsInTagData (postsInTagData_, RepeatedField<Post>) CollectionPost Inverse: TagsInPostData",
                 },
             }
-
         ];
 
     [Fact]
@@ -150,7 +149,8 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 Title = "Arthur's post",
                 PostAuthor = new Author
                 {
-                    DateCreated = Timestamp.FromDateTime(new DateTime(1973, 9, 3, 12, 10, 0, DateTimeKind.Utc)), Name = "Arthur"
+                    DateCreated = Timestamp.FromDateTime(new DateTime(1973, 9, 3, 12, 10, 0, DateTimeKind.Utc)),
+                    Name = "Arthur"
                 },
                 PostStat = PostStatus.Published,
                 TagsInPostData = { new Tag { Name = "Kittens" }, new Tag { Name = "Puppies" } }

@@ -51,7 +51,7 @@ public class RelationalConnectionTest
         using var context = new ConstructorTestContext1A(options);
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Fact]
@@ -67,11 +67,11 @@ public class RelationalConnectionTest
         using var serviceScope = appServiceProvider
             .GetRequiredService<IServiceScopeFactory>()
             .CreateScope();
-        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()!;
 
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class RelationalConnectionTest
         using var context = new ConstructorTestContextNoConfiguration();
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Fact]
@@ -93,11 +93,11 @@ public class RelationalConnectionTest
         using var serviceScope = appServiceProvider
             .GetRequiredService<IServiceScopeFactory>()
             .CreateScope();
-        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
+        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>()!;
 
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     private class ConstructorTestContext1A(DbContextOptions options) : DbContext(options);
@@ -772,7 +772,7 @@ public class RelationalConnectionTest
 
         using (connection.UseTransaction(dbTransaction))
         {
-            Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
+            Assert.Equal(dbTransaction, connection.CurrentTransaction!.GetDbTransaction());
         }
 
         Assert.Null(connection.CurrentTransaction);
@@ -793,7 +793,7 @@ public class RelationalConnectionTest
 
         using (var transaction = connection.UseTransaction(dbTransaction, transactionId))
         {
-            Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
+            Assert.Equal(dbTransaction, connection.CurrentTransaction!.GetDbTransaction());
             Assert.Equal(transactionId, transaction.TransactionId);
         }
 
@@ -941,7 +941,7 @@ public class RelationalConnectionTest
 
     private class AnotherFakeRelationalOptionsExtension : RelationalOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         public AnotherFakeRelationalOptionsExtension()
         {
@@ -999,7 +999,7 @@ public class RelationalConnectionTest
 
         Assert.Equal(
             RelationalStrings.NoActiveTransaction,
-            Assert.Throws<InvalidOperationException>(() => connection.CommitTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(connection.CommitTransaction).Message);
     }
 
     [Fact]
@@ -1011,7 +1011,7 @@ public class RelationalConnectionTest
 
         Assert.Equal(
             RelationalStrings.NoActiveTransaction,
-            Assert.Throws<InvalidOperationException>(() => connection.RollbackTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(connection.RollbackTransaction).Message);
     }
 
     [Fact]
@@ -1171,7 +1171,7 @@ public class RelationalConnectionTest
         public bool DetailedErrorsEnabled { get; } = detailedErrorsEnabled;
 
         public WarningsConfiguration WarningsConfiguration
-            => null;
+            => null!;
 
         public virtual bool ShouldWarnForStringEnumValueInJson(Type enumType)
             => true;

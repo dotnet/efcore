@@ -140,8 +140,7 @@ public class CSharpMigrationCompilerTest
     {
         var compiler = new CSharpMigrationCompiler();
 
-        Assert.Throws<NullReferenceException>(
-            () => compiler.CompileMigration(null!, typeof(TestContext)));
+        Assert.Throws<NullReferenceException>(() => compiler.CompileMigration(null!, typeof(TestContext)));
     }
 
     [Fact]
@@ -150,8 +149,7 @@ public class CSharpMigrationCompilerTest
         var compiler = new CSharpMigrationCompiler();
         var scaffoldedMigration = CreateValidScaffoldedMigration("20231215160000_NullContext");
 
-        Assert.Throws<NullReferenceException>(
-            () => compiler.CompileMigration(scaffoldedMigration, null!));
+        Assert.Throws<NullReferenceException>(() => compiler.CompileMigration(scaffoldedMigration, null!));
     }
 
     [Fact]
@@ -190,8 +188,7 @@ public class CSharpMigrationCompilerTest
             snapshotName: "TestContextModelSnapshot");
 
         // Empty migration code results in compilation failure
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => compiler.CompileMigration(scaffoldedMigration, typeof(TestContext)));
+        var exception = Assert.Throws<InvalidOperationException>(() => compiler.CompileMigration(scaffoldedMigration, typeof(TestContext)));
 
         Assert.Contains("20231215170000_EmptyCode", exception.Message);
     }
@@ -291,8 +288,7 @@ namespace TestNamespace
         string metadataCode,
         string snapshotCode,
         string snapshotName)
-    {
-        return new ScaffoldedMigration(
+        => new(
             fileExtension: ".cs",
             previousMigrationId: null,
             migrationCode: migrationCode,
@@ -302,7 +298,6 @@ namespace TestNamespace
             snapshotCode: snapshotCode,
             snapshotName: snapshotName,
             snapshotSubNamespace: "TestNamespace");
-    }
 
     private class TestContext : DbContext
     {

@@ -186,7 +186,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
 
         return shapedQuery;
 
-        Expression Unwrap(Expression shaper)
+        static Expression Unwrap(Expression shaper)
         {
             if (shaper is UnaryExpression { NodeType: ExpressionType.Convert } convert
                 && convert.Type == typeof(object))
@@ -317,11 +317,11 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 // may not correspond (in the above condition) but we can still use ReadItem - as long as
                 // there's only a single non-abstract leaf type and also we don't have a (non-root) discriminator in the JSON ID.
                 else if (!_nonRootDiscriminatorInJsonId
-                    && _entityType.GetDerivedTypesInclusive()
-                        .Where(t => !t.IsAbstract())
-                        .Select(e => e.GetDiscriminatorValue())
-                        .ToList() is [var entityDiscriminatorValue2]
-                    && discriminatorProperty.GetValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue2))
+                         && _entityType.GetDerivedTypesInclusive()
+                             .Where(t => !t.IsAbstract())
+                             .Select(e => e.GetDiscriminatorValue())
+                             .ToList() is [var entityDiscriminatorValue2]
+                         && discriminatorProperty.GetValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue2))
                 {
                     isCompatibleComparisonForReadItem = true;
                 }
@@ -334,7 +334,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                     if (propertyName == property.GetJsonPropertyName())
                     {
                         if (_jsonIdPropertyValues.TryGetValue(property, out var previousValue)
-                        && (previousValue is null || ExpressionEqualityComparer.Instance.Equals(previousValue, propertyValue)))
+                            && (previousValue is null || ExpressionEqualityComparer.Instance.Equals(previousValue, propertyValue)))
                         {
                             _jsonIdPropertyValues[property] = propertyValue;
                             isCompatibleComparisonForReadItem = true;

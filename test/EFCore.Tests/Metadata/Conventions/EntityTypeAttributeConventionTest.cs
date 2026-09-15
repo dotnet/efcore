@@ -19,7 +19,7 @@ public class EntityTypeAttributeConventionTest
     {
         var modelBuilder = new InternalModelBuilder(new Model());
 
-        var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention)!;
 
         RunConvention(entityBuilder);
 
@@ -31,7 +31,7 @@ public class EntityTypeAttributeConventionTest
     {
         var modelBuilder = new InternalModelBuilder(new Model());
 
-        var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
+        var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Explicit)!;
 
         RunConvention(entityBuilder);
 
@@ -61,7 +61,7 @@ public class EntityTypeAttributeConventionTest
 
         Assert.Equal(2, modelBuilder.Model.GetEntityTypes().Count());
         Assert.True(
-            modelBuilder.Model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Address)).ForeignKey.IsOwnership);
+            modelBuilder.Model.FindEntityType(typeof(Customer))!.FindNavigation(nameof(Customer.Address))!.ForeignKey.IsOwnership);
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public class EntityTypeAttributeConventionTest
     {
         var modelBuilder = new InternalModelBuilder(new Model());
 
-        var entityBuilder = modelBuilder.Entity(typeof(KeylessEntity), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(KeylessEntity), ConfigurationSource.Convention)!;
         entityBuilder.Property("Id", ConfigurationSource.Convention);
         entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
 
@@ -146,27 +146,27 @@ public class EntityTypeAttributeConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class B
     {
         public int Id { get; set; }
 
-        public virtual A NavToA { get; set; }
+        public virtual A NavToA { get; set; } = null!;
     }
 
     private class Customer
     {
         public int Id { get; set; }
-        public Address Address { get; set; }
+        public Address Address { get; set; } = null!;
     }
 
     [Owned]
     private class Address
     {
         public int Id { get; set; }
-        public Customer Customer { get; }
+        public Customer Customer { get; } = null!;
     }
 
     [Keyless]

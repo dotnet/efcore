@@ -25,14 +25,9 @@ public class SqliteGlobMethodTranslator(SqliteSqlExpressionFactory sqlExpression
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.DeclaringType == typeof(SqliteDbFunctionsExtensions)
+        => method.DeclaringType == typeof(SqliteDbFunctionsExtensions)
             && method.Name == nameof(SqliteDbFunctionsExtensions.Glob)
-            && arguments is [_, var matchExpression, var pattern])
-        {
-            return sqlExpressionFactory.Glob(matchExpression, pattern);
-        }
-
-        return null;
-    }
+            && arguments is [_, var matchExpression, var pattern]
+                ? sqlExpressionFactory.Glob(matchExpression, pattern)
+                : (SqlExpression?)null;
 }

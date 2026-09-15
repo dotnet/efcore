@@ -43,7 +43,7 @@ public class SqliteHistoryRepository : HistoryRepository
     /// </summary>
     public const string DefaultLockTableName = "__EFMigrationsLock";
 
-     /// <summary>
+    /// <summary>
     ///     The name for the migrations lock table.
     /// </summary>
     protected virtual string LockTableName { get; } = DefaultLockTableName;

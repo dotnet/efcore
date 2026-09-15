@@ -194,15 +194,12 @@ public sealed class StringsUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnaly
         };
 
     private static DiagnosticDescriptor? AnalyzeStringMethodInvocation(IInvocationOperation invocation)
-    {
-        if (invocation.TargetMethod.ContainingType.SpecialType != SpecialType.System_String
-            || invocation.TargetMethod.Name is not (nameof(string.Format) or nameof(string.Concat)))
-        {
-            return null;
-        }
-
-        return HasNonConstantArgument(invocation) ? StringConcatenationDescriptor : null;
-    }
+        => invocation.TargetMethod.ContainingType.SpecialType != SpecialType.System_String
+            || invocation.TargetMethod.Name is not (nameof(string.Format) or nameof(string.Concat))
+                ? null
+                : HasNonConstantArgument(invocation)
+                    ? StringConcatenationDescriptor
+                    : null;
 
     private static bool HasNonConstantArgument(IInvocationOperation invocation)
     {
@@ -283,13 +280,10 @@ public sealed class StringsUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnaly
         var left = operation.LeftOperand;
         var right = operation.RightOperand;
 
-        if ((left is IBinaryOperation leftBinary && AnalyzeConcatenation(leftBinary))
-            || (right is IBinaryOperation rightBinary && AnalyzeConcatenation(rightBinary)))
-        {
-            return true;
-        }
-
-        return !left.ConstantValue.HasValue || !right.ConstantValue.HasValue;
+        return (left is IBinaryOperation leftBinary && AnalyzeConcatenation(leftBinary))
+            || (right is IBinaryOperation rightBinary && AnalyzeConcatenation(rightBinary))
+            || !left.ConstantValue.HasValue
+            || !right.ConstantValue.HasValue;
     }
 
     private static IMethodSymbol? FromSqlRawMethod(Compilation compilation)

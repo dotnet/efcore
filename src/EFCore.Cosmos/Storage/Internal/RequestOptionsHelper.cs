@@ -12,9 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 public class RequestOptionsHelper
 {
     private RequestOptionsHelper(string? ifMatchEtag)
-    {
-        IfMatchEtag = ifMatchEtag;
-    }
+        => IfMatchEtag = ifMatchEtag;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

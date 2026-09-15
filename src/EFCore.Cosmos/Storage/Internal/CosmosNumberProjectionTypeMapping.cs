@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Numerics;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -39,8 +38,15 @@ public static class CosmosNumberProjectionTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsRequiredForType(Type type)
-        => type == typeof(int) || type == typeof(long) || type == typeof(short) || type == typeof(sbyte) || type == typeof(float)
-        || type == typeof(uint) || type == typeof(ulong) || type == typeof(ushort) || type == typeof(byte);
+        => type == typeof(int)
+            || type == typeof(long)
+            || type == typeof(short)
+            || type == typeof(sbyte)
+            || type == typeof(float)
+            || type == typeof(uint)
+            || type == typeof(ulong)
+            || type == typeof(ushort)
+            || type == typeof(byte);
 }
 
 /// <summary>
@@ -70,9 +76,10 @@ public class CosmosNumberProjectionTypeMapping<T> : CosmosTypeMapping<T>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosNumberProjectionTypeMapping() : base(
-        null, null, null,
-        CosmosJsonNumberProjectionReaderWriter<T>.Instance)
+    public CosmosNumberProjectionTypeMapping()
+        : base(
+            null, null, null,
+            CosmosJsonNumberProjectionReaderWriter<T>.Instance)
     {
     }
 
@@ -82,11 +89,12 @@ public class CosmosNumberProjectionTypeMapping<T> : CosmosTypeMapping<T>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected CosmosNumberProjectionTypeMapping(CoreTypeMappingParameters parameters) : base(parameters)
+    protected CosmosNumberProjectionTypeMapping(CoreTypeMappingParameters parameters)
+        : base(parameters)
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
         => new CosmosNumberProjectionTypeMapping<T>(parameters);
 }

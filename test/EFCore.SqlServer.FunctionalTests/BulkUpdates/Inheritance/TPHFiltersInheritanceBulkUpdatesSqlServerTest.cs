@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
-#nullable disable
-
 public class TPHFiltersInheritanceBulkUpdatesSqlServerTest(
     TPHFiltersInheritanceBulkUpdatesSqlServerFixture fixture,
     ITestOutputHelper testOutputHelper)

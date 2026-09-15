@@ -31,9 +31,9 @@ public class RelationalParameterProcessor : ExpressionVisitor
     ///     <see cref="ISqlGenerationHelper.GenerateParameterName(string)" /> (i.e. they're prefixed), since
     ///     <see cref="DbParameter.ParameterName" /> can be prefixed or not.
     /// </summary>
-    private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _prefixedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
 
-    private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = new();
+    private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = [];
 
     private Dictionary<DbParameter, RawRelationalParameter>? _processedDbParameters;
 
@@ -117,8 +117,8 @@ public class RelationalParameterProcessor : ExpressionVisitor
         if (_sqlParameters.TryGetValue(parameter.InvariantName, out var existingParameter)
             && existingParameter is { TypeMapping: { } existingTypeMapping }
             && string.Equals(existingTypeMapping.StoreType, typeMapping.StoreType, StringComparison.OrdinalIgnoreCase)
-            && (existingTypeMapping.Converter is null && typeMapping.Converter is null
-                || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)))
+            && ((existingTypeMapping.Converter is null && typeMapping.Converter is null)
+                || (existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter))))
         {
             return existingParameter;
         }

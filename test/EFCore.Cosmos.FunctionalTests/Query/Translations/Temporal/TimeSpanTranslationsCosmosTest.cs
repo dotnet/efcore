@@ -13,22 +13,22 @@ public class TimeSpanTranslationsCosmosTest : TimeSpanTranslationsTestBase<Basic
     }
 
     public override Task Hours()
-        => AssertTranslationFailed(() => base.Hours());
+        => AssertTranslationFailed(base.Hours);
 
     public override Task Minutes()
-        => AssertTranslationFailed(() => base.Minutes());
+        => AssertTranslationFailed(base.Minutes);
 
     public override Task Seconds()
-        => AssertTranslationFailed(() => base.Seconds());
+        => AssertTranslationFailed(base.Seconds);
 
     public override Task Milliseconds()
-        => AssertTranslationFailed(() => base.Milliseconds());
+        => AssertTranslationFailed(base.Milliseconds);
 
     public override Task Microseconds()
-        => AssertTranslationFailed(() => base.Microseconds());
+        => AssertTranslationFailed(base.Microseconds);
 
     public override Task Nanoseconds()
-        => AssertTranslationFailed(() => base.Nanoseconds());
+        => AssertTranslationFailed(base.Nanoseconds);
 
     [Fact]
     public virtual void Check_all_tests_overridden()

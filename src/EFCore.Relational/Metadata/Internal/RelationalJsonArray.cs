@@ -58,7 +58,8 @@ public class RelationalJsonArray : RelationalJsonElement, IRelationalJsonArray
         set
         {
             Check.DebugAssert(field == null, $"ElementType has already been set to {field}.");
-            Check.DebugAssert(value == null || value.ParentElement == this, $"ElementType's parent must be this JSON array, not {value!.ParentElement}.");
+            Check.DebugAssert(
+                value == null || value.ParentElement == this, $"ElementType's parent must be this JSON array, not {value!.ParentElement}.");
 
             field = value!;
         }

@@ -250,9 +250,10 @@ ORDER BY VectorDistance(c["Vector"], @p)
 
         var booksFromStore = await context
             .Set<Book>()
-            .Select(VectorDistance(
-                nameof(Book.VectorArray), inputVector, useBruteForce: false,
-                new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
+            .Select(
+                VectorDistance(
+                    nameof(Book.VectorArray), inputVector, useBruteForce: false,
+                    new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -275,9 +276,10 @@ FROM root c
 
         var booksFromStore = await context
             .Set<Book>()
-            .Select(VectorDistance(
-                nameof(Book.VectorArray), inputVector, useBruteForce: false,
-                new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
+            .Select(
+                VectorDistance(
+                    nameof(Book.VectorArray), inputVector, useBruteForce: false,
+                    new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -368,9 +370,10 @@ ORDER BY VectorDistance(c["VectorArray"], @p, true)
 
         var booksFromStore = await context
             .Set<Book>()
-            .OrderBy(VectorDistance(
-                nameof(Book.VectorArray), inputVector, useBruteForce: true,
-                new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
+            .OrderBy(
+                VectorDistance(
+                    nameof(Book.VectorArray), inputVector, useBruteForce: true,
+                    new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -392,9 +395,10 @@ ORDER BY VectorDistance(c["VectorArray"], @p, true, { 'distanceFunction': 'dotpr
 
         var booksFromStore = await context
             .Set<Book>()
-            .OrderBy(VectorDistance(
-                nameof(Book.VectorArray), inputVector, useBruteForce: null,
-                new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
+            .OrderBy(
+                VectorDistance(
+                    nameof(Book.VectorArray), inputVector, useBruteForce: null,
+                    new VectorDistanceOptions { DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -416,9 +420,10 @@ ORDER BY VectorDistance(c["VectorArray"], @p, false, { 'distanceFunction': 'dotp
 
         var booksFromStore = await context
             .Set<Book>()
-            .OrderBy(VectorDistance(
-                nameof(Book.VectorArray), inputVector, useBruteForce: false,
-                new VectorDistanceOptions { DataType = VectorData.DataType, DistanceFunction = DistanceFunction.DotProduct }))
+            .OrderBy(
+                VectorDistance(
+                    nameof(Book.VectorArray), inputVector, useBruteForce: false,
+                    new VectorDistanceOptions { DataType = VectorData.DataType, DistanceFunction = DistanceFunction.DotProduct }))
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
@@ -793,16 +798,14 @@ ORDER BY RANK RRF(VectorDistance(c["Vector"], @p), VectorDistance(c["VectorArray
 
     private static readonly MethodInfo VectorDistanceMethod = typeof(CosmosDbFunctionsExtensions)
         .GetMethods()
-        .Single(
-            m => m.Name == nameof(CosmosDbFunctionsExtensions.VectorDistance)
-                && m.GetParameters()[1].ParameterType == ReadOnlyMemoryType);
+        .Single(m => m.Name == nameof(CosmosDbFunctionsExtensions.VectorDistance)
+            && m.GetParameters()[1].ParameterType == ReadOnlyMemoryType);
 
     private static readonly MethodInfo RrfMethod = typeof(CosmosDbFunctionsExtensions)
         .GetMethods()
-        .Single(
-            m => m.Name == nameof(CosmosDbFunctionsExtensions.Rrf)
-                && m.GetParameters().Length == 2
-                && m.GetParameters()[1].ParameterType == typeof(double[]));
+        .Single(m => m.Name == nameof(CosmosDbFunctionsExtensions.Rrf)
+            && m.GetParameters().Length == 2
+            && m.GetParameters()[1].ParameterType == typeof(double[]));
 
     private static readonly PropertyInfo DistanceFunctionProperty = typeof(VectorDistanceOptions)
         .GetProperty(nameof(VectorDistanceOptions.DistanceFunction))!;
@@ -827,29 +830,23 @@ ORDER BY RANK RRF(VectorDistance(c["Vector"], @p), VectorDistance(c["VectorArray
                 "Single");
         }
 
-        if (typeof(TVector) == typeof(byte))
-        {
-            return new(
+        return typeof(TVector) == typeof(byte)
+            ? new(
                 (TVector[])(object)new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 },
                 (TVector[])(object)new byte[] { 1, 3, 5, 7, 9, 2, 4, 6, 8, 10 },
                 "[2,1,4,6,5,2,5,7,3,1]",
                 "[1,3,5,7,9,2,4,6,8,10]",
                 "uint8",
-                "Byte");
-        }
-
-        if (typeof(TVector) == typeof(sbyte))
-        {
-            return new(
-                (TVector[])(object)new sbyte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 },
-                (TVector[])(object)new sbyte[] { 1, 3, 5, 7, 9, 2, 4, 6, 8, 10 },
-                "[2,1,4,6,5,2,5,7,3,1]",
-                "[1,3,5,7,9,2,4,6,8,10]",
-                "int8",
-                "SByte");
-        }
-
-        throw new UnreachableException();
+                "Byte")
+            : typeof(TVector) == typeof(sbyte)
+                ? new(
+                    (TVector[])(object)new sbyte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 },
+                    (TVector[])(object)new sbyte[] { 1, 3, 5, 7, 9, 2, 4, 6, 8, 10 },
+                    "[2,1,4,6,5,2,5,7,3,1]",
+                    "[1,3,5,7,9,2,4,6,8,10]",
+                    "int8",
+                    "SByte")
+                : throw new UnreachableException();
     }
 
     private sealed record VectorSearchData(
@@ -953,20 +950,13 @@ ORDER BY RANK RRF(VectorDistance(c["Vector"], @p), VectorDistance(c["VectorArray
                 OwnedReference = new Owned1
                 {
                     Prop = 7,
-                    NestedOwned = new Owned2
-                    {
-                        Prop = "7",
-                        NestedVector = new ReadOnlyMemory<TVector>(VectorData.InputVector)
-                    },
+                    NestedOwned = new Owned2 { Prop = "7", NestedVector = new ReadOnlyMemory<TVector>(VectorData.InputVector) },
                     NestedOwnedCollection = [new() { Prop = "71" }, new() { Prop = "72" }]
                 },
                 OwnedCollection = [new() { Prop = 71 }, new() { Prop = 72 }],
                 ComplexNestedCollection =
                 [
-                    new ComplexNested
-                    {
-                        NestedVector = new ReadOnlyMemory<TVector>(VectorData.InputVector)
-                    }
+                    new ComplexNested { NestedVector = new ReadOnlyMemory<TVector>(VectorData.InputVector) }
                 ]
             };
 

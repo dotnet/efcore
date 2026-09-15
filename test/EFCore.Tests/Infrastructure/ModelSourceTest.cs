@@ -79,18 +79,18 @@ public class ModelSourceTest
         public IReadOnlyList<DbSetProperty> FindSets(Type contextType)
             =>
             [
-                new DbSetProperty("One", typeof(SetA), setter: null),
-                new DbSetProperty("Two", typeof(SetB), setter: null),
-                new DbSetProperty("Three", typeof(SetA), setter: null)
+                new("One", typeof(SetA), setter: null),
+                new("Two", typeof(SetB), setter: null),
+                new("Three", typeof(SetA), setter: null)
             ];
     }
 
     private class JustAClass
     {
-        public DbSet<Random> One { get; set; }
-        protected DbSet<object> Two { get; set; }
-        private DbSet<string> Three { get; set; }
-        private DbSet<string> Four { get; set; }
+        public DbSet<Random> One { get; set; } = null!;
+        protected DbSet<object> Two { get; set; } = null!;
+        private DbSet<string> Three { get; set; } = null!;
+        private DbSet<string> Four { get; set; } = null!;
     }
 
     private class SetA
@@ -232,7 +232,7 @@ public class ModelSourceTest
 
         var model = modelSource.GetModel(context, testModelDependencies, designTime: false);
         var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
-            .Single(m => m.Key == "PackageVersion").Value;
+            .Single(m => m.Key == "PackageVersion").Value!;
 
         var prereleaseIndex = packageVersion.IndexOf("-", StringComparison.Ordinal);
         if (prereleaseIndex != -1)
@@ -281,10 +281,7 @@ public class ModelSourceTest
     [Fact]
     public void DbContextModelAttribute_stores_provider_name()
     {
-        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object))
-        {
-            ProviderName = "TestProvider"
-        };
+        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object)) { ProviderName = "TestProvider" };
 
         Assert.Equal("TestProvider", attr.ProviderName);
     }

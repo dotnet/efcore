@@ -52,6 +52,7 @@ public class StringToEnumConverter<TEnum> : StringEnumConverter<string, TEnum, T
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(TEnum),
+        = new(
+            typeof(string), typeof(TEnum),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToEnumConverter<TEnum>(i.MappingHints));
 }

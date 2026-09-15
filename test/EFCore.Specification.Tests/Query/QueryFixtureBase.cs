@@ -63,4 +63,3 @@ public abstract class QueryFixtureBase<TContext> : SharedStoreFixtureBase<TConte
             => _context.Set<TEntity>();
     }
 }
-

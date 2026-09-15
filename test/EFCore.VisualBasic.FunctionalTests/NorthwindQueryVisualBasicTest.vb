@@ -1,9 +1,9 @@
 ' Licensed to the .NET Foundation under one or more agreements.
 ' The .NET Foundation licenses this file to you under the MIT license.
 
+Imports System.Threading.Tasks
 Imports Microsoft.EntityFrameworkCore.Query
 Imports Microsoft.EntityFrameworkCore.TestModels.Northwind
-Imports System.Threading.Tasks
 Imports Microsoft.EntityFrameworkCore.TestUtilities
 Imports Xunit
 

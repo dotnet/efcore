@@ -72,6 +72,7 @@ public class ChangeDetector : IChangeDetector
                 {
                     DetectComplexPropertyChange(entryBase, complexProperty);
                 }
+
                 break;
 
             case INavigationBase navigation when propertyBase.GetRelationshipIndex() != -1:
@@ -408,7 +409,7 @@ public class ChangeDetector : IChangeDetector
         var currentCollection = (IList?)entry[complexProperty];
         // The elements in the original collection might be the same instances as in the current collection, so their properties shouldn't be used for comparison.
         var originalCollection = (IList?)entry.GetOriginalValue(complexProperty);
-        var changesFound = (currentCollection == null) != (originalCollection == null);
+        var changesFound = currentCollection == null != (originalCollection == null);
 
         entry.EnsureComplexCollectionEntriesCapacity(
             complexProperty, currentCollection?.Count ?? 0, originalCollection?.Count ?? 0, trim: false);
@@ -540,7 +541,7 @@ public class ChangeDetector : IChangeDetector
                             // If the element was newly added then there should be a null entry at some ordinal,
                             // otherwise it will be treated as a replacement.
                             var nullEntryOrdinal = -1;
-                            for (var j = originalCollection?.Count ?? i + 1; j < currentEntries.Count; j++)
+                            for (var j = originalCollection?.Count ?? (i + 1); j < currentEntries.Count; j++)
                             {
                                 var newEntry = currentEntries[j];
                                 if (newEntry == null)

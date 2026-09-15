@@ -141,7 +141,7 @@ public class SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlE
         if (enumerableExpression.Predicate != null)
         {
             sqlExpression = sqlExpressionFactory.Case(
-                [new(enumerableExpression.Predicate, sqlExpression)],
+                [new CaseWhenClause(enumerableExpression.Predicate, sqlExpression)],
                 elseResult: null);
         }
 

@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : IncludeOneToOneTestBase<TFixture>.OneToOneQueryFixtureBase, new()
 {
@@ -262,32 +260,32 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public Address Address { get; set; }
+        public string Name { get; set; } = null!;
+        public Address? Address { get; set; }
     }
 
     protected class Address
     {
         public int Id { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public Person Resident { get; set; }
+        public string Street { get; set; } = null!;
+        public string City { get; set; } = null!;
+        public Person Resident { get; set; } = null!;
     }
 
     protected class Person2
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public Address2 Address { get; set; }
+        public Address2 Address { get; set; } = null!;
     }
 
     protected class Address2
     {
-        public string Id { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public Person2 Resident { get; set; }
+        public string Id { get; set; } = null!;
+        public string Street { get; set; } = null!;
+        public string City { get; set; } = null!;
+        public Person2 Resident { get; set; } = null!;
     }
 }

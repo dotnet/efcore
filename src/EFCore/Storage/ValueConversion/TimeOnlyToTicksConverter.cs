@@ -46,6 +46,7 @@ public class TimeOnlyToTicksConverter : ValueConverter<TimeOnly, long>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TimeOnly), typeof(long),
+        = new(
+            typeof(TimeOnly), typeof(long),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new TimeOnlyToTicksConverter(i.MappingHints));
 }

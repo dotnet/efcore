@@ -181,16 +181,11 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
     }
 
     protected override Expression VisitExtension(Expression node)
-    {
-        if (node is LiftableConstantExpression liftedConstant)
-        {
-            return _inline
+        => node is LiftableConstantExpression liftedConstant
+            ? _inline
                 ? InlineConstant(liftedConstant)
-                : LiftConstant(liftedConstant);
-        }
-
-        return base.VisitExtension(node);
-    }
+                : LiftConstant(liftedConstant)
+            : base.VisitExtension(node);
 
     protected virtual ConstantExpression InlineConstant(LiftableConstantExpression liftableConstant)
     {
@@ -285,23 +280,18 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
         }
 
         protected override Expression VisitConstant(ConstantExpression node)
-        {
-            if (LiftableConstantExpressionHelpers.IsLiteral(node.Value)
+            => LiftableConstantExpressionHelpers.IsLiteral(node.Value)
                 // TODO: this part is temporary - we can't inline these constants but we need proper way to deal with them,
                 // without risk breaking existing scenarios
                 || node.Value is ParameterBindingInfo or RuntimeServiceProperty or IMaterializationInterceptor
                     or IInstantiationBindingInterceptor
                 // see #36898
                 || node.Value is ValueConverter
-                || node.Type.Name is "ProxyFactory" or "Point")
-            {
-                return node;
-            }
-
-            throw new InvalidOperationException(
-                $"Shaper expression contains a non-literal constant of type '{node.Value!.GetType().Name}'. "
-                + $"Use a {nameof(LiftableConstantExpression)} to reference any non-literal constants.");
-        }
+                || node.Type.Name is "ProxyFactory" or "Point"
+                    ? (Expression)node
+                    : throw new InvalidOperationException(
+                        $"Shaper expression contains a non-literal constant of type '{node.Value!.GetType().Name}'. "
+                        + $"Use a {nameof(LiftableConstantExpression)} to reference any non-literal constants.");
     }
 
     private sealed class LiftedConstantOptimizer : ExpressionVisitor
@@ -310,7 +300,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
 
         private sealed record ExpressionInfo(ExpressionStatus Status, ParameterExpression? Parameter = null, string? PreferredName = null);
 
-        private readonly Dictionary<Expression, ExpressionInfo> _indexedExpressions = new(ExpressionEqualityComparer.Instance);
+        private readonly Dictionary<Expression, ExpressionInfo> _indexedExpressions = [with(ExpressionEqualityComparer.Instance)];
         private LiftedConstant _currentLiftedConstant = null!;
         private bool _firstPass;
         private int _index;
@@ -393,12 +383,13 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
 
                 // We've already seen this expression.
                 if (expressionInfo.Status == ExpressionStatus.SeenOnce
-                    || expressionInfo.PreferredName is null && preferredName is not null)
+                    || (expressionInfo.PreferredName is null && preferredName is not null))
                 {
                     // This is the 2nd time we're seeing the expression - mark it as a common denominator
                     _indexedExpressions[node] = _indexedExpressions[node] with
                     {
-                        Status = ExpressionStatus.SeenMultipleTimes, PreferredName = preferredName
+                        Status = ExpressionStatus.SeenMultipleTimes,
+                        PreferredName = preferredName
                     };
                 }
 
@@ -482,21 +473,18 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
 
             var visited = base.VisitMember(node);
 
-            if (visited is MemberExpression
-                {
-                    Expression: ConstantExpression { Value: { } constant },
-                    Member: var member
-                })
+            return visited is MemberExpression
             {
-                return member switch
+                Expression: ConstantExpression { Value: { } constant },
+                Member: var member
+            }
+                ? member switch
                 {
                     FieldInfo fi => Expression.Constant(fi.GetValue(constant), node.Type),
                     PropertyInfo pi => Expression.Constant(pi.GetValue(constant), node.Type),
                     _ => visited
-                };
-            }
-
-            return visited;
+                }
+                : visited;
         }
 
         protected override Expression VisitParameter(ParameterExpression node)

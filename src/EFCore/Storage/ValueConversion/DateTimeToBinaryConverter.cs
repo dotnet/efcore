@@ -50,6 +50,7 @@ public class DateTimeToBinaryConverter : ValueConverter<DateTime, long>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateTime), typeof(long),
+        = new(
+            typeof(DateTime), typeof(long),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new DateTimeToBinaryConverter(i.MappingHints));
 }

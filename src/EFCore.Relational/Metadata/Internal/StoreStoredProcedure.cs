@@ -22,9 +22,9 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     public StoreStoredProcedure(string name, string? schema, RelationalModel model)
         : base(name, schema, model)
     {
-        StoredProcedures = new SortedSet<IStoredProcedure>(StoredProcedureComparer.Instance);
+        StoredProcedures = [with(StoredProcedureComparer.Instance)];
 
-        _parametersSet = new SortedDictionary<string, IStoreStoredProcedureParameter>(StringComparer.Ordinal);
+        _parametersSet = [with(StringComparer.Ordinal)];
     }
 
     /// <summary>

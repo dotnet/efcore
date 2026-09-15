@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class GraphUpdatesSqlServerSequenceTest(GraphUpdatesSqlServerSequenceTest.SqlServerFixture fixture)
     : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerSequenceTest.SqlServerFixture>(fixture)
 {

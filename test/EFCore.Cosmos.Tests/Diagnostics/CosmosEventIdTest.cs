@@ -15,7 +15,7 @@ public class CosmosEventIdTest : EventIdTestBase
     {
         var model = new Model();
         var entityType = model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention)!;
-        var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
+        var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention)!;
 
         var fakeFactories = new Dictionary<Type, Func<object>>
         {
@@ -27,7 +27,10 @@ public class CosmosEventIdTest : EventIdTestBase
                     [new SqlValueParameter("P1", "V1"), new SqlValueParameter("P2", "V2")])
             },
             { typeof(string), () => "Fake" },
-            { typeof(IReadOnlyList<CosmosTransactionalBatchEntry>), () => new List<CosmosTransactionalBatchEntry>{ new(null, CosmosCudOperation.Create, "fake") } },
+            {
+                typeof(IReadOnlyList<CosmosTransactionalBatchEntry>),
+                () => new List<CosmosTransactionalBatchEntry> { new(null!, CosmosCudOperation.Create, "fake") }
+            },
         };
 
         TestEventLogging(

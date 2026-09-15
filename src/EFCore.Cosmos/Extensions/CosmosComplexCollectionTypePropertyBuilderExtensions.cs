@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Cosmos-specific extension methods for <see cref="ComplexCollectionTypePropertyBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
 ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
 /// </remarks>
 public static class CosmosComplexCollectionTypePropertyBuilderExtensions
@@ -18,7 +18,7 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
     ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -39,7 +39,7 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
     ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
@@ -49,13 +49,13 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
     public static ComplexCollectionTypePropertyBuilder<TProperty> ToJsonProperty<TProperty>(
         this ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder,
         string name)
-        => (ComplexCollectionTypePropertyBuilder<TProperty>)ToJsonProperty((ComplexCollectionTypePropertyBuilder)propertyBuilder, name);
+        => (ComplexCollectionTypePropertyBuilder<TProperty>)((ComplexCollectionTypePropertyBuilder)propertyBuilder).ToJsonProperty(name);
 
     /// <summary>
     ///     Enables full-text search for this property using a specified language.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -80,7 +80,7 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
     ///     Enables full-text search for this property using a specified language.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
@@ -95,14 +95,14 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
         this ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder,
         string? language = null,
         bool enabled = true)
-        => (ComplexCollectionTypePropertyBuilder<TProperty>)EnableFullTextSearch(
-            (ComplexCollectionTypePropertyBuilder)propertyBuilder, language, enabled);
+        => (ComplexCollectionTypePropertyBuilder<TProperty>)((ComplexCollectionTypePropertyBuilder)propertyBuilder).EnableFullTextSearch(
+            language, enabled);
 
     /// <summary>
     ///     Configures the property as a vector for Azure Cosmos DB.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -124,7 +124,7 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
     ///     Configures the property as a vector for Azure Cosmos DB.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
@@ -136,8 +136,8 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
         this ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder,
         DistanceFunction distanceFunction,
         int dimensions)
-        => (ComplexCollectionTypePropertyBuilder<TProperty>)IsVectorProperty(
-            (ComplexCollectionTypePropertyBuilder)propertyBuilder, distanceFunction, dimensions);
+        => (ComplexCollectionTypePropertyBuilder<TProperty>)((ComplexCollectionTypePropertyBuilder)propertyBuilder).IsVectorProperty(
+            distanceFunction, dimensions);
 
     private static DistanceFunction ValidateVectorDistanceFunction(DistanceFunction distanceFunction)
         => Enum.IsDefined(distanceFunction)

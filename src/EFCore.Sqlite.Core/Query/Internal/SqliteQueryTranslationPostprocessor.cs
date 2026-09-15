@@ -39,6 +39,14 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
     public override Expression Process(Expression query)
     {
         var result = base.Process(query);
+
+        // SQLite has no APPLY, but its table-valued functions can reference preceding tables in FROM; rewrite what we can as joins
+        // before rejecting the rest.
+        result = new SqliteApplyFlatteningExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(result);
+
+        // Fold single-table filter subqueries in LEFT/INNER joins back into the join condition, removing needless subqueries.
+        result = new SqliteSubqueryToJoinRewriter(RelationalDependencies.SqlExpressionFactory).Visit(result);
+
         _applyValidator.Visit(result);
 
         return result;
@@ -65,13 +73,10 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
                 return extensionExpression;
             }
 
-            if (extensionExpression is SelectExpression selectExpression
-                && selectExpression.Tables.Any(t => t is CrossApplyExpression or OuterApplyExpression))
-            {
-                throw new InvalidOperationException(SqliteStrings.ApplyNotSupported);
-            }
-
-            return base.VisitExtension(extensionExpression);
+            return extensionExpression is SelectExpression selectExpression
+                && selectExpression.Tables.Any(t => t is CrossApplyExpression or OuterApplyExpression)
+                    ? throw new InvalidOperationException(SqliteStrings.ApplyNotSupported)
+                    : base.VisitExtension(extensionExpression);
         }
     }
 }

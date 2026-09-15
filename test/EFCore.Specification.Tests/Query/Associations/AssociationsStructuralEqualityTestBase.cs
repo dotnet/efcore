@@ -17,10 +17,12 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
     [Fact]
     public virtual Task Two_nested_associates()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
+            ss => ss.Set<RootEntity>()
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(
-                    e.OptionalAssociate!.RequiredNestedAssociate))); // TODO: Rewrite equality to Equals for the entire test suite for complex
+                    e.OptionalAssociate!
+                        .RequiredNestedAssociate))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
     [Fact]
     public virtual Task Not_equals()
@@ -57,7 +59,12 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                         Name = "Root1_RequiredAssociate_RequiredNestedAssociate",
                         Int = 8,
                         String = "foo",
-                        Ints = new() { 1, 2, 3 }
+                        Ints = new()
+                        {
+                            1,
+                            2,
+                            3
+                        }
                     }),
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(
@@ -67,7 +74,12 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                         Name = "Root1_RequiredAssociate_RequiredNestedAssociate",
                         Int = 8,
                         String = "foo",
-                        Ints = new() { 1, 2, 3 }
+                        Ints = new()
+                        {
+                            1,
+                            2,
+                            3
+                        }
                     }))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
     [Fact]
@@ -104,7 +116,12 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                             Name = "Root1_RequiredRelated_NestedCollection_1",
                             Int = 8,
                             String = "foo",
-                            Ints = new() { 1, 2, 3 }
+                            Ints = new()
+                            {
+                                1,
+                                2,
+                                3
+                            }
                         },
                         new()
                         {
@@ -112,7 +129,12 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                             Name = "Root1_RequiredRelated_NestedCollection_2",
                             Int = 8,
                             String = "foo",
-                            Ints = new() { 1, 2, 3 }
+                            Ints = new()
+                            {
+                                1,
+                                2,
+                                3
+                            }
                         }
                     }),
             ss => ss.Set<RootEntity>()
@@ -125,7 +147,12 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                             Name = "Root1_RequiredRelated_NestedCollection_1",
                             Int = 8,
                             String = "foo",
-                            Ints = new() { 1, 2, 3 }
+                            Ints = new()
+                            {
+                                1,
+                                2,
+                                3
+                            }
                         },
                         new()
                         {
@@ -133,7 +160,12 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                             Name = "Root1_RequiredRelated_NestedCollection_2",
                             Int = 8,
                             String = "foo",
-                            Ints = new() { 1, 2, 3 }
+                            Ints = new()
+                            {
+                                1,
+                                2,
+                                3
+                            }
                         }
                     }))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
@@ -148,7 +180,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                 Name = "Root1_RequiredRelated_NestedCollection_1",
                 Int = 8,
                 String = "foo",
-                Ints = new() { 1, 2, 3 }
+                Ints = [1, 2, 3]
             },
             new()
             {
@@ -156,7 +188,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                 Name = "Root1_RequiredRelated_NestedCollection_2",
                 Int = 8,
                 String = "foo",
-                Ints = new() { 1, 2, 3 }
+                Ints = [1, 2, 3]
             }
         };
 
@@ -179,7 +211,12 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                     Name = "Root1_RequiredAssociate_NestedCollection_1",
                     Int = 8,
                     String = "foo",
-                    Ints = new() { 1, 2, 3 }
+                    Ints = new()
+                    {
+                        1,
+                        2,
+                        3
+                    }
                 })));
 
     [Fact]
@@ -202,9 +239,9 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
     {
         var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").RequiredAssociate.NestedCollection;
 
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(
-                e => e.RequiredAssociate.NestedCollection.Where(n => n.Int > collection[0].Int).Contains(collection[1])));
+        await AssertQuery(ss
+            => ss.Set<RootEntity>().Where(e
+                => e.RequiredAssociate.NestedCollection.Where(n => n.Int > collection[0].Int).Contains(collection[1])));
     }
 
     [Fact]
@@ -212,9 +249,8 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
     {
         var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").AssociateCollection;
 
-        await AssertQuery(
-            ss => ss.Set<RootEntity>()
-                .Where(e => e.AssociateCollection.Where(r => r.Id > collection[0].Id).Contains(collection[1])));
+        await AssertQuery(ss => ss.Set<RootEntity>()
+            .Where(e => e.AssociateCollection.Where(r => r.Id > collection[0].Id).Contains(collection[1])));
     }
 
     #endregion Contains

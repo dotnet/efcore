@@ -31,7 +31,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
     /// <summary>
     ///     Contains final parameter names (prefixed, uniquified) seen so far, for uniquification purposes.
     /// </summary>
-    private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _prefixedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
 
     private ParameterNameGenerator _parameterNameGenerator = null!;
 
@@ -88,6 +88,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
             SourceExpression e => VisitSource(e),
             SqlBinaryExpression e => VisitSqlBinary(e),
             SqlConditionalExpression e => VisitSqlConditional(e),
+            CaseExpression e => VisitCase(e),
             SqlConstantExpression e => VisitSqlConstant(e),
             SqlFunctionExpression e => VisitSqlFunction(e),
             SqlParameterExpression e => VisitSqlParameter(e),
@@ -652,8 +653,10 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
             {
                 Visit(sqlUnaryExpression.Operand);
             }
+
             return sqlUnaryExpression;
         }
+
         var op = sqlUnaryExpression.OperatorType switch
         {
             ExpressionType.UnaryPlus => "+",
@@ -754,6 +757,48 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
         _sqlBuilder.Append(')');
 
         return sqlConditionalExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a CASE clause CASE/WHEN construct.
+    /// </summary>
+    /// <param name="caseExpression">The <see cref="CaseExpression" /> for which to generate SQL.</param>
+    protected virtual Expression VisitCase(CaseExpression caseExpression)
+    {
+        //using (_sqlBuilder.Indent())
+        {
+            foreach (var whenClause in caseExpression.WhenClauses)
+            {
+                _sqlBuilder.Append("IIF(");
+
+                if (caseExpression.Operand != null)
+                {
+                    Visit(caseExpression.Operand);
+                    _sqlBuilder.Append(" = ");
+                }
+
+                Visit(whenClause.Test);
+
+                _sqlBuilder.Append(", ");
+
+                Visit(whenClause.Result);
+
+                _sqlBuilder.Append(", ");
+            }
+
+            if (caseExpression.ElseResult != null)
+            {
+                Visit(caseExpression.ElseResult);
+            }
+            else
+            {
+                _sqlBuilder.Append("null");
+            }
+
+            _sqlBuilder.Append(new string(')', caseExpression.WhenClauses.Count));
+        }
+
+        return caseExpression;
     }
 
     /// <summary>

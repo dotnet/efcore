@@ -100,8 +100,8 @@ public class ObjectReferenceExpression(ITypeBase structuralType, string name) : 
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ObjectReferenceExpression objectReferenceExpression
-                && Equals(objectReferenceExpression));
+                || (obj is ObjectReferenceExpression objectReferenceExpression
+                    && Equals(objectReferenceExpression)));
 
     private bool Equals(ObjectReferenceExpression objectReferenceExpression)
         => Name == objectReferenceExpression.Name

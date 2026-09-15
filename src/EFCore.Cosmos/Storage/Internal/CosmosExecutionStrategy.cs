@@ -106,10 +106,10 @@ public class CosmosExecutionStrategy : ExecutionStrategy
 
         static bool IsTransient(HttpStatusCode? statusCode)
             => statusCode is null
-            or HttpStatusCode.ServiceUnavailable
-            or HttpStatusCode.TooManyRequests
-            or HttpStatusCode.RequestTimeout
-            or HttpStatusCode.Gone;
+                or HttpStatusCode.ServiceUnavailable
+                or HttpStatusCode.TooManyRequests
+                or HttpStatusCode.RequestTimeout
+                or HttpStatusCode.Gone;
     }
 
     /// <summary>
@@ -136,19 +136,13 @@ public class CosmosExecutionStrategy : ExecutionStrategy
 
             case HttpException httpException:
             {
-                if (httpException.Response.Headers.TryGetValues("x-ms-retry-after-ms", out var values)
-                    && TryParseMsRetryAfter(values.FirstOrDefault(), out var delay))
-                {
-                    return delay;
-                }
-
-                if (httpException.Response.Headers.TryGetValues("Retry-After", out values)
-                    && TryParseRetryAfter(values.FirstOrDefault(), out delay))
-                {
-                    return delay;
-                }
-
-                return null;
+                return httpException.Response.Headers.TryGetValues("x-ms-retry-after-ms", out var values)
+                    && TryParseMsRetryAfter(values.FirstOrDefault(), out var delay)
+                        ? delay
+                        : httpException.Response.Headers.TryGetValues("Retry-After", out values)
+                        && TryParseRetryAfter(values.FirstOrDefault(), out delay)
+                            ? delay
+                            : null;
             }
 
             case WebException webException:
@@ -162,12 +156,7 @@ public class CosmosExecutionStrategy : ExecutionStrategy
                 }
 
                 delayString = response.Headers.GetValues("Retry-After")?.FirstOrDefault();
-                if (TryParseRetryAfter(delayString, out delay))
-                {
-                    return delay;
-                }
-
-                return null;
+                return TryParseRetryAfter(delayString, out delay) ? delay : null;
             }
 
             default:

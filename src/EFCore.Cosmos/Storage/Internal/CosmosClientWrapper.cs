@@ -3,7 +3,6 @@
 
 using System.Collections.ObjectModel;
 using System.Net;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -33,7 +32,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static readonly JsonWriterOptions JsonWriterOptions = new() { Indented = false, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+    public static readonly JsonWriterOptions JsonWriterOptions =
+        new() { Indented = false, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -299,7 +299,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         // Composite, vector and full-text indexes are always emitted.
         // TODO: Calculate this using a convention when #15898 is implemented.
         var automaticIndexingEnabled = parameters.AutomaticIndexingEnabled
-            ?? includedPaths.Count == 0;
+            ?? (includedPaths.Count == 0);
 
         if (vectorIndexes.Count != 0
             || fullTextIndexPaths.Count != 0
@@ -308,11 +308,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             || !automaticIndexingEnabled
             || parameters.AutomaticIndexingExceptions is not null)
         {
-            var indexingPolicy = new IndexingPolicy
-            {
-                VectorIndexes = vectorIndexes,
-                FullTextIndexes = fullTextIndexPaths
-            };
+            var indexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes, FullTextIndexes = fullTextIndexPaths };
 
             if (automaticIndexingEnabled)
             {
@@ -354,7 +350,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             containerProperties.FullTextPolicy = new FullTextPolicy
             {
-                DefaultLanguage = parameters.DefaultFullTextLanguage, FullTextPaths = fullTextPaths
+                DefaultLanguage = parameters.DefaultFullTextLanguage,
+                FullTextPaths = fullTextPaths
             };
         }
 
@@ -413,7 +410,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 var ownership = entityType.FindOwnership()!;
                 var containingPropertyName = ownership.GetNavigation(pointsToPrincipal: false)!
-                    .TargetEntityType.GetContainingPropertyName()
+                        .TargetEntityType.GetContainingPropertyName()
                     ?? throw new UnreachableException("Containing property name should not be null for owned entity types.");
 
                 AppendTypePathFromRoot(builder, ownership.PrincipalEntityType);
@@ -480,11 +477,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         IUpdateEntry updateEntry,
         ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default)
-        => _executionStrategy.ExecuteAsync((containerId, documentId, document, updateEntry, sessionTokenStorage, this), CreateItemOnceAsync, null, cancellationToken);
+        => _executionStrategy.ExecuteAsync(
+            (containerId, documentId, document, updateEntry, sessionTokenStorage, this), CreateItemOnceAsync, null, cancellationToken);
 
     private static async Task<bool> CreateItemOnceAsync(
         DbContext _,
-        (string ContainerId, string DocumentId, ReadOnlyMemory<byte> Document, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, string DocumentId, ReadOnlyMemory<byte> Document, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage,
+            CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
         var containerId = parameters.ContainerId;
@@ -554,7 +553,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private static async Task<bool> ReplaceItemOnceAsync(
         DbContext _,
-        (string ContainerId, string ResourceId, ReadOnlyMemory<byte> Document, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, string ResourceId, ReadOnlyMemory<byte> Document, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage,
+            CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
         var containerId = parameters.ContainerId;
@@ -618,11 +618,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         IUpdateEntry entry,
         ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default)
-        => _executionStrategy.ExecuteAsync((containerId, documentId, entry, sessionTokenStorage, this), DeleteItemOnceAsync, null, cancellationToken);
+        => _executionStrategy.ExecuteAsync(
+            (containerId, documentId, entry, sessionTokenStorage, this), DeleteItemOnceAsync, null, cancellationToken);
 
     private static async Task<bool> DeleteItemOnceAsync(
         DbContext? _,
-        (string ContainerId, string ResourceId, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, string ResourceId, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper)
+            parameters,
         CancellationToken cancellationToken = default)
     {
         var containerId = parameters.ContainerId;
@@ -683,7 +685,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ICosmosTransactionalBatchWrapper CreateTransactionalBatch(string containerId, PartitionKey partitionKeyValue, bool checkSize)
+    public virtual ICosmosTransactionalBatchWrapper CreateTransactionalBatch(
+        string containerId,
+        PartitionKey partitionKeyValue,
+        bool checkSize)
     {
         var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
 
@@ -705,10 +710,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     {
         var transactionalBatch = batch.GetTransactionalBatch();
 
-        var options = new TransactionalBatchRequestOptions
-        {
-            SessionToken = sessionTokenStorage.GetSessionToken(batch.CollectionId)
-        };
+        var options = new TransactionalBatchRequestOptions { SessionToken = sessionTokenStorage.GetSessionToken(batch.CollectionId) };
 
         using var response = await transactionalBatch.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
 
@@ -727,10 +729,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     {
         var helper = RequestOptionsHelper.Create(entry);
 
-        var itemRequestOptions = new ItemRequestOptions
-        {
-            SessionToken = sessionToken
-        };
+        var itemRequestOptions = new ItemRequestOptions { SessionToken = sessionToken };
 
         if (helper != null)
         {
@@ -773,7 +772,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return builder.Build();
     }
 
-    private static void ProcessWriteResponse(string containerId, ResponseMessage response, IUpdateEntry entry, ISessionTokenStorage sessionTokenStorage)
+    private static void ProcessWriteResponse(
+        string containerId,
+        ResponseMessage response,
+        IUpdateEntry entry,
+        ISessionTokenStorage sessionTokenStorage)
     {
         try
         {
@@ -790,18 +793,29 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         ProcessWriteResponse(entry, response.Headers.ETag, response.Content);
     }
 
-    private static void TryTrackSessionTokenFromFailure(string containerId, HttpStatusCode statusCode, Headers headers, ISessionTokenStorage sessionTokenStorage)
+    private static void TryTrackSessionTokenFromFailure(
+        string containerId,
+        HttpStatusCode statusCode,
+        Headers headers,
+        ISessionTokenStorage sessionTokenStorage)
     {
         // Some failures indicate document changes on the server that should be reflected in the session token to avoid subsequent stale reads.
         const string readSessionNotAvailableSubStatusCode = "1002";
-        if (statusCode == HttpStatusCode.Conflict || statusCode == HttpStatusCode.PreconditionFailed ||
-            (statusCode == HttpStatusCode.NotFound && (!headers.TryGetValue(SubStatusCodeHeaderName, out var subStatusCode) || subStatusCode != readSessionNotAvailableSubStatusCode)))
+        if (statusCode == HttpStatusCode.Conflict
+            || statusCode == HttpStatusCode.PreconditionFailed
+            || (statusCode == HttpStatusCode.NotFound
+                && (!headers.TryGetValue(SubStatusCodeHeaderName, out var subStatusCode)
+                    || subStatusCode != readSessionNotAvailableSubStatusCode)))
         {
             sessionTokenStorage.TrackSessionToken(containerId, headers.Session);
         }
     }
 
-    private static void ProcessBatchResponse(string containerId, TransactionalBatchResponse response, IReadOnlyList<CosmosTransactionalBatchEntry> entries, ISessionTokenStorage sessionTokenStorage)
+    private static void ProcessBatchResponse(
+        string containerId,
+        TransactionalBatchResponse response,
+        IReadOnlyList<CosmosTransactionalBatchEntry> entries,
+        ISessionTokenStorage sessionTokenStorage)
     {
         if (!response.IsSuccessStatusCode)
         {
@@ -815,8 +829,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 .Select(r => entries[r.index])
                 .ToList();
 
-            var effectiveEntries = errorBatchEntries.Count > 0 ? (IReadOnlyList<CosmosTransactionalBatchEntry>)errorBatchEntries : entries;
-            IUpdateEntry[] errorUpdateEntries = effectiveEntries.Select(e => e.Entry).ToArray();
+            var effectiveEntries = errorBatchEntries.Count > 0 ? errorBatchEntries : entries;
+            var errorUpdateEntries = effectiveEntries.Select(e => e.Entry).ToArray();
 
             throw WrapUpdateException(cosmosException, effectiveEntries[0].Id, errorUpdateEntries);
         }
@@ -935,7 +949,9 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
             // We get no sub-status code if document not found, other not found errors (like session or container) have a sub status code
-            if (!response.Headers.TryGetValue(SubStatusCodeHeaderName, out var subStatusCode) || string.IsNullOrWhiteSpace(subStatusCode) || subStatusCode == "0")
+            if (!response.Headers.TryGetValue(SubStatusCodeHeaderName, out var subStatusCode)
+                || string.IsNullOrWhiteSpace(subStatusCode)
+                || subStatusCode == "0")
             {
                 // Track session token to ensure subsequent requests will not read stale data where the document might still exist.
                 sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
@@ -953,7 +969,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private static async Task<ResponseMessage> CreateSingleItemQueryAsync(
         DbContext? _,
-        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, ISessionTokenStorage SessionTokenStorage,
+            CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
         var (containerId, partitionKeyValue, resourceId, sessionTokenStorage, wrapper) = parameters;
@@ -991,7 +1008,9 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 queryDefinition,
                 (current, parameter) => parameter.Apply(current));
 
-        return new CosmosFeedIteratorWrapper(container.GetItemQueryStreamIterator(queryDefinition, continuationToken, queryRequestOptions), containerId, sessionTokenStorage);
+        return new CosmosFeedIteratorWrapper(
+            container.GetItemQueryStreamIterator(queryDefinition, continuationToken, queryRequestOptions), containerId,
+            sessionTokenStorage);
     }
 
     private sealed class ResponseAsyncEnumerable(
@@ -1052,24 +1071,24 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 }
 
                 using var responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
-                        _query,
-                        static async (_, query, cancellationToken) =>
+                    _query,
+                    static async (_, query, cancellationToken) =>
+                    {
+                        var responseMessage = await query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+                        try
                         {
-                            var responseMessage = await query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
-                            try
-                            {
-                                responseMessage.EnsureSuccessStatusCode();
-                            }
-                            catch
-                            {
-                                responseMessage.Dispose();
-                                throw;
-                            }
+                            responseMessage.EnsureSuccessStatusCode();
+                        }
+                        catch
+                        {
+                            responseMessage.Dispose();
+                            throw;
+                        }
 
-                            return responseMessage;
-                        },
-                        null,
-                        cancellationToken).ConfigureAwait(false);
+                        return responseMessage;
+                    },
+                    null,
+                    cancellationToken).ConfigureAwait(false);
 
                 _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                     responseMessage.Diagnostics.GetClientElapsedTime(),
@@ -1085,9 +1104,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             }
 
             public async ValueTask DisposeAsync()
-            {
-                _query?.Dispose();
-            }
+                => _query?.Dispose();
         }
     }
 
@@ -1104,7 +1121,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             _sessionTokenStorage = sessionTokenStorage;
         }
 
-        public override bool HasMoreResults => _inner.HasMoreResults;
+        public override bool HasMoreResults
+            => _inner.HasMoreResults;
 
         public override async Task<ResponseMessage> ReadNextAsync(CancellationToken cancellationToken = default)
         {

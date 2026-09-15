@@ -33,12 +33,9 @@ public static class SqlServerPropertyExtensions
     public static string? GetHiLoSequenceName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceName);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceName(storeObject);
+        return annotation != null
+            ? (string?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceName(storeObject));
     }
 
     /// <summary>
@@ -92,12 +89,9 @@ public static class SqlServerPropertyExtensions
     public static string? GetHiLoSequenceSchema(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceSchema(storeObject);
+        return annotation != null
+            ? (string?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceSchema(storeObject));
     }
 
     /// <summary>
@@ -205,12 +199,9 @@ public static class SqlServerPropertyExtensions
     public static string? GetSequenceName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.SequenceName);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetSequenceName(storeObject);
+        return annotation != null
+            ? (string?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetSequenceName(storeObject));
     }
 
     /// <summary>
@@ -264,12 +255,9 @@ public static class SqlServerPropertyExtensions
     public static string? GetSequenceSchema(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.SequenceSchema);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetSequenceSchema(storeObject);
+        return annotation != null
+            ? (string?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetSequenceSchema(storeObject));
     }
 
     /// <summary>
@@ -704,16 +692,13 @@ public static class SqlServerPropertyExtensions
 
         var defaultValueGenerationStrategy = GetDefaultValueGenerationStrategy(property);
 
-        if (property.ValueGenerated != ValueGenerated.OnAdd
+        return property.ValueGenerated != ValueGenerated.OnAdd
             || property.IsForeignKey()
             || property.TryGetDefaultValue(out _)
             || (defaultValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence && property.GetDefaultValueSql() != null)
-            || property.GetComputedColumnSql() != null)
-        {
-            return SqlServerValueGenerationStrategy.None;
-        }
-
-        return defaultValueGenerationStrategy;
+            || property.GetComputedColumnSql() != null
+                ? SqlServerValueGenerationStrategy.None
+                : defaultValueGenerationStrategy;
     }
 
     /// <summary>
@@ -728,7 +713,7 @@ public static class SqlServerPropertyExtensions
     public static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
         this IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject)
-        => GetValueGenerationStrategy(property, storeObject, null);
+        => property.GetValueGenerationStrategy(storeObject, null);
 
     internal static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
         this IReadOnlyProperty property,
@@ -807,16 +792,13 @@ public static class SqlServerPropertyExtensions
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
         var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
-        if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
-            && IsCompatibleWithValueGeneration(property))
-        {
-            return modelStrategy.Value;
-        }
-
-        return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+        return modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property)
-                ? SqlServerValueGenerationStrategy.IdentityColumn
-                : SqlServerValueGenerationStrategy.None;
+                ? modelStrategy.Value
+                : modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && IsCompatibleWithValueGeneration(property)
+                    ? SqlServerValueGenerationStrategy.IdentityColumn
+                    : SqlServerValueGenerationStrategy.None;
     }
 
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(
@@ -825,18 +807,15 @@ public static class SqlServerPropertyExtensions
         ITypeMappingSource? typeMappingSource)
     {
         var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
-        if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
-            && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
-        {
-            return modelStrategy.Value;
-        }
-
-        return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+        return modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource)
-                ? property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
-                    ? SqlServerValueGenerationStrategy.Sequence
-                    : SqlServerValueGenerationStrategy.IdentityColumn
-                : SqlServerValueGenerationStrategy.None;
+                ? modelStrategy.Value
+                : modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource)
+                    ? property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                        ? SqlServerValueGenerationStrategy.Sequence
+                        : SqlServerValueGenerationStrategy.IdentityColumn
+                    : SqlServerValueGenerationStrategy.None;
     }
 
     /// <summary>

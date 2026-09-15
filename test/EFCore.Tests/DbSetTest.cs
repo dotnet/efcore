@@ -180,7 +180,7 @@ public class DbSetTest
 
     private class IgnoredCntext : DbContext
     {
-        public DbSet<IgnoredEntity> Ignored { get; set; }
+        public DbSet<IgnoredEntity> Ignored { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -705,27 +705,27 @@ public class DbSetTest
     private class Category
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Product
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public decimal Price { get; set; }
     }
 
     private class TheGu
     {
         public Guid Id { get; set; }
-        public string ShirtColor { get; set; }
+        public string ShirtColor { get; set; } = null!;
     }
 
     private class EarlyLearningCenter : DbContext
     {
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<TheGu> Gus { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<TheGu> Gus { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

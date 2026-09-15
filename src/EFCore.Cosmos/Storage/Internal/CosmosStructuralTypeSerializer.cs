@@ -28,16 +28,20 @@ public class CosmosStructuralTypeSerializer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo SerializeInstanceMethod
-        = typeof(CosmosStructuralTypeSerializer).GetMethod(nameof(Serialize), [typeof(object), typeof(bool)]) ?? throw new UnreachableException();
+        = typeof(CosmosStructuralTypeSerializer).GetMethod(nameof(Serialize), [typeof(object), typeof(bool)])
+        ?? throw new UnreachableException();
 
     private readonly ITypeBase _structuralType;
     private readonly IProperty? _jsonIdProperty;
-    private readonly (IProperty Property, string JsonName, JsonValueReaderWriter JsonValueReaderWriter)? _discriminatorProperty;
+
+    private readonly (IProperty Property, string JsonName, EntityFrameworkCore.Storage.Json.JsonValueReaderWriter JsonValueReaderWriter)?
+        _discriminatorProperty;
+
     private readonly IProperty? _ordinalKeyProperty;
     private readonly string? _container;
 
     /// <summary>
-    /// Any properties that have to be written to the document (excluding the discriminator property)
+    ///     Any properties that have to be written to the document (excluding the discriminator property)
     /// </summary>
     private readonly (IProperty Property, string JsonName, JsonValueReaderWriter JsonValueReaderWriter)[] _scalarProperties;
 
@@ -55,22 +59,41 @@ public class CosmosStructuralTypeSerializer
         _structuralType = structuralType;
 
         _discriminatorProperty = structuralType.FindDiscriminatorProperty() is { } dp
-            ? (dp, dp.GetJsonPropertyName(), dp.GetJsonValueReaderWriter() ?? dp.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter"))
+            ? (dp, dp.GetJsonPropertyName(),
+                dp.GetJsonValueReaderWriter()
+                ?? dp.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter"))
             : null;
         _ordinalKeyProperty = structuralType.GetProperties().SingleOrDefault(p => p.IsOrdinalKeyProperty());
-        _scalarProperties = [.. structuralType.GetProperties().Where(p => p.IsPersisted() && p != _discriminatorProperty?.Property).Select(p => (p, p.GetJsonPropertyName(), p.GetJsonValueReaderWriter() ?? p.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter")))];
-        _complexProperties = [.. structuralType.GetComplexProperties().Select(cp => (cp, cp.GetJsonPropertyName(), provider.Get(cp.ComplexType)))];
+        _scalarProperties =
+        [
+            .. structuralType.GetProperties().Where(p => p.IsPersisted() && p != _discriminatorProperty?.Property).Select(p
+                => (p, p.GetJsonPropertyName(),
+                    p.GetJsonValueReaderWriter()
+                    ?? p.GetTypeMapping().JsonValueReaderWriter
+                    ?? throw new UnreachableException("Property without JsonValueReaderWriter")))
+        ];
+        _complexProperties =
+            [.. structuralType.GetComplexProperties().Select(cp => (cp, cp.GetJsonPropertyName(), provider.Get(cp.ComplexType)))];
 
         if (structuralType is IEntityType entityType)
         {
             if (entityType.IsDocumentRoot())
             {
-                _jsonIdProperty = structuralType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)
+                _jsonIdProperty = structuralType.GetProperties()
+                        .FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)
                     ?? throw new InvalidOperationException(CosmosStrings.NoIdProperty(structuralType.DisplayName()));
-                _container = entityType.GetContainer() ?? throw new UnreachableException("Document root entity type does not have container.");
+                _container = entityType.GetContainer()
+                    ?? throw new UnreachableException("Document root entity type does not have container.");
             }
 
-            _navigations = [.. entityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership && !n.IsOnDependent).Select(n => (n, n.TargetEntityType.GetContainingPropertyName() ?? throw new UnreachableException("Owned entity without containing property name"), provider.Get(n.TargetEntityType)))];
+            _navigations =
+            [
+                .. entityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership && !n.IsOnDependent).Select(n
+                    => (n,
+                        n.TargetEntityType.GetContainingPropertyName()
+                        ?? throw new UnreachableException("Owned entity without containing property name"),
+                        provider.Get(n.TargetEntityType)))
+            ];
         }
     }
 
@@ -90,7 +113,8 @@ public class CosmosStructuralTypeSerializer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string GetJsonId(IUpdateEntry entry)
-        => (string)entry.GetCurrentProviderValue(_jsonIdProperty ?? throw new UnreachableException("Can not get json id for non root document type"))!;
+        => (string)entry.GetCurrentProviderValue(
+            _jsonIdProperty ?? throw new UnreachableException("Can not get json id for non root document type"))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -136,6 +160,7 @@ public class CosmosStructuralTypeSerializer
                         var context = new InstanceSerializationContext(item);
                         WriteStructuralType(writer, context);
                     }
+
                     writer.WriteEndArray();
                 }
             }
@@ -270,7 +295,7 @@ public class CosmosStructuralTypeSerializer
     {
         writer.WritePropertyName(jsonName);
 
-        if (value is not null || jsonValueReaderWriter.HandlesNullWrites == true)
+        if (value is not null || jsonValueReaderWriter.HandlesNullWrites)
         {
             jsonValueReaderWriter.ToJson(writer, value!);
         }
@@ -291,10 +316,12 @@ public class CosmosStructuralTypeSerializer
         public void ValidateNull(IProperty property, ITypeBase structuralType);
         public void ValidateNull(IComplexProperty complexProperty, ITypeBase structuralType);
         public void ValidateNull(INavigation navigation, ITypeBase structuralType);
+
         public void PrepareNavigationCollection(
             INavigation navigation,
             CosmosStructuralTypeSerializer nestedSerializer,
             object value);
+
         public TContext CreateNestedContext(IComplexProperty complexProperty, object? value, int? ordinal);
         public TContext CreateNestedContext(INavigation navigation, object? value);
     }
@@ -359,7 +386,7 @@ public class CosmosStructuralTypeSerializer
             int? ordinal)
             => ordinal == null
                 ? this
-                : new(entry.GetComplexCollectionEntry(complexProperty, ordinal.Value));
+                : new EntrySerializationContext(entry.GetComplexCollectionEntry(complexProperty, ordinal.Value));
 
         public EntrySerializationContext CreateNestedContext(INavigation navigation, object? value)
         {
@@ -367,7 +394,7 @@ public class CosmosStructuralTypeSerializer
 
             var nestedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(value, navigation.TargetEntityType)
                 ?? throw new UnreachableException("Embedded navigation not tracked.");
-            return new(nestedEntry);
+            return new EntrySerializationContext(nestedEntry);
         }
     }
 

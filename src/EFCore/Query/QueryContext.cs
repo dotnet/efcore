@@ -44,9 +44,9 @@ public abstract class QueryContext
     public virtual DbContext Context { get; }
 
     /// <summary>
-    ///     The query parameter used in the query query.
+    ///     The query parameter used in the query.
     /// </summary>
-    public virtual Dictionary<string, object?> Parameters { get; } = new();
+    public virtual Dictionary<string, object?> Parameters { get; } = [];
 
     /// <summary>
     ///     Dependencies for this service.

@@ -6,7 +6,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 public class ComplexPropertiesMiscellaneousCosmosTest
     : ComplexPropertiesMiscellaneousTestBase<ComplexPropertiesCosmosFixture>
 {
-    public ComplexPropertiesMiscellaneousCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
+    public ComplexPropertiesMiscellaneousCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);
@@ -66,7 +67,8 @@ WHERE (c["RequiredAssociate"]["Int"] = 8)
     {
         await base.Where_property_on_nullable_value_type_Value();
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["OptionalAssociate"]["Int"] = 8)
@@ -77,7 +79,8 @@ WHERE (c["OptionalAssociate"]["Int"] = 8)
     {
         await base.Where_HasValue_on_nullable_value_type();
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["OptionalAssociate"] != null)

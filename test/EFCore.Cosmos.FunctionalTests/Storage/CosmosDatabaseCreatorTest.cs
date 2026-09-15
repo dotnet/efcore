@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
-#nullable disable
-
 [ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential))]
 public class CosmosDatabaseCreatorTest
 {
@@ -24,7 +22,7 @@ public class CosmosDatabaseCreatorTest
     public async Task EnsureCreated_returns_true_when_database_exists_but_collections_do_not()
     {
         await using var testDatabase = CosmosTestStore.Create("EnsureCreatedTest");
-        await testDatabase.InitializeAsync(testDatabase.ServiceProvider, () => new BaseContext(testDatabase));
+        await testDatabase.InitializeAsync(testDatabase.ServiceProvider!, () => new BaseContext(testDatabase));
 
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
@@ -38,7 +36,7 @@ public class CosmosDatabaseCreatorTest
             {
                 await using var testDatabase = CosmosTestStore.Create("EnsureCreatedReady");
                 await testDatabase.InitializeAsync(
-                    testDatabase.ServiceProvider, testStore => new BloggingContext((CosmosTestStore)testStore));
+                    testDatabase.ServiceProvider!, testStore => new BloggingContext((CosmosTestStore)testStore));
 
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
@@ -108,7 +106,8 @@ public class CosmosDatabaseCreatorTest
             }
         }
 
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs
+            => Set<Blog>();
     }
 
     private class Blog

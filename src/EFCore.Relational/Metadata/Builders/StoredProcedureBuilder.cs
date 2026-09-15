@@ -212,11 +212,8 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     {
         var entityType = EntityTypeBuilder.Metadata;
         var property = entityType.FindProperty(propertyName);
-        if (property == null)
-        {
-            property = entityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties())
-                .FirstOrDefault(p => p.Name == propertyName);
-        }
+        property ??= entityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties())
+            .FirstOrDefault(p => p.Name == propertyName);
 
         if (property == null)
         {

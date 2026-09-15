@@ -69,12 +69,11 @@ FROM root c
     {
         using var context = CreateContext();
 
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => Translate(
-                context,
-                context.Owners
-                    .Select(owner => owner.OwnedReference)
-                    .AsNoTrackingWithIdentityResolution()));
+        var exception = Assert.Throws<InvalidOperationException>(() => Translate(
+            context,
+            context.Owners
+                .Select(owner => owner.OwnedReference)
+                .AsNoTrackingWithIdentityResolution()));
 
         AssertMissingOwnerKeyMessage(exception);
     }
@@ -84,12 +83,11 @@ FROM root c
     {
         using var context = CreateContext();
 
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => Translate(
-                context,
-                context.Owners
-                    .Select(owner => owner.OwnedCollection)
-                    .AsNoTrackingWithIdentityResolution()));
+        var exception = Assert.Throws<InvalidOperationException>(() => Translate(
+            context,
+            context.Owners
+                .Select(owner => owner.OwnedCollection)
+                .AsNoTrackingWithIdentityResolution()));
 
         AssertMissingOwnerKeyMessage(exception);
     }
@@ -99,12 +97,11 @@ FROM root c
     {
         using var context = CreateContext();
 
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => Translate(
-                context,
-                context.Owners
-                    .SelectMany(owner => owner.OwnedCollection)
-                    .AsNoTrackingWithIdentityResolution()));
+        var exception = Assert.Throws<InvalidOperationException>(() => Translate(
+            context,
+            context.Owners
+                .SelectMany(owner => owner.OwnedCollection)
+                .AsNoTrackingWithIdentityResolution()));
 
         AssertMissingOwnerKeyMessage(exception);
     }
@@ -114,12 +111,11 @@ FROM root c
     {
         using var context = CreateContext();
 
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => Translate(
-                context,
-                context.Owners
-                    .SelectMany(e => e.OwnedCollection.Select(o => new { e.Id, o }))
-                    .AsNoTrackingWithIdentityResolution()));
+        var exception = Assert.Throws<InvalidOperationException>(() => Translate(
+            context,
+            context.Owners
+                .SelectMany(e => e.OwnedCollection.Select(o => new { e.Id, o }))
+                .AsNoTrackingWithIdentityResolution()));
 
         Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
     }
@@ -129,12 +125,11 @@ FROM root c
     {
         using var context = CreateContext();
 
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => Translate(
-                context,
-                context.Owners
-                    .Select(owner => new { Owner = owner, owner.OwnedReference })
-                    .AsNoTrackingWithIdentityResolution()));
+        var exception = Assert.Throws<InvalidOperationException>(() => Translate(
+            context,
+            context.Owners
+                .Select(owner => new { Owner = owner, owner.OwnedReference })
+                .AsNoTrackingWithIdentityResolution()));
 
         AssertMissingOwnerKeyMessage(exception);
     }
@@ -159,16 +154,13 @@ FROM root c
             {
                 for (var i = 0; i < 2; i++)
                 {
-                    context.Add(new Owner
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Owner" + i,
-                        OwnedReference = new OwnedReference
+                    context.Add(
+                        new Owner
                         {
                             Id = Guid.NewGuid(),
-                            Name = "OwnedReference"
-                        }
-                    });
+                            Name = "Owner" + i,
+                            OwnedReference = new OwnedReference { Id = Guid.NewGuid(), Name = "OwnedReference" }
+                        });
                 }
 
                 await context.SaveChangesAsync();
@@ -177,7 +169,12 @@ FROM root c
             await using (var context = contextFactory.CreateDbContext())
             {
                 var results = await context.Owners.AsNoTrackingWithIdentityResolution()
-                    .Select(owner => new { owner.Id, first = owner.OwnedReference, second = owner.OwnedReference })
+                    .Select(owner => new
+                    {
+                        owner.Id,
+                        first = owner.OwnedReference,
+                        second = owner.OwnedReference
+                    })
                     .ToListAsync();
 
                 Assert.Equal(2, results.Count);
@@ -207,11 +204,7 @@ FROM root c
             {
                 for (var i = 0; i < 2; i++)
                 {
-                    var ownedCollectionElement = new OwnedCollectionElement
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "OwnedCollection"
-                    };
+                    var ownedCollectionElement = new OwnedCollectionElement { Id = Guid.NewGuid(), Name = "OwnedCollection" };
                     var owner = new Owner
                     {
                         Id = Guid.NewGuid(),
@@ -268,16 +261,8 @@ FROM root c
                         Name = "Owner" + i,
                         OwnedCollection =
                         [
-                            new OwnedCollectionElement
-                            {
-                                Id = Guid.NewGuid(),
-                                Name = "OwnedCollection1"
-                            },
-                            new OwnedCollectionElement
-                            {
-                                Id = Guid.NewGuid(),
-                                Name = "OwnedCollection2"
-                            }
+                            new OwnedCollectionElement { Id = Guid.NewGuid(), Name = "OwnedCollection1" },
+                            new OwnedCollectionElement { Id = Guid.NewGuid(), Name = "OwnedCollection2" }
                         ]
                     };
                     context.Add(owner);
@@ -329,16 +314,8 @@ FROM root c
                         Name = "Owner" + i,
                         OwnedCollection =
                         [
-                            new OwnedCollectionElement
-                            {
-                                Id = Guid.NewGuid(),
-                                Name = "OwnedCollection1"
-                            },
-                            new OwnedCollectionElement
-                            {
-                                Id = Guid.NewGuid(),
-                                Name = "OwnedCollection2"
-                            }
+                            new OwnedCollectionElement { Id = Guid.NewGuid(), Name = "OwnedCollection1" },
+                            new OwnedCollectionElement { Id = Guid.NewGuid(), Name = "OwnedCollection2" }
                         ]
                     };
                     context.Add(owner);
@@ -350,7 +327,12 @@ FROM root c
             await using (var context = contextFactory.CreateDbContext())
             {
                 var results = await context.Owners
-                    .Select(x => new { x.Id, First = x.OwnedCollection, Second = x.OwnedCollection })
+                    .Select(x => new
+                    {
+                        x.Id,
+                        First = x.OwnedCollection,
+                        Second = x.OwnedCollection
+                    })
                     .AsNoTrackingWithIdentityResolution()
                     .ToListAsync();
 
@@ -393,14 +375,8 @@ FROM root c
                         Name = "Owner" + i,
                         OrdinalOwnedCollection =
                         [
-                            new OrdinalOwnedCollectionElement
-                            {
-                                Name = "OrdinalOwnedCollection1"
-                            },
-                            new OrdinalOwnedCollectionElement
-                            {
-                                Name = "OrdinalOwnedCollection2"
-                            }
+                            new OrdinalOwnedCollectionElement { Name = "OrdinalOwnedCollection1" },
+                            new OrdinalOwnedCollectionElement { Name = "OrdinalOwnedCollection2" }
                         ]
                     };
                     context.Add(owner);
@@ -452,14 +428,8 @@ FROM root c
                         Name = "Owner" + i,
                         OrdinalOwnedCollection =
                         [
-                            new OrdinalOwnedCollectionElement
-                            {
-                                Name = "OrdinalOwnedCollection1"
-                            },
-                            new OrdinalOwnedCollectionElement
-                            {
-                                Name = "OrdinalOwnedCollection2"
-                            }
+                            new OrdinalOwnedCollectionElement { Name = "OrdinalOwnedCollection1" },
+                            new OrdinalOwnedCollectionElement { Name = "OrdinalOwnedCollection2" }
                         ]
                     };
                     context.Add(owner);
@@ -471,7 +441,12 @@ FROM root c
             await using (var context = contextFactory.CreateDbContext())
             {
                 var results = await context.Owners
-                    .Select(x => new { x.Id, First = x.OrdinalOwnedCollection, Second = x.OrdinalOwnedCollection })
+                    .Select(x => new
+                    {
+                        x.Id,
+                        First = x.OrdinalOwnedCollection,
+                        Second = x.OrdinalOwnedCollection
+                    })
                     .AsNoTrackingWithIdentityResolution()
                     .ToListAsync();
 
@@ -530,18 +505,19 @@ FROM root c
     private static void AssertOwnedCollection(IEnumerable<OwnedCollectionElement> expected, IEnumerable<OwnedCollectionElement> actual)
         => Assert.Collection(
             actual,
-            expected.ToList().Select<OwnedCollectionElement, Action<OwnedCollectionElement>>(
-                expectedElement => actualElement =>
-                {
-                    Assert.Equal(expectedElement.Id, actualElement.Id);
-                    Assert.Equal(expectedElement.Name, actualElement.Name);
-                }).ToArray());
+            expected.ToList().Select<OwnedCollectionElement, Action<OwnedCollectionElement>>(expectedElement => actualElement =>
+            {
+                Assert.Equal(expectedElement.Id, actualElement.Id);
+                Assert.Equal(expectedElement.Name, actualElement.Name);
+            }).ToArray());
 
-    private static void AssertComplexCollection(IEnumerable<ComplexCollectionElement> expected, IEnumerable<ComplexCollectionElement> actual)
+    private static void AssertComplexCollection(
+        IEnumerable<ComplexCollectionElement> expected,
+        IEnumerable<ComplexCollectionElement> actual)
         => Assert.Collection(
             actual,
-            expected.ToList().Select<ComplexCollectionElement, Action<ComplexCollectionElement>>(
-                expectedElement => actualElement => Assert.Equal(expectedElement.Name, actualElement.Name)).ToArray());
+            expected.ToList().Select<ComplexCollectionElement, Action<ComplexCollectionElement>>(expectedElement
+                => actualElement => Assert.Equal(expectedElement.Name, actualElement.Name)).ToArray());
 
     private static ShapedQueryExpression Translate<T>(ValidationContext context, IQueryable<T> query)
     {
@@ -554,9 +530,10 @@ FROM root c
             .Create(queryCompilationContext)
             .Translate(preprocessedQuery);
 
-        return Assert.IsType<ShapedQueryExpression>(context.GetService<IQueryTranslationPostprocessorFactory>()
-            .Create(queryCompilationContext)
-            .Process(translatedQuery));
+        return Assert.IsType<ShapedQueryExpression>(
+            context.GetService<IQueryTranslationPostprocessorFactory>()
+                .Create(queryCompilationContext)
+                .Process(translatedQuery));
     }
 
     public class ProjectionFixture : QueryFixtureBase<ValidationContext>
@@ -582,10 +559,9 @@ FROM root c
         public override ISetSource GetExpectedData()
             => _expectedData ??= new ProjectionData();
 
-        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
-        {
-            { typeof(Owner), e => ((Owner?)e)?.Id }
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } =
+            new Dictionary<Type, Func<object?, object?>> { { typeof(Owner), e => ((Owner?)e)?.Id } }.ToDictionary(
+                e => e.Key, e => (object)e.Value);
 
         public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
         {
@@ -611,72 +587,39 @@ FROM root c
             {
                 Id = Guid.NewGuid(),
                 Name = "Owner",
-                OwnedReference = new OwnedReference
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "OwnedReference"
-                },
+                OwnedReference = new OwnedReference { Id = Guid.NewGuid(), Name = "OwnedReference" },
                 OwnedCollection =
                 [
-                    new OwnedCollectionElement
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "OwnedCollection"
-                    }
+                    new OwnedCollectionElement { Id = Guid.NewGuid(), Name = "OwnedCollection" }
                 ],
-                ComplexReference = new ComplexReference
-                {
-                    Name = "ComplexReference"
-                },
+                ComplexReference = new ComplexReference { Name = "ComplexReference" },
                 ComplexCollection =
                 [
-                    new ComplexCollectionElement
-                    {
-                        Name = "ComplexCollection"
-                    }
+                    new ComplexCollectionElement { Name = "ComplexCollection" }
                 ]
             },
             new()
             {
                 Id = Guid.NewGuid(),
                 Name = "Owner",
-                OwnedReference = new OwnedReference
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "OwnedReference"
-                },
+                OwnedReference = new OwnedReference { Id = Guid.NewGuid(), Name = "OwnedReference" },
                 OwnedCollection =
                 [
-                    new OwnedCollectionElement
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "OwnedCollection"
-                    }
+                    new OwnedCollectionElement { Id = Guid.NewGuid(), Name = "OwnedCollection" }
                 ],
-                ComplexReference = new ComplexReference
-                {
-                    Name = "ComplexReference"
-                },
+                ComplexReference = new ComplexReference { Name = "ComplexReference" },
                 ComplexCollection =
                 [
-                    new ComplexCollectionElement
-                    {
-                        Name = "ComplexCollection"
-                    }
+                    new ComplexCollectionElement { Name = "ComplexCollection" }
                 ]
             }
         ];
 
         public IQueryable<TEntity> Set<TEntity>()
             where TEntity : class
-        {
-            if (typeof(TEntity) == typeof(Owner))
-            {
-                return (IQueryable<TEntity>)Owners.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
-        }
+            => typeof(TEntity) == typeof(Owner)
+                ? (IQueryable<TEntity>)Owners.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     public class Owner
@@ -724,13 +667,13 @@ FROM root c
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Owner>(builder =>
-                {
-                    builder.HasPartitionKey(owner => owner.Id);
-                    builder.OwnsOne(owner => owner.OwnedReference);
-                    builder.OwnsMany(owner => owner.OwnedCollection);
-                    builder.OwnsMany(owner => owner.OrdinalOwnedCollection);
-                    builder.ComplexProperty(owner => owner.ComplexReference);
-                    builder.ComplexCollection(owner => owner.ComplexCollection);
-                });
+            {
+                builder.HasPartitionKey(owner => owner.Id);
+                builder.OwnsOne(owner => owner.OwnedReference);
+                builder.OwnsMany(owner => owner.OwnedCollection);
+                builder.OwnsMany(owner => owner.OrdinalOwnedCollection);
+                builder.ComplexProperty(owner => owner.ComplexReference);
+                builder.ComplexCollection(owner => owner.ComplexCollection);
+            });
     }
 }

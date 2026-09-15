@@ -11,7 +11,7 @@ public abstract class AssociationsQueryFixtureBase : QueryFixtureBase<PoolableDb
     public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => throw new NotSupportedException();
 
-    public AssociationsData Data { get; private set; }
+    public AssociationsData Data { get; }
 
     public AssociationsQueryFixtureBase()
     {
@@ -27,7 +27,6 @@ public abstract class AssociationsQueryFixtureBase : QueryFixtureBase<PoolableDb
                 => NullSafeAssert<NestedAssociateType>(e, a, AssertNestedAssociate),
             [typeof(RootReferencingEntity)] = (RootReferencingEntity e, RootReferencingEntity a)
                 => NullSafeAssert<RootReferencingEntity>(e, a, AssertPreRootEntity),
-
             [typeof(ValueRootEntity)] = (ValueRootEntity e, ValueRootEntity a)
                 => NullSafeAssert<ValueRootEntity>(e, a, AssertValueRootEntity),
             [typeof(ValueAssociateType)] = (ValueAssociateType e, ValueAssociateType a)
@@ -80,7 +79,6 @@ public abstract class AssociationsQueryFixtureBase : QueryFixtureBase<PoolableDb
         { typeof(AssociateType), object? (AssociateType e) => ((AssociateType?)e)?.Id },
         { typeof(NestedAssociateType), object? (NestedAssociateType e) => ((NestedAssociateType?)e)?.Id },
         { typeof(RootReferencingEntity), object? (RootReferencingEntity e) => ((RootReferencingEntity?)e)?.Id },
-
         { typeof(ValueRootEntity), object? (ValueRootEntity e) => ((ValueRootEntity?)e)?.Id },
         { typeof(ValueAssociateType), object? (ValueAssociateType e) => e.Id },
         { typeof(ValueAssociateType?), object? (ValueAssociateType? e) => e?.Id },

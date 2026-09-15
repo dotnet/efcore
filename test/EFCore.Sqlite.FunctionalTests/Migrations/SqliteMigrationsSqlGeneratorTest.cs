@@ -7,8 +7,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase(
     SqliteTestHelpers.Instance,
     new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
@@ -105,7 +103,7 @@ CREATE TABLE "TestLineBreaks" (
     }
 
     [Theory, InlineData(true, null), InlineData(false, "PK_Id")]
-    public void CreateTableOperation_with_annotations(bool autoincrement, string pkName)
+    public void CreateTableOperation_with_annotations(bool autoincrement, string? pkName)
     {
         var addIdColumn = new AddColumnOperation
         {
@@ -118,6 +116,12 @@ CREATE TABLE "TestLineBreaks" (
         if (autoincrement)
         {
             addIdColumn.AddAnnotation(SqliteAnnotationNames.Autoincrement, true);
+        }
+
+        var primaryKey = new AddPrimaryKeyOperation { Columns = ["Id"] };
+        if (pkName is not null)
+        {
+            primaryKey.Name = pkName;
         }
 
         Generate(
@@ -144,7 +148,7 @@ CREATE TABLE "TestLineBreaks" (
                         IsNullable = true
                     }
                 },
-                PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = ["Id"] },
+                PrimaryKey = primaryKey,
                 UniqueConstraints = { new AddUniqueConstraintOperation { Columns = ["SSN"] } },
                 ForeignKeys =
                 {
@@ -294,13 +298,13 @@ SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
 
     public override void AddForeignKeyOperation_without_principal_columns()
     {
-        var ex = Assert.Throws<NotSupportedException>(() => base.AddForeignKeyOperation_without_principal_columns());
+        var ex = Assert.Throws<NotSupportedException>(base.AddForeignKeyOperation_without_principal_columns);
         Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddForeignKeyOperation)), ex.Message);
     }
 
     public override void AlterColumnOperation_without_column_type()
     {
-        var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation_without_column_type());
+        var ex = Assert.Throws<NotSupportedException>(base.AlterColumnOperation_without_column_type);
         Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
     }
 
@@ -1057,12 +1061,9 @@ CREATE INDEX "IX_Blog_Name" ON "Blog" ("Name");
                     x.Property<string>("Name");
                     x.Property<Geometry>("Position").HasColumnType("GEOMETRY").HasSrid(4326);
                 }),
-            migrationBuilder =>
-            {
-                migrationBuilder.DropColumn(
-                    name: "Name",
-                    table: "Blog");
-            });
+            migrationBuilder => migrationBuilder.DropColumn(
+                name: "Name",
+                table: "Blog"));
 
         AssertSql(
             """

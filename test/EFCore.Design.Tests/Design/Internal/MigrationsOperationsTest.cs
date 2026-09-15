@@ -59,8 +59,7 @@ public class MigrationsOperationsTest
             nullable: false,
             args: []);
 
-        var exception = Assert.Throws<OperationException>(
-            () => operations.AddMigration("", null, null, null, dryRun: true));
+        var exception = Assert.Throws<OperationException>(() => operations.AddMigration("", null, null, null, dryRun: true));
 
         Assert.Equal(DesignStrings.MigrationNameRequired, exception.Message);
     }
@@ -79,8 +78,7 @@ public class MigrationsOperationsTest
             nullable: false,
             args: []);
 
-        var exception = Assert.Throws<OperationException>(
-            () => operations.AddMigration("   ", null, null, null, dryRun: true));
+        var exception = Assert.Throws<OperationException>(() => operations.AddMigration("   ", null, null, null, dryRun: true));
 
         Assert.Equal(DesignStrings.MigrationNameRequired, exception.Message);
     }
@@ -89,7 +87,7 @@ public class MigrationsOperationsTest
 
     private class AssemblyTestContext : DbContext
     {
-        public static Assembly MigrationsAssembly { get; set; }
+        public static Assembly MigrationsAssembly { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(o => o.MigrationsAssembly(MigrationsAssembly));

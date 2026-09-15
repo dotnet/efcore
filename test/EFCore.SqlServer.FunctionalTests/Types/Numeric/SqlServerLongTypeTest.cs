@@ -238,4 +238,3 @@ FROM [JsonTypeEntity] AS [j]
         public override long OtherValue { get; } = long.MaxValue;
     }
 }
-

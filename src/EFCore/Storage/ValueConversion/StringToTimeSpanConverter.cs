@@ -51,7 +51,8 @@ public class StringToTimeSpanConverter : StringTimeSpanConverter<string, TimeSpa
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(TimeSpan),
+        = new(
+            typeof(string), typeof(TimeSpan),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToTimeSpanConverter(i.MappingHints),
             DefaultHints);
 }

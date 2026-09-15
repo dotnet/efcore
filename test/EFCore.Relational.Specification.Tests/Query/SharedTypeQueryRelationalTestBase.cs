@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class SharedTypeQueryRelationalTestBase(NonSharedFixture fixture) : SharedTypeQueryTestBase(fixture)
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     SQL Server specific extension methods for <see cref="ComplexTypePrimitiveCollectionBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
 ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
@@ -17,7 +17,7 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
@@ -39,7 +39,7 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
@@ -51,8 +51,8 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> IsSparse<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         bool sparse = true)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)IsSparse(
-            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sparse);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder).IsSparse(
+            sparse);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -92,8 +92,8 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         object? value,
         string defaultConstraintName)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValue(
-            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, value, defaultConstraintName);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder)
+            .HasDefaultValue(value, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -133,6 +133,6 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? sql,
         string defaultConstraintName)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql(
-            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sql, defaultConstraintName);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder)
+            .HasDefaultValueSql(sql, defaultConstraintName);
 }

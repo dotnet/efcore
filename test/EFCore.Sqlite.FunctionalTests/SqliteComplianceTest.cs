@@ -1,15 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedTableSplitting;
 using Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore;
-
-#nullable disable
 
 public class SqliteComplianceTest : RelationalComplianceTestBase
 {

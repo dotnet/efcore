@@ -84,12 +84,9 @@ public class SqliteTransactionTest
         {
             var result = realCommand.ExecuteNonQuery();
 
-            if (connection.SimulateFailureOnRollback && CommandText.Contains("ROLLBACK"))
-            {
-                throw new SqliteException("Simulated failure", 1);
-            }
-
-            return result;
+            return connection.SimulateFailureOnRollback && CommandText.Contains("ROLLBACK")
+                ? throw new SqliteException("Simulated failure", 1)
+                : result;
         }
 
         [AllowNull]
@@ -279,7 +276,7 @@ public class SqliteTransactionTest
         var transaction = connection.BeginTransaction();
         transaction.Dispose();
 
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Commit);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -293,7 +290,7 @@ public class SqliteTransactionTest
         using var transaction = connection.BeginTransaction();
         connection.ExecuteNonQuery("ROLLBACK;");
 
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Commit);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -307,7 +304,7 @@ public class SqliteTransactionTest
         using var transaction = connection.BeginTransaction();
         connection.Close();
 
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Commit);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -342,7 +339,7 @@ public class SqliteTransactionTest
         connection.ExecuteNonQuery("ROLLBACK;");
 
         transaction.Rollback();
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Rollback);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -356,7 +353,7 @@ public class SqliteTransactionTest
         var transaction = connection.BeginTransaction();
         transaction.Dispose();
 
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Rollback);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -435,4 +432,36 @@ public class SqliteTransactionTest
 
     private static void CreateTestTable(SqliteConnection connection)
         => connection.ExecuteNonQuery("CREATE TABLE TestTable (TestColumn INTEGER)");
+
+    [Fact]
+    public void Handle_can_be_disposed_with_an_open_transaction()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
+
+        // SQLite rolls the open transaction back inside sqlite3_close_v2 and fires the rollback
+        // hook while the handle is being released. Clearing the hook through that same handle threw
+        // out of the native callback, which is fatal wherever the close happens to run.
+        connection.Handle!.Dispose();
+
+        Assert.True(transaction.ExternalRollback);
+    }
+
+    [Fact]
+    public void Rollback_works_when_the_handle_is_already_closed()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var transaction = connection.BeginTransaction();
+
+        // Clearing the hook first means closing the handle does not run RollbackExternal, so
+        // ExternalRollback stays false and RollbackInternal is the one that reaches for the handle.
+        sqlite3_rollback_hook(connection.Handle, null, null);
+        connection.Handle!.Dispose();
+
+        Assert.False(transaction.ExternalRollback);
+
+        transaction.Rollback();
+    }
 }

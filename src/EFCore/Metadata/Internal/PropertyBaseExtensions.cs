@@ -368,7 +368,7 @@ public static class PropertyBaseExtensions
                 newMemberName,
                 owningTypeDisplayName,
                 conflictingMemberKind,
-                ((IReadOnlyTypeBase)conflictingMember.DeclaringType).DisplayName());
+                conflictingMember.DeclaringType.DisplayName());
     }
 
     /// <summary>

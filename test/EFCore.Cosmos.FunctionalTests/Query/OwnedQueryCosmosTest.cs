@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.OwnedQueryCosmosFixture>
 {
     public OwnedQueryCosmosTest(OwnedQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
@@ -431,7 +429,8 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         // Always throws for sync.
         if (async)
         {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
+            var exception =
+                await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
 
             Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
         }
@@ -443,7 +442,8 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         if (async)
         {
             var exception =
-                await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations_variation_2(async));
+                await Assert.ThrowsAsync<InvalidOperationException>(()
+                    => base.Client_method_skip_loads_owned_navigations_variation_2(async));
 
             Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
         }
@@ -940,6 +940,34 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["Cl
     public override Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
         => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async));
 
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_multiple_aggregates_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_multiple_aggregates_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_count_with_predicate_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_count_with_predicate_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_ordered_aggregate_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_ordered_aggregate_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_first_entity_ordered_by_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_first_entity_ordered_by_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_having(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_collection_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_collection_navigation(async));
+
     public override Task Filter_on_indexer_using_closure(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1048,7 +1076,7 @@ OFFSET @p LIMIT @p1
                 {
                     await Assert.ThrowsAsync<NullReferenceException>(() => AssertQuery(
                         async,
-                        ss => ss.Set<Barton>().Select(e => new { e.Throned.Value })));
+                        ss => ss.Set<Barton>().Select(e => new { e.Throned!.Value })));
 
                     AssertSql(
                         """
@@ -1076,10 +1104,10 @@ WHERE (c["Terminator"] = "Barton")
             Assert.Equal(4, result.Count);
             Assert.Collection(
                 result.OrderBy(e => e.Id),
-                element => AssertProjectedPersonAddress(1, element.Id, element.PersonAddress),
-                element => AssertProjectedPersonAddress(2, element.Id, element.PersonAddress),
-                element => AssertProjectedPersonAddress(3, element.Id, element.PersonAddress),
-                element => AssertProjectedPersonAddress(4, element.Id, element.PersonAddress));
+                element => AssertProjectedPersonAddress(1, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(2, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(3, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(4, element.Id, element.PersonAddress!));
             Assert.Empty(context.ChangeTracker.Entries());
 
             AssertSql(
@@ -1095,7 +1123,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
     {
         Assert.Equal(expectedId, id);
         Assert.Equal("Land", personAddress.PlaceType);
-        Assert.Equal("USA", personAddress.Country.Name);
+        Assert.Equal("USA", personAddress.Country!.Name);
     }
 
     public override Task Simple_query_entity_with_owned_collection(bool async)
@@ -1508,38 +1536,35 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                         );
 
                         ob.OwnsMany(
-                            e => e.Details, odb =>
-                            {
-                                odb.HasData(
-                                    new
-                                    {
-                                        Id = -100,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Discounted Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -101,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Full Price Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -200,
-                                        OrderId = -20,
-                                        OrderClientId = 2,
-                                        Detail = "Internal Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -300,
-                                        OrderId = -30,
-                                        OrderClientId = 3,
-                                        Detail = "Bulk Order"
-                                    });
-                            });
+                            e => e.Details, odb => odb.HasData(
+                                new
+                                {
+                                    Id = -100,
+                                    OrderId = -10,
+                                    OrderClientId = 1,
+                                    Detail = "Discounted Order"
+                                },
+                                new
+                                {
+                                    Id = -101,
+                                    OrderId = -10,
+                                    OrderClientId = 1,
+                                    Detail = "Full Price Order"
+                                },
+                                new
+                                {
+                                    Id = -200,
+                                    OrderId = -20,
+                                    OrderClientId = 2,
+                                    Detail = "Internal Order"
+                                },
+                                new
+                                {
+                                    Id = -300,
+                                    OrderId = -30,
+                                    OrderClientId = 3,
+                                    Detail = "Bulk Order"
+                                }));
                     });
             });
 
@@ -1572,22 +1597,19 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 2,
-                                        PlanetId = 1,
-                                        Name = "Canada"
-                                    },
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 3,
-                                        PlanetId = 1,
-                                        Name = "Canada"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressBranchId = 2,
+                                    PlanetId = 1,
+                                    Name = "Canada"
+                                },
+                                new
+                                {
+                                    OwnedAddressBranchId = 3,
+                                    PlanetId = 1,
+                                    Name = "Canada"
+                                }));
                     });
             });
 
@@ -1614,16 +1636,13 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressLeafAId = 3,
-                                        PlanetId = 1,
-                                        Name = "Mexico"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressLeafAId = 3,
+                                    PlanetId = 1,
+                                    Name = "Mexico"
+                                }));
                     });
             });
 
@@ -1650,16 +1669,13 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressLeafBId = 4,
-                                        PlanetId = 1,
-                                        Name = "Panama"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressLeafBId = 4,
+                                    PlanetId = 1,
+                                    Name = "Panama"
+                                }));
                     });
             });
 

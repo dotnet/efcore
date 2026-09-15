@@ -230,7 +230,7 @@ public class ForeignKeyAttributeConvention :
 
             if (fkPropertyOnDependent != null)
             {
-                fkPropertiesToSet = new List<string> { fkPropertyOnDependent.GetSimpleMemberName() };
+                fkPropertiesToSet = [fkPropertyOnDependent.GetSimpleMemberName()];
                 upgradeDependentToPrincipalNavigationSource = true;
             }
             else
@@ -242,7 +242,7 @@ public class ForeignKeyAttributeConvention :
                 }
 
                 shouldInvert = true;
-                fkPropertiesToSet = new List<string> { fkPropertyOnPrincipal!.GetSimpleMemberName() };
+                fkPropertiesToSet = [fkPropertyOnPrincipal!.GetSimpleMemberName()];
                 upgradePrincipalToDependentNavigationSource = true;
             }
         }
@@ -282,7 +282,7 @@ public class ForeignKeyAttributeConvention :
                     upgradePrincipalToDependentNavigationSource = false;
 
                     fkPropertiesToSet = fkPropertiesOnDependentToPrincipal
-                        ?? new List<string> { fkPropertyOnDependent!.GetSimpleMemberName() };
+                        ?? [fkPropertyOnDependent!.GetSimpleMemberName()];
                 }
 
                 if (fkPropertyOnDependent != null
@@ -384,7 +384,7 @@ public class ForeignKeyAttributeConvention :
 
     private static TAttribute? GetAttribute<TAttribute>(MemberInfo? memberInfo)
         where TAttribute : Attribute
-        => memberInfo == null ? null : memberInfo.GetCustomAttribute<TAttribute>(inherit: true);
+        => memberInfo?.GetCustomAttribute<TAttribute>(inherit: true);
 
     [ContractAnnotation("navigation:null => null")]
     private MemberInfo? FindForeignKeyAttributeOnProperty(IConventionEntityType entityType, MemberInfo? navigation)
@@ -517,14 +517,11 @@ public class ForeignKeyAttributeConvention :
         }
 
         var properties = navigationFkAttribute.Name.Split(',').Select(p => p.Trim()).ToList();
-        if (properties.Any(string.IsNullOrWhiteSpace))
-        {
-            throw new InvalidOperationException(
+        return properties.Any(string.IsNullOrWhiteSpace)
+            ? throw new InvalidOperationException(
                 CoreStrings.InvalidPropertyListOnNavigation(
-                    skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName(), navigationFkAttribute.Name));
-        }
-
-        return properties;
+                    skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName(), navigationFkAttribute.Name))
+            : (IReadOnlyList<string>)properties;
     }
 
     /// <inheritdoc />

@@ -84,8 +84,8 @@ public static class ProxiesExtensions
         bool useChangeTrackingProxies = true,
         bool checkEquality = true)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseChangeTrackingProxies(
-            (DbContextOptionsBuilder)optionsBuilder, useChangeTrackingProxies, checkEquality);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseChangeTrackingProxies(
+            useChangeTrackingProxies, checkEquality);
 
     /// <summary>
     ///     Turns on the creation of lazy loading proxies.
@@ -180,7 +180,7 @@ public static class ProxiesExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         bool useLazyLoadingProxies = true)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseLazyLoadingProxies((DbContextOptionsBuilder)optionsBuilder, useLazyLoadingProxies);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseLazyLoadingProxies(useLazyLoadingProxies);
 
     /// <summary>
     ///     Turns on the creation of lazy loading proxies.
@@ -206,8 +206,8 @@ public static class ProxiesExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         Action<LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseLazyLoadingProxies(
-            (DbContextOptionsBuilder)optionsBuilder, lazyLoadingProxiesOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseLazyLoadingProxies(
+            lazyLoadingProxiesOptionsAction);
 
     /// <summary>
     ///     Creates a proxy instance for an entity type if proxy creation has been turned on.
@@ -238,7 +238,7 @@ public static class ProxiesExtensions
     public static TEntity CreateProxy<TEntity>(
         this DbContext context,
         params object[] constructorArguments)
-        => CreateProxy<TEntity>(context, null, constructorArguments);
+        => context.CreateProxy<TEntity>(null, constructorArguments);
 
     /// <summary>
     ///     Creates a proxy instance for an entity type if proxy creation has been turned on.
@@ -271,7 +271,7 @@ public static class ProxiesExtensions
         this DbSet<TEntity> set,
         params object[] constructorArguments)
         where TEntity : class
-        => CreateProxy(set, null, constructorArguments);
+        => set.CreateProxy(null, constructorArguments);
 
     /// <summary>
     ///     Creates a proxy instance for an entity type if proxy creation has been turned on.

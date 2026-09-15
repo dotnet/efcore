@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class InternalComplexEntryTest
@@ -787,11 +785,12 @@ public class InternalComplexEntryTest
 
         modelBuilder.Entity<BlogWithNested>(eb =>
         {
-            eb.ComplexProperty(e => e.NestedJson, b =>
-            {
-                b.ComplexProperty(a => a.Item);
-                b.ComplexCollection(a => a.Items);
-            });
+            eb.ComplexProperty(
+                e => e.NestedJson, b =>
+                {
+                    b.ComplexProperty(a => a.Item);
+                    b.ComplexCollection(a => a.Items);
+                });
         });
 
         return modelBuilder.FinalizeModel();

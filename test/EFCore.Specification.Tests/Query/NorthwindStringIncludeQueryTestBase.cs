@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -41,7 +39,7 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
                 .GenerateMessage("CustomerID", "Customer.CustomerID"),
             (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.Customer.CustomerID)))).Message);
+                ss => ss.Set<Order>().Include(o => o.Customer!.CustomerID)))).Message);
 
     public override Task Include_property_expression_invalid(bool async)
         // Property expression cannot be converted to string include
@@ -193,7 +191,7 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
                     || genericMethodDefinition == _thenIncludeAfterReferenceMethodInfo)
                 {
                     var innerIncludeMethodCall = (MethodCallExpression)Visit(methodCallExpression.Arguments[0]);
-                    var innerNavigationPath = (string)((ConstantExpression)innerIncludeMethodCall.Arguments[1]).Value;
+                    var innerNavigationPath = (string)((ConstantExpression)innerIncludeMethodCall.Arguments[1]).Value!;
                     var currentNavigationpath = GetPath(methodCallExpression.Arguments[1].UnwrapLambdaFromQuote().Body);
 
                     return innerIncludeMethodCall.Update(
@@ -207,7 +205,7 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        private static string GetPath(Expression expression)
+        private static string GetPath(Expression? expression)
             => expression switch
             {
                 MemberExpression { Expression: ParameterExpression } memberExpression

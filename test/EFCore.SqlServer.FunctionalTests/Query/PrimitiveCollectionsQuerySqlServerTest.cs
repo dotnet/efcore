@@ -2,12 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Xunit.Sdk;
+using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
-
-#nullable disable
-using static System.Linq.Expressions.Expression;
-using Xunit.Sdk;
 
 public class PrimitiveCollectionsQuerySqlServerTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerTest.PrimitiveCollectionsQuerySqlServerFixture>
@@ -1284,9 +1282,11 @@ WHERE (
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
+    public override async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
+        await base
+            .Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
@@ -1302,7 +1302,8 @@ WHERE (
         Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    public override async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
     {
         await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
 
@@ -1360,6 +1361,7 @@ WHERE (
     WHERE [i].[value] > [t].[Id]) = 1
 """);
                 }
+
                 break;
             }
 
@@ -1432,6 +1434,7 @@ WHERE [t].[Id] IN (
 )
 """);
                 }
+
                 break;
             }
 
@@ -1667,6 +1670,7 @@ WHERE EXISTS (
     WHERE [f].[value] = [t].[Status])
 """);
                 }
+
                 break;
             }
 
@@ -2353,15 +2357,12 @@ WHERE (
 """);
     }
 
-        public override async Task Parameter_collection_index_Column_equal_Column()
+    public override async Task Parameter_collection_index_Column_equal_Column()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Parameter_collection_index_Column_equal_Column();
@@ -2390,15 +2391,12 @@ WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS i
         }
     }
 
-        public override async Task Parameter_collection_index_Column_equal_constant()
+    public override async Task Parameter_collection_index_Column_equal_constant()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Parameter_collection_index_Column_equal_constant();
@@ -2810,15 +2808,12 @@ WHERE (
 """);
     }
 
-        public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Parameter_collection_with_type_inference_for_JsonScalarExpression();
@@ -3990,7 +3985,7 @@ WHERE (
     private async Task TestOrderedArray<TElement>(
         TElement value1,
         TElement value2,
-        Action<ModelBuilder> onModelCreating = null)
+        Action<ModelBuilder>? onModelCreating = null)
     {
         var arrayClrType = typeof(TElement).MakeArrayType();
 
@@ -4186,7 +4181,7 @@ WHERE (
         await using var context = contextFactory.CreateDbContext();
 
         _ = await context.Set<Context32976.Principal>()
-            .Where(p => p.Ints.Skip(1).Contains(3))
+            .Where(p => p.Ints!.Skip(1).Contains(3))
             .Include(p => p.Dependents)
             .AsSplitQuery()
             .SingleAsync();
@@ -4197,14 +4192,14 @@ WHERE (
         public class Principal
         {
             public int Id { get; set; }
-            public List<int> Ints { get; set; }
-            public List<Dependent> Dependents { get; set; }
+            public List<int>? Ints { get; set; }
+            public List<Dependent> Dependents { get; set; } = null!;
         }
 
         public class Dependent
         {
             public int Id { get; set; }
-            public Principal Principal { get; set; }
+            public Principal? Principal { get; set; }
         }
     }
 
@@ -4218,10 +4213,7 @@ WHERE (
         Assert.Contains("@ints2071)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
     }
 
-    [Theory]
-    [InlineData(2098)]
-    [InlineData(2099)]
-    [InlineData(2100)]
+    [Theory, InlineData(2098), InlineData(2099), InlineData(2100)]
     public virtual Task Parameter_collection_of_ints_Contains_int_parameters_limit(int count)
     {
         var ints = Enumerable.Range(10, count);
@@ -4230,10 +4222,7 @@ WHERE (
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
     }
 
-    [Theory]
-    [InlineData(2098)]
-    [InlineData(2099)]
-    [InlineData(2100)]
+    [Theory, InlineData(2098), InlineData(2099), InlineData(2100)]
     public virtual Task Parameter_collection_Count_parameters_limit(int count)
     {
         var ids = Enumerable.Range(1000, count);

@@ -16,11 +16,11 @@ public class InternalSkipNavigationBuilderTest
         ((SkipNavigation)skipNavigation).SetConfigurationSource(ConfigurationSource.DataAnnotation);
 
         var productEntity = skipNavigation.TargetEntityType.Builder;
-        Assert.Null(productEntity.HasRelationship(skipNavigation.DeclaringEntityType, null, nameof(Order.Products)));
+        Assert.Null(productEntity.HasRelationship(skipNavigation.DeclaringEntityType, null!, nameof(Order.Products)));
 
         Assert.NotNull(
             productEntity.HasRelationship(
-                skipNavigation.DeclaringEntityType, null, nameof(Order.Products), fromDataAnnotation: true));
+                skipNavigation.DeclaringEntityType, null!, nameof(Order.Products), fromDataAnnotation: true));
 
         Assert.False(skipNavigation.IsInModel);
         Assert.Empty(skipNavigation.DeclaringEntityType.GetSkipNavigations());
@@ -55,8 +55,8 @@ public class InternalSkipNavigationBuilderTest
         Assert.Equal(Order.OtherProductsField, metadata.FieldInfo);
         Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetFieldInfoConfigurationSource());
 
-        Assert.True(builder.CanSetField((string)null, ConfigurationSource.DataAnnotation));
-        Assert.NotNull(builder.HasField((string)null, ConfigurationSource.DataAnnotation));
+        Assert.True(builder.CanSetField((string?)null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasField((string?)null, ConfigurationSource.DataAnnotation));
 
         Assert.Null(metadata.FieldInfo);
         Assert.Null(metadata.GetFieldInfoConfigurationSource());
@@ -91,8 +91,8 @@ public class InternalSkipNavigationBuilderTest
         Assert.Equal("_otherProducts", metadata.FieldInfo?.Name);
         Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetFieldInfoConfigurationSource());
 
-        Assert.True(builder.CanSetField((string)null, ConfigurationSource.DataAnnotation));
-        Assert.NotNull(builder.HasField((string)null, ConfigurationSource.DataAnnotation));
+        Assert.True(builder.CanSetField((string?)null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasField((string?)null, ConfigurationSource.DataAnnotation));
 
         Assert.Null(metadata.FieldInfo);
         Assert.Null(metadata.GetFieldInfoConfigurationSource());
@@ -147,16 +147,16 @@ public class InternalSkipNavigationBuilderTest
         Assert.NotNull(originalFK);
         Assert.Equal(ConfigurationSource.Convention, metadata.GetForeignKeyConfigurationSource());
 
-        var orderProductEntity = metadata.DeclaringEntityType.Model.Builder.Entity(typeof(OrderProduct));
+        var orderProductEntity = metadata.DeclaringEntityType.Model.Builder.Entity(typeof(OrderProduct))!;
         var fk = (ForeignKey)orderProductEntity
             .HasRelationship(metadata.DeclaringEntityType, nameof(OrderProduct.Order))
-            .IsUnique(false)
+            !.IsUnique(false)!
             .Metadata;
 
         Assert.NotSame(fk, metadata.ForeignKey);
         Assert.Same(originalFK, metadata.ForeignKey);
         Assert.Equal(ConfigurationSource.Convention, metadata.GetForeignKeyConfigurationSource());
-        Assert.NotNull(metadata.Inverse.ForeignKey);
+        Assert.NotNull(metadata.Inverse!.ForeignKey);
 
         Assert.True(builder.CanSetForeignKey(fk, ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.HasForeignKey(fk, ConfigurationSource.DataAnnotation));
@@ -191,7 +191,7 @@ public class InternalSkipNavigationBuilderTest
         var inverse = (SkipNavigation)metadata.TargetEntityType.Builder.HasSkipNavigation(
                 Product.OrdersProperty,
                 metadata.DeclaringEntityType)
-            .Metadata;
+            !.Metadata;
 
         Assert.NotNull(metadata.Inverse);
         Assert.Equal(ConfigurationSource.Convention, metadata.GetInverseConfigurationSource());
@@ -303,47 +303,47 @@ public class InternalSkipNavigationBuilderTest
         var modelBuilder = (InternalModelBuilder)
             InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
 
-        return modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)
+        return modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)!
             .HasSkipNavigation(
                 MemberIdentity.Create(Order.ProductsProperty),
-                modelBuilder.Entity(typeof(Product), ConfigurationSource.Convention).Metadata,
-                ConfigurationSource.Convention);
+            modelBuilder.Entity(typeof(Product), ConfigurationSource.Convention)!.Metadata,
+            ConfigurationSource.Convention)!;
     }
 
     protected class Order
     {
-        public static readonly PropertyInfo ProductsProperty = typeof(Order).GetProperty(nameof(Products));
+        public static readonly PropertyInfo ProductsProperty = typeof(Order).GetProperty(nameof(Products))!;
 
         public static readonly FieldInfo ProductsField = typeof(Order)
-            .GetField(nameof(_products), BindingFlags.Instance | BindingFlags.NonPublic);
+            .GetField(nameof(_products), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
         public static readonly FieldInfo OtherProductsField = typeof(Order)
-            .GetField(nameof(_otherProducts), BindingFlags.Instance | BindingFlags.NonPublic);
+            .GetField(nameof(_otherProducts), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
         public int OrderId { get; set; }
 
-        private ICollection<Product> _products;
+        private ICollection<Product> _products = null!;
         private readonly ICollection<Product> _otherProducts = new List<Product>();
         public ICollection<Product> Products { get => _products; set => _products = value; }
     }
 
     private class OrderProduct
     {
-        public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
-        public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+        public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId))!;
+        public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId))!;
 
         public int OrderId { get; set; }
         public int ProductId { get; set; }
-        public virtual Order Order { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual Order Order { get; set; } = null!;
+        public virtual Product Product { get; set; } = null!;
     }
 
     protected class Product
     {
-        public static readonly PropertyInfo OrdersProperty = typeof(Product).GetProperty(nameof(Orders));
+        public static readonly PropertyInfo OrdersProperty = typeof(Product).GetProperty(nameof(Orders))!;
 
         public int Id { get; set; }
 
-        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; } = null!;
     }
 }

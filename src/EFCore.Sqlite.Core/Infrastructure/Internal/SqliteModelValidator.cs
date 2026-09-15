@@ -23,9 +23,7 @@ public class SqliteModelValidator(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-    {
-        base.Validate(model, logger);
-    }
+        => base.Validate(model, logger);
 
     /// <inheritdoc />
     protected override void ValidateEntityType(
@@ -81,7 +79,6 @@ public class SqliteModelValidator(
             throw new InvalidOperationException(SqliteStrings.StoredProceduresNotSupported(entityType.DisplayName()));
         }
     }
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -19,7 +19,7 @@ public class ProviderSpecificServicesTest
         using var context = new ConstructorTestContext1A(options);
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Fact]
@@ -34,11 +34,11 @@ public class ProviderSpecificServicesTest
         using var serviceScope = appServiceProvider
             .GetRequiredService<IServiceScopeFactory>()
             .CreateScope();
-        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+        var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Fact]

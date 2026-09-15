@@ -68,7 +68,7 @@ public class CosmosDiscriminatorConvention :
         IConventionContext<IConventionAnnotation> context)
     {
         if (name != CosmosAnnotationNames.ContainerName
-            || (annotation == null) == (oldAnnotation == null))
+            || annotation == null == (oldAnnotation == null))
         {
             return;
         }
@@ -83,6 +83,7 @@ public class CosmosDiscriminatorConvention :
         {
             return;
         }
+
         if (entityType.IsDocumentRoot())
         {
             var discriminator = HasDiscriminator(entityTypeBuilder);
@@ -150,9 +151,7 @@ public class CosmosDiscriminatorConvention :
         var discriminatorProperty = discriminator?.EntityType.FindDiscriminatorProperty();
         if (discriminatorProperty != null)
         {
-            CosmosPropertyBuilderExtensions.ToJsonProperty(
-                discriminatorProperty.Builder,
-                entityTypeBuilder.Metadata.Model.GetEmbeddedDiscriminatorName());
+            discriminatorProperty.Builder.ToJsonProperty(entityTypeBuilder.Metadata.Model.GetEmbeddedDiscriminatorName());
         }
 
         return discriminator;

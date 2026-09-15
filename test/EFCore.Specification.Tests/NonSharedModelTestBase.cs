@@ -66,7 +66,8 @@ public abstract class NonSharedModelTestBase(NonSharedFixture fixture) : IAsyncL
             usePooling,
             useServiceProvider);
 
-        await NonSharedTestStore.InitializeAsync(_serviceProvider, contextFactory.CreateDbContext, seed == null ? null : c => seed((TContext)c));
+        await NonSharedTestStore.InitializeAsync(
+            _serviceProvider, contextFactory.CreateDbContext, seed == null ? null : c => seed((TContext)c));
 
         ListLoggerFactory.Clear();
 

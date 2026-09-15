@@ -412,17 +412,11 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
             modelBuilder.Entity<OptionalManyComposite>().Ignore(e => e.Principal);
             modelBuilder.Entity<RequiredManyComposite>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalBadComposite>(b =>
-            {
-                b.Ignore(e => e.OptionalSingle);
-            });
+            modelBuilder.Entity<PrincipalBadComposite>(b => b.Ignore(e => e.OptionalSingle));
 
             modelBuilder.Entity<OptionalSingleBadComposite>().Ignore(e => e.Principal);
 
-            modelBuilder.Entity<PrincipalBad>(b =>
-            {
-                b.Ignore(e => e.OptionalSingle);
-            });
+            modelBuilder.Entity<PrincipalBad>(b => b.Ignore(e => e.OptionalSingle));
 
             modelBuilder.Entity<OptionalSingleBad>().Ignore(e => e.Principal);
 

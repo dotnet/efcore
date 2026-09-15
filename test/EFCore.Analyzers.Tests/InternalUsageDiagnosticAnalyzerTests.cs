@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.CodeAnalysis;
+using VerifyCS =
+    Microsoft.EntityFrameworkCore.TestUtilities.CSharpAnalyzerVerifier<Microsoft.EntityFrameworkCore.InternalUsageDiagnosticAnalyzer>;
 
 namespace Microsoft.EntityFrameworkCore;
-
-using VerifyCS = CSharpAnalyzerVerifier<InternalUsageDiagnosticAnalyzer>;
 
 public class InternalUsageDiagnosticAnalyzerTests
 {

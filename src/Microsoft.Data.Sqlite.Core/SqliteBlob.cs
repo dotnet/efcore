@@ -157,17 +157,11 @@ public class SqliteBlob : Stream
             throw new ArgumentOutOfRangeException(nameof(offset), offset, message: null);
         }
 
-        if (count < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(count), count, message: null);
-        }
-
-        if (offset + count > buffer.Length)
-        {
-            throw new ArgumentException(Resources.InvalidOffsetAndCount);
-        }
-
-        return Read(buffer.AsSpan(offset, count));
+        return count < 0
+            ? throw new ArgumentOutOfRangeException(nameof(count), count, message: null)
+            : offset + count > buffer.Length
+                ? throw new ArgumentException(Resources.InvalidOffsetAndCount)
+                : Read(buffer.AsSpan(offset, count));
     }
 
     /// <summary>
@@ -205,9 +199,10 @@ public class SqliteBlob : Stream
         // Newer sqlite3_blob_read returns error for 0-byte reads.
         if (count > 0)
         {
-            var rc = sqlite3_blob_read(_blob, buffer.Slice(0, count), (int)position);
+            var rc = sqlite3_blob_read(_blob, buffer[..count], (int)position);
             SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
         }
+
         _position += count;
         return count;
     }
@@ -279,9 +274,10 @@ public class SqliteBlob : Stream
         // Newer sqlite3_blob_write returns error for 0-byte writes.
         if (count > 0)
         {
-            var rc = sqlite3_blob_write(_blob, buffer.Slice(0, count), (int)position);
+            var rc = sqlite3_blob_write(_blob, buffer[..count], (int)position);
             SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
         }
+
         _position += count;
     }
 
@@ -293,28 +289,14 @@ public class SqliteBlob : Stream
     /// <returns>The new position within the current stream.</returns>
     public override long Seek(long offset, SeekOrigin origin)
     {
-        long position;
-        switch (origin)
+        var position = origin switch
         {
-            case SeekOrigin.Begin:
-                position = offset;
-                break;
-            case SeekOrigin.Current:
-                position = _position + offset;
-                break;
-            case SeekOrigin.End:
-                position = Length + offset;
-                break;
-            default:
-                throw new ArgumentException(Resources.InvalidEnumValue(typeof(SeekOrigin), origin), nameof(origin));
-        }
-
-        if (position < 0)
-        {
-            throw new IOException(Resources.SeekBeforeBegin);
-        }
-
-        return _position = position;
+            SeekOrigin.Begin => offset,
+            SeekOrigin.Current => _position + offset,
+            SeekOrigin.End => Length + offset,
+            _ => throw new ArgumentException(Resources.InvalidEnumValue(typeof(SeekOrigin), origin), nameof(origin)),
+        };
+        return position < 0 ? throw new IOException(Resources.SeekBeforeBegin) : (_position = position);
     }
 
     /// <summary>
@@ -325,11 +307,8 @@ public class SqliteBlob : Stream
     /// </param>
     protected override void Dispose(bool disposing)
     {
-        if (_blob != null)
-        {
-            _blob.Dispose();
-            _blob = null;
-        }
+        _blob?.Dispose();
+        _blob = null;
     }
 
     /// <summary>

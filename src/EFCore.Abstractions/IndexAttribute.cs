@@ -15,10 +15,7 @@ namespace Microsoft.EntityFrameworkCore;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class IndexAttribute : Attribute
 {
-    private string? _name;
     private bool? _isUnique;
-    private bool[]? _isDescending;
-    private bool _allDescending;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
@@ -30,8 +27,7 @@ public sealed class IndexAttribute : Attribute
         Check.NotEmpty(propertyName);
         Check.HasNoEmptyElements(additionalPropertyNames);
 
-        PropertyNames = new List<string> { propertyName };
-        ((List<string>)PropertyNames).AddRange(additionalPropertyNames);
+        PropertyNames = [propertyName, .. additionalPropertyNames];
     }
 
     /// <summary>
@@ -45,8 +41,8 @@ public sealed class IndexAttribute : Attribute
     [DisallowNull]
     public string? Name
     {
-        get => _name;
-        set => _name = Check.NotNull(value);
+        get;
+        set => field = Check.NotNull(value);
     }
 
     /// <summary>
@@ -63,7 +59,7 @@ public sealed class IndexAttribute : Attribute
     /// </summary>
     public bool[]? IsDescending
     {
-        get => _isDescending;
+        get;
         set
         {
             if (value is not null)
@@ -74,13 +70,13 @@ public sealed class IndexAttribute : Attribute
                         AbstractionsStrings.InvalidNumberOfIndexSortOrderValues(value.Length, PropertyNames.Count), nameof(IsDescending));
                 }
 
-                if (_allDescending)
+                if (AllDescending)
                 {
                     throw new ArgumentException(AbstractionsStrings.CannotSpecifyBothIsDescendingAndAllDescending);
                 }
             }
 
-            _isDescending = value;
+            field = value;
         }
     }
 
@@ -89,7 +85,7 @@ public sealed class IndexAttribute : Attribute
     /// </summary>
     public bool AllDescending
     {
-        get => _allDescending;
+        get;
         set
         {
             if (IsDescending is not null)
@@ -97,7 +93,7 @@ public sealed class IndexAttribute : Attribute
                 throw new ArgumentException(AbstractionsStrings.CannotSpecifyBothIsDescendingAndAllDescending);
             }
 
-            _allDescending = value;
+            field = value;
         }
     }
 

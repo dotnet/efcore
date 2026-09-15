@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixture) : OwnedEntityQueryTestBase(fixture)
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -42,24 +40,24 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         public class AnAggregateRoot
         {
-            public string Id { get; set; }
-            public AnOwnedTypeWithOwnedProperties AnOwnedTypeWithOwnedProperties { get; set; }
+            public string Id { get; set; } = null!;
+            public AnOwnedTypeWithOwnedProperties? AnOwnedTypeWithOwnedProperties { get; set; }
         }
 
         public class AnOwnedTypeWithOwnedProperties
         {
-            public AnOwnedTypeWithPrimitiveProperties1 AnOwnedTypeWithPrimitiveProperties1 { get; set; }
-            public AnOwnedTypeWithPrimitiveProperties2 AnOwnedTypeWithPrimitiveProperties2 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties1? AnOwnedTypeWithPrimitiveProperties1 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties2? AnOwnedTypeWithPrimitiveProperties2 { get; set; }
         }
 
         public class AnOwnedTypeWithPrimitiveProperties1
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         public class AnOwnedTypeWithPrimitiveProperties2
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -84,7 +82,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context24777(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Root> Roots { get; set; }
+        public DbSet<Root> Roots { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Root>(b =>
@@ -147,15 +145,15 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class Root
         {
             public int Id { get; init; }
-            public ModdleA ModdleA { get; init; }
-            public MiddleB MiddleB { get; init; }
+            public ModdleA ModdleA { get; init; } = null!;
+            public MiddleB? MiddleB { get; init; }
         }
 
         public class ModdleA
         {
             public int Id { get; init; }
             public int RootId { get; init; }
-            public List<Leaf> Leaves { get; }
+            public List<Leaf> Leaves { get; } = null!;
         }
 
         public class MiddleB
@@ -210,18 +208,18 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     protected class Location25680
     {
         public Guid Id { get; set; }
-        public ICollection<PublishTokenType25680> PublishTokenTypes { get; set; }
+        public ICollection<PublishTokenType25680> PublishTokenTypes { get; set; } = null!;
     }
 
     protected class PublishTokenType25680
     {
-        public Location25680 Location { get; set; }
+        public Location25680 Location { get; set; } = null!;
         public Guid LocationId { get; set; }
 
-        public string ExternalId { get; set; }
-        public string VisualNumber { get; set; }
-        public string TokenGroupId { get; set; }
-        public string IssuerName { get; set; }
+        public string ExternalId { get; set; } = null!;
+        public string VisualNumber { get; set; } = null!;
+        public string TokenGroupId { get; set; } = null!;
+        public string IssuerName { get; set; } = null!;
     }
 
     #endregion
@@ -256,16 +254,13 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                 b.OwnsOne(e => e.SupplierData).ToTable("SupplierData");
             });
 
-            modelBuilder.Entity<Owner>(b =>
-            {
-                b.OwnsOne(
-                    e => e.OwnedEntity, o =>
-                    {
-                        o.ToTable("IntermediateOwnedEntity");
-                        o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
-                        o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
-                    });
-            });
+            modelBuilder.Entity<Owner>(b => b.OwnsOne(
+                e => e.OwnedEntity, o =>
+                {
+                    o.ToTable("IntermediateOwnedEntity");
+                    o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
+                    o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
+                }));
         }
     }
 
@@ -320,7 +315,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal(1, t.ServiceType);
+                Assert.Equal(1, t!.ServiceType);
                 Assert.Equal("1", t.ApartmentNo);
             });
     }
@@ -346,13 +341,10 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal("1", t.MyApartmentNo);
+                Assert.Equal("1", t!.MyApartmentNo);
                 Assert.Equal(1, t.MyServiceType);
             },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            Assert.Null);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -376,13 +368,10 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal("1", t.MyApartmentNo);
+                Assert.Equal("1", t!.MyApartmentNo);
                 Assert.Equal(1, t.MyServiceType);
             },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            Assert.Null);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -391,7 +380,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateDbContext();
-        var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot.ApartmentNo);
+        var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot!.ApartmentNo);
 
         var result = async
             ? await query.ToListAsync()
@@ -399,20 +388,14 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         Assert.Collection(
             result,
-            t =>
-            {
-                Assert.Equal("1", t);
-            },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            t => Assert.Equal("1", t),
+            Assert.Null);
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context28247(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<RotRutCase> RotRutCases { get; set; }
+        public DbSet<RotRutCase> RotRutCases { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RotRutCase>(b =>
@@ -447,21 +430,21 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class RotRutCase
         {
             public int Id { get; set; }
-            public string Buyer { get; set; }
-            public Rot Rot { get; set; }
-            public Rut Rut { get; set; }
+            public string Buyer { get; set; } = null!;
+            public Rot? Rot { get; set; }
+            public Rut? Rut { get; set; }
         }
 
         public class Rot
         {
             public int? ServiceType { get; set; }
-            public string ApartmentNo { get; set; }
+            public string? ApartmentNo { get; set; }
         }
 
         public class RotDto
         {
             public int? MyServiceType { get; set; }
-            public string MyApartmentNo { get; set; }
+            public string? MyApartmentNo { get; set; }
         }
 
         public class Rut
@@ -494,8 +477,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context30358(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Monarch> Monarchs { get; set; }
-        public DbSet<Magus> Magi { get; set; }
+        public DbSet<Monarch> Monarchs { get; set; } = null!;
+        public DbSet<Magus> Magi { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Magus>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
@@ -505,13 +488,15 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             Add(
                 new Monarch
                 {
-                    Name = "His August Majesty Guslav the Fifth", RulerOf = "The Union",
+                    Name = "His August Majesty Guslav the Fifth",
+                    RulerOf = "The Union",
                 });
 
             Add(
                 new Monarch
                 {
-                    Name = "Emperor Uthman-ul-Dosht", RulerOf = "The Gurkish Empire",
+                    Name = "Emperor Uthman-ul-Dosht",
+                    RulerOf = "The Gurkish Empire",
                 });
 
             Add(
@@ -536,21 +521,21 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class Monarch
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string RulerOf { get; set; }
+            public string Name { get; set; } = null!;
+            public string RulerOf { get; set; } = null!;
         }
 
         public class Magus
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string Affiliation { get; set; }
-            public MagicTool ToolUsed { get; set; }
+            public string Name { get; set; } = null!;
+            public string Affiliation { get; set; } = null!;
+            public MagicTool ToolUsed { get; set; } = null!;
         }
 
         public class MagicTool
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
     }
 
@@ -605,7 +590,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         public sealed class Child1Entity : BaseEntity
         {
-            public ChildData Data { get; set; }
+            public ChildData Data { get; set; } = null!;
         }
 
         public sealed class Child2Entity : BaseEntity;
@@ -628,11 +613,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                 var rootEntity = new Context38223.RootEntity
                 {
                     Id = Guid.NewGuid(),
-                    Outer = new Context38223.Outer
-                    {
-                        RequiredProperty = 1,
-                        Inner = new Context38223.Inner { InnerProperty = 42 }
-                    }
+                    Outer = new Context38223.Outer { RequiredProperty = 1, Inner = new Context38223.Inner { InnerProperty = 42 } }
                 };
                 c.Add(rootEntity);
                 await c.SaveChangesAsync();
@@ -655,11 +636,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             l => l.Id == CoreEventId.InconsistentOwnedDataWarning && l.Level == LogLevel.Warning);
 
         // Replacing the owned entity should not throw an identity conflict exception
-        root.Outer = new Context38223.Outer
-        {
-            RequiredProperty = 1,
-            Inner = new Context38223.Inner { InnerProperty = 2 }
-        };
+        root.Outer = new Context38223.Outer { RequiredProperty = 1, Inner = new Context38223.Inner { InnerProperty = 2 } };
 
         await context.SaveChangesAsync();
     }
@@ -676,7 +653,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class RootEntity
         {
             public Guid Id { get; set; }
-            public Outer Outer { get; set; }
+            public Outer? Outer { get; set; }
         }
 
         public class Outer
@@ -688,6 +665,103 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class Inner
         {
             public required int InnerProperty { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 29593
+
+    // The dependent lives in its own table, so expanding it into the grouped query would need a join added to a query that has
+    // already been grouped. It keeps the correlated subquery it translates to today.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context29593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Set<Context29593.Invoice>()
+            .GroupBy(e => e.Region)
+            .Select(g => new { g.Key, Total = g.Sum(e => e.Summary!.Amount) });
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Single(e => e.Key == "east").Total);
+        Assert.Equal(12, result.Single(e => e.Key == "west").Total);
+    }
+
+    // The dependent's main fragment shares the owner's table, so it is expanded into the grouped query; the fragment holding
+    // Tax is reached through a join that the grouped query can carry.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_on_owned_navigation_split_over_two_tables(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context29593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Set<Context29593.Order>()
+            .GroupBy(e => e.Region)
+            .Select(g => new { g.Key, Total = g.Sum(e => e.Total!.Net), Tax = g.Sum(e => e.Total!.Tax) });
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Single(e => e.Key == "east").Total);
+        Assert.Equal(30, result.Single(e => e.Key == "east").Tax);
+        Assert.Equal(12, result.Single(e => e.Key == "west").Total);
+        Assert.Equal(120, result.Single(e => e.Key == "west").Tax);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context29593(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Invoice>().OwnsOne(e => e.Summary, b => b.ToTable("Summaries"));
+            modelBuilder.Entity<Order>().OwnsOne(
+                e => e.Total, b => b.SplitToTable("OrderTotalTax", t => t.Property(p => p.Tax)));
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Invoice { Region = "east", Summary = new Summary { Amount = 1 } },
+                new Invoice { Region = "east", Summary = new Summary { Amount = 2 } },
+                new Invoice { Region = "west", Summary = new Summary { Amount = 12 } });
+
+            AddRange(
+                new Order { Region = "east", Total = new Total { Net = 1, Tax = 10 } },
+                new Order { Region = "east", Total = new Total { Net = 2, Tax = 20 } },
+                new Order { Region = "west", Total = new Total { Net = 12, Tax = 120 } });
+
+            return SaveChangesAsync();
+        }
+
+        public class Invoice
+        {
+            public int Id { get; set; }
+            public string Region { get; set; } = null!;
+            public Summary? Summary { get; set; }
+        }
+
+        public class Summary
+        {
+            public int Amount { get; set; }
+        }
+
+        public class Order
+        {
+            public int Id { get; set; }
+            public string Region { get; set; } = null!;
+            public Total? Total { get; set; }
+        }
+
+        public class Total
+        {
+            public int Net { get; set; }
+            public int Tax { get; set; }
         }
     }
 

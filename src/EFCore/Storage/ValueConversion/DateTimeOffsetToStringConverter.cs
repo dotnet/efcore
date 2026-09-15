@@ -51,7 +51,8 @@ public class DateTimeOffsetToStringConverter : StringDateTimeOffsetConverter<Dat
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateTimeOffset), typeof(string),
+        = new(
+            typeof(DateTimeOffset), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new DateTimeOffsetToStringConverter(i.MappingHints),
             DefaultHints);
 }

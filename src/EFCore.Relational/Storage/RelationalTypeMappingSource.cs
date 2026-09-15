@@ -237,19 +237,16 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             info.WithConverter(
                 // Note that the converter info is only used temporarily here and never creates an instance.
                 new ValueConverterInfo(modelType, typeof(string), _ => null!)));
-        if (mapping is null)
-        {
-            return null;
-        }
-
-        return (RelationalTypeMapping)mapping.WithComposedConverter(
-            (ValueConverter)Activator.CreateInstance(
-                typeof(CollectionToJsonStringConverter<>).MakeGenericType(
-                    modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
-            comparer,
-            comparer,
-            elementMapping,
-            collectionReaderWriter);
+        return mapping is null
+            ? null
+            : (RelationalTypeMapping)mapping.WithComposedConverter(
+                (ValueConverter)Activator.CreateInstance(
+                    typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                        modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+                comparer,
+                comparer,
+                elementMapping,
+                collectionReaderWriter);
     }
 
     /// <summary>
@@ -494,7 +491,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
     /// <inheritdoc />
     RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(IProperty property)
-        => (RelationalTypeMapping?)FindMapping(property);
+        => FindMapping(property);
 
     /// <summary>
     ///     Parses a provider-specific store type name, extracting the standard facets

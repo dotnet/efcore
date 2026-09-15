@@ -108,7 +108,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);
             Assert.Equal("Mettavolution", entityWithFacets.StringAlias);
         }
 
-        string GetColumnType(IEntityType entityType, string propertyName)
+        static string GetColumnType(IEntityType entityType, string propertyName)
             => entityType.FindProperty(propertyName)!.GetColumnType(new StoreObjectIdentifier());
     }
 

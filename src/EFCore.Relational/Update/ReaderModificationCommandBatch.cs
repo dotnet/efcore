@@ -74,7 +74,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <summary>
     ///     Gets the parameter values for the commands in the batch.
     /// </summary>
-    protected virtual Dictionary<string, object?> ParameterValues { get; } = new();
+    protected virtual Dictionary<string, object?> ParameterValues { get; } = [];
 
     /// <summary>
     ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
@@ -85,7 +85,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <summary>
     ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.
     /// </summary>
-    protected virtual IList<ResultSetMapping> ResultSetMappings { get; } = new List<ResultSetMapping>();
+    protected virtual IList<ResultSetMapping> ResultSetMappings { get; } = [];
 
     /// <summary>
     ///     The store command generated from this batch when <see cref="Complete" /> is called.

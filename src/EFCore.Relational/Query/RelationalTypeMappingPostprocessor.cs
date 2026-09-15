@@ -73,13 +73,10 @@ public class RelationalTypeMappingPostprocessor(
         {
             // The inferred type mapping scanner records a null when two conflicting type mappings were inferred for the same
             // column.
-            if (inferredTypeMapping is null)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.ConflictingTypeMappingsInferredForColumn(columnName));
-            }
-
-            return true;
+            return inferredTypeMapping is null
+                ? throw new InvalidOperationException(
+                    RelationalStrings.ConflictingTypeMappingsInferredForColumn(columnName))
+                : true;
         }
 
         inferredTypeMapping = null;
@@ -189,7 +186,7 @@ public class RelationalTypeMappingPostprocessor(
                     // In the usual case, some operation performed against the elements of the collection (e.g. comparison to a column) provides us with
                     // an element type mapping; infer the collection's type mapping from that.
                     collectionParameterTypeMapping = RelationalDependencies.TypeMappingSource.FindMapping(
-                            valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping);
+                        valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping);
                 }
                 else
                 {
@@ -198,15 +195,13 @@ public class RelationalTypeMappingPostprocessor(
                     // In normal circumstances, such an expression would get client-evaluated in the funceltizer (no reference to a
                     // column/database-side object), but with compiled queries the collection parameter gets preserved as-is.
                     // The only thing we can do is apply the default type mapping.
-                    collectionParameterTypeMapping = RelationalDependencies.TypeMappingSource.FindMapping(valuesParameter.Type, QueryCompilationContext.Model);
+                    collectionParameterTypeMapping = RelationalDependencies.TypeMappingSource.FindMapping(
+                        valuesParameter.Type, QueryCompilationContext.Model);
                 }
 
-                if (collectionParameterTypeMapping is not { ElementTypeMapping: not null })
-                {
-                    throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found");
-                }
-
-                return valuesExpression.Update(valuesParameter.ApplyTypeMapping(collectionParameterTypeMapping));
+                return collectionParameterTypeMapping is not { ElementTypeMapping: not null }
+                    ? throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found")
+                    : valuesExpression.Update(valuesParameter.ApplyTypeMapping(collectionParameterTypeMapping));
             }
 
             default:
@@ -238,14 +233,14 @@ public class RelationalTypeMappingPostprocessor(
     /// </remarks>
     private sealed class ColumnTypeMappingScanner : ExpressionVisitor
     {
-        private readonly Dictionary<(string TableAlias, string ColumnName), RelationalTypeMapping?> _inferredColumns = new();
+        private readonly Dictionary<(string TableAlias, string ColumnName), RelationalTypeMapping?> _inferredColumns = [];
 
         /// <summary>
         ///     A mapping of table aliases to the <see cref="TableExpressionBase" /> instances; these are used to check the table type
         ///     when we encounter a typed column pointing to it, and avoid recording inferred type mappings where we know the table
         ///     doesn't need to be inferred from the column.
         /// </summary>
-        private readonly Dictionary<string, TableExpressionBase> _tableAliasMap = new();
+        private readonly Dictionary<string, TableExpressionBase> _tableAliasMap = [];
 
         private string? _currentSelectTableAlias;
         private ProjectionExpression? _currentProjectionExpression;
@@ -317,10 +312,10 @@ public class RelationalTypeMappingPostprocessor(
                 // For set operations involving a leg with a type mapping (e.g. some column) and a leg without one (queryable constant or
                 // parameter), we infer the missing type mapping from the other side.
                 case SetOperationBase
-                    {
-                        Source1.Projection: [{ Expression: var projection1 }],
-                        Source2.Projection: [{ Expression: var projection2 }]
-                    }
+                {
+                    Source1.Projection: [{ Expression: var projection1 }],
+                    Source2.Projection: [{ Expression: var projection2 }]
+                }
                     when UnwrapConvert(projection1) is ColumnExpression column1 && UnwrapConvert(projection2) is ColumnExpression column2:
                 {
                     // Note that we can't use WasMaybeOriginallyUntyped() here like in the other cases, since that only works after we've

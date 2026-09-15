@@ -31,16 +31,40 @@ public class CandidateNamingServiceTest
         // principal type name); the original property name is used instead.
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity<NamingPrincipal>();
-        modelBuilder.Entity<NamingDependent>(
-            b =>
-            {
-                b.Property<int>("_Id");
-                b.HasOne<NamingPrincipal>().WithMany().HasForeignKey("_Id");
-            });
+        modelBuilder.Entity<NamingDependent>(b =>
+        {
+            b.Property<int>("_Id");
+            b.HasOne<NamingPrincipal>().WithMany().HasForeignKey("_Id");
+        });
 
         var foreignKey = modelBuilder.Model.FindEntityType(typeof(NamingDependent))!.GetForeignKeys().Single();
 
         Assert.Equal("_Id", new CandidateNamingService().GetDependentEndCandidateNavigationPropertyName(foreignKey));
+    }
+
+    [Theory]
+    [InlineData("FileUuid", "File")]
+    [InlineData("QuestionUuid", "Question")]
+    public void Dependent_end_navigation_name_strips_Uuid_suffix(
+        string foreignKeyName,
+        string expectedNavigationName)
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<NamingPrincipal>();
+        modelBuilder.Entity<NamingDependent>(b =>
+        {
+            b.Property<Guid>(foreignKeyName);
+            b.HasOne<NamingPrincipal>().WithMany().HasForeignKey(foreignKeyName);
+        });
+
+        var foreignKey = modelBuilder.Model
+            .FindEntityType(typeof(NamingDependent))!
+            .GetForeignKeys()
+            .Single();
+
+        Assert.Equal(
+            expectedNavigationName,
+            new CandidateNamingService().GetDependentEndCandidateNavigationPropertyName(foreignKey));
     }
 
     private class NamingPrincipal

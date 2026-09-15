@@ -120,7 +120,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
                 internalEntityEntry,
                 node.InboundNavigation, sourceEntry))
         {
-            (_visited ??= new HashSet<object>(ReferenceEqualityComparer.Instance)).Add(internalEntityEntry.Entity);
+            (_visited ??= [with(ReferenceEqualityComparer.Instance)]).Add(internalEntityEntry.Entity);
         }
         else
         {

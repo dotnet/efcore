@@ -10,12 +10,12 @@ public class NullabilityTests
     [Fact]
     public void Null_against_null()
     {
-        Assert.True(null == (HierarchyId)null);
-        Assert.False(null != (HierarchyId)null);
-        Assert.False(null > (HierarchyId)null);
-        Assert.True(null >= (HierarchyId)null);
-        Assert.False(null < (HierarchyId)null);
-        Assert.True(null <= (HierarchyId)null);
+        Assert.True(null == (HierarchyId?)null);
+        Assert.False(null != (HierarchyId?)null);
+        Assert.False(null > (HierarchyId?)null);
+        Assert.True(null >= (HierarchyId?)null);
+        Assert.False(null < (HierarchyId?)null);
+        Assert.True(null <= (HierarchyId?)null);
     }
 
     [Fact]
@@ -44,8 +44,8 @@ public class NullabilityTests
     [Fact]
     public void NullOnly_aggregates_equalTo_null()
     {
-        var hid = (HierarchyId)null;
-        var collection = new[] { null, (HierarchyId)null, };
+        var hid = (HierarchyId?)null;
+        var collection = new HierarchyId?[] { null, null };
         var min = collection.Min();
         var max = collection.Max();
 

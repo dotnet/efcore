@@ -62,12 +62,9 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         var hasEntityTypeTemplate = File.Exists(Path.Combine(projectDir, TemplatesDirectory, EntityTypeTemplate));
         var hasConfigurationTemplate = File.Exists(Path.Combine(projectDir, TemplatesDirectory, EntityTypeConfigurationTemplate));
 
-        if (hasConfigurationTemplate && !hasContextTemplate)
-        {
-            throw new OperationException(DesignStrings.NoContextTemplateButConfiguration);
-        }
-
-        return hasContextTemplate || hasEntityTypeTemplate || hasConfigurationTemplate;
+        return hasConfigurationTemplate && !hasContextTemplate
+            ? throw new OperationException(DesignStrings.NoContextTemplateButConfiguration)
+            : hasContextTemplate || hasEntityTypeTemplate || hasConfigurationTemplate;
     }
 
     /// <summary>

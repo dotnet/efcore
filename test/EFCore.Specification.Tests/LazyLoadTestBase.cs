@@ -1,11 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
-
-#nullable disable
 
 public abstract partial class LoadTestBase<TFixture>
 {
@@ -1068,7 +1069,7 @@ public abstract partial class LoadTestBase<TFixture>
             && state == EntityState.Deleted
             && deleteOrphansTiming != CascadeTiming.Never)
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+            Assert.All(parent.Children.Select(e => e.Parent), Assert.Null);
         }
         else
         {
@@ -1784,7 +1785,7 @@ public abstract partial class LoadTestBase<TFixture>
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
         context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
-        var child = context.Attach(new ChildAk { Id = 767, ParentId = null }).Entity;
+        var child = context.Attach(new ChildAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -1830,7 +1831,7 @@ public abstract partial class LoadTestBase<TFixture>
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
         context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
-        var single = context.Attach(new SingleAk { Id = 767, ParentId = null }).Entity;
+        var single = context.Attach(new SingleAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -1938,8 +1939,8 @@ public abstract partial class LoadTestBase<TFixture>
 
         if (LazyLoadingEnabled)
         {
-            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll
-                || state == EntityState.Added && queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            if ((state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                || (state == EntityState.Added && queryTrackingBehavior != QueryTrackingBehavior.TrackAll))
             {
                 Assert.Null(child.Parent); // Explicitly detached
             }
@@ -2022,8 +2023,8 @@ public abstract partial class LoadTestBase<TFixture>
 
         if (LazyLoadingEnabled)
         {
-            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll
-                || state == EntityState.Added && queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            if ((state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                || (state == EntityState.Added && queryTrackingBehavior != QueryTrackingBehavior.TrackAll))
             {
                 Assert.Null(single.Parent); // Explicitly detached
             }
@@ -3565,7 +3566,7 @@ public abstract partial class LoadTestBase<TFixture>
             && state == EntityState.Deleted
             && deleteOrphansTiming != CascadeTiming.Never)
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+            Assert.All(parent.Children.Select(e => e.Parent), Assert.Null);
         }
         else
         {
@@ -6519,7 +6520,7 @@ public abstract partial class LoadTestBase<TFixture>
             && state == EntityState.Deleted
             && deleteOrphansTiming != CascadeTiming.Never)
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+            Assert.All(parent.Children.Select(e => e.Parent), Assert.Null);
         }
         else
         {

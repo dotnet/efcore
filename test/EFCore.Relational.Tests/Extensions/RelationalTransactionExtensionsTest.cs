@@ -44,7 +44,7 @@ public class RelationalTransactionExtensionsTest
 
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,
-            Assert.Throws<InvalidOperationException>(() => transaction.GetDbTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(transaction.GetDbTransaction).Message);
     }
 
     private class NonRelationalTransaction : IDbContextTransaction
@@ -73,7 +73,7 @@ public class RelationalTransactionExtensionsTest
     private const string ConnectionString = "Fake Connection String";
 
     public static IDbContextOptions CreateOptions(
-        FakeRelationalOptionsExtension optionsExtension = null)
+        FakeRelationalOptionsExtension? optionsExtension = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
 

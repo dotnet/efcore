@@ -192,14 +192,11 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
         {
             if (property.DeclaringType != Metadata)
             {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
+                return shouldThrow
+                    ? throw new InvalidOperationException(
                         CoreStrings.InheritedPropertyCannotBeIgnored(
-                            name, Metadata.DisplayName(), property.DeclaringType.DisplayName()));
-                }
-
-                return false;
+                            name, Metadata.DisplayName(), property.DeclaringType.DisplayName()))
+                    : false;
             }
 
             if (!property.DeclaringType.Builder.CanRemoveProperty(
@@ -215,14 +212,11 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
             {
                 if (complexProperty.DeclaringType != Metadata)
                 {
-                    if (shouldThrow)
-                    {
-                        throw new InvalidOperationException(
+                    return shouldThrow
+                        ? throw new InvalidOperationException(
                             CoreStrings.InheritedPropertyCannotBeIgnored(
-                                name, Metadata.DisplayName(), complexProperty.DeclaringType.DisplayName()));
-                    }
-
-                    return false;
+                                name, Metadata.DisplayName(), complexProperty.DeclaringType.DisplayName()))
+                        : false;
                 }
 
                 if (!configurationSource.Overrides(complexProperty.GetConfigurationSource()))

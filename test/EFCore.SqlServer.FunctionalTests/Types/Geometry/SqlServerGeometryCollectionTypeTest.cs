@@ -6,8 +6,11 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geometry;
 
-public class SqlServerGeometryCollectionTypeTest(SqlServerGeometryCollectionTypeTest.GeometryCollectionTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : SqlServerGeometryTypeTestBase<GeometryCollection, SqlServerGeometryCollectionTypeTest.GeometryCollectionTypeFixture>(fixture, testOutputHelper)
+public class SqlServerGeometryCollectionTypeTest(
+    SqlServerGeometryCollectionTypeTest.GeometryCollectionTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : SqlServerGeometryTypeTestBase<GeometryCollection, SqlServerGeometryCollectionTypeTest.GeometryCollectionTypeFixture>(
+        fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
     {
@@ -36,9 +39,7 @@ WHERE [t].[Value].STEquals('GEOMETRYCOLLECTION (POINT (1 1), LINESTRING (2 2, 3 
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -219,36 +220,42 @@ FROM [JsonTypeEntity] AS [j]
 
     public class GeometryCollectionTypeFixture : GeometryTypeFixture
     {
-        public override GeometryCollection Value { get; } = new GeometryCollection(
+        public override GeometryCollection Value { get; } = new(
         [
             new Point(1, 1),
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(2, 2),
                 new Coordinate(3, 3)
             ]),
-            new Polygon(new LinearRing([
-                new Coordinate(4, 4),    // NW
-                new Coordinate(4, 6),    // SW
-                new Coordinate(6, 6),    // SE
-                new Coordinate(6, 4),    // NE
-                new Coordinate(4, 4)
-            ]))
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(4, 4), // NW
+                    new Coordinate(4, 6), // SW
+                    new Coordinate(6, 6), // SE
+                    new Coordinate(6, 4), // NE
+                    new Coordinate(4, 4)
+                ]))
         ]);
 
-        public override GeometryCollection OtherValue { get; } = new GeometryCollection(
+        public override GeometryCollection OtherValue { get; } = new(
         [
             new Point(10, 10),
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(11, 11),
                 new Coordinate(12, 12)
             ]),
-            new Polygon(new LinearRing([
-                new Coordinate(13, 13),  // NW
-                new Coordinate(13, 15),  // SW
-                new Coordinate(15, 15),  // SE
-                new Coordinate(15, 13),  // NE
-                new Coordinate(13, 13)
-            ]))
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(13, 13), // NW
+                    new Coordinate(13, 15), // SW
+                    new Coordinate(15, 15), // SE
+                    new Coordinate(15, 13), // NE
+                    new Coordinate(13, 13)
+                ]))
         ]);
     }
 

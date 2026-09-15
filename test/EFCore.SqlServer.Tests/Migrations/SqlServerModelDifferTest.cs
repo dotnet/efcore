@@ -56,10 +56,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
             _ => { },
             target => target.Entity(
                 "Person",
-                x =>
-                {
-                    x.ToTable(tb => tb.IsMemoryOptimized());
-                }),
+                x => x.ToTable(tb => tb.IsMemoryOptimized())),
             upOps =>
             {
                 Assert.Equal(2, upOps.Count);
@@ -106,10 +103,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
             _ => { },
             target => target.Entity(
                 "Person",
-                x =>
-                {
-                    x.ToTable(tb => tb.IsMemoryOptimized());
-                }),
+                x => x.ToTable(tb => tb.IsMemoryOptimized())),
             upOps =>
             {
                 Assert.Equal(2, upOps.Count);
@@ -291,7 +285,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                     "Campaign",
                     x =>
                     {
-                        x.ToTable((string)null);
+                        x.ToTable((string?)null);
                         x.UseTpcMappingStrategy();
                         x.Property<int>("Id");
                         x.Property<int>("Status");
@@ -299,23 +293,14 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
 
                 source.Entity(
                     "SearchCampaign",
-                    x =>
-                    {
-                        x.HasBaseType("Campaign");
-                    });
+                    x => x.HasBaseType("Campaign"));
             },
             source =>
             {
             },
-            target =>
-            {
-                target.Entity(
-                    "Campaign",
-                    x =>
-                    {
-                        x.Property<int>("Status").HasColumnName("status_new");
-                    });
-            },
+            target => target.Entity(
+                "Campaign",
+                x => x.Property<int>("Status").HasColumnName("status_new")),
             operations =>
             {
                 Assert.Equal(1, operations.Count);
@@ -343,23 +328,14 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
 
                 source.Entity(
                     "SearchCampaign",
-                    x =>
-                    {
-                        x.HasBaseType("Campaign");
-                    });
+                    x => x.HasBaseType("Campaign"));
             },
             source =>
             {
             },
-            target =>
-            {
-                target.Entity(
-                    "Campaign",
-                    x =>
-                    {
-                        x.Property<int>("Status").HasColumnName("status_new");
-                    });
-            },
+            target => target.Entity(
+                "Campaign",
+                x => x.Property<int>("Status").HasColumnName("status_new")),
             operations =>
             {
                 Assert.Equal(1, operations.Count);
@@ -387,23 +363,14 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
 
                 source.Entity(
                     "SearchCampaign",
-                    x =>
-                    {
-                        x.HasBaseType("Campaign");
-                    });
+                    x => x.HasBaseType("Campaign"));
             },
             source =>
             {
             },
-            target =>
-            {
-                target.Entity(
-                    "Campaign",
-                    x =>
-                    {
-                        x.Property<int>("Status").HasColumnName("status_new");
-                    });
-            },
+            target => target.Entity(
+                "Campaign",
+                x => x.Property<int>("Status").HasColumnName("status_new")),
             operations =>
             {
                 Assert.Equal(2, operations.Count);
@@ -453,7 +420,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("bah", addOperation.Schema);
                 Assert.Equal("Ram", addOperation.Table);
                 Assert.Equal("PK_Ram", addOperation.Name);
-                Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]);
+                Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]!);
             });
 
     [Fact]
@@ -473,9 +440,9 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operations.Count);
 
                 var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
-                var addKey = createTableOperation.PrimaryKey;
+                var addKey = createTableOperation.PrimaryKey!;
                 Assert.Equal("PK_Ram", addKey.Name);
-                Assert.False((bool)addKey[SqlServerAnnotationNames.Clustered]);
+                Assert.False((bool)addKey[SqlServerAnnotationNames.Clustered]!);
             });
 
     [Fact]
@@ -512,7 +479,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("bah", addOperation.Schema);
                 Assert.Equal("Ewe", addOperation.Table);
                 Assert.Equal("AK_Ewe_AlternateId", addOperation.Name);
-                Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]);
+                Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]!);
             });
 
     [Fact]
@@ -704,7 +671,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("bah", createOperation.Schema);
                 Assert.Equal("Mutton", createOperation.Table);
                 Assert.Equal("IX_Mutton_Value", createOperation.Name);
-                Assert.True((bool)createOperation[SqlServerAnnotationNames.Clustered]);
+                Assert.True((bool)createOperation[SqlServerAnnotationNames.Clustered]!);
             });
 
     public static int Function()
@@ -717,7 +684,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
 
         Execute(
             _ => { },
-            modelBuilder => modelBuilder.HasDbFunction(mi),
+            modelBuilder => modelBuilder.HasDbFunction(mi!),
             operations => Assert.Equal(0, operations.Count));
     }
 
@@ -926,19 +893,16 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     [Fact]
     public void Dont_reseed_value_with_value_generated_on_add_property()
         => Execute(
-            common =>
-            {
-                common.Entity(
-                    "EntityWithValueGeneratedOnAddProperty",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<string>("ValueGeneratedOnAddProperty")
-                            .ValueGeneratedOnAdd();
-                        x.HasData(
-                            new { Id = 1, ValueGeneratedOnAddProperty = "Value" });
-                    });
-            },
+            common => common.Entity(
+                "EntityWithValueGeneratedOnAddProperty",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("ValueGeneratedOnAddProperty")
+                        .ValueGeneratedOnAdd();
+                    x.HasData(
+                        new { Id = 1, ValueGeneratedOnAddProperty = "Value" });
+                }),
             source => { },
             target => { },
             operations => Assert.Equal(0, operations.Count));
@@ -1182,12 +1146,9 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                     });
 
                 source.Entity(
-                    "Animal", b =>
-                    {
-                        b.HasOne("Mouse", null)
-                            .WithMany()
-                            .HasForeignKey("MouseId");
-                    });
+                    "Animal", b => b.HasOne("Mouse", null)
+                        .WithMany()
+                        .HasForeignKey("MouseId"));
 
                 source.Entity(
                     "Cat", b =>
@@ -1218,14 +1179,11 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                     });
 
                 source.Entity(
-                    "Mouse", b =>
-                    {
-                        b.HasOne("Animal", null)
-                            .WithOne()
-                            .HasForeignKey("Mouse", "Id")
-                            .OnDelete(DeleteBehavior.Cascade)
-                            .IsRequired();
-                    });
+                    "Mouse", b => b.HasOne("Animal", null)
+                        .WithOne()
+                        .HasForeignKey("Mouse", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired());
             },
             modelBuilder =>
             {
@@ -1269,8 +1227,8 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                             new { Id = 31 });
                     });
             },
-            upOps => Assert.Empty(upOps),
-            downOps => Assert.Empty(downOps),
+            Assert.Empty,
+            Assert.Empty,
             skipSourceConventions: true);
 
     protected override TestHelpers TestHelpers

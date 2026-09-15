@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -19,20 +17,20 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_reference_and_collection_order_by(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer.Orders).OrderBy(o => o.OrderID),
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")).Include(o => o.Customer!.Orders).OrderBy(o => o.OrderID),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<Order>(o => o.Customer), new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
+                new ExpectedInclude<Order>(o => o.Customer!), new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_references_then_include_collection(bool async)
         => await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer).ThenInclude(c => c.Orders),
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")).Include(o => o.Customer!).ThenInclude(c => c.Orders),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<Order>(o => o.Customer),
+                new ExpectedInclude<Order>(o => o.Customer!),
                 new ExpectedInclude<Customer>(c => c.Orders, "Customer")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -41,7 +39,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             CoreStrings.InvalidIncludeExpression("o.Customer.CustomerID"),
             (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
                 async,
-                ss => ss.Set<Order>().Include(o => o.Customer.CustomerID)))).Message);
+                ss => ss.Set<Order>().Include(o => o.Customer!.CustomerID)))).Message);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_property(bool async)
@@ -65,7 +63,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
                 .Include(c => c.Orders)
                 .ThenInclude(o => o.OrderDetails)
                 .Where(c => c.CustomerID.StartsWith("W"))
-                .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate),
+                .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault()!.OrderDate),
             asserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Customer>(c => c.Orders),
@@ -167,17 +165,17 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_collection_alias_generation(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.OrderDetails),
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")).Include(o => o.OrderDetails),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_and_reference(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.OrderDetails).Include(o => o.Customer),
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")).Include(o => o.OrderDetails).Include(o => o.Customer),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<Order>(o => o.OrderDetails), new ExpectedInclude<Order>(o => o.Customer)));
+                new ExpectedInclude<Order>(o => o.OrderDetails), new ExpectedInclude<Order>(o => o.Customer!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_orderby_take(bool async)
@@ -245,7 +243,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
                 .ThenBy(od => od.ProductID)
                 .Skip(1)
                 .Take(2)
-                .Select(od => new { od.Order.CustomerID }));
+                .Select(od => new { od.Order!.CustomerID }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_join_clause_with_filter(bool async)
@@ -275,7 +273,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<Customer>()
                 .Include(o => o.Orders)
                 .RightJoin(ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, o) => new { c, o })
-                .Where(t => t.c.CustomerID.StartsWith("F"))
+                .Where(t => t.c!.CustomerID.StartsWith("F"))
                 .Select(t => t.c),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
@@ -340,7 +338,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<Customer>()
                 .Include(c => c.Orders)
                 .Where(c => c.CustomerID.StartsWith("W"))
-                .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate),
+                .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault()!.OrderDate),
             asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -492,8 +490,8 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => (e.o1.OrderID, e.o2.OrderID),
             elementAsserter: (e, a) =>
             {
-                AssertInclude(e.o1, a.o1, new ExpectedInclude<Order>(c => c.Customer));
-                AssertInclude(e.o2, a.o2, new ExpectedInclude<Order>(c => c.Customer));
+                AssertInclude(e.o1, a.o1, new ExpectedInclude<Order>(c => c.Customer!));
+                AssertInclude(e.o2, a.o2, new ExpectedInclude<Order>(c => c.Customer!));
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -506,7 +504,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => (e.o1.OrderID, e.o2.OrderID),
             elementAsserter: (e, a) =>
             {
-                AssertInclude(e.o1, a.o1, new ExpectedInclude<Order>(c => c.Customer));
+                AssertInclude(e.o1, a.o1, new ExpectedInclude<Order>(c => c.Customer!));
                 AssertEqual(e.o2, a.o2);
             });
 
@@ -521,7 +519,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.o1, a.o1);
-                AssertInclude(e.o2, a.o2, new ExpectedInclude<Order>(c => c.Customer));
+                AssertInclude(e.o2, a.o2, new ExpectedInclude<Order>(c => c.Customer!));
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -539,11 +537,11 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_multi_level_reference_and_collection_predicate(bool async)
         => AssertSingle(
             async,
-            ss => ss.Set<Order>().Include(o => o.Customer.Orders),
+            ss => ss.Set<Order>().Include(o => o.Customer!.Orders),
             o => o.OrderID == 10248,
             asserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<Order>(o => o.Customer),
+                new ExpectedInclude<Order>(o => o.Customer!),
                 new ExpectedInclude<Customer>(c => c.Orders, "Customer")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -571,12 +569,12 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_multiple_references_and_collection_multi_level(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(od => od.Order.Customer.Orders)
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(od => od.Order!.Customer!.Orders)
                 .Include(od => od.Product),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
                 new ExpectedInclude<OrderDetail>(od => od.Product)));
 
@@ -585,11 +583,11 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
         => AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(od => od.Product)
-                .Include(od => od.Order.Customer.Orders),
+                .Include(od => od.Order!.Customer!.Orders),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
                 new ExpectedInclude<OrderDetail>(od => od.Product)));
 
@@ -597,46 +595,46 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_multiple_references_multi_level(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order.Customer).Include(o => o.Product),
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order!.Customer).Include(o => o.Product),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_references_multi_level_reverse(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Product).Include(o => o.Order.Customer),
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Product).Include(o => o.Order!.Customer),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")).Include(o => o.Customer),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_reference_alias_generation(bool async)
         => await AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderDetail>(od => od.Order)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderDetail>(od => od.Order!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_and_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer).Include(o => o.OrderDetails),
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")).Include(o => o.Customer).Include(o => o.OrderDetails),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<Order>(o => o.Customer),
+                new ExpectedInclude<Order>(o => o.Customer!),
                 new ExpectedInclude<Order>(o => o.OrderDetails)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -671,7 +669,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             async,
             ss => ss.Set<Order>().Include(o => o.Customer),
             o => o.OrderID == -1,
-            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_when_projection(bool async)
@@ -683,12 +681,12 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_reference_when_entity_in_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer)
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("F")).Include(o => o.Customer)
                 .Select(o => new { o, o.CustomerID }),
             elementSorter: e => e.o.OrderID,
             elementAsserter: (e, a) =>
             {
-                AssertInclude(e.o, a.o, new ExpectedInclude<Order>(o => o.Customer));
+                AssertInclude(e.o, a.o, new ExpectedInclude<Order>(o => o.Customer!));
                 AssertEqual(e.CustomerID, a.CustomerID);
             });
 
@@ -697,24 +695,24 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Include(o => o.Customer).Where(o => o.CustomerID == "ALFKI"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_filter_reordered(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI").Include(o => o.Customer),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_references_and_collection_multi_level(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13 && od.UnitPrice < 10).Include(o => o.Order.Customer.Orders),
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13 && od.UnitPrice < 10).Include(o => o.Order!.Customer!.Orders),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -754,32 +752,32 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_references_and_collection_multi_level_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Include(od => od.Order.Customer.Orders).Where(od => od.OrderID == 10248),
+            ss => ss.Set<OrderDetail>().Include(od => od.Order!.Customer!.Orders).Where(od => od.OrderID == 10248),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_references_multi_level(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order.Customer),
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order!.Customer),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order")));
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multi_level_reference_then_include_collection_predicate(bool async)
         => AssertSingle(
             async,
-            ss => ss.Set<Order>().Include(o => o.Customer).ThenInclude(c => c.Orders),
+            ss => ss.Set<Order>().Include(o => o.Customer!).ThenInclude(c => c.Orders),
             o => o.OrderID == 10248,
             asserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<Order>(o => o.Customer),
+                new ExpectedInclude<Order>(o => o.Customer!),
                 new ExpectedInclude<Customer>(c => c.Orders, "Customer")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -788,12 +786,12 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             async,
             ss => ss.Set<OrderDetail>()
                 .Where(od => od.OrderID % 23 == 13)
-                .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders)
+                .Include(od => od.Order).ThenInclude(o => o!.Customer).ThenInclude(c => c!.Orders)
                 .Include(od => od.Product),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
                 new ExpectedInclude<OrderDetail>(od => od.Product)));
 
@@ -804,11 +802,11 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<OrderDetail>()
                 .Where(od => od.OrderID % 23 == 13)
                 .Include(od => od.Product)
-                .Include(od => od.Order).ThenInclude(o => o.Customer).ThenInclude(c => c.Orders),
+                .Include(od => od.Order).ThenInclude(o => o!.Customer).ThenInclude(c => c!.Orders),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
                 new ExpectedInclude<OrderDetail>(od => od.Product)));
 
@@ -818,12 +816,12 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             async,
             ss => ss.Set<OrderDetail>()
                 .Where(od => od.OrderID % 23 == 13)
-                .Include(od => od.Order).ThenInclude(o => o.Customer)
+                .Include(od => od.Order).ThenInclude(o => o!.Customer)
                 .Include(od => od.Product),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -833,11 +831,11 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<OrderDetail>()
                 .Where(od => od.OrderID % 23 == 13)
                 .Include(od => od.Product)
-                .Include(od => od.Order).ThenInclude(o => o.Customer),
+                .Include(od => od.Order).ThenInclude(o => o!.Customer),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -847,12 +845,12 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<OrderDetail>()
                 .Where(od => od.ProductID % 23 == 17 && od.Quantity < 10)
                 .Include(od => od.Order)
-                .ThenInclude(o => o.Customer)
-                .ThenInclude(c => c.Orders),
+                .ThenInclude(o => o!.Customer)
+                .ThenInclude(c => c!.Orders),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -861,13 +859,13 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             async,
             ss => ss.Set<OrderDetail>()
                 .Include(od => od.Order)
-                .ThenInclude(o => o.Customer)
-                .ThenInclude(c => c.Orders)
+                .ThenInclude(o => o!.Customer)
+                .ThenInclude(c => c!.Orders)
                 .Where(od => od.OrderID == 10248),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order"),
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -877,18 +875,18 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<OrderDetail>()
                 .Where(od => od.OrderID % 23 == 13)
                 .Include(od => od.Order)
-                .ThenInclude(o => o.Customer),
+                .ThenInclude(o => o!.Customer),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order")));
+                new ExpectedInclude<OrderDetail>(od => od.Order!),
+                new ExpectedInclude<Order>(o => o.Customer!, "Order")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_complex_projection(bool async)
         => AssertQuery(
             async,
             ss => from o in ss.Set<Order>().Include(o => o.Customer)
-                  select new { CustomerId = new { Id = o.Customer.CustomerID } });
+                  select new { CustomerId = new { Id = o.Customer!.CustomerID } });
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_complex_projection_does_not_change_ordering_of_projection(bool async)
@@ -1065,7 +1063,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Include(o => o.Customer).Distinct(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_distinct_is_server_evaluated(bool async)
@@ -1150,7 +1148,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             async,
             ss => ss.Set<Employee>().Include(e => e.Manager),
             e => e.Manager == null,
-            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Employee>(emp => emp.Manager)));
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Employee>(emp => emp.Manager!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(bool async)
@@ -1162,7 +1160,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
                   select e.Manager != null ? "Employee " + ClientMethod(e) : "");
 
     private static string ClientMethod(Employee e)
-        => e.FirstName + " reports to " + e.Manager.FirstName;
+        => e.FirstName + " reports to " + e.Manager!.FirstName;
 
     // Issue#18672
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1230,7 +1228,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_with_cycle_does_not_throw_when_AsNoTrackingWithIdentityResolution(bool async)
         => AssertQuery(
             async,
-            ss => (from i in ss.Set<Order>().Include(o => o.Customer.Orders)
+            ss => (from i in ss.Set<Order>().Include(o => o.Customer!.Orders)
                    where i.OrderID < 10800
                    select i)
                 .AsNoTrackingWithIdentityResolution());
@@ -1239,7 +1237,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
     public virtual Task Include_with_cycle_does_not_throw_when_AsTracking_NoTrackingWithIdentityResolution(bool async)
         => AssertQuery(
             async,
-            ss => (from i in ss.Set<Order>().Include(o => o.Customer.Orders)
+            ss => (from i in ss.Set<Order>().Include(o => o.Customer!.Orders)
                    where i.OrderID < 10800
                    select i)
                 .AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution));
@@ -1281,7 +1279,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) 
             async,
             ss => ss.Set<Order>()
                 .Include(b => b.OrderDetails)
-                .OrderBy(b => b.Customer.CustomerID != null)
+                .OrderBy(b => b.Customer!.CustomerID != null)
                 .ThenBy(b => b.Customer != null ? b.Customer.CustomerID : string.Empty)
                 .Take(2));
 

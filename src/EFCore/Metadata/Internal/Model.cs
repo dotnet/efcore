@@ -24,10 +24,10 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
     public static readonly Type DefaultPropertyBagType = typeof(Dictionary<string, object>);
 
-    private readonly SortedDictionary<string, EntityType> _entityTypes = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, EntityType> _entityTypes = [with(StringComparer.Ordinal)];
     private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
     private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
-    private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames = [with(StringComparer.Ordinal)];
     private Dictionary<string, ConfigurationSource>? _ownedTypes;
     private Dictionary<Type, ConfigurationSource>? _configuredComplexTypes;
     private SortedDictionary<string, ComplexType>? _complexTypes;
@@ -715,7 +715,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     {
         EnsureMutable();
         var name = GetDisplayName(type);
-        _ownedTypes ??= new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
+        _ownedTypes ??= [with(StringComparer.Ordinal)];
 
         if (_ownedTypes.TryGetValue(name, out var oldConfigurationSource))
         {
@@ -793,7 +793,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     {
         EnsureMutable();
 
-        _configuredComplexTypes ??= new Dictionary<Type, ConfigurationSource>();
+        _configuredComplexTypes ??= [];
         if (_configuredComplexTypes.TryGetValue(type, out var oldConfigurationSource))
         {
             _configuredComplexTypes[type] = configurationSource.Max(oldConfigurationSource);
@@ -823,7 +823,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     {
         EnsureMutable();
 
-        _complexTypes ??= new SortedDictionary<string, ComplexType>(StringComparer.Ordinal);
+        _complexTypes ??= [with(StringComparer.Ordinal)];
 
         if (!_complexTypes.TryAdd(complexType.Name, complexType))
         {
@@ -960,13 +960,12 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     {
         EnsureMutable();
 
-        if (_sharedTypes.TryGetValue(type, out var existingTypes)
-            && existingTypes.Types.Count != 0)
-        {
-            throw new InvalidOperationException(CoreStrings.CannotMarkNonShared(type.ShortDisplayName()));
-        }
-
-        return _sharedTypes.Remove(type) ? type : null;
+        return _sharedTypes.TryGetValue(type, out var existingTypes)
+            && existingTypes.Types.Count != 0
+                ? throw new InvalidOperationException(CoreStrings.CannotMarkNonShared(type.ShortDisplayName()))
+                : _sharedTypes.Remove(type)
+                    ? type
+                    : null;
     }
 
     /// <summary>

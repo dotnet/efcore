@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -120,12 +121,14 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     {
         var tables = new List<string>();
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME != '__EFMigrationsHistory'";
+        command.CommandText =
+            "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME != '__EFMigrationsHistory'";
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
             tables.Add(reader.GetString(0));
         }
+
         return tables;
     }
 
@@ -315,7 +318,10 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             if (Directory.Exists(tempDirectory))
             {
                 try { Directory.Delete(tempDirectory, recursive: true); }
-                catch { /* Ignore cleanup errors */ }
+                catch
+                {
+                    /* Ignore cleanup errors */
+                }
             }
         }
     }
@@ -403,7 +409,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     {
         var databaseModelFactory = services.ServiceProvider.GetRequiredService<IDatabaseModelFactory>();
         var connection = context.Database.GetDbConnection();
-        if (connection.State != System.Data.ConnectionState.Open)
+        if (connection.State != ConnectionState.Open)
         {
             context.Database.OpenConnection();
         }
@@ -761,12 +767,13 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         context.SaveChanges();
 
         var blogId = context.Blogs.Single().Id;
-        context.Posts.Add(new Post
-        {
-            Title = "Test Post",
-            Content = "Test Content",
-            BlogId = blogId
-        });
+        context.Posts.Add(
+            new Post
+            {
+                Title = "Test Post",
+                Content = "Test Content",
+                BlogId = blogId
+            });
         context.SaveChanges();
 
         Assert.Equal(1, context.Blogs.Count());
@@ -862,7 +869,8 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             var appliedAfterRevert = context.Database.GetAppliedMigrations().ToList();
             Assert.DoesNotContain(migration.MigrationId, appliedAfterRevert);
 
-            var removedFiles = scaffolder.RemoveMigration(tempDirectory, rootNamespace: "TestNamespace", force: false, language: "C#", dryRun: false);
+            var removedFiles = scaffolder.RemoveMigration(
+                tempDirectory, rootNamespace: "TestNamespace", force: false, language: "C#", dryRun: false);
 
             Assert.NotNull(removedFiles.MigrationFile);
             Assert.False(File.Exists(removedFiles.MigrationFile));
@@ -873,7 +881,10 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             if (Directory.Exists(tempDirectory))
             {
                 try { Directory.Delete(tempDirectory, recursive: true); }
-                catch { /* Ignore cleanup errors */ }
+                catch
+                {
+                    /* Ignore cleanup errors */
+                }
             }
         }
     }

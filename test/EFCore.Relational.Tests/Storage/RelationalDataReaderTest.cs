@@ -20,7 +20,7 @@ public class RelationalDataReaderTest
         var reader = relationalCommand.ExecuteReader(
             new RelationalCommandParameterObject(
                 fakeConnection,
-                new Dictionary<string, object>(),
+                new Dictionary<string, object?>(),
                 readerColumns: null,
                 context: null,
                 logger: null));
@@ -41,11 +41,11 @@ public class RelationalDataReaderTest
 
     private const string ConnectionString = "Fake Connection String";
 
-    private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
+    private static FakeRelationalConnection CreateConnection(IDbContextOptions? options = null)
         => new(options ?? CreateOptions());
 
     private static IDbContextOptions CreateOptions(
-        RelationalOptionsExtension optionsExtension = null)
+        RelationalOptionsExtension? optionsExtension = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
 
@@ -60,7 +60,7 @@ public class RelationalDataReaderTest
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
         string logCommandText = "Log Command Text",
-        IReadOnlyList<IRelationalParameter> parameters = null)
+        IReadOnlyList<IRelationalParameter>? parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(

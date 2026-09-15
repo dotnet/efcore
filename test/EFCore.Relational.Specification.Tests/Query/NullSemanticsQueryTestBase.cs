@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
 // ReSharper disable SimplifyConditionalTernaryExpression
@@ -14,8 +17,6 @@ using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 #pragma warning disable RCS1068 // Simplify logical negation.
 
 namespace Microsoft.EntityFrameworkCore.Query;
-
-#nullable disable
 
 public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NullSemanticsQueryFixtureBase, new()
@@ -509,7 +510,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Compare_nullable_with_null_parameter_equal(bool async)
     {
-        string prm = null;
+        string? prm = null;
 
         return AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == prm).Select(e => e.Id));
     }
@@ -556,7 +557,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_local_array_closure_with_null(bool async)
     {
-        string[] ids = ["Foo", null];
+        string?[] ids = ["Foo", null];
 
         return AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>().Where(e => ids.Contains(e.NullableStringA)).Select(e => e.Id));
@@ -565,7 +566,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_local_array_closure_with_multiple_nulls(bool async)
     {
-        string[] ids = [null, "Foo", null, null];
+        string?[] ids = [null, "Foo", null, null];
 
         return AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>().Where(e => ids.Contains(e.NullableStringA)).Select(e => e.Id));
@@ -574,7 +575,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_local_array_closure_false_with_null(bool async)
     {
-        string[] ids = ["Foo", null];
+        string?[] ids = ["Foo", null];
 
         return AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>().Where(e => !ids.Contains(e.NullableStringA)).Select(e => e.Id));
@@ -606,7 +607,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_multiple_ors_with_nullable_parameter(bool async)
     {
-        string prm = null;
+        string? prm = null;
 
         return AssertQueryScalar(
             async,
@@ -616,8 +617,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_multiple_ands_with_nullable_parameter_and_constant(bool async)
     {
-        string prm1 = null;
-        string prm2 = null;
+        string? prm1 = null;
+        string? prm2 = null;
         var prm3 = "Blah";
 
         return AssertQueryScalar(
@@ -631,8 +632,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_multiple_ands_with_nullable_parameter_and_constant_not_optimized(bool async)
     {
-        string prm1 = null;
-        string prm2 = null;
+        string? prm1 = null;
+        string? prm2 = null;
         var prm3 = "Blah";
 
         return AssertQueryScalar(
@@ -664,7 +665,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_equal_nullable_with_null_value_parameter(bool async)
     {
-        string prm = null;
+        string? prm = null;
 
         return AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == prm).Select(e => e.Id));
     }
@@ -672,7 +673,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_not_equal_nullable_with_null_value_parameter(bool async)
     {
-        string prm = null;
+        string? prm = null;
 
         return AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != prm).Select(e => e.Id));
     }
@@ -740,11 +741,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
 
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => prm ? list.Contains(e.StringA) : false).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => prm && list.Contains(e.StringA)).Select(e => e.Id));
 
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => !prm ? true : e.StringA.StartsWith("B")).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !prm || e.StringA.StartsWith("B")).Select(e => e.Id));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -757,11 +758,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         return AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>().Where(e => prm1
-                ? (prm2
-                    ? (e.BoolA
-                        ? e.StringA.StartsWith("A")
-                        : false)
-                    : true)
+                ? (!prm2 || (e.BoolA && e.StringA.StartsWith("A")))
                 : (e.BoolB ? list.Contains(e.StringA) : list.Contains(e.StringB))).Select(e => e.Id));
     }
 
@@ -769,7 +766,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Where_equal_with_and_and_contains(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.Contains(e.NullableStringB) && e.BoolA).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.Contains(e.NullableStringB!) && e.BoolA).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>()
                 .Where(e => e.NullableStringA != null && e.NullableStringA.Contains(e.NullableStringB ?? "Blah") && e.BoolA)
                 .Select(e => e.Id));
@@ -835,7 +832,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual void Where_contains_on_parameter_array_with_just_null_with_relational_null_semantics()
     {
         using var context = CreateContext(useRelationalNulls: true);
-        var names = new string[] { null };
+        var names = new string?[] { null };
         var result = context.Entities1
             .Where(e => names.Contains(e.NullableStringA))
             .Select(e => e.NullableStringA).ToList().Count;
@@ -847,7 +844,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Where_nullable_bool(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableBoolA.Value).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableBoolA!.Value).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableBoolA == true).Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -916,7 +913,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         using var context = CreateContext(useRelationalNulls: true);
         var l = context.Entities1
-            .Where(e => (e.NullableBoolA != e.NullableBoolB) == e.NullableBoolC)
+            .Where(e => e.NullableBoolA != e.NullableBoolB == e.NullableBoolC)
             .Select(e => e.Id).ToList();
 
         Assert.Equal(l.OrderBy(e => e), [1, 5, 11, 13]);
@@ -925,7 +922,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_comparison_null_constant_and_null_parameter(bool async)
     {
-        string prm = null;
+        string? prm = null;
 
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => prm == null).Select(e => e.Id));
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => prm != null).Select(e => e.Id), assertEmpty: true);
@@ -943,7 +940,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_comparison_nonnull_constant_and_null_parameter(bool async)
     {
-        string prm = null;
+        string? prm = null;
 
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => "Foo" == prm).Select(e => e.Id), assertEmpty: true);
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => "Foo" != prm).Select(e => e.Id));
@@ -952,7 +949,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_comparison_null_semantics_optimization_works_with_complex_predicates(bool async)
     {
-        string prm = null;
+        string? prm = null;
 
         return AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>().Where(e => null == prm && e.NullableStringA == prm).Select(e => e.Id));
@@ -1030,7 +1027,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) }),
+            ss => ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? e.NullableBoolB ?? false }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1054,19 +1051,19 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("oo") == e.NullableIntA).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.IndexOf("oo") == e.NullableIntA).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.NullableStringA == null && e.NullableIntA == null)
                 || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") == e.NullableIntA)).Select(e => e.Id));
 
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("ar") == e.NullableIntA).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.IndexOf("ar") == e.NullableIntA).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.NullableStringA == null && e.NullableIntA == null)
                 || (e.NullableStringA != null && e.NullableStringA.IndexOf("ar") == e.NullableIntA)).Select(e => e.Id));
 
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("oo") != e.NullableIntB).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.IndexOf("oo") != e.NullableIntB).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.NullableStringA == null && e.NullableIntB != null)
                 || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") != e.NullableIntB)).Select(e => e.Id));
     }
@@ -1075,7 +1072,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Where_IndexOf_empty(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("") == e.NullableIntA).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.IndexOf("") == e.NullableIntA).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableIntA || (e.NullableStringA == null && e.NullableIntA == null))
                 .Select(e => e.Id));
 
@@ -1083,8 +1080,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Select_IndexOf(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => (int?)e.NullableStringA.IndexOf("oo")),
-            ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo"))),
+            ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => (int?)e.NullableStringA!.IndexOf("oo")),
+            ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => e.NullableStringA.MaybeScalar(x => x!.IndexOf("oo"))),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1092,24 +1089,24 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("oo") == e.NullableStringB.IndexOf("ar"))
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.IndexOf("oo") == e.NullableStringB!.IndexOf("ar"))
                 .Select(e => e.Id),
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo"))
-                == e.NullableStringB.MaybeScalar(x => x.IndexOf("ar"))).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x!.IndexOf("oo"))
+                == e.NullableStringB.MaybeScalar(x => x!.IndexOf("ar"))).Select(e => e.Id));
 
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringB.IndexOf("ar"))
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.IndexOf("oo") != e.NullableStringB!.IndexOf("ar"))
                 .Select(e => e.Id),
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo"))
-                != e.NullableStringB.MaybeScalar(x => x.IndexOf("ar"))).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x!.IndexOf("oo"))
+                != e.NullableStringB.MaybeScalar(x => x!.IndexOf("ar"))).Select(e => e.Id));
 
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("oo") != e.NullableStringA.IndexOf("ar"))
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.IndexOf("oo") != e.NullableStringA!.IndexOf("ar"))
                 .Select(e => e.Id),
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo"))
-                != e.NullableStringA.MaybeScalar(x => x.IndexOf("ar"))).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x!.IndexOf("oo"))
+                != e.NullableStringA.MaybeScalar(x => x!.IndexOf("ar"))).Select(e => e.Id));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1118,7 +1115,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         await AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
-                .Where(e => e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) == e.NullableStringA).Select(e => e.Id),
+                .Where(e => e.NullableStringA!.Replace(e.NullableStringB!, e.NullableStringC) == e.NullableStringA).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>().Where(e =>
                 (e.NullableStringA == null && (e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null))
                 || (e.NullableStringA != null
@@ -1129,7 +1126,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         await AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
-                .Where(e => e.NullableStringA.Replace(e.NullableStringB, e.NullableStringC) != e.NullableStringA).Select(e => e.Id),
+                .Where(e => e.NullableStringA!.Replace(e.NullableStringB!, e.NullableStringC) != e.NullableStringA).Select(e => e.Id),
             ss => ss.Set<NullSemanticsEntity1>().Where(e =>
                 ((e.NullableStringA == null || e.NullableStringB == null || e.NullableStringC == null) && e.NullableStringA != null)
                 || (e.NullableStringA != null
@@ -1183,9 +1180,9 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Null_semantics_function(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.Substring(0, e.IntA) != e.NullableStringB)
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.Substring(0, e.IntA) != e.NullableStringB)
                 .Select(e => e.Id),
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.Maybe(x => x.Substring(0, e.IntA)) != e.NullableStringB)
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.Maybe(x => x!.Substring(0, e.IntA)) != e.NullableStringB)
                 .Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1712,9 +1709,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>().Where(e
-                => (e.NullableStringA != null && e.NullableBoolB != null && e.NullableStringC != null)
-                && ((e.NullableStringA != null || e.NullableBoolC != null)
-                    && e.NullableBoolB != e.NullableBoolC)).Select(e => e.Id));
+                => e.NullableStringA != null
+                && e.NullableBoolB != null
+                && e.NullableStringC != null
+                && (e.NullableStringA != null || e.NullableBoolC != null)
+                && e.NullableBoolB != e.NullableBoolC).Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_concat_with_both_arguments_being_null(bool async)
@@ -1725,7 +1724,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(async, ss => ss.Set<NullSemanticsEntity1>().Select(x => prm + x.NullableStringA));
 
         await AssertQuery(async, ss => ss.Set<NullSemanticsEntity1>().Select(x => null + prm));
-        await AssertQuery(async, ss => ss.Set<NullSemanticsEntity1>().Select(x => (string)null + null));
+        await AssertQuery(async, ss => ss.Set<NullSemanticsEntity1>().Select(x => (string)null! + null));
         await AssertQuery(async, ss => ss.Set<NullSemanticsEntity1>().Select(x => null + x.NullableStringA));
 
         await AssertQuery(async, ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableStringB + prm));
@@ -1752,31 +1751,31 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Nullable_string_FirstOrDefault_compared_to_nullable_string_LastOrDefault(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.FirstOrDefault() == e.NullableStringB.LastOrDefault()),
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x.FirstOrDefault())
-                == e.NullableStringB.MaybeScalar(x => x.LastOrDefault())));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.FirstOrDefault() == e.NullableStringB!.LastOrDefault()),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x!.FirstOrDefault())
+                == e.NullableStringB.MaybeScalar(x => x!.LastOrDefault())));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Null_semantics_applied_to_CompareTo_equality(bool async)
     {
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.CompareTo(e.NullableStringB) == 0),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.CompareTo(e.NullableStringB) == 0),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == e.NullableStringB));
 
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableStringA.CompareTo(e.NullableStringB)),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableStringA!.CompareTo(e.NullableStringB)),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == e.NullableStringB));
 
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.CompareTo(e.NullableStringB) != 0),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.CompareTo(e.NullableStringB) != 0),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
 
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 != e.NullableStringA.CompareTo(e.NullableStringB)),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 != e.NullableStringA!.CompareTo(e.NullableStringB)),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
     }
 
@@ -1785,22 +1784,22 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0) == 0),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.CompareTo(e.NullableStringB).CompareTo(0) == 0),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == e.NullableStringB));
 
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0)),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableStringA!.CompareTo(e.NullableStringB).CompareTo(0)),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == e.NullableStringB));
 
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0) != 0),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA!.CompareTo(e.NullableStringB).CompareTo(0) != 0),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
 
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 != e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0)),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 != e.NullableStringA!.CompareTo(e.NullableStringB).CompareTo(0)),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
     }
 
@@ -1993,11 +1992,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.IntA == e.IntB) != e.NullableBoolA.HasValue));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.IntA == e.IntB != e.NullableBoolA.HasValue));
 
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.IntA != e.IntB) == (e.NullableBoolA != null)));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.IntA != e.IntB == (e.NullableBoolA != null)));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2005,7 +2004,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         var ctx = CreateContext(useRelationalNulls: true);
 
-        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA != 1 && e.NullableIntA != null).ToList();
+        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA is not 1 and not null).ToList();
         ClearLog();
         var query = ctx.Entities1.Where(e => e.NullableIntA != 1 && e.NullableIntA != null);
 
@@ -2018,7 +2017,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         var ctx = CreateContext(useRelationalNulls: true);
 
-        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA != 1 && e.NullableIntA != 2 && e.NullableIntA != null)
+        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA is not 1 and not 2 and not null)
             .ToList();
         ClearLog();
         var query = ctx.Entities1.Where(e => e.NullableIntA != 1 && e.NullableIntA != 2);
@@ -2059,8 +2058,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual async Task Multiple_negated_contains_calls_get_combined_into_one_for_relational_null_semantics(bool async)
     {
         var ctx = CreateContext(useRelationalNulls: true);
-        var query = ctx.Entities1.Where(e => !(new int?[] { 1, null }.Contains(e.NullableIntA))
-            && !(new int?[] { 2, null, 3 }.Contains(e.NullableIntA)));
+        var query = ctx.Entities1.Where(e => !new int?[] { 1, null }.Contains(e.NullableIntA)
+            && !new int?[] { 2, null, 3 }.Contains(e.NullableIntA));
 
         var result = async ? await query.ToListAsync() : query.ToList();
         Assert.Empty(result);
@@ -2087,10 +2086,10 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         var ctx = CreateContext(useRelationalNulls: true);
 
         var expected = ctx.Entities1.AsEnumerable()
-            .Where(e => !(new int?[] { 1, 2 }.Contains(e.NullableIntA)) && e.NullableIntA != null).ToList();
+            .Where(e => !new int?[] { 1, 2 }.Contains(e.NullableIntA) && e.NullableIntA != null).ToList();
 
         ClearLog();
-        var query = ctx.Entities1.Where(e => e.NullableIntA != null && !(new int?[] { 1, 2 }.Contains(e.NullableIntA)));
+        var query = ctx.Entities1.Where(e => e.NullableIntA != null && !new int?[] { 1, 2 }.Contains(e.NullableIntA));
 
         var result = async ? await query.ToListAsync() : query.ToList();
         Assert.Equal(expected.Count, result.Count);
@@ -2101,10 +2100,10 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         var ctx = CreateContext(useRelationalNulls: true);
 
-        var expected = ctx.Entities1.AsEnumerable().Where(e => !(new int?[] { 1, 2, 3, null }.Contains(e.NullableIntA))).ToList();
+        var expected = ctx.Entities1.AsEnumerable().Where(e => !new int?[] { 1, 2, 3, null }.Contains(e.NullableIntA)).ToList();
 
         ClearLog();
-        var query = ctx.Entities1.Where(e => e.NullableIntA != 3 && !(new int?[] { 1, 2 }.Contains(e.NullableIntA)));
+        var query = ctx.Entities1.Where(e => e.NullableIntA != 3 && !new int?[] { 1, 2 }.Contains(e.NullableIntA));
 
         var result = async ? await query.ToListAsync() : query.ToList();
         Assert.Equal(expected.Count, result.Count);
@@ -2186,42 +2185,38 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Is_not_null_optimizes_unary_op(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableIntA != null ? ~x.NullableIntA : null));
+            ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableIntA != null ? ~x.NullableIntA : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Is_not_null_optimizes_binary_op(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableIntA != null && x.NullableIntB != null
-                    ? x.NullableIntA + x.NullableIntB
-                    : null));
+            ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableIntA != null && x.NullableIntB != null
+                ? x.NullableIntA + x.NullableIntB
+                : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Is_not_null_optimizes_binary_op_with_partial_checks(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableStringA != null && x.NullableStringB != null
-                    ? x.NullableStringA + x.NullableStringB + x.NullableStringC
-                    : null));
+            ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableStringA != null && x.NullableStringB != null
+                ? x.NullableStringA + x.NullableStringB + x.NullableStringC
+                : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Is_not_null_optimizes_binary_op_with_nested_checks(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableStringA != null
-                    ? x.NullableStringB != null ? x.NullableStringA + x.NullableStringB : null
-                    : null));
+            ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableStringA != null
+                ? x.NullableStringB != null ? x.NullableStringA + x.NullableStringB : null
+                : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Is_not_null_optimizes_binary_op_with_mixed_checks(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableStringA != null && x.BoolA ? x.NullableStringA + x.NullableStringB : null));
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Select(x => x.NullableStringA != null && x.BoolA ? x.NullableStringA + x.NullableStringB : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_function_is_always_considered_non_nullable(bool async)
@@ -2229,6 +2224,23 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>().GroupBy(e => e.NullableIntA)
                 .Select(g => new { g.Key, Sum = g.Sum(x => x.IntA) != g.Key }));
+
+    // Enumerable.Any and All read a predicate that evaluates to NULL as "does not satisfy": such a row is not a match for
+    // Any, and is a failure for All. NullableIntA is 0, 1 or NULL, so "greater than or equal to 0" can only fail on a NULL,
+    // and grouping by it gives a group whose rows are all NULL - neither of which the Northwind columns the GroupBy
+    // quantifier tests group over can offer, since none of those hold NULLs.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Quantifier_over_group_treats_null_predicate_as_not_satisfied(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().GroupBy(e => e.NullableIntA)
+                .Select(g => new
+                {
+                    g.Key,
+                    All = g.All(e => e.NullableIntA >= 0),
+                    Any = g.Any(e => e.NullableIntA >= 0)
+                }),
+            elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nullability_is_computed_correctly_for_chained_coalesce(bool async)
@@ -2262,8 +2274,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => from e1 in ss.Set<NullSemanticsEntity1>()
                   join e2 in ss.Set<NullSemanticsEntity2>() on e1.Id equals e2.Id
-                  select (e1.NullableIntA ?? (e1.NullableIntB ?? (e2.NullableIntC ?? e2.NullableIntB)))
-                      ?? e1.NullableIntC ?? (e2.NullableIntA ?? e2.NullableIntC ?? e1.NullableIntA));
+                  select (e1.NullableIntA ?? e1.NullableIntB ?? e2.NullableIntC ?? e2.NullableIntB)
+                      ?? e1.NullableIntC ?? e2.NullableIntA ?? e2.NullableIntC ?? e1.NullableIntA);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Like(bool async)
@@ -2352,7 +2364,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     // We can't client-evaluate Like (for the expected results).
     // However, since the test data has no LIKE wildcards, it effectively functions like equality - except that 'null like null' returns
     // false instead of true. So we have this "lite" implementation which doesn't support wildcards.
-    private bool LikeLite(string s, string pattern)
+    private bool LikeLite(string? s, string? pattern)
         => s == pattern && s is not null && pattern is not null;
 
     private string NormalizeDelimitersInRawString(string sql)

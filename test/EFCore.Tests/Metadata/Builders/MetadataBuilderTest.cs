@@ -40,7 +40,7 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -59,7 +59,7 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -78,7 +78,7 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -98,7 +98,7 @@ public class MetadataBuilderTest
         Assert.IsType<KeyBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
+        var key = model.FindEntityType(typeof(Gunter))!.FindPrimaryKey()!;
 
         Assert.Equal("V2.Annotation", key["Annotation"]);
         Assert.Equal("V2.Metadata", key["Metadata"]);
@@ -118,7 +118,7 @@ public class MetadataBuilderTest
         Assert.IsType<PropertyBuilder<int>>(returnedBuilder);
 
         var model = builder.Model;
-        var property = model.FindEntityType(typeof(Gunter)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(Gunter))!.FindProperty("Id")!;
 
         Assert.Equal("V2.Annotation", property["Annotation"]);
         Assert.Equal("V2.Metadata", property["Metadata"]);
@@ -138,7 +138,7 @@ public class MetadataBuilderTest
         Assert.IsType<IndexBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
+        var index = model.FindEntityType(typeof(Gunter))!.GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
 
         Assert.Equal("V2.Annotation", index["Annotation"]);
         Assert.Equal("V2.Metadata", index["Metadata"]);
@@ -159,7 +159,7 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Gate))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -180,7 +180,7 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Gate))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -202,7 +202,7 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Avatar)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Avatar))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -238,7 +238,7 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -257,7 +257,7 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -276,7 +276,7 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -296,7 +296,7 @@ public class MetadataBuilderTest
         Assert.IsType<KeyBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
+        var key = model.FindEntityType(typeof(Gunter))!.FindPrimaryKey()!;
 
         Assert.Equal("V2.Annotation", key["Annotation"]);
         Assert.Equal("V2.Metadata", key["Metadata"]);
@@ -316,7 +316,7 @@ public class MetadataBuilderTest
         Assert.IsType<PropertyBuilder<int>>(returnedBuilder);
 
         var model = builder.Model;
-        var property = model.FindEntityType(typeof(Gunter)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(Gunter))!.FindProperty("Id")!;
 
         Assert.Equal("V2.Annotation", property["Annotation"]);
         Assert.Equal("V2.Metadata", property["Metadata"]);
@@ -336,7 +336,7 @@ public class MetadataBuilderTest
         Assert.IsType<IndexBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
+        var index = model.FindEntityType(typeof(Gunter))!.GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
 
         Assert.Equal("V2.Annotation", index["Annotation"]);
         Assert.Equal("V2.Metadata", index["Metadata"]);
@@ -357,7 +357,7 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Gate))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -378,7 +378,7 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Gate))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -400,7 +400,7 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Avatar)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Avatar))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -413,9 +413,9 @@ public class MetadataBuilderTest
     {
         public int Id { get; set; }
 
-        public ICollection<Gate> Gates { get; set; }
+        public ICollection<Gate> Gates { get; set; } = null!;
 
-        public Avatar Avatar { get; set; }
+        public Avatar Avatar { get; set; } = null!;
     }
 
     private class Gate
@@ -423,14 +423,14 @@ public class MetadataBuilderTest
         public int Id { get; set; }
 
         public int GunterId { get; set; }
-        public Gunter Gunter { get; set; }
+        public Gunter Gunter { get; set; } = null!;
     }
 
     private class Avatar
     {
         public int Id { get; set; }
 
-        public Gunter Gunter { get; set; }
+        public Gunter Gunter { get; set; } = null!;
     }
 }
 

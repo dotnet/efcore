@@ -18,7 +18,7 @@ public readonly struct VectorSearchResult<T>(T value, double distance)
     public T Value { get; } = value;
 
     /// <summary>
-    ///    The distance between the query vector and the similar vector.
+    ///     The distance between the query vector and the similar vector.
     /// </summary>
     public double Distance { get; } = distance;
 

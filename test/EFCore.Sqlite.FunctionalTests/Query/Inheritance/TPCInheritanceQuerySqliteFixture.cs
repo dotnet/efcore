@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCInheritanceQuerySqliteFixture : TPCInheritanceQueryFixture
 {
     protected override ITestStoreFactory TestStoreFactory

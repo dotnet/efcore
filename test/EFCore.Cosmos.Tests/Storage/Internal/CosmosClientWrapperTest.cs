@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Net;
-using System.Text;
 using Microsoft.Azure.Cosmos;
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -105,12 +102,11 @@ public class CosmosClientWrapperTest
     [Fact]
     public void GetJsonPropertyPathFromRoot_escapes_quote_and_backslash_in_complex_property_chain()
     {
-        var entityType = BuildModel(
-                eb =>
-                {
-                    eb.ComplexProperty(e => e.Owner).Metadata.SetJsonPropertyName("with\"and\\backslash");
-                    eb.ComplexProperty(e => e.Owner).Property(s => s.Name).ToJsonProperty("plain");
-                })
+        var entityType = BuildModel(eb =>
+            {
+                eb.ComplexProperty(e => e.Owner).Metadata.SetJsonPropertyName("with\"and\\backslash");
+                eb.ComplexProperty(e => e.Owner).Property(s => s.Name).ToJsonProperty("plain");
+            })
             .FindEntityType(typeof(Root))!;
         var nameProperty = entityType.FindComplexProperty(nameof(Root.Owner))!.ComplexType.FindProperty(nameof(Sub.Name))!;
 
@@ -120,8 +116,7 @@ public class CosmosClientWrapperTest
     [Fact]
     public void GetJsonPropertyPathFromRoot_escapes_special_chars_in_complex_collection_segment()
     {
-        var entityType = BuildModel(
-                eb => eb.ComplexCollection(e => e.Items).Metadata.SetJsonPropertyName("items-list"))
+        var entityType = BuildModel(eb => eb.ComplexCollection(e => e.Items).Metadata.SetJsonPropertyName("items-list"))
             .FindEntityType(typeof(Root))!;
         var nameProperty = entityType.FindComplexProperty(nameof(Root.Items))!.ComplexType.FindProperty(nameof(Sub.Name))!;
 

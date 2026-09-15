@@ -51,7 +51,8 @@ public class TimeOnlyToStringConverter : StringTimeOnlyConverter<TimeOnly, strin
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TimeOnly), typeof(string),
+        = new(
+            typeof(TimeOnly), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new TimeOnlyToStringConverter(i.MappingHints),
             DefaultHints);
 }

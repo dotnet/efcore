@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class TemporalComplexNavigationsCollectionsSharedTypeQuerySqlServerTest :
     ComplexNavigationsCollectionsSharedTypeQueryRelationalTestBase<
         TemporalComplexNavigationsSharedTypeQuerySqlServerFixture>
@@ -3033,19 +3031,10 @@ ORDER BY [l].[Id], [s].[Date], [s].[Date0], [s].[Name]
 @validIds1='L1 01' (Size = 4000)
 @validIds2='L1 02' (Size = 4000)
 
-SELECT [l1].[Date], [l2].[Id]
-FROM (
-    SELECT [l].[Date]
-    FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
-    WHERE [l].[Name] IN (@validIds1, @validIds2)
-    GROUP BY [l].[Date]
-) AS [l1]
-LEFT JOIN (
-    SELECT [l0].[Id], [l0].[Date]
-    FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-    WHERE [l0].[Name] IN (@validIds1, @validIds2)
-) AS [l2] ON [l1].[Date] = [l2].[Date]
-ORDER BY [l1].[Date]
+SELECT [l].[Date], [l].[Id]
+FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
+WHERE [l].[Name] IN (@validIds1, @validIds2)
+ORDER BY [l].[Date]
 """);
     }
 
@@ -3280,7 +3269,7 @@ ORDER BY [l3].[Id], [s].[c]
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async));
 
-        Assert.StartsWith(CoreStrings.ExpressionParameterizationExceptionSensitive("X").Substring(0, 30), exception.Message);
+        Assert.StartsWith(CoreStrings.ExpressionParameterizationExceptionSensitive("X")[..30], exception.Message);
         Assert.True(exception.InnerException is InvalidCastException);
     }
 

@@ -24,9 +24,9 @@ public class EntityMaterializerSourceTest
 
         Assert.Equal(
             CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
-            Assert.Throws<InvalidOperationException>(
-                    () => source.CreateMaterializeExpression(
-                        new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "", entityType.ClrType, IsNullable: false, null), null!))
+            Assert.Throws<InvalidOperationException>(() => source.CreateMaterializeExpression(
+                    new StructuralTypeMaterializerSourceParameters(
+                        (IEntityType)entityType, "", entityType.ClrType, IsNullable: false, null), null!))
                 .Message);
     }
 
@@ -196,14 +196,14 @@ public class EntityMaterializerSourceTest
         public static readonly TestProxyFactory Instance = new();
 
         public object Create(IEntityType entityType)
-            => Activator.CreateInstance(entityType.ClrType);
+            => Activator.CreateInstance(entityType.ClrType)!;
     }
 
     [Fact]
     public void Can_create_materializer_for_entity_with_auto_properties()
     {
         using var context = new SomeEntityContext(b => b.Entity<SomeEntity>());
-        var entityType = context.Model.FindEntityType(typeof(SomeEntity));
+        var entityType = context.Model.FindEntityType(typeof(SomeEntity))!;
 
         var factory = GetMaterializer(
             new StructuralTypeMaterializerSource(new StructuralTypeMaterializerSourceDependencies([])), entityType);
@@ -235,7 +235,7 @@ public class EntityMaterializerSourceTest
             eb.Property(e => e.MaybeEnum).HasField("_maybeEnum");
         }));
 
-        var entityType = context.Model.FindEntityType(typeof(SomeEntityWithFields));
+        var entityType = context.Model.FindEntityType(typeof(SomeEntityWithFields))!;
 
         var factory = GetMaterializer(
             new StructuralTypeMaterializerSource(new StructuralTypeMaterializerSourceDependencies([])), entityType);
@@ -262,7 +262,7 @@ public class EntityMaterializerSourceTest
             eb.Ignore(e => e.MaybeEnum);
         }));
 
-        var entityType = context.Model.FindEntityType(typeof(SomeEntity));
+        var entityType = context.Model.FindEntityType(typeof(SomeEntity))!;
 
         var factory = GetMaterializer(
             new StructuralTypeMaterializerSource(new StructuralTypeMaterializerSourceDependencies([])), entityType);
@@ -292,7 +292,7 @@ public class EntityMaterializerSourceTest
             eb.Property<Guid>("GooShadow");
         }));
 
-        var entityType = context.Model.FindEntityType(typeof(SomeEntity));
+        var entityType = context.Model.FindEntityType(typeof(SomeEntity))!;
 
         var factory = GetMaterializer(
             new StructuralTypeMaterializerSource(new StructuralTypeMaterializerSourceDependencies([])), entityType);
@@ -547,7 +547,8 @@ public class EntityMaterializerSourceTest
         IReadOnlyEntityType entityType)
         => Expression.Lambda<Func<MaterializationContext, object>>(
                 source.CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters((IEntityType)entityType, "instance", entityType.ClrType, IsNullable: false, null),
+                    new StructuralTypeMaterializerSourceParameters(
+                        (IEntityType)entityType, "instance", entityType.ClrType, IsNullable: false, null),
                     _contextParameter),
                 _contextParameter)
             .Compile();
@@ -615,11 +616,11 @@ public class EntityMaterializerSourceTest
         [NotMapped]
         public bool GooSetterCalled { get; set; }
 
-        public static readonly PropertyInfo IdProperty = typeof(SomeEntity).GetProperty("Id");
-        public static readonly PropertyInfo FooProperty = typeof(SomeEntity).GetProperty("Foo");
-        public static readonly PropertyInfo GooProperty = typeof(SomeEntity).GetProperty("Goo");
-        public static readonly PropertyInfo EnumProperty = typeof(SomeEntity).GetProperty("Enum");
-        public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntity).GetProperty("MaybeEnum");
+        public static readonly PropertyInfo IdProperty = typeof(SomeEntity).GetProperty("Id")!;
+        public static readonly PropertyInfo FooProperty = typeof(SomeEntity).GetProperty("Foo")!;
+        public static readonly PropertyInfo GooProperty = typeof(SomeEntity).GetProperty("Goo")!;
+        public static readonly PropertyInfo EnumProperty = typeof(SomeEntity).GetProperty("Enum")!;
+        public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntity).GetProperty("MaybeEnum")!;
 
         // ReSharper disable UnusedAutoPropertyAccessor.Local
         public int Id
@@ -632,7 +633,7 @@ public class EntityMaterializerSourceTest
             }
         }
 
-        public string Foo { get; set; }
+        public string? Foo { get; set; }
 
         public Guid? Goo
         {
@@ -652,15 +653,15 @@ public class EntityMaterializerSourceTest
 
     private class SomeEntityWithFields
     {
-        public static readonly PropertyInfo IdProperty = typeof(SomeEntityWithFields).GetProperty("Id");
-        public static readonly PropertyInfo FooProperty = typeof(SomeEntityWithFields).GetProperty("Foo");
-        public static readonly PropertyInfo GooProperty = typeof(SomeEntityWithFields).GetProperty("Goo");
-        public static readonly PropertyInfo EnumProperty = typeof(SomeEntityWithFields).GetProperty("Enum");
-        public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntityWithFields).GetProperty("MaybeEnum");
+        public static readonly PropertyInfo IdProperty = typeof(SomeEntityWithFields).GetProperty("Id")!;
+        public static readonly PropertyInfo FooProperty = typeof(SomeEntityWithFields).GetProperty("Foo")!;
+        public static readonly PropertyInfo GooProperty = typeof(SomeEntityWithFields).GetProperty("Goo")!;
+        public static readonly PropertyInfo EnumProperty = typeof(SomeEntityWithFields).GetProperty("Enum")!;
+        public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntityWithFields).GetProperty("MaybeEnum")!;
 
 #pragma warning disable 649, IDE0044 // Add readonly modifier
         private int _id;
-        private string _foo;
+        private string _foo = null!;
         private Guid? _goo;
         private SomeEnum _enum;
         private SomeEnum? _maybeEnum;
@@ -689,7 +690,7 @@ public class EntityMaterializerSourceTest
 
     private class EntityWithoutParameterlessConstructor(int value)
     {
-        public static readonly PropertyInfo IdProperty = typeof(EntityWithoutParameterlessConstructor).GetProperty("Id");
+        public static readonly PropertyInfo IdProperty = typeof(EntityWithoutParameterlessConstructor).GetProperty("Id")!;
 
         public int Id { get; set; }
 

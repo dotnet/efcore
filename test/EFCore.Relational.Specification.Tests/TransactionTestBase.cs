@@ -10,8 +10,6 @@ using IsolationLevel = System.Data.IsolationLevel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : TransactionTestBase<TFixture>.TransactionFixtureBase, new()
 {
@@ -336,56 +334,54 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
             return;
         }
 
-        DbConnection connection = null;
+        DbConnection? connection = null;
 
         await RetryOnDistributedTransactionNotSupportedAsync(async () =>
         {
-            using (var context = CreateContextWithConnectionString())
+            using var context = CreateContextWithConnectionString();
+            using (TestUtilities.TestStore.CreateTransactionScope())
             {
-                using (TestUtilities.TestStore.CreateTransactionScope())
+                context.Database.AutoTransactionBehavior = autoTransactionBehavior;
+
+                connection = context.Database.GetDbConnection();
+                Assert.Equal(ConnectionState.Closed, connection.State);
+
+                await context.AddAsync(
+                    new TransactionCustomer { Id = 77, Name = "Bobble" });
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
+
+                // SaveChanges is expected to fail with DbUpdateException (duplicate key).
+                try
                 {
-                    context.Database.AutoTransactionBehavior = autoTransactionBehavior;
-
-                    connection = context.Database.GetDbConnection();
-                    Assert.Equal(ConnectionState.Closed, connection.State);
-
-                    await context.AddAsync(
-                        new TransactionCustomer { Id = 77, Name = "Bobble" });
-
-                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
-
-                    // SaveChanges is expected to fail with DbUpdateException (duplicate key).
-                    try
+                    if (async)
                     {
-                        if (async)
-                        {
-                            await context.SaveChangesAsync();
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-                        }
-
-                        Assert.Fail("Expected a DbUpdateException to be thrown.");
+                        await context.SaveChangesAsync();
                     }
-                    catch (PlatformNotSupportedException)
+                    else
                     {
-                        // When the ambient transaction is promoted to a distributed one and throws PlatformNotSupportedException, let it
-                        // propagate so the whole operation is retried.
-                        throw;
-                    }
-                    catch (DbUpdateException)
-                    {
+                        context.SaveChanges();
                     }
 
-                    Assert.Equal(ConnectionState.Closed, connection.State);
-
-                    context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
+                    Assert.Fail("Expected a DbUpdateException to be thrown.");
                 }
+                catch (PlatformNotSupportedException)
+                {
+                    // When the ambient transaction is promoted to a distributed one and throws PlatformNotSupportedException, let it
+                    // propagate so the whole operation is retried.
+                    throw;
+                }
+                catch (DbUpdateException)
+                {
+                }
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
+
+                context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
             }
         });
 
-        Assert.Equal(ConnectionState.Closed, connection.State);
+        Assert.Equal(ConnectionState.Closed, connection!.State);
 
         AssertStoreInitialState();
     }
@@ -456,30 +452,26 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
             TestStore.OpenConnection();
         }
 
-        using (var context = CreateContext())
+        using var context = CreateContext();
+        using (var tr = new TransactionScope())
         {
-            using (var tr = new TransactionScope())
-            {
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobbie" });
-                context.SaveChanges();
-                tr.Complete();
-                TestStore.CloseConnection();
-                using (var nestedTransaction = new TransactionScope(TransactionScopeOption.RequiresNew))
-                {
-                    context.Add(new TransactionOrder { Id = 300, Name = "Order3" });
-                    context.SaveChanges();
-                    nestedTransaction.Complete();
-                    TestStore.CloseConnection();
-                }
-            }
-
-            Assert.Equal(
-                [1, 2, 77],
-                context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
-            Assert.Equal(
-                [100, 200, 300],
-                context.Set<TransactionOrder>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            context.Add(new TransactionCustomer { Id = 77, Name = "Bobbie" });
+            context.SaveChanges();
+            tr.Complete();
+            TestStore.CloseConnection();
+            using var nestedTransaction = new TransactionScope(TransactionScopeOption.RequiresNew);
+            context.Add(new TransactionOrder { Id = 300, Name = "Order3" });
+            context.SaveChanges();
+            nestedTransaction.Complete();
+            TestStore.CloseConnection();
         }
+
+        Assert.Equal(
+            [1, 2, 77],
+            context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+        Assert.Equal(
+            [100, 200, 300],
+            context.Set<TransactionOrder>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
     }
 
     [Fact]
@@ -495,29 +487,25 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
             TestStore.OpenConnection();
         }
 
-        using (var context = CreateContext())
+        using var context = CreateContext();
+        using (var tr = new TransactionScope())
         {
-            using (var tr = new TransactionScope())
-            {
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
-                context.SaveChanges();
-                TestStore.CloseConnection();
-                using (var nestedTransaction = new TransactionScope(TransactionScopeOption.RequiresNew))
-                {
-                    context.Add(new TransactionOrder { Id = 300, Name = "Order3" });
-                    context.SaveChanges();
-                    nestedTransaction.Complete();
-                    TestStore.CloseConnection();
-                }
-            }
-
-            Assert.Equal(
-                [1, 2],
-                context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
-            Assert.Equal(
-                [100, 200, 300],
-                context.Set<TransactionOrder>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+            context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+            context.SaveChanges();
+            TestStore.CloseConnection();
+            using var nestedTransaction = new TransactionScope(TransactionScopeOption.RequiresNew);
+            context.Add(new TransactionOrder { Id = 300, Name = "Order3" });
+            context.SaveChanges();
+            nestedTransaction.Complete();
+            TestStore.CloseConnection();
         }
+
+        Assert.Equal(
+            [1, 2],
+            context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
+        Assert.Equal(
+            [100, 200, 300],
+            context.Set<TransactionOrder>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
     }
 
     [Fact]
@@ -1037,7 +1025,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         using var context = CreateContextWithConnectionString();
         using (context.Database.BeginTransaction())
         {
-            var ex = Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction());
+            var ex = Assert.Throws<InvalidOperationException>(context.Database.BeginTransaction);
             Assert.Equal(RelationalStrings.TransactionAlreadyStarted, ex.Message);
         }
     }
@@ -1053,7 +1041,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         using (TestUtilities.TestStore.CreateTransactionScope())
         {
             using var context = CreateContextWithConnectionString();
-            var ex = Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction());
+            var ex = Assert.Throws<InvalidOperationException>(context.Database.BeginTransaction);
             Assert.Equal(RelationalStrings.ConflictingAmbientTransaction, ex.Message);
         }
     }
@@ -1497,23 +1485,23 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-    protected static readonly IReadOnlyList<TransactionCustomer> Customers = new List<TransactionCustomer>
-    {
+    protected static readonly IReadOnlyList<TransactionCustomer> Customers =
+    [
         new() { Id = 1, Name = "Bob" }, new() { Id = 2, Name = "Dave" }
-    };
+    ];
 
-    protected static readonly IReadOnlyList<TransactionOrder> Orders = new List<TransactionOrder>
-    {
+    protected static readonly IReadOnlyList<TransactionOrder> Orders =
+    [
         new() { Id = 100, Name = "Order1" }, new() { Id = 200, Name = "Order2" }
-    };
+    ];
 
     protected abstract class TransactionEntity
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public override bool Equals(object obj)
-            => obj is TransactionCustomer otherCustomer && (Id == otherCustomer.Id && Name == otherCustomer.Name);
+        public override bool Equals(object? obj)
+            => obj is TransactionCustomer otherCustomer && Id == otherCustomer.Id && Name == otherCustomer.Name;
 
         public override string ToString()
             => "Id = " + Id + ", Name = " + Name;

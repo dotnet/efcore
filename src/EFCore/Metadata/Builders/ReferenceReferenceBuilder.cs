@@ -315,30 +315,18 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
             return (EntityType)DeclaringEntityType;
         }
 
-        if (RelatedEntityType.Name == entityTypeName)
-        {
-            return (EntityType)RelatedEntityType;
-        }
-
-        if (DeclaringEntityType.DisplayName() == entityTypeName)
-        {
-            return (EntityType)DeclaringEntityType;
-        }
-
-        if (RelatedEntityType.DisplayName() == entityTypeName)
-        {
-            return (EntityType)RelatedEntityType;
-        }
-
-        if (DeclaringEntityType.HasSharedClrType
-            && DeclaringEntityType.ShortName() == entityTypeName)
-        {
-            return (EntityType)DeclaringEntityType;
-        }
-
-        return RelatedEntityType.HasSharedClrType && RelatedEntityType.ShortName() == entityTypeName
+        return RelatedEntityType.Name == entityTypeName
             ? (EntityType)RelatedEntityType
-            : null;
+            : DeclaringEntityType.DisplayName() == entityTypeName
+                ? (EntityType)DeclaringEntityType
+                : RelatedEntityType.DisplayName() == entityTypeName
+                    ? (EntityType)RelatedEntityType
+                    : DeclaringEntityType.HasSharedClrType
+                    && DeclaringEntityType.ShortName() == entityTypeName
+                        ? (EntityType)DeclaringEntityType
+                        : RelatedEntityType.HasSharedClrType && RelatedEntityType.ShortName() == entityTypeName
+                            ? (EntityType)RelatedEntityType
+                            : null;
     }
 
     /// <summary>
@@ -349,14 +337,11 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
     /// </summary>
     [EntityFrameworkInternal]
     protected virtual EntityType? ResolveEntityType(Type entityType)
-    {
-        if (DeclaringEntityType.ClrType == entityType)
-        {
-            return (EntityType)DeclaringEntityType;
-        }
-
-        return RelatedEntityType.ClrType == entityType ? (EntityType)RelatedEntityType : null;
-    }
+        => DeclaringEntityType.ClrType == entityType
+            ? (EntityType)DeclaringEntityType
+            : RelatedEntityType.ClrType == entityType
+                ? (EntityType)RelatedEntityType
+                : null;
 
     private EntityType GetOtherEntityType(EntityType entityType)
         => DeclaringEntityType == entityType ? (EntityType)RelatedEntityType : (EntityType)DeclaringEntityType;

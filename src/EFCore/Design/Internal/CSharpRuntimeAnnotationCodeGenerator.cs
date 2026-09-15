@@ -387,12 +387,13 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             var missingUnsafeAccessors = new HashSet<string>();
             mainBuilder
                 .AppendLines(
-                    codeHelper.Expression(converter.ConstructorExpressionWithoutMappingHints, parameters.Namespaces, missingUnsafeAccessors),
+                    codeHelper.Expression(
+                        converter.ConstructorExpressionWithoutMappingHints, parameters.Namespaces, missingUnsafeAccessors),
                     skipFinalNewline: true);
 
-
             Check.DebugAssert(
-                missingUnsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, missingUnsafeAccessors));
+                missingUnsafeAccessors.Count == 0,
+                "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, missingUnsafeAccessors));
         }
         else
         {
@@ -608,7 +609,8 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
                     skipFinalNewline: true);
 
             Check.DebugAssert(
-                missingUnsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, missingUnsafeAccessors));
+                missingUnsafeAccessors.Count == 0,
+                "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, missingUnsafeAccessors));
         }
     }
 

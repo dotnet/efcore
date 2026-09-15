@@ -86,23 +86,37 @@ public partial class SqliteConnection : DbConnection
             {
                 // Ignore the unpackaged-app "no package identity" case; ApplicationData.Current is unavailable there.
             }
+            catch (Exception ex) when (ex is NotImplementedException or NotSupportedException
+                                           or TargetInvocationException { InnerException: NotImplementedException or NotSupportedException })
+            {
+                // Ignore when WinRT APIs aren't implemented or supported (e.g., running under Wine)
+                // ApplicationData.Current is unavailable there.
+            }
 
             if (currentAppData != null)
             {
-                var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
-                var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
-                if (localFolderPath != null)
+                try
                 {
-                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
-                    Debug.Assert(rc == SQLITE_OK);
-                }
+                    var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
+                    var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
+                    if (localFolderPath != null)
+                    {
+                        var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
+                        Debug.Assert(rc == SQLITE_OK);
+                    }
 
-                var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
-                var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
-                if (tempFolderPath != null)
+                    var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
+                    var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
+                    if (tempFolderPath != null)
+                    {
+                        var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
+                        Debug.Assert(rc == SQLITE_OK);
+                    }
+                }
+                catch (Exception ex) when (ex is NotImplementedException or NotSupportedException
+                                               or TargetInvocationException { InnerException: NotImplementedException or NotSupportedException })
                 {
-                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
-                    Debug.Assert(rc == SQLITE_OK);
+                    // Ignore failures accessing LocalFolder/TemporaryFolder when WinRT isn't fully implemented.
                 }
             }
         }
@@ -273,6 +287,12 @@ public partial class SqliteConnection : DbConnection
                     "PRAGMA foreign_keys = " + (ConnectionOptions.ForeignKeys.Value ? "1" : "0") + ";");
             }
 
+            if (ConnectionOptions.Synchronous.HasValue)
+            {
+                this.ExecuteNonQuery(
+                    "PRAGMA synchronous = " + (int)ConnectionOptions.Synchronous.Value + ";");
+            }
+
             if (ConnectionOptions.RecursiveTriggers)
             {
                 this.ExecuteNonQuery("PRAGMA recursive_triggers = 1;");
@@ -312,9 +332,9 @@ public partial class SqliteConnection : DbConnection
                 rc = sqlite3_db_config(Handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, out _);
                 SqliteException.ThrowExceptionForRC(rc, Handle);
 
-                foreach (var item in _extensions)
+                foreach (var (file, proc) in _extensions)
                 {
-                    LoadExtensionCore(item.file, item.proc);
+                    LoadExtensionCore(file, proc);
                 }
             }
 
@@ -499,7 +519,7 @@ public partial class SqliteConnection : DbConnection
             SqliteException.ThrowExceptionForRC(rc, Handle);
         }
 
-        _collations ??= new Dictionary<string, (object?, strdelegate_collation?)>(StringComparer.OrdinalIgnoreCase);
+        _collations ??= [with(StringComparer.OrdinalIgnoreCase)];
         _collations[name] = (state, collation);
     }
 
@@ -571,19 +591,11 @@ public partial class SqliteConnection : DbConnection
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
     public virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel, bool deferred)
-    {
-        if (State != ConnectionState.Open)
-        {
-            throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BeginTransaction)));
-        }
-
-        if (Transaction != null)
-        {
-            throw new InvalidOperationException(Resources.ParallelTransactionsNotSupported);
-        }
-
-        return Transaction = new SqliteTransaction(this, isolationLevel, deferred);
-    }
+        => State != ConnectionState.Open
+            ? throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BeginTransaction)))
+            : Transaction != null
+                ? throw new InvalidOperationException(Resources.ParallelTransactionsNotSupported)
+                : (Transaction = new SqliteTransaction(this, isolationLevel, deferred));
 
     /// <summary>
     ///     Changes the current database. Not supported.
@@ -645,11 +657,8 @@ public partial class SqliteConnection : DbConnection
                 return;
             }
 
-            if (firstException == null)
-            {
-                // We store the first exception so that error message looks more obvious if file appears in there
-                firstException = new SqliteException(Resources.SqliteNativeError(rc, errmsg.utf8_to_string()), rc, rc);
-            }
+            // We store the first exception so that error message looks more obvious if file appears in there
+            firstException ??= new SqliteException(Resources.SqliteNativeError(rc, errmsg.utf8_to_string()), rc, rc);
         }
 
         if (firstException != null)
@@ -803,11 +812,10 @@ public partial class SqliteConnection : DbConnection
             var dataTable = new DataTable(DbMetaDataCollectionNames.ReservedWords) { Columns = { DbMetaDataColumnNames.ReservedWord } };
 
             int rc;
-            string keyword;
             var count = sqlite3_keyword_count();
             for (var i = 0; i < count; i++)
             {
-                rc = sqlite3_keyword_name(i, out keyword);
+                rc = sqlite3_keyword_name(i, out var keyword);
                 SqliteException.ThrowExceptionForRC(rc, null);
 
                 dataTable.Rows.Add(keyword);
@@ -873,7 +881,7 @@ public partial class SqliteConnection : DbConnection
             SqliteException.ThrowExceptionForRC(rc, Handle);
         }
 
-        _functions ??= new Dictionary<(string, int), (int, object?, delegate_function_scalar?)>(FunctionsKeyComparer.Instance);
+        _functions ??= [with(FunctionsKeyComparer.Instance)];
         _functions[(name, arity)] = (flags, state, func);
     }
 
@@ -973,8 +981,10 @@ public partial class SqliteConnection : DbConnection
         }
 
         _aggregates ??=
-            new Dictionary<(string, int), (int, object?, delegate_function_aggregate_step?, delegate_function_aggregate_final?)>(
-                FunctionsKeyComparer.Instance);
+        [
+            with(
+                FunctionsKeyComparer.Instance)
+        ];
         _aggregates[(name, arity)] = (flags, state, func_step, func_final);
     }
 

@@ -3,12 +3,9 @@
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
 
 public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : MigrationsTestBase<TFixture>.MigrationsFixtureBase, new()
@@ -21,8 +18,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected MigrationsTestBase(TFixture fixture)
     {
         Fixture = fixture;
-        _sqlGenerationHelper = Fixture.ServiceProvider.GetService<ISqlGenerationHelper>();
-        _typeMappingSource = Fixture.ServiceProvider.GetService<IRelationalTypeMappingSource>();
+        _sqlGenerationHelper = Fixture.ServiceProvider.GetRequiredService<ISqlGenerationHelper>();
+        _typeMappingSource = Fixture.ServiceProvider.GetRequiredService<IRelationalTypeMappingSource>();
     }
 
     [Fact]
@@ -51,8 +48,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Create_table_all_settings()
     {
-        var intStoreType = TypeMappingSource.FindMapping(typeof(int)).StoreType;
-        var char11StoreType = TypeMappingSource.FindMapping(typeof(string), storeTypeName: null, size: 11).StoreType;
+        var intStoreType = TypeMappingSource.FindMapping(typeof(int))!.StoreType;
+        var char11StoreType = TypeMappingSource.FindMapping(typeof(string), storeTypeName: null, size: 11)!.StoreType;
 
         await Test(
             builder => builder.Entity(
@@ -236,58 +233,43 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual async Task Create_table_with_json_column()
         => await Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested", "NestedReference", n =>
-                                    {
-                                        n.Property<int>("Number");
-                                    });
-                                o.OwnsMany(
-                                    "Nested2", "NestedCollection", n =>
-                                    {
-                                        n.Property<int>("Number2");
-                                    });
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany(
+                                "Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested3", "NestedReference2", n =>
-                                    {
-                                        n.Property<int>("Number3");
-                                    });
-                                o.OwnsMany(
-                                    "Nested4", "NestedCollection2", n =>
-                                    {
-                                        n.Property<int>("Number4");
-                                    });
-                                o.Property<DateTime>("Date2");
-                                o.ToJson();
-                            });
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany(
+                                "Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson();
+                        });
 
-                        e.OwnsOne(
-                            "Owned", "OwnedRequiredReference", o =>
-                            {
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedRequiredReference", o =>
+                        {
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.Navigation("OwnedRequiredReference").IsRequired();
-                    });
-            },
+                    e.Navigation("OwnedRequiredReference").IsRequired();
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -317,33 +299,30 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual async Task Create_table_with_json_column_explicit_json_column_names()
         => await Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.OwnsOne(
-                            "Owned", "json_reference", o =>
-                            {
-                                o.OwnsOne("Nested", "json_reference", n => n.Property<int>("Number"));
-                                o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.OwnsOne(
+                        "Owned", "json_reference", o =>
+                        {
+                            o.OwnsOne("Nested", "json_reference", n => n.Property<int>("Number"));
+                            o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "json_collection", o =>
-                            {
-                                o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
-                                o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
-                                o.Property<DateTime>("Date2");
-                                o.ToJson();
-                            });
-                    });
-            },
+                    e.OwnsMany(
+                        "Owned2", "json_collection", o =>
+                        {
+                            o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson();
+                        });
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -364,48 +343,45 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual async Task Create_table_with_complex_properties_mapped_to_json()
         => await Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.ComplexProperty<MyJsonComplex>(
-                            "ComplexReference", cp =>
-                            {
-                                cp.ToJson("ComplexReferenceJSON");
-                                cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
-                                cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
-                                cp.Ignore(x => x.NestedCollection);
-                                cp.ComplexProperty(
-                                    x => x.Nested, np =>
-                                    {
-                                        np.Property("Foo").HasJsonPropertyName("nested_foo");
-                                        np.Property("Bar").HasJsonPropertyName("nested_bar");
-                                        np.HasJsonPropertyName("nested_complex");
-                                    });
-                            });
+                    e.ComplexProperty<MyJsonComplex>(
+                        "ComplexReference", cp =>
+                        {
+                            cp.ToJson("ComplexReferenceJSON");
+                            cp.Property(x => x.Value).HasJsonPropertyName("custom_value");
+                            cp.Property(x => x.Date).HasJsonPropertyName("custom_date");
+                            cp.Ignore(x => x.NestedCollection);
+                            cp.ComplexProperty(
+                                x => x.Nested, np =>
+                                {
+                                    np.Property("Foo").HasJsonPropertyName("nested_foo");
+                                    np.Property("Bar").HasJsonPropertyName("nested_bar");
+                                    np.HasJsonPropertyName("nested_complex");
+                                });
+                        });
 
-                        e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
-                            "ComplexCollection", cp =>
-                            {
-                                cp.ToJson("ComplexCollectionJSON");
-                                cp.Property(x => x.Value).HasJsonPropertyName("custom_value2");
-                                cp.Property(x => x.Date).HasJsonPropertyName("custom_date2");
-                                cp.Ignore(x => x.NestedCollection);
-                                cp.ComplexProperty(
-                                    x => x.Nested, np =>
-                                    {
-                                        np.Property("Foo").HasJsonPropertyName("nested_foo2");
-                                        np.Property("Bar").HasJsonPropertyName("nested_bar2");
-                                        np.HasJsonPropertyName("nested_complex2");
-                                    });
-                            });
-                    });
-            },
+                    e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
+                        "ComplexCollection", cp =>
+                        {
+                            cp.ToJson("ComplexCollectionJSON");
+                            cp.Property(x => x.Value).HasJsonPropertyName("custom_value2");
+                            cp.Property(x => x.Date).HasJsonPropertyName("custom_date2");
+                            cp.Ignore(x => x.NestedCollection);
+                            cp.ComplexProperty(
+                                x => x.Nested, np =>
+                                {
+                                    np.Property("Foo").HasJsonPropertyName("nested_foo2");
+                                    np.Property("Bar").HasJsonPropertyName("nested_bar2");
+                                    np.HasJsonPropertyName("nested_complex2");
+                                });
+                        });
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -426,35 +402,32 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual async Task Create_table_with_complex_properties_with_nested_collection_mapped_to_json()
         => await Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.ComplexProperty<MyJsonComplex>(
-                            "ComplexReference", cp =>
-                            {
-                                cp.ComplexProperty(
-                                    x => x.Nested, np =>
-                                    {
-                                        np.ToJson("ComplexReferenceJSON");
-                                        np.Property("Foo").HasJsonPropertyName("nested_foo");
-                                        np.Property("Bar").HasJsonPropertyName("nested_bar");
-                                    });
-                                cp.ComplexCollection(
-                                    x => x.NestedCollection, ncp =>
-                                    {
-                                        ncp.ToJson("ComplexCollectionJSON");
-                                        ncp.Property("Foo").HasJsonPropertyName("nested_collection_foo");
-                                        ncp.Property("Bar").HasJsonPropertyName("nested_collection_bar");
-                                    });
-                            });
-                    });
-            },
+                    e.ComplexProperty<MyJsonComplex>(
+                        "ComplexReference", cp =>
+                        {
+                            cp.ComplexProperty(
+                                x => x.Nested, np =>
+                                {
+                                    np.ToJson("ComplexReferenceJSON");
+                                    np.Property("Foo").HasJsonPropertyName("nested_foo");
+                                    np.Property("Bar").HasJsonPropertyName("nested_bar");
+                                });
+                            cp.ComplexCollection(
+                                x => x.NestedCollection, ncp =>
+                                {
+                                    ncp.ToJson("ComplexCollectionJSON");
+                                    ncp.Property("Foo").HasJsonPropertyName("nested_collection_foo");
+                                    ncp.Property("Bar").HasJsonPropertyName("nested_collection_bar");
+                                });
+                        });
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -572,80 +545,62 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Rename_table_with_json_column()
         => await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.ToTable("Entities");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Entities");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested", "NestedReference", n =>
-                                    {
-                                        n.Property<int>("Number");
-                                    });
-                                o.OwnsMany(
-                                    "Nested2", "NestedCollection", n =>
-                                    {
-                                        n.Property<int>("Number2");
-                                    });
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany(
+                                "Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested3", "NestedReference2", n =>
-                                    {
-                                        n.Property<int>("Number3");
-                                    });
-                                o.OwnsMany(
-                                    "Nested4", "NestedCollection2", n =>
-                                    {
-                                        n.Property<int>("Number4");
-                                    });
-                                o.Property<DateTime>("Date2");
-                                o.ToJson();
-                            });
-                    });
-            },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.ToTable("NewEntities");
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany(
+                                "Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson();
+                        });
+                }),
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("NewEntities");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
-                                o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
-                                o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
-                                o.Property<DateTime>("Date2");
-                                o.ToJson();
-                            });
-                    });
-            },
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson();
+                        });
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -769,7 +724,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected class Owner
     {
         public int Id { get; set; }
-        public Owned Owned { get; set; }
+        public Owned? Owned { get; set; }
     }
 
     protected class Owned
@@ -787,59 +742,44 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.HasKey("Id");
                     e.Property<string>("Name");
                 }),
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested", "NestedReference", n =>
-                                    {
-                                        n.Property<int>("Number");
-                                    });
-                                o.OwnsMany(
-                                    "Nested2", "NestedCollection", n =>
-                                    {
-                                        n.Property<int>("Number2");
-                                    });
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany(
+                                "Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.OwnsOne(
-                            "Owned", "OwnedRequiredReference", o =>
-                            {
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedRequiredReference", o =>
+                        {
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.Navigation("OwnedRequiredReference").IsRequired();
+                    e.Navigation("OwnedRequiredReference").IsRequired();
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested3", "NestedReference2", n =>
-                                    {
-                                        n.Property<int>("Number3");
-                                    });
-                                o.OwnsMany(
-                                    "Nested4", "NestedCollection2", n =>
-                                    {
-                                        n.Property<int>("Number4");
-                                    });
-                                o.Property<DateTime>("Date2");
-                                o.ToJson();
-                            });
-                    });
-            },
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany(
+                                "Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson();
+                        });
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -914,7 +854,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var table = Assert.Single(model.Tables);
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
-                Assert.Equal(TypeMappingSource.FindMapping(typeof(string)).StoreType, column.StoreType);
+                Assert.Equal(TypeMappingSource.FindMapping(typeof(string))!.StoreType, column.StoreType);
                 Assert.False(column.IsNullable);
             });
 
@@ -930,7 +870,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, unicode: false)
+                        .FindMapping(typeof(string), storeTypeName: null, unicode: false)!
                         .StoreType, column.StoreType);
                 Assert.True(column.IsNullable);
             });
@@ -947,7 +887,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, size: 30)
+                        .FindMapping(typeof(string), storeTypeName: null, size: 30)!
                         .StoreType,
                     column.StoreType);
             });
@@ -964,7 +904,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, size: -1)
+                        .FindMapping(typeof(string), storeTypeName: null, size: -1)!
                         .StoreType,
                     column.StoreType);
             });
@@ -992,7 +932,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, size: 30)
+                        .FindMapping(typeof(string), storeTypeName: null, size: 30)!
                         .StoreType,
                     column.StoreType);
             });
@@ -1011,7 +951,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, fixedLength: true, size: 100)
+                        .FindMapping(typeof(string), storeTypeName: null, fixedLength: true, size: 100)!
                         .StoreType,
                     column.StoreType);
             });
@@ -1118,7 +1058,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var table = Assert.Single(model.Tables);
                 var column = Assert.Single(table.Columns, c => c.Name == "SomeColumn");
-                Assert.Equal(_typeMappingSource.FindMapping(typeof(long)).StoreType, column.StoreType);
+                Assert.Equal(_typeMappingSource.FindMapping(typeof(long))!.StoreType, column.StoreType);
             });
 
     [Fact]
@@ -1147,7 +1087,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     e.Property<int>("Id");
                     e.Property<string>("SomeColumn");
-                    e.HasData(new Dictionary<string, object> { { "Id", 1 }, { "SomeColumn", null } });
+                    e.HasData(new Dictionary<string, object?> { { "Id", 1 }, { "SomeColumn", null } });
                 }),
             builder => { },
             builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(),
@@ -1444,30 +1384,21 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                         e.ToTable("Entity", "MySchema");
                     });
             },
-            source =>
-            {
-                source.Entity(
-                    "Entity", e =>
+            source => source.Entity(
+                "Entity", e => e.OwnsOne(
+                    "Owned", "OwnedReference", o =>
                     {
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.Property<DateTime>("Date");
-                                o.ToTable("Owned", (string)null);
-                            });
-                    });
-            },
-            target =>
-            {
-                target.Entity(
-                    "Owned", e =>
-                    {
-                        e.Property<int>("EntityId").ValueGeneratedNever();
-                        e.HasKey("EntityId");
-                        e.Property<DateTime>("Date");
-                        e.ToTable("Owned", (string)null);
-                    });
-            },
+                        o.Property<DateTime>("Date");
+                        o.ToTable("Owned", (string?)null);
+                    })),
+            target => target.Entity(
+                "Owned", e =>
+                {
+                    e.Property<int>("EntityId").ValueGeneratedNever();
+                    e.HasKey("EntityId");
+                    e.Property<DateTime>("Date");
+                    e.ToTable("Owned", (string?)null);
+                }),
             model =>
             {
                 Assert.Equal(2, model.Tables.Count());
@@ -1486,154 +1417,115 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Convert_json_entities_to_regular_owned()
         => await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested", "NestedReference", n =>
-                                    {
-                                        n.Property<int>("Number");
-                                    });
-                                o.OwnsMany(
-                                    "Nested2", "NestedCollection", n =>
-                                    {
-                                        n.Property<int>("Number2");
-                                    });
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany(
+                                "Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested3", "NestedReference2", n =>
-                                    {
-                                        n.Property<int>("Number3");
-                                    });
-                                o.OwnsMany(
-                                    "Nested4", "NestedCollection2", n =>
-                                    {
-                                        n.Property<int>("Number4");
-                                    });
-                                o.Property<DateTime>("Date2");
-                                o.ToJson();
-                            });
-                    });
-            },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany(
+                                "Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson();
+                        });
+                }),
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
-                                o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
-                                o.Property<DateTime>("Date");
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
-                                o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
-                                o.Property<DateTime>("Date2");
-                            });
-                    });
-            },
-            model =>
-            {
-                Assert.Equal(4, model.Tables.Count());
-            });
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                        });
+                }),
+            model => Assert.Equal(4, model.Tables.Count()));
 
     [Fact]
     public virtual async Task Convert_regular_owned_entities_to_json()
         => await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested", "NestedReference", n =>
-                                    {
-                                        n.Property<int>("Number");
-                                    });
-                                o.OwnsMany(
-                                    "Nested2", "NestedCollection", n =>
-                                    {
-                                        n.Property<int>("Number2");
-                                    });
-                                o.Property<DateTime>("Date");
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany(
+                                "Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested3", "NestedReference2", n =>
-                                    {
-                                        n.Property<int>("Number3");
-                                    });
-                                o.OwnsMany(
-                                    "Nested4", "NestedCollection2", n =>
-                                    {
-                                        n.Property<int>("Number4");
-                                    });
-                                o.Property<DateTime>("Date2");
-                            });
-                    });
-            },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany(
+                                "Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                        });
+                }),
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
-                                o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
-                                o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
-                                o.Property<DateTime>("Date2");
-                                o.ToJson();
-                            });
-                    });
-            },
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson();
+                        });
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1654,34 +1546,28 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual async Task Convert_string_column_to_a_json_column_containing_reference()
     {
         await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                    });
-            },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                }),
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.ToJson("Name");
-                                o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
-                                o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
-                                o.Property<DateTime>("Date");
-                            });
-                    });
-            },
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.ToJson("Name");
+                            o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                        });
+                }),
             model =>
             {
                 var table = model.Tables.Single();
@@ -1697,36 +1583,30 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Convert_string_column_to_a_json_column_containing_required_reference()
         => await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                    });
-            },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                }),
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.ToJson("Name");
-                                o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
-                                o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
-                                o.Property<DateTime>("Date");
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.ToJson("Name");
+                            o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                        });
 
-                        e.Navigation("OwnedReference").IsRequired();
-                    });
-            },
+                    e.Navigation("OwnedReference").IsRequired();
+                }),
             model =>
             {
                 var table = model.Tables.Single();
@@ -1740,34 +1620,28 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual async Task Convert_string_column_to_a_json_column_containing_collection()
     {
         await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                    });
-            },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                }),
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
-                                o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
-                                o.Property<DateTime>("Date2");
-                                o.ToJson("Name");
-                            });
-                    });
-            },
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson("Name");
+                        });
+                }),
             model =>
             {
                 var table = model.Tables.Single();
@@ -1829,49 +1703,34 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Drop_json_columns_from_existing_table()
         => await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested", "NestedReference", n =>
-                                    {
-                                        n.Property<int>("Number");
-                                    });
-                                o.OwnsMany(
-                                    "Nested2", "NestedCollection", n =>
-                                    {
-                                        n.Property<int>("Number2");
-                                    });
-                                o.Property<DateTime>("Date");
-                                o.ToJson();
-                            });
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany(
+                                "Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson();
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested3", "NestedReference2", n =>
-                                    {
-                                        n.Property<int>("Number3");
-                                    });
-                                o.OwnsMany(
-                                    "Nested4", "NestedCollection2", n =>
-                                    {
-                                        n.Property<int>("Number4");
-                                    });
-                                o.Property<DateTime>("Date2");
-                                o.ToJson();
-                            });
-                    });
-            },
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany(
+                                "Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson();
+                        });
+                }),
             builder => builder.Entity(
                 "Entity", e =>
                 {
@@ -1909,78 +1768,60 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Rename_json_column()
         => await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested", "NestedReference", n =>
-                                    {
-                                        n.Property<int>("Number");
-                                    });
-                                o.OwnsMany(
-                                    "Nested2", "NestedCollection", n =>
-                                    {
-                                        n.Property<int>("Number2");
-                                    });
-                                o.Property<DateTime>("Date");
-                                o.ToJson("json_reference");
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany(
+                                "Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson("json_reference");
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne(
-                                    "Nested3", "NestedReference2", n =>
-                                    {
-                                        n.Property<int>("Number3");
-                                    });
-                                o.OwnsMany(
-                                    "Nested4", "NestedCollection2", n =>
-                                    {
-                                        n.Property<int>("Number4");
-                                    });
-                                o.Property<DateTime>("Date2");
-                                o.ToJson("json_collection");
-                            });
-                    });
-            },
-            builder =>
-            {
-                builder.Entity(
-                    "Entity", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne(
+                                "Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany(
+                                "Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson("json_collection");
+                        });
+                }),
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
 
-                        e.OwnsOne(
-                            "Owned", "OwnedReference", o =>
-                            {
-                                o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
-                                o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
-                                o.Property<DateTime>("Date");
-                                o.ToJson("new_json_reference");
-                            });
+                    e.OwnsOne(
+                        "Owned", "OwnedReference", o =>
+                        {
+                            o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
+                            o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
+                            o.Property<DateTime>("Date");
+                            o.ToJson("new_json_reference");
+                        });
 
-                        e.OwnsMany(
-                            "Owned2", "OwnedCollection", o =>
-                            {
-                                o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
-                                o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
-                                o.Property<DateTime>("Date2");
-                                o.ToJson("new_json_collection");
-                            });
-                    });
-            },
+                    e.OwnsMany(
+                        "Owned2", "OwnedCollection", o =>
+                        {
+                            o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
+                            o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
+                            o.Property<DateTime>("Date2");
+                            o.ToJson("new_json_collection");
+                        });
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2484,10 +2325,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 }),
             builder => builder.Entity("People").HasAlternateKey("AlternateKeyColumn"),
             builder => { },
-            model =>
-            {
-                Assert.Empty(Assert.Single(model.Tables).UniqueConstraints);
-            });
+            model => Assert.Empty(Assert.Single(model.Tables).UniqueConstraints));
 
     [Fact]
     public virtual Task Add_check_constraint_with_name()
@@ -2908,23 +2746,20 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual Task Create_table_with_optional_complex_type_with_required_properties()
         => Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Supplier", e =>
-                    {
-                        e.ToTable("Suppliers");
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<int>("Number");
-                        e.ComplexProperty<MyComplex>(
-                            "MyComplex", ct =>
-                            {
-                                ct.ComplexProperty<MyNestedComplex>("MyNestedComplex");
-                                ct.ComplexCollection(c => c.NestedCollection).ToJson();
-                            });
-                    });
-            },
+            builder => builder.Entity(
+                "Supplier", e =>
+                {
+                    e.ToTable("Suppliers");
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<int>("Number");
+                    e.ComplexProperty<MyComplex>(
+                        "MyComplex", ct =>
+                        {
+                            ct.ComplexProperty<MyNestedComplex>("MyNestedComplex");
+                            ct.ComplexCollection(c => c.NestedCollection).ToJson();
+                        });
+                }),
             model =>
             {
                 var contactsTable = Assert.Single(model.Tables.Where(t => t.Name == "Suppliers"));
@@ -2967,10 +2802,10 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected class MyComplex
     {
         [Required]
-        public string Prop { get; set; }
+        public string Prop { get; set; } = null!;
 
-        public MyNestedComplex Nested { get; set; }
-        public List<MyNestedComplex> NestedCollection { get; set; }
+        public MyNestedComplex Nested { get; set; } = null!;
+        public List<MyNestedComplex> NestedCollection { get; set; } = [];
     }
 
     public class MyNestedComplex
@@ -3570,16 +3405,16 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     protected class MyJsonComplex
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
         public DateTime Date { get; set; }
-        public MyNestedComplex Nested { get; set; }
-        public List<MyNestedComplex> NestedCollection { get; set; }
+        public MyNestedComplex Nested { get; set; } = null!;
+        public List<MyNestedComplex> NestedCollection { get; set; } = [];
     }
 
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int AnotherId { get; set; }
         public int Age { get; set; }
     }
@@ -3620,7 +3455,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected virtual Task Test(
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
-        Action<DatabaseModel> asserter,
+        Action<DatabaseModel>? asserter,
         bool withConventions = true,
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
         => Test(_ => { }, buildSourceAction, buildTargetAction, asserter, withConventions, migrationsSqlGenerationOptions);
@@ -3666,7 +3501,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         Action<ModelBuilder> buildCommonAction,
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
-        Action<DatabaseModel> asserter,
+        Action<DatabaseModel>? asserter,
         bool withConventions = true,
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
     {
@@ -3740,9 +3575,9 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     protected virtual async Task Test(
         IModel sourceModel,
-        IModel targetModel,
+        IModel? targetModel,
         IReadOnlyList<MigrationOperation> operations,
-        Action<DatabaseModel> asserter,
+        Action<DatabaseModel>? asserter,
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
     {
         var context = CreateContext();
@@ -3832,14 +3667,14 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         var assembly = build.BuildInMemory();
-        var factoryType = assembly.GetType("MigrationsTestSnapshot");
+        var factoryType = assembly.GetType("MigrationsTestSnapshot")!;
 
         var buildModelMethod = factoryType.GetMethod(
             "BuildModel",
             BindingFlags.Instance | BindingFlags.NonPublic,
             null,
             [typeof(ModelBuilder)],
-            null);
+            null)!;
 
         var builder = new ModelBuilder();
         builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
@@ -3849,8 +3684,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             [builder]);
 
         var services = Fixture.TestHelpers.CreateContextServices();
-        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
-        return processor.Process(builder.Model);
+        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetRequiredService<IModelRuntimeInitializer>());
+        return processor.Process(builder.Model)!;
     }
 
     protected virtual ICollection<BuildReference> GetAdditionalReferences()

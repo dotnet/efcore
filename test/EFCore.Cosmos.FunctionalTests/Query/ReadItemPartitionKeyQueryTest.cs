@@ -116,7 +116,6 @@ WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND c["PartitionKey3"])
 """);
     }
 
-
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/329 (Partial hierarchical partition key queries return too many results)
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
     {

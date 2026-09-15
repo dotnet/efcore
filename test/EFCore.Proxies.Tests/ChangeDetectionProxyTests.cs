@@ -41,7 +41,7 @@ public class ChangeDetectionProxyTests
         using var context = new ChangeContext<ChangeNonVirtualIndexerNotUsed>();
 
         Assert.DoesNotContain(
-            context.Model.FindEntityType(typeof(ChangeNonVirtualIndexerNotUsed)).GetProperties(), e => e.IsIndexerProperty());
+            context.Model.FindEntityType(typeof(ChangeNonVirtualIndexerNotUsed))!.GetProperties(), e => e.IsIndexerProperty());
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public class ChangeDetectionProxyTests
     {
         using var context = new ChangingAndChangedNotificationsWithOriginalValuesContext();
 
-        var entityType = context.Model.FindEntityType(typeof(ChangeValueEntity));
+        var entityType = context.Model.FindEntityType(typeof(ChangeValueEntity))!;
 
         Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, entityType.GetChangeTrackingStrategy());
     }
@@ -177,7 +177,7 @@ public class ChangeDetectionProxyTests
 
             Assert.Equal(
                 10,
-                ((ChangeValueEntity)s).Value);
+                ((ChangeValueEntity)s!).Value);
         };
 
         proxy.Value = 10;
@@ -207,7 +207,7 @@ public class ChangeDetectionProxyTests
 
             Assert.Equal(
                 5,
-                ((ChangeValueEntity)s).Value);
+                ((ChangeValueEntity)s!).Value);
         };
 
         proxy.Value = 10;
@@ -225,10 +225,7 @@ public class ChangeDetectionProxyTests
 
         var eventRaised = false;
 
-        ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) =>
-        {
-            eventRaised = true;
-        };
+        ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) => eventRaised = true;
 
         proxy.Value = 10;
         Assert.False(eventRaised);
@@ -245,10 +242,7 @@ public class ChangeDetectionProxyTests
 
         var eventRaised = false;
 
-        ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) =>
-        {
-            eventRaised = true;
-        };
+        ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) => eventRaised = true;
 
         proxy.Value = 10;
         Assert.False(eventRaised);
@@ -265,10 +259,7 @@ public class ChangeDetectionProxyTests
 
         var eventRaised = false;
 
-        ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) =>
-        {
-            eventRaised = true;
-        };
+        ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) => eventRaised = true;
 
         proxy.Value = 10;
         Assert.True(eventRaised);
@@ -285,10 +276,7 @@ public class ChangeDetectionProxyTests
 
         var eventRaised = false;
 
-        ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) =>
-        {
-            eventRaised = true;
-        };
+        ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) => eventRaised = true;
 
         proxy.Value = 10;
         Assert.True(eventRaised);
@@ -297,12 +285,12 @@ public class ChangeDetectionProxyTests
     private class ChangeContext<TEntity>(
         bool useLazyLoading = false,
         bool checkEquality = true,
-        Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null) : TestContext<TEntity>(
+        Action<EntityTypeBuilder<TEntity>>? entityBuilderAction = null) : TestContext<TEntity>(
         dbName: "ChangeDetectionContext", useLazyLoading: useLazyLoading, useChangeDetection: true,
         checkEquality: checkEquality)
         where TEntity : class
     {
-        private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction = entityBuilderAction;
+        private readonly Action<EntityTypeBuilder<TEntity>>? _entityBuilderAction = entityBuilderAction;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -313,10 +301,10 @@ public class ChangeDetectionProxyTests
         }
     }
 
-    private class SharedChangeContext<TEntity>(Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null) : DbContext
+    private class SharedChangeContext<TEntity>(Action<EntityTypeBuilder<TEntity>>? entityBuilderAction = null) : DbContext
         where TEntity : class
     {
-        private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction = entityBuilderAction;
+        private readonly Action<EntityTypeBuilder<TEntity>>? _entityBuilderAction = entityBuilderAction;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -341,14 +329,14 @@ public class ChangeDetectionProxyTests
     {
         public int Id { get; set; }
 
-        public virtual ChangeNonVirtualPropEntity SelfRef { get; set; }
+        public virtual ChangeNonVirtualPropEntity? SelfRef { get; set; }
     }
 
     public class ChangeNonVirtualNavEntity
     {
         public virtual int Id { get; set; }
 
-        public ChangeNonVirtualNavEntity SelfRef { get; set; }
+        public ChangeNonVirtualNavEntity? SelfRef { get; set; }
     }
 
     public class ChangeValueEntity
@@ -362,12 +350,12 @@ public class ChangeDetectionProxyTests
     {
         public virtual int Id { get; set; }
 
-        public virtual ChangeSelfRefEntity SelfRef { get; set; }
+        public virtual ChangeSelfRefEntity? SelfRef { get; set; }
     }
 
     public class ChangeNonVirtualIndexer
     {
-        private readonly Dictionary<string, object> _keyValuePairs = new();
+        private readonly Dictionary<string, object> _keyValuePairs = [];
 
         public virtual int Id { get; set; }
 
@@ -380,7 +368,7 @@ public class ChangeDetectionProxyTests
 
     public class ChangeNonVirtualIndexerNotUsed
     {
-        private readonly Dictionary<string, object> _keyValuePairs = new();
+        private readonly Dictionary<string, object> _keyValuePairs = [];
 
         public virtual int Id { get; set; }
 

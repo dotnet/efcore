@@ -18,7 +18,7 @@ public class SqliteMigrationAnnotationProviderTest
         FinalizeModel();
 
         Assert.DoesNotContain(
-            _provider.For((IColumn)property.GetTableColumnMappings().Single().Column, true),
+            _provider.For(property.GetTableColumnMappings().Single().Column, true),
             a => a.Name == _autoincrement.Name && (bool)a.Value!);
     }
 
@@ -30,7 +30,7 @@ public class SqliteMigrationAnnotationProviderTest
         FinalizeModel();
 
         Assert.Contains(
-            _provider.For((IColumn)property.GetTableColumnMappings().Single().Column, true),
+            _provider.For(property.GetTableColumnMappings().Single().Column, true),
             a => a.Name == _autoincrement.Name && (bool)a.Value!);
     }
 
@@ -41,7 +41,7 @@ public class SqliteMigrationAnnotationProviderTest
         FinalizeModel();
 
         Assert.DoesNotContain(
-            _provider.For((IColumn)property.GetTableColumnMappings().Single().Column, true),
+            _provider.For(property.GetTableColumnMappings().Single().Column, true),
             a => a.Name == _autoincrement.Name);
     }
 
@@ -52,7 +52,7 @@ public class SqliteMigrationAnnotationProviderTest
         FinalizeModel();
 
         Assert.DoesNotContain(
-            _provider.For((IColumn)property.GetTableColumnMappings().Single().Column, true),
+            _provider.For(property.GetTableColumnMappings().Single().Column, true),
             a => a.Name == _autoincrement.Name);
     }
 
@@ -63,7 +63,7 @@ public class SqliteMigrationAnnotationProviderTest
         FinalizeModel();
 
         Assert.DoesNotContain(
-            _provider.For((IColumn)property.GetTableColumnMappings().Single().Column, true),
+            _provider.For(property.GetTableColumnMappings().Single().Column, true),
             a => a.Name == _autoincrement.Name);
     }
 
@@ -74,7 +74,7 @@ public class SqliteMigrationAnnotationProviderTest
         FinalizeModel();
 
         Assert.DoesNotContain(
-            _provider.For((IColumn)property.GetTableColumnMappings().Single().Column, true),
+            _provider.For(property.GetTableColumnMappings().Single().Column, true),
             a => a.Name == _autoincrement.Name);
     }
 
@@ -85,7 +85,7 @@ public class SqliteMigrationAnnotationProviderTest
         FinalizeModel();
 
         Assert.DoesNotContain(
-            _provider.For((IColumn)property.GetTableColumnMappings().Single().Column, true),
+            _provider.For(property.GetTableColumnMappings().Single().Column, true),
             a => a.Name == _autoincrement.Name);
     }
 

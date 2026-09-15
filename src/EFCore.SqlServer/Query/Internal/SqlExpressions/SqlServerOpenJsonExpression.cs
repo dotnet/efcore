@@ -118,10 +118,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
                     }
                 }
 
-                if (visitedPath is not null)
-                {
-                    visitedPath[i] = newSegment;
-                }
+                visitedPath?[i] = newSegment;
             }
         }
 
@@ -145,9 +142,9 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
         }
 
         return jsonExpression == Json
-            && (ReferenceEquals(path, Path) || path is not null && Path is not null && path.SequenceEqual(Path))
+            && (ReferenceEquals(path, Path) || (path is not null && Path is not null && path.SequenceEqual(Path)))
             && (ReferenceEquals(columnInfos, ColumnInfos)
-                || columnInfos is not null && ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos))
+                || (columnInfos is not null && ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos)))
                 ? this
                 : new SqlServerOpenJsonExpression(Alias, jsonExpression, path, columnInfos);
     }
@@ -303,7 +300,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
             if (columnInfo.Name != otherColumnInfo.Name
                 || !columnInfo.TypeMapping.Equals(otherColumnInfo.TypeMapping)
                 || columnInfo.AsJson != otherColumnInfo.AsJson
-                || columnInfo.Path is null != otherColumnInfo.Path is null
+                || (columnInfo.Path is null) != (otherColumnInfo.Path is null)
                 || (columnInfo.Path is not null
                     && otherColumnInfo.Path is not null
                     && !columnInfo.Path.SequenceEqual(otherColumnInfo.Path)))

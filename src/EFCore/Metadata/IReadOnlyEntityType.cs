@@ -188,12 +188,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         Check.NotNull(otherEntityType);
 
         var leastDerived = LeastDerivedType(otherEntityType);
-        if (leastDerived != null)
-        {
-            return leastDerived;
-        }
-
-        return GetAllBaseTypesInclusiveAscending()
+        return leastDerived ?? GetAllBaseTypesInclusiveAscending()
             .FirstOrDefault(i => otherEntityType.GetAllBaseTypesInclusiveAscending().Any(j => j == i));
     }
 
@@ -491,7 +486,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     Gets all skip navigation properties declared on this entity type.
     /// </summary>
     /// <remarks>
-    ///     This method does not return skip navigation properties declared declared on base types.
+    ///     This method does not return skip navigation properties declared on base types.
     ///     It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
     ///     Use <see cref="GetSkipNavigations" /> to also return skip navigation properties declared on base types.
     /// </remarks>

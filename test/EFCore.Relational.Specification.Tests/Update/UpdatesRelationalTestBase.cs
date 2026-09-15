@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : UpdatesTestBase<TFixture>(fixture)
     where TFixture : UpdatesRelationalTestBase<TFixture>.UpdatesRelationalFixture
 {
@@ -82,7 +80,7 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                 var product = (await context.ProductWithBytes.FindAsync(productId))!;
                 var category = new SpecialCategory { PrincipalId = 777 };
                 var productCategory = new ProductCategory { Category = category };
-                product.ProductCategories = new List<ProductCategory> { productCategory };
+                product.ProductCategories = [productCategory];
 
                 await context.SaveChangesAsync();
 
@@ -108,7 +106,8 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
             {
                 var person = new Person("1", null)
                 {
-                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini"
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
+                    Country = "Eswatini"
                 };
 
                 context.Add(person);
@@ -305,9 +304,9 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<ProductViewTable>().HasBaseType((string)null).ToTable("ProductView");
-            modelBuilder.Entity<ProductTableWithView>().HasBaseType((string)null).ToView("ProductView").ToTable("ProductTable");
-            modelBuilder.Entity<ProductTableView>().HasBaseType((string)null).ToView("ProductTable");
+            modelBuilder.Entity<ProductViewTable>().HasBaseType((string?)null).ToTable("ProductView");
+            modelBuilder.Entity<ProductTableWithView>().HasBaseType((string?)null).ToView("ProductView").ToTable("ProductTable");
+            modelBuilder.Entity<ProductTableView>().HasBaseType((string?)null).ToView("ProductTable");
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique();
 
@@ -325,22 +324,18 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                     .HasColumnName("ZipCode");
             });
 
-            modelBuilder.Entity<CrunchyNougat>(b =>
-            {
-                b.OwnsOne(e => e.Filling, ob =>
+            modelBuilder.Entity<CrunchyNougat>(b => b.OwnsOne(
+                e => e.Filling, ob =>
                 {
                     ob.Property(o => o.Kind).HasColumnName("FillingKind");
                     ob.Property(o => o.IsFresh).HasColumnName("FillingIsFresh");
-                });
-            });
-            modelBuilder.Entity<SoftNougat>(b =>
-            {
-                b.OwnsOne(e => e.Filling, ob =>
+                }));
+            modelBuilder.Entity<SoftNougat>(b => b.OwnsOne(
+                e => e.Filling, ob =>
                 {
                     ob.Property(o => o.Kind).HasColumnName("FillingKind");
                     ob.Property(o => o.IsFresh).HasColumnName("FillingIsFresh");
-                });
-            });
+                }));
 
             modelBuilder
                 .Entity<

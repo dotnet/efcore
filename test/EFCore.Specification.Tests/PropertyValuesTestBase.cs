@@ -3127,7 +3127,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         var dictionary = new Dictionary<string, object>
         {
-            ["Name"] = "Test School", ["Departments"] = new List<object?> { "Not a dictionary", null }
+            ["Name"] = "Test School",
+            ["Departments"] = new List<object?> { "Not a dictionary", null }
         };
 
         var entry = context.Entry(school);
@@ -3243,8 +3244,20 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         building.OptionalMilk = new Milk
         {
-            License = new License { Charge = 1.0m, Tag = new Tag { Text = "Ta1" }, Title = "Ti1", Tog = new Tog { Text = "To1" } },
-            Manufacturer = new Manufacturer { Name = "M1", Rating = 7, Tag = new Tag { Text = "Ta2" }, Tog = new Tog { Text = "To2" } },
+            License = new License
+            {
+                Charge = 1.0m,
+                Tag = new Tag { Text = "Ta1" },
+                Title = "Ti1",
+                Tog = new Tog { Text = "To1" }
+            },
+            Manufacturer = new Manufacturer
+            {
+                Name = "M1",
+                Rating = 7,
+                Tag = new Tag { Text = "Ta2" },
+                Tog = new Tog { Text = "To2" }
+            },
             Rating = 8,
             Species = "S1",
             Validation = false
@@ -4029,8 +4042,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
             var buildings = new List<Building>
             {
-                Building.Create(new Guid("21EC2020-3AEA-1069-A2DD-08002B30309D"), "Building One", 1500000),
-                buildingTwo
+                Building.Create(new Guid("21EC2020-3AEA-1069-A2DD-08002B30309D"), "Building One", 1500000), buildingTwo
             };
 
             foreach (var building in buildings)

@@ -170,8 +170,8 @@ END;
     }
 
     private static IHistoryRepository CreateHistoryRepository(
-        string schema = null,
-        Action<ModelBuilder> configureModel = null,
+        string? schema = null,
+        Action<ModelBuilder>? configureModel = null,
         bool addFullTextCatalogConvention = false)
     {
         var serviceProvider = addFullTextCatalogConvention
@@ -190,18 +190,16 @@ END;
             .GetService<IHistoryRepository>();
     }
 
-    private class TestDbContext(DbContextOptions options, Action<ModelBuilder> configureModel = null) : DbContext(options)
+    private class TestDbContext(DbContextOptions options, Action<ModelBuilder>? configureModel = null) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         [DbFunction("TableFunction")]
         public IQueryable<TableFunction> TableFunction()
             => FromExpression(() => TableFunction());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            configureModel?.Invoke(modelBuilder);
-        }
+            => configureModel?.Invoke(modelBuilder);
     }
 
     /// <summary>
@@ -238,6 +236,6 @@ END;
     {
         public int Id { get; set; }
         public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
     }
 }

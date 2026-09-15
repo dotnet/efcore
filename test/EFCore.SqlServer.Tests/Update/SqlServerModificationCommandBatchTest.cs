@@ -34,7 +34,7 @@ public class SqlServerModificationCommandBatchTest
     public void AddCommand_returns_false_when_max_parameters_are_reached(EntityState entityState, bool withSameTable)
     {
         var typeMapper = CreateTypeMappingSource();
-        var intMapping = typeMapper.FindMapping(typeof(int));
+        var intMapping = typeMapper.FindMapping(typeof(int))!;
         var paramIndex = 0;
 
         var batch = CreateBatch();
@@ -71,7 +71,7 @@ public class SqlServerModificationCommandBatchTest
     public void AddCommand_when_max_parameters_are_reached_with_pending_commands(bool lastCommandPending)
     {
         var typeMapper = CreateTypeMappingSource();
-        var intMapping = typeMapper.FindMapping(typeof(int));
+        var intMapping = typeMapper.FindMapping(typeof(int))!;
         var paramIndex = 0;
 
         var batch = CreateBatch();
@@ -151,7 +151,7 @@ public class SqlServerModificationCommandBatchTest
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,
-        string schema,
+        string? schema,
         bool sensitiveLoggingEnabled)
         => new ModificationCommandFactory().CreateNonTrackedModificationCommand(
             new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
@@ -159,11 +159,11 @@ public class SqlServerModificationCommandBatchTest
     private class TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize)
         : SqlServerModificationCommandBatch(dependencies, maxBatchSize)
     {
-        public new Dictionary<string, object> ParameterValues
+        public new Dictionary<string, object?> ParameterValues
             => base.ParameterValues;
 
         public new RawSqlCommand StoreCommand
-            => base.StoreCommand;
+            => base.StoreCommand!;
 
         public new IList<ResultSetMapping> ResultSetMappings
             => base.ResultSetMappings;

@@ -94,7 +94,7 @@ public static class PropertyExtensions
                 && property.IsKey()
                 && (!property.IsForeignKey()
                     || property.IsForeignKeyToSelf()
-                    || (property.GetContainingForeignKeys().All(fk => fk.Properties.Any(p => p != property && p.IsNullable)))))
+                    || property.GetContainingForeignKeys().All(fk => fk.Properties.Any(p => p != property && p.IsNullable))))
             || property.GetValueGeneratorFactory() != null;
 
     /// <summary>

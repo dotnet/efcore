@@ -13,8 +13,8 @@ using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
-using static SQLitePCL.raw;
 using static Microsoft.Data.Sqlite.Utilities.IsBusyHelper;
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite;
 
@@ -139,11 +139,8 @@ public class SqliteDataReader : DbDataReader
             throw new InvalidOperationException(Resources.DataReaderClosed(nameof(NextResult)));
         }
 
-        if (_record != null)
-        {
-            _record.DisposeWithBusyHandling(_command.CommandTimeout, _totalElapsedTime);
-            _record = null;
-        }
+        _record?.DisposeWithBusyHandling(_command.CommandTimeout, _totalElapsedTime);
+        _record = null;
 
         sqlite3_stmt stmt;
         int rc;

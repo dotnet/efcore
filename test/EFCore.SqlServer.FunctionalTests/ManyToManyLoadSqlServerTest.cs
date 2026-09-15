@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ManyToManyLoadSqlServerTest(ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture fixture)
     : ManyToManyLoadTestBase<ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture>(fixture)
 {
@@ -109,7 +107,7 @@ LEFT JOIN (
     WHERE [e3].[Id] = @p
 ) AS [s1] ON [s].[Id] = [s1].[TwoSkipSharedId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[OneSkipSharedId0]
+ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[OneSkipSharedId0], [s1].[TwoSkipSharedId0]
 """);
     }
 
@@ -262,21 +260,20 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1]
                 StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
-            var testName = methodCallLine.Substring(0, indexMethodEnding);
+            var testName = methodCallLine[..indexMethodEnding];
             var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
             var fileName = parts[1][..^5];
             var lineNumber = int.Parse(parts[2]);
 
             var currentDirectory = Directory.GetCurrentDirectory();
-            var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+            var logFile = currentDirectory[
+                    ..(currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)]
                 + "QueryBaseline.txt";
 
             var testInfo = testName + " : " + lineNumber + FileNewLine;
 
             var newBaseLine = $@"            AssertSql(
-                {"@\"" + Sql.Replace("\"", "\"\"") + "\""});
+                {"@\"" + Sql!.Replace("\"", "\"\"") + "\""});
 
 ";
 
@@ -288,7 +285,7 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1]
         }
     }
 
-    private string Sql { get; set; }
+    private string? Sql { get; set; }
 
     public class ManyToManyLoadSqlServerFixture : ManyToManyLoadFixtureBase, ITestSqlLoggerFactory
     {

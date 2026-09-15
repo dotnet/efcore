@@ -234,8 +234,8 @@ FROM [JsonTypeEntity] AS [j]
 
     public class DateTime2TypeFixture : SqlServerTypeFixture<DateTime>
     {
-        public override DateTime Value { get; } = new DateTime(2020, 1, 5, 12, 30, 45, DateTimeKind.Unspecified);
-        public override DateTime OtherValue { get; } = new DateTime(2022, 5, 3, 0, 0, 0, DateTimeKind.Unspecified);
+        public override DateTime Value { get; } = new(2020, 1, 5, 12, 30, 45, DateTimeKind.Unspecified);
+        public override DateTime OtherValue { get; } = new(2022, 5, 3, 0, 0, 0, DateTimeKind.Unspecified);
     }
 
     [Fact]

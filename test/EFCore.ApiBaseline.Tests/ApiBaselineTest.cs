@@ -1,9 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.IO;
-using System.Linq;
 using ApiChief.Model;
 using Xunit;
 
@@ -84,7 +81,8 @@ public static class ApiBaselineTest
             dir = dir.Parent;
         }
 
-        return dir?.FullName ?? throw new InvalidOperationException(
-            "Could not find repository root. Ensure the test is run from within the EF Core repository.");
+        return dir?.FullName
+            ?? throw new InvalidOperationException(
+                "Could not find repository root. Ensure the test is run from within the EF Core repository.");
     }
 }

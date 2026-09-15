@@ -54,7 +54,8 @@ public class IPAddressToBytesConverter : ValueConverter<IPAddress?, byte[]?>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(IPAddress), typeof(byte[]),
+        = new(
+            typeof(IPAddress), typeof(byte[]),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new IPAddressToBytesConverter(i.MappingHints),
             DefaultHints);
 }

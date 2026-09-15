@@ -27,7 +27,7 @@ public abstract class MigrationsModelDifferTestBase
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
         Action<IReadOnlyList<MigrationOperation>> assertActionUp,
-        Action<IReadOnlyList<MigrationOperation>> assertActionDown,
+        Action<IReadOnlyList<MigrationOperation>>? assertActionDown,
         bool skipSourceConventions = false)
         => Execute(
             buildCommonAction, buildSourceAction, buildTargetAction, assertActionUp, assertActionDown, null, skipSourceConventions);
@@ -37,8 +37,8 @@ public abstract class MigrationsModelDifferTestBase
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
         Action<IReadOnlyList<MigrationOperation>> assertActionUp,
-        Action<IReadOnlyList<MigrationOperation>> assertActionDown,
-        Action<DbContextOptionsBuilder> builderOptionsAction,
+        Action<IReadOnlyList<MigrationOperation>>? assertActionDown,
+        Action<DbContextOptionsBuilder>? builderOptionsAction,
         bool skipSourceConventions = false,
         bool enableSensitiveLogging = true)
     {
@@ -62,10 +62,7 @@ public abstract class MigrationsModelDifferTestBase
             targetOptionsBuilder = targetOptionsBuilder.EnableSensitiveDataLogging();
         }
 
-        if (builderOptionsAction != null)
-        {
-            builderOptionsAction(targetOptionsBuilder);
-        }
+        builderOptionsAction?.Invoke(targetOptionsBuilder);
 
         var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
 
@@ -127,5 +124,6 @@ public abstract class MigrationsModelDifferTestBase
             new RelationalAnnotationProvider(
                 new RelationalAnnotationProviderDependencies()),
             TestServiceFactory.Instance.Create<IRowIdentityMapFactory>(),
-            TestHelpers.CreateContext(options).GetService<CommandBatchPreparerDependencies>());
+            TestHelpers.CreateContext(options).GetService<CommandBatchPreparerDependencies>(),
+            new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
 }

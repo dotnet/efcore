@@ -91,7 +91,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
 
         if (copyFrom._replacedServices != null)
         {
-            _replacedServices = new Dictionary<(Type, Type?), Type>(copyFrom._replacedServices);
+            _replacedServices = [with(copyFrom._replacedServices)];
         }
     }
 
@@ -310,7 +310,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     {
         var clone = Clone();
 
-        clone._replacedServices ??= new Dictionary<(Type, Type?), Type>();
+        clone._replacedServices ??= [];
 
         clone._replacedServices[(serviceType, currentImplementationType)] = newImplementationType;
 
@@ -388,8 +388,8 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._interceptors = _interceptors == null
-            ? [..interceptors]
-            : [.._interceptors, ..interceptors];
+            ? [.. interceptors]
+            : [.. _interceptors, .. interceptors];
 
         return clone;
     }
@@ -405,8 +405,8 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._singletonInterceptors = _singletonInterceptors == null
-            ? [..interceptors]
-            : [.._singletonInterceptors, ..interceptors];
+            ? [.. interceptors]
+            : [.. _singletonInterceptors, .. interceptors];
 
         return clone;
     }
@@ -585,7 +585,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     ///     Adds the services required to make the selected options work. This is used when there
     ///     is no external <see cref="IServiceProvider" /> and EF is maintaining its own service
     ///     provider internally. This allows database providers (and other extensions) to register their
-    ///     required services when EF is creating an service provider.
+    ///     required services when EF is creating a service provider.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
     public virtual void ApplyServices(IServiceCollection services)

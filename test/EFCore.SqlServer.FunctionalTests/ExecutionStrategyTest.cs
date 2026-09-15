@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.ExecutionStrategyFixture>
 {
     public ExecutionStrategyTest(ExecutionStrategyFixture fixture)
@@ -247,7 +245,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
                 c1 =>
                 {
                     context2.Database.UseTransaction(null);
-                    context2.Database.UseTransaction(context1.Database.CurrentTransaction.GetDbTransaction());
+                    context2.Database.UseTransaction(context1.Database.CurrentTransaction!.GetDbTransaction());
 
                     c1.SaveChanges(false);
 
@@ -544,32 +542,15 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
-            List<Product> list;
-            if (async)
-            {
-                if (externalStrategy)
-                {
-                    list = await new TestSqlServerRetryingExecutionStrategy(context)
-                        .ExecuteAsync(context, (c, ct) => c.Products.ToListAsync(ct), null);
-                }
-                else
-                {
-                    list = await context.Products.ToListAsync();
-                }
-            }
-            else
-            {
-                if (externalStrategy)
-                {
-                    list = new TestSqlServerRetryingExecutionStrategy(context)
-                        .Execute(context, c => c.Products.ToList(), null);
-                }
-                else
-                {
-                    list = context.Products.ToList();
-                }
-            }
-
+            var list = async
+                ? externalStrategy
+                    ? await new TestSqlServerRetryingExecutionStrategy(context)
+                        .ExecuteAsync(context, (c, ct) => c.Products.ToListAsync(ct), null)
+                    : await context.Products.ToListAsync()
+                : externalStrategy
+                    ? new TestSqlServerRetryingExecutionStrategy(context)
+                        .Execute(context, c => c.Products.ToList(), null)
+                    : context.Products.ToList();
             Assert.Equal(2, list.Count);
             Assert.Equal(1, connection.OpenCount);
             Assert.Equal(2, connection.ExecutionCount);
@@ -599,42 +580,25 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
-            List<Product> list;
-            if (async)
-            {
-                if (externalStrategy)
-                {
-                    list = await new TestSqlServerRetryingExecutionStrategy(context)
+            var list = async
+                ? externalStrategy
+                    ? await new TestSqlServerRetryingExecutionStrategy(context)
                         .ExecuteAsync(
                             context, (c, ct) => c.Set<Product>().FromSqlRaw(
                                 @"SELECT [ID], [name]
-                              FROM [Products]").ToListAsync(ct), null);
-                }
-                else
-                {
-                    list = await context.Set<Product>().FromSqlRaw(
+                              FROM [Products]").ToListAsync(ct), null)
+                    : await context.Set<Product>().FromSqlRaw(
                         @"SELECT [ID], [name]
-                              FROM [Products]").ToListAsync();
-                }
-            }
-            else
-            {
-                if (externalStrategy)
-                {
-                    list = new TestSqlServerRetryingExecutionStrategy(context)
+                              FROM [Products]").ToListAsync()
+                : externalStrategy
+                    ? new TestSqlServerRetryingExecutionStrategy(context)
                         .Execute(
                             context, c => c.Set<Product>().FromSqlRaw(
                                 @"SELECT [ID], [name]
-                              FROM [Products]").ToList(), null);
-                }
-                else
-                {
-                    list = context.Set<Product>().FromSqlRaw(
+                              FROM [Products]").ToList(), null)
+                    : context.Set<Product>().FromSqlRaw(
                         @"SELECT [ID], [name]
                               FROM [Products]").ToList();
-                }
-            }
-
             Assert.Equal(2, list.Count);
             Assert.Equal(1, connection.OpenCount);
             Assert.Equal(2, connection.ExecutionCount);
@@ -759,19 +723,19 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
 
     protected class ExecutionStrategyContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Audit> Audits { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<Audit> Audits { get; set; } = null!;
     }
 
     protected class Product
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public class AuditContext : DbContext
     {
-        public DbSet<Audit> Audits { get; set; }
+        public DbSet<Audit> Audits { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer();

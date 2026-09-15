@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SeedingTestBase
 {
     [Theory, InlineData(false), InlineData(true)]
@@ -65,7 +63,7 @@ public abstract class SeedingTestBase
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Species { get; set; }
+        public string Species { get; set; } = null!;
     }
 
     public class KeylessSeedingContext(DbContextOptions options) : DbContext(options)
@@ -81,6 +79,6 @@ public abstract class SeedingTestBase
 
     public class KeylessSeed
     {
-        public string Species { get; set; }
+        public string Species { get; set; } = null!;
     }
 }

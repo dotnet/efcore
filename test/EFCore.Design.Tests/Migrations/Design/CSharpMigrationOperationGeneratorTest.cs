@@ -634,6 +634,37 @@ mb.AlterColumn<int>(
             });
 
     [Fact]
+    public void AlterColumnOperation_computed_to_non_computed_preserves_oldStored()
+        => Test(
+            new AlterColumnOperation
+            {
+                Name = "Id",
+                Table = "Post",
+                ClrType = typeof(int),
+                OldColumn =
+                {
+                    ComputedColumnSql = "1",
+                    IsStored = true
+                }
+            },
+            """
+mb.AlterColumn<int>(
+    name: "Id",
+    table: "Post",
+    nullable: false,
+    oldComputedColumnSql: "1",
+    oldStored: true);
+""",
+            o =>
+            {
+                Assert.Equal("Id", o.Name);
+                Assert.Equal("Post", o.Table);
+                Assert.Equal(typeof(int), o.ClrType);
+                Assert.Equal("1", o.OldColumn.ComputedColumnSql);
+                Assert.True(o.OldColumn.IsStored);
+            });
+
+    [Fact]
     public void AlterColumnOperation_DefaultValueSql()
         => Test(
             new AlterColumnOperation
@@ -853,10 +884,7 @@ mb.AlterSequence(
 mb.AlterTable(
     name: "Customer");
 """,
-            o =>
-            {
-                Assert.Equal("Customer", o.Name);
-            });
+            o => Assert.Equal("Customer", o.Name));
 
     [Fact]
     public void AlterTableOperation_all_args()
@@ -1802,10 +1830,7 @@ mb.CreateTable(
     },
     comment: "My Comment");
 """,
-            o =>
-            {
-                Assert.Equal("My Comment", o.Comment);
-            });
+            o => Assert.Equal("My Comment", o.Comment));
 
     [Fact]
     public void CreateTableOperation_TableComment_ColumnComment()
@@ -1926,10 +1951,7 @@ mb.DropForeignKey(
 mb.DropIndex(
     name: "IX_Post_Title");
 """,
-            o =>
-            {
-                Assert.Equal("IX_Post_Title", o.Name);
-            });
+            o => Assert.Equal("IX_Post_Title", o.Name));
 
     [Fact]
     public void DropIndexOperation_all_args()
@@ -2328,11 +2350,7 @@ mb.RestartSequence(
     [Fact]
     public void SqlOperation_suppressTransaction_true()
         => Test(
-            new SqlOperation
-            {
-                Sql = "ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;",
-                SuppressTransaction = true
-            },
+            new SqlOperation { Sql = "ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;", SuppressTransaction = true },
             "mb.Sql(\"ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;\", suppressTransaction: true);",
             o =>
             {
@@ -2352,17 +2370,21 @@ mb.RestartSequence(
             });
 
     private static readonly LineString _lineString1 = new(
-        [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)]) { SRID = 4326 };
+        [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)])
+    { SRID = 4326 };
 
     private static readonly LineString _lineString2 = new(
-        [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)]) { SRID = 4326 };
+        [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)])
+    { SRID = 4326 };
 
     private static readonly MultiPoint _multiPoint = new(
-        [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)]) { SRID = 4326 };
+        [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)])
+    { SRID = 4326 };
 
     private static readonly Polygon _polygon1 = new(
         new LinearRing(
-            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)])) { SRID = 4326 };
+            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]))
+    { SRID = 4326 };
 
     private static readonly Polygon _polygon2 = new(
         new LinearRing(
@@ -2374,13 +2396,16 @@ mb.RestartSequence(
     private static readonly Point _point1 = new(1.1, 2.2, 3.3) { SRID = 4326 };
 
     private static readonly MultiLineString _multiLineString = new(
-        [_lineString1, _lineString2]) { SRID = 4326 };
+        [_lineString1, _lineString2])
+    { SRID = 4326 };
 
     private static readonly MultiPolygon _multiPolygon = new(
-        [_polygon2, _polygon1]) { SRID = 4326 };
+        [_polygon2, _polygon1])
+    { SRID = 4326 };
 
     private static readonly GeometryCollection _geometryCollection = new(
-        [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon]) { SRID = 4326 };
+        [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon])
+    { SRID = 4326 };
 
     [Fact]
     public void InsertDataOperation_all_args()
@@ -2392,7 +2417,7 @@ mb.RestartSequence(
                 Columns = ["Id", "Full Name", "Geometry"],
                 Values = new object[,]
                 {
-                    { 0, null, null },
+                    { 0, null!, null! },
                     { 1, "Daenerys Targaryen", _point1 },
                     { 2, "John Snow", _polygon1 },
                     { 3, "Arya Stark", _lineString1 },
@@ -2481,7 +2506,7 @@ mb.InsertData(
                 Assert.Single(o.Columns);
                 Assert.Equal(1, o.Values.GetLength(0));
                 Assert.Equal(1, o.Values.GetLength(1));
-                Assert.Equal(new string[0], (string[])o.Values[0, 0]);
+                Assert.Equal(new string[0], (string[])o.Values[0, 0]!);
             });
 
     [Fact]
@@ -2491,7 +2516,7 @@ mb.InsertData(
             {
                 Table = "People",
                 Columns = ["First Name", "Last Name", "Geometry"],
-                Values = new object[,] { { "John", null, Array.Empty<string>() } }
+                Values = new object[,] { { "John", null!, Array.Empty<string>() } }
             },
             """
 mb.InsertData(
@@ -2506,7 +2531,7 @@ mb.InsertData(
                 Assert.Equal(1, o.Values.GetLength(0));
                 Assert.Equal(3, o.Values.GetLength(1));
                 Assert.Null(o.Values[0, 1]);
-                Assert.Equal(new string[0], (string[])o.Values[0, 2]);
+                Assert.Equal(new string[0], (string[])o.Values[0, 2]!);
             });
 
     [Fact]
@@ -2648,7 +2673,7 @@ mb.DeleteData(
                 KeyColumnTypes = ["string", "string"],
                 KeyValues = new object[,]
                 {
-                    { "Hodor", null }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
+                    { "Hodor", null! }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
                 }
             },
             """
@@ -2808,7 +2833,7 @@ mb.UpdateData(
             {
                 Table = "People",
                 KeyColumns = ["First Name", "Last Name"],
-                KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } },
+                KeyValues = new object[,] { { "Hodor", null! }, { "Daenerys", "Targaryen" } },
                 Columns = ["House Allegiance"],
                 Values = new object[,] { { "Stark" }, { "Targaryen" } }
             },
@@ -2848,7 +2873,7 @@ mb.UpdateData(
             {
                 Table = "People",
                 KeyColumns = ["First Name", "Last Name"],
-                KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } },
+                KeyValues = new object[,] { { "Hodor", null! }, { "Daenerys", "Targaryen" } },
                 Columns = ["Birthplace", "House Allegiance", "Culture"],
                 Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
             },
@@ -3209,9 +3234,9 @@ mb.AlterTable(
 
         var assembly = build.BuildInMemory();
         var factoryType = assembly.GetType("OperationsFactory");
-        var createMethod = factoryType.GetTypeInfo().GetDeclaredMethod("Create");
+    var createMethod = factoryType!.GetTypeInfo().GetDeclaredMethod("Create");
         var mb = new MigrationBuilder(activeProvider: null);
-        createMethod.Invoke(null, [mb]);
+    createMethod!.Invoke(null, [mb]);
         var result = mb.Operations.Cast<T>().Single();
 
         assert(result);

@@ -49,7 +49,7 @@ public static class SqlServerIndexBuilderExtensions
     public static IndexBuilder<TEntity> IsClustered<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         bool clustered = true)
-        => (IndexBuilder<TEntity>)IsClustered((IndexBuilder)indexBuilder, clustered);
+        => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).IsClustered(clustered);
 
     /// <summary>
     ///     Configures whether the index is clustered when targeting SQL Server.
@@ -166,8 +166,7 @@ public static class SqlServerIndexBuilderExtensions
     {
         Check.NotNull(includeExpression);
 
-        IncludeProperties(
-            indexBuilder,
+        indexBuilder.IncludeProperties(
 #pragma warning disable EF1001 // Internal EF Core API usage.
             includeExpression.GetMemberAccessChainList()
                 .Select(chain => string.Join(".", chain.Select(EntityFrameworkMemberInfoExtensions.GetSimpleMemberName)))
@@ -225,9 +224,9 @@ public static class SqlServerIndexBuilderExtensions
         bool fromDataAnnotation = false)
         => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
             .Overrides(indexBuilder.Metadata.GetIncludePropertiesConfigurationSource())
-            || indexBuilder.Metadata.GetIncludeProperties() is var currentProperties
-            && ((propertyNames is null && currentProperties is null)
-                || (propertyNames is not null && currentProperties is not null && propertyNames.SequenceEqual(currentProperties)));
+            || (indexBuilder.Metadata.GetIncludeProperties() is var currentProperties
+                && ((propertyNames is null && currentProperties is null)
+                    || (propertyNames is not null && currentProperties is not null && propertyNames.SequenceEqual(currentProperties))));
 
     /// <summary>
     ///     Configures whether the index is created with online option when targeting SQL Server.
@@ -261,7 +260,7 @@ public static class SqlServerIndexBuilderExtensions
     public static IndexBuilder<TEntity> IsCreatedOnline<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         bool createdOnline = true)
-        => (IndexBuilder<TEntity>)IsCreatedOnline((IndexBuilder)indexBuilder, createdOnline);
+        => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).IsCreatedOnline(createdOnline);
 
     /// <summary>
     ///     Configures whether the index is created with online option when targeting SQL Server.
@@ -347,7 +346,7 @@ public static class SqlServerIndexBuilderExtensions
     public static IndexBuilder<TEntity> HasFillFactor<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         int fillFactor)
-        => (IndexBuilder<TEntity>)HasFillFactor((IndexBuilder)indexBuilder, fillFactor);
+        => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).HasFillFactor(fillFactor);
 
     /// <summary>
     ///     Configures whether the index is created with fill factor option when targeting SQL Server.
@@ -429,7 +428,7 @@ public static class SqlServerIndexBuilderExtensions
     public static IndexBuilder<TEntity> SortInTempDb<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         bool sortInTempDb = true)
-        => (IndexBuilder<TEntity>)SortInTempDb((IndexBuilder)indexBuilder, sortInTempDb);
+        => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).SortInTempDb(sortInTempDb);
 
     /// <summary>
     ///     Configures whether the index is created with sort in tempdb option when targeting SQL Server.
@@ -515,7 +514,7 @@ public static class SqlServerIndexBuilderExtensions
     public static IndexBuilder<TEntity> UseDataCompression<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         DataCompressionType dataCompressionType)
-        => (IndexBuilder<TEntity>)UseDataCompression((IndexBuilder)indexBuilder, dataCompressionType);
+        => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).UseDataCompression(dataCompressionType);
 
     /// <summary>
     ///     Configures whether the index is created with data compression option when targeting SQL Server.

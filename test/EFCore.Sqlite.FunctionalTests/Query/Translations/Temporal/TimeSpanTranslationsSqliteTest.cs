@@ -15,7 +15,7 @@ public class TimeSpanTranslationsSqliteTest : TimeSpanTranslationsTestBase<Basic
     // Translate TimeSpan members, #18844
     public override async Task Hours()
     {
-        await AssertTranslationFailed(() => base.Hours());
+        await AssertTranslationFailed(base.Hours);
 
         AssertSql();
     }
@@ -23,14 +23,14 @@ public class TimeSpanTranslationsSqliteTest : TimeSpanTranslationsTestBase<Basic
     // Translate TimeSpan members, #18844
     public override async Task Minutes()
     {
-        await AssertTranslationFailed(() => base.Minutes());
+        await AssertTranslationFailed(base.Minutes);
 
         AssertSql();
     }
 
     public override async Task Seconds()
     {
-        await AssertTranslationFailed(() => base.Seconds());
+        await AssertTranslationFailed(base.Seconds);
 
         AssertSql();
     }
@@ -38,7 +38,7 @@ public class TimeSpanTranslationsSqliteTest : TimeSpanTranslationsTestBase<Basic
     // Translate TimeSpan members, #18844
     public override async Task Milliseconds()
     {
-        await AssertTranslationFailed(() => base.Milliseconds());
+        await AssertTranslationFailed(base.Milliseconds);
 
         AssertSql();
     }
@@ -46,7 +46,7 @@ public class TimeSpanTranslationsSqliteTest : TimeSpanTranslationsTestBase<Basic
     // Translate TimeSpan members, #18844
     public override async Task Microseconds()
     {
-        await AssertTranslationFailed(() => base.Microseconds());
+        await AssertTranslationFailed(base.Microseconds);
 
         AssertSql();
     }
@@ -54,7 +54,7 @@ public class TimeSpanTranslationsSqliteTest : TimeSpanTranslationsTestBase<Basic
     // Translate TimeSpan members, #18844
     public override async Task Nanoseconds()
     {
-        await AssertTranslationFailed(() => base.Nanoseconds());
+        await AssertTranslationFailed(base.Nanoseconds);
 
         AssertSql();
     }

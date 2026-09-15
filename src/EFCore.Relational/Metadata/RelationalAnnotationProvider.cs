@@ -149,7 +149,7 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
         // Read the JsonElementMappings runtime annotation directly: GetJsonElementMappings() would
         // call EnsureRelationalModel, recursively re-entering RelationalModel.Create.
         var mappings = (IEnumerable<IJsonElementMapping>?)property.FindRuntimeAnnotationValue(
-            RelationalAnnotationNames.JsonElementMappings)
+                RelationalAnnotationNames.JsonElementMappings)
             ?? throw new UnreachableException($"Missing JSON element mappings for property '{property.Name}'.");
         foreach (var mapping in mappings)
         {

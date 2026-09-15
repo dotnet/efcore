@@ -18,24 +18,24 @@ public class CustomConvertersInMemoryTest(CustomConvertersInMemoryTest.CustomCon
 
     // FK constraint checking
     public override void Value_conversion_with_property_named_value()
-        => Assert.ThrowsAny<XunitException>(() => base.Value_conversion_with_property_named_value());
+        => Assert.ThrowsAny<XunitException>(base.Value_conversion_with_property_named_value);
 
     // FK constraint checking
     public override void Collection_property_as_scalar_Any()
-        => Assert.ThrowsAny<XunitException>(() => base.Collection_property_as_scalar_Any());
+        => Assert.ThrowsAny<XunitException>(base.Collection_property_as_scalar_Any);
 
     // FK constraint checking
     public override void Collection_property_as_scalar_Count_member()
-        => Assert.ThrowsAny<XunitException>(() => base.Collection_property_as_scalar_Count_member());
+        => Assert.ThrowsAny<XunitException>(base.Collection_property_as_scalar_Count_member);
 
     // FK constraint checking
     public override void Collection_enum_as_string_Contains()
-        => Assert.ThrowsAny<XunitException>(() => base.Collection_enum_as_string_Contains());
+        => Assert.ThrowsAny<XunitException>(base.Collection_enum_as_string_Contains);
 
     public override void GroupBy_converted_enum()
         => Assert.Contains(
             CoreStrings.TranslationFailedWithDetails("", InMemoryStrings.NonComposedGroupByNotSupported)[21..],
-            Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
+            Assert.Throws<InvalidOperationException>(base.GroupBy_converted_enum).Message);
 
     public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
     {

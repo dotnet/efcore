@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
@@ -148,10 +147,10 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
     private class Customer
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public string CustomerID { get; set; }
+        public string CustomerID { get; set; } = null!;
 
-        public string CompanyName { get; set; }
-        public string Fax { get; set; }
+        public string CompanyName { get; set; } = null!;
+        public string Fax { get; set; } = null!;
     }
 
     private class MultipleProvidersContext : CrossStoreContext
@@ -179,7 +178,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
     }
 
     private CrossStoreFixture Fixture { get; } = fixture;
-    private TestStore ExistingTestStore { get; set; }
+    private TestStore ExistingTestStore { get; set; } = null!;
     private static readonly string StoreName = "CrossStoreConfigurationPatternsTest";
 
     private Task SeedAsync(CrossStoreContext context)
@@ -233,7 +232,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
         }
 
         private CrossStoreFixture Fixture { get; } = fixture;
-        private TestStore ExistingTestStore { get; set; }
+        private TestStore ExistingTestStore { get; set; } = null!;
         private static readonly string StoreName = "CrossStoreNestedContextTest";
 
         private Task SeedAsync(CrossStoreContext context)
@@ -245,7 +244,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
 
         private class BlogContext : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
+            private readonly IServiceProvider? _serviceProvider;
 
             public BlogContext()
             {
@@ -255,7 +254,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
                 => _serviceProvider = serviceProvider;
 
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public DbSet<Blog> Blogs { get; set; }
+            public DbSet<Blog> Blogs { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -266,12 +265,12 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
         private class Blog
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         private class ExternalProviderContext : CrossStoreContext
         {
-            private readonly IServiceProvider _serviceProvider;
+            private readonly IServiceProvider? _serviceProvider;
 
             public ExternalProviderContext()
             {

@@ -20,10 +20,9 @@ public class AutoTransactionBehaviorEventData : EventData
     public AutoTransactionBehaviorEventData(
         EventDefinitionBase eventDefinition,
         Func<EventDefinitionBase, EventData, string> messageGenerator,
-        AutoTransactionBehavior autoTransactionBehavior) : base(eventDefinition, messageGenerator)
-    {
-        AutoTransactionBehavior = autoTransactionBehavior;
-    }
+        AutoTransactionBehavior autoTransactionBehavior)
+        : base(eventDefinition, messageGenerator)
+        => AutoTransactionBehavior = autoTransactionBehavior;
 
     /// <summary>
     ///     The AutoTransactionBehavior that was used.

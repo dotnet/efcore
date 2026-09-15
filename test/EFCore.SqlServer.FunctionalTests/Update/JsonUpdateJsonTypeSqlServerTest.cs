@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -621,7 +620,6 @@ FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
 """);
     }
-
 
     public override async Task Edit_single_property_with_non_ascii_characters()
     {

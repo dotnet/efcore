@@ -215,20 +215,17 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
         ProcessForeignKey(foreignKey);
         UpdateForeignKeyConfigurationSource(configurationSource);
 
-        if (Inverse?.JoinEntityType != null
-            && Inverse.JoinEntityType != JoinEntityType)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.SkipInverseMismatchedForeignKey(
-                    foreignKey.Properties.Format(),
-                    Name, JoinEntityType!.DisplayName(),
-                    Inverse.Name, Inverse.JoinEntityType.DisplayName()));
-        }
-
-        return isChanging
-            ? (ForeignKey?)DeclaringEntityType.Model.ConventionDispatcher
-                .OnSkipNavigationForeignKeyChanged(Builder, foreignKey, oldForeignKey!)
-            : foreignKey;
+        return Inverse?.JoinEntityType != null
+            && Inverse.JoinEntityType != JoinEntityType
+                ? throw new InvalidOperationException(
+                    CoreStrings.SkipInverseMismatchedForeignKey(
+                        foreignKey.Properties.Format(),
+                        Name, JoinEntityType!.DisplayName(),
+                        Inverse.Name, Inverse.JoinEntityType.DisplayName()))
+                : isChanging
+                    ? (ForeignKey?)DeclaringEntityType.Model.ConventionDispatcher
+                        .OnSkipNavigationForeignKeyChanged(Builder, foreignKey, oldForeignKey!)
+                    : foreignKey;
     }
 
     /// <summary>

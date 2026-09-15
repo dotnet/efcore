@@ -88,7 +88,8 @@ public class InMemoryTypeMappingSource : TypeMappingSource
         };
 
     private static InMemoryTypeMapping Create<
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicProperties)] T>(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicProperties)]
+    T>(
         ValueComparer? comparer,
         ValueComparer? keyComparer,
         JsonValueReaderWriter? jsonValueReaderWriter)

@@ -79,9 +79,8 @@ public abstract class AssociationsCollectionTestBase<TFixture>(TFixture fixture)
     public virtual Task Index_on_nested_collection()
         => AssertOrderedCollectionQuery(() => AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection[0].Int == 8),
-            ss => ss.Set<RootEntity>().Where(
-                e => e.RequiredAssociate.NestedCollection.Count > 0
-                    && e.RequiredAssociate.NestedCollection[0].Int == 8)));
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection.Count > 0
+                && e.RequiredAssociate.NestedCollection[0].Int == 8)));
 
     [Fact]
     public virtual Task Index_out_of_bounds()
@@ -97,7 +96,7 @@ public abstract class AssociationsCollectionTestBase<TFixture>(TFixture fixture)
     [Fact]
     public virtual Task GroupBy()
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
-            e.AssociateCollection.GroupBy(r => r.String).Select(g => g.Sum(int (AssociateType r) => r.Int)).Any(g => g == 16)));
+            e.AssociateCollection.GroupBy(r => r.String).Select(g => g.Sum(int (r) => r.Int)).Any(g => g == 16)));
 
     #endregion GroupBy
 

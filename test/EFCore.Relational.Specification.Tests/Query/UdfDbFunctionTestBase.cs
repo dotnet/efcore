@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : SharedStoreFixtureBase<DbContext>, new()
 {
@@ -30,25 +28,26 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         public int Code { get; set; }
         public int Number { get; set; }
     }
+
     public class Customer
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public List<Order> Orders { get; set; }
-        public List<Address> Addresses { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public List<Order> Orders { get; set; } = null!;
+        public List<Address> Addresses { get; set; } = null!;
     }
 
     public class Order
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime OrderDate { get; set; }
 
         public int CustomerId { get; set; }
 
-        public Customer Customer { get; set; }
-        public List<LineItem> Items { get; set; }
+        public Customer Customer { get; set; } = null!;
+        public List<LineItem> Items { get; set; } = null!;
     }
 
     public class LineItem
@@ -58,25 +57,25 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         public int ProductId { get; set; }
         public int Quantity { get; set; }
 
-        public Order Order { get; set; }
-        public Product Product { get; set; }
+        public Order Order { get; set; } = null!;
+        public Product Product { get; set; } = null!;
     }
 
     public class Product
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public class Address
     {
         public int Id { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
+        public string Street { get; set; } = null!;
+        public string? City { get; set; }
+        public string? State { get; set; }
 
         public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 
     public class OrderByYear
@@ -90,7 +89,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     {
         public int OrderId { get; set; }
 
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
         public int CustomerId { get; set; }
 
         public DateTime OrderDate { get; set; }
@@ -98,7 +97,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
     public class TopSellingProduct
     {
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
         public int? ProductId { get; set; }
 
         public int? AmountSold { get; set; }
@@ -120,31 +119,31 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     public class MapLocation
     {
         public int Id { get; set; }
-        public ComplexGpsCoordinates GpsCoordinates { get; set; }
+        public ComplexGpsCoordinates GpsCoordinates { get; set; } = null!;
     }
 
     public class MapLocationData
     {
         public int Id { get; set; }
-        public ComplexGpsCoordinates GpsCoordinates { get; set; }
+        public ComplexGpsCoordinates GpsCoordinates { get; set; } = null!;
     }
 
     public class CustomerData
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
     }
 
     protected class UDFSqlContext(DbContextOptions options) : PoolableDbContext(options)
     {
         #region DbSets
 
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<MapLocation> MapLocations { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<Address> Addresses { get; set; } = null!;
+        public DbSet<MapLocation> MapLocations { get; set; } = null!;
 
         #endregion
 
@@ -298,42 +297,42 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Static
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountStatic))).HasName("CustomerOrderCount");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientStatic)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountStatic))!).HasName("CustomerOrderCount");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientStatic))!)
                 .HasName("CustomerOrderCount");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValueStatic))).HasName("StarValue");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomerStatic))).HasName("IsTopCustomer");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDateStatic)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValueStatic))!).HasName("StarValue");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomerStatic))!).HasName("IsTopCustomer");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDateStatic))!)
                 .HasName("GetCustomerWithMostOrdersAfterDate");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateStatic)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateStatic))!)
                 .HasName("GetReportingPeriodStartDate");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetSqlFragmentStatic)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetSqlFragmentStatic))!)
                 .HasTranslation(args => new SqlFragmentExpression("'Two'"));
-            var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic));
+            var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic))!;
             modelBuilder.HasDbFunction(isDateMethodInfo).HasName("IsDate").IsBuiltIn();
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), [typeof(int), typeof(int)]));
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), [typeof(int), typeof(int)])!);
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringPropagateNull), [typeof(string)]))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringPropagateNull), [typeof(string)])!)
                 .HasParameter("s").PropagatesNullability();
 
             modelBuilder.HasDbFunction(
-                    typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), [typeof(string)]))
+                    typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), [typeof(string)])!)
                 .IsNullable(false);
 
             var abc = new[] { "A", "B", "C" };
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), [typeof(string)]))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), [typeof(string)])!)
                 .HasTranslation(args => new InExpression(
                     args.First(),
                     [
                         new SqlConstantExpression(abc[0], typeMapping: null),
                         new SqlConstantExpression(abc[1], typeMapping: null),
-                        new SqlConstantExpression(abc[2], typeMapping: null)
+                        new SqlConstantExpression(abc[2], typeMapping: null!)
                     ], // args.First().TypeMapping)
-                    typeMapping: null));
+                    typeMapping: null!));
 
             var trueFalse = new[] { true, false };
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), [typeof(string)]))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), [typeof(string)])!)
                 .HasTranslation(args => new InExpression(
                     new InExpression(
                         args.First(),
@@ -342,14 +341,14 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                             new SqlConstantExpression(abc[1], args.First().TypeMapping),
                             new SqlConstantExpression(abc[2], args.First().TypeMapping)
                         ],
-                        typeMapping: null),
+                        typeMapping: null!),
                     [
                         new SqlConstantExpression(trueFalse[0], typeMapping: null),
                         new SqlConstantExpression(trueFalse[1], typeMapping: null)
                     ],
-                    typeMapping: null));
+                    typeMapping: null!));
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), []))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), [])!)
                 .HasTranslation(_ => new SqlFunctionExpression(
                     "foo",
                     nullable: true,
@@ -357,38 +356,38 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                     typeMapping: null));
 
             //Instance
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountInstance)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountInstance))!)
                 .HasName("CustomerOrderCount");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientInstance)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClientInstance))!)
                 .HasName("CustomerOrderCount");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValueInstance))).HasName("StarValue");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomerInstance))).HasName("IsTopCustomer");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDateInstance)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValueInstance))!).HasName("StarValue");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomerInstance))!).HasName("IsTopCustomer");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDateInstance))!)
                 .HasName("GetCustomerWithMostOrdersAfterDate");
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateInstance)))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateInstance))!)
                 .HasName("GetReportingPeriodStartDate");
-            var isDateMethodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(IsDateInstance));
+            var isDateMethodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(IsDateInstance))!;
             modelBuilder.HasDbFunction(isDateMethodInfo2).HasName("IsDate").IsBuiltIn();
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(DollarValueInstance))).HasName("DollarValue");
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(DollarValueInstance))!).HasName("DollarValue");
 
-            var methodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthInstance));
+            var methodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthInstance))!;
 
             modelBuilder.HasDbFunction(methodInfo2).HasName("len").IsBuiltIn();
 
             modelBuilder.Entity<MultProductOrders>().ToTable("MultProductOrders").HasKey(mpo => mpo.OrderId);
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StringLength), [typeof(string)]))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StringLength), [typeof(string)])!)
                 .HasParameter("s").PropagatesNullability();
 
             //Table
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), [typeof(int)]));
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), [typeof(int)])!);
             modelBuilder.HasDbFunction(
-                typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), [typeof(int), typeof(bool)]));
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts)));
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerData)));
+                typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), [typeof(int), typeof(bool)])!);
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts))!);
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer))!);
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts))!);
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerData))!);
 
             modelBuilder.Entity<OrderByYear>().HasNoKey();
             modelBuilder.Entity<TopSellingProduct>().HasNoKey().ToFunction("GetTopTwoSellingProducts");
@@ -559,15 +558,9 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                 ]
             };
 
-            var location1 = new MapLocation
-            {
-                GpsCoordinates = new ComplexGpsCoordinates(1.0, 2.0),
-            };
+            var location1 = new MapLocation { GpsCoordinates = new ComplexGpsCoordinates(1.0, 2.0), };
 
-            var location2 = new MapLocation
-            {
-                GpsCoordinates = new ComplexGpsCoordinates(1.0, 2.0),
-            };
+            var location2 = new MapLocation { GpsCoordinates = new ComplexGpsCoordinates(1.0, 2.0), };
 
             ((UDFSqlContext)context).Products.AddRange(product1, product2, product3, product4, product5);
             ((UDFSqlContext)context).Addresses.AddRange(
@@ -589,7 +582,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     {
         using var context = CreateContext();
 
-        var len = context.Customers.Count(c => UDFSqlContext.IsDateStatic(c.FirstName) == false);
+        var len = context.Customers.Count(c => UDFSqlContext.IsDateStatic(c.FirstName!) == false);
 
         Assert.Equal(4, len);
     }
@@ -601,7 +594,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         var customerId = 3;
 
         var len = context.Customers.Where(c => c.Id == customerId)
-            .Select(c => UDFSqlContext.MyCustomLengthStatic(c.LastName)).Single();
+            .Select(c => UDFSqlContext.MyCustomLengthStatic(c.LastName!)).Single();
 
         Assert.Equal(5, len);
     }
@@ -977,7 +970,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Orders
             .OrderBy(o => o.Id)
-            .Select(o => UDFSqlContext.IdentityString(o.Customer.FirstName))
+            .Select(o => UDFSqlContext.IdentityString(o.Customer.FirstName!))
             .FirstOrDefault();
 
         Assert.Equal("Customer", result);
@@ -990,7 +983,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(c => UDFSqlContext.IdentityString(c.FirstName) != null)
+            .Where(c => UDFSqlContext.IdentityString(c.FirstName!) != null)
             .ToList();
 
         Assert.Equal(4, result.Count);
@@ -1003,7 +996,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(c => UDFSqlContext.IdentityStringPropagateNull(c.FirstName) != null)
+            .Where(c => UDFSqlContext.IdentityStringPropagateNull(c.FirstName!) != null)
             .ToList();
 
         Assert.Equal(4, result.Count);
@@ -1016,8 +1009,8 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(c => UDFSqlContext.IdentityStringNonNullable(c.FirstName) != null
-                && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName) != null)
+            .Where(c => UDFSqlContext.IdentityStringNonNullable(c.FirstName!) != null
+                && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName!) != null)
             .ToList();
 
         Assert.Equal(4, result.Count);
@@ -1030,7 +1023,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var result = context.Customers
             .OrderBy(c => c.Id)
-            .Where(c => context.StringLength(c.FirstName) != context.StringLength(c.LastName))
+            .Where(c => context.StringLength(c.FirstName!) != context.StringLength(c.LastName!))
             .ToList();
 
         Assert.Equal(4, result.Count);
@@ -1050,7 +1043,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     public virtual void Scalar_Function_with_InExpression_translation()
     {
         using var context = CreateContext();
-        var query = context.Customers.Where(c => UDFSqlContext.IsABC(c.FirstName.Substring(0, 1))).ToList();
+        var query = context.Customers.Where(c => UDFSqlContext.IsABC(c.FirstName!.Substring(0, 1))).ToList();
 
         Assert.Equal(4, query.Count);
     }
@@ -1059,27 +1052,30 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     public virtual void Scalar_Function_with_nested_InExpression_translation()
     {
         using var context = CreateContext();
-        var query = context.Customers.Where(c => UDFSqlContext.IsOrIsNotABC(c.FirstName.Substring(0, 1))).ToList();
+        var query = context.Customers.Where(c => UDFSqlContext.IsOrIsNotABC(c.FirstName!.Substring(0, 1))).ToList();
 
         Assert.Equal(4, query.Count);
     }
 
-#if RELEASE
     [Fact]
     public virtual void Scalar_Function_with_nullable_value_return_type_throws()
     {
         using var context = CreateContext();
 
+#if RELEASE
         var exception = Assert.Throws<InvalidOperationException>(
             () => context.Customers.Where(c => c.Id == UDFSqlContext.NullableValueReturnType()).ToList());
 
         Assert.Equal(
             RelationalStrings.DbFunctionNullableValueReturnType(
-                context.Model.FindDbFunction(typeof(UDFSqlContext).GetMethod(nameof(UDFSqlContext.NullableValueReturnType)))!.ModelName,
+                context.Model.FindDbFunction(typeof(UDFSqlContext).GetMethod(nameof(UDFSqlContext.NullableValueReturnType))!)!.ModelName,
                 "int?"),
             exception.Message);
-    }
+#else
+        Assert.Throws<UnreachableException>(
+            () => context.Customers.Where(c => c.Id == UDFSqlContext.NullableValueReturnType()).ToList());
 #endif
+    }
 
     #endregion
 
@@ -1092,7 +1088,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
 
         var custName = (from c in context.Customers
                         where c.Id == 1
-                        select new { Id = context.StarValueInstance(4, c.Id), LastName = context.DollarValueInstance(2, c.LastName) })
+                        select new { Id = context.StarValueInstance(4, c.Id), LastName = context.DollarValueInstance(2, c.LastName!) })
             .Single();
 
         Assert.Equal("$$One", custName.LastName);
@@ -1103,7 +1099,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     {
         using var context = CreateContext();
 
-        var len = context.Customers.Count(c => context.IsDateInstance(c.FirstName) == false);
+        var len = context.Customers.Count(c => context.IsDateInstance(c.FirstName!) == false);
 
         Assert.Equal(4, len);
     }
@@ -1115,7 +1111,7 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
         var customerId = 3;
 
         var len = context.Customers.Where(c => c.Id == customerId)
-            .Select(c => context.MyCustomLengthInstance(c.LastName)).Single();
+            .Select(c => context.MyCustomLengthInstance(c.LastName!)).Single();
 
         Assert.Equal(5, len);
     }
@@ -1198,7 +1194,8 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
                     where c.Id == customerId
                     select new
                     {
-                        c.LastName, OrderCount = context.StarValueInstance(starCount, context.CustomerOrderCountInstance(customerId))
+                        c.LastName,
+                        OrderCount = context.StarValueInstance(starCount, context.CustomerOrderCountInstance(customerId))
                     }).Single();
 
         Assert.Equal("Three", cust.LastName);
@@ -1492,617 +1489,567 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     [Fact]
     public virtual void QF_Anonymous_Collection_No_PK_Throws()
     {
-        using (var context = CreateContext())
-        {
-            var query = from c in context.Customers
-                        select new
-                        {
-                            c.Id,
-                            products = context.GetTopSellingProductsForCustomer(c.Id).ToList(),
-                            orders = context.Orders.Where(o => o.CustomerId == c.Id).ToList()
-                        };
+        using var context = CreateContext();
+        var query = from c in context.Customers
+                    select new
+                    {
+                        c.Id,
+                        products = context.GetTopSellingProductsForCustomer(c.Id).ToList(),
+                        orders = context.Orders.Where(o => o.CustomerId == c.Id).ToList()
+                    };
 
-            Assert.Equal(
-                RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
-                Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
-        }
+        Assert.Equal(
+            RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
+            Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
     }
 
     [Fact]
     public virtual void QF_Anonymous_Collection_No_IQueryable_In_Projection_Throws()
     {
-        using (var context = CreateContext())
-        {
-            var query = (from c in context.Customers
-                         select new { c.Id, orders = context.GetCustomerOrderCountByYear(c.Id) });
+        using var context = CreateContext();
+        var query = from c in context.Customers
+                    select new { c.Id, orders = context.GetCustomerOrderCountByYear(c.Id) };
 
-            //Assert.Contains(
-            //    RelationalStrings.DbFunctionCantProjectIQueryable(),
-            //    Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
-        }
+        //Assert.Contains(
+        //    RelationalStrings.DbFunctionCantProjectIQueryable(),
+        //    Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
     }
 
     [Fact]
     public virtual void QF_Stand_Alone()
     {
-        using (var context = CreateContext())
-        {
-            var products = (from t in context.GetTopTwoSellingProducts()
-                            orderby t.ProductId
-                            select t).ToList();
+        using var context = CreateContext();
+        var products = (from t in context.GetTopTwoSellingProducts()
+                        orderby t.ProductId
+                        select t).ToList();
 
-            Assert.Equal(2, products.Count);
-            Assert.Equal(3, products[0].ProductId);
-            Assert.Equal(249, products[0].AmountSold);
-            Assert.Equal(4, products[1].ProductId);
-            Assert.Equal(184, products[1].AmountSold);
-        }
+        Assert.Equal(2, products.Count);
+        Assert.Equal(3, products[0].ProductId);
+        Assert.Equal(249, products[0].AmountSold);
+        Assert.Equal(4, products[1].ProductId);
+        Assert.Equal(184, products[1].AmountSold);
     }
 
     [Fact]
     public virtual void QF_Stand_Alone_Parameter()
     {
-        using (var context = CreateContext())
-        {
-            var orders = (from c in context.GetCustomerOrderCountByYear(1)
-                          orderby c.Count descending
-                          select c).ToList();
+        using var context = CreateContext();
+        var orders = (from c in context.GetCustomerOrderCountByYear(1)
+                      orderby c.Count descending
+                      select c).ToList();
 
-            Assert.Equal(2, orders.Count);
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(2000, orders[0].Year);
-            Assert.Equal(1, orders[1].Count);
-            Assert.Equal(2001, orders[1].Year);
-        }
+        Assert.Equal(2, orders.Count);
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(2000, orders[0].Year);
+        Assert.Equal(1, orders[1].Count);
+        Assert.Equal(2001, orders[1].Year);
     }
 
     [Fact]
     public virtual void QF_CrossApply_Correlated_Select_QF_Type()
     {
-        using (var context = CreateContext())
-        {
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(c.Id)
-                          orderby r.Year
-                          select r
-                ).ToList();
+        using var context = CreateContext();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(c.Id)
+                      orderby r.Year
+                      select r
+            ).ToList();
 
-            Assert.Equal(4, orders.Count);
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(2, orders[1].Count);
-            Assert.Equal(1, orders[2].Count);
-            Assert.Equal(1, orders[3].Count);
-            Assert.Equal(2000, orders[0].Year);
-            Assert.Equal(2000, orders[1].Year);
-            Assert.Equal(2001, orders[2].Year);
-            Assert.Equal(2001, orders[3].Year);
-        }
+        Assert.Equal(4, orders.Count);
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(2, orders[1].Count);
+        Assert.Equal(1, orders[2].Count);
+        Assert.Equal(1, orders[3].Count);
+        Assert.Equal(2000, orders[0].Year);
+        Assert.Equal(2000, orders[1].Year);
+        Assert.Equal(2001, orders[2].Year);
+        Assert.Equal(2001, orders[3].Year);
     }
 
     [Fact]
     public virtual void QF_CrossApply_Correlated_Select_Anonymous()
     {
-        using (var context = CreateContext())
-        {
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(c.Id)
-                          orderby c.Id, r.Year
-                          select new
-                          {
-                              c.Id,
-                              c.LastName,
-                              r.Year,
-                              r.Count
-                          }).ToList();
+        using var context = CreateContext();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(c.Id)
+                      orderby c.Id, r.Year
+                      select new
+                      {
+                          c.Id,
+                          c.LastName,
+                          r.Year,
+                          r.Count
+                      }).ToList();
 
-            Assert.Equal(4, orders.Count);
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(1, orders[1].Count);
-            Assert.Equal(2, orders[2].Count);
-            Assert.Equal(1, orders[3].Count);
-            Assert.Equal(2000, orders[0].Year);
-            Assert.Equal(2001, orders[1].Year);
-            Assert.Equal(2000, orders[2].Year);
-            Assert.Equal(2001, orders[3].Year);
-            Assert.Equal(1, orders[0].Id);
-            Assert.Equal(1, orders[1].Id);
-            Assert.Equal(2, orders[2].Id);
-            Assert.Equal(3, orders[3].Id);
-        }
+        Assert.Equal(4, orders.Count);
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(1, orders[1].Count);
+        Assert.Equal(2, orders[2].Count);
+        Assert.Equal(1, orders[3].Count);
+        Assert.Equal(2000, orders[0].Year);
+        Assert.Equal(2001, orders[1].Year);
+        Assert.Equal(2000, orders[2].Year);
+        Assert.Equal(2001, orders[3].Year);
+        Assert.Equal(1, orders[0].Id);
+        Assert.Equal(1, orders[1].Id);
+        Assert.Equal(2, orders[2].Id);
+        Assert.Equal(3, orders[3].Id);
     }
 
     [Fact]
     public virtual void QF_Select_Direct_In_Anonymous()
     {
-        using (var context = CreateContext())
-        {
-            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
-                                                                          select new
-                                                                          {
-                                                                              c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
-                                                                          }).ToList()).Message;
+        using var context = CreateContext();
+        var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                      select new
+                                                                      {
+                                                                          c.Id,
+                                                                          Prods = context.GetTopTwoSellingProducts().ToList(),
+                                                                      }).ToList()).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
-        }
+        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
     [Fact(Skip = "issue #26078")]
     public virtual void QF_Select_Direct_In_Anonymous_distinct()
     {
-        using (var context = CreateContext())
-        {
-            var query = (from c in context.Customers
-                         select new
-                         {
-                             c.Id, Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
-                         }).ToList();
-        }
+        using var context = CreateContext();
+        var query = (from c in context.Customers
+                     select new
+                     {
+                         c.Id,
+                         Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
+                     }).ToList();
     }
 
     [Fact]
     public virtual void QF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous()
     {
-        using (var context = CreateContext())
-        {
-            var cust = (from c in context.Customers
-                        where c.Id == 1
-                        select new { c.Id, Orders = context.GetOrdersWithMultipleProducts(context.AddValues(c.Id, 1)).ToList() })
-                .ToList();
+        using var context = CreateContext();
+        var cust = (from c in context.Customers
+                    where c.Id == 1
+                    select new { c.Id, Orders = context.GetOrdersWithMultipleProducts(context.AddValues(c.Id, 1)).ToList() })
+            .ToList();
 
-            Assert.Single(cust);
+        Assert.Single(cust);
 
-            Assert.Equal(1, cust[0].Id);
-            Assert.Equal(4, cust[0].Orders[0].OrderId);
-            Assert.Equal(5, cust[0].Orders[1].OrderId);
-            Assert.Equal(new DateTime(2000, 4, 21), cust[0].Orders[0].OrderDate);
-            Assert.Equal(new DateTime(2000, 5, 20), cust[0].Orders[1].OrderDate);
-        }
+        Assert.Equal(1, cust[0].Id);
+        Assert.Equal(4, cust[0].Orders[0].OrderId);
+        Assert.Equal(5, cust[0].Orders[1].OrderId);
+        Assert.Equal(new DateTime(2000, 4, 21), cust[0].Orders[0].OrderDate);
+        Assert.Equal(new DateTime(2000, 5, 20), cust[0].Orders[1].OrderDate);
     }
 
     [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous()
     {
-        using (var context = CreateContext())
-        {
-            var results = (from c in context.Customers
-                           select new
-                           {
-                               c.Id,
-                               OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21)
-                                   .ToList()
-                           }).ToList();
+        using var context = CreateContext();
+        var results = (from c in context.Customers
+                       select new
+                       {
+                           c.Id,
+                           OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21)
+                               .ToList()
+                       }).ToList();
 
-            Assert.Equal(4, results.Count);
-            Assert.Equal(1, results[0].Id);
-            Assert.Equal(2, results[1].Id);
-            Assert.Equal(3, results[2].Id);
-            Assert.Equal(4, results[3].Id);
-            Assert.Single(results[0].OrderCountYear);
-            Assert.Single(results[1].OrderCountYear);
-            Assert.Empty(results[2].OrderCountYear);
-            Assert.Empty(results[3].OrderCountYear);
-        }
+        Assert.Equal(4, results.Count);
+        Assert.Equal(1, results[0].Id);
+        Assert.Equal(2, results[1].Id);
+        Assert.Equal(3, results[2].Id);
+        Assert.Equal(4, results[3].Id);
+        Assert.Single(results[0].OrderCountYear);
+        Assert.Single(results[1].OrderCountYear);
+        Assert.Empty(results[2].OrderCountYear);
+        Assert.Empty(results[3].OrderCountYear);
     }
 
     [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_Nested_With_QF()
     {
-        using (var context = CreateContext())
-        {
-            var results = (from o in context.Orders
-                           join osub in (from c in context.Customers
-                                         from a in context.GetOrdersWithMultipleProducts(c.Id)
-                                         select a.OrderId
-                               ) on o.Id equals osub
-                           select new { o.CustomerId, o.OrderDate }).ToList();
+        using var context = CreateContext();
+        var results = (from o in context.Orders
+                       join osub in from c in context.Customers
+                                    from a in context.GetOrdersWithMultipleProducts(c.Id)
+                                    select a.OrderId
+                           on o.Id equals osub
+                       select new { o.CustomerId, o.OrderDate }).ToList();
 
-            Assert.Equal(4, results.Count);
+        Assert.Equal(4, results.Count);
 
-            Assert.Equal(1, results[0].CustomerId);
-            Assert.Equal(new DateTime(2000, 1, 20), results[0].OrderDate);
+        Assert.Equal(1, results[0].CustomerId);
+        Assert.Equal(new DateTime(2000, 1, 20), results[0].OrderDate);
 
-            Assert.Equal(1, results[1].CustomerId);
-            Assert.Equal(new DateTime(2000, 2, 21), results[1].OrderDate);
+        Assert.Equal(1, results[1].CustomerId);
+        Assert.Equal(new DateTime(2000, 2, 21), results[1].OrderDate);
 
-            Assert.Equal(2, results[2].CustomerId);
-            Assert.Equal(new DateTime(2000, 4, 21), results[2].OrderDate);
+        Assert.Equal(2, results[2].CustomerId);
+        Assert.Equal(new DateTime(2000, 4, 21), results[2].OrderDate);
 
-            Assert.Equal(2, results[3].CustomerId);
-            Assert.Equal(new DateTime(2000, 5, 20), results[3].OrderDate);
-        }
+        Assert.Equal(2, results[3].CustomerId);
+        Assert.Equal(new DateTime(2000, 5, 20), results[3].OrderDate);
     }
 
     [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_Nested()
     {
-        using (var context = CreateContext())
-        {
-            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
-                                                                          select new
-                                                                          {
-                                                                              c.Id,
-                                                                              OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id)
-                                                                                  .Where(o => o.OrderDate.Day == 21).Select(o => new
-                                                                                  {
-                                                                                      OrderCountYearNested =
-                                                                                          context.GetOrdersWithMultipleProducts(
-                                                                                              o.CustomerId).ToList(),
-                                                                                      Prods = context.GetTopTwoSellingProducts().ToList(),
-                                                                                  }).ToList()
-                                                                          }).ToList()).Message;
+        using var context = CreateContext();
+        var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                      select new
+                                                                      {
+                                                                          c.Id,
+                                                                          OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id)
+                                                                              .Where(o => o.OrderDate.Day == 21).Select(o => new
+                                                                              {
+                                                                                  OrderCountYearNested =
+                                                                                      context.GetOrdersWithMultipleProducts(
+                                                                                          o.CustomerId).ToList(),
+                                                                                  Prods = context.GetTopTwoSellingProducts().ToList(),
+                                                                              }).ToList()
+                                                                      }).ToList()).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
-        }
+        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
     [Fact]
     public virtual void QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections()
     {
-        using (var context = CreateContext())
-        {
-            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
-                                                                          select new
-                                                                          {
-                                                                              c.Id,
-                                                                              Addresses =
-                                                                                  c.Addresses.Where(a => a.State == "NY").ToList(),
-                                                                              Prods = context.GetTopTwoSellingProducts()
-                                                                                  .Where(p => p.AmountSold == 249)
-                                                                                  .Select(p => p.ProductId).ToList()
-                                                                          }).ToList()).Message;
+        using var context = CreateContext();
+        var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                      select new
+                                                                      {
+                                                                          c.Id,
+                                                                          Addresses =
+                                                                              c.Addresses.Where(a => a.State == "NY").ToList(),
+                                                                          Prods = context.GetTopTwoSellingProducts()
+                                                                              .Where(p => p.AmountSold == 249)
+                                                                              .Select(p => p.ProductId).ToList()
+                                                                      }).ToList()).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
-        }
+        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
     [Fact]
     public virtual void QF_Select_NonCorrelated_Subquery_In_Anonymous()
     {
-        using (var context = CreateContext())
-        {
-            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
-                                                                          select new
-                                                                          {
-                                                                              c.Id,
-                                                                              Prods = context.GetTopTwoSellingProducts()
-                                                                                  .Select(p => p.ProductId).ToList(),
-                                                                          }).ToList()).Message;
+        using var context = CreateContext();
+        var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                      select new
+                                                                      {
+                                                                          c.Id,
+                                                                          Prods = context.GetTopTwoSellingProducts()
+                                                                              .Select(p => p.ProductId).ToList(),
+                                                                      }).ToList()).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
-        }
+        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
     [Fact]
     public virtual void QF_Select_NonCorrelated_Subquery_In_Anonymous_Parameter()
     {
-        using (var context = CreateContext())
-        {
-            var amount = 27;
-            var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
-                                                                          select new
-                                                                          {
-                                                                              c.Id,
-                                                                              Prods = context.GetTopTwoSellingProducts()
-                                                                                  .Where(p => p.AmountSold == amount)
-                                                                                  .Select(p => p.ProductId)
-                                                                                  .ToList(),
-                                                                          }).ToList()).Message;
+        using var context = CreateContext();
+        var amount = 27;
+        var message = Assert.Throws<InvalidOperationException>(() => (from c in context.Customers
+                                                                      select new
+                                                                      {
+                                                                          c.Id,
+                                                                          Prods = context.GetTopTwoSellingProducts()
+                                                                              .Where(p => p.AmountSold == amount)
+                                                                              .Select(p => p.ProductId)
+                                                                              .ToList(),
+                                                                      }).ToList()).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
-        }
+        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
     [Fact]
     public virtual void QF_Correlated_Select_In_Anonymous()
     {
-        using (var context = CreateContext())
-        {
-            var cust = (from c in context.Customers
-                        orderby c.Id
-                        select new
-                        {
-                            c.Id,
-                            c.LastName,
-                            Orders = context.GetOrdersWithMultipleProducts(c.Id).ToList()
-                        }).ToList();
+        using var context = CreateContext();
+        var cust = (from c in context.Customers
+                    orderby c.Id
+                    select new
+                    {
+                        c.Id,
+                        c.LastName,
+                        Orders = context.GetOrdersWithMultipleProducts(c.Id).ToList()
+                    }).ToList();
 
-            Assert.Equal(4, cust.Count);
+        Assert.Equal(4, cust.Count);
 
-            Assert.Equal(1, cust[0].Id);
-            Assert.Equal(2, cust[0].Orders.Count);
-            Assert.Equal(1, cust[0].Orders[0].OrderId);
-            Assert.Equal(2, cust[0].Orders[1].OrderId);
-            Assert.Equal(new DateTime(2000, 1, 20), cust[0].Orders[0].OrderDate);
-            Assert.Equal(new DateTime(2000, 2, 21), cust[0].Orders[1].OrderDate);
+        Assert.Equal(1, cust[0].Id);
+        Assert.Equal(2, cust[0].Orders.Count);
+        Assert.Equal(1, cust[0].Orders[0].OrderId);
+        Assert.Equal(2, cust[0].Orders[1].OrderId);
+        Assert.Equal(new DateTime(2000, 1, 20), cust[0].Orders[0].OrderDate);
+        Assert.Equal(new DateTime(2000, 2, 21), cust[0].Orders[1].OrderDate);
 
-            Assert.Equal(2, cust[1].Id);
-            Assert.Equal(2, cust[1].Orders.Count);
-            Assert.Equal(4, cust[1].Orders[0].OrderId);
-            Assert.Equal(5, cust[1].Orders[1].OrderId);
-            Assert.Equal(new DateTime(2000, 4, 21), cust[1].Orders[0].OrderDate);
-            Assert.Equal(new DateTime(2000, 5, 20), cust[1].Orders[1].OrderDate);
+        Assert.Equal(2, cust[1].Id);
+        Assert.Equal(2, cust[1].Orders.Count);
+        Assert.Equal(4, cust[1].Orders[0].OrderId);
+        Assert.Equal(5, cust[1].Orders[1].OrderId);
+        Assert.Equal(new DateTime(2000, 4, 21), cust[1].Orders[0].OrderDate);
+        Assert.Equal(new DateTime(2000, 5, 20), cust[1].Orders[1].OrderDate);
 
-            Assert.Equal(3, cust[2].Id);
-            Assert.Empty(cust[2].Orders);
+        Assert.Equal(3, cust[2].Id);
+        Assert.Empty(cust[2].Orders);
 
-            Assert.Equal(4, cust[3].Id);
-            Assert.Empty(cust[3].Orders);
-        }
+        Assert.Equal(4, cust[3].Id);
+        Assert.Empty(cust[3].Orders);
     }
 
     [Fact]
     public virtual void QF_CrossApply_Correlated_Select_Result()
     {
-        using (var context = CreateContext())
-        {
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(c.Id)
-                          orderby r.Count descending, r.Year descending
-                          select r).ToList();
+        using var context = CreateContext();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(c.Id)
+                      orderby r.Count descending, r.Year descending
+                      select r).ToList();
 
-            Assert.Equal(4, orders.Count);
+        Assert.Equal(4, orders.Count);
 
-            Assert.Equal(4, orders.Count);
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(2, orders[1].Count);
-            Assert.Equal(1, orders[2].Count);
-            Assert.Equal(1, orders[3].Count);
-            Assert.Equal(2000, orders[0].Year);
-            Assert.Equal(2000, orders[1].Year);
-            Assert.Equal(2001, orders[2].Year);
-            Assert.Equal(2001, orders[3].Year);
-        }
+        Assert.Equal(4, orders.Count);
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(2, orders[1].Count);
+        Assert.Equal(1, orders[2].Count);
+        Assert.Equal(1, orders[3].Count);
+        Assert.Equal(2000, orders[0].Year);
+        Assert.Equal(2000, orders[1].Year);
+        Assert.Equal(2001, orders[2].Year);
+        Assert.Equal(2001, orders[3].Year);
     }
 
     [Fact]
     public virtual void QF_CrossJoin_Not_Correlated()
     {
-        using (var context = CreateContext())
-        {
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(2)
-                          where c.Id == 2
-                          orderby r.Count
-                          select new
-                          {
-                              c.Id,
-                              c.LastName,
-                              r.Year,
-                              r.Count
-                          }).ToList();
+        using var context = CreateContext();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(2)
+                      where c.Id == 2
+                      orderby r.Count
+                      select new
+                      {
+                          c.Id,
+                          c.LastName,
+                          r.Year,
+                          r.Count
+                      }).ToList();
 
-            Assert.Single(orders);
+        Assert.Single(orders);
 
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(2000, orders[0].Year);
-        }
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(2000, orders[0].Year);
     }
 
     [Fact]
     public virtual void QF_CrossJoin_Parameter()
     {
-        using (var context = CreateContext())
-        {
-            var custId = 2;
+        using var context = CreateContext();
+        var custId = 2;
 
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(custId)
-                          where c.Id == custId
-                          orderby r.Count
-                          select new
-                          {
-                              c.Id,
-                              c.LastName,
-                              r.Year,
-                              r.Count
-                          }).ToList();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(custId)
+                      where c.Id == custId
+                      orderby r.Count
+                      select new
+                      {
+                          c.Id,
+                          c.LastName,
+                          r.Year,
+                          r.Count
+                      }).ToList();
 
-            Assert.Single(orders);
+        Assert.Single(orders);
 
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(2000, orders[0].Year);
-        }
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(2000, orders[0].Year);
     }
 
     [Fact]
     public virtual void QF_Join()
     {
-        using (var context = CreateContext())
-        {
-            var products = (from p in context.Products
-                            join r in context.GetTopTwoSellingProducts() on p.Id equals r.ProductId
-                            select new
-                            {
-                                p.Id,
-                                p.Name,
-                                r.AmountSold
-                            }).OrderBy(p => p.Id).ToList();
+        using var context = CreateContext();
+        var products = (from p in context.Products
+                        join r in context.GetTopTwoSellingProducts() on p.Id equals r.ProductId
+                        select new
+                        {
+                            p.Id,
+                            p.Name,
+                            r.AmountSold
+                        }).OrderBy(p => p.Id).ToList();
 
-            Assert.Equal(2, products.Count);
-            Assert.Equal(3, products[0].Id);
-            Assert.Equal("Product3", products[0].Name);
-            Assert.Equal(249, products[0].AmountSold);
-            Assert.Equal(4, products[1].Id);
-            Assert.Equal("Product4", products[1].Name);
-            Assert.Equal(184, products[1].AmountSold);
-        }
+        Assert.Equal(2, products.Count);
+        Assert.Equal(3, products[0].Id);
+        Assert.Equal("Product3", products[0].Name);
+        Assert.Equal(249, products[0].AmountSold);
+        Assert.Equal(4, products[1].Id);
+        Assert.Equal("Product4", products[1].Name);
+        Assert.Equal(184, products[1].AmountSold);
     }
 
     [Fact]
     public virtual void QF_LeftJoin_Select_Anonymous()
     {
-        using (var context = CreateContext())
-        {
-            var products = (from p in context.Products
-                            join r in context.GetTopTwoSellingProducts() on p.Id equals r.ProductId into joinTable
-                            from j in joinTable.DefaultIfEmpty()
-                            orderby p.Id descending
-                            select new
-                            {
-                                p.Id,
-                                p.Name,
-                                j.AmountSold
-                            }).ToList();
+        using var context = CreateContext();
+        var products = (from p in context.Products
+                        join r in context.GetTopTwoSellingProducts() on p.Id equals r.ProductId into joinTable
+                        from j in joinTable.DefaultIfEmpty()
+                        orderby p.Id descending
+                        select new
+                        {
+                            p.Id,
+                            p.Name,
+                            j.AmountSold
+                        }).ToList();
 
-            Assert.Equal(5, products.Count);
-            Assert.Equal(5, products[0].Id);
-            Assert.Equal("Product5", products[0].Name);
-            Assert.Null(products[0].AmountSold);
+        Assert.Equal(5, products.Count);
+        Assert.Equal(5, products[0].Id);
+        Assert.Equal("Product5", products[0].Name);
+        Assert.Null(products[0].AmountSold);
 
-            Assert.Equal(4, products[1].Id);
-            Assert.Equal("Product4", products[1].Name);
-            Assert.Equal(184, products[1].AmountSold);
+        Assert.Equal(4, products[1].Id);
+        Assert.Equal("Product4", products[1].Name);
+        Assert.Equal(184, products[1].AmountSold);
 
-            Assert.Equal(3, products[2].Id);
-            Assert.Equal("Product3", products[2].Name);
-            Assert.Equal(249, products[2].AmountSold);
+        Assert.Equal(3, products[2].Id);
+        Assert.Equal("Product3", products[2].Name);
+        Assert.Equal(249, products[2].AmountSold);
 
-            Assert.Equal(2, products[3].Id);
-            Assert.Equal("Product2", products[3].Name);
-            Assert.Null(products[3].AmountSold);
+        Assert.Equal(2, products[3].Id);
+        Assert.Equal("Product2", products[3].Name);
+        Assert.Null(products[3].AmountSold);
 
-            Assert.Equal(1, products[4].Id);
-            Assert.Equal("Product1", products[4].Name);
-            Assert.Null(products[4].AmountSold);
-        }
+        Assert.Equal(1, products[4].Id);
+        Assert.Equal("Product1", products[4].Name);
+        Assert.Null(products[4].AmountSold);
     }
 
     [Fact]
     public virtual void QF_LeftJoin_Select_Result()
     {
-        using (var context = CreateContext())
-        {
-            var products = (from p in context.Products
-                            join r in context.GetTopTwoSellingProducts() on p.Id equals r.ProductId into joinTable
-                            from j in joinTable.DefaultIfEmpty()
-                            orderby p.Id descending
-                            select j).ToList();
+        using var context = CreateContext();
+        var products = (from p in context.Products
+                        join r in context.GetTopTwoSellingProducts() on p.Id equals r.ProductId into joinTable
+                        from j in joinTable.DefaultIfEmpty()
+                        orderby p.Id descending
+                        select j).ToList();
 
-            Assert.Equal(5, products.Count);
-            Assert.Null(products[0]);
-            Assert.Equal(4, products[1].ProductId);
-            Assert.Equal(184, products[1].AmountSold);
-            Assert.Equal(3, products[2].ProductId);
-            Assert.Equal(249, products[2].AmountSold);
-            Assert.Null(products[3]);
-            Assert.Null(products[4]);
-        }
+        Assert.Equal(5, products.Count);
+        Assert.Null(products[0]);
+        Assert.Equal(4, products[1].ProductId);
+        Assert.Equal(184, products[1].AmountSold);
+        Assert.Equal(3, products[2].ProductId);
+        Assert.Equal(249, products[2].AmountSold);
+        Assert.Null(products[3]);
+        Assert.Null(products[4]);
     }
 
     [Fact]
     public virtual void QF_OuterApply_Correlated_Select_QF()
     {
-        using (var context = CreateContext())
-        {
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(c.Id).DefaultIfEmpty()
-                          orderby c.Id, r.Year
-                          select r).ToList();
+        using var context = CreateContext();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(c.Id).DefaultIfEmpty()
+                      orderby c.Id, r.Year
+                      select r).ToList();
 
-            Assert.Equal(5, orders.Count);
+        Assert.Equal(5, orders.Count);
 
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(1, orders[1].Count);
-            Assert.Equal(2, orders[2].Count);
-            Assert.Equal(1, orders[3].Count);
-            Assert.Null(orders[4]);
-            Assert.Equal(2000, orders[0].Year);
-            Assert.Equal(2001, orders[1].Year);
-            Assert.Equal(2000, orders[2].Year);
-            Assert.Equal(2001, orders[3].Year);
-            Assert.Null(orders[4]);
-            Assert.Equal(1, orders[0].CustomerId);
-            Assert.Equal(1, orders[1].CustomerId);
-            Assert.Equal(2, orders[2].CustomerId);
-            Assert.Equal(3, orders[3].CustomerId);
-            Assert.Null(orders[4]);
-        }
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(1, orders[1].Count);
+        Assert.Equal(2, orders[2].Count);
+        Assert.Equal(1, orders[3].Count);
+        Assert.Null(orders[4]);
+        Assert.Equal(2000, orders[0].Year);
+        Assert.Equal(2001, orders[1].Year);
+        Assert.Equal(2000, orders[2].Year);
+        Assert.Equal(2001, orders[3].Year);
+        Assert.Null(orders[4]);
+        Assert.Equal(1, orders[0].CustomerId);
+        Assert.Equal(1, orders[1].CustomerId);
+        Assert.Equal(2, orders[2].CustomerId);
+        Assert.Equal(3, orders[3].CustomerId);
+        Assert.Null(orders[4]);
     }
 
     [Fact]
     public virtual void QF_OuterApply_Correlated_Select_Entity()
     {
-        using (var context = CreateContext())
-        {
-            var custs = (from c in context.Customers
-                         from r in context.GetCustomerOrderCountByYear(c.Id).DefaultIfEmpty()
-                         where r.Year == 2000
-                         orderby c.Id, r.Year
-                         select c).ToList();
+        using var context = CreateContext();
+        var custs = (from c in context.Customers
+                     from r in context.GetCustomerOrderCountByYear(c.Id).DefaultIfEmpty()
+                     where r.Year == 2000
+                     orderby c.Id, r.Year
+                     select c).ToList();
 
-            Assert.Equal(2, custs.Count);
+        Assert.Equal(2, custs.Count);
 
-            Assert.Equal(1, custs[0].Id);
-            Assert.Equal(2, custs[1].Id);
-            Assert.Equal("One", custs[0].LastName);
-            Assert.Equal("Two", custs[1].LastName);
-        }
+        Assert.Equal(1, custs[0].Id);
+        Assert.Equal(2, custs[1].Id);
+        Assert.Equal("One", custs[0].LastName);
+        Assert.Equal("Two", custs[1].LastName);
     }
 
     [Fact]
     public virtual void QF_OuterApply_Correlated_Select_Anonymous()
     {
-        using (var context = CreateContext())
-        {
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(c.Id).DefaultIfEmpty()
-                          orderby c.Id, r.Year
-                          select new
-                          {
-                              c.Id,
-                              c.LastName,
-                              r.Year,
-                              r.Count
-                          }).ToList();
+        using var context = CreateContext();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(c.Id).DefaultIfEmpty()
+                      orderby c.Id, r.Year
+                      select new
+                      {
+                          c.Id,
+                          c.LastName,
+                          r.Year,
+                          r.Count
+                      }).ToList();
 
-            Assert.Equal(5, orders.Count);
+        Assert.Equal(5, orders.Count);
 
-            Assert.Equal(1, orders[0].Id);
-            Assert.Equal(1, orders[1].Id);
-            Assert.Equal(2, orders[2].Id);
-            Assert.Equal(3, orders[3].Id);
-            Assert.Equal(4, orders[4].Id);
-            Assert.Equal("One", orders[0].LastName);
-            Assert.Equal("One", orders[1].LastName);
-            Assert.Equal("Two", orders[2].LastName);
-            Assert.Equal("Three", orders[3].LastName);
-            Assert.Equal("Four", orders[4].LastName);
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(1, orders[1].Count);
-            Assert.Equal(2, orders[2].Count);
-            Assert.Equal(1, orders[3].Count);
-            Assert.Null(orders[4].Count);
-            Assert.Equal(2000, orders[0].Year);
-            Assert.Equal(2001, orders[1].Year);
-            Assert.Equal(2000, orders[2].Year);
-            Assert.Equal(2001, orders[3].Year);
-        }
+        Assert.Equal(1, orders[0].Id);
+        Assert.Equal(1, orders[1].Id);
+        Assert.Equal(2, orders[2].Id);
+        Assert.Equal(3, orders[3].Id);
+        Assert.Equal(4, orders[4].Id);
+        Assert.Equal("One", orders[0].LastName);
+        Assert.Equal("One", orders[1].LastName);
+        Assert.Equal("Two", orders[2].LastName);
+        Assert.Equal("Three", orders[3].LastName);
+        Assert.Equal("Four", orders[4].LastName);
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(1, orders[1].Count);
+        Assert.Equal(2, orders[2].Count);
+        Assert.Equal(1, orders[3].Count);
+        Assert.Null(orders[4].Count);
+        Assert.Equal(2000, orders[0].Year);
+        Assert.Equal(2001, orders[1].Year);
+        Assert.Equal(2000, orders[2].Year);
+        Assert.Equal(2001, orders[3].Year);
     }
 
     [Fact]
     public virtual void QF_Nested()
     {
-        using (var context = CreateContext())
-        {
-            var custId = 2;
+        using var context = CreateContext();
+        var custId = 2;
 
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(context.AddValues(1, 1))
-                          where c.Id == custId
-                          orderby r.Year
-                          select new
-                          {
-                              c.Id,
-                              c.LastName,
-                              r.Year,
-                              r.Count
-                          }).ToList();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(context.AddValues(1, 1))
+                      where c.Id == custId
+                      orderby r.Year
+                      select new
+                      {
+                          c.Id,
+                          c.LastName,
+                          r.Year,
+                          r.Count
+                      }).ToList();
 
-            Assert.Single(orders);
+        Assert.Single(orders);
 
-            Assert.Equal(2, orders[0].Count);
-            Assert.Equal(2000, orders[0].Year);
-        }
+        Assert.Equal(2, orders[0].Count);
+        Assert.Equal(2000, orders[0].Year);
     }
 
     [Fact]
@@ -2110,200 +2057,182 @@ public abstract class UdfDbFunctionTestBase<TFixture>(TFixture fixture) : IClass
     {
         var custId = 2;
 
-        using (var context = CreateContext())
-        {
-            var orders = (from c in context.Customers
-                          from r in context.GetCustomerOrderCountByYear(context.AddValues(c.Id, 1))
-                          where c.Id == custId
-                          select new
-                          {
-                              c.Id,
-                              r.Count,
-                              r.Year
-                          }).ToList();
+        using var context = CreateContext();
+        var orders = (from c in context.Customers
+                      from r in context.GetCustomerOrderCountByYear(context.AddValues(c.Id, 1))
+                      where c.Id == custId
+                      select new
+                      {
+                          c.Id,
+                          r.Count,
+                          r.Year
+                      }).ToList();
 
-            Assert.Single(orders);
+        Assert.Single(orders);
 
-            Assert.Equal(1, orders[0].Count);
-            Assert.Equal(2001, orders[0].Year);
-        }
+        Assert.Equal(1, orders[0].Count);
+        Assert.Equal(2001, orders[0].Year);
     }
 
     [Fact]
     public virtual void QF_Correlated_Func_Call_With_Navigation()
     {
-        using (var context = CreateContext())
-        {
-            var cust = (from c in context.Customers
-                        orderby c.Id
-                        select new
+        using var context = CreateContext();
+        var cust = (from c in context.Customers
+                    orderby c.Id
+                    select new
+                    {
+                        c.Id,
+                        Orders = context.GetOrdersWithMultipleProducts(c.Id).Select(mpo => new
                         {
-                            c.Id,
-                            Orders = context.GetOrdersWithMultipleProducts(c.Id).Select(mpo => new
-                            {
-                                //how to I setup the PK/FK combo properly for this?  Is it even possible?
-                                //OrderName = mpo.Order.Name,
-                                CustomerName = mpo.Customer.LastName
-                            }).ToList()
-                        }).ToList();
+                            //how to I setup the PK/FK combo properly for this?  Is it even possible?
+                            //OrderName = mpo.Order.Name,
+                            CustomerName = mpo.Customer.LastName
+                        }).ToList()
+                    }).ToList();
 
-            Assert.Equal(4, cust.Count);
-            Assert.Equal(2, cust[0].Orders.Count);
-            Assert.Equal("One", cust[0].Orders[0].CustomerName);
-            Assert.Equal(2, cust[1].Orders.Count);
-            Assert.Equal("Two", cust[1].Orders[0].CustomerName);
-        }
+        Assert.Equal(4, cust.Count);
+        Assert.Equal(2, cust[0].Orders.Count);
+        Assert.Equal("One", cust[0].Orders[0].CustomerName);
+        Assert.Equal(2, cust[1].Orders.Count);
+        Assert.Equal("Two", cust[1].Orders[0].CustomerName);
     }
 
     [Fact]
     public virtual void DbSet_mapped_to_function()
     {
-        using (var context = CreateContext())
-        {
-            var products = (from t in context.Set<TopSellingProduct>()
-                            orderby t.ProductId
-                            select t).ToList();
+        using var context = CreateContext();
+        var products = (from t in context.Set<TopSellingProduct>()
+                        orderby t.ProductId
+                        select t).ToList();
 
-            Assert.Equal(2, products.Count);
-            Assert.Equal(3, products[0].ProductId);
-            Assert.Equal(249, products[0].AmountSold);
-            Assert.Equal(4, products[1].ProductId);
-            Assert.Equal(184, products[1].AmountSold);
-        }
+        Assert.Equal(2, products.Count);
+        Assert.Equal(3, products[0].ProductId);
+        Assert.Equal(249, products[0].AmountSold);
+        Assert.Equal(4, products[1].ProductId);
+        Assert.Equal(184, products[1].AmountSold);
     }
 
     [Fact]
     public virtual void TVF_with_navigation_in_projection_groupby_aggregate()
     {
-        using (var context = CreateContext())
-        {
-            var query = context.Orders
-                .Where(c => !context.Set<TopSellingProduct>().Select(x => x.ProductId).Contains(25))
-                .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
-                .GroupBy(x => new { x.LastName })
-                .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
-                .ToList();
+        using var context = CreateContext();
+        var query = context.Orders
+            .Where(c => !context.Set<TopSellingProduct>().Select(x => x.ProductId).Contains(25))
+            .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
+            .GroupBy(x => new { x.LastName })
+            .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName!.Length) })
+            .ToList();
 
-            Assert.Equal(3, query.Count);
-            var orderedResult = query.OrderBy(x => x.LastName).ToList();
-            Assert.Equal("One", orderedResult[0].LastName);
-            Assert.Equal(24, orderedResult[0].SumOfLengths);
-            Assert.Equal("Three", orderedResult[1].LastName);
-            Assert.Equal(8, orderedResult[1].SumOfLengths);
-            Assert.Equal("Two", orderedResult[2].LastName);
-            Assert.Equal(16, orderedResult[2].SumOfLengths);
-        }
+        Assert.Equal(3, query.Count);
+        var orderedResult = query.OrderBy(x => x.LastName).ToList();
+        Assert.Equal("One", orderedResult[0].LastName);
+        Assert.Equal(24, orderedResult[0].SumOfLengths);
+        Assert.Equal("Three", orderedResult[1].LastName);
+        Assert.Equal(8, orderedResult[1].SumOfLengths);
+        Assert.Equal("Two", orderedResult[2].LastName);
+        Assert.Equal(16, orderedResult[2].SumOfLengths);
     }
 
     [Fact]
     public virtual void TVF_with_argument_being_a_subquery_with_navigation_in_projection_groupby_aggregate()
     {
-        using (var context = CreateContext())
-        {
-            var query = context.Orders
-                .Where(c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault().Id)
-                    .Select(x => x.CustomerId).Contains(25))
-                .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
-                .GroupBy(x => new { x.LastName })
-                .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
-                .ToList();
+        using var context = CreateContext();
+        var query = context.Orders
+            .Where(c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault()!.Id)
+                .Select(x => x.CustomerId).Contains(25))
+            .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
+            .GroupBy(x => new { x.LastName })
+            .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName!.Length) })
+            .ToList();
 
-            Assert.Equal(3, query.Count);
-            var orderedResult = query.OrderBy(x => x.LastName).ToList();
-            Assert.Equal("One", orderedResult[0].LastName);
-            Assert.Equal(24, orderedResult[0].SumOfLengths);
-            Assert.Equal("Three", orderedResult[1].LastName);
-            Assert.Equal(8, orderedResult[1].SumOfLengths);
-            Assert.Equal("Two", orderedResult[2].LastName);
-            Assert.Equal(16, orderedResult[2].SumOfLengths);
-        }
+        Assert.Equal(3, query.Count);
+        var orderedResult = query.OrderBy(x => x.LastName).ToList();
+        Assert.Equal("One", orderedResult[0].LastName);
+        Assert.Equal(24, orderedResult[0].SumOfLengths);
+        Assert.Equal("Three", orderedResult[1].LastName);
+        Assert.Equal(8, orderedResult[1].SumOfLengths);
+        Assert.Equal("Two", orderedResult[2].LastName);
+        Assert.Equal(16, orderedResult[2].SumOfLengths);
     }
 
     [Fact]
     public virtual void TVF_backing_entity_type_mapped_to_view()
     {
-        using (var context = CreateContext())
-        {
-            var customers = (from t in context.Set<CustomerData>()
-                             orderby t.FirstName
-                             select t).ToList();
+        using var context = CreateContext();
+        var customers = (from t in context.Set<CustomerData>()
+                         orderby t.FirstName
+                         select t).ToList();
 
-            Assert.Equal(4, customers.Count);
-        }
+        Assert.Equal(4, customers.Count);
     }
 
     [Fact]
     public virtual void TVF_backing_entity_type_with_complextype_mapped_to_view()
     {
-        using (var context = CreateContext())
-        {
-            var locations = (from t in context.Set<MapLocationData>()
-                             orderby t.Id
-                             select t).ToList();
+        using var context = CreateContext();
+        var locations = (from t in context.Set<MapLocationData>()
+                         orderby t.Id
+                         select t).ToList();
 
-            Assert.Equal(2, locations.Count);
-        }
+        Assert.Equal(2, locations.Count);
     }
 
     [Fact]
     public virtual void Udf_with_argument_being_comparison_to_null_parameter()
     {
-        using (var context = CreateContext())
-        {
-            var prm = default(string);
-            var query = (from c in context.Customers
-                         from r in context.GetCustomerOrderCountByYearOnlyFrom2000(c.Id, c.LastName != prm)
-                         orderby r.Year
-                         select r
-                ).ToList();
+        using var context = CreateContext();
+        var prm = default(string);
+        var query = (from c in context.Customers
+                     from r in context.GetCustomerOrderCountByYearOnlyFrom2000(c.Id, c.LastName != prm)
+                     orderby r.Year
+                     select r
+            ).ToList();
 
-            Assert.Equal(4, query.Count);
-            Assert.Equal(1, query[0].CustomerId);
-            Assert.Equal(2, query[0].Count);
-            Assert.Equal(2, query[1].CustomerId);
-            Assert.Equal(2, query[1].Count);
-            Assert.Equal(3, query[2].CustomerId);
-            Assert.Equal(2, query[2].Count);
-            Assert.Equal(4, query[3].CustomerId);
-            Assert.Equal(2, query[3].Count);
-            Assert.True(query.All(x => x.Year == 2000));
-        }
+        Assert.Equal(4, query.Count);
+        Assert.Equal(1, query[0].CustomerId);
+        Assert.Equal(2, query[0].Count);
+        Assert.Equal(2, query[1].CustomerId);
+        Assert.Equal(2, query[1].Count);
+        Assert.Equal(3, query[2].CustomerId);
+        Assert.Equal(2, query[2].Count);
+        Assert.Equal(4, query[3].CustomerId);
+        Assert.Equal(2, query[3].Count);
+        Assert.True(query.All(x => x.Year == 2000));
     }
 
     [Fact]
     public virtual void Udf_with_argument_being_comparison_of_nullable_columns()
     {
-        using (var context = CreateContext())
+        using var context = CreateContext();
+        var expected = (from a in context.Addresses.ToList()
+                        from r in context.Orders.ToList()
+                            .Where(x => x.CustomerId == 1 && (a.City != a.State || x.OrderDate.Year == 2000))
+                            .GroupBy(x => new { x.CustomerId, x.OrderDate.Year })
+                            .Select(x => new OrderByYear
+                            {
+                                CustomerId = x.Key.CustomerId,
+                                Year = x.Key.Year,
+                                Count = x.Count()
+                            })
+                        orderby a.Id, r.Year
+                        select r
+            ).ToList();
+
+        ClearLog();
+
+        var query = (from a in context.Addresses
+                     from r in context.GetCustomerOrderCountByYearOnlyFrom2000(1, a.City == a.State)
+                     orderby a.Id, r.Year
+                     select r
+            ).ToList();
+
+        Assert.Equal(expected.Count, query.Count);
+        for (var i = 0; i < expected.Count; i++)
         {
-            var expected = (from a in context.Addresses.ToList()
-                            from r in context.Orders.ToList()
-                                .Where(x => x.CustomerId == 1 && (a.City != a.State || x.OrderDate.Year == 2000))
-                                .GroupBy(x => new { x.CustomerId, x.OrderDate.Year })
-                                .Select(x => new OrderByYear
-                                {
-                                    CustomerId = x.Key.CustomerId,
-                                    Year = x.Key.Year,
-                                    Count = x.Count()
-                                })
-                            orderby a.Id, r.Year
-                            select r
-                ).ToList();
-
-            ClearLog();
-
-            var query = (from a in context.Addresses
-                         from r in context.GetCustomerOrderCountByYearOnlyFrom2000(1, a.City == a.State)
-                         orderby a.Id, r.Year
-                         select r
-                ).ToList();
-
-            Assert.Equal(expected.Count, query.Count);
-            for (var i = 0; i < expected.Count; i++)
-            {
-                Assert.Equal(expected[i].CustomerId, query[i].CustomerId);
-                Assert.Equal(expected[i].Year, query[i].Year);
-                Assert.Equal(expected[i].Count, query[i].Count);
-            }
+            Assert.Equal(expected[i].CustomerId, query[i].CustomerId);
+            Assert.Equal(expected[i].Year, query[i].Year);
+            Assert.Equal(expected[i].Count, query[i].Count);
         }
     }
 

@@ -46,9 +46,11 @@ public class SqlServerFullTextIndexBuilder<TEntity>(IndexBuilder<TEntity> indexB
     ///     used as the unique key for the full-text index.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://learn.microsoft.com/sql/t-sql/statements/create-fulltext-index-transact-sql">
+    ///     See
+    ///     <see href="https://learn.microsoft.com/sql/t-sql/statements/create-fulltext-index-transact-sql">
     ///         SQL Server documentation for <c>CREATE FULLTEXT INDEX</c>
-    ///     </see>.
+    ///     </see>
+    ///     .
     /// </remarks>
     /// <param name="keyIndex">The name of the KEY INDEX.</param>
     /// <returns>A builder to further configure the full-text index.</returns>
@@ -65,9 +67,11 @@ public class SqlServerFullTextIndexBuilder<TEntity>(IndexBuilder<TEntity> indexB
     ///     Configures the full-text catalog for the full-text index.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://learn.microsoft.com/sql/t-sql/statements/create-fulltext-index-transact-sql">
+    ///     See
+    ///     <see href="https://learn.microsoft.com/sql/t-sql/statements/create-fulltext-index-transact-sql">
     ///         SQL Server documentation for <c>CREATE FULLTEXT INDEX</c>
-    ///     </see>.
+    ///     </see>
+    ///     .
     /// </remarks>
     /// <param name="catalog">The name of the full-text catalog.</param>
     /// <returns>A builder to further configure the full-text index.</returns>
@@ -84,9 +88,11 @@ public class SqlServerFullTextIndexBuilder<TEntity>(IndexBuilder<TEntity> indexB
     ///     Configures the change tracking mode for the full-text index.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://learn.microsoft.com/sql/t-sql/statements/create-fulltext-index-transact-sql">
+    ///     See
+    ///     <see href="https://learn.microsoft.com/sql/t-sql/statements/create-fulltext-index-transact-sql">
     ///         SQL Server documentation for <c>CREATE FULLTEXT INDEX</c>
-    ///     </see>.
+    ///     </see>
+    ///     .
     /// </remarks>
     /// <param name="changeTracking">The change tracking mode.</param>
     /// <returns>A builder to further configure the full-text index.</returns>
@@ -101,9 +107,11 @@ public class SqlServerFullTextIndexBuilder<TEntity>(IndexBuilder<TEntity> indexB
     ///     Configures the language for a specific property in the full-text index.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://learn.microsoft.com/sql/t-sql/statements/create-fulltext-index-transact-sql">
+    ///     See
+    ///     <see href="https://learn.microsoft.com/sql/t-sql/statements/create-fulltext-index-transact-sql">
     ///         SQL Server documentation for <c>CREATE FULLTEXT INDEX</c>
-    ///     </see>.
+    ///     </see>
+    ///     .
     /// </remarks>
     /// <param name="propertyName">The name of the property.</param>
     /// <param name="language">The language term (e.g. "English", "1033").</param>

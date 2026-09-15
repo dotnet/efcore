@@ -2471,7 +2471,7 @@ public static class RelationalLoggerExtensions
             var commandText = command.CommandText;
             if (commandText.Length > 100)
             {
-                commandText = commandText.Substring(0, 100) + "...";
+                commandText = commandText[..100] + "...";
             }
 
             definition.Log(diagnostics, commandText, migration.GetType().ShortDisplayName());
@@ -2497,7 +2497,7 @@ public static class RelationalLoggerExtensions
         var commandText = p.MigrationCommand.CommandText;
         if (commandText.Length > 100)
         {
-            commandText = commandText.Substring(0, 100) + "...";
+            commandText = commandText[..100] + "...";
         }
 
         return d.GenerateMessage(commandText, p.Migration.GetType().ShortDisplayName());
@@ -3698,6 +3698,52 @@ public static class RelationalLoggerExtensions
         var d = (EventDefinition<string, string>)definition;
         var p = (MigrationColumnOperationEventData)payload;
         return d.GenerateMessage((p.ColumnOperation.Table, p.ColumnOperation.Schema).FormatTable(), p.ColumnOperation.Name);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void EntitySplittingFragmentOptionalityChangedWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+        IEntityType entityType,
+        StoreObjectIdentifier storeObject,
+        bool optional)
+    {
+        var definition = RelationalResources.LogEntitySplittingFragmentOptionalityChangedWarning(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                storeObject.DisplayName(),
+                entityType.DisplayName(),
+                optional ? "optional" : "required");
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityTypeMappingFragmentEventData(
+                definition,
+                EntitySplittingFragmentOptionalityChangedWarning,
+                entityType,
+                storeObject,
+                optional);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string EntitySplittingFragmentOptionalityChangedWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string>)definition;
+        var p = (EntityTypeMappingFragmentEventData)payload;
+        return d.GenerateMessage(
+            p.StoreObject.DisplayName(),
+            p.EntityType.DisplayName(),
+            p.IsOptional ? "optional" : "required");
     }
 
     /// <summary>

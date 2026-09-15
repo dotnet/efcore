@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ManyToManyTrackingProxySqlServerTest(ManyToManyTrackingProxySqlServerTest.ManyToManyTrackingProxySqlServerFixture fixture)
     : ManyToManyTrackingSqlServerTestBase<ManyToManyTrackingProxySqlServerTest.ManyToManyTrackingProxySqlServerFixture>(fixture)
 {

@@ -808,10 +808,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                     });
 
                 b.ComplexProperty(
-                    x => x.Department, cb =>
-                    {
-                        cb.ToJson();
-                    });
+                    x => x.Department, cb => cb.ToJson());
             });
 
             modelBuilder.Entity<WidgetWithDeepJson>(b =>

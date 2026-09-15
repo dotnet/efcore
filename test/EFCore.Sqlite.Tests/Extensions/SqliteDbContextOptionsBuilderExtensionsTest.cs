@@ -170,10 +170,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
                 sqliteOptions.MaxBatchSize(123);
                 sqliteOptions.CommandTimeout(30);
             },
-            dbContextOption =>
-            {
-                dbContextOption.EnableDetailedErrors();
-            });
+            dbContextOption => dbContextOption.EnableDetailedErrors());
 
         var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 

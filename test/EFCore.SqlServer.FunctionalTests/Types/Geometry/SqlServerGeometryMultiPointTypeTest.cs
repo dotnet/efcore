@@ -6,7 +6,9 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geometry;
 
-public class SqlServerGeometryMultiPointTypeTest(SqlServerGeometryMultiPointTypeTest.MultiPointTypeFixture fixture, ITestOutputHelper testOutputHelper)
+public class SqlServerGeometryMultiPointTypeTest(
+    SqlServerGeometryMultiPointTypeTest.MultiPointTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
     : SqlServerGeometryTypeTestBase<MultiPoint, SqlServerGeometryMultiPointTypeTest.MultiPointTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
@@ -36,9 +38,7 @@ WHERE [t].[Value].STEquals('MULTIPOINT ((5 5), (10 10))') = CAST(1 AS bit)
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {

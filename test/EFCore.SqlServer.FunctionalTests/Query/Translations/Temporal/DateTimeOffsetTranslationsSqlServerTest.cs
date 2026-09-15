@@ -208,15 +208,12 @@ WHERE CONVERT(datetime2, [b].[DateTimeOffset] AT TIME ZONE 'UTC') = '1998-05-04T
 """);
     }
 
-        public override async Task LocalDateTime()
+    public override async Task LocalDateTime()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2022Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2022Supported");
-
         }
 
         await base.LocalDateTime();
@@ -416,10 +413,9 @@ WHERE DATEPART(year, [b].[DateTime]) > 1 AND TODATETIMEOFFSET([b].[DateTime], '+
     {
         var offset = new TimeSpan(2, 0, 0);
 
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>()
-                .Where(b => b.DateTime.Year > 1)
-                .Where(b => new DateTimeOffset(b.DateTime, offset) == new DateTimeOffset(1998, 5, 4, 15, 30, 10, new TimeSpan(2, 0, 0))));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>()
+            .Where(b => b.DateTime.Year > 1)
+            .Where(b => new DateTimeOffset(b.DateTime, offset) == new DateTimeOffset(1998, 5, 4, 15, 30, 10, new TimeSpan(2, 0, 0))));
 
         AssertSql(
             """
@@ -434,8 +430,8 @@ WHERE DATEPART(year, [b].[DateTime]) > 1 AND TODATETIMEOFFSET([b].[DateTime], @o
     [Fact]
     public virtual async Task Now_has_proper_type_mapping_for_constant_comparison()
     {
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(x => DateTimeOffset.Now > new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)));
+        await AssertQuery(ss
+            => ss.Set<BasicTypesEntity>().Where(x => DateTimeOffset.Now > new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)));
 
         AssertSql(
             """
@@ -448,8 +444,8 @@ WHERE SYSDATETIMEOFFSET() > '2025-01-01T00:00:00.0000000+00:00'
     [Fact]
     public virtual async Task UtcNow_has_proper_type_mapping_for_constant_comparison()
     {
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(x => DateTimeOffset.UtcNow > new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)));
+        await AssertQuery(ss
+            => ss.Set<BasicTypesEntity>().Where(x => DateTimeOffset.UtcNow > new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)));
 
         AssertSql(
             """
@@ -464,7 +460,8 @@ WHERE CAST(SYSUTCDATETIME() AS datetimeoffset) > '2025-01-01T00:00:00.0000000+00
     {
         await AssertQueryScalar(
             actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("day", b.DateTimeOffset)),
-            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new DateTimeOffset(b.DateTimeOffset.Date, b.DateTimeOffset.Offset)));
+            expectedQuery: ss
+                => ss.Set<BasicTypesEntity>().Select(b => new DateTimeOffset(b.DateTimeOffset.Date, b.DateTimeOffset.Offset)));
 
         AssertSql(
             """
@@ -478,9 +475,9 @@ FROM [BasicTypesEntities] AS [b]
     {
         await AssertQueryScalar(
             actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("hour", b.DateTimeOffset)),
-            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(
-                b => new DateTimeOffset(b.DateTimeOffset.Year, b.DateTimeOffset.Month, b.DateTimeOffset.Day,
-                    b.DateTimeOffset.Hour, 0, 0, b.DateTimeOffset.Offset)));
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new DateTimeOffset(
+                b.DateTimeOffset.Year, b.DateTimeOffset.Month, b.DateTimeOffset.Day,
+                b.DateTimeOffset.Hour, 0, 0, b.DateTimeOffset.Offset)));
 
         AssertSql(
             """

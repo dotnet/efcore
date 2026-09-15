@@ -121,8 +121,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
             var reference = left as StructuralTypeReferenceExpression ?? (StructuralTypeReferenceExpression)right;
             var boolTypeMapping = typeMappingSource.FindMapping(typeof(bool))!;
 
-            var shaper = reference.Parameter ??
-                (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression;
+            var shaper = reference.Parameter ?? (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression;
             if (!shaper.IsNullable)
             {
                 result = sqlExpressionFactory.Constant(nodeType != ExpressionType.Equal, boolTypeMapping);
@@ -172,7 +171,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor
             }
 
             result = Visit(
-                primaryKeyProperties.Select(p => Expression.MakeBinary(nodeType,
+                primaryKeyProperties.Select(p => Expression.MakeBinary(
+                        nodeType,
                         CreatePropertyAccessExpression(left, p),
                         CreatePropertyAccessExpression(right, p)))
                     .Aggregate((l, r) => nodeType == ExpressionType.Equal
@@ -180,7 +180,6 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                         : Expression.OrElse(l, r))) as SqlExpression;
 
             return result is not null;
-
         }
 
         bool TryRewriteComplexTypeEquality(out SqlExpression? result)
@@ -189,8 +188,11 @@ public partial class CosmosSqlTranslatingExpressionVisitor
             var rightReference = right as StructuralTypeReferenceExpression;
 
             var reference = leftReference ?? rightReference;
-            Check.DebugAssert(reference != null, "We checked that at least one side is a StructuralTypeReferenceExpression before calling this function");
-            var collection = ((reference.Parameter ?? ((StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression)).ValueBufferExpression as StructuralTypeProjectionExpression)?.Object is ObjectArrayAccessExpression;
+            Check.DebugAssert(
+                reference != null, "We checked that at least one side is a StructuralTypeReferenceExpression before calling this function");
+            var collection =
+                ((reference.Parameter ?? ((StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression)).ValueBufferExpression as
+                    StructuralTypeProjectionExpression)?.Object is ObjectArrayAccessExpression;
 
             var leftComplexType = leftReference?.StructuralType as IComplexType;
             var rightComplexType = rightReference?.StructuralType as IComplexType;
@@ -235,11 +237,11 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                 }
 
                 comparison = new SqlBinaryExpression(
-                        nodeType,
-                        leftAccess,
-                        rightAccess,
-                        typeof(bool),
-                        boolTypeMapping)!;
+                    nodeType,
+                    leftAccess,
+                    rightAccess,
+                    typeof(bool),
+                    boolTypeMapping)!;
                 return true;
 
                 bool TryProcessComplexAccess(Expression expression, [NotNullWhen(true)] out Expression? result)
@@ -247,7 +249,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                     result = expression switch
                     {
                         StructuralTypeReferenceExpression { StructuralType: IComplexType } reference
-                            => Visit((reference.Parameter ?? (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression).ValueBufferExpression),
+                            => Visit(
+                                (reference.Parameter ?? (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression)
+                                .ValueBufferExpression),
                         SqlParameterExpression sqlParameterExpression
                             => CreateJsonQueryParameter(sqlParameterExpression),
                         SqlConstantExpression constant
@@ -265,19 +269,20 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                 {
                     // (queryContext) => CosmosStructuralTypeSerializer.SerializeInstance((object)queryContext.ParameterValueExtractor(sqlParameterExpression.Name), collection)
                     var lambda = Expression.Lambda(
-                                    Expression.Call(
-                                        Expression.Constant(structuralTypeSerializerProvider.Get(complexType)),
-                                        CosmosStructuralTypeSerializer.SerializeInstanceMethod,
-                                        Expression.Convert(
-                                            Expression.Call(
-                                                ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()),
-                                                QueryCompilationContext.QueryContextParameter,
-                                                Expression.Constant(sqlParameterExpression.Name, typeof(string))),
-                                            typeof(object)),
-                                        Expression.Constant(collection)),
-                                    QueryCompilationContext.QueryContextParameter);
+                        Expression.Call(
+                            Expression.Constant(structuralTypeSerializerProvider.Get(complexType)),
+                            CosmosStructuralTypeSerializer.SerializeInstanceMethod,
+                            Expression.Convert(
+                                Expression.Call(
+                                    ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    Expression.Constant(sqlParameterExpression.Name, typeof(string))),
+                                typeof(object)),
+                            Expression.Constant(collection)),
+                        QueryCompilationContext.QueryContextParameter);
 
-                    var param = queryCompilationContext.RegisterRuntimeParameter($"{RuntimeParameterPrefix}{sqlParameterExpression.Name}", lambda);
+                    var param = queryCompilationContext.RegisterRuntimeParameter(
+                        $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}", lambda);
                     return new SqlParameterExpression(param.Name, param.Type, CosmosQueryRawJsonTypeMapping.Default);
                 }
             }

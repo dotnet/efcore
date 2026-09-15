@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-#nullable enable
-
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -39,26 +37,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         e.Property<int>("Id");
                         e.HasKey("Id");
                     }),
-                model =>
-                {
-                    Assert.NotNull(model.FindEntityType("1"));
-                },
+                model => Assert.NotNull(model.FindEntityType("1")),
                 options: new CompiledModelCodeGenerationOptions { ModelNamespace = string.Empty, ForNativeAot = true });
 
         [Fact]
         public virtual Task Self_referential_property()
             => Test(
                 modelBuilder =>
-                    modelBuilder.Entity<SelfReferentialEntity<long>>(eb =>
-                    {
-                        eb.Property(e => e.Collection)
-                            .HasConversion<SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>>();
-                    }),
-                model =>
-                {
-                    Assert.Single(model.GetEntityTypes());
-                }
-            );
+                    modelBuilder.Entity<SelfReferentialEntity<long>>(eb => eb.Property(e => e.Collection)
+                        .HasConversion<SelfReferentialEntity<long>.NonGeneric.SelfReferentialPropertyValueConverter<string>>()),
+                model => Assert.Single(model.GetEntityTypes()));
 
         public class SelfReferentialEntity<T>
             where T : struct
@@ -180,10 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 },
                 async c =>
                 {
-                    var principal = new LazyProxiesEntity2
-                    {
-                        Id = 1, CollectionNavigation = new List<LazyProxiesEntity1> { new() { Id = 1 } }
-                    };
+                    var principal = new LazyProxiesEntity2 { Id = 1, CollectionNavigation = [new() { Id = 1 }] };
                     c.Set<LazyProxiesEntity2>().Add(principal);
 
                     await c.SaveChangesAsync();
@@ -215,10 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 },
                 async c =>
                 {
-                    var principal = new LazyProxiesEntity3
-                    {
-                        Id = 1, CollectionNavigation = new List<LazyProxiesEntity4> { new() { Id = 1 } }
-                    };
+                    var principal = new LazyProxiesEntity3 { Id = 1, CollectionNavigation = [new() { Id = 1 }] };
                     c.Set<LazyProxiesEntity3>().Add(principal);
 
                     await c.SaveChangesAsync();
@@ -247,8 +229,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
         public class LazyProxiesEntity3
         {
-            private ICollection<LazyProxiesEntity4> _collectionNavigation = null!;
-
             public LazyProxiesEntity3()
             {
             }
@@ -263,9 +243,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
             public ICollection<LazyProxiesEntity4> CollectionNavigation
             {
-                get => LazyLoader.Load(this, ref _collectionNavigation!)!;
-                set => _collectionNavigation = value;
-            }
+                get => LazyLoader.Load(this, ref field!)!;
+                set;
+            } = null!;
         }
 
         public class LazyProxiesEntity4
@@ -437,10 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     modelBuilder.Entity<Index>();
                     modelBuilder.Entity<TestModels.AspNetIdentity.IdentityUser>();
-                    modelBuilder.Entity<IdentityUser>(eb =>
-                    {
-                        eb.HasDiscriminator().HasValue("DerivedIdentityUser");
-                    });
+                    modelBuilder.Entity<IdentityUser>(eb => eb.HasDiscriminator().HasValue("DerivedIdentityUser"));
                     modelBuilder.Entity<Scaffolding>();
                 },
                 assertModel: model =>

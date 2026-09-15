@@ -194,8 +194,8 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TableValuedFunctionExpression tableValuedFunctionExpression
-                && Equals(tableValuedFunctionExpression));
+                || (obj is TableValuedFunctionExpression tableValuedFunctionExpression
+                    && Equals(tableValuedFunctionExpression)));
 
     private bool Equals(TableValuedFunctionExpression tableValuedFunctionExpression)
         => base.Equals(tableValuedFunctionExpression)

@@ -26,14 +26,9 @@ public class SqliteRegexMethodTranslator(SqliteSqlExpressionFactory sqlExpressio
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.DeclaringType == typeof(Regex)
+        => method.DeclaringType == typeof(Regex)
             && method.Name == nameof(Regex.IsMatch)
-            && arguments is [var input, var pattern])
-        {
-            return sqlExpressionFactory.Regexp(input, pattern);
-        }
-
-        return null;
-    }
+            && arguments is [var input, var pattern]
+                ? sqlExpressionFactory.Regexp(input, pattern)
+                : (SqlExpression?)null;
 }

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public class NonSharedModelUpdatesSqlServerTest(NonSharedFixture fixture) : NonSharedModelUpdatesTestBase(fixture)
 {
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
@@ -129,7 +127,7 @@ WHERE [Id] = @p5;
     public class DailyDigest
     {
         public int Id { get; set; }
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 
     public override async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
@@ -137,7 +135,8 @@ WHERE [Id] = @p5;
         // SQL Server's bulk insert support makes it impossible to populate the entry which caused the exception, since the position
         // used to find the entry is returned as an output column, but the row is never received in case of an exception.
         // Instead we make sure Entries contains all entries.
-        var contextFactory = await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
+        var contextFactory =
+            await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,

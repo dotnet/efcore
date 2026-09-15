@@ -62,10 +62,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<WithNonComparableUniqueIndex>(eb =>
-        {
-            eb.HasIndex(e => e.Index).IsUnique();
-        });
+        modelBuilder.Entity<WithNonComparableUniqueIndex>(eb => eb.HasIndex(e => e.Index).IsUnique());
 
         VerifyError(
             CoreStrings.PropertyNotMapped(
@@ -109,16 +106,14 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<SampleEntity>(eb =>
-        {
-            eb.ComplexCollection(e => e.OtherSamples, ccb =>
+        modelBuilder.Entity<SampleEntity>(eb => eb.ComplexCollection(
+            e => e.OtherSamples, ccb =>
             {
                 ccb.ToJson();
                 var complexType = ccb.Metadata.ComplexType;
                 var discriminatorProperty = complexType.AddProperty("Discriminator", typeof(string));
                 complexType.SetDiscriminatorProperty(discriminatorProperty);
-            });
-        });
+            }));
 
         VerifyError(
             CoreStrings.DiscriminatorPropertyNotAllowedOnComplexCollection(
@@ -219,8 +214,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<BlogWithConvertedDictionary>()
             .Property(e => e.JsonProperty)
             .HasConversion(
-                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
-                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions)null));
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, (JsonSerializerOptions?)null)!);
 
         Validate(modelBuilder);
 
@@ -357,7 +352,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var model = Validate(modelBuilder);
         var index = model.FindEntityType(typeof(EntityWithComplexCollection))!.GetIndexes().Single();
         Assert.Equal("Value", index.Properties.Single().Name);
-        Assert.Equal(new int?[] { null }, index.CollectionIndices.Single());
+        Assert.Equal(new int?[] { null }, index.CollectionIndices!.Single());
     }
 
     [Fact]
@@ -367,12 +362,13 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<EntityWithNestedComplexCollections>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexCollection(e => e.Posts, cb =>
-            {
-                cb.ToJson();
-                cb.Property(p => p.Title);
-                cb.ComplexCollection(p => p.Comments, ccb => ccb.Property(c => c.Text));
-            });
+            b.ComplexCollection(
+                e => e.Posts, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(p => p.Title);
+                    cb.ComplexCollection(p => p.Comments, ccb => ccb.Property(c => c.Text));
+                });
             b.HasIndex("Posts[0].Comments[1].Text");
         });
 
@@ -389,12 +385,13 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<EntityWithNestedComplexCollections>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexCollection(e => e.Posts, cb =>
-            {
-                cb.ToJson();
-                cb.Property(p => p.Title);
-                cb.ComplexCollection(p => p.Comments, ccb => ccb.Property(c => c.Text));
-            });
+            b.ComplexCollection(
+                e => e.Posts, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(p => p.Title);
+                    cb.ComplexCollection(p => p.Comments, ccb => ccb.Property(c => c.Text));
+                });
             b.HasIndex("Posts[].Comments[].Text");
         });
 
@@ -469,7 +466,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 nameof(SampleEntity),
                 nameof(SampleEntity.ReferencedEntity)),
             Assert.Throws<InvalidOperationException>(
-                () => index.GetNullableValueFactory<IReadOnlyList<object>>()).Message);
+                index.GetNullableValueFactory<IReadOnlyList<object>>).Message);
     }
 
     [Fact]
@@ -531,7 +528,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         });
 
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(SampleEntity))!;
-        var nameProperty = (Metadata.Internal.Property)entityType.FindProperty(nameof(SampleEntity.Name))!;
+        var nameProperty = entityType.FindProperty(nameof(SampleEntity.Name))!;
         var complexProperty = entityType.FindComplexProperty(nameof(SampleEntity.ReferencedEntity))!;
         entityType.AddIndex([nameProperty, complexProperty], ConfigurationSource.Explicit);
 
@@ -983,7 +980,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<A>().ToTable("Table");
         modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
         modelBuilder.Entity<B>().Property(b => b.P3).HasColumnName(nameof(A.P3))
-            .HasConversion(e => (long)e, e => (int?)e);
+            .HasConversion(e => (long)e!.Value, e => (int?)e);
         modelBuilder.Entity<B>().ToTable("Table");
 
         Validate(modelBuilder);
@@ -1157,8 +1154,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        Assert.Equal("CK_Table_SomeCK1", model.FindEntityType(typeof(A)).GetCheckConstraints().Single().Name);
-        Assert.Equal("CK_Table_SomeCK", model.FindEntityType(typeof(B)).GetCheckConstraints().Single().Name);
+        Assert.Equal("CK_Table_SomeCK1", model.FindEntityType(typeof(A))!.GetCheckConstraints().Single().Name);
+        Assert.Equal("CK_Table_SomeCK", model.FindEntityType(typeof(B))!.GetCheckConstraints().Single().Name);
     }
 
     [Fact]
@@ -1172,8 +1169,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        Assert.Equal("CK_Table_SomeCK", model.FindEntityType(typeof(A)).GetCheckConstraints().Single().Name);
-        Assert.Equal("CK_Table_SomeCK", model.FindEntityType(typeof(B)).GetCheckConstraints().Single().Name);
+        Assert.Equal("CK_Table_SomeCK", model.FindEntityType(typeof(A))!.GetCheckConstraints().Single().Name);
+        Assert.Equal("CK_Table_SomeCK", model.FindEntityType(typeof(B))!.GetCheckConstraints().Single().Name);
     }
 
     [Fact]
@@ -1184,7 +1181,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
         modelBuilder.Entity<A>().ToTable("Table");
         modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
-        modelBuilder.Entity<C>().HasBaseType((string)null).ToTable("Table");
+        modelBuilder.Entity<C>().HasBaseType((string?)null).ToTable("Table");
         modelBuilder.Entity<B>().ToTable("Table");
 
         VerifyError(
@@ -1250,7 +1247,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        var b = model.FindEntityType(typeof(B));
+        var b = model.FindEntityType(typeof(B))!;
         Assert.Equal("Table", b.GetTableName());
         Assert.True(b.IsTableExcludedFromMigrations());
     }
@@ -1265,7 +1262,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        var c = model.FindEntityType(typeof(C));
+        var c = model.FindEntityType(typeof(C))!;
         Assert.Equal("Table", c.GetTableName());
         Assert.True(c.IsTableExcludedFromMigrations());
     }
@@ -1397,10 +1394,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             cb.ToTable("Order");
 
             cb.SplitToTable(
-                "OrderDetails", tb =>
-                {
-                    tb.Property(c => c.PartitionId);
-                });
+                "OrderDetails", tb => tb.Property(c => c.PartitionId));
 
             cb.OwnsOne(
                 c => c.OrderDetails, db =>
@@ -1409,10 +1403,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
                     db.Property<string>("OtherAddress");
                     db.SplitToTable(
-                        "Details", tb =>
-                        {
-                            tb.Property("OtherAddress");
-                        });
+                        "Details", tb => tb.Property("OtherAddress"));
                 });
         });
 
@@ -1434,10 +1425,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             cb.ToTable("Order");
 
             cb.SplitToTable(
-                "OrderDetails", tb =>
-                {
-                    tb.Property(c => c.PartitionId);
-                });
+                "OrderDetails", tb => tb.Property(c => c.PartitionId));
 
             cb.OwnsOne(
                 c => c.OrderDetails, db =>
@@ -1446,10 +1434,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
                     db.Property<string>("OtherAddress");
                     db.SplitToTable(
-                        "Order", tb =>
-                        {
-                            tb.Property("OtherAddress");
-                        });
+                        "Order", tb => tb.Property("OtherAddress"));
                 });
             cb.Navigation(c => c.OrderDetails).IsRequired();
         });
@@ -1471,10 +1456,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             cb.ToTable("Order");
 
             cb.SplitToTable(
-                "OrderDetails", tb =>
-                {
-                    tb.Property(c => c.PartitionId);
-                });
+                "OrderDetails", tb => tb.Property(c => c.PartitionId));
 
             cb.OwnsOne(
                 c => c.OrderDetails, db =>
@@ -1483,10 +1465,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
                     db.Property<string>("OtherAddress");
                     db.SplitToTable(
-                        "Order", tb =>
-                        {
-                            tb.Property("OtherAddress");
-                        });
+                        "Order", tb => tb.Property("OtherAddress"));
                 });
             cb.Navigation(c => c.OrderDetails).IsRequired();
         });
@@ -1546,10 +1525,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Detects_unmapped_foreign_keys_in_entity_splitting()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Person>(pb =>
-        {
-            pb.HasKey(p => new { p.Id, p.Name });
-        });
+        modelBuilder.Entity<Person>(pb => pb.HasKey(p => new { p.Id, p.Name }));
         modelBuilder.Entity<Cat>().ToTable("Cat")
             .HasOne<Person>().WithMany()
             .HasForeignKey("FavoritePersonId", "FavoritePersonName");
@@ -1573,6 +1549,108 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 nameof(Person))),
             modelBuilder,
             LogLevel.Error);
+    }
+
+    [Fact]
+    public virtual void Optional_entity_splitting_fragment_with_nullable_reference_property_is_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().Property(a => a.Name).IsRequired(false);
+        modelBuilder.Entity<Animal>().SplitToTable(
+            "AnimalDetails", s =>
+            {
+                s.IsOptional();
+                s.Property(a => a.Name);
+            });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Optional_entity_splitting_fragment_with_nullable_value_type_property_is_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>().ToTable("Cats");
+        modelBuilder.Entity<Cat>().SplitToTable(
+            "CatDetails", s =>
+            {
+                s.IsOptional();
+                s.Property<int?>("OptionalIdentity");
+            });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_non_nullable_reference_property_on_optional_entity_splitting_fragment()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().Property(a => a.Name).IsRequired();
+        modelBuilder.Entity<Animal>().SplitToTable(
+            "AnimalDetails", s =>
+            {
+                s.IsOptional();
+                s.Property(a => a.Name);
+            });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingNonNullablePropertyOnOptionalFragment(
+                nameof(Animal), "AnimalDetails", nameof(Animal.Name)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_non_nullable_value_type_property_on_optional_entity_splitting_fragment()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>().ToTable("Cats");
+        modelBuilder.Entity<Cat>().SplitToTable(
+            "CatDetails", s =>
+            {
+                s.IsOptional();
+                s.Property(c => c.Identity);
+            });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingNonNullablePropertyOnOptionalFragment(
+                nameof(Cat), "CatDetails", nameof(Cat.Identity)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Entity_splitting_primary_key_remains_non_nullable_when_fragment_is_optional()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().Property(a => a.Name).IsRequired(false);
+        modelBuilder.Entity<Animal>().SplitToTable(
+            "AnimalDetails", s =>
+            {
+                s.IsOptional();
+                s.Property(a => a.Id);
+                s.Property(a => a.Name);
+            });
+
+        var model = Validate(modelBuilder);
+        var entityType = model.FindEntityType(typeof(Animal))!;
+        var storeObject = StoreObjectIdentifier.Table("AnimalDetails");
+
+        Assert.False(entityType.FindProperty(nameof(Animal.Id))!.IsColumnNullable(storeObject));
+    }
+
+    [Fact]
+    public virtual void Mixed_required_and_optional_entity_splitting_fragments_are_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>().ToTable("Cats");
+        modelBuilder.Entity<Cat>().SplitToTable("CatRequiredDetails", s => s.Property(c => c.Breed));
+        modelBuilder.Entity<Cat>().SplitToTable(
+            "CatOptionalDetails", s =>
+            {
+                s.IsOptional();
+                s.Property<string>("OptionalNotes");
+            });
+
+        Validate(modelBuilder);
     }
 
     [Fact]
@@ -1720,7 +1798,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        var column = model.FindEntityType(typeof(B)).GetProperty(nameof(A.P0)).GetTableColumnMappings().Single().Column;
+        var column = model.FindEntityType(typeof(B))!.GetProperty(nameof(A.P0)).GetTableColumnMappings().Single().Column;
 
         Assert.Equal(2, column.PropertyMappings.Count());
         Assert.False(column.IsNullable);
@@ -1736,7 +1814,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        var column = model.FindEntityType(typeof(Cat)).FindProperty("OtherId").GetTableColumnMappings().Single().Column;
+        var column = model.FindEntityType(typeof(Cat))!.FindProperty("OtherId")!.GetTableColumnMappings().Single().Column;
 
         Assert.Equal(2, column.PropertyMappings.Count());
         Assert.True(column.IsNullable);
@@ -2096,8 +2174,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        IReadOnlyForeignKey fk1 = null;
-        IReadOnlyForeignKey fk2 = null;
+        IReadOnlyForeignKey fk1 = null!;
+        IReadOnlyForeignKey fk2 = null!;
 
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>(et =>
@@ -2136,8 +2214,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy_name_configured_explicitly()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        IReadOnlyForeignKey fk1 = null;
-        IReadOnlyForeignKey fk2 = null;
+        IReadOnlyForeignKey fk1 = null!;
+        IReadOnlyForeignKey fk2 = null!;
 
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>(et =>
@@ -2307,8 +2385,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Passes_for_compatible_duplicate_index_names_within_hierarchy()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        IMutableIndex index1 = null;
-        IMutableIndex index2 = null;
+        IMutableIndex index1 = null!;
+        IMutableIndex index2 = null!;
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>(et =>
         {
@@ -2342,7 +2420,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         public int Id { get; set; }
 
-        public Organization Organization { get; set; }
+        public Organization Organization { get; set; } = null!;
     }
 
     private class Organization
@@ -2359,7 +2437,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     [Owned]
     private class PropertyDetails
     {
-        public Address Address { get; set; }
+        public Address Address { get; set; } = null!;
     }
 
     private class Address
@@ -2425,7 +2503,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        var animalType = model.FindEntityType(typeof(Animal));
+        var animalType = model.FindEntityType(typeof(Animal))!;
         Assert.DoesNotContain(animalType.GetProperties(), p => p.IsConcurrencyToken);
     }
 
@@ -2732,7 +2810,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Passes_for_view_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Animal>().ToTable((string)null).UseTpcMappingStrategy();
+        modelBuilder.Entity<Animal>().ToTable((string?)null).UseTpcMappingStrategy();
         modelBuilder.Entity<Cat>().ToView("Cat");
 
         Validate(modelBuilder);
@@ -2754,7 +2832,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Detects_MappingStrategy_on_derived_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Cat>().HasBaseType((string)null);
+        modelBuilder.Entity<Cat>().HasBaseType((string?)null);
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().ToTable("Cat").ToView("Cat").UseTpcMappingStrategy().HasBaseType(typeof(Animal));
 
@@ -2960,10 +3038,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<LivingBeing>()
             .UseTptMappingStrategy()
             .OwnsOne(
-                b => b.Details, ob =>
-                {
-                    ob.ToTable((string)null);
-                });
+                b => b.Details, ob => ob.ToTable((string?)null));
 
         modelBuilder.Entity<Animal>()
             .ToView("Animal");
@@ -3166,7 +3241,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var methodInfo
             = typeof(TestMethods)
-                .GetRuntimeMethod(nameof(TestMethods.MethodA), []);
+                .GetRuntimeMethod(nameof(TestMethods.MethodA), [])!;
 
         modelBuilder.HasDbFunction(methodInfo);
 
@@ -3200,7 +3275,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var methodInfo
             = typeof(TestMethods)
-                .GetRuntimeMethod(nameof(TestMethods.MethodA), []);
+                .GetRuntimeMethod(nameof(TestMethods.MethodA), [])!;
 
         var function = modelBuilder.HasDbFunction(methodInfo).Metadata;
 
@@ -3286,7 +3361,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         modelBuilder.Entity<DerivedTestMethods>(db =>
         {
-            db.HasBaseType((string)null);
+            db.HasBaseType((string?)null);
             db.OwnsOne(d => d.SomeTestMethods).ToFunction(function.ModelName);
             db.OwnsOne(d => d.OtherTestMethods).ToFunction(function.ModelName);
         });
@@ -3343,7 +3418,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         modelBuilder.Entity<DerivedTestMethods>(db =>
         {
-            db.HasBaseType((string)null);
+            db.HasBaseType((string?)null);
             db.OwnsOne(d => d.SomeTestMethods).DeleteUsingStoredProcedure(
                 "Delete",
                 s => s.HasOriginalValueParameter("DerivedTestMethodsId"));
@@ -3382,7 +3457,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>()
             .Ignore(a => a.FavoritePerson)
-            .ToTable((string)null)
+            .ToTable((string?)null)
             .InsertUsingStoredProcedure(s => s.HasParameter(c => c.Id).HasParameter(c => c.Name))
             .UpdateUsingStoredProcedure(s => s.HasOriginalValueParameter(c => c.Id).HasParameter(c => c.Name))
             .Property(a => a.Id).ValueGeneratedNever();
@@ -3968,7 +4043,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>().ToTable((string)null);
+        modelBuilder.Entity<Animal>().ToTable((string?)null);
         modelBuilder.Entity<Animal>().HasIndex(nameof(Animal.Id), nameof(Animal.Name));
 
         var definition = RelationalResources
@@ -3986,7 +4061,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>().ToTable((string)null);
+        modelBuilder.Entity<Animal>().ToTable((string?)null);
         modelBuilder.Entity<Animal>()
             .HasIndex(
                 [nameof(Animal.Id), nameof(Animal.Name)],
@@ -4008,7 +4083,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>().ToTable((string)null);
+        modelBuilder.Entity<Animal>().ToTable((string?)null);
         modelBuilder.Entity<Cat>().ToTable("Cats")
             .HasIndex(
                 [nameof(Cat.Identity), nameof(Animal.Name)],
@@ -4023,7 +4098,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>().ToTable((string)null)
+        modelBuilder.Entity<Cat>().ToTable((string?)null)
             .HasIndex(nameof(Animal.Name), nameof(Cat.Identity));
 
         var definition = RelationalResources
@@ -4044,7 +4119,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>().ToTable((string)null)
+        modelBuilder.Entity<Cat>().ToTable((string?)null)
             .HasIndex(
                 [nameof(Cat.Identity), nameof(Animal.Name)],
                 "IX_MixOfMappedAndUnmappedProperties");
@@ -4075,7 +4150,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         Assert.DoesNotContain(
             LoggerFactory.Log,
-            l => l.Level != LogLevel.Trace && l.Level != LogLevel.Debug);
+            l => l.Level is not LogLevel.Trace and not LogLevel.Debug);
     }
 
     [Fact]
@@ -4144,7 +4219,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         VerifyError(
             RelationalStrings.TableValuedFunctionNonTph(
-                TestMethods.MethodFMi.DeclaringType.FullName + "." + TestMethods.MethodFMi.Name + "()", "C"), modelBuilder);
+                TestMethods.MethodFMi.DeclaringType!.FullName + "." + TestMethods.MethodFMi.Name + "()", "C"), modelBuilder);
     }
 
     [Fact]
@@ -4248,7 +4323,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         public class TpcDerived : TpcBase
         {
-            public string Value { get; set; }
+            public string Value { get; set; } = null!;
         }
     }
 
@@ -4256,7 +4331,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         public class TpcDerived : TpcBase
         {
-            public string Value { get; set; }
+            public string Value { get; set; } = null!;
         }
     }
 
@@ -4284,7 +4359,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
     private class BaseTestMethods
     {
-        public static readonly MethodInfo MethodAMi = typeof(BaseTestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodA));
+        public static readonly MethodInfo MethodAMi = typeof(BaseTestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodA))!;
 
         public static IQueryable<BaseTestMethods> MethodA()
             => throw new NotImplementedException();
@@ -4293,18 +4368,18 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     private class DerivedTestMethods : TestMethods
     {
         public int Id { get; set; }
-        public TestMethods SomeTestMethods { get; set; }
-        public TestMethods OtherTestMethods { get; set; }
+        public TestMethods SomeTestMethods { get; set; } = null!;
+        public TestMethods OtherTestMethods { get; set; } = null!;
     }
 
     private class TestMethods : BaseTestMethods
     {
-        public static new readonly MethodInfo MethodAMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodA));
-        public static readonly MethodInfo MethodBMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodB));
-        public static readonly MethodInfo MethodCMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodC));
-        public static readonly MethodInfo MethodDMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodD));
-        public static readonly MethodInfo MethodEMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodE));
-        public static readonly MethodInfo MethodFMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodF));
+        public static new readonly MethodInfo MethodAMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodA))!;
+        public static readonly MethodInfo MethodBMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodB))!;
+        public static readonly MethodInfo MethodCMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodC))!;
+        public static readonly MethodInfo MethodDMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodD))!;
+        public static readonly MethodInfo MethodEMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodE))!;
+        public static readonly MethodInfo MethodFMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(MethodF))!;
 
         public static new IQueryable<TestMethods> MethodA()
             => throw new NotImplementedException();
@@ -4330,15 +4405,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<AutoLoadJsonPrincipal>(
-            eb =>
-            {
-                eb.OwnsOne(
-                    e => e.Owned, ob =>
-                    {
-                        ob.Property(e => e.Details);
-                    });
-            });
+        modelBuilder.Entity<AutoLoadJsonPrincipal>(eb => eb.OwnsOne(
+            e => e.Owned, ob => ob.Property(e => e.Details)));
 
         var model = modelBuilder.Model;
         var ownedType = model.FindEntityType(typeof(AutoLoadJsonOwned))!;

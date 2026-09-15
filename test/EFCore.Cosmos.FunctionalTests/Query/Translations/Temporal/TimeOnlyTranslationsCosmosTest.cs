@@ -15,39 +15,39 @@ public class TimeOnlyTranslationsCosmosTest : TimeOnlyTranslationsTestBase<Basic
     }
 
     public override Task Hour()
-        => AssertTranslationFailed(() => base.Hour());
+        => AssertTranslationFailed(base.Hour);
 
     public override Task Minute()
-        => AssertTranslationFailed(() => base.Minute());
+        => AssertTranslationFailed(base.Minute);
 
     public override Task Second()
-        => AssertTranslationFailed(() => base.Second());
+        => AssertTranslationFailed(base.Second);
 
     public override Task Millisecond()
-        => AssertTranslationFailed(() => base.Millisecond());
+        => AssertTranslationFailed(base.Millisecond);
 
     public override Task Microsecond()
-        => AssertTranslationFailed(() => base.Microsecond());
+        => AssertTranslationFailed(base.Microsecond);
 
     public override Task Nanosecond()
-        => AssertTranslationFailed(() => base.Nanosecond());
+        => AssertTranslationFailed(base.Nanosecond);
 
     public override Task AddHours()
-        => AssertTranslationFailed(() => base.AddHours());
+        => AssertTranslationFailed(base.AddHours);
 
     public override Task AddMinutes()
-        => AssertTranslationFailed(() => base.AddMinutes());
+        => AssertTranslationFailed(base.AddMinutes);
 
     public override Task Add_TimeSpan()
-        => AssertTranslationFailed(() => base.Add_TimeSpan());
+        => AssertTranslationFailed(base.Add_TimeSpan);
 
     public override Task IsBetween()
-        => AssertTranslationFailed(() => base.IsBetween());
+        => AssertTranslationFailed(base.IsBetween);
 
     public override async Task Subtract()
     {
         // See #35311
-        await Assert.ThrowsAsync<EqualException>(() => base.Subtract());
+        await Assert.ThrowsAsync<EqualException>(base.Subtract);
 
         AssertSql(
             """
@@ -58,22 +58,22 @@ WHERE ((c["TimeOnly"] - "03:00:00") = "12:30:10")
     }
 
     public override Task FromDateTime_compared_to_property()
-        => AssertTranslationFailed(() => base.FromDateTime_compared_to_property());
+        => AssertTranslationFailed(base.FromDateTime_compared_to_property);
 
     public override Task FromDateTime_compared_to_parameter()
-        => AssertTranslationFailed(() => base.FromDateTime_compared_to_parameter());
+        => AssertTranslationFailed(base.FromDateTime_compared_to_parameter);
 
     public override Task FromDateTime_compared_to_constant()
-        => AssertTranslationFailed(() => base.FromDateTime_compared_to_constant());
+        => AssertTranslationFailed(base.FromDateTime_compared_to_constant);
 
     public override Task FromTimeSpan_compared_to_property()
-        => AssertTranslationFailed(() => base.FromTimeSpan_compared_to_property());
+        => AssertTranslationFailed(base.FromTimeSpan_compared_to_property);
 
     public override Task FromTimeSpan_compared_to_parameter()
-        => AssertTranslationFailed(() => base.FromTimeSpan_compared_to_parameter());
+        => AssertTranslationFailed(base.FromTimeSpan_compared_to_parameter);
 
     public override Task Order_by_FromTimeSpan()
-        => AssertTranslationFailed(() => base.Order_by_FromTimeSpan());
+        => AssertTranslationFailed(base.Order_by_FromTimeSpan);
 
     [Fact]
     public virtual void Check_all_tests_overridden()

@@ -17,10 +17,10 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 {
     private readonly SortedDictionary<string, Property> _properties;
     private readonly SortedDictionary<string, ComplexProperty> _complexProperties;
-    private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = [with(StringComparer.Ordinal)];
 
     private TypeBase? _baseType;
-    private readonly SortedSet<TypeBase> _directlyDerivedTypes = new(TypeBaseNameComparer.Instance);
+    private readonly SortedSet<TypeBase> _directlyDerivedTypes = [with(TypeBaseNameComparer.Instance)];
     private ChangeTrackingStrategy? _changeTrackingStrategy;
 
     private ConfigurationSource _configurationSource;
@@ -58,8 +58,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         Name = model.GetDisplayName(type);
         HasSharedClrType = false;
         IsPropertyBag = type.IsPropertyBagType();
-        _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
-        _complexProperties = new SortedDictionary<string, ComplexProperty>(new ComplexPropertyNameComparer(this));
+        _properties = [with(new PropertyNameComparer(this))];
+        _complexProperties = [with(new ComplexPropertyNameComparer(this))];
     }
 
     /// <summary>
@@ -80,8 +80,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         _configurationSource = configurationSource;
         HasSharedClrType = true;
         IsPropertyBag = type.IsPropertyBagType();
-        _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
-        _complexProperties = new SortedDictionary<string, ComplexProperty>(new ComplexPropertyNameComparer(this));
+        _properties = [with(new PropertyNameComparer(this))];
+        _complexProperties = [with(new ComplexPropertyNameComparer(this))];
     }
 
     /// <summary>
@@ -461,16 +461,13 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         {
             if (memberInfo != FindIndexerPropertyInfo())
             {
-                if (throwOnNameMismatch)
-                {
-                    throw new InvalidOperationException(
+                return throwOnNameMismatch
+                    ? throw new InvalidOperationException(
                         CoreStrings.PropertyWrongName(
                             name,
                             DisplayName(),
-                            memberInfo.GetSimpleMemberName()));
-                }
-
-                return memberInfo.GetMemberType();
+                            memberInfo.GetSimpleMemberName()))
+                    : memberInfo.GetMemberType();
             }
 
             var clashingMemberInfo = IsPropertyBag
@@ -1364,8 +1361,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     {
         if (requireFullNotifications)
         {
-            if (value != ChangeTrackingStrategy.ChangingAndChangedNotifications
-                && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+            if (value is not ChangeTrackingStrategy.ChangingAndChangedNotifications
+                and not ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
             {
                 return CoreStrings.FullChangeTrackingRequired(
                     structuralType.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),

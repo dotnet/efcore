@@ -216,14 +216,9 @@ public class ValueGenerationManager : IValueGenerationManager
             return false;
         }
 
-        if (entry.HasExplicitValue(property)
-            || (!includePrimaryKey
-                && property.IsPrimaryKey()))
-        {
-            return false;
-        }
-
-        return true;
+        return !entry.HasExplicitValue(property)
+            && (includePrimaryKey
+                || !property.IsPrimaryKey());
     }
 
     private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object? generatedValue, bool isTemporary)

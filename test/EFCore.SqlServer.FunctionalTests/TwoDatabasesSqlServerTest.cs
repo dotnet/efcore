@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class TwoDatabasesSqlServerTest(SqlServerFixture fixture) : TwoDatabasesTestBase(fixture), IClassFixture<SqlServerFixture>
 {
     protected new SqlServerFixture Fixture
@@ -21,7 +19,7 @@ public class TwoDatabasesSqlServerTest(SqlServerFixture fixture) : TwoDatabasesT
         bool withNullConnectionString = false)
         => withConnectionString
             ? withNullConnectionString
-                ? optionsBuilder.UseSqlServer((string)null)
+                ? optionsBuilder.UseSqlServer((string)null!)
                 : optionsBuilder.UseSqlServer(DummyConnectionString)
             : optionsBuilder.UseSqlServer();
 

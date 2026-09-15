@@ -14,8 +14,8 @@ public abstract class UpdatesInMemoryTestBase<TFixture>(TFixture fixture) : Upda
 
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<UpdatesContext, Task> testOperation,
-        Func<UpdatesContext, Task> nestedTestOperation1 = null,
-        Func<UpdatesContext, Task> nestedTestOperation2 = null)
+        Func<UpdatesContext, Task>? nestedTestOperation1 = null,
+        Func<UpdatesContext, Task>? nestedTestOperation2 = null)
     {
         try
         {

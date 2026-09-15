@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
@@ -49,20 +50,12 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 });
         });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
-        {
-            eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
-                .UsingEntity(jb =>
-                {
-                    jb.ToTable(tb => tb.IsMemoryOptimized());
-                });
-        });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb => eb.HasMany(e => e.Principals)
+            .WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
+            .UsingEntity(jb => jb.ToTable(tb => tb.IsMemoryOptimized())));
 
-        modelBuilder.Entity<ManyTypes>(eb =>
-        {
-            eb.Property(m => m.CharToStringConverterProperty)
-                .IsFixedLength();
-        });
+        modelBuilder.Entity<ManyTypes>(eb => eb.Property(m => m.CharToStringConverterProperty)
+            .IsFixedLength());
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -227,14 +220,11 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             {
                 modelBuilder.HasFullTextCatalog("MyCatalog");
 
-                modelBuilder.Entity<FullTextEntity>(b =>
-                {
-                    b.HasFullTextIndex(e => e.Title)
-                        .UseKeyIndex("PK_FullTextEntity")
-                        .UseCatalog("MyCatalog")
-                        .HasChangeTracking(FullTextChangeTracking.Manual)
-                        .UseLanguage("Title", "English");
-                });
+                modelBuilder.Entity<FullTextEntity>(b => b.HasFullTextIndex(e => e.Title)
+                    .UseKeyIndex("PK_FullTextEntity")
+                    .UseCatalog("MyCatalog")
+                    .HasChangeTracking(FullTextChangeTracking.Manual)
+                    .UseLanguage("Title", "English"));
             },
             model =>
             {
@@ -325,7 +315,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         Assert.Null(alternateIndex[SqlServerAnnotationNames.Include]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
-            Assert.Throws<InvalidOperationException>(() => alternateIndex.GetIncludeProperties()).Message);
+            Assert.Throws<InvalidOperationException>(alternateIndex.GetIncludeProperties).Message);
         Assert.Null(alternateIndex[SqlServerAnnotationNames.SortInTempDb]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
@@ -343,31 +333,23 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
     // skip so the condition is honored when the override actually runs.
     [Fact]
     public override Task ComplexTypes()
-    {
-        if (!SqlServerTestEnvironment.IsJsonTypeSupported)
-        {
-            throw Xunit.Sdk.SkipException.ForSkip("Requires IsJsonTypeSupported");
-        }
-
-        return base.ComplexTypes();
-    }
+        => !SqlServerTestEnvironment.IsJsonTypeSupported
+            ? throw SkipException.ForSkip("Requires IsJsonTypeSupported")
+            : base.ComplexTypes();
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
         base.BuildComplexTypesModel(modelBuilder);
 
-        modelBuilder.Entity<PrincipalBase>(eb =>
-        {
-            eb.ComplexProperty(
-                e => e.Owned, eb =>
-                {
-                    eb.Ignore(c => c.Context);
+        modelBuilder.Entity<PrincipalBase>(eb => eb.ComplexProperty(
+            e => e.Owned, eb =>
+            {
+                eb.Ignore(c => c.Context);
 
-                    eb.Property(c => c.Details)
-                        .IsSparse()
-                        .UseCollation("Latin1_General_CI_AI");
-                });
-        });
+                eb.Property(c => c.Details)
+                    .IsSparse()
+                    .UseCollation("Latin1_General_CI_AI");
+            }));
 
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
         {
@@ -415,14 +397,11 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
     [Fact]
     public virtual Task Key_HiLo_sequence()
         => Test(
-            modelBuilder =>
+            modelBuilder => modelBuilder.Entity<Data>(eb =>
             {
-                modelBuilder.Entity<Data>(eb =>
-                {
-                    eb.Property<int>("Id").UseHiLo("HL", "S");
-                    eb.HasKey("Id");
-                });
-            },
+                eb.Property<int>("Id").UseHiLo("HL", "S");
+                eb.HasKey("Id");
+            }),
             model =>
             {
                 Assert.Equal(1, model.GetSequences().Count());
@@ -474,14 +453,11 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public virtual Task SpatialTypesTest()
         => Test(
-            modelBuilder => modelBuilder.Entity<SpatialTypes>(eb =>
-            {
-                eb.Property<Point>("Point")
-                    .HasColumnType("geometry")
-                    .HasDefaultValue(
-                        NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
-                    .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
-            }),
+            modelBuilder => modelBuilder.Entity<SpatialTypes>(eb => eb.Property<Point>("Point")
+                .HasColumnType("geometry")
+                .HasDefaultValue(
+                    NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
+                .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>()),
             model =>
             {
                 var entityType = model.FindEntityType(typeof(SpatialTypes))!;

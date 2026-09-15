@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SequenceEndToEndTest : IAsyncLifetime
 {
     [Fact]
@@ -248,7 +246,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
 
                 for (var j = 0; j < 6; j++)
                 {
-                    pegasuses.Single(p => p.Identifier == i * 100 + j);
+                    pegasuses.Single(p => p.Identifier == (i * 100) + j);
                 }
             }
         }
@@ -260,9 +258,9 @@ public class SequenceEndToEndTest : IAsyncLifetime
         for (var i = 1; i < 11; i++)
         {
             context.Add(
-                new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
+                new Pegasus { Name = "Rainbow Dash " + i, Identifier = (i * 100) + idOffset });
             context.Add(
-                new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
+                new Pegasus { Name = "Fluttershy " + i, Identifier = (i * 100) + idOffset + 1 });
         }
 
         context.SaveChanges();
@@ -274,7 +272,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         private readonly string _databaseName = databaseName;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Pegasus> Pegasuses { get; set; }
+        public DbSet<Pegasus> Pegasuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -292,7 +290,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
     private class Pegasus
     {
         public int Identifier { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [Fact] // Issue #478
@@ -372,7 +370,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
         private readonly bool _useSequence = useSequence;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Unicon> Unicons { get; set; }
+        public DbSet<Unicon> Unicons { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -397,10 +395,10 @@ public class SequenceEndToEndTest : IAsyncLifetime
     private class Unicon
     {
         public int? Identifier { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
-    protected SqlServerTestStore TestStore { get; private set; }
+    protected SqlServerTestStore TestStore { get; private set; } = null!;
 
     public async ValueTask InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("SequenceEndToEndTest");

@@ -24,25 +24,16 @@ public static class SqlServerKeyExtensions
         IReadOnlyKey duplicateKey,
         in StoreObjectIdentifier storeObject,
         bool shouldThrow)
-    {
-        if (key.IsClustered(storeObject)
-            != duplicateKey.IsClustered(storeObject))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+        => key.IsClustered(storeObject)
+            == duplicateKey.IsClustered(storeObject)
+            || (shouldThrow
+                ? throw new InvalidOperationException(
                     SqlServerStrings.DuplicateKeyMismatchedClustering(
                         key.Properties.Format(),
                         key.DeclaringEntityType.DisplayName(),
                         duplicateKey.Properties.Format(),
                         duplicateKey.DeclaringEntityType.DisplayName(),
                         storeObject.DisplayName(),
-                        key.GetName(storeObject)));
-            }
-
-            return false;
-        }
-
-        return true;
-    }
+                        key.GetName(storeObject)))
+                : false);
 }

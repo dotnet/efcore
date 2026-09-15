@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OperatorsQuerySqlServerTest(NonSharedFixture fixture) : OperatorsQueryTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -153,7 +151,8 @@ WHERE N'Foo' + JSON_VALUE([o].[Owned], '$.SomeProperty') = N'FooBar'
 """);
     }
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)), MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetimeoffset_constant(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -181,7 +180,8 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = '2000-01-01T18:00:00.0000000+00:00'
 """);
     }
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)), MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetimeoffset_parameter(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -215,7 +215,8 @@ WHERE [o].[Value] AT TIME ZONE @timeZone = @dateTime
 """);
     }
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)), MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetimeoffset_column(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -247,7 +248,8 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
 """);
     }
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)), MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_is_null(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
@@ -259,7 +261,7 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
 
         var actual = (from e in context.Set<OperatorEntityNullableDateTimeOffset>()
 #pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                      where EF.Functions.AtTimeZone(e.Value.Value, "UTC") == null
+                    where EF.Functions.AtTimeZone(e.Value!.Value, "UTC") == null
 #pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
                       select e.Id).ToList();
 

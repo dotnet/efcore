@@ -36,9 +36,9 @@ public class DbSetInitializerTest
 
             return
             [
-                new DbSetProperty("One", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("One"))),
-                new DbSetProperty("Two", typeof(object), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Two"))),
-                new DbSetProperty("Three", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Three"))),
+                new DbSetProperty("One", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("One")!)),
+                new DbSetProperty("Two", typeof(object), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Two")!)),
+                new DbSetProperty("Three", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Three")!)),
                 new DbSetProperty("Four", typeof(string), null)
             ];
         }
@@ -47,16 +47,16 @@ public class DbSetInitializerTest
     private class JustAContext(DbContextOptions options) : DbContext(options)
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<string> One { get; set; }
+        public DbSet<string> One { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        private DbSet<object> Two { get; set; }
+        private DbSet<object> Two { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<string> Three { get; private set; }
+        public DbSet<string> Three { get; private set; } = null!;
 
         public DbSet<string> Four
-            => null;
+            => null!;
 
         public DbSet<object> GetTwo()
             => Two;

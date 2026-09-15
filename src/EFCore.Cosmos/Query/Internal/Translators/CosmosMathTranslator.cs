@@ -36,25 +36,41 @@ public class CosmosMathTranslator(ISqlExpressionFactory sqlExpressionFactory) : 
         var sqlFunctionName = method.Name switch
         {
             nameof(Math.Abs) when arguments is [var arg]
-                && arg.Type is { } t && (t == typeof(decimal) || t == typeof(double) || t == typeof(float)
-                    || t == typeof(int) || t == typeof(long) || t == typeof(sbyte) || t == typeof(short))
+                && arg.Type is { } t
+                && (t == typeof(decimal)
+                    || t == typeof(double)
+                    || t == typeof(float)
+                    || t == typeof(int)
+                    || t == typeof(long)
+                    || t == typeof(sbyte)
+                    || t == typeof(short))
                 => "ABS",
 
             nameof(Math.Ceiling) when arguments is [var arg]
-                && arg.Type is { } t && (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
+                && arg.Type is { } t
+                && (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
                 => "CEILING",
             nameof(Math.Floor) when arguments is [var arg]
-                && arg.Type is { } t && (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
+                && arg.Type is { } t
+                && (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
                 => "FLOOR",
             nameof(Math.Round) when arguments is [var arg]
-                && arg.Type is { } t && (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
+                && arg.Type is { } t
+                && (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
                 => "ROUND",
             nameof(Math.Truncate) when arguments is [var arg]
-                && arg.Type is { } t && (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
+                && arg.Type is { } t
+                && (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
                 => "TRUNC",
             nameof(Math.Sign) when arguments is [var arg]
-                && arg.Type is { } t && (t == typeof(decimal) || t == typeof(double) || t == typeof(float)
-                    || t == typeof(int) || t == typeof(long) || t == typeof(sbyte) || t == typeof(short))
+                && arg.Type is { } t
+                && (t == typeof(decimal)
+                    || t == typeof(double)
+                    || t == typeof(float)
+                    || t == typeof(int)
+                    || t == typeof(long)
+                    || t == typeof(sbyte)
+                    || t == typeof(short))
                 => "SIGN",
 
             nameof(Math.Pow) when arguments is [_, _]

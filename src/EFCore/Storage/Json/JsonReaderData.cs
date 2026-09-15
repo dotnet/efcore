@@ -92,7 +92,8 @@ public class JsonReaderData
                 }
 
                 leftover.CopyTo(buffer);
-                _bytesAvailable = _stream.ReadAtLeast(buffer.AsSpan(leftover.Length), buffer.Length - leftover.Length, throwOnEndOfStream: false)
+                _bytesAvailable = _stream.ReadAtLeast(
+                        buffer.AsSpan(leftover.Length), buffer.Length - leftover.Length, throwOnEndOfStream: false)
                     + leftover.Length;
             }
             else

@@ -123,6 +123,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 continue;
             }
 
+            if (modificationCommand.EntityState == EntityState.Added
+                && modificationCommand is ModificationCommand { IsOptionalSplitFragment: true }
+                && modificationCommand.ColumnModifications.Where(m => !m.IsKey).All(m => m.Value is null))
+            {
+                continue;
+            }
+
+            if (modificationCommand.EntityState == EntityState.Deleted
+                && modificationCommand is ModificationCommand { IsOptionalSplitFragmentRowAssumedAbsent: true })
+            {
+                continue;
+            }
+
             if (!batch.TryAddCommand(modificationCommand))
             {
                 if (batch.ModificationCommands.Count == 1
@@ -288,7 +301,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             {
                 Check.DebugAssert(sprocMapping is null, "Shared table with sproc mapping");
 
-                sharedTablesCommandsMap ??= new Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>();
+                sharedTablesCommandsMap ??= [];
 
                 var tableKey = (table.Name, table.Schema);
                 if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
@@ -627,8 +640,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         var rowForeignKeyValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
         var dependentCommand = reverseDependency ? target : source;
-        var indexValue = rowForeignKeyValueFactory.CreateIndexValue(dependentCommand, fromOriginalValues: !reverseDependency);
-        FormatValues(indexValue.Value, index.Columns, dependentCommand, builder);
+        var (Value, HasNullValue) = rowForeignKeyValueFactory.CreateIndexValue(dependentCommand, fromOriginalValues: !reverseDependency);
+        FormatValues(Value, index.Columns, dependentCommand, builder);
 
         builder.Append(" } ");
 
@@ -1183,7 +1196,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                     if (value != null)
                     {
-                        indexPredecessorsMap ??= new Dictionary<object, List<IReadOnlyModificationCommand>>();
+                        indexPredecessorsMap ??= [];
                         if (!indexPredecessorsMap.TryGetValue(value, out var predecessorCommands))
                         {
                             predecessorCommands = [];
@@ -1272,6 +1285,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             continue;
                         }
                     }
+
                     if (value != null)
                     {
                         AddMatchingPredecessorEdge(

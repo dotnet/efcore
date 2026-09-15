@@ -29,10 +29,10 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
         private readonly bool _tracking;
         private ParameterExpression? _valueBufferParameter;
 
-        private readonly Dictionary<Expression, ParameterExpression> _mapping = new();
+        private readonly Dictionary<Expression, ParameterExpression> _mapping = [];
         private readonly List<ParameterExpression> _variables = [];
         private readonly List<Expression> _expressions = [];
-        private readonly Dictionary<ParameterExpression, Dictionary<IProperty, int>> _materializationContextBindings = new();
+        private readonly Dictionary<ParameterExpression, Dictionary<IProperty, int>> _materializationContextBindings = [];
 
         public ShaperExpressionProcessingExpressionVisitor(
             InMemoryShapedQueryCompilingExpressionVisitor inMemoryShapedQueryCompilingExpressionVisitor,
@@ -220,13 +220,10 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
             }
 
-            if (binaryExpression is
-                { NodeType: ExpressionType.Assign, Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression })
-            {
-                return memberExpression.Assign(Visit(binaryExpression.Right));
-            }
-
-            return base.VisitBinary(binaryExpression);
+            return binaryExpression is
+            { NodeType: ExpressionType.Assign, Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression }
+                ? memberExpression.Assign(Visit(binaryExpression.Right))
+                : base.VisitBinary(binaryExpression);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

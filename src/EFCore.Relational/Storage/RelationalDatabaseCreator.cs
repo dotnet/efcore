@@ -238,8 +238,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         using var transactionScope = new TransactionScope(
             TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
-        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries().Any(
-                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries()
+            .Any(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
         {
             Dependencies.Logger.EnsureCreatedWithTrackedEntitiesWarning();
         }
@@ -302,8 +302,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
-        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries().Any(
-                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries()
+            .Any(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
         {
             Dependencies.Logger.EnsureCreatedWithTrackedEntitiesWarning();
         }

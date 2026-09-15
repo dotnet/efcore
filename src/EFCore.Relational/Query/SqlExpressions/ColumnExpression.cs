@@ -121,8 +121,8 @@ public class ColumnExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ColumnExpression columnExpression
-                && Equals(columnExpression));
+                || (obj is ColumnExpression columnExpression
+                    && Equals(columnExpression)));
 
     private bool Equals(ColumnExpression columnExpression)
         => base.Equals(columnExpression)

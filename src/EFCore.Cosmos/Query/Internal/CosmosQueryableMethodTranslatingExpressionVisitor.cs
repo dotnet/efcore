@@ -465,17 +465,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), topLevelTranslation } };
         subquery.ReplaceProjectionMapping(projectionMapping);
 
-        if (!TryApplyLimit(subquery, TranslateExpression(Expression.Constant(1))!))
-        {
-            return null;
-        }
-
-        return source
-            .UpdateShaperExpression(
-                Expression.Convert(
-                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
-                    typeof(bool)))
-            .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
+        return !TryApplyLimit(subquery, TranslateExpression(Expression.Constant(1))!)
+            ? null
+            : source
+                .UpdateShaperExpression(
+                    Expression.Convert(
+                        new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
+                        typeof(bool)))
+                .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
     }
 
     /// <summary>
@@ -517,10 +514,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         // Strip convert to object. Other converts should be fine as they will have a type mapping found but object won't
 
-        if (item is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression && unaryExpression.Type == typeof(object))
+        if (item is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+            && unaryExpression.Type == typeof(object))
         {
             item = unaryExpression.Operand;
         }
+
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (source.TryExtractArray(out var array, ignoreOrderings: true)
             && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
@@ -828,14 +827,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var select = (SelectExpression)source.QueryExpression;
         select.ReverseOrderings();
 
-        if (!TryApplyLimit(select, TranslateExpression(Expression.Constant(1))!))
-        {
-            return null;
-        }
-
-        return source.ShaperExpression.Type != returnType
-            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
-            : source;
+        return !TryApplyLimit(select, TranslateExpression(Expression.Constant(1))!)
+            ? null
+            : source.ShaperExpression.Type != returnType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
+                : source;
     }
 
     /// <summary>
@@ -960,7 +956,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         select.ReplaceProjectionMapping(
             new Dictionary<ProjectionMember, Expression>
             {
-                    { projectionMember, structuralTypeProjectionExpression.UpdateEntityType(derivedType) }
+                { projectionMember, structuralTypeProjectionExpression.UpdateEntityType(derivedType) }
             });
 
         return source.UpdateShaperExpression(shaper.WithType(derivedType));
@@ -1141,14 +1137,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var select = (SelectExpression)source.QueryExpression;
-        if (!TryApplyLimit(select, TranslateExpression(Expression.Constant(2))!))
-        {
-            return null;
-        }
-
-        return source.ShaperExpression.Type == returnType
-            ? source
-            : source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType));
+        return !TryApplyLimit(select, TranslateExpression(Expression.Constant(2))!)
+            ? null
+            : source.ShaperExpression.Type == returnType
+                ? source
+                : source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType));
     }
 
     /// <summary>
@@ -1431,7 +1424,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             switch (translatedExpression)
             {
                 case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }
-                                                                         or IComplexProperty { IsCollection: true }:
+                    or IComplexProperty { IsCollection: true }:
                 {
                     var innerProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
                     var targetStructuralType = shaper.StructuralType;
@@ -1753,7 +1746,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                         structuralType1));
                 return source1.Update(
                     select,
-                    new StructuralTypeShaperExpression(structuralType1, new ProjectionBindingExpression(select, new ProjectionMember(), typeof(ValueBuffer)), nullable: true));
+                    new StructuralTypeShaperExpression(
+                        structuralType1, new ProjectionBindingExpression(select, new ProjectionMember(), typeof(ValueBuffer)),
+                        nullable: true));
             }
         }
 

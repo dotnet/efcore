@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -101,7 +99,7 @@ public class KeyComplexPropertyConvention(ProviderConventionSetBuilderDependenci
         var typeBase = property.DeclaringType;
         while (typeBase is IConventionComplexType complexType)
         {
-            yield return (IConventionComplexProperty)complexType.ComplexProperty;
+            yield return complexType.ComplexProperty;
             typeBase = complexType.ComplexProperty.DeclaringType;
         }
     }

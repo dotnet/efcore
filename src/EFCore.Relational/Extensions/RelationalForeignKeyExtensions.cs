@@ -222,17 +222,12 @@ public static class RelationalForeignKeyExtensions
     {
         var entityType = foreignKey.DeclaringEntityType;
         var primaryKey = entityType.FindPrimaryKey();
-        if (primaryKey == null
-            || entityType.IsMappedToJson()
-            || !foreignKey.PrincipalKey.IsPrimaryKey()
-            || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-            || !foreignKey.Properties.SequenceEqual(primaryKey.Properties)
-            || !IsMapped(foreignKey, storeObject))
-        {
-            return false;
-        }
-
-        return true;
+        return primaryKey != null
+            && !entityType.IsMappedToJson()
+            && foreignKey.PrincipalKey.IsPrimaryKey()
+            && !foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
+            && foreignKey.Properties.SequenceEqual(primaryKey.Properties)
+            && IsMapped(foreignKey, storeObject);
 
         static bool IsMapped(IReadOnlyForeignKey foreignKey, StoreObjectIdentifier storeObject)
             => (StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObject.StoreObjectType) == storeObject

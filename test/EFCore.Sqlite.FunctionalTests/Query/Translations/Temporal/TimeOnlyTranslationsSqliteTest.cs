@@ -51,7 +51,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task Millisecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Millisecond());
+        await AssertTranslationFailed(base.Millisecond);
 
         AssertSql();
     }
@@ -59,7 +59,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task Microsecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Microsecond());
+        await AssertTranslationFailed(base.Microsecond);
 
         AssertSql();
     }
@@ -67,7 +67,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task Nanosecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Nanosecond());
+        await AssertTranslationFailed(base.Nanosecond);
 
         AssertSql();
     }
@@ -75,7 +75,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task AddHours()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.AddHours());
+        await AssertTranslationFailed(base.AddHours);
 
         AssertSql();
     }
@@ -83,7 +83,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task AddMinutes()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.AddMinutes());
+        await AssertTranslationFailed(base.AddMinutes);
 
         AssertSql();
     }
@@ -91,7 +91,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task Add_TimeSpan()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Add_TimeSpan());
+        await AssertTranslationFailed(base.Add_TimeSpan);
 
         AssertSql();
     }
@@ -99,7 +99,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task IsBetween()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.IsBetween());
+        await AssertTranslationFailed(base.IsBetween);
 
         AssertSql();
     }
@@ -107,7 +107,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task Subtract()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Subtract());
+        await AssertTranslationFailed(base.Subtract);
 
         AssertSql();
     }
@@ -115,7 +115,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task FromDateTime_compared_to_property()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_property());
+        await AssertTranslationFailed(base.FromDateTime_compared_to_property);
 
         AssertSql();
     }
@@ -123,7 +123,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task FromDateTime_compared_to_parameter()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_parameter());
+        await AssertTranslationFailed(base.FromDateTime_compared_to_parameter);
 
         AssertSql();
     }
@@ -131,7 +131,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task FromDateTime_compared_to_constant()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_constant());
+        await AssertTranslationFailed(base.FromDateTime_compared_to_constant);
 
         AssertSql();
     }
@@ -139,7 +139,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task FromTimeSpan_compared_to_property()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromTimeSpan_compared_to_property());
+        await AssertTranslationFailed(base.FromTimeSpan_compared_to_property);
 
         AssertSql();
     }
@@ -147,7 +147,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task FromTimeSpan_compared_to_parameter()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromTimeSpan_compared_to_parameter());
+        await AssertTranslationFailed(base.FromTimeSpan_compared_to_parameter);
 
         AssertSql();
     }
@@ -155,7 +155,7 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
     public override async Task Order_by_FromTimeSpan()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.Order_by_FromTimeSpan());
+        await AssertTranslationFailed(base.Order_by_FromTimeSpan);
 
         AssertSql();
     }

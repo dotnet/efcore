@@ -134,22 +134,16 @@ public class InheritanceData : ISetSource
             return (IQueryable<TEntity>)Plants.OfType<Flower>().AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(Daisy))
-        {
-            return (IQueryable<TEntity>)Plants.OfType<Daisy>().AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(Rose))
-        {
-            return (IQueryable<TEntity>)Plants.OfType<Rose>().AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(Daisy)
+            ? (IQueryable<TEntity>)Plants.OfType<Daisy>().AsQueryable()
+            : typeof(TEntity) == typeof(Rose)
+                ? (IQueryable<TEntity>)Plants.OfType<Rose>().AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     public static IReadOnlyList<Animal> CreateAnimals(bool useGeneratedKeys)
-        => new List<Animal>
-        {
+        =>
+        [
             new Kiwi
             {
                 Id = useGeneratedKeys ? 0 : 1,
@@ -165,17 +159,17 @@ public class InheritanceData : ISetSource
                 Name = "American golden eagle",
                 Group = EagleGroup.Booted
             },
-        };
+        ];
 
     public static IReadOnlyList<Country> CreateCountries()
-        => new List<Country>
-        {
+        =>
+        [
             new() { Id = 1, Name = "New Zealand" }, new() { Id = 2, Name = "USA" },
-        };
+        ];
 
     public static IReadOnlyList<Drink> CreateDrinks(bool useGeneratedKeys)
-        => new List<Drink>
-        {
+        =>
+        [
             new Tea
             {
                 Id = useGeneratedKeys ? 0 : 1,
@@ -186,11 +180,7 @@ public class InheritanceData : ISetSource
                 {
                     UniqueInt = 1,
                     Int = 8,
-                    Nested = new NestedComplexType
-                    {
-                        UniqueInt = 2,
-                        NestedInt = 50
-                    }
+                    Nested = new NestedComplexType { UniqueInt = 2, NestedInt = 50 }
                 },
                 ChildComplexType = new ComplexType
                 {
@@ -232,11 +222,11 @@ public class InheritanceData : ISetSource
                     new ComplexType { UniqueInt = 104, Int = 61 }
                 ]
             }
-        };
+        ];
 
     public static IReadOnlyList<Plant> CreatePlants()
-        => new List<Plant>
-        {
+        =>
+        [
             new Rose
             {
                 Genus = PlantGenus.Rose,
@@ -256,7 +246,7 @@ public class InheritanceData : ISetSource
                 Species = "Bellis annua",
                 Name = "Annual daisy"
             }
-        };
+        ];
 
     public static void WireUp(
         IReadOnlyList<Animal> animals,

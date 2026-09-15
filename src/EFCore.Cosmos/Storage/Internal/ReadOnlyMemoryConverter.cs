@@ -73,7 +73,8 @@ public class ReadOnlyMemoryConverter<T> : ValueConverter<ReadOnlyMemory<T>, T[]>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(ReadOnlyMemory<T>), typeof(T[]),
+        = new(
+            typeof(ReadOnlyMemory<T>), typeof(T[]),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new ReadOnlyMemoryConverter<T>(i.MappingHints),
             DefaultHints);
 }

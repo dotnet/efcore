@@ -397,8 +397,9 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    private static void AssertMapping<T>(TypeScaffoldingInfo mapping, bool inferred, int? maxLength, bool? unicode, bool? fixedLength)
+    private static void AssertMapping<T>(TypeScaffoldingInfo? mapping, bool inferred, int? maxLength, bool? unicode, bool? fixedLength)
     {
+        Assert.NotNull(mapping);
         Assert.Same(typeof(T), mapping.ClrType);
         Assert.Equal(inferred, mapping.IsInferred);
         Assert.Equal(maxLength, mapping.ScaffoldMaxLength);

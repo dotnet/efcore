@@ -55,12 +55,11 @@ public static class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
                 DependencyContext.Load(GetType().Assembly)!
                     .CompileLibraries
                     .SelectMany(c => c.ResolveReferencePaths())
-                    .Select(path => MetadataReference.CreateFromFile(path))
-                    .Cast<MetadataReference>());
+                    .Select(path => MetadataReference.CreateFromFile(path)));
 
             DisabledDiagnostics.AddRange(
                 "CS1701", // Assuming assembly reference '...' used by '...' matches identity '...' of '...', you may need to supply runtime policy
-                "CS1591"  // Missing XML comment for publicly visible type or member '...'
+                "CS1591" // Missing XML comment for publicly visible type or member '...'
             );
         }
 

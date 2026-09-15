@@ -126,7 +126,7 @@ FROM (
                         """
                     SELECT * FROM root c WHERE c["$type"] = "Customer"
                     """)
-                    .Where(c => c.ContactName.Contains("z"));
+                    .Where(c => c.ContactName!.Contains("z"));
 
                 var sql = query.ToQueryString();
 
@@ -155,7 +155,7 @@ WHERE CONTAINS(s["ContactName"], "z")
                 using var context = CreateContext();
                 var query = context.Set<Customer>().FromSqlRaw(
                         _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + @"* FROM root c WHERE c[""$type""] = ""Customer""")
-                    .Where(c => c.ContactName.Contains("z"));
+                    .Where(c => c.ContactName!.Contains("z"));
 
                 var actual = a
                     ? await query.ToArrayAsync()
@@ -194,7 +194,7 @@ WHERE CONTAINS(s["ContactName"], "z")
                             """
 SELECT * FROM root c WHERE c["$type"] = "Customer"
 """)
-                        .Where(c => c.ContactName.Contains("z")));
+                        .Where(c => c.ContactName!.Contains("z")));
 
                     using (var context = CreateContext())
                     {
@@ -207,7 +207,7 @@ SELECT * FROM root c WHERE c["$type"] = "Customer"
                 {
                     var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
                         .FromSqlRaw("""SELECT * FROM root c WHERE c["$type"] = "Customer" """)
-                        .Where(c => c.ContactName.Contains("z")));
+                        .Where(c => c.ContactName!.Contains("z")));
 
                     using (var context = CreateContext())
                     {
@@ -236,7 +236,7 @@ WHERE CONTAINS(s["ContactName"], "z")
                 {
                     var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
                             """SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["id"] = {0}""", "CONSH")
-                        .Where(c => c.ContactName.Contains("z")));
+                        .Where(c => c.ContactName!.Contains("z")));
 
                     using (var context = CreateContext())
                     {
@@ -249,7 +249,7 @@ WHERE CONTAINS(s["ContactName"], "z")
                 {
                     var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
                             """SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["id"] = {0}""", "CONSH")
-                        .Where(c => c.ContactName.Contains("z")));
+                        .Where(c => c.ContactName!.Contains("z")));
 
                     using (var context = CreateContext())
                     {

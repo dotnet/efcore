@@ -56,8 +56,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<QueryFiltersCacheKey, LambdaExpression> _parameterizedQueryFilterPredicateCache = [];
 
-    private readonly Dictionary<string, object?> _parameters = new();
-
+    private readonly Dictionary<string, object?> _parameters = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -286,9 +285,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             && memberExpression.Member.Name == nameof(ICollection<>.Count)
             && memberExpression.Expression.Type.GetInterfaces().Append(memberExpression.Expression.Type)
                 .Any(e => e.IsGenericType
-                    && (e.GetGenericTypeDefinition() is var genericTypeDefinition
-                        && (genericTypeDefinition == typeof(ICollection<>)
-                            || genericTypeDefinition == typeof(IReadOnlyCollection<>)))))
+                    && e.GetGenericTypeDefinition() is var genericTypeDefinition
+                    && (genericTypeDefinition == typeof(ICollection<>)
+                        || genericTypeDefinition == typeof(IReadOnlyCollection<>))))
         {
             var innerQueryable = UnwrapCollectionMaterialization(innerExpression);
 
@@ -1366,7 +1365,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         MethodInfo joinMethod)
     {
         Check.DebugAssert(
-            joinMethod == QueryableMethods.Join || joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.RightJoin
+            joinMethod == QueryableMethods.Join
+            || joinMethod == QueryableMethods.LeftJoin
+            || joinMethod == QueryableMethods.RightJoin
             || joinMethod == QueryableMethods.FullJoin,
             "Join method required");
 
@@ -1689,6 +1690,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         selectorBody = Visit(selectorBody);
         selectorBody =
             new PendingSelectorExpandingExpressionVisitor(this, _extensibilityHelper, applyIncludes: true).Visit(selectorBody);
+
+        // Snapshot the structure of the selector result before reducing, so that entity references
+        // survive and navigations accessed on the elements afterwards can still be expanded
+        // (e.g. GroupBy(k).Select(g => g.First()).OrderBy(e => e.Navigation.Member)).
+        var newStructure = SnapshotSelectorStructure(selectorBody);
+
         selectorBody = Reduce(selectorBody);
         selector = Expression.Lambda(selectorBody, groupBySource.CurrentParameter);
 
@@ -1697,11 +1704,19 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             groupBySource.Source,
             Expression.Quote(selector));
 
-        var navigationTree = new NavigationTreeExpression(Expression.Default(selector.ReturnType));
+        var navigationTree = new NavigationTreeExpression(newStructure);
         var parameterName = GetParameterName("e");
 
         return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, parameterName);
     }
+
+    private static Expression SnapshotSelectorStructure(Expression expression)
+        => expression is NavigationExpansionExpression { CardinalityReducingGenericMethodInfo: not null } navigationExpansion
+            // A cardinality-reduced subquery yields its pending selector's shape as the element
+            // (e.g. the group element entity for g.OrderBy(...).First()), so entity references
+            // survive and navigations can still be expanded on the result.
+            ? SnapshotExpression(navigationExpansion.PendingSelector)
+            : SnapshotExpression(expression);
 
     /// <summary>
     ///     Rewrites GroupBy(k).Select(g => ...aggregates...) so reference navigations used in aggregate
@@ -1722,18 +1737,24 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
 
         // Flat-aggregate queries keep the existing translation unchanged.
-        var traversesNavigation = false;
+        var navigationAccessDetector = new ReferenceNavigationAccessDetector(
+            entityType => GetApplicableQueryFilters(entityType.GetRootType()).Count > 0);
         foreach (var aggregate in scanner.Aggregates)
         {
-            if (aggregate.Selector != null
-                && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, aggregate.Selector)))
+            if (aggregate.Selector == null)
             {
-                traversesNavigation = true;
-                break;
+                continue;
+            }
+
+            navigationAccessDetector.Visit(RemapLambdaExpression(parent, aggregate.Selector));
+            if (navigationAccessDetector.FoundFilteredRequiredNavigation)
+            {
+                // The required navigation's inner join would allow its query filter to remove grouping elements.
+                return null;
             }
         }
 
-        if (!traversesNavigation)
+        if (!navigationAccessDetector.Found)
         {
             return null;
         }
@@ -1788,16 +1809,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     ///     Detects member chains rooted at an entity navigation tree node whose first member is a
     ///     non-collection navigation — accesses that would otherwise translate as a correlated subquery.
     /// </summary>
-    private static bool ContainsReferenceNavigationAccess(Expression body)
-    {
-        var detector = new ReferenceNavigationAccessDetector();
-        detector.Visit(body);
-        return detector.Found;
-    }
-
-    private sealed class ReferenceNavigationAccessDetector : ExpressionVisitor
+    private sealed class ReferenceNavigationAccessDetector(Func<IEntityType, bool> hasApplicableQueryFilter) : ExpressionVisitor
     {
         public bool Found { get; private set; }
+        public bool FoundFilteredRequiredNavigation { get; private set; }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -1810,11 +1825,36 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             if (current is NavigationTreeExpression { Value: EntityReference entityReference }
-                && chain.Count > 1
-                && entityReference.EntityType.FindNavigation(chain[0].Name) is INavigation { IsCollection: false })
+                && chain.Count > 1)
             {
-                Found = true;
-                return memberExpression;
+                var entityType = entityReference.EntityType;
+                var requiredPath = !entityReference.IsOptional;
+
+                foreach (var member in chain)
+                {
+                    if (entityType.FindNavigation(member) is not { IsCollection: false } navigation)
+                    {
+                        break;
+                    }
+
+                    Found = true;
+                    requiredPath = requiredPath
+                        && navigation.IsOnDependent
+                        && navigation.ForeignKey.IsEffectivelyRequired();
+                    entityType = navigation.TargetEntityType;
+
+                    if (requiredPath
+                        && hasApplicableQueryFilter(entityType))
+                    {
+                        FoundFilteredRequiredNavigation = true;
+                        break;
+                    }
+                }
+
+                if (Found)
+                {
+                    return memberExpression;
+                }
             }
 
             return base.VisitMember(memberExpression);
@@ -1856,7 +1896,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             [nameof(Enumerable.Sum), nameof(Enumerable.Min), nameof(Enumerable.Max), nameof(Enumerable.Average)];
 
         private static readonly string[] PredicateAggregateMethodNames =
-            [nameof(Enumerable.Count), nameof(Enumerable.LongCount)];
+            [nameof(Enumerable.Any), nameof(Enumerable.All), nameof(Enumerable.Count), nameof(Enumerable.LongCount)];
 
         public List<GroupingAggregateCall> Aggregates { get; } = [];
         public bool HasUnsupportedUsage { get; private set; }

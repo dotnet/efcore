@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class RelationalJsonIndexTest
@@ -13,8 +11,7 @@ public class RelationalJsonIndexTest
         var elements = new IRelationalJsonElement[] { null!, null! };
         var collectionIndices = new IReadOnlyList<int?>?[] { [null] }; // 1 entry, but 2 elements
 
-        var exception = Assert.Throws<ArgumentException>(
-            () => new RelationalJsonIndex(elements, collectionIndices));
+        var exception = Assert.Throws<ArgumentException>(() => new RelationalJsonIndex(elements, collectionIndices));
 
         Assert.Equal(
             RelationalStrings.JsonPathIndexElementsCollectionIndicesMismatch(2, 1)

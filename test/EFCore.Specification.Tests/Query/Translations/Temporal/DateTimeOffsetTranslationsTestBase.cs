@@ -66,20 +66,17 @@ public abstract class DateTimeOffsetTranslationsTestBase<TFixture>(TFixture fixt
 
     [Fact]
     public virtual Task DateTime()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.DateTime == new DateTime(1998, 5, 4, 15, 30, 10)));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.DateTime == new DateTime(1998, 5, 4, 15, 30, 10)));
 
     [Fact]
     public virtual Task UtcDateTime()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.UtcDateTime == new DateTime(1998, 5, 4, 15, 30, 10)));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.UtcDateTime == new DateTime(1998, 5, 4, 15, 30, 10)));
 
     [Fact]
     public virtual Task LocalDateTime()
         // Note: DateTimeOffset.LocalDateTime depends on the machine's local time zone, and the client and server may be in different
         // time zones. Use a comparison far from any timezone boundary so the same rows match regardless of timezone.
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.LocalDateTime > new DateTime(1999, 1, 1)));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.LocalDateTime > new DateTime(1999, 1, 1)));
 
     [Fact]
     public virtual Task AddYears()
@@ -129,9 +126,9 @@ public abstract class DateTimeOffsetTranslationsTestBase<TFixture>(TFixture fixt
 
     [Fact]
     public virtual Task ToOffset()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>()
-                .Where(b => b.DateTimeOffset.ToOffset(new TimeSpan(2, 0, 0)) == new DateTimeOffset(1998, 5, 4, 17, 30, 10, new TimeSpan(2, 0, 0))));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>()
+            .Where(b => b.DateTimeOffset.ToOffset(new TimeSpan(2, 0, 0))
+                == new DateTimeOffset(1998, 5, 4, 17, 30, 10, new TimeSpan(2, 0, 0))));
 
     // new DateTimeOffset(DateTime) with Unspecified kind: databases don't have DateTimeKind, so this is always treated
     // as UTC (+00:00). The expected query explicitly uses TimeSpan.Zero to match.
@@ -145,10 +142,10 @@ public abstract class DateTimeOffsetTranslationsTestBase<TFixture>(TFixture fixt
 
     [Fact]
     public virtual Task Ctor_DateTime_TimeSpan()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>()
-                .Where(b => b.DateTime.Year > 1)
-                .Where(b => new DateTimeOffset(b.DateTime, new TimeSpan(2, 0, 0)) == new DateTimeOffset(1998, 5, 4, 15, 30, 10, new TimeSpan(2, 0, 0))));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>()
+            .Where(b => b.DateTime.Year > 1)
+            .Where(b => new DateTimeOffset(b.DateTime, new TimeSpan(2, 0, 0))
+                == new DateTimeOffset(1998, 5, 4, 15, 30, 10, new TimeSpan(2, 0, 0))));
 
     [Fact]
     public virtual Task Milliseconds_parameter_and_constant()

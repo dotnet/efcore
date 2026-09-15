@@ -113,10 +113,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
                 }
             }
 
-            if (arguments is not null)
-            {
-                arguments[i] = visitedArgument;
-            }
+            arguments?[i] = visitedArgument;
         }
 
         OrderingExpression[]? orderings = null;
@@ -134,10 +131,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
                 }
             }
 
-            if (orderings is not null)
-            {
-                orderings[i] = visitedOrdering;
-            }
+            orderings?[i] = visitedOrdering;
         }
 
         return arguments is not null || orderings is not null

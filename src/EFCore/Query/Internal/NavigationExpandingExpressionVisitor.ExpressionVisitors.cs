@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -34,17 +33,11 @@ public partial class NavigationExpandingExpressionVisitor
         protected IModel Model { get; } = navigationExpandingExpressionVisitor._queryCompilationContext.Model;
 
         protected override Expression VisitExtension(Expression expression)
-        {
-            switch (expression)
+            => expression switch
             {
-                case NavigationExpansionExpression:
-                case NavigationTreeExpression:
-                    return expression;
-
-                default:
-                    return base.VisitExtension(expression);
-            }
-        }
+                NavigationExpansionExpression or NavigationTreeExpression => expression,
+                _ => base.VisitExtension(expression),
+            };
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -145,12 +138,7 @@ public partial class NavigationExpandingExpressionVisitor
                 : memberIdentity.Name is not null
                     ? structuralType.FindProperty(memberIdentity.Name)
                     : null;
-            if (property?.IsPrimitiveCollection == true)
-            {
-                return new PrimitiveCollectionReference(root, property);
-            }
-
-            return null;
+            return property?.IsPrimitiveCollection == true ? new PrimitiveCollectionReference(root, property) : (Expression?)null;
         }
 
         protected Expression ExpandNavigation(
@@ -544,7 +532,7 @@ public partial class NavigationExpandingExpressionVisitor
 
             return base.VisitBinary(binaryExpression);
 
-            bool IsEntityReference(Expression expression)
+            static bool IsEntityReference(Expression expression)
                 => TryGetEntityType(expression) != null;
         }
 
@@ -610,18 +598,12 @@ public partial class NavigationExpandingExpressionVisitor
                             var argument = newExpression.Arguments[i];
                             var newRoot = Expression.MakeMemberAccess(navigationTreeExpression, newExpression.Members[i]);
 
-                            if (argument is EntityReference entityReference)
-                            {
-                                return ExpandInclude(newRoot, entityReference);
-                            }
-
-                            if (argument is NewExpression innerNewExpression
-                                && ReconstructAnonymousType(newRoot, innerNewExpression, out var replacement))
-                            {
-                                return replacement;
-                            }
-
-                            return newRoot;
+                            return argument is EntityReference entityReference
+                                ? ExpandInclude(newRoot, entityReference)
+                                : argument is NewExpression innerNewExpression
+                                && ReconstructAnonymousType(newRoot, innerNewExpression, out var replacement)
+                                    ? replacement
+                                    : newRoot;
                         }
                     }
                 }
@@ -1035,7 +1017,8 @@ public partial class NavigationExpandingExpressionVisitor
 
                     if (navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null)
                     {
-                        var arguments = new List<Expression>(navigationExpansionExpression.CardinalityReducingMethodArguments.Count + 1) { result };
+                        var arguments =
+                            new List<Expression>(navigationExpansionExpression.CardinalityReducingMethodArguments.Count + 1) { result };
                         arguments.AddRange(navigationExpansionExpression.CardinalityReducingMethodArguments.Select(x => Visit(x)));
 
                         result = Expression.Call(
@@ -1126,6 +1109,7 @@ public partial class NavigationExpandingExpressionVisitor
                     }
                 }
             }
+
             return node.Update(innerExpression);
         }
 
@@ -1143,19 +1127,16 @@ public partial class NavigationExpandingExpressionVisitor
                     conditionalTest = leftCond.Test;
                 }
                 else if (right is ConditionalExpression { IfTrue: ConstantExpression { Value: null }, IfFalse: NewExpression } rightCond
-                    && left is ConstantExpression { Value: null })
+                         && left is ConstantExpression { Value: null })
                 {
                     conditionalTest = rightCond.Test;
                 }
 
-                if (conditionalTest != null)
-                {
-                    return node.NodeType == ExpressionType.Equal
+                return conditionalTest != null
+                    ? node.NodeType == ExpressionType.Equal
                         ? conditionalTest
-                        : Expression.Not(conditionalTest);
-                }
-
-                return node.Update(left, node.Conversion, right);
+                        : Expression.Not(conditionalTest)
+                    : node.Update(left, node.Conversion, right);
             }
 
             return base.VisitBinary(node);
@@ -1200,7 +1181,7 @@ public partial class NavigationExpandingExpressionVisitor
 
     private sealed class CloningExpressionVisitor : ExpressionVisitor
     {
-        private readonly Dictionary<NavigationTreeNode, NavigationTreeNode> _clonedMap = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<NavigationTreeNode, NavigationTreeNode> _clonedMap = [with(ReferenceEqualityComparer.Instance)];
 
         public NavigationTreeNode Clone(NavigationTreeNode navigationTreeNode)
         {
@@ -1338,24 +1319,18 @@ public partial class NavigationExpandingExpressionVisitor
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             var method = methodCallExpression.Method;
-            if (method.Name == nameof(object.Equals)
+            return method.Name == nameof(object.Equals)
                 && methodCallExpression is { Object: not null, Arguments.Count: 1 }
                 && TryRemoveNavigationComparison(
-                    ExpressionType.Equal, methodCallExpression.Object, methodCallExpression.Arguments[0], out var result))
-            {
-                return result;
-            }
-
-            if (method.Name == nameof(object.Equals)
-                && methodCallExpression.Object == null
-                && methodCallExpression.Arguments.Count == 2
-                && TryRemoveNavigationComparison(
-                    ExpressionType.Equal, methodCallExpression.Arguments[0], methodCallExpression.Arguments[1], out result))
-            {
-                return result;
-            }
-
-            return base.VisitMethodCall(methodCallExpression);
+                    ExpressionType.Equal, methodCallExpression.Object, methodCallExpression.Arguments[0], out var result)
+                    ? result
+                    : method.Name == nameof(object.Equals)
+                    && methodCallExpression.Object == null
+                    && methodCallExpression.Arguments.Count == 2
+                    && TryRemoveNavigationComparison(
+                        ExpressionType.Equal, methodCallExpression.Arguments[0], methodCallExpression.Arguments[1], out result)
+                        ? result
+                        : base.VisitMethodCall(methodCallExpression);
         }
 
         private bool TryRemoveNavigationComparison(

@@ -61,8 +61,10 @@ public class LazyLoaderFactory : ILazyLoaderFactory
     {
         foreach (var weakReference in _loaders)
         {
-            if(weakReference.TryGetTarget(out var loader)) 
+            if (weakReference.TryGetTarget(out var loader))
+            {
                 loader.Dispose();
+            }
         }
 
         _loaders.Clear();

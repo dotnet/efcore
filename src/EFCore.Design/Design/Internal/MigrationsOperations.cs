@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
@@ -158,7 +157,7 @@ public class MigrationsOperations
             var anyContext = false;
             var contextsList = new List<MigrationInfo>();
 
-            foreach(var contextItem in _contextOperations.CreateAllContexts())
+            foreach (var contextItem in _contextOperations.CreateAllContexts())
             {
                 anyContext = true;
                 using (contextItem)
@@ -174,9 +173,9 @@ public class MigrationsOperations
         }
 
         using var context = _contextOperations.CreateContext(contextType);
-         {
+        {
             return GetMigrationsContext(context, connectionString, noConnect);
-         }
+        }
     }
 
     private IEnumerable<MigrationInfo> GetMigrationsContext(DbContext context, string? connectionString, bool noConnect)
@@ -234,7 +233,7 @@ public class MigrationsOperations
             var anyContext = false;
             var stringBuilder = new StringBuilder();
 
-            foreach(var contextItem in _contextOperations.CreateAllContexts())
+            foreach (var contextItem in _contextOperations.CreateAllContexts())
             {
                 anyContext = true;
                 using (contextItem)
@@ -243,21 +242,20 @@ public class MigrationsOperations
                 }
             }
 
-            if (!anyContext)
-             {
-                 throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
-             }
-
-             return stringBuilder.ToString();
+            return !anyContext ? throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name)) : stringBuilder.ToString();
         }
 
         using var context = _contextOperations.CreateContext(contextType);
-         {
+        {
             return ScriptMigrationContext(fromMigration, toMigration, options, context);
-         }
+        }
     }
 
-    private string ScriptMigrationContext(string? fromMigration, string? toMigration, MigrationsSqlGenerationOptions options, DbContext context)
+    private string ScriptMigrationContext(
+        string? fromMigration,
+        string? toMigration,
+        MigrationsSqlGenerationOptions options,
+        DbContext context)
     {
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
@@ -408,7 +406,7 @@ public class MigrationsOperations
         if (!migrator.HasPendingModelChanges())
         {
             _reporter.WriteInformation(DesignStrings.NoPendingModelChanges);
-            migrator.Migrate(null);
+            migrator.Migrate();
             _reporter.WriteInformation(DesignStrings.Done);
             // Return empty MigrationFiles to indicate no migration was created.
             // When serialized to JSON (with --json), all file path properties will be null.

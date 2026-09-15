@@ -336,25 +336,22 @@ public class SqlServerTypeMappingSource(
                         size = isFixedLength ? maxSize : null;
                     }
 
-                    if (size == null
+                    return size == null
                         && storeTypeName == null
-                        && !mappingInfo.IsKeyOrIndex)
-                    {
-                        return isAnsi
-                            ? isFixedLength
-                                ? FixedLengthAnsiString
-                                : VariableLengthMaxAnsiString
-                            : isFixedLength
-                                ? FixedLengthUnicodeString
-                                : VariableLengthMaxUnicodeString;
-                    }
-
-                    return new SqlServerStringTypeMapping(
-                        unicode: !isAnsi,
-                        size: size,
-                        fixedLength: isFixedLength,
-                        storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
-                        useKeyComparison: mappingInfo.IsKey);
+                        && !mappingInfo.IsKeyOrIndex
+                            ? isAnsi
+                                ? isFixedLength
+                                    ? FixedLengthAnsiString
+                                    : VariableLengthMaxAnsiString
+                                : isFixedLength
+                                    ? FixedLengthUnicodeString
+                                    : VariableLengthMaxUnicodeString
+                            : new SqlServerStringTypeMapping(
+                                unicode: !isAnsi,
+                                size: size,
+                                fixedLength: isFixedLength,
+                                storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
+                                useKeyComparison: mappingInfo.IsKey);
                 }
 
                 case { } t when t == typeof(byte[]) && mappingInfo.ElementTypeMapping is null:
@@ -411,19 +408,16 @@ public class SqlServerTypeMappingSource(
                 .WithConverter(new ValueConverterInfo(modelType, typeof(string), _ => null!));
 
             var mapping = FindMapping(jsonTypeMappingInfo);
-            if (mapping is null)
-            {
-                return null;
-            }
-
-            return (RelationalTypeMapping)mapping.WithComposedConverter(
-                (ValueConverter)Activator.CreateInstance(
-                    typeof(CollectionToJsonStringConverter<>).MakeGenericType(
-                        modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
-                comparer,
-                comparer,
-                elementMapping,
-                collectionReaderWriter);
+            return mapping is null
+                ? null
+                : (RelationalTypeMapping)mapping.WithComposedConverter(
+                    (ValueConverter)Activator.CreateInstance(
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                            modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+                    comparer,
+                    comparer,
+                    elementMapping,
+                    collectionReaderWriter);
         }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.

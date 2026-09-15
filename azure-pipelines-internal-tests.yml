@@ -1,3 +1,8 @@
+parameters:
+  - name: jobs
+    type: string
+    default: '[]'
+
 variables:
   - name: _BuildConfig
     value: Release
@@ -103,11 +108,12 @@ extends:
           enablePublishBuildAssets: false
           enablePublishTestResults: true
           publishAssetsImmediately: true
-          isAssetlessBuild: true
+          isAssetlessBuild: ${{ eq(parameters.jobs, '[]') }}
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
           - job: Windows
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Windows"')) }}
             pool:
               name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-windows-2022
@@ -160,6 +166,7 @@ extends:
 
           - job: Windows_SqlServer
             displayName: 'Windows SQL Server'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Windows_SqlServer"')) }}
             pool:
               name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-windows-2022
@@ -195,6 +202,7 @@ extends:
                 continueOnError: true
 
           - job: macOS
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"macOS"')) }}
             pool:
               name: Azure Pipelines
               image: macOS-15
@@ -230,6 +238,7 @@ extends:
                 condition: always()
                 continueOnError: true
           - job: Linux
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Linux"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -267,70 +276,9 @@ extends:
                 binskim:
                   preReleaseVersion: ''
 
-          - job: Linux_Cosmos
-            displayName: 'Linux Cosmos'
-            condition: notin(variables['Build.Reason'], 'PullRequest', 'Schedule')
-            timeoutInMinutes: 300
-            pool:
-              name: $(DncEngInternalBuildPool)
-              demands: ImageOverride -equals 1es-ubuntu-2204
-              os: linux
-            variables:
-              - _runCounter: $[counter(variables['Build.Reason'], 0)]
-              - skipComponentGovernanceDetection: true
-              - _CosmosConnectionUrl: 'true'
-            steps:
-              - bash: |
-                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
-                displayName: Prepare to run Cosmos tests on ef-nightly-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
-              - bash: |
-                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
-                displayName: Prepare to run Cosmos tests on ef-pr-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
-              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
-              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                displayName: Build
-              - task: AzureCLI@2
-                displayName: Run Cosmos tests
-                inputs:
-                  azureSubscription: EFCosmosTesting
-                  addSpnToEnvironment: true
-                  scriptType: bash
-                  scriptLocation: 'inlineScript'
-                  inlineScript: |
-                      ./test.sh --ci --configuration $(_BuildConfig) --projects $(Build.SourcesDirectory)/test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj /p:CollectCoverage=true
-                env:
-                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                  Test__Cosmos__UseTokenCredential: true
-                  Test__Cosmos__SubscriptionId: d709b837-4a74-4aec-addc-b6e4b9b23e7e
-                  Test__Cosmos__ResourceGroup: efcosmosci
-                name: Build
-              - bash: |
-                  shopt -s nullglob
-                  files=(artifacts/coverage/*.cobertura.xml)
-                  if [ ${#files[@]} -gt 0 ]; then
-                    export PATH="$PATH:$HOME/.dotnet/tools"
-                    dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
-                    dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
-                  fi
-                displayName: Merge coverage reports
-                condition: always()
-                continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
-                inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
-                condition: always()
-                continueOnError: true
-            templateContext:
-              sdl:
-                binskim:
-                  preReleaseVersion: ''
-
           - job: Helix_Windows
             displayName: 'Helix Windows'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -373,6 +321,7 @@ extends:
 
           - job: Helix_Windows_SqlServer
             displayName: 'Helix Windows SQL Server'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_SqlServer"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -415,6 +364,7 @@ extends:
 
           - job: Helix_Windows_Arm64
             displayName: 'Helix Windows ARM64'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_Arm64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -457,6 +407,7 @@ extends:
 
           - job: Helix_Windows_Cosmos
             displayName: 'Helix Windows Cosmos'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_Cosmos"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -499,6 +450,7 @@ extends:
 
           - job: Helix_macOS_x64
             displayName: 'Helix macOS x64'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_macOS_x64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -541,6 +493,7 @@ extends:
 
           - job: Helix_macOS_ARM64
             displayName: 'Helix macOS ARM64'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_macOS_ARM64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -583,6 +536,7 @@ extends:
 
           - job: Helix_Ubuntu_SqlServer
             displayName: 'Helix Ubuntu SQL Server'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu_SqlServer"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -626,6 +580,7 @@ extends:
 
           - job: Helix_Ubuntu_Cosmos
             displayName: 'Helix Ubuntu Cosmos'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu_Cosmos"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -668,6 +623,7 @@ extends:
 
           - job: Helix_Ubuntu
             displayName: 'Helix Ubuntu'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -710,10 +666,11 @@ extends:
     - stage: validate
       displayName: Validate
       dependsOn: build
-      condition: always()
+      condition: and(always(), eq('${{ parameters.jobs }}', '[]'))
       jobs:
       - job: Validate_Job_Results
         displayName: Job Results
+        timeoutInMinutes: 200
         pool:
           name: $(DncEngInternalBuildPool)
           demands: ImageOverride -equals 1es-windows-2022
@@ -731,50 +688,26 @@ extends:
           HelixMacOsX64Result: $[ stageDependencies.build.Helix_macOS_x64.result ]
           HelixMacOsArm64Result: $[ stageDependencies.build.Helix_macOS_ARM64.result ]
           HelixWindowsArm64Result: $[ stageDependencies.build.Helix_Windows_Arm64.result ]
-          LinuxCosmosResult: $[ stageDependencies.build.Linux_Cosmos.result ]
           HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
         steps:
           - pwsh: |
-              $groupResults = @{
-                  Windows = @("$(WindowsResult)", "$(HelixWindowsResult)")
-                  Linux = @("$(LinuxResult)", "$(HelixUbuntuResult)")
-                  MacOS = @("$(MacOsResult)", "$(HelixMacOsX64Result)")
-                  Arm64 = @("$(HelixWindowsArm64Result)", "$(HelixMacOsArm64Result)")
-                  Cosmos = @("$(HelixWindowsCosmosResult)", "$(LinuxCosmosResult)", "$(HelixUbuntuCosmosResult)")
-                  SqlServer = @("$(WindowsSqlServerResult)", "$(HelixWindowsSqlServerResult)", "$(HelixUbuntuSqlServerResult)")
+              $jobResults = @{
+                Windows = "$(WindowsResult)"
+                Helix_Windows = "$(HelixWindowsResult)"
+                Windows_SqlServer = "$(WindowsSqlServerResult)"
+                Helix_Windows_SqlServer = "$(HelixWindowsSqlServerResult)"
+                Helix_Windows_Cosmos = "$(HelixWindowsCosmosResult)"
+                Linux = "$(LinuxResult)"
+                Helix_Ubuntu = "$(HelixUbuntuResult)"
+                Helix_Ubuntu_SqlServer = "$(HelixUbuntuSqlServerResult)"
+                macOS = "$(MacOsResult)"
+                Helix_macOS_x64 = "$(HelixMacOsX64Result)"
+                Helix_macOS_ARM64 = "$(HelixMacOsArm64Result)"
+                Helix_Windows_Arm64 = "$(HelixWindowsArm64Result)"
+                Helix_Ubuntu_Cosmos = "$(HelixUbuntuCosmosResult)"
               }
 
-              $failedGroups = @()
-
-              foreach ($groupName in $groupResults.Keys)
-              {
-                  $results = $groupResults[$groupName]
-                  Write-Host "$groupName results: $($results -join ', ')"
-
-                  # Ignore jobs that were skipped (e.g. condition-gated)
-                  $ran = $results | Where-Object { $_ -ne 'Skipped' }
-                  if (-not $ran)
-                  {
-                      Write-Host "  -> all jobs skipped, treating group as successful"
-                      continue
-                  }
-
-                  # Only 'Succeeded' counts as success. 'SucceededWithIssues' is treated as failure
-                  # because the jobs run with continueOnError: true, which maps task failures to warnings.
-                  $hasSuccess = $ran | Where-Object { $_ -eq 'Succeeded' }
-                  if ($hasSuccess)
-                  {
-                      continue
-                  }
-
-                  $failedGroups += $groupName
-              }
-
-              if ($failedGroups.Count -gt 0)
-              {
-                  Write-Error "No jobs succeeded for group(s): $($failedGroups -join ', ')."
-                  exit 1
-              }
-
-              Write-Host 'Group validation passed.'
+              & eng/aggregate-azdo-tests.ps1 -JobResults $jobResults
             displayName: Evaluate grouped job outcomes
+            env:
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)

@@ -3,12 +3,13 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite.Tests.TestUtilities;
 using SQLitePCL;
 using Xunit.Sdk;
 using Xunit.v3;
 using static SQLitePCL.raw;
 
-[assembly: TestPipelineStartup(typeof(Microsoft.Data.Sqlite.Tests.TestUtilities.SqliteTestPipelineStartup))]
+[assembly: TestPipelineStartup(typeof(SqliteTestPipelineStartup))]
 
 namespace Microsoft.Data.Sqlite.Tests.TestUtilities;
 
@@ -16,9 +17,7 @@ namespace Microsoft.Data.Sqlite.Tests.TestUtilities;
 public static class Batteries_V2
 {
     public static void Init()
-    {
-        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_winsqlite3());
-    }
+        => SetProvider(new SQLite3Provider_winsqlite3());
 }
 #endif
 
@@ -26,9 +25,7 @@ public static class Batteries_V2
 public static class Batteries_V2
 {
     public static void Init()
-    {
-        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
-    }
+        => SetProvider(new SQLite3Provider_sqlite3());
 }
 #endif
 
@@ -70,5 +67,6 @@ public static class SqliteTestEnvironment
 {
     public static string? SkipReason { get; set; }
 
-    public static bool IsAvailable => SkipReason is null;
+    public static bool IsAvailable
+        => SkipReason is null;
 }

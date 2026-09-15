@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : BuiltInDataTypesTestBase<TFixture>(fixture)
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
@@ -41,13 +39,13 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             Assert.Equal(4, drivers.Count);
 
             Assert.Equal("Kimi", drivers[0].Name);
-            Assert.Equal(222222222, drivers[0].SSN.Value.Number);
+            Assert.Equal(222222222, drivers[0].SSN!.Value.Number);
 
             Assert.Equal("Lewis", drivers[1].Name);
             Assert.False(drivers[1].SSN.HasValue);
 
             Assert.Equal("Seb", drivers[2].Name);
-            Assert.Equal(111111111, drivers[2].SSN.Value.Number);
+            Assert.Equal(111111111, drivers[2].SSN!.Value.Number);
 
             Assert.Equal("Valtteri", drivers[3].Name);
             Assert.False(drivers[3].SSN.HasValue);
@@ -72,13 +70,13 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             Assert.Equal(4, drivers.Count);
 
             Assert.Equal("Charles", drivers[0].Name);
-            Assert.Equal(222222222, drivers[0].SSN.Value.Number);
+            Assert.Equal(222222222, drivers[0].SSN!.Value.Number);
 
             Assert.Equal("Lewis", drivers[1].Name);
             Assert.False(drivers[1].SSN.HasValue);
 
             Assert.Equal("Seb", drivers[2].Name);
-            Assert.Equal(111111111, drivers[2].SSN.Value.Number);
+            Assert.Equal(111111111, drivers[2].SSN!.Value.Number);
 
             Assert.Equal("Valtteri", drivers[3].Name);
             Assert.False(drivers[3].SSN.HasValue);
@@ -98,7 +96,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public SocialSecurityNumber? SSN { get; set; }
     }
 
@@ -108,7 +106,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         using (var context = CreateContext())
         {
             var principal = context.Add(
-                    new NullablePrincipal { Id = 1, Dependents = new List<NonNullableDependent> { new() { Id = 1 } } })
+                    new NullablePrincipal { Id = 1, Dependents = [new() { Id = 1 }] })
                 .Entity;
 
             var pkEntry = context.Entry(principal).Property(e => e.Id);
@@ -143,7 +141,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     {
         public int? Id { get; set; }
 
-        public ICollection<NonNullableDependent> Dependents { get; set; }
+        public ICollection<NonNullableDependent> Dependents { get; set; } = null!;
     }
 
     protected class NonNullableDependent
@@ -151,7 +149,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public int Id { get; set; }
 
         public int PrincipalId { get; set; }
-        public NullablePrincipal Principal { get; set; }
+        public NullablePrincipal Principal { get; set; } = null!;
     }
 
     [Fact]
@@ -193,8 +191,8 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         private Email(string value)
             => _value = value;
 
-        public override bool Equals(object obj)
-            => _value == ((Email)obj)?._value;
+        public override bool Equals(object? obj)
+            => _value == ((Email)obj!)?._value;
 
         public override int GetHashCode()
             => _value.GetHashCode();
@@ -233,7 +231,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public Fuel Fuel { get; set; }
     }
 
-    protected struct Fuel(double volume)
+    protected readonly struct Fuel(double volume)
     {
         public double Volume { get; } = volume;
     }
@@ -285,7 +283,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         using (var context = CreateContext())
         {
             context.Set<StringListDataType>().Add(
-                new StringListDataType { Id = 1, Strings = new List<string> { "Gum", "Taffy" } });
+                new StringListDataType { Id = 1, Strings = ["Gum", "Taffy"] });
 
             Assert.Equal(1, await context.SaveChangesAsync());
         }
@@ -302,7 +300,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     {
         public int Id { get; set; }
 
-        public IList<string> Strings { get; set; }
+        public IList<string> Strings { get; set; } = null!;
     }
 
     [Fact]
@@ -338,7 +336,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public OrderId Id { get; set; }
     }
 
-    public struct OrderId
+    public readonly struct OrderId
     {
         private OrderId(string stringValue)
             => StringValue = stringValue;
@@ -378,7 +376,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     public class SimpleCounter
     {
         public int CounterId { get; set; }
-        public string StyleKey { get; set; }
+        public string StyleKey { get; set; } = null!;
         public bool IsTest { get; set; }
         public IDictionary<string, string> Discriminator { get; set; } = new Dictionary<string, string>();
     }
@@ -405,22 +403,22 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     {
         using var context = CreateContext();
         var blogId = 1;
-        var query = await ((from b in context.Set<Blog>()
-                            join p in context.Set<Post>()
-                                on new
-                                {
-                                    BlogId = (int?)b.BlogId,
-                                    b.IsVisible,
-                                    AnotherId = b.BlogId
-                                }
-                                equals new
-                                {
-                                    p.BlogId,
-                                    IsVisible = true,
-                                    AnotherId = blogId
-                                }
-                            where b.IsVisible
-                            select b.Url).ToListAsync());
+        var query = await (from b in context.Set<Blog>()
+                           join p in context.Set<Post>()
+                               on new
+                               {
+                                   BlogId = (int?)b.BlogId,
+                                   b.IsVisible,
+                                   AnotherId = b.BlogId
+                               }
+                               equals new
+                               {
+                                   p.BlogId,
+                                   IsVisible = true,
+                                   AnotherId = blogId
+                               }
+                           where b.IsVisible
+                           select b.Url).ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result);
@@ -565,7 +563,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     {
         public int Id { get; set; }
         public bool IsSoftDeleted { get; set; }
-        public List<MessageGroup> MessageGroups { get; set; }
+        public List<MessageGroup> MessageGroups { get; set; } = null!;
     }
 
     protected enum MessageGroup
@@ -579,21 +577,15 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         private bool _indexerVisible;
 
         public int BlogId { get; set; }
-        public string Url { get; set; }
+        public string Url { get; set; } = null!;
         public bool IsVisible { get; set; }
-        public List<Post> Posts { get; set; }
+        public List<Post> Posts { get; set; } = null!;
 
         public object this[string name]
         {
-            get
-            {
-                if (!string.Equals(name, "IndexerVisible", StringComparison.Ordinal))
-                {
-                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(Blog)}.");
-                }
-
-                return _indexerVisible;
-            }
+            get => !string.Equals(name, "IndexerVisible", StringComparison.Ordinal)
+                ? throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(Blog)}.")
+                : (object)_indexerVisible;
 
             set
             {
@@ -609,25 +601,25 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
 
     protected class RssBlog : Blog
     {
-        public string RssUrl { get; set; }
+        public string RssUrl { get; set; } = null!;
     }
 
     protected class Post
     {
         public int PostId { get; set; }
         public int? BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
     }
 
     protected class EntityWithValueWrapper
     {
         public int Id { get; set; }
-        public ValueWrapper Wrapper { get; set; }
+        public ValueWrapper Wrapper { get; set; } = null!;
     }
 
     protected class ValueWrapper
     {
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
     }
 
     [Fact]
@@ -654,7 +646,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     protected class CollectionScalar
     {
         public int Id { get; set; }
-        public List<string> Tags { get; set; }
+        public List<string> Tags { get; set; } = null!;
     }
 
     [Fact]
@@ -671,7 +663,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     protected class CollectionEnum
     {
         public int Id { get; set; }
-        public ICollection<Roles> Roles { get; set; }
+        public ICollection<Roles> Roles { get; set; } = null!;
     }
 
     protected enum Roles
@@ -688,15 +680,16 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     {
         using var context = CreateContext();
         Assert.Equal(
-            "Nullable object must have a value.",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Parent>().Select(e => new { e.OwnedWithConverter.Value }).ToListAsync()))
-                .Message);
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => context.Set<Parent>().Select(e => new { e.OwnedWithConverter!.Value }).ToListAsync()))
+            .Message);
     }
 
     protected class Parent
     {
         public int Id { get; set; }
-        public OwnedWithConverter OwnedWithConverter { get; set; }
+        public OwnedWithConverter? OwnedWithConverter { get; set; }
     }
 
     protected class OwnedWithConverter
@@ -717,14 +710,14 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     {
         public BookId Id { get; set; } = id;
 
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
     }
 
     public class BookId(int id)
     {
         public readonly int Id = id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is BookId item && Id == item.Id;
 
         public override int GetHashCode()
@@ -739,18 +732,18 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             CoreStrings.TranslationFailed(
                 @"l => new {     H = l.Height,     W = l.Width }"),
             Assert.Throws<InvalidOperationException>(() => context.Set<Dashboard>().AsNoTracking().Select(d => new
-                {
-                    d.Id,
-                    d.Name,
-                    Layouts = d.Layouts.Select(l => new { H = l.Height, W = l.Width }).ToList()
-                }).ToList())
+            {
+                d.Id,
+                d.Name,
+                Layouts = d.Layouts.Select(l => new { H = l.Height, W = l.Width }).ToList()
+            }).ToList())
                 .Message.Replace("\r", "").Replace("\n", ""));
     }
 
     public class Dashboard
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public List<Layout> Layouts { get; set; } = [];
     }
 
@@ -915,12 +908,9 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                         new ConverterMappingHints(precision: 26, scale: 16)));
             });
 
-            modelBuilder.Entity<BinaryKeyDataType>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(
-                    v => new byte[] { 4, 2, 0 }.Concat(v).ToArray(),
-                    v => v.Skip(3).ToArray());
-            });
+            modelBuilder.Entity<BinaryKeyDataType>(b => b.Property(e => e.Id).HasConversion(
+                v => new byte[] { 4, 2, 0 }.Concat(v).ToArray(),
+                v => v.Skip(3).ToArray()));
 
             modelBuilder.Entity<StringKeyDataType>(b =>
             {
@@ -928,13 +918,10 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                     .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
             });
 
-            modelBuilder.Entity<StringForeignKeyDataType>(b =>
-            {
-                b.Property(e => e.StringKeyDataTypeId)
-                    .HasConversion(
-                        v => "KeyValue=" + v,
-                        v => v.Substring(9));
-            });
+            modelBuilder.Entity<StringForeignKeyDataType>(b => b.Property(e => e.StringKeyDataTypeId)
+                .HasConversion(
+                    v => "KeyValue=" + v,
+                    v => v.Substring(9)));
 
             modelBuilder.Entity<MaxLengthDataTypes>(b =>
             {
@@ -975,7 +962,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                     v => string.Join(",", v),
                     v => v.Split(new[] { ',' }).ToList(),
                     new ValueComparer<IList<string>>(
-                        (v1, v2) => v1.SequenceEqual(v2),
+                        (v1, v2) => v1!.SequenceEqual(v2!),
                         v => v.GetHashCode()));
 
                 b.Property(e => e.Id).ValueGeneratedNever();
@@ -995,7 +982,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                     d => StringToDictionarySerializer.Serialize(d),
                     json => StringToDictionarySerializer.Deserialize(json),
                     new ValueComparer<IDictionary<string, string>>(
-                        (v1, v2) => v1.SequenceEqual(v2),
+                        (v1, v2) => v1!.SequenceEqual(v2!),
                         v => v.GetHashCode(),
                         v => new Dictionary<string, string>(v)));
             });
@@ -1072,7 +1059,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                     new RolesToStringConveter(),
                     new ValueComparer<ICollection<Roles>>(favorStructuralComparisons: true));
 
-                b.HasData(new CollectionEnum { Id = 1, Roles = new List<Roles> { Roles.Seller } });
+                b.HasData(new CollectionEnum { Id = 1, Roles = [Roles.Seller] });
             });
 
             modelBuilder.Entity<Parent>(b =>
@@ -1127,7 +1114,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                     v => LayoutsToStringSerializer.Serialize(v),
                     v => LayoutsToStringSerializer.Deserialize(v),
                     new ValueComparer<List<Layout>>(
-                        (v1, v2) => v1.SequenceEqual(v2),
+                        (v1, v2) => v1!.SequenceEqual(v2!),
                         v => v.GetHashCode(),
                         v => new List<Layout>(v)));
 
@@ -1174,7 +1161,8 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                     list.Add(
                         new Layout
                         {
-                            Height = int.Parse(parts[0]), Width = int.Parse(parts[1]),
+                            Height = int.Parse(parts[0]),
+                            Width = int.Parse(parts[1]),
                         });
                 }
 
@@ -1189,7 +1177,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         )
         {
             public OrderIdEntityFrameworkValueConverter()
-                : this(null)
+                : this(null!)
             {
             }
         }

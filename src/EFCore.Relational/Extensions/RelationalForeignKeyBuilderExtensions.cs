@@ -49,8 +49,8 @@ public static class RelationalForeignKeyBuilderExtensions
         string? name)
         where TEntity : class
         where TRelatedEntity : class
-        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)HasConstraintName(
-            (ReferenceCollectionBuilder)referenceCollectionBuilder, name);
+        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)((ReferenceCollectionBuilder)referenceCollectionBuilder).HasConstraintName(
+            name);
 
     /// <summary>
     ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
@@ -88,8 +88,8 @@ public static class RelationalForeignKeyBuilderExtensions
         string? name)
         where TEntity : class
         where TRelatedEntity : class
-        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)HasConstraintName(
-            (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
+        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)((ReferenceReferenceBuilder)referenceReferenceBuilder).HasConstraintName(
+            name);
 
     /// <summary>
     ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
@@ -127,8 +127,7 @@ public static class RelationalForeignKeyBuilderExtensions
         string? name)
         where TEntity : class
         where TDependentEntity : class
-        => (OwnershipBuilder<TEntity, TDependentEntity>)HasConstraintName(
-            (OwnershipBuilder)ownershipBuilder, name);
+        => (OwnershipBuilder<TEntity, TDependentEntity>)((OwnershipBuilder)ownershipBuilder).HasConstraintName(name);
 
     /// <summary>
     ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
@@ -210,8 +209,8 @@ public static class RelationalForeignKeyBuilderExtensions
         bool excluded = true)
         where TEntity : class
         where TRelatedEntity : class
-        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)ExcludeForeignKeyFromMigrations(
-            (ReferenceCollectionBuilder)referenceCollectionBuilder, excluded);
+        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)((ReferenceCollectionBuilder)referenceCollectionBuilder)
+            .ExcludeForeignKeyFromMigrations(excluded);
 
     /// <summary>
     ///     Configures whether the foreign key constraint is excluded from migrations
@@ -249,8 +248,8 @@ public static class RelationalForeignKeyBuilderExtensions
         bool excluded = true)
         where TEntity : class
         where TRelatedEntity : class
-        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ExcludeForeignKeyFromMigrations(
-            (ReferenceReferenceBuilder)referenceReferenceBuilder, excluded);
+        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)((ReferenceReferenceBuilder)referenceReferenceBuilder)
+            .ExcludeForeignKeyFromMigrations(excluded);
 
     /// <summary>
     ///     Configures whether the foreign key constraint is excluded from migrations
@@ -288,8 +287,7 @@ public static class RelationalForeignKeyBuilderExtensions
         bool excluded = true)
         where TEntity : class
         where TDependentEntity : class
-        => (OwnershipBuilder<TEntity, TDependentEntity>)ExcludeForeignKeyFromMigrations(
-            (OwnershipBuilder)ownershipBuilder, excluded);
+        => (OwnershipBuilder<TEntity, TDependentEntity>)((OwnershipBuilder)ownershipBuilder).ExcludeForeignKeyFromMigrations(excluded);
 
     /// <summary>
     ///     Configures whether the foreign key constraint is excluded from migrations

@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql))]
 public class EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture fixture)
     : BuiltInDataTypesTestBase<EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture>(fixture)
@@ -109,10 +107,10 @@ public class EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerTest.Every
                     { "varbinary", _variableLengthBinary }
                 };
 
-        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => FindRawMapping(mappingInfo)?.WithTypeMappingInfo(mappingInfo);
 
-        private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
+        private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
             var storeTypeName = mappingInfo.StoreTypeName;
@@ -121,7 +119,7 @@ public class EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerTest.Every
             if (storeTypeName != null)
             {
                 if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
-                    || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
+                    || _storeTypeMappings.TryGetValue(storeTypeNameBase!, out mapping))
                 {
                     return clrType == null
                         || mapping.ClrType == clrType

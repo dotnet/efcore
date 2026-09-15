@@ -97,10 +97,7 @@ public class JsonScalarExpression : SqlExpression
                 }
             }
 
-            if (newPath is not null)
-            {
-                newPath[i] = newSegment;
-            }
+            newPath?[i] = newSegment;
         }
 
         // TODO Call update: Issue#28887

@@ -31,9 +31,7 @@ public static class CosmosDbContextOptionsExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseCosmos(
-            (DbContextOptionsBuilder)optionsBuilder,
-            cosmosOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseCosmos(cosmosOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to an Azure Cosmos database. The connection details need to be specified in a separate call.
@@ -80,8 +78,7 @@ public static class CosmosDbContextOptionsExtensions
         string databaseName,
         Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseCosmos(
-            (DbContextOptionsBuilder)optionsBuilder,
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseCosmos(
             accountEndpoint,
             accountKey,
             databaseName,
@@ -150,8 +147,7 @@ public static class CosmosDbContextOptionsExtensions
         string databaseName,
         Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseCosmos(
-            (DbContextOptionsBuilder)optionsBuilder,
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseCosmos(
             accountEndpoint,
             tokenCredential,
             databaseName,
@@ -218,8 +214,7 @@ public static class CosmosDbContextOptionsExtensions
         string databaseName,
         Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseCosmos(
-            (DbContextOptionsBuilder)optionsBuilder,
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseCosmos(
             connectionString,
             databaseName,
             cosmosOptionsAction);

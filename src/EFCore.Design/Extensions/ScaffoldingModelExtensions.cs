@@ -125,7 +125,7 @@ public static class ScaffoldingModelExtensions
         var needsSchema = schema != null && schema != entityType.Model.GetDefaultSchema();
 
         if (entityType.GetViewName() == null
-            && (tableName != null && tableName != entityType.GetDbSetName()
+            && ((tableName != null && tableName != entityType.GetDbSetName())
                 || needsSchema))
         {
             var tableNamedArgs = new Dictionary<string, object?>();
@@ -200,6 +200,11 @@ public static class ScaffoldingModelExtensions
             && !property.IsPrimaryKey())
         {
             yield return new AttributeCodeFragment(typeof(RequiredAttribute));
+        }
+
+        if (IsRowVersion(property))
+        {
+            yield return new AttributeCodeFragment(typeof(TimestampAttribute));
         }
 
         var columnName = property.GetColumnName();
@@ -397,9 +402,9 @@ public static class ScaffoldingModelExtensions
         var toTableArguments = new List<object?>();
 
         if (explicitSchema
-            || tableName != null
-            && (tableName != entityType.GetDbSetName()
-                || (entityType.IsSimpleManyToManyJoinEntityType() && tableName != entityType.ShortName())))
+            || (tableName != null
+                && (tableName != entityType.GetDbSetName()
+                    || (entityType.IsSimpleManyToManyJoinEntityType() && tableName != entityType.ShortName()))))
         {
             toTableHandledByConventions = false;
 
@@ -442,7 +447,8 @@ public static class ScaffoldingModelExtensions
 
             var toTable = new FluentApiCodeFragment(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
             {
-                Arguments = toTableArguments, IsHandledByDataAnnotations = toTableHandledByDataAnnotations
+                Arguments = toTableArguments,
+                IsHandledByDataAnnotations = toTableHandledByDataAnnotations
             };
 
             root = root?.Chain(toTable) ?? toTable;
@@ -591,7 +597,8 @@ public static class ScaffoldingModelExtensions
         {
             var hasMaxLength = new FluentApiCodeFragment(nameof(PropertyBuilder.HasMaxLength))
             {
-                Arguments = { maxLength.Value }, IsHandledByDataAnnotations = true
+                Arguments = { maxLength.Value },
+                IsHandledByDataAnnotations = true
             };
 
             root = root?.Chain(hasMaxLength) ?? hasMaxLength;
@@ -603,7 +610,8 @@ public static class ScaffoldingModelExtensions
         {
             var hasPrecision = new FluentApiCodeFragment(nameof(PropertyBuilder.HasPrecision))
             {
-                Arguments = { precision.Value, scale.Value }, IsHandledByDataAnnotations = true
+                Arguments = { precision.Value, scale.Value },
+                IsHandledByDataAnnotations = true
             };
 
             root = root?.Chain(hasPrecision) ?? hasPrecision;
@@ -612,7 +620,8 @@ public static class ScaffoldingModelExtensions
         {
             var hasPrecision = new FluentApiCodeFragment(nameof(PropertyBuilder.HasPrecision))
             {
-                Arguments = { precision.Value }, IsHandledByDataAnnotations = true
+                Arguments = { precision.Value },
+                IsHandledByDataAnnotations = true
             };
 
             root = root?.Chain(hasPrecision) ?? hasPrecision;
@@ -630,6 +639,8 @@ public static class ScaffoldingModelExtensions
             root = root?.Chain(isUnicode) ?? isUnicode;
         }
 
+        var isRowVersion = IsRowVersion(property);
+
         var valueGenerated = property.ValueGenerated;
         if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is { } valueGeneratedConfigurationSource
             && valueGeneratedConfigurationSource != ConfigurationSource.Convention
@@ -645,14 +656,20 @@ public static class ScaffoldingModelExtensions
                     ValueGenerated.OnUpdate => nameof(PropertyBuilder.ValueGeneratedOnUpdate),
                     ValueGenerated.Never => nameof(PropertyBuilder.ValueGeneratedNever),
                     _ => throw new InvalidOperationException(DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
-                });
+                })
+            {
+                IsHandledByDataAnnotations = isRowVersion
+            };
 
             root = root?.Chain(valueGeneratedCall) ?? valueGeneratedCall;
         }
 
         if (property.IsConcurrencyToken)
         {
-            var isConcurrencyToken = new FluentApiCodeFragment(nameof(PropertyBuilder.IsConcurrencyToken));
+            var isConcurrencyToken = new FluentApiCodeFragment(nameof(PropertyBuilder.IsConcurrencyToken))
+            {
+                IsHandledByDataAnnotations = isRowVersion
+            };
 
             root = root?.Chain(isConcurrencyToken) ?? isConcurrencyToken;
         }
@@ -678,7 +695,10 @@ public static class ScaffoldingModelExtensions
     /// </summary>
     /// <param name="foreignKey">The foreign key.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
-    /// <param name="useStrings">A value indicating whether to use string fluent API overloads instead of ones that take a property accessor lambda.</param>
+    /// <param name="useStrings">
+    ///     A value indicating whether to use string fluent API overloads instead of ones that take a property accessor
+    ///     lambda.
+    /// </param>
     /// <returns>The fluent API calls.</returns>
     public static FluentApiCodeFragment? GetFluentApiCalls(
         this IForeignKey foreignKey,
@@ -810,6 +830,10 @@ public static class ScaffoldingModelExtensions
         return root;
     }
 
+    private static bool IsRowVersion(IProperty property)
+        => property.IsConcurrencyToken
+            && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
+
     private static FluentApiCodeFragment? GenerateAnnotations(
         IAnnotatable annotatable,
         Dictionary<string, IAnnotation> annotations,
@@ -848,7 +872,8 @@ public static class ScaffoldingModelExtensions
         {
             var hasAnnotation = new FluentApiCodeFragment(nameof(ModelBuilder.HasAnnotation))
             {
-                Arguments = { annotation.Name, annotation.Value }, IsHandledByDataAnnotations = isHandledByDataAnnotations
+                Arguments = { annotation.Name, annotation.Value },
+                IsHandledByDataAnnotations = isHandledByDataAnnotations
             };
 
             root = root?.Chain(hasAnnotation) ?? hasAnnotation;

@@ -42,7 +42,7 @@ public interface IConventionElementType : IReadOnlyElementType, IConventionAnnot
     ///     Sets a value indicating whether elements in the collection can be <see langword="null" />.
     /// </summary>
     /// <param name="nullable">
-    ///     A value indicating whether whether elements in the collection can be <see langword="null" />, or <see langword="null" /> to
+    ///     A value indicating whether elements in the collection can be <see langword="null" />, or <see langword="null" /> to
     ///     reset to the default.
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>

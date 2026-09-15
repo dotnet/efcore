@@ -177,7 +177,7 @@ public class BufferedDataReaderTest
             columnType = typeof(object);
         }
 
-        var getFieldValueMethod = typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetFieldValue)).MakeGenericMethod(columnType);
+        var getFieldValueMethod = typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetFieldValue))!.MakeGenericMethod(columnType);
         var prm = Expression.Parameter(typeof(DbDataReader), "r");
         var getFieldValueLambda = Expression.Lambda(
             Expression.Call(prm, getFieldValueMethod, Expression.Constant(0)),
@@ -213,7 +213,7 @@ public class BufferedDataReaderTest
         // use the specific reader.GetXXX method
         var readerMethod = GetReaderMethod(typeof(T));
         return Verify_method_result(
-            r => (T)readerMethod.Invoke(r, [0]), async, value, [value]);
+            r => (T)readerMethod.Invoke(r, [0])!, async, value, [value!]);
     }
 
     private static MethodInfo GetReaderMethod(Type type)

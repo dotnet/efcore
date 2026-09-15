@@ -64,8 +64,11 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TEnum), typeof(TNumber),
-            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints),
+        = new(
+            typeof(TEnum), typeof(TNumber),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints)
+                ? Instance
+                : new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints),
             DefaultHints);
 
     private static Expression<Func<TEnum, TNumber>> ToNumber()

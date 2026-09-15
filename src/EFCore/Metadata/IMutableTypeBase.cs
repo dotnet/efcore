@@ -208,13 +208,10 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType)
     {
         var indexerPropertyInfo = FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return AddProperty(name, propertyType, indexerPropertyInfo);
+        return indexerPropertyInfo == null
+            ? throw new InvalidOperationException(
+                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()))
+            : AddProperty(name, propertyType, indexerPropertyInfo);
     }
 
     /// <summary>
@@ -396,13 +393,10 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
         bool collection = false)
     {
         var indexerPropertyInfo = FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return AddComplexProperty(name, propertyType, indexerPropertyInfo, complexType, complexTypeName, collection);
+        return indexerPropertyInfo == null
+            ? throw new InvalidOperationException(
+                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()))
+            : AddComplexProperty(name, propertyType, indexerPropertyInfo, complexType, complexTypeName, collection);
     }
 
     /// <summary>

@@ -391,10 +391,10 @@ public class GraphTrackingTest
                 .UseInMemoryDatabase(nameof(AggregateContext))
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<Comment> Comments { get; set; }
-        public DbSet<Author> Authors { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
+        public DbSet<Author> Authors { get; set; } = null!;
     }
 
     private class BlogCategoryStatistics
@@ -402,16 +402,16 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int? BlogCategoryId { get; set; }
-        public BlogCategory BlogCategory { get; set; }
+        public BlogCategory BlogCategory { get; set; } = null!;
     }
 
     private class BlogCategory
     {
         public int Id { get; set; }
 
-        public BlogCategoryStatistics Statistics { get; set; }
+        public BlogCategoryStatistics Statistics { get; set; } = null!;
 
-        public ICollection<Blog> Blogs { get; set; }
+        public ICollection<Blog> Blogs { get; set; } = null!;
     }
 
     private class Blog
@@ -419,12 +419,12 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int? BlogCategoryId { get; set; }
-        public BlogCategory BlogCategory { get; set; }
+        public BlogCategory BlogCategory { get; set; } = null!;
 
         public int? AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author Author { get; set; } = null!;
 
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<Post> Posts { get; set; } = null!;
     }
 
     private class Post
@@ -432,12 +432,12 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int? AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author Author { get; set; } = null!;
 
         public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
 
-        public ICollection<Comment> Comments { get; set; }
+        public ICollection<Comment> Comments { get; set; } = null!;
     }
 
     private class Comment
@@ -445,20 +445,20 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int? AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author Author { get; set; } = null!;
 
         public int PostId { get; set; }
-        public Post Post { get; set; }
+        public Post Post { get; set; } = null!;
     }
 
     private class Author
     {
         public int Id { get; set; }
 
-        public ICollection<Blog> Blogs { get; set; }
-        public ICollection<Post> Posts { get; set; }
-        public ICollection<Comment> Comments { get; set; }
-        public ICollection<Reminder> Reminders { get; set; }
+        public ICollection<Blog> Blogs { get; set; } = null!;
+        public ICollection<Post> Posts { get; set; } = null!;
+        public ICollection<Comment> Comments { get; set; } = null!;
+        public ICollection<Reminder> Reminders { get; set; } = null!;
     }
 
     private class Reminder
@@ -466,6 +466,6 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author Author { get; set; } = null!;
     }
 }

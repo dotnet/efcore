@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable once CheckNamespace
 namespace System.Linq.Expressions;
@@ -37,9 +34,9 @@ internal static class ExpressionExtensions
     {
         convertedType = null;
         while (expression is UnaryExpression
-               {
-                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-               } unaryExpression)
+            {
+                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+            } unaryExpression)
         {
             expression = unaryExpression.Operand;
             if (unaryExpression.Type != typeof(object) // Ignore object conversion

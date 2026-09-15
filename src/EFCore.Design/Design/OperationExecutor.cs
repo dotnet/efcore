@@ -29,8 +29,6 @@ public class OperationExecutor : MarshalByRefObject
     private DbContextOperations? _contextOperations;
     private DatabaseOperations? _databaseOperations;
     private MigrationsOperations? _migrationsOperations;
-    private Assembly? _assembly;
-    private Assembly? _startupAssembly;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="OperationExecutor" /> class
@@ -90,12 +88,12 @@ public class OperationExecutor : MarshalByRefObject
                 }
             }
 
-            return _assembly ??= Create();
+            return field ??= Create();
         }
     }
 
     private Assembly StartupAssembly
-        => _startupAssembly
+        => field
             ??= Assembly.Load(new AssemblyName(_startupTargetAssemblyName));
 
     /// <summary>

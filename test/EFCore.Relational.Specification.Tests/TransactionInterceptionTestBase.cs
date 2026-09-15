@@ -5,8 +5,6 @@ using System.Data;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class TransactionInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture) : InterceptionTestBase(fixture)
 {
     [Theory, InlineData(false), InlineData(true)]
@@ -35,8 +33,8 @@ public abstract class TransactionInterceptionTestBase(InterceptionTestBase.Inter
             : context.Database.UseTransaction(transaction);
 
         {
-            Assert.NotNull(contextTransaction.GetDbTransaction());
-            Assert.Same(transaction, contextTransaction.GetDbTransaction());
+            Assert.NotNull(contextTransaction!.GetDbTransaction());
+            Assert.Same(transaction, contextTransaction!.GetDbTransaction());
         }
 
         AssertUseTransactionEvents(listener);
@@ -199,7 +197,7 @@ public abstract class TransactionInterceptionTestBase(InterceptionTestBase.Inter
                     ? await context.Database.UseTransactionAsync(transaction)
                     : context.Database.UseTransaction(transaction);
 
-                AssertUseTransaction(context, contextTransaction, interceptor, async);
+                AssertUseTransaction(context, contextTransaction!, interceptor, async);
             }
 
             AssertUseTransactionEvents(listener);
@@ -218,9 +216,9 @@ public abstract class TransactionInterceptionTestBase(InterceptionTestBase.Inter
                 ? await context.Database.UseTransactionAsync(transaction)
                 : context.Database.UseTransaction(transaction);
 
-            Assert.IsType<WrappedDbTransaction>(contextTransaction.GetDbTransaction());
+            Assert.IsType<WrappedDbTransaction>(contextTransaction!.GetDbTransaction());
 
-            AssertUseTransaction(context, contextTransaction, interceptor, async);
+            AssertUseTransaction(context, contextTransaction!, interceptor, async);
 
             AssertUseTransactionEvents(listener);
         }
@@ -569,7 +567,7 @@ public abstract class TransactionInterceptionTestBase(InterceptionTestBase.Inter
         public override void Rollback()
             => _transaction.Rollback();
 
-        protected override DbConnection DbConnection
+        protected override DbConnection? DbConnection
             => _transaction.Connection;
 
         public override IsolationLevel IsolationLevel
@@ -794,41 +792,41 @@ public abstract class TransactionInterceptionTestBase(InterceptionTestBase.Inter
 
     private static void AssertBeginTransactionEvents(ITestDiagnosticListener listener)
         => listener.AssertEventsInOrder(
-            RelationalEventId.TransactionStarting.Name,
-            RelationalEventId.TransactionStarted.Name);
+            RelationalEventId.TransactionStarting.Name!,
+            RelationalEventId.TransactionStarted.Name!);
 
     private static void AssertUseTransactionEvents(ITestDiagnosticListener listener)
-        => listener.AssertEventsInOrder(RelationalEventId.TransactionUsed.Name);
+        => listener.AssertEventsInOrder(RelationalEventId.TransactionUsed.Name!);
 
     private static void AssertCommitEvents(ITestDiagnosticListener listener)
         => listener.AssertEventsInOrder(
-            RelationalEventId.TransactionCommitting.Name,
-            RelationalEventId.TransactionCommitted.Name);
+            RelationalEventId.TransactionCommitting.Name!,
+            RelationalEventId.TransactionCommitted.Name!);
 
     private static void AssertRollBackEvents(ITestDiagnosticListener listener)
         => listener.AssertEventsInOrder(
-            RelationalEventId.TransactionRollingBack.Name,
-            RelationalEventId.TransactionRolledBack.Name);
+            RelationalEventId.TransactionRollingBack.Name!,
+            RelationalEventId.TransactionRolledBack.Name!);
 
     private static void AssertCreateSavepointEvents(ITestDiagnosticListener listener)
         => listener.AssertEventsInOrder(
-            RelationalEventId.CreatingTransactionSavepoint.Name,
-            RelationalEventId.CreatedTransactionSavepoint.Name);
+            RelationalEventId.CreatingTransactionSavepoint.Name!,
+            RelationalEventId.CreatedTransactionSavepoint.Name!);
 
     private static void AssertRollbackToSavepointEvents(ITestDiagnosticListener listener)
         => listener.AssertEventsInOrder(
-            RelationalEventId.RollingBackToTransactionSavepoint.Name,
-            RelationalEventId.RolledBackToTransactionSavepoint.Name);
+            RelationalEventId.RollingBackToTransactionSavepoint.Name!,
+            RelationalEventId.RolledBackToTransactionSavepoint.Name!);
 
     private static void AssertReleaseSavepointEvents(ITestDiagnosticListener listener)
         => listener.AssertEventsInOrder(
-            RelationalEventId.ReleasingTransactionSavepoint.Name,
-            RelationalEventId.ReleasedTransactionSavepoint.Name);
+            RelationalEventId.ReleasingTransactionSavepoint.Name!,
+            RelationalEventId.ReleasedTransactionSavepoint.Name!);
 
     protected class TransactionInterceptor : IDbTransactionInterceptor
     {
-        public DbContext Context { get; set; }
-        public Exception Exception { get; set; }
+        public DbContext? Context { get; set; }
+        public Exception? Exception { get; set; }
         public Guid TransactionId { get; set; }
         public Guid ConnectionId { get; set; }
         public IsolationLevel IsolationLevel { get; set; }

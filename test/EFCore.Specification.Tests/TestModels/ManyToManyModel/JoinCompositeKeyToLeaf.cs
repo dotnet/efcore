@@ -3,15 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class JoinCompositeKeyToLeaf
 {
     public virtual int CompositeId1 { get; set; }
-    public virtual string CompositeId2 { get; set; }
+    public virtual string CompositeId2 { get; set; } = null!;
     public virtual DateTime CompositeId3 { get; set; }
     public virtual int LeafId { get; set; }
 
-    public virtual EntityCompositeKey Composite { get; set; }
-    public virtual EntityLeaf Leaf { get; set; }
+    public virtual EntityCompositeKey Composite { get; set; } = null!;
+    public virtual EntityLeaf Leaf { get; set; } = null!;
 }

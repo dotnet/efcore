@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
-#nullable disable
-
 public abstract class IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, TUserToken> : DbContext
     where TUser : IdentityUser<TKey>
     where TKey : IEquatable<TKey>
@@ -21,10 +19,10 @@ public abstract class IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, T
     {
     }
 
-    public virtual DbSet<TUser> Users { get; set; }
-    public virtual DbSet<TUserClaim> UserClaims { get; set; }
-    public virtual DbSet<TUserLogin> UserLogins { get; set; }
-    public virtual DbSet<TUserToken> UserTokens { get; set; }
+    public virtual DbSet<TUser> Users { get; set; } = null!;
+    public virtual DbSet<TUserClaim> UserClaims { get; set; } = null!;
+    public virtual DbSet<TUserLogin> UserLogins { get; set; } = null!;
+    public virtual DbSet<TUserToken> UserTokens { get; set; } = null!;
 
     private class PersonalDataConverter(IPersonalDataProtector protector) : ValueConverter<string, string>(
         s => protector.Protect(s),
@@ -77,10 +75,7 @@ public abstract class IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, T
             b.HasMany<TUserToken>().WithOne().HasForeignKey(ut => ut.UserId).IsRequired();
         });
 
-        builder.Entity<TUserClaim>(b =>
-        {
-            b.HasKey(uc => uc.Id);
-        });
+        builder.Entity<TUserClaim>(b => b.HasKey(uc => uc.Id));
 
         builder.Entity<TUserLogin>(b =>
         {

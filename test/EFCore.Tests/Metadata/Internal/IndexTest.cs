@@ -35,11 +35,11 @@ public class IndexTest
     [Fact]
     public void Gets_expected_default_values()
     {
-        var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
-        var property1 = entityType.AddProperty(Customer.IdProperty);
-        var property2 = entityType.AddProperty(Customer.NameProperty);
+        var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer))!;
+        var property1 = entityType.AddProperty(Customer.IdProperty)!;
+        var property2 = entityType.AddProperty(Customer.NameProperty)!;
 
-        var index = entityType.AddIndex([property1, property2]);
+        var index = entityType.AddIndex([property1, property2])!;
 
         Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
         Assert.False(index.IsUnique);
@@ -107,16 +107,16 @@ public class IndexTest
 
     private class Customer
     {
-        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id")!;
+        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name")!;
 
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Order
     {
-        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id")!;
 
         public int Id { get; set; }
     }
@@ -124,27 +124,27 @@ public class IndexTest
     private sealed class Blog
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
         public List<Post> Posts { get; set; } = [];
-        public Address Owner { get; set; }
+        public Address Owner { get; set; } = null!;
     }
 
     private sealed class Post
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
         public int Rating { get; set; }
-        public List<Comment> Comments { get; set; } = [];
+        public List<Comment> Comments { get; } = [];
     }
 
     private sealed class Comment
     {
-        public string Text { get; set; }
+        public string Text { get; set; } = null!;
     }
 
     private sealed class Address
     {
-        public string City { get; set; }
-        public string Country { get; set; }
+        public string City { get; set; } = null!;
+        public string Country { get; set; } = null!;
     }
 
     private static ModelBuilder CreateComplexModelBuilder()
@@ -154,39 +154,38 @@ public class IndexTest
         {
             b.Property(e => e.Title);
 
-            b.ComplexProperty(e => e.Owner, cb =>
-            {
-                cb.Property(a => a.City);
-                cb.Property(a => a.Country);
-            });
+            b.ComplexProperty(
+                e => e.Owner, cb =>
+                {
+                    cb.Property(a => a.City);
+                    cb.Property(a => a.Country);
+                });
 
-            b.ComplexCollection(e => e.Posts, cb =>
-            {
-                cb.Property(p => p.Title);
-                cb.Property(p => p.Rating);
-                cb.ComplexCollection(p => p.Comments, ccb => ccb.Property(c => c.Text));
-            });
+            b.ComplexCollection(
+                e => e.Posts, cb =>
+                {
+                    cb.Property(p => p.Title);
+                    cb.Property(p => p.Rating);
+                    cb.ComplexCollection(p => p.Comments, ccb => ccb.Property(c => c.Text));
+                });
         });
 
         return modelBuilder;
     }
 
-    [Theory]
-    [InlineData("Posts[")]                  // unterminated bracket
-    [InlineData("Posts[abc].Title")]        // non-numeric index
-    [InlineData("Posts[-1].Title")]         // negative index
-    [InlineData("Posts[].")]                // empty trailing segment
-    [InlineData(".Title")]                  // empty leading segment
-    [InlineData("[0].Title")]               // bracket at start of segment
-    [InlineData("")]                        // empty path
+    [Theory, InlineData("Posts["), InlineData("Posts[abc].Title"), InlineData("Posts[-1].Title"), InlineData("Posts[]."),
+     InlineData(".Title"), InlineData("[0].Title"), InlineData("")]
+    // unterminated bracket
+    // non-numeric index
+    // negative index
+    // empty trailing segment
+    // empty leading segment
+    // bracket at start of segment
+    // empty path
     public void MatchComplexPath_rejects_invalid_path(string path)
-    {
-        Assert.Null(InternalTypeBaseBuilder.MatchComplexPath(path));
-    }
+        => Assert.Null(InternalTypeBaseBuilder.MatchComplexPath(path));
 
-    [Theory]
-    [InlineData("Posts[].Title")]
-    [InlineData("Posts[*].Title")]
+    [Theory, InlineData("Posts[].Title"), InlineData("Posts[*].Title")]
     public void MatchComplexPath_accepts_all_elements_syntaxes(string path)
     {
         var parsed = InternalTypeBaseBuilder.MatchComplexPath(path);
@@ -302,9 +301,8 @@ public class IndexTest
         var titleProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType.FindProperty("Title")!;
         var tooManyIndices = new IReadOnlyList<int?>[] { [null, null] };
 
-        var ex = Assert.Throws<ArgumentException>(
-            () => new Index(
-                [titleProp], tooManyIndices, entityType, ConfigurationSource.Explicit));
+        var ex = Assert.Throws<ArgumentException>(() => new Index(
+            [titleProp], tooManyIndices, entityType, ConfigurationSource.Explicit));
 
         Assert.Contains(CoreStrings.InvalidCollectionIndicesEntryLength("Title", "{'" + titleProp.Name + "'}", 2, 1), ex.Message);
     }
@@ -319,9 +317,8 @@ public class IndexTest
         var titleProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType.FindProperty("Title")!;
         var emptyIndices = new IReadOnlyList<int?>[] { Array.Empty<int?>() };
 
-        var ex = Assert.Throws<ArgumentException>(
-            () => new Index(
-                [titleProp], emptyIndices, entityType, ConfigurationSource.Explicit));
+        var ex = Assert.Throws<ArgumentException>(() => new Index(
+            [titleProp], emptyIndices, entityType, ConfigurationSource.Explicit));
 
         Assert.Contains(CoreStrings.InvalidCollectionIndicesEntryLength("Title", "{'" + titleProp.Name + "'}", 0, 1), ex.Message);
     }
@@ -337,9 +334,8 @@ public class IndexTest
         var cityProp = (PropertyBase)entityType.FindComplexProperty("Owner")!.ComplexType.FindProperty("City")!;
         var wrongIndices = new IReadOnlyList<int?>[] { [null] };
 
-        var ex = Assert.Throws<ArgumentException>(
-            () => new Index(
-                [cityProp], wrongIndices, entityType, ConfigurationSource.Explicit));
+        var ex = Assert.Throws<ArgumentException>(() => new Index(
+            [cityProp], wrongIndices, entityType, ConfigurationSource.Explicit));
 
         Assert.Contains(CoreStrings.InvalidCollectionIndicesEntryLength("City", "{'" + cityProp.Name + "'}", 1, 0), ex.Message);
     }
@@ -384,9 +380,8 @@ public class IndexTest
         var postsProp = (PropertyBase)entityType.FindComplexProperty("Posts")!;
         var tooManyIndices = new IReadOnlyList<int?>[] { [null, null] };
 
-        var ex = Assert.Throws<ArgumentException>(
-            () => new Index(
-                [postsProp], tooManyIndices, entityType, ConfigurationSource.Explicit));
+        var ex = Assert.Throws<ArgumentException>(() => new Index(
+            [postsProp], tooManyIndices, entityType, ConfigurationSource.Explicit));
 
         Assert.Contains(CoreStrings.InvalidCollectionIndicesEntryLength("Posts", "{'" + postsProp.Name + "'}", 2, 1), ex.Message);
     }
@@ -515,8 +510,7 @@ public class IndexTest
         var textProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType
             .FindComplexProperty("Comments")!.ComplexType.FindProperty("Text")!;
 
-        var ex = Assert.Throws<ArgumentException>(
-            () => new Index([textProp], [[0]], entityType, ConfigurationSource.Explicit));
+        var ex = Assert.Throws<ArgumentException>(() => new Index([textProp], [[0]], entityType, ConfigurationSource.Explicit));
 
         Assert.Contains(
             CoreStrings.InvalidCollectionIndicesEntryLength("Text", "{'" + textProp.Name + "'}", 1, 2),
@@ -533,7 +527,7 @@ public class IndexTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(Blog))!;
         var titleProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType.FindProperty("Title")!;
 
-        var original = entityType.AddIndex([titleProp], [[5]], "IX_Reattach", ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([titleProp], [[5]], "IX_Reattach", ConfigurationSource.Explicit)!;
         original.SetIsUnique(true, ConfigurationSource.Explicit);
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
@@ -558,7 +552,7 @@ public class IndexTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(Blog))!;
         var titleProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType.FindProperty("Title")!;
 
-        var original = entityType.AddIndex([titleProp], [[null]], ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([titleProp], [[null]], ConfigurationSource.Explicit)!;
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
         Assert.Null(entityType.FindIndex([titleProp], [[null]]));
@@ -581,7 +575,7 @@ public class IndexTest
         var textProp = (PropertyBase)entityType.FindComplexProperty("Posts")!.ComplexType
             .FindComplexProperty("Comments")!.ComplexType.FindProperty("Text")!;
 
-        var original = entityType.AddIndex([textProp], [[0, 1]], "IX_NestedReattach", ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([textProp], [[0, 1]], "IX_NestedReattach", ConfigurationSource.Explicit)!;
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
         var reattached = detached.Attach(entityType.Builder);
@@ -605,7 +599,7 @@ public class IndexTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(Blog))!;
         var postsProp = (PropertyBase)entityType.FindComplexProperty("Posts")!;
 
-        var original = entityType.AddIndex([postsProp], [[7]], "IX_LeafCollectionReattach", ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([postsProp], [[7]], "IX_LeafCollectionReattach", ConfigurationSource.Explicit)!;
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
         var reattached = detached.Attach(entityType.Builder);
@@ -628,7 +622,7 @@ public class IndexTest
         var entityType = (EntityType)modelBuilder.Model.FindEntityType(typeof(Blog))!;
         var postsProp = (PropertyBase)entityType.FindComplexProperty("Posts")!;
 
-        var original = entityType.AddIndex([postsProp], [[null]], ConfigurationSource.Explicit);
+        var original = entityType.AddIndex([postsProp], [[null]], ConfigurationSource.Explicit)!;
 
         var detached = InternalEntityTypeBuilder.DetachIndex(original);
         var reattached = detached.Attach(entityType.Builder);
@@ -715,12 +709,11 @@ public class IndexTest
         // returns null while FindMembersInHierarchy still finds the derived-type member.
         var modelBuilder = new ModelBuilder();
         modelBuilder.Entity<InheritedBase>();
-        modelBuilder.Entity<InheritedDerived>(
-            b =>
-            {
-                b.HasBaseType<InheritedBase>();
-                b.Property(d => d.OnlyOnDerived);
-            });
+        modelBuilder.Entity<InheritedDerived>(b =>
+        {
+            b.HasBaseType<InheritedBase>();
+            b.Property(d => d.OnlyOnDerived);
+        });
 
         var baseType = (EntityType)modelBuilder.Model.FindEntityType(typeof(InheritedBase))!;
 

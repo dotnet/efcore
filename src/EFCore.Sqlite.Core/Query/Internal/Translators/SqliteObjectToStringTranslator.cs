@@ -38,9 +38,8 @@ public class SqliteObjectToStringTranslator(ISqlExpressionFactory sqlExpressionF
 
         if (instance.Type == typeof(bool))
         {
-            if (instance is not ColumnExpression { IsNullable: false })
-            {
-                return sqlExpressionFactory.Case(
+            return instance is not ColumnExpression { IsNullable: false }
+                ? sqlExpressionFactory.Case(
                     instance,
                     [
                         new CaseWhenClause(
@@ -50,16 +49,14 @@ public class SqliteObjectToStringTranslator(ISqlExpressionFactory sqlExpressionF
                             sqlExpressionFactory.Constant(true),
                             sqlExpressionFactory.Constant(true.ToString()))
                     ],
-                    sqlExpressionFactory.Constant(string.Empty));
-            }
-
-            return sqlExpressionFactory.Case(
-                [
-                    new CaseWhenClause(
-                        instance,
-                        sqlExpressionFactory.Constant(true.ToString()))
-                ],
-                sqlExpressionFactory.Constant(false.ToString()));
+                    sqlExpressionFactory.Constant(string.Empty))
+                : sqlExpressionFactory.Case(
+                    [
+                        new CaseWhenClause(
+                            instance,
+                            sqlExpressionFactory.Constant(true.ToString()))
+                    ],
+                    sqlExpressionFactory.Constant(false.ToString()));
         }
 
         // Enums are handled by EnumMethodTranslator

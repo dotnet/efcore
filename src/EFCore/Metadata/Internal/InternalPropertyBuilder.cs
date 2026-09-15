@@ -438,34 +438,26 @@ public class InternalPropertyBuilder
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         Type? valueGeneratorType,
         ConfigurationSource configurationSource)
-    {
-        if (valueGeneratorType == null)
-        {
-            return HasValueGenerator((Func<IProperty, ITypeBase, ValueGenerator>?)null, configurationSource);
-        }
-
-        if (!typeof(ValueGenerator).IsAssignableFrom(valueGeneratorType))
-        {
-            throw new ArgumentException(
-                CoreStrings.BadValueGeneratorType(valueGeneratorType.ShortDisplayName(), typeof(ValueGenerator).ShortDisplayName()));
-        }
-
-        return HasValueGenerator(
-            (_, _)
-                =>
-            {
-                try
-                {
-                    return (ValueGenerator)Activator.CreateInstance(valueGeneratorType)!;
-                }
-                catch (Exception e) when (!e.IsCritical())
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.CannotCreateValueGenerator(
-                            valueGeneratorType.ShortDisplayName(), nameof(PropertyBuilder.HasValueGenerator)), e);
-                }
-            }, configurationSource);
-    }
+        => valueGeneratorType == null
+            ? HasValueGenerator((Func<IProperty, ITypeBase, ValueGenerator>?)null, configurationSource)
+            : !typeof(ValueGenerator).IsAssignableFrom(valueGeneratorType)
+                ? throw new ArgumentException(
+                    CoreStrings.BadValueGeneratorType(valueGeneratorType.ShortDisplayName(), typeof(ValueGenerator).ShortDisplayName()))
+                : HasValueGenerator(
+                    (_, _)
+                        =>
+                    {
+                        try
+                        {
+                            return (ValueGenerator)Activator.CreateInstance(valueGeneratorType)!;
+                        }
+                        catch (Exception e) when (!e.IsCritical())
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.CannotCreateValueGenerator(
+                                    valueGeneratorType.ShortDisplayName(), nameof(PropertyBuilder.HasValueGenerator)), e);
+                        }
+                    }, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -721,17 +713,8 @@ public class InternalPropertyBuilder
         if (configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource()))
         {
             var errorString = Metadata.CheckValueComparer(comparer);
-            if (errorString != null)
-            {
-                if (configurationSource == ConfigurationSource.Explicit)
-                {
-                    throw new InvalidOperationException(errorString);
-                }
-
-                return false;
-            }
-
-            return true;
+            return errorString == null
+                || (configurationSource == ConfigurationSource.Explicit ? throw new InvalidOperationException(errorString) : false);
         }
 
         return Metadata[CoreAnnotationNames.ValueComparerType] == null
@@ -797,15 +780,9 @@ public class InternalPropertyBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetProviderValueComparer(ValueComparer? comparer, ConfigurationSource? configurationSource)
-    {
-        if (configurationSource.Overrides(Metadata.GetProviderValueComparerConfigurationSource()))
-        {
-            return true;
-        }
-
-        return Metadata[CoreAnnotationNames.ProviderValueComparerType] == null
-            && Metadata[CoreAnnotationNames.ProviderValueComparer] == comparer;
-    }
+        => configurationSource.Overrides(Metadata.GetProviderValueComparerConfigurationSource())
+            || (Metadata[CoreAnnotationNames.ProviderValueComparerType] == null
+                && Metadata[CoreAnnotationNames.ProviderValueComparer] == comparer);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

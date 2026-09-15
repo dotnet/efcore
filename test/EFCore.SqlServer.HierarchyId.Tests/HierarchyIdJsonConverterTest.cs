@@ -10,7 +10,7 @@ public class HierarchyIdJsonConverterTest
 {
     [Fact]
     public void Read_works()
-        => Assert.Equal("/1/", JsonSerializer.Deserialize<HierarchyId>("\"/1/\"").ToString());
+        => Assert.Equal("/1/", JsonSerializer.Deserialize<HierarchyId>("\"/1/\"")!.ToString());
 
     [Fact]
     public void Read_works_when_null()
@@ -22,5 +22,5 @@ public class HierarchyIdJsonConverterTest
 
     [Fact]
     public void Write_works_when_null()
-        => Assert.Equal("null", JsonSerializer.Serialize<HierarchyId>(null));
+        => Assert.Equal("null", JsonSerializer.Serialize<HierarchyId?>(null));
 }

@@ -1008,7 +1008,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
 
         switch (inExpression)
         {
-            case { Values: IReadOnlyList<SqlExpression> values}:
+            case { Values: IReadOnlyList<SqlExpression> values }:
                 GenerateList(values, e => Visit(e));
                 break;
 
@@ -1710,16 +1710,11 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
                 }
 
                 // Otherwise, wrap IS (NOT) NULL operation, except if it's in a logical operator
-                if (innerUnaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
+                return innerUnaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
                     && outerExpression is not SqlBinaryExpression
                     {
                         OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse or ExpressionType.Not
-                    })
-                {
-                    return true;
-                }
-
-                return false;
+                    };
             }
 
             case SqlBinaryExpression innerBinaryExpression:

@@ -246,8 +246,7 @@ public class ArrayPropertyValues : PropertyValues
 
             foreach (var propertyValues in list)
             {
-                propertyValues?.UpdateNullComplexPropertyFlags(
-                    cp => IsNullAlongChain(propertyValues.ToObject(), cp, isSameType: true));
+                propertyValues?.UpdateNullComplexPropertyFlags(cp => IsNullAlongChain(propertyValues.ToObject(), cp, isSameType: true));
             }
         }
     }
@@ -260,7 +259,7 @@ public class ArrayPropertyValues : PropertyValues
     private static bool? IsNullAlongChain(object obj, IComplexProperty complexProperty, bool isSameType)
     {
         var chain = complexProperty.GetChainToComplexProperty(fromEntity: false);
-        object? current = obj;
+        var current = obj;
 
         for (var j = 0; j < chain.Count; j++)
         {

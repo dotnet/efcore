@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -69,13 +68,13 @@ public class CosmosQueryTranslationPostprocessor(
     private void ValidateNoTrackingIdentityResolutionOwnedEntityProjection(Expression query)
     {
         if (queryCompilationContext.QueryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
-          || queryCompilationContext.RootEntityType is not { } rootEntityType
-          || query is not ShapedQueryExpression
-              {
-                  QueryExpression: SelectExpression selectExpression,
-                  ShaperExpression: var shaperExpression
-              }
-          || rootEntityType.FindPrimaryKey()?.Properties
+            || queryCompilationContext.RootEntityType is not { } rootEntityType
+            || query is not ShapedQueryExpression
+            {
+                QueryExpression: SelectExpression selectExpression,
+                ShaperExpression: var shaperExpression
+            }
+            || rootEntityType.FindPrimaryKey()?.Properties
                 .ToArray() is not { Length: > 0 } primaryKeyProperties)
         {
             return;
@@ -171,7 +170,7 @@ public class CosmosQueryTranslationPostprocessor(
             => projectionBindingExpression.ProjectionMember is not null
                 ? selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
                 : projectionBindingExpression.Index
-                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
+                ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
 
         private bool IsRootEntityType(IEntityType entityType)
             => entityType == rootEntityType
@@ -184,26 +183,20 @@ public class CosmosQueryTranslationPostprocessor(
         : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression node)
-        {
-            switch (node)
+            => node switch
             {
-                case ShapedQueryExpression:
-                    return node;
-
-                case ProjectionBindingExpression
+                ShapedQueryExpression => node,
+                ProjectionBindingExpression
                 {
                     QueryExpression: var queryExpression,
                     ProjectionMember: null,
                     Index: int index
                 } projectionBindingExpression
-                    when queryExpression == selectExpression:
-                    return new ProjectionBindingExpression(
+                    when queryExpression == selectExpression => new ProjectionBindingExpression(
                         selectExpression,
                         oldIndexToNewIndex[index],
-                        projectionBindingExpression.Type);
-            }
-
-            return base.VisitExtension(node);
-        }
+                        projectionBindingExpression.Type),
+                _ => base.VisitExtension(node),
+            };
     }
 }

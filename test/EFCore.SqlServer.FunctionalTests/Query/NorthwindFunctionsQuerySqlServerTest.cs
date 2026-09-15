@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -177,8 +175,8 @@ WHERE 0 = 1
             : query.ToList();
 
         var product9 = results.Single(r => r.ProductID == 9);
-        Assert.Equal(8.675943752699023, product9.SampleStandardDeviation.Value, 5);
-        Assert.Equal(7.759999999999856, product9.PopulationStandardDeviation.Value, 5);
+        Assert.Equal(8.675943752699023, product9.SampleStandardDeviation!.Value, 5);
+        Assert.Equal(7.759999999999856, product9.PopulationStandardDeviation!.Value, 5);
 
         AssertSql(
             """
@@ -207,8 +205,8 @@ GROUP BY [o].[ProductID]
             : query.ToList();
 
         var product9 = results.Single(r => r.ProductID == 9);
-        Assert.Equal(75.2719999999972, product9.SampleStandardDeviation.Value, 5);
-        Assert.Equal(60.217599999997766, product9.PopulationStandardDeviation.Value, 5);
+        Assert.Equal(75.2719999999972, product9.SampleStandardDeviation!.Value, 5);
+        Assert.Equal(60.217599999997766, product9.PopulationStandardDeviation!.Value, 5);
 
         AssertSql(
             """

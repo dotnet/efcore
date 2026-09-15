@@ -2296,6 +2296,24 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.DbQueryConcurrencyException : System.Exception",
+      "Methods": [
+        {
+          "Member": "DbQueryConcurrencyException();"
+        },
+        {
+          "Member": "DbQueryConcurrencyException(string message);"
+        },
+        {
+          "Member": "DbQueryConcurrencyException(string message, System.Exception? innerException);"
+        },
+        {
+          "Member": "DbQueryConcurrencyException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);",
+          "Stage": "Obsolete"
+        }
+      ]
+    },
+    {
       "Type": "abstract class Microsoft.EntityFrameworkCore.Diagnostics.DbTransactionInterceptor : Microsoft.EntityFrameworkCore.Diagnostics.IDbTransactionInterceptor, Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor",
       "Methods": [
         {
@@ -2814,6 +2832,25 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies RelationalDependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.EntityTypeMappingFragmentEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "Methods": [
+        {
+          "Member": "EntityTypeMappingFragmentEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool optional);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IEntityType EntityType { get; }"
+        },
+        {
+          "Member": "virtual bool IsOptional { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier StoreObject { get; }"
         }
       ]
     },
@@ -3896,7 +3933,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource GetConfigurationSource();"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsOptionalConfigurationSource();"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource();"
+        },
+        {
+          "Member": "bool? SetIsOptional(bool? optional, bool fromDataAnnotation = false);"
         },
         {
           "Member": "bool? SetIsTableExcludedFromMigrations(bool? excluded, bool fromDataAnnotation = false);"
@@ -5011,6 +5054,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType EntityType { get; }"
         },
         {
+          "Member": "bool IsOptional { get; set; }"
+        },
+        {
           "Member": "bool? IsTableExcludedFromMigrations { get; set; }"
         }
       ]
@@ -5587,6 +5633,9 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType EntityType { get; }"
+        },
+        {
+          "Member": "bool IsOptional { get; }"
         },
         {
           "Member": "bool? IsTableExcludedFromMigrations { get; }"
@@ -7172,6 +7221,9 @@
           "Member": "bool? IsSplitEntityTypePrincipal { get; }"
         },
         {
+          "Member": "bool IsSplitFragmentOptional { get; }"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ITableBase Table { get; }"
         },
         {
@@ -8507,6 +8559,15 @@
           "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.IUpdateEntry> Entries { get; }"
         },
         {
+          "Member": "virtual bool IsOptionalSplitFragment { get; }"
+        },
+        {
+          "Member": "virtual bool IsOptionalSplitFragmentPayloadAllNull { get; }"
+        },
+        {
+          "Member": "virtual bool IsOptionalSplitFragmentRowAssumedAbsent { get; }"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IColumnBase? RowsAffectedColumn { get; private set; }"
         },
         {
@@ -8817,6 +8878,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TableTriggerBuilder HasTrigger(string modelName);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder IsOptional(bool optional = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder Property(string propertyName);"
         },
         {
@@ -8849,6 +8913,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> IsOptional(bool optional = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder<TProperty> Property<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty>> propertyExpression);"
@@ -9987,6 +10054,10 @@
         {
           "Member": "const string DeleteStoredProcedureParameterMappings",
           "Value": "Relational:DeleteStoredProcedureParameterMappings"
+        },
+        {
+          "Member": "const string EntityTypeMappingFragmentIsOptional",
+          "Value": "Relational:EntityTypeMappingFragmentIsOptional"
         },
         {
           "Member": "const string FieldValueGetter",
@@ -12710,6 +12781,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId DuplicateColumnOrders"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId EntitySplittingFragmentOptionalityChangedWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ExecuteDeleteFailed"
         },
         {
@@ -13073,6 +13147,9 @@
           "Member": "RelationalGroupByResultExpression(System.Linq.Expressions.Expression keyIdentifier, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer> keyIdentifierValueComparers, System.Linq.Expressions.Expression keyShaper, System.Linq.Expressions.Expression elementShaper);"
         },
         {
+          "Member": "RelationalGroupByResultExpression(System.Linq.Expressions.Expression keyIdentifier, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer> keyIdentifierValueComparers, System.Linq.Expressions.Expression keyShaper, System.Linq.Expressions.Expression elementShaper, System.Linq.Expressions.LambdaExpression? resultSelector);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.RelationalGroupByResultExpression Update(System.Linq.Expressions.Expression keyIdentifier, System.Linq.Expressions.Expression keyShaper, System.Linq.Expressions.Expression elementShaper);"
         },
         {
@@ -13096,6 +13173,9 @@
           "Member": "sealed override System.Linq.Expressions.ExpressionType NodeType { get; }"
         },
         {
+          "Member": "virtual System.Linq.Expressions.LambdaExpression? ResultSelector { get; }"
+        },
+        {
           "Member": "override System.Type Type { get; }"
         }
       ]
@@ -13107,6 +13187,9 @@
           "Member": "RelationalGroupByShaperExpression(System.Linq.Expressions.Expression keySelector, System.Linq.Expressions.Expression elementSelector, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression groupingEnumerable);"
         },
         {
+          "Member": "RelationalGroupByShaperExpression(System.Linq.Expressions.Expression keySelector, System.Linq.Expressions.Expression elementSelector, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression groupingEnumerable, System.Linq.Expressions.LambdaExpression? resultSelector);"
+        },
+        {
           "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
         },
         {
@@ -13116,6 +13199,12 @@
       "Properties": [
         {
           "Member": "virtual System.Linq.Expressions.Expression ElementSelector { get; }"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.LambdaExpression? ResultSelector { get; }"
+        },
+        {
+          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -13435,6 +13524,9 @@
         },
         {
           "Member": "static void DuplicateColumnOrders(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, System.Collections.Generic.IReadOnlyList<string> columns);"
+        },
+        {
+          "Member": "static void EntitySplittingFragmentOptionalityChangedWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Migrations> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool optional);"
         },
         {
           "Member": "static void ExecuteDeleteFailed(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, System.Type contextType, System.Exception exception);"
@@ -15379,6 +15471,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TransformJsonQueryToTable(Microsoft.EntityFrameworkCore.Query.JsonQueryExpression jsonQueryExpression);"
         },
         {
+          "Member": "override System.Linq.Expressions.Expression Translate(System.Linq.Expressions.Expression expression);"
+        },
+        {
           "Member": "override Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateAll(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression predicate);"
         },
         {
@@ -16502,6 +16597,12 @@
           "Member": "static string EntitySplittingMissingRequiredPropertiesOptionalDependent(object? entityType, object? storeObject, object? requiredDependentConfig);"
         },
         {
+          "Member": "static string EntitySplittingNonNullablePropertyOnOptionalFragment(object? entityType, object? storeObject, object? property);"
+        },
+        {
+          "Member": "static string EntitySplittingOptionalFragmentSharedTable(object? entityType, object? storeObject, object? principalEntityType);"
+        },
+        {
           "Member": "static string EntitySplittingUnmappedMainFragment(object? entityType, object? storeObject, object? storeObjectType);"
         },
         {
@@ -16542,6 +16643,9 @@
         },
         {
           "Member": "static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType);"
+        },
+        {
+          "Member": "static string ExecuteUpdateOnOptionalEntitySplittingFragment(object? entityType, object? property, object? storeObject);"
         },
         {
           "Member": "static string ExecuteUpdateOverJsonIsNotSupported(object? structuralType);"
@@ -17199,6 +17303,9 @@
         },
         {
           "Member": "static string SetOperationsNotAllowedAfterClientEvaluation { get; }"
+        },
+        {
+          "Member": "static string SplitQueryConcurrentModification { get; }"
         },
         {
           "Member": "static string SplitQueryString { get; }"
@@ -18347,7 +18454,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityTypeMappingFragment : Microsoft.EntityFrameworkCore.Infrastructure.AnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.IEntityTypeMappingFragment, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityTypeMappingFragment, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
       "Methods": [
         {
-          "Member": "RuntimeEntityTypeMappingFragment(Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool? isTableExcludedFromMigrations);"
+          "Member": "RuntimeEntityTypeMappingFragment(Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool? isTableExcludedFromMigrations, bool isOptional = false);"
         },
         {
           "Member": "override string ToString();"
@@ -18356,6 +18463,9 @@
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType EntityType { get; }"
+        },
+        {
+          "Member": "virtual bool IsOptional { get; }"
         },
         {
           "Member": "virtual bool? IsTableExcludedFromMigrations { get; }"
@@ -18911,6 +19021,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TableTriggerBuilder HasTrigger(string modelName);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder IsOptional(bool optional = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder Property(string propertyName);"
         },
         {
@@ -18943,6 +19056,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> HasAnnotation(string annotation, object? value);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> IsOptional(bool optional = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder<TProperty> Property<TProperty>(System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression);"

@@ -209,7 +209,7 @@ public class TemporaryValuesTest
 
         public int ValueProperty { get; set; }
         public int? NullableValueProperty { get; set; }
-        public string ReferenceValueProperty { get; set; }
+        public string ReferenceValueProperty { get; set; } = null!;
     }
 
     private class EntityWithIndexerValueProperty
@@ -220,7 +220,7 @@ public class TemporaryValuesTest
 
         public int this[string name]
         {
-            get => _values.TryGetValue(name, out var value) ? value : default;
+            get => _values.TryGetValue(name, out var value) ? value : default!;
             set => _values[name] = value;
         }
     }
@@ -233,7 +233,7 @@ public class TemporaryValuesTest
 
         public int? this[string name]
         {
-            get => _values.TryGetValue(name, out var value) ? value : default;
+            get => _values.TryGetValue(name, out var value) ? value : default!;
             set => _values[name] = value;
         }
     }
@@ -246,7 +246,7 @@ public class TemporaryValuesTest
 
         public string this[string name]
         {
-            get => _values.TryGetValue(name, out var value) ? value : default;
+            get => _values.TryGetValue(name, out var value) ? value : default!;
             set => _values[name] = value;
         }
     }
@@ -259,7 +259,7 @@ public class TemporaryValuesTest
 
         public object this[string name]
         {
-            get => _values.TryGetValue(name, out var value) ? value : default;
+            get => _values.TryGetValue(name, out var value) ? value : default!;
             set => _values[name] = value;
         }
     }

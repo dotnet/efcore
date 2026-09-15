@@ -39,10 +39,12 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_associate_collection(queryTrackingBehavior));
 
     public override Task Select_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_nested_collection_on_required_associate(queryTrackingBehavior));
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior, () => base.Select_nested_collection_on_required_associate(queryTrackingBehavior));
 
     public override Task Select_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.Select_nested_collection_on_optional_associate(queryTrackingBehavior));
+        => AssertOwnedTrackingQuery(
+            queryTrackingBehavior, () => base.Select_nested_collection_on_optional_associate(queryTrackingBehavior));
 
     public override Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(queryTrackingBehavior, () => base.SelectMany_associate_collection(queryTrackingBehavior));

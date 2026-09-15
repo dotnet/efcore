@@ -18,7 +18,7 @@ public abstract class OwnedJsonStructuralEqualityRelationalTestBase<TFixture> : 
 
     // #36401
     public override Task Associate_with_parameter_null()
-        => Assert.ThrowsAsync<EqualException>(() => base.Associate_with_parameter_null());
+        => Assert.ThrowsAsync<EqualException>(base.Associate_with_parameter_null);
 
     #region Contains
 

@@ -189,9 +189,11 @@ WHERE [p].[Int] NOT IN (
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
+    public override async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
+        await base
+            .Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
@@ -207,7 +209,8 @@ WHERE [p].[Int] NOT IN (
         Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    public override async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
     {
         await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
 
@@ -1754,7 +1757,6 @@ WHERE [p].[Int] IN (10, 999)
 """);
     }
 
-
     public override async Task Contains_on_MemoryExtensions()
     {
         await base.Contains_on_MemoryExtensions();
@@ -1996,15 +1998,12 @@ WHERE (
 """);
     }
 
-        public override async Task Parameter_collection_index_Column_equal_Column()
+    public override async Task Parameter_collection_index_Column_equal_Column()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Parameter_collection_index_Column_equal_Column();
@@ -2019,15 +2018,12 @@ WHERE JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']' RETURNING 
 """);
     }
 
-        public override async Task Parameter_collection_index_Column_equal_constant()
+    public override async Task Parameter_collection_index_Column_equal_constant()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Parameter_collection_index_Column_equal_constant();
@@ -3080,10 +3076,8 @@ WHERE (
             base.OnModelCreating(modelBuilder, context);
 
             modelBuilder.Entity<PrimitiveCollectionsEntity>(b =>
-            {
                 // Map DateTime to non-default datetime instead of the default datetime2 to exercise type mapping inference
-                b.Property(p => p.DateTime).HasColumnType("datetime");
-            });
+                b.Property(p => p.DateTime).HasColumnType("datetime"));
         }
     }
 }

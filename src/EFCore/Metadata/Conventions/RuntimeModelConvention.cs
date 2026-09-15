@@ -600,12 +600,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (property.DeclaringType is IEntityType)
         {
-            if (property is IComplexProperty)
-            {
-                return (RuntimePropertyBase)runtimeEntityType.FindComplexProperty(property.Name)!;
-            }
-
-            return runtimeEntityType.FindProperty(property.Name)!;
+            return property is IComplexProperty
+                ? runtimeEntityType.FindComplexProperty(property.Name)!
+                : runtimeEntityType.FindProperty(property.Name)!;
         }
 
         // Build the chain of complex property names from entity down to the property's declaring type.
@@ -623,12 +620,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             currentType = currentType.FindComplexProperty(complexPropertyName)!.ComplexType;
         }
 
-        if (property is IComplexProperty)
-        {
-            return (RuntimePropertyBase)currentType.FindComplexProperty(property.Name)!;
-        }
-
-        return (RuntimePropertyBase)currentType.FindProperty(property.Name)!;
+        return property is IComplexProperty
+            ? (RuntimePropertyBase)currentType.FindComplexProperty(property.Name)!
+            : (RuntimePropertyBase)currentType.FindProperty(property.Name)!;
     }
 
     /// <summary>
@@ -691,7 +685,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         var principalEntityType = runtimeEntityType.Model.FindEntityType(foreignKey.PrincipalEntityType.Name)!;
         return runtimeEntityType.AddForeignKey(
-            runtimeEntityType.FindProperties(foreignKey.Properties.Select(p => p.Name))!,
+            foreignKey.Properties.Select(p => FindRuntimeProperty(runtimeEntityType, p)).ToArray(),
             GetKey(foreignKey.PrincipalKey, principalEntityType),
             principalEntityType,
             foreignKey.DeleteBehavior,
@@ -816,7 +810,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     /// <returns>The corresponding read-optimized foreign key.</returns>
     protected virtual RuntimeForeignKey GetForeignKey(IForeignKey foreignKey, RuntimeEntityType entityType)
         => entityType.FindDeclaredForeignKeys(
-                entityType.FindProperties(foreignKey.Properties.Select(p => p.Name))!)
+                foreignKey.Properties.Select(p => FindRuntimeProperty(entityType, p)).ToArray())
             .Single(fk => fk.PrincipalEntityType.Name == foreignKey.PrincipalEntityType.Name
                 && fk.PrincipalKey.Properties.Select(p => p.Name).SequenceEqual(
                     foreignKey.PrincipalKey.Properties.Select(p => p.Name)));
@@ -828,7 +822,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     /// <param name="entityType">The declaring entity type.</param>
     /// <returns>The corresponding read-optimized key.</returns>
     protected virtual RuntimeKey GetKey(IKey key, RuntimeEntityType entityType)
-        => entityType.FindKey(entityType.FindProperties(key.Properties.Select(p => p.Name))!)!;
+        => entityType.FindKey(key.Properties.Select(p => FindRuntimeProperty(entityType, p)).ToArray())!;
 
     /// <summary>
     ///     Gets the corresponding index in the read-optimized model.
@@ -838,7 +832,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     /// <returns>The corresponding read-optimized index.</returns>
     protected virtual RuntimeIndex GetIndex(IIndex index, RuntimeEntityType entityType)
         => index.Name == null
-            ? entityType.FindIndex(entityType.FindProperties(index.Properties.Select(p => p.Name))!)!
+            ? entityType.FindIndex(index.Properties.Select(p => FindRuntimePropertyBase(entityType, p)).ToArray())!
             : entityType.FindIndex(index.Name)!;
 
     /// <summary>

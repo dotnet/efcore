@@ -61,7 +61,7 @@ WHERE (c["OptionalAssociate"] = null)
     }
 
     public override Task Associate_with_parameter_null()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Associate_with_parameter_null());
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Associate_with_parameter_null);
 
     public override async Task Nested_associate_with_inline_null()
     {
@@ -120,8 +120,9 @@ WHERE false
     [Fact]
     public async Task Contains_with_inline_null()
     {
-        await AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
-            e.RequiredAssociate.NestedCollection.Contains(null!)), assertEmpty: true);
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e =>
+                e.RequiredAssociate.NestedCollection.Contains(null!)), assertEmpty: true);
 
         AssertSql(
             """
@@ -137,7 +138,7 @@ WHERE EXISTS (
     public override async Task Contains_with_inline()
     {
         // No backing field could be found for property 'RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType.RelatedTypeRootEntityId' and the property does not have a getter.
-        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Contains_with_inline());
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_inline);
 
         AssertSql();
     }

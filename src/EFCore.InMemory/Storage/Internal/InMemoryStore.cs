@@ -123,7 +123,7 @@ public class InMemoryStore : IInMemoryStore
     }
 
     private static Dictionary<string, IInMemoryTable> CreateTables()
-        => new();
+        => [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

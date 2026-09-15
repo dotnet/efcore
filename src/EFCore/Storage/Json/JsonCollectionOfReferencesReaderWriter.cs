@@ -38,7 +38,7 @@ public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElemen
         IList<TElement?> collection;
         if (IsReadOnly)
         {
-            collection = new List<TElement?>();
+            collection = [];
         }
         else if (existingObject == null)
         {

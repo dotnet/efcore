@@ -150,7 +150,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal("$type", entityType.FindDiscriminatorProperty()!.GetJsonPropertyName());
         Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
 
-        modelBuilder.Entity<Customer>().HasBaseType((string)null);
+        modelBuilder.Entity<Customer>().HasBaseType((string?)null);
 
         Assert.Null(entityType.FindDiscriminatorProperty());
     }
@@ -226,10 +226,8 @@ public class CosmosBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         TriggerBuilder triggerBuilder = null!;
-        modelBuilder.Entity<Customer>(entity =>
-        {
-            triggerBuilder = entity.HasTrigger("TestTrigger", TriggerType.Pre, TriggerOperation.Create);
-        });
+        modelBuilder.Entity<Customer>(entity
+            => triggerBuilder = entity.HasTrigger("TestTrigger", TriggerType.Pre, TriggerOperation.Create));
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
         var trigger = entityType.FindDeclaredTrigger("TestTrigger")!;
@@ -244,8 +242,8 @@ public class CosmosBuilderExtensionsTest
     private class Customer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public short SomeShort { get; set; }
-        public string ETag { get; set; }
+        public string ETag { get; set; } = null!;
     }
 }

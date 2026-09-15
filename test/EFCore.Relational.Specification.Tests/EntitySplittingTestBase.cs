@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
     protected EntitySplittingTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
@@ -64,9 +62,10 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
                     }
                 });
 
-                Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+                Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[..^1], exception.Message);
                 var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
-                Assert.StartsWith(RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"), innerException.Message);
+                Assert.StartsWith(
+                    RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"), innerException.Message);
             });
     }
 
@@ -81,7 +80,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected ContextFactory<EntitySplittingContext> ContextFactory { get; private set; }
+    protected ContextFactory<EntitySplittingContext>? ContextFactory { get; private set; }
 
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
@@ -100,8 +99,8 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
 
     protected async Task InitializeAsync(
         Action<ModelBuilder> onModelCreating,
-        Func<DbContextOptionsBuilder, Task> onConfiguring = null,
-        Func<EntitySplittingContext, Task> seed = null,
+        Func<DbContextOptionsBuilder, Task>? onConfiguring = null,
+        Func<EntitySplittingContext, Task>? seed = null,
         bool sensitiveLogEnabled = true)
         => ContextFactory = await InitializeNonSharedTest(
             onModelCreating,
@@ -117,7 +116,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         );
 
     protected virtual EntitySplittingContext CreateContext()
-        => ContextFactory.CreateDbContext();
+        => ContextFactory!.CreateDbContext();
 
     public override async ValueTask DisposeAsync()
     {
@@ -128,15 +127,15 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
 
     protected class EntitySplittingContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public DbSet<MeterReading> MeterReadings { get; set; }
+        public DbSet<MeterReading> MeterReadings { get; set; } = null!;
     }
 
     protected class MeterReading
     {
         public int Id { get; set; }
         public MeterReadingStatus? ReadingStatus { get; set; }
-        public string CurrentRead { get; set; }
-        public string PreviousRead { get; set; }
+        public string? CurrentRead { get; set; }
+        public string? PreviousRead { get; set; }
     }
 
     protected enum MeterReadingStatus

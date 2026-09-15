@@ -36,9 +36,7 @@ WHERE [t].[Value].STEquals('POINT (-122.34877 47.6233355)') = CAST(1 AS bit)
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {

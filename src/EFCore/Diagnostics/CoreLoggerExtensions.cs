@@ -1059,7 +1059,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ServiceProviderDebugInfoEventData(
                 definition,
-                (d, p) => ServiceProviderDebugInfo(d, p),
+                ServiceProviderDebugInfo,
                 newDebugInfo,
                 cachedDebugInfos);
 

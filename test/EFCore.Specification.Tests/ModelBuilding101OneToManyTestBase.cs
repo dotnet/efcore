@@ -7,8 +7,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ModelBuilding101TestBase
 {
     [Fact]
@@ -20,14 +18,14 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -76,7 +74,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -87,7 +85,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [InverseProperty("Posts"), ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -107,14 +105,14 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -163,7 +161,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -174,7 +172,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId { get; set; }
 
                 [InverseProperty("Posts"), ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -194,13 +192,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class Context0 : Context101
@@ -253,7 +251,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -261,7 +259,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -278,7 +276,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -286,7 +284,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Posts"), ForeignKey("BlogId"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -306,13 +304,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class Context0 : Context101
@@ -361,7 +359,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -369,7 +367,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Posts"), ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -389,7 +387,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -444,7 +442,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -470,7 +468,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -525,7 +523,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -551,7 +549,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -603,7 +601,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -632,7 +630,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -686,7 +684,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -717,7 +715,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -774,7 +772,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -800,7 +798,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -857,7 +855,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId { get; set; }
 
                 [ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -882,7 +880,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class Context0 : Context101
@@ -941,7 +939,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -963,7 +961,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [Required, ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -988,7 +986,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class Context0 : Context101
@@ -1042,7 +1040,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -1278,14 +1276,14 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -1348,7 +1346,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             [Index(nameof(BlogId))]
@@ -1360,7 +1358,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [ForeignKey("BlogId"), Required, InverseProperty("Posts")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1400,14 +1398,14 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -1455,7 +1453,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1466,7 +1464,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId { get; set; }
 
                 [InverseProperty("Posts"), ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1493,13 +1491,13 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class Context0 : Context101
@@ -1546,7 +1544,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
                 public int AlternateId { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1554,7 +1552,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1578,7 +1576,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1586,7 +1584,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [Required, ForeignKey("BlogAlternateId"), InverseProperty("Posts")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1613,13 +1611,13 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -1667,7 +1665,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1675,7 +1673,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogAlternateId"), InverseProperty("Posts")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1702,7 +1700,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1710,7 +1708,7 @@ public abstract partial class ModelBuilding101TestBase
             public int Id { get; set; }
             public int BlogId1 { get; set; }
             public int BlogId2 { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -1777,7 +1775,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1785,7 +1783,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
                 public int BlogId1 { get; set; }
                 public int BlogId2 { get; set; }
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1804,7 +1802,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1814,7 +1812,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId2 { get; set; }
 
                 [ForeignKey("BlogId1, BlogId2"), InverseProperty("Posts"), Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1835,7 +1833,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1843,7 +1841,7 @@ public abstract partial class ModelBuilding101TestBase
             public int Id { get; set; }
             public int BlogId1 { get; set; }
             public int? BlogId2 { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -1909,7 +1907,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1917,7 +1915,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
                 public int BlogId1 { get; set; }
                 public int? BlogId2 { get; set; }
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1936,7 +1934,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1946,7 +1944,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int? BlogId2 { get; set; }
 
                 [InverseProperty("Posts"), ForeignKey("BlogId1, BlogId2")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -1967,13 +1965,13 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -2048,7 +2046,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2056,7 +2054,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [Required]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -2075,7 +2073,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2083,7 +2081,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [Required, ForeignKey("BlogId1, BlogId2"), InverseProperty("Posts")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -2104,13 +2102,13 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class Context0 : Context101
@@ -2176,13 +2174,13 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
             {
                 public int Id { get; set; }
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -2201,7 +2199,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2209,7 +2207,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Posts"), ForeignKey("BlogId1, BlogId2")]
-                public Blog Blog { get; set; }
+                public Blog? Blog { get; set; }
             }
 
             public DbSet<Blog> Blogs
@@ -2231,8 +2229,8 @@ public abstract partial class ModelBuilding101TestBase
             public int Id { get; set; }
 
             public int? ManagerId { get; set; }
-            public Employee Manager { get; set; }
-            public ICollection<Employee> Reports { get; } = new List<Employee>();
+            public Employee Manager { get; set; } = null!;
+            public ICollection<Employee> Reports { get; } = [];
         }
 
         public class Context0 : Context101
@@ -2270,10 +2268,10 @@ public abstract partial class ModelBuilding101TestBase
                 public int? ManagerId { get; set; }
 
                 [InverseProperty("Reports"), ForeignKey("ManagerId")]
-                public Employee Manager { get; set; }
+                public Employee Manager { get; set; } = null!;
 
                 [InverseProperty("Manager")]
-                public ICollection<Employee> Reports { get; } = new List<Employee>();
+                public ICollection<Employee> Reports { get; } = [];
             }
 
             public DbSet<Employee> Employees
@@ -2290,14 +2288,14 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         public class Context0 : Context101
@@ -2344,7 +2342,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2353,7 +2351,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [DeleteBehavior(DeleteBehavior.Restrict)]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs
@@ -2370,7 +2368,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2381,7 +2379,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int BlogId { get; set; }
 
                 [DeleteBehavior(DeleteBehavior.Restrict), InverseProperty("Posts"), Required, ForeignKey("BlogId")]
-                public Blog Blog { get; set; }
+                public Blog Blog { get; set; } = null!;
             }
 
             public DbSet<Blog> Blogs

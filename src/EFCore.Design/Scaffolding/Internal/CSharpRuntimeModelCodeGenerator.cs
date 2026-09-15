@@ -1809,6 +1809,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             return null;
         }
+
         switch (member)
         {
             case FieldInfo field:
@@ -3231,7 +3232,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             annotatable,
             parameters with
             {
-                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
+                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = true
             });
     }
 

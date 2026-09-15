@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -120,8 +119,8 @@ public class SqlServerDatabaseModelFactory(
             foreach (var table in tableList)
             {
                 var (parsedSchema, parsedTableName) = Parse(table);
-                if (!databaseModel.Tables.Any(t => !string.IsNullOrEmpty(parsedSchema)
-                        && t.Schema == parsedSchema
+                if (!databaseModel.Tables.Any(t => (!string.IsNullOrEmpty(parsedSchema)
+                            && t.Schema == parsedSchema)
                         || t.Name == parsedTableName))
                 {
                     _logger.MissingTableWarning(table);
@@ -839,9 +838,7 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                         ? ValueGenerated.OnAdd
                         : storeType == "rowversion"
                             ? ValueGenerated.OnAddOrUpdate
-#pragma warning disable IDE0034 // Simplify 'default' expression - Ternary expression causes default(ValueGenerated) which is non-nullable
                             : default(ValueGenerated?)
-#pragma warning restore IDE0034 // Simplify 'default' expression
                 };
 
                 if (storeType == "rowversion")
@@ -882,8 +879,8 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
         Unwrap();
         if (defaultValueSql.StartsWith("CONVERT", StringComparison.OrdinalIgnoreCase))
         {
-            defaultValueSql = defaultValueSql.Substring(defaultValueSql.IndexOf(',') + 1);
-            defaultValueSql = defaultValueSql.Substring(0, defaultValueSql.LastIndexOf(')'));
+            defaultValueSql = defaultValueSql[(defaultValueSql.IndexOf(',') + 1)..];
+            defaultValueSql = defaultValueSql[..defaultValueSql.LastIndexOf(')')];
             Unwrap();
         }
 
@@ -966,7 +963,7 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
         {
             while (defaultValueSql.StartsWith('(') && defaultValueSql.EndsWith(')'))
             {
-                defaultValueSql = (defaultValueSql.Substring(1, defaultValueSql.Length - 2)).Trim();
+                defaultValueSql = defaultValueSql[1..^1].Trim();
             }
         }
     }
@@ -1694,7 +1691,8 @@ ORDER BY [table_schema], [table_name], [tr].[name];
         => IsFullFeaturedEngineEdition;
 
     private bool IsFullFeaturedEngineEdition
-        => _engineEdition is not EngineEdition.AzureSynapseAnalytics and not EngineEdition.AzureSynapseServerlessOrFabric and not EngineEdition.DynamicsCrm
+        => _engineEdition is not EngineEdition.AzureSynapseAnalytics and not EngineEdition.AzureSynapseServerlessOrFabric
+                and not EngineEdition.DynamicsCrm
             && _version != "Microsoft SQL Kusto";
 
     private static string DisplayName(string? schema, string name)
@@ -1734,7 +1732,7 @@ ORDER BY [table_schema], [table_name], [tr].[name];
         Express = 4,
 
         /// <summary>
-        ///    SQL Database (Azure SQL Database)
+        ///     SQL Database (Azure SQL Database)
         /// </summary>
         SqlDatabase = 5,
 

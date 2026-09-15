@@ -132,12 +132,7 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
 
         // Convert.ChangeType cannot convert to enum types; use Enum.ToObject instead, which handles
         // conversion from different enum types (with the same underlying type) or from integral types.
-        if (unwrappedType.IsEnum)
-        {
-            return (T)Enum.ToObject(unwrappedType, value);
-        }
-
-        return (T)Convert.ChangeType(value, unwrappedType);
+        return unwrappedType.IsEnum ? (T)Enum.ToObject(unwrappedType, value) : (T)Convert.ChangeType(value, unwrappedType);
     }
 
     /// <summary>

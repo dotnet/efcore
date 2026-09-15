@@ -17,7 +17,7 @@ public sealed class StructuredJsonPathSegment
     /// <param name="propertyName">The JSON property name.</param>
     public StructuredJsonPathSegment(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         PropertyName = propertyName;
         IsArray = false;

@@ -68,13 +68,14 @@ public abstract class TestStore(string name, bool shared) : IAsyncDisposable
                 // The previous attempt may have left tracked entities; reset before retrying.
                 context.ChangeTracker.Clear();
             }
-            
+
             if (firstAttempt || !SupportsTransactions)
             {
                 if (clean != null)
                 {
                     await clean(context);
                 }
+
                 await CleanAsync(context);
             }
 
@@ -84,7 +85,6 @@ public abstract class TestStore(string name, bool shared) : IAsyncDisposable
                 await seed(context);
             }
         });
-
     }
 
     /// <summary>

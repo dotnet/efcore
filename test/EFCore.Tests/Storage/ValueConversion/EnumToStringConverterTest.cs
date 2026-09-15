@@ -51,7 +51,7 @@ public class EnumToStringConverterTest
         Assert.Equal(default, converter("0"));
         Assert.Equal(default, converter(""));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
 
         Assert.Equal(
             CoreStrings.CannotConvertEnumValue("Jon", "Beatles"),

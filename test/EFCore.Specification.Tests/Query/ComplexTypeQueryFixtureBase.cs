@@ -129,18 +129,8 @@ public abstract class ComplexTypeQueryFixtureBase : QueryFixtureBase<PoolableDbC
                 }
             }
         },
-        {
-            typeof(AddressStruct), (AddressStruct e, AddressStruct a) =>
-            {
-                AssertAddressStruct(e, a);
-            }
-        },
-        {
-            typeof(CountryStruct), (CountryStruct e, CountryStruct a) =>
-            {
-                AssertCountryStruct(e, e);
-            }
-        },
+        { typeof(AddressStruct), (AddressStruct e, AddressStruct a) => AssertAddressStruct(e, a) },
+        { typeof(CountryStruct), (CountryStruct e, CountryStruct a) => AssertCountryStruct(e, e) },
         {
             typeof(ValuedCustomerGroup), (ValuedCustomerGroup e, ValuedCustomerGroup a) =>
             {

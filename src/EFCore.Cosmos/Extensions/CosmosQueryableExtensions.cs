@@ -245,24 +245,20 @@ public static class CosmosQueryableExtensions
         string? continuationToken,
         int? responseContinuationTokenLimitInKb = null,
         CancellationToken cancellationToken = default)
-    {
-        if (source.Provider is not IAsyncQueryProvider provider)
-        {
-            throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
-        }
-
-        return provider.ExecuteAsync<Task<CosmosPage<TSource>>>(
-            Expression.Call(
-                instance: null,
-                method: new Func<IQueryable<TSource>, int, string?, int?, CancellationToken, Task<CosmosPage<TSource>>>(ToPageAsync).Method,
-                arguments:
-                [
-                    source.Expression,
-                    Expression.Constant(pageSize, typeof(int)),
-                    Expression.Constant(continuationToken, typeof(string)),
-                    Expression.Constant(responseContinuationTokenLimitInKb, typeof(int?)),
-                    Expression.Constant(default(CancellationToken), typeof(CancellationToken))
-                ]),
-            cancellationToken);
-    }
+        => source.Provider is not IAsyncQueryProvider provider
+            ? throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync)
+            : provider.ExecuteAsync<Task<CosmosPage<TSource>>>(
+                Expression.Call(
+                    instance: null,
+                    method: new Func<IQueryable<TSource>, int, string?, int?, CancellationToken, Task<CosmosPage<TSource>>>(ToPageAsync)
+                        .Method,
+                    arguments:
+                    [
+                        source.Expression,
+                        Expression.Constant(pageSize, typeof(int)),
+                        Expression.Constant(continuationToken, typeof(string)),
+                        Expression.Constant(responseContinuationTokenLimitInKb, typeof(int?)),
+                        Expression.Constant(default(CancellationToken), typeof(CancellationToken))
+                    ]),
+                cancellationToken);
 }

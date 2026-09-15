@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -2574,9 +2572,9 @@ public class ChangeTrackerTest
         {
             newCategory.Products.AddRange(
             [
-                new() { Id = 1, CategoryId = category.Id },
-                    new() { Id = 2, CategoryId = category.Id },
-                    new() { Id = 3, CategoryId = category.Id }
+                new OptionalProduct { Id = 1, CategoryId = category.Id },
+                new OptionalProduct { Id = 2, CategoryId = category.Id },
+                new OptionalProduct { Id = 3, CategoryId = category.Id }
             ]);
         }
 
@@ -3530,7 +3528,8 @@ public class ChangeTrackerTest
             Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(modified: true));
             Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(deleted: true));
             Assert.Equal(2, context.ChangeTracker.GetEntriesForState<Product>(added: true, modified: true).Count());
-            Assert.Equal(4, context.ChangeTracker.GetEntriesForState<Product>(added: true, modified: true, deleted: true, unchanged: true).Count());
+            Assert.Equal(
+                4, context.ChangeTracker.GetEntriesForState<Product>(added: true, modified: true, deleted: true, unchanged: true).Count());
             Assert.Empty(context.ChangeTracker.GetEntriesForState<Product>());
         }
         else

@@ -150,14 +150,14 @@ public class ProxyGraphUpdatesInMemoryTest
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
         {
-            var exception = await Record.ExceptionAsync(
-                () => base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached(
+            var exception = await Record.ExceptionAsync(()
+                => base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached(
                     cascadeDeleteTiming, deleteOrphansTiming));
 
             // InMemory currently has mixed behavior for this path (#3924) because cascade operations and graph fixup
             // aren't fully consistent across proxy/lazy-loading combinations; some combinations complete, others fail
             // with InvalidOperationException from query materialization.
-            if (exception == null || exception is InvalidOperationException)
+            if (exception is null or InvalidOperationException)
             {
                 return;
             }
@@ -167,9 +167,9 @@ public class ProxyGraphUpdatesInMemoryTest
 
         protected override async Task ExecuteWithStrategyInTransactionAsync(
             Func<DbContext, Task> testOperation,
-            Func<DbContext, Task> nestedTestOperation1 = null,
-            Func<DbContext, Task> nestedTestOperation2 = null,
-            Func<DbContext, Task> nestedTestOperation3 = null)
+            Func<DbContext, Task>? nestedTestOperation1 = null,
+            Func<DbContext, Task>? nestedTestOperation2 = null,
+            Func<DbContext, Task>? nestedTestOperation3 = null)
         {
             // InMemory has no real transactions, so the shared store is mutated directly by each test and must be
             // reseeded afterwards.

@@ -147,7 +147,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                         catch (Exception innerException)
                         {
                             throw new InvalidOperationException(
-	                            CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
                                 innerException);
                         }
                     }
@@ -155,47 +155,47 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
                         NewArrayExpression newArray;
-                    {
-                        newArray = methodCallExpression.Arguments[1] switch
                         {
-                            NewArrayExpression n => n,
-                            ConstantExpression { Value: Array { Length: 0 } }
-                                => throw new InvalidOperationException(
-                                    CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
-                                    new InvalidOperationException(CoreStrings.NoSetPropertyInvocation)),
-                            _ => throw new UnreachableException("ExecuteUpdate with incorrect setters")
-                        };
-
-                        var setters = new ExecuteUpdateSetter[newArray.Expressions.Count];
-
-                        for (var i = 0; i < setters.Length; i++)
-                        {
-                            var @new = (NewExpression)newArray.Expressions[i];
-                            var propertySelector = (LambdaExpression)@new.Arguments[0];
-                            var valueSelector = @new.Arguments[1];
-
-                            // When the value selector is a bare value type (no lambda), a cast-to-object Convert node needs to be added
-                            // for proper typing (see UpdateSettersBuilder); remove it here.
-                            if (valueSelector is UnaryExpression { NodeType: ExpressionType.Convert, Operand: var unwrappedValueSelector }
-                                && valueSelector.Type == typeof(object))
+                            newArray = methodCallExpression.Arguments[1] switch
                             {
-                                valueSelector = unwrappedValueSelector;
+                                NewArrayExpression n => n,
+                                ConstantExpression { Value: Array { Length: 0 } }
+                                    => throw new InvalidOperationException(
+                                        CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                        new InvalidOperationException(CoreStrings.NoSetPropertyInvocation)),
+                                _ => throw new UnreachableException("ExecuteUpdate with incorrect setters")
+                            };
+
+                            var setters = new ExecuteUpdateSetter[newArray.Expressions.Count];
+
+                            for (var i = 0; i < setters.Length; i++)
+                            {
+                                var @new = (NewExpression)newArray.Expressions[i];
+                                var propertySelector = (LambdaExpression)@new.Arguments[0];
+                                var valueSelector = @new.Arguments[1];
+
+                                // When the value selector is a bare value type (no lambda), a cast-to-object Convert node needs to be added
+                                // for proper typing (see UpdateSettersBuilder); remove it here.
+                                if (valueSelector is UnaryExpression { NodeType: ExpressionType.Convert, Operand: var unwrappedValueSelector }
+                                    && valueSelector.Type == typeof(object))
+                                {
+                                    valueSelector = unwrappedValueSelector;
+                                }
+
+                                setters[i] = new ExecuteUpdateSetter(propertySelector, valueSelector);
                             }
 
-                            setters[i] = new ExecuteUpdateSetter(propertySelector, valueSelector);
+                            try
+                            {
+                                return TranslateExecuteUpdate(shapedQueryExpression, setters);
+                            }
+                            catch (Exception innerException)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                    innerException);
+                            }
                         }
-
-                        try
-                        {
-                            return TranslateExecuteUpdate(shapedQueryExpression, setters);
-                        }
-                        catch (Exception innerException)
-                        {
-                            throw new InvalidOperationException(
-	                            CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
-                                innerException);
-                        }
-                    }
                 }
             }
         }
@@ -625,38 +625,31 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
 
         // Identify property access, i.e. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...))),
         // complex collection property...
-        if (IsMemberAccess(methodCallExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
-            && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation)
-        {
-            return translation;
-        }
-
-        return _subquery
-            ? QueryCompilationContext.NotTranslatedExpression
-            : TranslationErrorDetails is null
-                ? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
-                : throw new InvalidOperationException(
-                    CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
+        return IsMemberAccess(methodCallExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
+            && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation
+                ? translation
+                : _subquery
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : TranslationErrorDetails is null
+                        ? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
+                        : throw new InvalidOperationException(
+                            CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
     }
 
     /// <inheritdoc />
     protected override Expression VisitMember(MemberExpression memberExpression)
-    {
-        // Identify property access, i.e. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...))),
-        // complex collection property...
-        if (IsMemberAccess(memberExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
-            && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation)
-        {
-            return translation;
-        }
-
-        return _subquery
-            ? QueryCompilationContext.NotTranslatedExpression
-            : TranslationErrorDetails is null
-                ? throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()))
-                : throw new InvalidOperationException(
-                    CoreStrings.TranslationFailedWithDetails(memberExpression.Print(), TranslationErrorDetails));
-    }
+        =>
+            // Identify property access, i.e. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...))),
+            // complex collection property...
+            IsMemberAccess(memberExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
+            && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation
+                ? translation
+                : _subquery
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : TranslationErrorDetails is null
+                        ? throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()))
+                        : throw new InvalidOperationException(
+                            CoreStrings.TranslationFailedWithDetails(memberExpression.Print(), TranslationErrorDetails));
 
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
     {

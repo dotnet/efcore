@@ -150,8 +150,8 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ObjectAccessExpression objectAccessExpression
-                && Equals(objectAccessExpression));
+                || (obj is ObjectAccessExpression objectAccessExpression
+                    && Equals(objectAccessExpression)));
 
     private bool Equals(ObjectAccessExpression objectAccessExpression)
         => StructuralProperty == objectAccessExpression.StructuralProperty

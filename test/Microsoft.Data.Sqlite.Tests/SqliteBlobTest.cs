@@ -68,57 +68,45 @@ public class SqliteBlobTest : IDisposable
     [Fact]
     public void CanRead_works()
     {
-        using (var stream = CreateStream())
-        {
-            Assert.True(stream.CanRead);
-        }
+        using var stream = CreateStream();
+        Assert.True(stream.CanRead);
     }
 
     [Fact]
     public void CanSeek_works()
     {
-        using (var stream = CreateStream())
-        {
-            Assert.True(stream.CanSeek);
-        }
+        using var stream = CreateStream();
+        Assert.True(stream.CanSeek);
     }
 
     [Theory, InlineData(false), InlineData(true)]
     public void CanWrite_works(bool readOnly)
     {
-        using (var stream = CreateStream(readOnly))
-        {
-            Assert.Equal(!readOnly, stream.CanWrite);
-        }
+        using var stream = CreateStream(readOnly);
+        Assert.Equal(!readOnly, stream.CanWrite);
     }
 
     [Fact]
     public void Length_works()
     {
-        using (var stream = CreateStream())
-        {
-            Assert.Equal(2, stream.Length);
-        }
+        using var stream = CreateStream();
+        Assert.Equal(2, stream.Length);
     }
 
     [Fact]
     public void Position_throws_when_negative()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Position = -1);
-            Assert.Equal("value", ex.ParamName);
-            Assert.Equal(-1L, ex.ActualValue);
-        }
+        using var stream = CreateStream();
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Position = -1);
+        Assert.Equal("value", ex.ParamName);
+        Assert.Equal(-1L, ex.ActualValue);
     }
 
     [Fact]
     public void Flush_works()
     {
-        using (var stream = CreateStream())
-        {
-            stream.Flush();
-        }
+        using var stream = CreateStream();
+        stream.Flush();
     }
 
     [Theory, InlineData(0, new byte[] { }, 0, 0, 0), InlineData(0, new byte[] { 0 }, 0, 0, 0), InlineData(0, new byte[] { 0 }, 2, 0, 1),
@@ -131,81 +119,69 @@ public class SqliteBlobTest : IDisposable
         int offset,
         int count)
     {
-        using (var stream = CreateStream())
-        {
-            stream.Position = initialPosition;
-            var buffer = new byte[expectedBuffer.Length];
+        using var stream = CreateStream();
+        stream.Position = initialPosition;
+        var buffer = new byte[expectedBuffer.Length];
 
-            var bytesRead = stream.Read(buffer, offset, count);
+        var bytesRead = stream.Read(buffer, offset, count);
 
-            Assert.Equal(expectedBytesRead, bytesRead);
-            Assert.Equal(expectedBuffer, buffer);
-            Assert.Equal(initialPosition + bytesRead, stream.Position);
-        }
+        Assert.Equal(expectedBytesRead, bytesRead);
+        Assert.Equal(expectedBuffer, buffer);
+        Assert.Equal(initialPosition + bytesRead, stream.Position);
     }
 
     [Fact]
     public void Read_throws_when_buffer_null()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => stream.Read(null!, 0, 1));
+        using var stream = CreateStream();
+        var ex = Assert.Throws<ArgumentNullException>(() => stream.Read(null!, 0, 1));
 
-            Assert.Equal("buffer", ex.ParamName);
-        }
+        Assert.Equal("buffer", ex.ParamName);
     }
 
     [Fact]
     public void Read_throws_when_offset_negative()
     {
-        using (var stream = CreateStream())
-        {
-            var buffer = new byte[1];
+        using var stream = CreateStream();
+        var buffer = new byte[1];
 
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Read(buffer, -1, 1));
-            Assert.Equal("offset", ex.ParamName);
-            Assert.Equal(-1, ex.ActualValue);
-        }
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Read(buffer, -1, 1));
+        Assert.Equal("offset", ex.ParamName);
+        Assert.Equal(-1, ex.ActualValue);
     }
 
     [Fact]
     public void Read_throws_when_offset_out_of_range()
     {
-        using (var stream = CreateStream())
-        {
-            var buffer = new byte[1];
+        using var stream = CreateStream();
+        var buffer = new byte[1];
 
-            var ex = Assert.Throws<ArgumentException>(() => stream.Read(buffer, 1, 1));
-            Assert.Null(ex.ParamName);
-            Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
-        }
+        var ex = Assert.Throws<ArgumentException>(() => stream.Read(buffer, 1, 1));
+        Assert.Null(ex.ParamName);
+        Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
     }
 
     [Fact]
     public void Read_throws_when_count_negative()
     {
-        using (var stream = CreateStream())
-        {
-            var buffer = new byte[1];
+        using var stream = CreateStream();
+        var buffer = new byte[1];
 
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Read(buffer, 0, -1));
-            Assert.Equal("count", ex.ParamName);
-            Assert.Equal(-1, ex.ActualValue);
-        }
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Read(buffer, 0, -1));
+        Assert.Equal("count", ex.ParamName);
+        Assert.Equal(-1, ex.ActualValue);
     }
 
     [Fact]
     public void Read_throws_when_count_out_of_range()
     {
-        using (var stream = CreateStream())
-        {
-            var buffer = new byte[1];
+        using var stream = CreateStream();
+        var buffer = new byte[1];
 
-            var ex = Assert.Throws<ArgumentException>(() => stream.Read(buffer, 0, 2));
+        var ex = Assert.Throws<ArgumentException>(() => stream.Read(buffer, 0, 2));
 
-            Assert.Null(ex.ParamName);
-            Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
-        }
+        Assert.Null(ex.ParamName);
+        Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
     }
 
     [Fact]
@@ -229,15 +205,13 @@ public class SqliteBlobTest : IDisposable
         long offset,
         SeekOrigin origin)
     {
-        using (var stream = CreateStream())
-        {
-            stream.Position = initialPosition;
+        using var stream = CreateStream();
+        stream.Position = initialPosition;
 
-            var position = stream.Seek(offset, origin);
+        var position = stream.Seek(offset, origin);
 
-            Assert.Equal(expected, stream.Position);
-            Assert.Equal(stream.Position, position);
-        }
+        Assert.Equal(expected, stream.Position);
+        Assert.Equal(stream.Position, position);
     }
 
     [Theory, InlineData(1, -1, SeekOrigin.Begin), InlineData(1, -2, SeekOrigin.Current), InlineData(1, -3, SeekOrigin.End)]
@@ -246,34 +220,28 @@ public class SqliteBlobTest : IDisposable
         long offset,
         SeekOrigin origin)
     {
-        using (var stream = CreateStream())
-        {
-            stream.Position = initialPosition;
+        using var stream = CreateStream();
+        stream.Position = initialPosition;
 
-            var ex = Assert.Throws<IOException>(() => stream.Seek(offset, origin));
-            Assert.Equal(Resources.SeekBeforeBegin, ex.Message);
-        }
+        var ex = Assert.Throws<IOException>(() => stream.Seek(offset, origin));
+        Assert.Equal(Resources.SeekBeforeBegin, ex.Message);
     }
 
     [Fact]
     public void Seek_validates_origin()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<ArgumentException>(() => stream.Seek(0, (SeekOrigin)(-1)));
-            Assert.Equal("origin", ex.ParamName);
-            Assert.Contains(Resources.InvalidEnumValue(typeof(SeekOrigin), -1), ex.Message);
-        }
+        using var stream = CreateStream();
+        var ex = Assert.Throws<ArgumentException>(() => stream.Seek(0, (SeekOrigin)(-1)));
+        Assert.Equal("origin", ex.ParamName);
+        Assert.Contains(Resources.InvalidEnumValue(typeof(SeekOrigin), -1), ex.Message);
     }
 
     [Fact]
     public void SetLength_throws()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<NotSupportedException>(() => stream.SetLength(1));
-            Assert.Equal(Resources.ResizeNotSupported, ex.Message);
-        }
+        using var stream = CreateStream();
+        var ex = Assert.Throws<NotSupportedException>(() => stream.SetLength(1));
+        Assert.Equal(Resources.ResizeNotSupported, ex.Message);
     }
 
     [Theory, InlineData(new byte[] { 3, 4 }, 0, new byte[] { 3, 4 }, 0, 2), InlineData(new byte[] { 3, 2 }, 0, new byte[] { 3, 4 }, 0, 1),
@@ -304,76 +272,62 @@ public class SqliteBlobTest : IDisposable
     [Fact]
     public void Write_throws_when_buffer_null()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => stream.Write(null!, 0, 0));
-            Assert.Equal("buffer", ex.ParamName);
-        }
+        using var stream = CreateStream();
+        var ex = Assert.Throws<ArgumentNullException>(() => stream.Write(null!, 0, 0));
+        Assert.Equal("buffer", ex.ParamName);
     }
 
     [Fact]
     public void Write_throws_when_count_out_of_range()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<ArgumentException>(() => stream.Write([3], 0, 2));
-            Assert.Null(ex.ParamName);
-            Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
-        }
+        using var stream = CreateStream();
+        var ex = Assert.Throws<ArgumentException>(() => stream.Write([3], 0, 2));
+        Assert.Null(ex.ParamName);
+        Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
     }
 
     [Fact]
     public void Write_throws_when_count_negative()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Write([], 0, -1));
-            Assert.Equal("count", ex.ParamName);
-            Assert.Equal(-1, ex.ActualValue);
-        }
+        using var stream = CreateStream();
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Write([], 0, -1));
+        Assert.Equal("count", ex.ParamName);
+        Assert.Equal(-1, ex.ActualValue);
     }
 
     [Fact]
     public void Write_throws_when_offset_out_of_range()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<ArgumentException>(() => stream.Write([3], 1, 1));
-            Assert.Null(ex.ParamName);
-            Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
-        }
+        using var stream = CreateStream();
+        var ex = Assert.Throws<ArgumentException>(() => stream.Write([3], 1, 1));
+        Assert.Null(ex.ParamName);
+        Assert.Equal(Resources.InvalidOffsetAndCount, ex.Message);
     }
 
     [Fact]
     public void Write_throws_when_offset_negative()
     {
-        using (var stream = CreateStream())
-        {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Write([3, 4], -1, 2));
-            Assert.Equal("offset", ex.ParamName);
-        }
+        using var stream = CreateStream();
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.Write([3, 4], -1, 2));
+        Assert.Equal("offset", ex.ParamName);
     }
 
     [Fact]
     public void Write_throws_when_position_at_end_of_stream()
     {
-        using (var stream = CreateStream())
-        {
-            stream.Position = 2;
-            var ex = Assert.Throws<NotSupportedException>(() => stream.Write([3], 0, 1));
-            Assert.Equal(Resources.ResizeNotSupported, ex.Message);
-        }
+        using var stream = CreateStream();
+        stream.Position = 2;
+        var ex = Assert.Throws<NotSupportedException>(() => stream.Write([3], 0, 1));
+        Assert.Equal(Resources.ResizeNotSupported, ex.Message);
     }
 
     [Fact]
     public void Write_throws_when_readOnly()
     {
-        using (var stream = CreateStream(readOnly: true))
-        {
-            var ex = Assert.Throws<NotSupportedException>(() => stream.Write([1], 0, 1));
+        using var stream = CreateStream(readOnly: true);
+        var ex = Assert.Throws<NotSupportedException>(() => stream.Write([1], 0, 1));
 
-            Assert.Equal(Resources.WriteNotSupported, ex.Message);
-        }
+        Assert.Equal(Resources.WriteNotSupported, ex.Message);
     }
 
     [Fact]

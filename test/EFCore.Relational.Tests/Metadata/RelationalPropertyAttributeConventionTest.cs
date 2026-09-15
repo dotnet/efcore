@@ -59,7 +59,7 @@ public class RelationalPropertyAttributeConventionTest
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
@@ -79,7 +79,7 @@ public class RelationalPropertyAttributeConventionTest
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ConventionalName", ConfigurationSource.Convention);
 
@@ -93,7 +93,7 @@ public class RelationalPropertyAttributeConventionTest
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
@@ -113,7 +113,7 @@ public class RelationalPropertyAttributeConventionTest
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ExplicitComment", ConfigurationSource.Explicit);
 
@@ -142,7 +142,7 @@ public class RelationalPropertyAttributeConventionTest
 
         var modelBuilder = new Model(conventionSet).Builder;
 
-        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
+        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit)!;
     }
 
     private ProviderConventionSetBuilderDependencies CreateDependencies()
@@ -159,7 +159,7 @@ public class RelationalPropertyAttributeConventionTest
         public int Id { get; set; }
 
         [Column("Post Name", Order = 1, TypeName = "DECIMAL"), Comment("Test column comment")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public class F
@@ -167,6 +167,6 @@ public class RelationalPropertyAttributeConventionTest
         public int Id { get; set; }
 
         [Column("Post Name", Order = 1, TypeName = "DECIMAL"), Comment("Test column comment")]
-        public string Name;
+        public string Name = null!;
     }
 }

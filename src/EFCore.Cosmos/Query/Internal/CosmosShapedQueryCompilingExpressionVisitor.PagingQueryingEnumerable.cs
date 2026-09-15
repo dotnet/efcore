@@ -1,11 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using CosmosSqlQuery = Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal.CosmosSqlQuery;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -93,7 +91,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
             private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
-            private readonly IConcurrencyDetector _concurrencyDetector;
+            private readonly IConcurrencyDetector? _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
             private bool _hasExecuted;
@@ -135,9 +133,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     _hasExecuted = true;
 
-                    var maxItemCount = (int)_cosmosQueryContext.Parameters[_queryingEnumerable._maxItemCountParameterName];
+                    var maxItemCount = (int)_cosmosQueryContext.Parameters[_queryingEnumerable._maxItemCountParameterName]!;
                     var continuationToken =
-                        (string)_cosmosQueryContext.Parameters[_queryingEnumerable._continuationTokenParameterName];
+                        (string?)_cosmosQueryContext.Parameters[_queryingEnumerable._continuationTokenParameterName];
                     var responseContinuationTokenLimitInKb = (int?)
                         _cosmosQueryContext.Parameters[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
 
@@ -168,15 +166,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         queryRequestOptions.MaxItemCount = maxItemCount;
                         using var responseMessage = await _cosmosQueryContext.ExecutionStrategy.ExecuteAsync(
                                 (CosmosClient: cosmosClient,
-                                Container: _cosmosContainer,
-                                SqlQuery: sqlQuery,
-                                SessionTokenStorage: _cosmosQueryContext.SessionTokenStorage,
-                                ContinuationToken: continuationToken,
-                                QueryRequestOptions: queryRequestOptions),
+                                    Container: _cosmosContainer,
+                                    SqlQuery: sqlQuery,
+                                    _cosmosQueryContext.SessionTokenStorage,
+                                    ContinuationToken: continuationToken,
+                                    QueryRequestOptions: queryRequestOptions),
                                 static async (_, state, cancellationToken) =>
                                 {
                                     using var feedIterator = state.CosmosClient.CreateQuery(
-                                        state.Container, state.SqlQuery, state.SessionTokenStorage, state.ContinuationToken, state.QueryRequestOptions);
+                                        state.Container, state.SqlQuery, state.SessionTokenStorage, state.ContinuationToken,
+                                        state.QueryRequestOptions);
 
                                     var responseMessage = await feedIterator.ReadNextAsync(cancellationToken).ConfigureAwait(false);
                                     try
@@ -208,12 +207,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         data = ShaperProcessingExpressionVisitor.ExtractDocuments(data);
 
                         while (ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
-                            _cosmosQueryContext, data,
-                            _shaper, results.Count,
-                            out var bytesConsumed, out var result))
+                                   _cosmosQueryContext, data,
+                                   _shaper, results.Count,
+                                   out var bytesConsumed, out var result))
                         {
                             results.Add(result);
-                            data = data.Slice(bytesConsumed);
+                            data = data[bytesConsumed..];
                             maxItemCount--;
                         }
 

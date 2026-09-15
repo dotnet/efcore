@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Cosmos-specific extension methods for <see cref="ComplexPropertyBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
 ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
 /// </remarks>
 public static class CosmosComplexPropertyBuilderExtensions
@@ -16,7 +16,7 @@ public static class CosmosComplexPropertyBuilderExtensions
     ///     Configures the property name that the complex property is mapped to when stored as an embedded document.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="complexPropertyBuilder">The builder for the complex type being configured.</param>
@@ -34,7 +34,7 @@ public static class CosmosComplexPropertyBuilderExtensions
     ///     Configures the property name that the complex property is mapped to when stored as an embedded document.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="complexPropertyBuilder">The builder for the complex type being configured.</param>

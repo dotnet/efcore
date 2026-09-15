@@ -16,7 +16,7 @@ public class StringToBoolConverterTest
         Assert.True(converter("True"));
         Assert.False(converter("false"));
         Assert.True(converter("true"));
-        Assert.False(converter(null));
+        Assert.False(converter(null!));
     }
 
     [Fact]
@@ -33,10 +33,10 @@ public class StringToBoolConverterTest
     {
         var converter = _stringToBool.ConvertToProvider;
 
-        Assert.False((bool)converter("False"));
-        Assert.True((bool)converter("True"));
-        Assert.False((bool)converter("false"));
-        Assert.True((bool)converter("true"));
+        Assert.False((bool)converter("False")!);
+        Assert.True((bool)converter("True")!);
+        Assert.False((bool)converter("false")!);
+        Assert.True((bool)converter("true")!);
         Assert.Null(converter(null));
     }
 

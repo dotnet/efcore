@@ -74,6 +74,14 @@ public class SqliteConnectionStringBuilderTest
     }
 
     [Fact]
+    public void Ctor_parses_Synchronous()
+    {
+        var builder = new SqliteConnectionStringBuilder("Synchronous=Normal");
+
+        Assert.Equal(SqliteSynchronousMode.Normal, builder.Synchronous);
+    }
+
+    [Fact]
     public void ConnectionString_defaults_to_empty()
     {
         var builder = new SqliteConnectionStringBuilder();
@@ -108,9 +116,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void DataSource_works()
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder.DataSource = "test.db";
+        var builder = new SqliteConnectionStringBuilder { DataSource = "test.db" };
 
         Assert.Equal("test.db", builder.DataSource);
     }
@@ -122,11 +128,20 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void Mode_works()
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder.Mode = SqliteOpenMode.Memory;
+        var builder = new SqliteConnectionStringBuilder { Mode = SqliteOpenMode.Memory };
 
         Assert.Equal(SqliteOpenMode.Memory, builder.Mode);
+    }
+
+    [Fact]
+    public void Synchronous_works()
+    {
+        var builder = new SqliteConnectionStringBuilder
+        {
+            Synchronous = SqliteSynchronousMode.Full
+        };
+
+        Assert.Equal(SqliteSynchronousMode.Full, builder.Synchronous);
     }
 
     [Fact]
@@ -146,12 +161,16 @@ public class SqliteConnectionStringBuilderTest
         => Assert.Equal(30, new SqliteConnectionStringBuilder().DefaultTimeout);
 
     [Fact]
+    public void Synchronous_defaults_to_null()
+        => Assert.Null(new SqliteConnectionStringBuilder().Synchronous);
+
+    [Fact]
     public void Keys_works()
     {
         var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
         Assert.True(keys.IsReadOnly);
-        Assert.Equal(9, keys.Count);
+        Assert.Equal(10, keys.Count);
         Assert.Contains("Data Source", keys);
         Assert.Contains("Mode", keys);
         Assert.Contains("Cache", keys);
@@ -161,6 +180,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.Contains("Default Timeout", keys);
         Assert.Contains("Pooling", keys);
         Assert.Contains("Vfs", keys);
+        Assert.Contains("Synchronous", keys);
     }
 
     [Fact]
@@ -169,7 +189,7 @@ public class SqliteConnectionStringBuilderTest
         var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
         Assert.True(values.IsReadOnly);
-        Assert.Equal(9, values.Count);
+        Assert.Equal(10, values.Count);
     }
 
     [Fact]
@@ -185,8 +205,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void Item_resets_value_when_null()
     {
-        var builder = new SqliteConnectionStringBuilder();
-        builder.DataSource = "test.db";
+        var builder = new SqliteConnectionStringBuilder { DataSource = "test.db" };
 
         builder["Data Source"] = null;
 
@@ -196,8 +215,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void Item_gets_value()
     {
-        var builder = new SqliteConnectionStringBuilder();
-        builder.DataSource = "test.db";
+        var builder = new SqliteConnectionStringBuilder { DataSource = "test.db" };
 
         Assert.Equal("test.db", builder["Data Source"]);
     }
@@ -205,9 +223,7 @@ public class SqliteConnectionStringBuilderTest
     [Fact]
     public void Item_sets_value()
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder["Data Source"] = "test.db";
+        var builder = new SqliteConnectionStringBuilder { ["Data Source"] = "test.db" };
 
         Assert.Equal("test.db", builder.DataSource);
     }
@@ -215,9 +231,7 @@ public class SqliteConnectionStringBuilderTest
     [Theory, InlineData("Shared"), InlineData("SHARED"), InlineData(SqliteCacheMode.Shared), InlineData((int)SqliteCacheMode.Shared)]
     public void Item_converts_to_enum_on_set(object value)
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder["Cache"] = value;
+        var builder = new SqliteConnectionStringBuilder { ["Cache"] = value };
 
         Assert.Equal(SqliteCacheMode.Shared, builder["Cache"]);
     }
@@ -234,9 +248,7 @@ public class SqliteConnectionStringBuilderTest
      InlineData("", null)]
     public void Item_converts_to_bool_on_set(object? value, bool? expected)
     {
-        var builder = new SqliteConnectionStringBuilder();
-
-        builder["Foreign Keys"] = value;
+        var builder = new SqliteConnectionStringBuilder { ["Foreign Keys"] = value };
 
         Assert.Equal(expected, builder["Foreign Keys"]);
     }
@@ -253,7 +265,7 @@ public class SqliteConnectionStringBuilderTest
     public void Clear_resets_everything()
     {
         var builder = new SqliteConnectionStringBuilder(
-            "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1");
+            "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1;Synchronous=Full");
 
         builder.Clear();
 
@@ -264,6 +276,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.Null(builder.ForeignKeys);
         Assert.False(builder.RecursiveTriggers);
         Assert.Equal(30, builder.DefaultTimeout);
+        Assert.Null(builder.Synchronous);
     }
 
     [Fact]
@@ -336,11 +349,12 @@ public class SqliteConnectionStringBuilderTest
             Password = "test",
             ForeignKeys = true,
             RecursiveTriggers = true,
-            DefaultTimeout = 1
+            DefaultTimeout = 1,
+            Synchronous = SqliteSynchronousMode.Full
         };
 
         Assert.Equal(
-            "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1",
+            "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1;Synchronous=Full",
             builder.ToString());
     }
 

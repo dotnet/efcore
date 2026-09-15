@@ -362,10 +362,10 @@ public class MigrationCommandExecutorTest
 
     private const string ConnectionString = "Fake Connection String";
 
-    private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
+    private static FakeRelationalConnection CreateConnection(IDbContextOptions? options = null)
         => new(options ?? CreateOptions());
 
-    private static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
+    private static IDbContextOptions CreateOptions(RelationalOptionsExtension? optionsExtension = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
 
@@ -380,7 +380,7 @@ public class MigrationCommandExecutorTest
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
         string logCommandText = "Log Command Text",
-        IReadOnlyList<IRelationalParameter> parameters = null)
+        IReadOnlyList<IRelationalParameter>? parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(

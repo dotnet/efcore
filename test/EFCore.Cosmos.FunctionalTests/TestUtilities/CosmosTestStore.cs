@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -32,14 +33,13 @@ public class CosmosTestStore : TestStore
     private static readonly ConcurrentDictionary<string, CosmosTestStore> _deferredStores = new();
 
     static CosmosTestStore()
-    {
-        AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
+        => AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
             try
             {
-                Task.WhenAll(_deferredStores.Select(
-                    async entry =>
+                Task.WhenAll(
+                    _deferredStores.Select(async entry =>
                     {
                         var store = entry.Value;
                         try
@@ -59,7 +59,6 @@ public class CosmosTestStore : TestStore
             {
             }
         };
-    }
 
     public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => new(name, shared: false, extensionConfiguration: extensionConfiguration);
@@ -201,7 +200,7 @@ public class CosmosTestStore : TestStore
         => exception switch
         {
             HttpRequestException re => re.InnerException is SocketException // Exception in Mac/Linux
-                || re.InnerException is IOException { InnerException: SocketException }, // Exception in Windows
+                or IOException { InnerException: SocketException }, // Exception in Windows
             _ => exception.Message.Contains(
                 "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
                 StringComparison.Ordinal),
@@ -258,7 +257,8 @@ public class CosmosTestStore : TestStore
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThroughput.Throughput, AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput,
+                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 
@@ -277,7 +277,7 @@ public class CosmosTestStore : TestStore
 
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-        var database = (await collection.GetIfExistsAsync(Name, cancellationToken).ConfigureAwait(false));
+        var database = await collection.GetIfExistsAsync(Name, cancellationToken).ConfigureAwait(false);
         if (database == null
             || !database.HasValue)
         {
@@ -311,25 +311,37 @@ public class CosmosTestStore : TestStore
                 state.Retrying.Value = true;
                 await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
                 return true;
-            }, null, default);
+            }, null);
     }
 
     private async Task CleanAsyncImpl(DbContext context, bool createTables)
     {
         var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
 
-        // Containers are deleted and recreated below only when the database already existed. A freshly-created
-        // database has brand-new containers whose metadata cannot be stale.
-        var containersRecreated = !created;
+        var cleanDocuments = !created && createTables && Shared;
+        var containersRecreated = !created && !cleanDocuments;
         try
         {
             if (!created)
             {
-                await DeleteContainersAsync(context).ConfigureAwait(false);
+                if (cleanDocuments)
+                {
+                    await DeleteDocumentsAsync(context).ConfigureAwait(false);
+                }
+                else
+                {
+                    await DeleteContainersAsync(context).ConfigureAwait(false);
+                }
             }
 
             if (!createTables)
             {
+                return;
+            }
+
+            if (cleanDocuments)
+            {
+                await SeedAsync(context).ConfigureAwait(false);
                 return;
             }
 
@@ -370,6 +382,69 @@ public class CosmosTestStore : TestStore
 
             throw;
         }
+    }
+
+    private async Task DeleteDocumentsAsync(DbContext context)
+    {
+        var database = context.Database.GetCosmosClient().GetDatabase(Name);
+        var model = context.GetService<IDesignTimeModel>().Model;
+
+        foreach (var containerProperties in GetContainersToCreate(model))
+        {
+            var container = database.GetContainer(containerProperties.Id);
+            var documents = new List<(string Id, PartitionKey PartitionKey)>();
+            using var iterator = container.GetItemQueryIterator<JsonElement>("SELECT VALUE c FROM c");
+
+            while (iterator.HasMoreResults)
+            {
+                foreach (var document in await iterator.ReadNextAsync().ConfigureAwait(false))
+                {
+                    documents.Add(
+                        (document.GetProperty("id").GetString()!,
+                            CreatePartitionKey(document, containerProperties.PartitionKeyStoreNames)));
+                }
+            }
+
+            foreach (var document in documents)
+            {
+                using var response = await container.DeleteItemStreamAsync(document.Id, document.PartitionKey).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+            }
+        }
+    }
+
+    private static PartitionKey CreatePartitionKey(JsonElement document, IReadOnlyList<string> partitionKeyStoreNames)
+    {
+        var builder = new PartitionKeyBuilder();
+        foreach (var partitionKeyStoreName in partitionKeyStoreNames)
+        {
+            if (!document.TryGetProperty(partitionKeyStoreName, out var value))
+            {
+                builder.AddNoneType();
+                continue;
+            }
+
+            switch (value.ValueKind)
+            {
+                case JsonValueKind.String:
+                    builder.Add(value.GetString()!);
+                    break;
+                case JsonValueKind.Number:
+                    builder.Add(value.GetDouble());
+                    break;
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    builder.Add(value.GetBoolean());
+                    break;
+                case JsonValueKind.Null:
+                    builder.AddNullValue();
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unsupported partition key value: {value}.");
+            }
+        }
+
+        return builder.Build();
     }
 
     // Deleting and recreating a container gives it a new resource id (_rid), but the shared CosmosClient caches each
@@ -460,7 +535,8 @@ public class CosmosTestStore : TestStore
             {
                 content.Options = new CosmosDBCreateUpdateConfig
                 {
-                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput, Throughput = container.Throughput.Throughput
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
+                    Throughput = container.Throughput.Throughput
                 };
             }
 
@@ -527,7 +603,8 @@ public class CosmosTestStore : TestStore
                 vectors,
                 fullTextDefaultLanguage ?? "en-US",
                 fullTextProperties,
-                AutomaticIndexingExceptions: mappedTypes.Select(et => et.GetAutomaticIndexingExceptions()).FirstOrDefault(e => e is not null),
+                AutomaticIndexingExceptions: mappedTypes.Select(et => et.GetAutomaticIndexingExceptions())
+                    .FirstOrDefault(e => e is not null),
                 AutomaticIndexingEnabled: mappedTypes.Select(et => et.GetAutomaticIndexingEnabled()).FirstOrDefault(e => e is not null));
         }
 

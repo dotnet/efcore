@@ -34,11 +34,6 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeComplexProperty[]? _flattenedComplexProperties;
     private RuntimeProperty[]? _flattenedValueGeneratingProperties;
     private RuntimePropertyBase[]? _snapshottableProperties;
-    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
-    private Func<ISnapshot>? _storeGeneratedValuesFactory;
-    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
-    private Func<IDictionary<string, object?>, ISnapshot>? _shadowValuesFactory;
-    private Func<ISnapshot>? _emptyShadowValuesFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +62,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         if (baseType != null)
         {
             _baseType = baseType;
-            (baseType._directlyDerivedTypes ??= new SortedSet<RuntimeTypeBase>(TypeBaseNameComparer.Instance)).Add(this);
+            (baseType._directlyDerivedTypes ??= [with(TypeBaseNameComparer.Instance)]).Add(this);
         }
 
         _changeTrackingStrategy = changeTrackingStrategy;
@@ -449,7 +444,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount);
 
-        _complexProperties ??= new Utilities.OrderedDictionary<string, RuntimeComplexProperty>(StringComparer.Ordinal);
+        _complexProperties ??= [with(StringComparer.Ordinal)];
         _complexProperties.Add(property.Name, property);
 
         return property;
@@ -559,7 +554,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetOriginalValuesFactory(Func<IInternalEntry, ISnapshot> factory)
-        => _originalValuesFactory = factory;
+        => OriginalValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -569,7 +564,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
-        => _storeGeneratedValuesFactory = factory;
+        => StoreGeneratedValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -579,7 +574,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetTemporaryValuesFactory(Func<IInternalEntry, ISnapshot> factory)
-        => _temporaryValuesFactory = factory;
+        => TemporaryValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -589,7 +584,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
-        => _emptyShadowValuesFactory = factory;
+        => EmptyShadowValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -599,7 +594,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetShadowValuesFactory(Func<IDictionary<string, object?>, ISnapshot> factory)
-        => _shadowValuesFactory = factory;
+        => ShadowValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -758,11 +753,14 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public Func<IInternalEntry, ISnapshot> OriginalValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _originalValuesFactory, this,
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref field, this,
             static structuralType => RuntimeFeature.IsDynamicCodeSupported
                 ? OriginalValuesFactoryFactory.Instance.Create(structuralType)
                 : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+        private set;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -772,11 +770,14 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public Func<ISnapshot> StoreGeneratedValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _storeGeneratedValuesFactory, this,
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref field, this,
             static structuralType => RuntimeFeature.IsDynamicCodeSupported
                 ? StoreGeneratedValuesFactoryFactory.Instance.CreateEmpty(structuralType)
                 : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+        private set;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -786,11 +787,14 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _temporaryValuesFactory, this,
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref field, this,
             static structuralType => RuntimeFeature.IsDynamicCodeSupported
                 ? TemporaryValuesFactoryFactory.Instance.Create(structuralType)
                 : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+        private set;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -800,11 +804,14 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public Func<IDictionary<string, object?>, ISnapshot> ShadowValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _shadowValuesFactory, this,
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref field, this,
             static structuralType => RuntimeFeature.IsDynamicCodeSupported
                 ? ShadowValuesFactoryFactory.Instance.Create(structuralType)
                 : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+        private set;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -814,11 +821,14 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public Func<ISnapshot> EmptyShadowValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _emptyShadowValuesFactory, this,
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref field, this,
             static structuralType => RuntimeFeature.IsDynamicCodeSupported
                 ? EmptyShadowValuesFactoryFactory.Instance.CreateEmpty(structuralType)
                 : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+        private set;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -916,14 +926,9 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// <inheritdoc />
     [DebuggerStepThrough]
     string? IReadOnlyTypeBase.GetDiscriminatorPropertyName()
-    {
-        if (BaseType != null)
-        {
-            return ((IReadOnlyTypeBase)this).GetRootType().GetDiscriminatorPropertyName();
-        }
-
-        return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
-    }
+        => BaseType != null
+            ? ((IReadOnlyTypeBase)this).GetRootType().GetDiscriminatorPropertyName()
+            : (string?)this[CoreAnnotationNames.DiscriminatorProperty];
 
     /// <inheritdoc />
     [DebuggerStepThrough]

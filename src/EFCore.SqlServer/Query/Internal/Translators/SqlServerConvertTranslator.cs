@@ -44,19 +44,16 @@ public class SqlServerConvertTranslator(ISqlExpressionFactory sqlExpressionFacto
             _ => null
         };
 
-        if (sqlType is null
+        return sqlType is null
             || method.GetParameters() is not [{ ParameterType: var paramType }]
-            || !IsSupportedType(paramType))
-        {
-            return null;
-        }
-
-        return sqlExpressionFactory.Function(
-            "CONVERT",
-            [sqlExpressionFactory.Fragment(sqlType), arguments[0]],
-            nullable: true,
-            argumentsPropagateNullability: Statics.FalseTrue,
-            method.ReturnType);
+            || !IsSupportedType(paramType)
+                ? null
+                : sqlExpressionFactory.Function(
+                    "CONVERT",
+                    [sqlExpressionFactory.Fragment(sqlType), arguments[0]],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.FalseTrue,
+                    method.ReturnType);
     }
 
     private static bool IsSupportedType(Type type)

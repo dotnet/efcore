@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Tools.Generators;
 using System.Xml.Linq;
+using Microsoft.EntityFrameworkCore.Tools.Generators;
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 
@@ -26,11 +26,10 @@ public class BundleProjectGeneratorTest
         var project = generator.TransformText();
         var packageReferences = XDocument.Parse(project)
             .Descendants("PackageReference")
-            .Where(
-                e => string.Equals(
-                    (string?)e.Attribute("Include"),
-                    "Microsoft.EntityFrameworkCore.Design",
-                    StringComparison.Ordinal))
+            .Where(e => string.Equals(
+                (string?)e.Attribute("Include"),
+                "Microsoft.EntityFrameworkCore.Design",
+                StringComparison.Ordinal))
             .ToList();
 
         Assert.Equal(2, packageReferences.Count);

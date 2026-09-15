@@ -16,7 +16,6 @@ public class SqlExpressionSimplifyingExpressionVisitor(
     ISqlExpressionFactory _sqlExpressionFactory,
     bool _useRelationalNulls) : ExpressionVisitor
 {
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -296,8 +295,8 @@ public class SqlExpressionSimplifyingExpressionVisitor(
 
             case SqlBinaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } sqlBinaryExpression:
             {
-                var column = (sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression);
-                var constant = (sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression);
+                var column = sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression;
+                var constant = sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
 
                 if (column != null && constant != null)
                 {

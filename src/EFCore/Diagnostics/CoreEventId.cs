@@ -178,7 +178,7 @@ public static class CoreEventId
     public static readonly EventId SaveChangesCanceled = MakeUpdateId(Id.SaveChangesCanceled);
 
     /// <summary>
-    ///     The same entity is being tracked as a different shared entity entity type.
+    ///     The same entity is being tracked as a different shared entity type.
     ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
     /// </summary>
     public static readonly EventId DuplicateDependentEntityTypeInstanceWarning =

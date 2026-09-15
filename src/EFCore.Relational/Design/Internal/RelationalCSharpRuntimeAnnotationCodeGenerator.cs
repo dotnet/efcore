@@ -580,18 +580,15 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var code = Dependencies.CSharpHelper;
-        if (parameters.ScopeVariables.TryGetValue(typeBase, out var variable))
-        {
-            return variable;
-        }
-
-        return typeBase switch
-        {
-            IEntityType entityType => $"FindEntityType({code.Literal(entityType.Name)})!",
-            IComplexType complexType
-                => $"{GetTypeBaseAccess(complexType.ComplexProperty.DeclaringType, parameters)}.FindComplexProperty({code.Literal(complexType.ComplexProperty.Name)})!.ComplexType",
-            _ => throw new UnreachableException()
-        };
+        return parameters.ScopeVariables.TryGetValue(typeBase, out var variable)
+            ? variable
+            : typeBase switch
+            {
+                IEntityType entityType => $"FindEntityType({code.Literal(entityType.Name)})!",
+                IComplexType complexType
+                    => $"{GetTypeBaseAccess(complexType.ComplexProperty.DeclaringType, parameters)}.FindComplexProperty({code.Literal(complexType.ComplexProperty.Name)})!.ComplexType",
+                _ => throw new UnreachableException()
+            };
     }
 
     private string CreateJsonElement(
@@ -620,7 +617,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
-        var variable = code.Identifier((jsonObject.PropertyName ?? "element") + "JsonObject", jsonObject, parameters.ScopeObjects, capitalize: false);
+        var variable = code.Identifier(
+            (jsonObject.PropertyName ?? "element") + "JsonObject", jsonObject, parameters.ScopeObjects, capitalize: false);
         parameters.ScopeVariables[jsonObject] = variable;
 
         mainBuilder.Append($"var {variable} = new RelationalJsonObject(");
@@ -645,7 +643,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
 
-        var variable = code.Identifier((jsonArray.PropertyName ?? "array") + "JsonArray", jsonArray, parameters.ScopeObjects, capitalize: false);
+        var variable = code.Identifier(
+            (jsonArray.PropertyName ?? "array") + "JsonArray", jsonArray, parameters.ScopeObjects, capitalize: false);
         parameters.ScopeVariables[jsonArray] = variable;
 
         mainBuilder.Append($"var {variable} = new RelationalJsonArray(");
@@ -666,7 +665,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
-        var variable = code.Identifier((jsonScalar.PropertyName ?? "scalar") + "JsonScalar", jsonScalar, parameters.ScopeObjects, capitalize: false);
+        var variable = code.Identifier(
+            (jsonScalar.PropertyName ?? "scalar") + "JsonScalar", jsonScalar, parameters.ScopeObjects, capitalize: false);
         parameters.ScopeVariables[jsonScalar] = variable;
 
         mainBuilder.Append($"var {variable} = new RelationalJsonScalar(");
@@ -1774,7 +1774,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append($"{tableVariable}, {additionalParameter ?? ""}{code.Literal(tableMapping.IncludesDerivedTypes)}");
 
         if (tableMapping.IsSharedTablePrincipal.HasValue
-            || tableMapping.IsSplitEntityTypePrincipal.HasValue)
+            || tableMapping.IsSplitEntityTypePrincipal.HasValue
+            || tableMapping.IsSplitFragmentOptional)
         {
             mainBuilder.AppendLine(")")
                 .AppendLine("{").IncrementIndent();
@@ -1788,7 +1789,14 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             if (tableMapping.IsSplitEntityTypePrincipal.HasValue)
             {
                 mainBuilder
-                    .Append("IsSplitEntityTypePrincipal = ").AppendLine(code.Literal(tableMapping.IsSplitEntityTypePrincipal));
+                    .Append("IsSplitEntityTypePrincipal = ").Append(code.Literal(tableMapping.IsSplitEntityTypePrincipal));
+                mainBuilder.AppendLine(tableMapping.IsSplitFragmentOptional ? "," : "");
+            }
+
+            if (tableMapping.IsSplitFragmentOptional)
+            {
+                mainBuilder
+                    .Append("IsSplitFragmentOptional = ").AppendLine(code.Literal(tableMapping.IsSplitFragmentOptional));
             }
 
             mainBuilder.DecrementIndent().AppendLine("};");
@@ -2183,7 +2191,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         AppendLiteral(storeObject, mainBuilder, code);
         mainBuilder.AppendLine(",")
-            .Append(code.Literal(fragment.IsTableExcludedFromMigrations)).AppendLine(");").DecrementIndent();
+            .Append(code.Literal(fragment.IsTableExcludedFromMigrations)).AppendLine(",")
+            .Append(code.Literal(fragment.IsOptional)).AppendLine(");").DecrementIndent();
 
         CreateAnnotations(
             fragment,
@@ -2653,7 +2662,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             annotatable,
             parameters with
             {
-                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
+                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = true
             });
     }
 

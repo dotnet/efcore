@@ -82,7 +82,7 @@ public class ValueGeneratorSelectorTest
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
         builder.Entity<AnEntity>().Property(e => e.Custom).HasValueGenerator<CustomValueGenerator>();
-        var entityType = builder.Model.FindEntityType(typeof(AnEntity));
+        var entityType = builder.Model.FindEntityType(typeof(AnEntity))!;
 
         foreach (var property in entityType.GetProperties())
         {
@@ -111,10 +111,10 @@ public class ValueGeneratorSelectorTest
         public ulong? NullableULong { get; set; }
         public ushort? NullableUShort { get; set; }
         public sbyte? NullableSByte { get; set; }
-        public string String { get; set; }
+        public string String { get; set; } = null!;
         public Guid Guid { get; set; }
         public Guid? NullableGuid { get; set; }
-        public byte[] Binary { get; set; }
+        public byte[] Binary { get; set; } = null!;
         public float Float { get; set; }
         public float? NullableFloat { get; set; }
         public double Double { get; set; }
@@ -145,6 +145,6 @@ public class ValueGeneratorSelectorTest
 
         selector.TrySelect(property, property.DeclaringType, out var generator);
 
-        return generator!.Next(null!);
+        return generator!.Next(null!)!;
     }
 }

@@ -37,27 +37,15 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     StoreObjectIdentifier? GetStoreIdentifier()
     {
         var name = Name;
-        if (name == null)
-        {
-            return null;
-        }
-
-        if (EntityType.GetInsertStoredProcedure() == this)
-        {
-            return StoreObjectIdentifier.InsertStoredProcedure(name, Schema);
-        }
-
-        if (EntityType.GetDeleteStoredProcedure() == this)
-        {
-            return StoreObjectIdentifier.DeleteStoredProcedure(name, Schema);
-        }
-
-        if (EntityType.GetUpdateStoredProcedure() == this)
-        {
-            return StoreObjectIdentifier.UpdateStoredProcedure(name, Schema);
-        }
-
-        return null;
+        return name == null
+            ? null
+            : EntityType.GetInsertStoredProcedure() == this
+                ? StoreObjectIdentifier.InsertStoredProcedure(name, Schema)
+                : EntityType.GetDeleteStoredProcedure() == this
+                    ? StoreObjectIdentifier.DeleteStoredProcedure(name, Schema)
+                    : EntityType.GetUpdateStoredProcedure() == this
+                        ? StoreObjectIdentifier.UpdateStoredProcedure(name, Schema)
+                        : null;
     }
 
     /// <summary>

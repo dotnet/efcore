@@ -49,7 +49,7 @@ public class EntityReferenceMap
         if (_hasSubMap
             && entityType.HasSharedClrType)
         {
-            _sharedTypeReferenceMap ??= new Dictionary<IEntityType, EntityReferenceMap>();
+            _sharedTypeReferenceMap ??= [];
 
             if (!_sharedTypeReferenceMap.TryGetValue(entityType, out var sharedMap))
             {
@@ -74,24 +74,24 @@ public class EntityReferenceMap
                 switch (state)
                 {
                     case EntityState.Detached:
-                        _detachedReferenceMap ??= new ConditionalWeakTable<object, InternalEntityEntry>();
+                        _detachedReferenceMap ??= [];
                         _detachedReferenceMap.AddOrUpdate(mapKey, entry);
                         break;
                     case EntityState.Unchanged:
                         _unchangedReferenceMap ??=
-                            new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                            [with(ReferenceEqualityComparer.Instance)];
                         _unchangedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Deleted:
-                        _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _deletedReferenceMap ??= [with(ReferenceEqualityComparer.Instance)];
                         _deletedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Modified:
-                        _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _modifiedReferenceMap ??= [with(ReferenceEqualityComparer.Instance)];
                         _modifiedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Added:
-                        _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+                        _addedReferenceMap ??= [with(ReferenceEqualityComparer.Instance)];
                         _addedReferenceMap[mapKey] = entry;
                         break;
                 }

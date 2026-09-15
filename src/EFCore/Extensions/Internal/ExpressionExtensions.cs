@@ -55,9 +55,8 @@ public static class ExpressionExtensions
                 : currentValueExpression,
             Expression.Constant(sentinel, comparer.Type));
 
-        if (isReferenceType || isNullableValueType)
-        {
-            return Expression.AndAlso(
+        return isReferenceType || isNullableValueType
+            ? Expression.AndAlso(
                 isReferenceType
                     ? Expression.Not(
                         Expression.ReferenceEqual(
@@ -66,10 +65,8 @@ public static class ExpressionExtensions
                     : Expression.MakeMemberAccess(
                         currentValueExpression,
                         currentValueExpression.Type.GetProperty("HasValue")!),
-                equalsExpression);
-        }
-
-        return equalsExpression;
+                equalsExpression)
+            : equalsExpression;
     }
 
     /// <summary>
@@ -165,7 +162,7 @@ public static class ExpressionExtensions
         Expression memberAccessExpression)
         where TMemberInfo : MemberInfo
     {
-        var memberInfos = MatchMemberAccess<TMemberInfo>(parameterExpression, memberAccessExpression);
+        var memberInfos = parameterExpression.MatchMemberAccess<TMemberInfo>(memberAccessExpression);
 
         return memberInfos?.Count == 1 ? memberInfos[0] : null;
     }
@@ -196,10 +193,10 @@ public static class ExpressionExtensions
     public static IReadOnlyList<MemberInfo> GetMemberAccessChain(
         this LambdaExpression expression,
         string parameterName)
-            => expression.MatchMemberAccessChain()
-                ?? throw new ArgumentException(
-                    CoreStrings.InvalidMemberAccessChainExpression(expression),
-                    parameterName);
+        => expression.MatchMemberAccessChain()
+            ?? throw new ArgumentException(
+                CoreStrings.InvalidMemberAccessChainExpression(expression),
+                parameterName);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -256,18 +253,19 @@ public static class ExpressionExtensions
 
         foreach (var path in paths)
         {
-            var parsed = MatchComplexMemberAccess(path, parameter) ?? throw new ArgumentException(
+            var (Members, IsCollection, CollectionIndices) = MatchComplexMemberAccess(path, parameter)
+                ?? throw new ArgumentException(
                     CoreStrings.InvalidMemberAccessChainExpression(lambdaExpression), parameterName);
 
-            members.Add(parsed.Members);
-            isCollection.Add(parsed.IsCollection);
-            indices.Add(parsed.CollectionIndices);
-            if (InternalTypeBaseBuilder.ContainsMultipleOrTrue(parsed.IsCollection))
+            members.Add(Members);
+            isCollection.Add(IsCollection);
+            indices.Add(CollectionIndices);
+            if (InternalTypeBaseBuilder.ContainsMultipleOrTrue(IsCollection))
             {
                 anyComplexChain = true;
             }
 
-            if (parsed.CollectionIndices is not null)
+            if (CollectionIndices is not null)
             {
                 anyIndices = true;
             }
@@ -318,14 +316,14 @@ public static class ExpressionExtensions
         // Members and indices are populated in order from the outermost of the chain (closest to the parameter)
         // to the innermost (the leaf). This method appends to them; recursive calls process the part of the
         // chain that is closer to the parameter and then we add the post-boundary members/index on top.
-        var current = RemoveTypeAs(RemoveConvert(expression));
+        var current = RemoveConvert(expression).RemoveTypeAs();
 
         // Collect a tail run of MemberExpressions (post-boundary).
         var tailMembers = new List<MemberInfo>();
         while (current is MemberExpression me)
         {
             tailMembers.Add(me.Member);
-            current = RemoveTypeAs(RemoveConvert(me.Expression));
+            current = RemoveConvert(me.Expression).RemoveTypeAs();
         }
 
         tailMembers.Reverse();
@@ -414,7 +412,7 @@ public static class ExpressionExtensions
     {
         var memberInfos = new List<TMemberInfo>();
 
-        var unwrappedExpression = RemoveTypeAs(RemoveConvert(memberAccessExpression));
+        var unwrappedExpression = RemoveConvert(memberAccessExpression).RemoveTypeAs();
         do
         {
             var memberExpression = unwrappedExpression as MemberExpression;
@@ -425,7 +423,7 @@ public static class ExpressionExtensions
 
             memberInfos.Insert(0, memberInfo);
 
-            unwrappedExpression = RemoveTypeAs(RemoveConvert(memberExpression.Expression));
+            unwrappedExpression = RemoveConvert(memberExpression.Expression).RemoveTypeAs();
         }
         while (unwrappedExpression != parameterExpression);
 

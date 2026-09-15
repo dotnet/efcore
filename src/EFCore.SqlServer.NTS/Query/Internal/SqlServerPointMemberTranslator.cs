@@ -62,10 +62,10 @@ public class SqlServerPointMemberTranslator : IMemberTranslator
             var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
             if (MemberToPropertyName.TryGetValue(member, out var propertyName)
-                || (isGeography
-                    ? GeographyMemberToPropertyName.TryGetValue(member, out propertyName)
-                    : GeometryMemberToPropertyName.TryGetValue(member, out propertyName))
-                && propertyName != null)
+                || ((isGeography
+                        ? GeographyMemberToPropertyName.TryGetValue(member, out propertyName)
+                        : GeometryMemberToPropertyName.TryGetValue(member, out propertyName))
+                    && propertyName != null))
             {
                 return _sqlExpressionFactory.NiladicFunction(
                     instance,

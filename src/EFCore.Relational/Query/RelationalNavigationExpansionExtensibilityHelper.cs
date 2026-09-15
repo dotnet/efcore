@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public class RelationalNavigationExpansionExtensibilityHelper : NavigationExpansionExtensibilityHelper, INavigationExpansionExtensibilityHelper
+public class RelationalNavigationExpansionExtensibilityHelper : NavigationExpansionExtensibilityHelper,
+    INavigationExpansionExtensibilityHelper
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalNavigationExpansionExtensibilityHelper" /> class.

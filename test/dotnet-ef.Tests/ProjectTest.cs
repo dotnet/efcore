@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
+
 namespace Microsoft.EntityFrameworkCore.Tools;
 
 public sealed class ProjectTest(ITestOutputHelper output)
@@ -55,8 +56,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
         primary.TryParse("MyApp.csproj");
         alias.TryParse("MyApp.cs");
 
-        Assert.Throws<CommandException>(
-            () => RootCommand.ResolveOption(primary, alias, configValue: null));
+        Assert.Throws<CommandException>(() => RootCommand.ResolveOption(primary, alias, configValue: null));
     }
 
     [Fact]
@@ -75,7 +75,8 @@ public sealed class ProjectTest(ITestOutputHelper output)
         {
             using var directory = new TempDirectory();
             var csprojFile = Path.Combine(directory.Path, "MyApp.csproj");
-            File.WriteAllText(csprojFile, $"""
+            File.WriteAllText(
+                csprojFile, $"""
                 <Project Sdk="Microsoft.NET.Sdk">
                   <PropertyGroup>
                     <TargetFramework>{TargetFramework}</TargetFramework>
@@ -124,7 +125,8 @@ public sealed class ProjectTest(ITestOutputHelper output)
         {
             using var directory = new TempDirectory();
             var csFile = Path.Combine(directory.Path, "MyApp.cs");
-            File.WriteAllText(csFile, $"""
+            File.WriteAllText(
+                csFile, $"""
                 #:property TargetFramework={TargetFramework}
                 Console.WriteLine("Hello");
                 """);

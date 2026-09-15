@@ -159,7 +159,7 @@ public sealed class InternalComplexEntry : InternalEntryBase
     /// </summary>
     public override object? ReadPropertyValue(IPropertyBase propertyBase)
         => EntityState == EntityState.Deleted
-             && HasOriginalValuesSnapshot
+            && HasOriginalValuesSnapshot
                 ? GetOriginalValue(propertyBase)
                 : base.ReadPropertyValue(propertyBase);
 

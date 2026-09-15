@@ -1055,7 +1055,7 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     throw new InvalidOperationException(CoreStrings.ResetNotSupported);
-                // Note: ignoring Move since index not important
+                    // Note: ignoring Move since index not important
             }
         }
     }

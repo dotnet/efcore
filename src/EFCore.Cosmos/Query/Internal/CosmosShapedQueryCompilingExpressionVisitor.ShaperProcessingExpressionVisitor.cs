@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
@@ -23,16 +24,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
         private static readonly MethodInfo StartTrackingMethodInfo
             = typeof(QueryContext).GetMethod(
-                nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()]) ?? throw new UnreachableException();
+                nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])
+            ?? throw new UnreachableException();
 
         private static readonly MethodInfo CollectionAccessorCreateMethodInfo
-            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Create)) ?? throw new UnreachableException();
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Create))
+            ?? throw new UnreachableException();
 
         private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
-            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate)) ?? throw new UnreachableException();
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate))
+            ?? throw new UnreachableException();
 
         private static readonly MethodInfo CollectionAccessorAddStandaloneMethodInfo
-            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.AddStandalone)) ?? throw new UnreachableException();
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.AddStandalone))
+            ?? throw new UnreachableException();
 
         private static readonly ConstructorInfo JsonReaderDataConstructor
             = typeof(JsonReaderData).GetConstructor([typeof(ReadOnlyMemory<byte>)]) ?? throw new UnreachableException();
@@ -42,7 +47,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static readonly ConstructorInfo JsonReaderManagerConstructor
             = typeof(Utf8JsonReaderManager).GetConstructor(
-                [typeof(JsonReaderData), typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)]) ?? throw new UnreachableException();
+                [typeof(JsonReaderData), typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)])
+            ?? throw new UnreachableException();
 
         private static readonly MethodInfo Utf8JsonReaderManagerMoveNextMethod
             = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.MoveNext), []) ?? throw new UnreachableException();
@@ -57,10 +63,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.Skip), []) ?? throw new UnreachableException();
 
         private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
-            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), [typeof(ReadOnlySpan<byte>)]) ?? throw new UnreachableException();
+            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), [typeof(ReadOnlySpan<byte>)])
+            ?? throw new UnreachableException();
 
         private static readonly ConstructorInfo Utf8JsonReaderConstructor
-            = typeof(Utf8JsonReader).GetConstructor([typeof(ReadOnlySpan<byte>), typeof(bool), typeof(JsonReaderState)]) ?? throw new UnreachableException();
+            = typeof(Utf8JsonReader).GetConstructor([typeof(ReadOnlySpan<byte>), typeof(bool), typeof(JsonReaderState)])
+            ?? throw new UnreachableException();
 
         private static readonly MethodInfo Utf8JsonReaderReadMethod
             = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.Read), []) ?? throw new UnreachableException();
@@ -79,10 +87,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static FieldInfo MaterializerTupleEntityTypeField(Type tupleType)
             => tupleType.GetField(nameof(ValueTuple<,,,>.Item1)) ?? throw new UnreachableException();
+
         private static FieldInfo MaterializerTupleInstanceField(Type tupleType)
             => tupleType.GetField(nameof(ValueTuple<,,,>.Item2)) ?? throw new UnreachableException();
+
         private static FieldInfo MaterializerTupleShadowSnapshotField(Type tupleType)
             => tupleType.GetField(nameof(ValueTuple<,,,>.Item3)) ?? throw new UnreachableException();
+
         private static FieldInfo MaterializerTupleTrackingActionsField(Type tupleType)
             => tupleType.GetField(nameof(ValueTuple<,,,>.Item4)) ?? throw new UnreachableException();
 
@@ -135,7 +146,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             _queryStateManager = parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll
                 or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
-            _ownerKeyProperties = ((CosmosQueryCompilationContext)parentVisitor.QueryCompilationContext).RootEntityType?.FindPrimaryKey()?.Properties.ToArray() ?? [];
+            _ownerKeyProperties = ((CosmosQueryCompilationContext)parentVisitor.QueryCompilationContext).RootEntityType?.FindPrimaryKey()
+                ?.Properties.ToArray()
+                ?? [];
         }
 
         public LambdaExpression ProcessShaper(Expression shaperExpression)
@@ -147,14 +160,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var resultVariable = Variable(processedShaperExpression.Type, "result");
                 processedShaperExpression = Block(
                     [_jsonReaderDataParameter, resultVariable, _innerShaperBytesConsumedVariable, _ownerKeySnapshotParameter],
-                    // bytesConsumed = 0
-                    [Assign(_bytesConsumedParameter, Constant(0)),
-                    // result = shaper
-                    Assign(resultVariable, processedShaperExpression),
-                    // bytesConsumed += innerShaperBytesConsumed
-                    AddBytesConsumedExpressions(_innerShaperBytesConsumedVariable)[0],
-                    // return result
-                    resultVariable]);
+                    Assign(_bytesConsumedParameter, Constant(0)), Assign(resultVariable, processedShaperExpression),
+                    AddBytesConsumedExpressions(_innerShaperBytesConsumedVariable)[0], resultVariable);
             }
             else
             {
@@ -171,7 +178,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     _ownerKeySnapshotParameter
                 };
 
-                var shaperBlockExpressions = new List<Expression>()
+                var shaperBlockExpressions = new List<Expression>
                 {
                     // bytesConsumed = 0
                     Assign(_bytesConsumedParameter, Constant(0)),
@@ -189,7 +196,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 };
 
                 BinaryExpression AssignJsonReaderVariableExpression(Expression? jsonReaderState = null)
-                    => Assign(jsonReaderVariable, New(Utf8JsonReaderConstructor, Property(_dataParameter, ReadOnlyMemorySpanProperty), Constant(true), jsonReaderState ?? Default(typeof(JsonReaderState))));
+                    => Assign(
+                        jsonReaderVariable,
+                        New(
+                            Utf8JsonReaderConstructor, Property(_dataParameter, ReadOnlyMemorySpanProperty), Constant(true),
+                            jsonReaderState ?? Default(typeof(JsonReaderState))));
 
                 var groups = _deferredProjectionBindings.GroupBy(x => GetProjectionIndex(x.Key));
                 var ownerKeySnapshotInitialized = false;
@@ -198,10 +209,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     var projectionReadExpressions = new List<Expression>();
 
-                    projectionReadExpressions.AddRange([
+                    projectionReadExpressions.AddRange(
+                    [
                         // bytesConsumed += jsonReader.BytesConsumed
                         // data = data.Slice((int)jsonReader.BytesConsumed) // Slice the data to the start json value being deserialized
-                        .. AddBytesConsumedExpressions(Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int))),
+                        .. AddBytesConsumedExpressions(
+                            Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int))),
                     ]);
 
                     string? alias = null;
@@ -218,20 +231,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             _ownerKeyProjectionVariables[ownerKeyProperty] = variable;
                         }
                     }
+
                     Debug.Assert(alias != null, "There is always one item in a group");
 
                     var nextItemBytesConsumedVariable = Variable(typeof(int), "nextItemBytesConsumed");
-                    projectionReadExpressions.AddRange([
+                    projectionReadExpressions.AddRange(
+                    [
                         // bytesConsumed += innerShaperBytesConsumed
                         // data = data.Slice(innerShaperBytesConsumed) // innerShaperBytesConsumed is set by every inner shaper, slice the data to the end of the json value that was deserialzed
-                        ..AddBytesConsumedExpressions(_innerShaperBytesConsumedVariable),
+                        .. AddBytesConsumedExpressions(_innerShaperBytesConsumedVariable),
                         // Slice the possible ',' after the last json value
                         Block(
                             [nextItemBytesConsumedVariable],
-                            // data = SliceNextItemTokenMethodInfo(data, out nextItemBytesConsumed)
-                            [Assign(_dataParameter, Call(SliceNextItemTokenMethodInfo, _dataParameter, nextItemBytesConsumedVariable)),
-                            // nextItemBytesConsumed += nextItemBytesConsumedVariable
-                            AddAssignChecked(_bytesConsumedParameter, nextItemBytesConsumedVariable)]),
+                            Assign(_dataParameter, Call(SliceNextItemTokenMethodInfo, _dataParameter, nextItemBytesConsumedVariable)),
+                            AddAssignChecked(_bytesConsumedParameter, nextItemBytesConsumedVariable)),
                     ]);
 
                     // After we have read all the primary key properties of the root document entity type (always come first: see CosmosQueryTranslationPostprocessor),
@@ -251,22 +264,27 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         ownerKeySnapshotInitialized = true;
                     }
 
-                    var throwProjectionContainsUndefined = Throw(New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!, Constant(CosmosStrings.ProjectionUndefined)));
+                    var throwProjectionContainsUndefined = Throw(
+                        New(
+                            typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
+                            Constant(CosmosStrings.ProjectionUndefined)));
 
                     // Only read the property if the property name matches the alias of the projection, otherwise the projection is undefined and we will throw an exception.
                     shaperBlockExpressions.AddRange(
                         // jsonReader.Read()
                         Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
                         // switch (jsonReader.TokenType)
-                        Switch(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty),
+                        Switch(
+                            Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty),
                             // default: throw new InvalidOperationException(InvalidTokenType)
                             ThrowInvalidToken(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)),
                             // case PropertyName
                             SwitchCase(
                                 // if (jsonReader.ValueTextEquals(alias))
-                                IfThenElse(JsonReaderValueTextEquals(jsonReaderVariable, alias),
+                                IfThenElse(
+                                    JsonReaderValueTextEquals(jsonReaderVariable, alias),
                                     Block(projectionReadExpressions),
-                                // else throw new InvalidOperationException(ProjectionContainsUndefinedValue)
+                                    // else throw new InvalidOperationException(ProjectionContainsUndefinedValue)
                                     throwProjectionContainsUndefined), // The next projection should have been this one, but it isn't. This means the projection was undefined.
                                 Constant(JsonTokenType.PropertyName)),
                             // case: JsonTokenType.EndObject throw new InvalidOperationException(ProjectionContainsUndefinedValue) // There should have been more projection values, but there arent. We are missing the last.
@@ -281,30 +299,34 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // jsonReader.Read() // Reads EndObject
                     Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
                     // bytesConsumed += jsonReader.BytesConsumed
-                    AddBytesConsumedExpressions(Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int)))[0]);
+                    AddBytesConsumedExpressions(
+                        Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int)))[0]);
 
                 shaperBlockExpressions.Add(processedShaperExpression);
                 processedShaperExpression = Block(shaperBlockVariables, shaperBlockExpressions);
             }
 
-            Expression[] AddBytesConsumedExpressions(Expression bytesConsumedExpression) =>
-            [
-                AddAssignChecked(_bytesConsumedParameter, bytesConsumedExpression),
-                Assign(_dataParameter, Call(_dataParameter, ReadOnlyMemorySliceMethod, bytesConsumedExpression))
-            ];
+            Expression[] AddBytesConsumedExpressions(Expression bytesConsumedExpression)
+                =>
+                [
+                    AddAssignChecked(_bytesConsumedParameter, bytesConsumedExpression),
+                    Assign(_dataParameter, Call(_dataParameter, ReadOnlyMemorySliceMethod, bytesConsumedExpression))
+                ];
 
             var shaperLambda = Lambda(
                 typeof(Shaper<>).MakeGenericType(shaperExpression.Type),
                 processedShaperExpression,
                 "Shaper",
-                [QueryCompilationContext.QueryContextParameter,
-                _dataParameter,
-                _ordinalParameter,
-                _bytesConsumedParameter]);
+                [
+                    QueryCompilationContext.QueryContextParameter,
+                    _dataParameter,
+                    _ordinalParameter,
+                    _bytesConsumedParameter
+                ]);
 
             return shaperLambda;
         }
-        
+
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             // Every deserialize action sets innerShaperBytesConsumed, so it can be used by the parent shaper to slice the data.
@@ -316,22 +338,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var shaperLambda = StructuralTypeJsonShaperLambda(structuralTypeShaperExpression);
 
                     var shaper = Block(
-                        [resultVariable],
-                        [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                         Assign(
-                             resultVariable,
-                             Invoke(
-                                 shaperLambda,
-                                 GetParametersForLambda(structuralTypeShaperExpression.StructuralType))),
-                         Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
-                         resultVariable]);
+                        [resultVariable], Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)), Assign(
+                            resultVariable,
+                            Invoke(
+                                shaperLambda,
+                                GetParametersForLambda(structuralTypeShaperExpression.StructuralType))),
+                        Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
+                        resultVariable);
 
-                    if (structuralTypeShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBinding) // Otherwise this is an inner shaper of a CollectionShaperExpression,
-                    {
-                        return CheckDeferProjectionBinding(projectionBinding, shaper);
-                    }
-
-                    return shaper;
+                    return structuralTypeShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBinding
+                        ? CheckDeferProjectionBinding(projectionBinding, shaper)
+                        : shaper;
                 }
 
                 case ProjectionBindingExpression projectionBindingExpression:
@@ -342,15 +359,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var shaper = Block(
                         [resultVariable, valueJsonReaderManager],
-                        [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
-                         Assign(valueJsonReaderManager, NewJsonReaderManager()),
-                         Call(valueJsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
-                         Assign(
-                             resultVariable,
-                             ReadJsonValue(valueJsonReaderManager, typeMapping, resultVariable.Type)),
-                         Call(valueJsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                         Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
-                         resultVariable]);
+                        Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                        Assign(valueJsonReaderManager, NewJsonReaderManager()),
+                        Call(valueJsonReaderManager, Utf8JsonReaderManagerMoveNextMethod), Assign(
+                            resultVariable,
+                            ReadJsonValue(valueJsonReaderManager, typeMapping, resultVariable.Type)),
+                        Call(valueJsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                        Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
+                        resultVariable);
 
                     return CheckDeferProjectionBinding(projectionBindingExpression, shaper);
                 }
@@ -362,36 +378,38 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var innerResultVariable = Variable(innerShaper.Type, "innerResult");
                     innerShaper = Block(
                         [_jsonReaderDataParameter, innerResultVariable, _innerShaperBytesConsumedVariable],
-                         // innerResult = shaper
-                         Assign(innerResultVariable, innerShaper),
-                         // bytesConsumed += innerShaperBytesConsumed
-                         AddAssignChecked(_bytesConsumedParameter, _innerShaperBytesConsumedVariable),
-                         // return innerResult
-                         innerResultVariable);
+                        // innerResult = shaper
+                        Assign(innerResultVariable, innerShaper),
+                        // bytesConsumed += innerShaperBytesConsumed
+                        AddAssignChecked(_bytesConsumedParameter, _innerShaperBytesConsumedVariable),
+                        // return innerResult
+                        innerResultVariable);
 
                     var innerShaperLambda = Lambda(
                         typeof(Shaper<>).MakeGenericType(innerShaper.Type),
                         innerShaper,
                         "InnerShaper",
-                        [QueryCompilationContext.QueryContextParameter,
-                        _dataParameter,
-                        _ordinalParameter,
-                        _bytesConsumedParameter]);
+                        [
+                            QueryCompilationContext.QueryContextParameter,
+                            _dataParameter,
+                            _ordinalParameter,
+                            _bytesConsumedParameter
+                        ]);
 
                     var collectionBytesConsumedVariable = Variable(typeof(int), "collectionBytesConsumed");
 
                     var shaper = Block(
-                        [resultVariable, collectionBytesConsumedVariable],
-                        [Assign(resultVariable,
+                        [resultVariable, collectionBytesConsumedVariable], Assign(
+                            resultVariable,
                             Call(
-                                ShapeCollectionMethodInfo.MakeGenericMethod(collectionShaperExpression.ElementType, collectionShaperExpression.Type),
+                                ShapeCollectionMethodInfo.MakeGenericMethod(
+                                    collectionShaperExpression.ElementType, collectionShaperExpression.Type),
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataParameter,
                                 Constant(collectionShaperExpression.CollectionCreator),
                                 innerShaperLambda,
                                 collectionBytesConsumedVariable)),
-                         Assign(_innerShaperBytesConsumedVariable, collectionBytesConsumedVariable),
-                         resultVariable]);
+                        Assign(_innerShaperBytesConsumedVariable, collectionBytesConsumedVariable), resultVariable);
 
                     var projectionBinding = (ProjectionBindingExpression)collectionShaperExpression.Projection;
                     return CheckDeferProjectionBinding(projectionBinding, shaper);
@@ -404,14 +422,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             Expression CheckDeferProjectionBinding(ProjectionBindingExpression projectionBinding, Expression shaper)
             {
                 var projection = GetProjection(projectionBinding);
-                if (!projection.IsValueProjection && projection.Alias != null) // There are multiple projections in the query result, so we have to defer the shaper to a variable assignment and run it when we are reading the projection from the result. See: ProcessShaper
+                if (!projection.IsValueProjection
+                    && projection.Alias
+                    != null) // There are multiple projections in the query result, so we have to defer the shaper to a variable assignment and run it when we are reading the projection from the result. See: ProcessShaper
                 {
                     if (!_deferredProjectionBindings.TryGetValue(projectionBinding, out var deferredBinding))
                     {
                         deferredBinding = (Variable(shaper.Type, projection.Alias), shaper);
                         _deferredProjectionBindings[projectionBinding] = deferredBinding;
                     }
-                    
+
                     return deferredBinding.Variable;
                 }
 
@@ -428,7 +448,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 var typeMapping = property.GetTypeMapping();
                 var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
-                Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+                Debug.Assert(
+                    jsonValueReaderWriter != null,
+                    "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
                 var jsonReadPropertyValueExpression = ReadJsonValue(
                     _jsonReaderManagerVariable,
                     jsonValueReaderWriter,
@@ -451,7 +473,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     var newExpression = (NewExpression)binaryExpression.Right;
 
-                    return binaryExpression.Update(binaryExpression.Left, binaryExpression.Conversion, newExpression.Update([Constant(ValueBuffer.Empty), .. newExpression.Arguments.Skip(1)]));
+                    return binaryExpression.Update(
+                        binaryExpression.Left, binaryExpression.Conversion,
+                        newExpression.Update([Constant(ValueBuffer.Empty), .. newExpression.Arguments.Skip(1)]));
                 }
 
                 default:
@@ -477,12 +501,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             var tupleVariable = Variable(materializer.Body.Type);
-            var shaperVariables = new List<ParameterExpression>
-            {
-                tupleVariable
-            };
+            var shaperVariables = new List<ParameterExpression> { tupleVariable };
 
-            var shaperExpressions = new List<Expression>()
+            var shaperExpressions = new List<Expression>
             {
                 // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
                 Assign(
@@ -508,7 +529,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // Non persisted fixup: we need to set any non persisted principal properties on the entity
                 // Since the entity is owned and is a projection binding root, we don't know the owner entity values when deserializing the document
                 // We get the owner entity key values from the ownerKeySnapshot (only for AsNoTrackingWithIdentityResolution)
-                foreach (var property in entityType.FindPrimaryKey()!.Properties.Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()))
+                foreach (var property in entityType.FindPrimaryKey()!.Properties.Where(p
+                             => p.FindFirstPrincipal() != null && !p.IsPersisted()))
                 {
                     var principalProperty = property.FindFirstPrincipal()!;
                     if (!TryGetOwnerKeyPropertyIndex(principalProperty, out var ownerKeyPropertyIndex))
@@ -525,10 +547,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     shaperExpressions.Add(
                         property.IsShadowProperty()
-                            ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
+                            ? Call(
+                                shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
                                 Constant(property.GetShadowIndex()),
                                 propertyValueExpression)
-                            : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression));
+                            : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType)
+                                .MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true))
+                                .Assign(propertyValueExpression));
                 }
             }
 
@@ -538,7 +563,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     property =>
                         property.IsShadowProperty()
                             // shadowSnapshot.GetValue<T>(1)
-                            ? Call(shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()))
+                            ? Call(
+                                shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
+                                Constant(property.GetShadowIndex()))
                             // instance.Property
                             : (Expression)InstancePropertyValue(instanceVariable, entityType, property));
 
@@ -560,12 +587,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             //    }
             //    queryContext.StartTracking(entityType, instance, shadowSnapshot);
             //}
-            shaperExpressions.Add(IfThenElse(
-                NotEqual(entryVariable, Default(entryVariable.Type)),
-                Assign(instanceVariable, Convert(MakeMemberAccess(entryVariable, typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!), instanceVariable.Type)),
-                Block(
-                    ListForEach(trackingActionsVariable, (trackingAction) => Invoke(trackingAction)),
-                    Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, entityTypeVariable, instanceVariable, shadowSnapshotVariable))));
+            shaperExpressions.Add(
+                IfThenElse(
+                    NotEqual(entryVariable, Default(entryVariable.Type)),
+                    Assign(
+                        instanceVariable,
+                        Convert(
+                            MakeMemberAccess(entryVariable, typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!),
+                            instanceVariable.Type)),
+                    Block(
+                        ListForEach(trackingActionsVariable, trackingAction => Invoke(trackingAction)),
+                        Call(
+                            QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, entityTypeVariable, instanceVariable,
+                            shadowSnapshotVariable))));
 
             // return instance
             shaperExpressions.Add(instanceVariable);
@@ -588,7 +622,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return lambda;
             }
 
-            var materializerVariables = new List<ParameterExpression>() { _jsonReaderManagerVariable };
+            var materializerVariables = new List<ParameterExpression> { _jsonReaderManagerVariable };
             var materializerExpressions = new List<Expression>();
 
             var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
@@ -602,15 +636,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             //  Rewrite ordinal key properties
             if (structuralType.TryGetOrdinalKey(out var ordinalKeyProperty))
             {
-                materializerBlock = new ValueBufferTryReadValueMethodsReplacer(new Dictionary<IProperty, Expression>
-                {
-                    { ordinalKeyProperty, _ordinalParameter }
-                }).Rewrite(materializerBlock);
+                materializerBlock =
+                    new ValueBufferTryReadValueMethodsReplacer(
+                        new Dictionary<IProperty, Expression> { { ordinalKeyProperty, _ordinalParameter } }).Rewrite(materializerBlock);
             }
 
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null
-             && structuralType is IEntityType) // Complex type discriminators don't have to be determined for materialization, since inheritance hiarchies are not supported. See #38119 and #31250
+                && structuralType is IEntityType) // Complex type discriminators don't have to be determined for materialization, since inheritance hiarchies are not supported. See #38119 and #31250
             {
                 if (structuralType.GetDerivedTypesInclusive().Count() == 1)
                 {
@@ -627,10 +660,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     materializerExpressions.Add(discriminatorRead);
 
                     // Replace calls for ValueBufferTryReadValue for the discriminator property
-                    materializerBlock = new ValueBufferTryReadValueMethodsReplacer(new Dictionary<IProperty, Expression>
-                    {
-                        { discriminatorProperty, discriminatorValueVariable }
-                    }).Rewrite(materializerBlock);
+                    materializerBlock = new ValueBufferTryReadValueMethodsReplacer(
+                            new Dictionary<IProperty, Expression> { { discriminatorProperty, discriminatorValueVariable } })
+                        .Rewrite(materializerBlock);
                 }
             }
 
@@ -639,7 +671,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type.IsAssignableTo(typeof(ITypeBase)));
             materializerVariables.AddRange(materializationContextVariable, entityTypeVariable, instanceVariable);
 
-            var materializationContextAssignment = materializerBlock.Expressions.Single(x => x is BinaryExpression { NodeType: ExpressionType.Assign } be && be.Left == materializationContextVariable);
+            var materializationContextAssignment = materializerBlock.Expressions.Single(x
+                => x is BinaryExpression { NodeType: ExpressionType.Assign } be && be.Left == materializationContextVariable);
             materializerExpressions.Add(Visit(materializationContextAssignment));
 
             var trackingActions = Variable(typeof(List<Action>), "trackingActions");
@@ -672,7 +705,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 var startTrackingAssignment = readValuesBlock.Expressions.OfType<BinaryExpression>()
                     .Single(x => x.NodeType == ExpressionType.Assign && x.Left == entryVariable);
-                readValuesBlock = readValuesBlock.Update(readValuesBlock.Variables, readValuesBlock.Expressions.Where(x => x != startTrackingAssignment));
+                readValuesBlock = readValuesBlock.Update(
+                    readValuesBlock.Variables, readValuesBlock.Expressions.Where(x => x != startTrackingAssignment));
 
                 // Rewrite the materialization block to a json deserializer
                 materializerBlock = (BlockExpression)Visit(readValuesBlock);
@@ -684,7 +718,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // Else this only returns RootEntity (clrType)
                 materializerExpressions.Add(
                     New(
-                        typeof(ValueTuple<,,,>).MakeGenericType(typeof(IEntityType), entityType.ClrType, typeof(ISnapshot), typeof(List<Action>))
+                        typeof(ValueTuple<,,,>).MakeGenericType(
+                                typeof(IEntityType), entityType.ClrType, typeof(ISnapshot), typeof(List<Action>))
                             .GetConstructor([typeof(IEntityType), entityType.ClrType, typeof(ISnapshot), typeof(List<Action>)])!,
                         entityTypeVariable,
                         instanceVariable,
@@ -706,14 +741,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     materializerBlock = materializerBlock.Expressions.OfType<BlockExpression>().Single();
                     materializerBlock = (BlockExpression)Visit(materializerBlock);
                 }
-                
+
                 materializerVariables.AddRange(materializerBlock.Variables);
                 materializerExpressions.AddRange(materializerBlock.Expressions);
             }
 
             materializerBlock = Block(materializerVariables, materializerExpressions);
 
-            var resultType = structuralType.ClrType.IsValueType && nullable ? materializerBlock.Type.MakeNullable() : materializerBlock.Type;
+            var resultType = structuralType.ClrType.IsValueType && nullable
+                ? materializerBlock.Type.MakeNullable()
+                : materializerBlock.Type;
 
             var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
 
@@ -721,13 +758,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // If so invoke the rewritten json materializer
             // Else return default for the result type
             materializerBlock = Block(
-                [_jsonReaderManagerVariable, tokenTypeVariable],
-                // jsonReaderManager = new Utf8JsonReaderManager(data.Span)
-                [Assign(_jsonReaderManagerVariable, NewJsonReaderManager()),
-                // tokenType = jsonReaderManager.MoveNext()
-                Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
-                // switch (tokenType)
-                Switch(
+                [_jsonReaderManagerVariable, tokenTypeVariable], Assign(_jsonReaderManagerVariable, NewJsonReaderManager()),
+                Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)), Switch(
                     tokenTypeVariable,
                     // default: throw new InvalidOperationException(InvalidTokenType)
                     ThrowInvalidToken(tokenTypeVariable, resultType),
@@ -738,8 +770,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Default(resultType)),
                         Constant(JsonTokenType.Null)),
                     // case JsonTokenType.StartObject: materializerBlock
-                    SwitchCase(ConvertIfNotMatch(materializerBlock, resultType),
-                        Constant(JsonTokenType.StartObject)))]);
+                    SwitchCase(
+                        ConvertIfNotMatch(materializerBlock, resultType),
+                        Constant(JsonTokenType.StartObject))));
 
             lambda = Lambda(
                 materializerBlock,
@@ -751,7 +784,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return lambda;
         }
 
-        private BlockExpression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
+        private BlockExpression ReadDiscriminator(
+            ITypeBase structuralType,
+            IProperty discriminatorProperty,
+            ParameterExpression discriminatorValueVariable)
         {
             // Generate a read loop to get the discriminator
             // string? discriminatorValue = null;
@@ -805,34 +841,30 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // string? discriminatorValue = defalt();
                 Assign(discriminatorValueVariable, Default(discriminatorProperty.ClrType.MakeNullable())),
                 Loop(
-                    Block([], [
-                        // tokenType = jsonReaderManager.MoveNext();
-                        Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
-                        // switch (tokenType)
-                        Switch(tokenTypeVariable,
+                    Block(
+                        [], Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)), Switch(
+                            tokenTypeVariable,
                             // default: throw
-                            ThrowInvalidToken(tokenTypeVariable),
-                            [
-                                // case Null: goto EndRead
-                                SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.Null)),
-                                // case EndObject: goto EndRead
-                                SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)),
-                                // case PropertyName:
-                                SwitchCase(
-                                    // if (jsonReaderManager.CurrentReader.ValueTextEquals(("Discriminator"u8).Span))
-                                    IfThenElse(
-                                        JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, discriminatorProperty.GetJsonPropertyName()),
-                                        Block(
-                                            // jsonReaderManager.MoveNext()
-                                            Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
-                                            // discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-                                            Assign(
-                                                discriminatorValueVariable,
-                                                ReadJsonValue(_jsonReaderManagerVariable, discriminatorProperty.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter!, typeMapping, discriminatorProperty.ClrType.MakeNullable(), true)),
-                                            // goto EndRead
-                                            Break(breakLabel, typeof(void))),
-                                        noMatch),
-                                    Constant(JsonTokenType.PropertyName))])]),
+                            ThrowInvalidToken(tokenTypeVariable), SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.Null)),
+                            SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)), SwitchCase(
+                                // if (jsonReaderManager.CurrentReader.ValueTextEquals(("Discriminator"u8).Span))
+                                IfThenElse(
+                                    JsonReaderManagerValueTextEquals(
+                                        _jsonReaderManagerVariable, discriminatorProperty.GetJsonPropertyName()),
+                                    Block(
+                                        // jsonReaderManager.MoveNext()
+                                        Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
+                                        // discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+                                        Assign(
+                                            discriminatorValueVariable,
+                                            ReadJsonValue(
+                                                _jsonReaderManagerVariable,
+                                                discriminatorProperty.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter!,
+                                                typeMapping, discriminatorProperty.ClrType.MakeNullable(), true)),
+                                        // goto EndRead
+                                        Break(breakLabel, typeof(void))),
+                                    noMatch),
+                                Constant(JsonTokenType.PropertyName)))),
                     breakLabel));
         }
 
@@ -891,7 +923,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 nestedStructuralProperties = nestedStructuralProperties.Concat(
                     entityType.GetNavigations()
                         .Where(n => n.ForeignKey.IsOwnership
-                                 && n == n.ForeignKey.PrincipalToDependent));
+                            && n == n.ForeignKey.PrincipalToDependent));
             }
 
             var (loop, propertyAssignmentMap) = GenerateJsonPropertyReadLoop(
@@ -901,14 +933,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             // Workaround for old databases that didn't store the primary key property (for owned collection entities), see Old_still_works
             if (structuralType is IEntityType workaroundEntityType
-             && workaroundEntityType.FindOwnership() is { } ownership
-             && workaroundEntityType.FindPrimaryKey() is { Properties.Count: > 1 } primaryKey)
+                && workaroundEntityType.FindOwnership() is { } ownership
+                && workaroundEntityType.FindPrimaryKey() is { Properties.Count: > 1 } primaryKey)
             {
                 foreach (var possiblyMissingProperty in primaryKey.Properties.Where(property =>
-                    property.ClrType == typeof(int)
-                 && !property.IsForeignKey()
-                 && property.GetJsonPropertyName().Length != 0
-                 && !property.IsShadowProperty()))
+                             property.ClrType == typeof(int)
+                             && !property.IsForeignKey()
+                             && property.GetJsonPropertyName().Length != 0
+                             && !property.IsShadowProperty()))
                 {
                     // Before the property read loop, we assign the ordinal as a default for the possibly missing pk property
                     var variable = propertyAssignmentMap[possiblyMissingProperty];
@@ -935,15 +967,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             // Add null(/undefined) checks for pk
             if (structuralType is IEntityType pkEt
-             && pkEt.FindPrimaryKey() is { } pk
-             && pk.Properties.Where(propertyAssignmentMap.ContainsKey).ToArray() is { Length: > 0 } pkProperties)
+                && pkEt.FindPrimaryKey() is { } pk
+                && pk.Properties.Where(propertyAssignmentMap.ContainsKey).ToArray() is { Length: > 0 } pkProperties)
             {
                 var pkPropertyVariables = pkProperties.Select(p => (ParameterExpression)propertyAssignmentMap[p]).ToArray();
                 finalBlockExpressions.Add(
                     IfThen(
                         pkPropertyVariables.Select(p =>
                             p.Type.IsNullableValueType()
-                                ? Not(Property(p, typeof(Nullable<>).MakeGenericType(p.Type.UnwrapNullableType()).GetProperty(nameof(Nullable<>.HasValue))!))
+                                ? Not(
+                                    Property(
+                                        p,
+                                        typeof(Nullable<>).MakeGenericType(p.Type.UnwrapNullableType())
+                                            .GetProperty(nameof(Nullable<>.HasValue))!))
                                 : (Expression)Equal(p, Default(p.Type))).Aggregate(OrElse),
                         Throw(
                             Call(
@@ -953,7 +989,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 NewArrayInit(typeof(object), pkPropertyVariables.Select(p => Convert(p, typeof(object))))))));
             }
 
-            foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.Take(jsonEntityTypeInitializerBlock.Expressions.Count - 1))
+            foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.Take(
+                         jsonEntityTypeInitializerBlock.Expressions.Count - 1))
             {
                 finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(jsonEntityTypeInitializerBlockExpression)));
             }
@@ -961,7 +998,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             foreach (var (property, variable) in navigationVariableMap)
             {
                 finalBlockExpressions.Add(
-                    MakeMemberAccess(ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType), property.GetMemberInfo(true, true)).Assign(variable));
+                    MakeMemberAccess(
+                            ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType), property.GetMemberInfo(true, true))
+                        .Assign(variable));
             }
 
             if (structuralType is IEntityType fixupEntityType)
@@ -970,7 +1009,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     // Non tracking dependent to principal fk fixup
                     foreach (var navigation in fixupEntityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership
-                                                                                        && !n.IsOnDependent))
+                                 && !n.IsOnDependent))
                     {
                         // Shadow owned navigations do not exist, so there is always a PrincipalToDependent member
                         var principalToDependentMember = navigation.ForeignKey.PrincipalToDependent!.GetMemberInfo(true, true);
@@ -980,20 +1019,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         if (navigation.ForeignKey.DependentToPrincipal is not null)
                         {
                             var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal.GetMemberInfo(true, true);
-                            fixupBuilders.Add((dependentInstance) => dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
-                                        .Assign(ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
+                            fixupBuilders.Add(dependentInstance => dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
+                                .Assign(ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
                         }
 
                         foreach (var dependentForeignKeyProperty in navigation.ForeignKey.Properties.Where(x => !x.IsShadowProperty()
-                                                                                                             && !x.IsPersisted()))
+                                     && !x.IsPersisted()))
                         {
                             if (dependentForeignKeyProperty.FindFirstPrincipal() is not { } principalProperty
-                             || !propertyAssignmentMap.TryGetValue(principalProperty, out var principalPropertyVariable))
+                                || !propertyAssignmentMap.TryGetValue(principalProperty, out var principalPropertyVariable))
                             {
                                 continue;
                             }
 
-                            fixupBuilders.Add((dependentInstance) =>
+                            fixupBuilders.Add(dependentInstance =>
                                 dependentInstance.MakeMemberAccess(dependentForeignKeyProperty.GetMemberInfo(true, true))
                                     .Assign(ConvertIfNotMatch(principalPropertyVariable, dependentForeignKeyProperty.ClrType)));
                         }
@@ -1001,8 +1040,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         if (navigation.IsCollection)
                         {
                             finalBlockExpressions.Add(
-                                EnumerableForEach(instanceVariable.MakeMemberAccess(principalToDependentMember), dependentInstance =>
-                                    Block(fixupBuilders.Select(f => f(dependentInstance)))));
+                                EnumerableForEach(
+                                    instanceVariable.MakeMemberAccess(principalToDependentMember), dependentInstance =>
+                                        Block(fixupBuilders.Select(f => f(dependentInstance)))));
                         }
                         else
                         {
@@ -1018,7 +1058,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // This isn't needed for non-tracking, because the materializer will always create a new instance of the collection and set it by reference
                     foreach (var collectionProperty in nestedStructuralProperties.Where(x => x is INavigation && x.IsCollection))
                     {
-                        finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
+                        finalBlockExpressions.Add(
+                            Call(
+                                Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo,
+                                instanceVariable, Constant(true)));
                     }
                 }
             }
@@ -1060,7 +1103,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var typeMapping = property.GetTypeMapping();
                     var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
-                    Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+                    Debug.Assert(
+                        jsonValueReaderWriter != null,
+                        "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
 
                     var assignment = Assign(
                         propertyVariable,
@@ -1090,13 +1135,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nestedStructuralProperty is not INavigation ownedNavigation || !ownedNavigation.IsOnDependent,
                         "JSON navigations should always be from principal do dependent");
 
-                    var (nestedStructuralType, inverseNavigation, isStructuralPropertyNullable, jsonPropertyName) = nestedStructuralProperty switch
-                    {
-                        INavigation n => ((ITypeBase)n.TargetEntityType, n.Inverse, !n.ForeignKey.IsRequiredDependent, n.TargetEntityType.GetContainingPropertyName()!),
-                        IComplexProperty cp => (cp.ComplexType, null, cp.IsNullable, cp.GetJsonPropertyName()),
+                    var (nestedStructuralType, inverseNavigation, isStructuralPropertyNullable, jsonPropertyName) =
+                        nestedStructuralProperty switch
+                        {
+                            INavigation n => ((ITypeBase)n.TargetEntityType, n.Inverse, !n.ForeignKey.IsRequiredDependent,
+                                n.TargetEntityType.GetContainingPropertyName()!),
+                            IComplexProperty cp => (cp.ComplexType, null, cp.IsNullable, cp.GetJsonPropertyName()),
 
-                        _ => throw new UnreachableException()
-                    };
+                            _ => throw new UnreachableException()
+                        };
 
                     testExpressions.Add(JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, jsonPropertyName));
 
@@ -1106,14 +1153,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             isStructuralPropertyNullable);
 
                     // Builds the expression tree for collection properties. This is a while loop around the materializer for the nested structural type
-                    var nestedCollectionReadVariables = new List<ParameterExpression>()
-                    {
-                        _ordinalParameter
-                    };
-                    var nestedCollectionReadExpressions = new List<Expression>()
-                    {
-                        Assign(_ordinalParameter, Constant(0)),
-                    };
+                    var nestedCollectionReadVariables = new List<ParameterExpression> { _ordinalParameter };
+                    var nestedCollectionReadExpressions = new List<Expression> { Assign(_ordinalParameter, Constant(0)), };
 
                     var nestedMaterializer = Invoke(nestedMaterializerLambda, GetParametersForLambda(nestedStructuralType));
 
@@ -1164,7 +1205,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var nestedShadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(tupleType));
                         var nestedTrackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(tupleType));
 
-                        var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = GetEntityTypeMaterializerExpressions((IEntityType)structuralType);
+                        var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) =
+                            GetEntityTypeMaterializerExpressions((IEntityType)structuralType);
                         var tryGetEntryAssignment = GetEntityTypeMaterializerExpressions(nestedEntityType).TryGetEntryAssignment;
                         var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
                         var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
@@ -1179,36 +1221,48 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nestedReadExpressions.AddRange(
                             Assign(tupleVariable, nestedMaterializer),
                             // if (nestedInstance != default)
-                            IfThen(NotEqual(nestedInstanceVariable, Default(nestedInstanceVariable.Type)),
+                            IfThen(
+                                NotEqual(nestedInstanceVariable, Default(nestedInstanceVariable.Type)),
                                 // parentTrackingActions.Add(() =>
-                                Call(parentTrackingActionsVariable, parentTrackingActionsVariable.Type.GetMethod(nameof(List<>.Add))!,
+                                Call(
+                                    parentTrackingActionsVariable, parentTrackingActionsVariable.Type.GetMethod(nameof(List<>.Add))!,
                                     Lambda(
                                         Block(
-                                            [entryVariable, hasNullKeyVariable],
-                                            [
-                                                // var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
-                                                tryGetEntryAssignment,
-                                                // if (entry == default)
-                                                IfThen(Equal(entryVariable, Default(entryVariable.Type)),
-                                                    Block([
-                                                        // nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
-                                                        // nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id2)
-                                                        ..nestedEntityType.GetProperties().Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()).Select(p =>
+                                            [entryVariable, hasNullKeyVariable], tryGetEntryAssignment, IfThen(
+                                                Equal(entryVariable, Default(entryVariable.Type)),
+                                                Block(
+                                                [
+                                                    // nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
+                                                    // nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id2)
+                                                    .. nestedEntityType.GetProperties()
+                                                        .Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()).Select(p =>
                                                             p.IsShadowProperty()
-                                                                ? Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.ClrType),
+                                                                ? Call(
+                                                                    nestedShadowSnapshotVariable,
+                                                                    Snapshot.SetValueMethod.MakeGenericMethod(p.ClrType),
                                                                     Constant(p.GetShadowIndex()),
                                                                     GetPropertyValue(p))
-                                                                : ConvertIfNotMatch(nestedInstanceVariable, p.DeclaringType.ClrType).MakeMemberAccess(p.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(GetPropertyValue(p))),
-                                                        // nestedTrackingActions.ForEach(nestedTrackingAction => nestedTrackingAction())
-                                                        ListForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
-                                                        // queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot)
-                                                        Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)]))])))));
+                                                                : ConvertIfNotMatch(nestedInstanceVariable, p.DeclaringType.ClrType)
+                                                                    .MakeMemberAccess(
+                                                                        p.GetMemberInfo(forMaterialization: true, forSet: true))
+                                                                    .Assign(GetPropertyValue(p))),
+                                                    // nestedTrackingActions.ForEach(nestedTrackingAction => nestedTrackingAction())
+                                                    ListForEach(
+                                                        nestedTrackingActionsVariable,
+                                                        nestedTrackingAction => Invoke(nestedTrackingAction)),
+                                                    // queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot)
+                                                    Call(
+                                                        QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo,
+                                                        nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)
+                                                ])))))));
 
                         Expression GetPropertyValue(IProperty property)
                             => property.FindFirstPrincipal() is { } principalProperty
                                 ? principalProperty.IsShadowProperty()
-                                    ? ConvertIfNotMatch(GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty), property.ClrType)
-                                    : ConvertIfNotMatch(InstancePropertyValue(parentInstanceVariable, structuralType, principalProperty), property.ClrType)
+                                    ? ConvertIfNotMatch(
+                                        GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty), property.ClrType)
+                                    : ConvertIfNotMatch(
+                                        InstancePropertyValue(parentInstanceVariable, structuralType, principalProperty), property.ClrType)
                                 : property.IsShadowProperty()
                                     ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
                                     : InstancePropertyValue(nestedInstanceVariable, nestedStructuralType, property);
@@ -1233,9 +1287,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         else
                         {
                             // property = nestedStructuralProperty.GetCollectionAccessor().Create() // Adds this before the property read loop, so the collection is always initialized
-                            finalBlockExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
+                            finalBlockExpressions.Add(
+                                Assign(
+                                    propertyVariable,
+                                    Convert(
+                                        Call(
+                                            Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
+                                            CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
                             // collectionAccessor.AddStandalone(property, nestedMaterializer)
-                            nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo, propertyVariable, nestedMaterializer));
+                            nestedReadExpressions.Add(
+                                Call(
+                                    Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo,
+                                    propertyVariable, nestedMaterializer));
                         }
                     }
 
@@ -1248,35 +1311,42 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         var collectionBreakLabel = Label("EndCollection");
                         readExpressions.Add(
-                            Block(nestedCollectionReadVariables,
-                                // tokenType = jsonReaderManager.MoveNext()
-                                [Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
-                                // switch (tokenType)
-                                Switch(tokenTypeVariable,
+                            Block(
+                                nestedCollectionReadVariables,
+                                Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)), Switch(
+                                    tokenTypeVariable,
                                     // default: throw new InvalidOperationException(InvalidTokenType)
                                     ThrowInvalidToken(tokenTypeVariable),
                                     // case Null: jsonReaderManager.CaptureState()
-                                    SwitchCase(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod), Constant(JsonTokenType.Null)),
+                                    SwitchCase(
+                                        Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
+                                        Constant(JsonTokenType.Null)),
                                     // case StartArray
                                     SwitchCase(
-                                        Block([
-                                            ..nestedCollectionReadExpressions,
+                                        Block(
+                                        [
+                                            .. nestedCollectionReadExpressions,
                                             // jsonReaderManager.CaptureState()
                                             Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
                                             // while (true)
-                                            Loop(Block(
-                                                // tokenType = jsonReaderManager.MoveNext()
-                                                Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
-                                                // switch (tokenType)
-                                                Switch(tokenTypeVariable,
-                                                    // default: materializer
-                                                    nestedReadBlock,
-                                                    // case Null: throw new InvalidOperationException
-                                                    SwitchCase(ThrowInvalidToken(tokenTypeVariable), Constant(JsonTokenType.Null)),
-                                                    // case EndArray: goto collectionBreakLabel
-                                                    SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.EndArray)))),
-                                                collectionBreakLabel)]),
-                                        Constant(JsonTokenType.StartArray)))]));
+                                            Loop(
+                                                Block(
+                                                    // tokenType = jsonReaderManager.MoveNext()
+                                                    Assign(
+                                                        tokenTypeVariable,
+                                                        Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                                                    // switch (tokenType)
+                                                    Switch(
+                                                        tokenTypeVariable,
+                                                        // default: materializer
+                                                        nestedReadBlock,
+                                                        // case Null: throw new InvalidOperationException
+                                                        SwitchCase(ThrowInvalidToken(tokenTypeVariable), Constant(JsonTokenType.Null)),
+                                                        // case EndArray: goto collectionBreakLabel
+                                                        SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.EndArray)))),
+                                                collectionBreakLabel)
+                                        ]),
+                                        Constant(JsonTokenType.StartArray)))));
                     }
                     else
                     {
@@ -1391,7 +1461,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     return materializerExpressions;
                 }
-            } while ((entityType = entityType.BaseType!) != null);
+            }
+            while ((entityType = entityType.BaseType!) != null);
 
             throw new UnreachableException();
         }
@@ -1401,12 +1472,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
             => projectionBindingExpression.ProjectionMember != null
-                ? ((SelectExpression)projectionBindingExpression.QueryExpression).GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
+                ? ((SelectExpression)projectionBindingExpression.QueryExpression)
+                .GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
                 : (projectionBindingExpression.Index
                     ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
 
         private NewExpression NewJsonReaderManager()
-            => New(JsonReaderManagerConstructor, _jsonReaderDataParameter, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
+            => New(
+                JsonReaderManagerConstructor, _jsonReaderDataParameter,
+                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
 
         private static UnaryExpression ThrowInvalidToken(Expression tokenType, Type? type = null)
             => Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenType), type ?? typeof(void));
@@ -1422,7 +1496,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return _queryStateManager && entityType != null && entityType.FindPrimaryKey() != null;
         }
 
-        private bool TryGetOwnerKeyProperty(ProjectionBindingExpression projectionBindingExpression, [NotNullWhen(true)] out IProperty? property)
+        private bool TryGetOwnerKeyProperty(
+            ProjectionBindingExpression projectionBindingExpression,
+            [NotNullWhen(true)] out IProperty? property)
         {
             property = null;
 
@@ -1442,8 +1518,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return false;
             }
 
-            property = _ownerKeyProperties.FirstOrDefault(
-                primaryKeyProperty => string.Equals(primaryKeyProperty.GetJsonPropertyName(), propertyName, StringComparison.Ordinal));
+            property = _ownerKeyProperties.FirstOrDefault(primaryKeyProperty => string.Equals(
+                primaryKeyProperty.GetJsonPropertyName(), propertyName, StringComparison.Ordinal));
 
             return property is not null;
         }
@@ -1466,7 +1542,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static Expression ReadJsonValue(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping, Type clrType)
         {
             var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
-            Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+            Debug.Assert(
+                jsonValueReaderWriter != null,
+                "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
             return ReadJsonValue(jsonReaderManagerParameter, jsonValueReaderWriter, typeMapping, clrType, clrType.IsNullableType());
         }
 
@@ -1483,7 +1561,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 nameof(JsonValueReaderWriter<>.FromJsonTyped),
                 [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
 
-            Expression resultExpression = Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
+            Expression resultExpression = Call(
+                jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
 
             if (resultExpression.Type != clrType)
             {
@@ -1537,15 +1616,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return Block(
                 [listVar, i, count, item],
-
                 Assign(listVar, list),
                 Assign(i, Constant(0)),
                 Assign(count, Property(listVar, countProperty)),
-
                 Loop(
                     IfThenElse(
                         LessThan(i, count),
-
                         Block(
                             Assign(
                                 item,
@@ -1553,9 +1629,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     listVar,
                                     indexerProperty,
                                     [i])),
-
                             body,
-
                             PostIncrementAssign(i)),
                         Break(breakLabel)),
                     breakLabel));
@@ -1571,15 +1645,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return Block(
                 [enumeratorVar, itemVar],
-
-                Assign(enumeratorVar, Call(enumerable, typeof(IEnumerable<>).MakeGenericType(itemType).GetMethod(nameof(IEnumerable<>.GetEnumerator))!)),
-
+                Assign(
+                    enumeratorVar,
+                    Call(enumerable, typeof(IEnumerable<>).MakeGenericType(itemType).GetMethod(nameof(IEnumerable<>.GetEnumerator))!)),
                 TryFinally(
                     Loop(
                         IfThenElse(
-                            Call(enumeratorVar, typeof(System.Collections.IEnumerator).GetMethod(nameof(System.Collections.IEnumerator.MoveNext))!),
+                            Call(enumeratorVar, typeof(IEnumerator).GetMethod(nameof(IEnumerator.MoveNext))!),
                             Block(
-                                Assign(itemVar, Property(enumeratorVar, typeof(IEnumerator<>).MakeGenericType(itemType).GetProperty(nameof(IEnumerator<>.Current))!)),
+                                Assign(
+                                    itemVar,
+                                    Property(
+                                        enumeratorVar,
+                                        typeof(IEnumerator<>).MakeGenericType(itemType).GetProperty(nameof(IEnumerator<>.Current))!)),
                                 bodyFactory(itemVar)),
                             Break(breakLabel)),
                         breakLabel),
@@ -1587,7 +1665,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         private static MemberExpression StringConstantSpan(string value)
-            => Property(Constant((ReadOnlyMemory<byte>)Encoding.UTF8.GetBytes(value)), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!);
+            => Property(
+                Constant((ReadOnlyMemory<byte>)Encoding.UTF8.GetBytes(value)),
+                typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!);
 
         private static Expression ConvertIfNotMatch(Expression expression, Type targetType)
             => expression.Type != targetType
@@ -1633,10 +1713,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // Keys might be defined on embedded complex types, so we need to traverse the complex type hierarchy to get the correct instance variable for the property.
             if (property.DeclaringType != structuralType && property.DeclaringType is IComplexType complexParent)
             {
-                instanceVariable = ConvertIfNotMatch(InstancePropertyValue(instanceVariable, property.DeclaringType, complexParent.ComplexProperty), property.DeclaringType.ClrType);
+                instanceVariable = ConvertIfNotMatch(
+                    InstancePropertyValue(instanceVariable, property.DeclaringType, complexParent.ComplexProperty),
+                    property.DeclaringType.ClrType);
             }
 
-            return ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false));
+            return ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType)
+                .MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false));
         }
 
         private sealed class SingleDiscriminatorValueRewritingExpressionVisitor(
@@ -1648,44 +1731,50 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
                 => binaryExpression.NodeType == ExpressionType.Assign
-                && binaryExpression.Left is ParameterExpression entityTypeVariable
-                && entityTypeVariable.Type.IsAssignableTo(typeof(ITypeBase))
-                    ? binaryExpression.Update(binaryExpression.Left, null, Constant(structuralType, entityTypeVariable.Type))
-                    : base.VisitBinary(binaryExpression);
+                    && binaryExpression.Left is ParameterExpression entityTypeVariable
+                    && entityTypeVariable.Type.IsAssignableTo(typeof(ITypeBase))
+                        ? binaryExpression.Update(binaryExpression.Left, null, Constant(structuralType, entityTypeVariable.Type))
+                        : base.VisitBinary(binaryExpression);
 
             protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
-            => switchCase switch
-            {
+                => switchCase switch
                 {
-                    Body: BlockExpression { Expressions.Count: > 0 } body,
-                    TestValues: [ConstantExpression { Value: ITypeBase testValue }]
-                } => testValue == structuralType
-                        ? switchCase.Update(switchCase.TestValues, body.Update(body.Variables, [
-                            // if (ValueBuffer.TryReadValue(discriminatorProperty.ClrType, ValueBuffer.Empty, discriminatorProperty.GetIndex(), discriminatorProperty) != structuralType.GetDiscriminatorValue())
-                            IfThen(
-                                NotEqual(
-                                    Call(
-                                        EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(discriminatorProperty.ClrType),
-                                        Constant(ValueBuffer.Empty),
-                                        Constant(discriminatorProperty.GetIndex()),
-                                        Constant(discriminatorProperty)),
-                                    Constant(structuralType.GetDiscriminatorValue(), discriminatorProperty.ClrType)),
-                                // throw new InvalidOperationException(UnableToDiscriminateStructuralType)
-                                Throw(
-                                    Call(
-                                        CreateUnableToDiscriminateExceptionMethod,
-                                        Constant(structuralType),
-                                        Convert(
+                    {
+                        Body: BlockExpression { Expressions.Count: > 0 } body,
+                        TestValues: [ConstantExpression { Value: ITypeBase testValue }]
+                    } => testValue == structuralType
+                        ? switchCase.Update(
+                            switchCase.TestValues, body.Update(
+                                body.Variables, [
+                                    // if (ValueBuffer.TryReadValue(discriminatorProperty.ClrType, ValueBuffer.Empty, discriminatorProperty.GetIndex(), discriminatorProperty) != structuralType.GetDiscriminatorValue())
+                                    IfThen(
+                                        NotEqual(
                                             Call(
-                                                EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(discriminatorProperty.ClrType),
+                                                EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                                                    .MakeGenericMethod(discriminatorProperty.ClrType),
                                                 Constant(ValueBuffer.Empty),
                                                 Constant(discriminatorProperty.GetIndex()),
                                                 Constant(discriminatorProperty)),
-                                        typeof(object))))),
-                            ..body.Expressions]))
-                        : throw new UnreachableException("There should only be 1 case for the specified structural type, since there is only 1 possible discriminator value."),
-                _ => base.VisitSwitchCase(switchCase)
-            };
+                                            Constant(structuralType.GetDiscriminatorValue(), discriminatorProperty.ClrType)),
+                                        // throw new InvalidOperationException(UnableToDiscriminateStructuralType)
+                                        Throw(
+                                            Call(
+                                                CreateUnableToDiscriminateExceptionMethod,
+                                                Constant(structuralType),
+                                                Convert(
+                                                    Call(
+                                                        EntityFrameworkCore.Infrastructure.ExpressionExtensions
+                                                            .ValueBufferTryReadValueMethod.MakeGenericMethod(discriminatorProperty.ClrType),
+                                                        Constant(ValueBuffer.Empty),
+                                                        Constant(discriminatorProperty.GetIndex()),
+                                                        Constant(discriminatorProperty)),
+                                                    typeof(object))))),
+                                    .. body.Expressions
+                                ]))
+                        : throw new UnreachableException(
+                            "There should only be 1 case for the specified structural type, since there is only 1 possible discriminator value."),
+                    _ => base.VisitSwitchCase(switchCase)
+                };
         }
 
         private sealed class ValueBufferTryReadValueMethodsFinder : ExpressionVisitor
@@ -1708,7 +1797,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
                 if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property)
-                 && _properties.Contains(property))
+                    && _properties.Contains(property))
                 {
                     _valueBufferTryReadValueMethods.Add(methodCallExpression);
                     _properties.Remove(property);
@@ -1720,7 +1809,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private sealed class ValueBufferTryReadValueMethodsReplacer(IReadOnlyDictionary<IProperty, Expression> mappedProperties) : ExpressionVisitor
+        private sealed class ValueBufferTryReadValueMethodsReplacer(IReadOnlyDictionary<IProperty, Expression> mappedProperties)
+            : ExpressionVisitor
         {
             private readonly Dictionary<IProperty, Expression> _propertyInstanceMap = [];
 
@@ -1733,7 +1823,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             protected override Expression VisitBinary(BinaryExpression node)
             {
                 if (IsValueBufferTryReadValueMethodCall(node.Right, out var property)
-                 && mappedProperties.TryGetValue(property, out var parameter))
+                    && mappedProperties.TryGetValue(property, out var parameter))
                 {
                     parameter = ConvertIfNotMatch(parameter, node.Right.Type);
 
@@ -1784,9 +1874,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
                 => IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property)
-                && mappedProperties.TryGetValue(property, out var parameter)
-                    ? ConvertIfNotMatch(parameter, methodCallExpression.Type)
-                    : base.VisitMethodCall(methodCallExpression);
+                    && mappedProperties.TryGetValue(property, out var parameter)
+                        ? ConvertIfNotMatch(parameter, methodCallExpression.Type)
+                        : base.VisitMethodCall(methodCallExpression);
         }
     }
 }

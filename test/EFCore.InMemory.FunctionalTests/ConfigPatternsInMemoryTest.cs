@@ -19,7 +19,7 @@ public class ConfigPatternsInMemoryTest
         {
             var blog = context.Blogs.SingleOrDefault();
 
-            Assert.NotEqual(0, blog.Id);
+            Assert.NotEqual(0, blog!.Id);
             Assert.Equal("The Waffle Cart", blog.Name);
 
             context.Blogs.RemoveRange(context.Blogs);
@@ -32,7 +32,7 @@ public class ConfigPatternsInMemoryTest
     private class ImplicitServicesAndConfigBlogContext : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -56,7 +56,7 @@ public class ConfigPatternsInMemoryTest
         {
             var blog = context.Blogs.SingleOrDefault();
 
-            Assert.NotEqual(0, blog.Id);
+            Assert.NotEqual(0, blog!.Id);
             Assert.Equal("The Waffle Cart", blog.Name);
 
             context.Blogs.RemoveRange(context.Blogs);
@@ -69,7 +69,7 @@ public class ConfigPatternsInMemoryTest
     private class ImplicitServicesExplicitConfigBlogContext(DbContextOptions options) : DbContext(options)
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class ConfigPatternsInMemoryTest
         {
             var blog = context.Blogs.SingleOrDefault();
 
-            Assert.NotEqual(0, blog.Id);
+            Assert.NotEqual(0, blog!.Id);
             Assert.Equal("The Waffle Cart", blog.Name);
 
             context.Blogs.RemoveRange(context.Blogs);
@@ -105,7 +105,7 @@ public class ConfigPatternsInMemoryTest
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -133,7 +133,7 @@ public class ConfigPatternsInMemoryTest
         {
             var blog = context.Blogs.SingleOrDefault();
 
-            Assert.NotEqual(0, blog.Id);
+            Assert.NotEqual(0, blog!.Id);
             Assert.Equal("The Waffle Cart", blog.Name);
 
             context.Blogs.RemoveRange(context.Blogs);
@@ -146,7 +146,7 @@ public class ConfigPatternsInMemoryTest
     private class ExplicitServicesAndConfigBlogContext(DbContextOptions options) : DbContext(options)
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
     }
 
     [Fact]
@@ -164,7 +164,7 @@ public class ConfigPatternsInMemoryTest
     private class NoServicesAndNoConfigBlogContext : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.EnableServiceProviderCaching(false);
@@ -193,7 +193,7 @@ public class ConfigPatternsInMemoryTest
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -233,7 +233,7 @@ public class ConfigPatternsInMemoryTest
 
             var blog = _context.Blogs.SingleOrDefault();
 
-            Assert.NotEqual(0, blog.Id);
+            Assert.NotEqual(0, blog!.Id);
             Assert.Equal("The Waffle Cart", blog.Name);
         }
     }
@@ -254,7 +254,7 @@ public class ConfigPatternsInMemoryTest
                 .UseInternalServiceProvider(_serviceProvider);
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
     }
 
     [Fact]
@@ -292,7 +292,7 @@ public class ConfigPatternsInMemoryTest
 
             var blog = _context.Blogs.SingleOrDefault();
 
-            Assert.NotEqual(0, blog.Id);
+            Assert.NotEqual(0, blog!.Id);
             Assert.Equal("The Waffle Cart", blog.Name);
         }
     }
@@ -304,7 +304,7 @@ public class ConfigPatternsInMemoryTest
             => Assert.NotNull(options);
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
     }
 
     [Fact]
@@ -345,7 +345,7 @@ public class ConfigPatternsInMemoryTest
 
             var blog = _context.Blogs.SingleOrDefault();
 
-            Assert.NotEqual(0, blog.Id);
+            Assert.NotEqual(0, blog!.Id);
             Assert.Equal("The Waffle Cart", blog.Name);
 
             _context.Remove(blog);
@@ -360,7 +360,7 @@ public class ConfigPatternsInMemoryTest
             => Assert.NotNull(options);
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
     }
 
     [Fact]
@@ -408,7 +408,7 @@ public class ConfigPatternsInMemoryTest
 
             var blog = _context.Blogs.SingleOrDefault();
 
-            Assert.NotEqual(0, blog.Id);
+            Assert.NotEqual(0, blog!.Id);
             Assert.Equal("The Waffle Cart", blog.Name);
         }
     }
@@ -435,7 +435,7 @@ public class ConfigPatternsInMemoryTest
 
             var account = _context.Accounts.SingleOrDefault();
 
-            Assert.Equal(1, account.Id);
+            Assert.Equal(1, account!.Id);
             Assert.Equal("Eeky Bear", account.Name);
         }
     }
@@ -447,7 +447,7 @@ public class ConfigPatternsInMemoryTest
             => Assert.NotNull(options);
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
     }
 
     private class InjectDifferentConfigurationsAccountContext : DbContext
@@ -457,18 +457,18 @@ public class ConfigPatternsInMemoryTest
             => Assert.NotNull(options);
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Account> Accounts { get; set; } = null!;
     }
 
     private class Account
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Blog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

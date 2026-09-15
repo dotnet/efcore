@@ -103,7 +103,7 @@ public class RuntimeAnnotatableBase : IAnnotatable
         string name,
         Annotation annotation)
     {
-        _annotations ??= new Dictionary<string, Annotation>(StringComparer.Ordinal);
+        _annotations ??= [with(StringComparer.Ordinal)];
         _annotations[name] = annotation;
 
         return annotation;
@@ -135,12 +135,7 @@ public class RuntimeAnnotatableBase : IAnnotatable
         Check.NotEmpty(annotationName);
 
         var annotation = FindAnnotation(annotationName);
-        if (annotation == null)
-        {
-            throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName, ToString()));
-        }
-
-        return annotation;
+        return annotation ?? throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName, ToString()));
     }
 
     /// <summary>

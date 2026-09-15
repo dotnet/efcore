@@ -577,34 +577,34 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // index on parameter using a column
                 // translate via JSON because it is a better translation
                 case SelectExpression
-                    {
-                        Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
-                        Predicate: null,
-                        GroupBy: [],
-                        Having: null,
-                        IsDistinct: false,
+                {
+                    Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
 #pragma warning disable EF1001
-                        Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
+                    Orderings: [{ Expression: ColumnExpression { Name: ValuesOrderingColumnName }, IsAscending: true }],
 #pragma warning restore EF1001
-                        Limit: null,
-                        Offset: null
-                    } selectExpression
+                    Limit: null,
+                    Offset: null
+                } selectExpression
                     when TranslateExpression(index) is { } translatedIndex
                     && TryTranslate(selectExpression, valuesParameter, translatedIndex, out var result):
                     return result;
 
                 // Index on JSON array
                 case SelectExpression
-                    {
-                        Tables: [JsonEachExpression jsonEach],
-                        Predicate: null,
-                        GroupBy: [],
-                        Having: null,
-                        IsDistinct: false,
-                        Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
-                        Limit: null,
-                        Offset: null
-                    } selectExpression
+                {
+                    Tables: [JsonEachExpression jsonEach],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+                    Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
+                    Limit: null,
+                    Offset: null
+                } selectExpression
                     when orderingColumn.TableAlias == jsonEach.Alias
                     && TranslateExpression(index) is { } translatedIndex
                     && TryTranslate(selectExpression, jsonEach.Json, translatedIndex, out var result):
@@ -636,8 +636,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // JSON_VALUE within JSON_VALUE.
                 var (json, path) = jsonArrayColumn is JsonScalarExpression innerJsonScalarExpression
                     ? (innerJsonScalarExpression.Json,
-                        innerJsonScalarExpression.Path.Append(new(translatedIndex)).ToArray())
-                    : (jsonArrayColumn, [new(translatedIndex)]);
+                        innerJsonScalarExpression.Path.Append(new PathSegment(translatedIndex)).ToArray())
+                    : (jsonArrayColumn, [new PathSegment(translatedIndex)]);
 
                 SqlExpression translation = new JsonScalarExpression(
                     json,
@@ -689,15 +689,15 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     value is SqlConstantExpression { Value: bool constant }
                         ? _sqlExpressionFactory.Constant(constant ? "true" : "false")
                         : _sqlExpressionFactory.Case(
-                        [
-                            new CaseWhenClause(
-                                _sqlExpressionFactory.Equal(value, _sqlExpressionFactory.Constant(true)),
-                                _sqlExpressionFactory.Constant("true")),
-                            new CaseWhenClause(
-                                _sqlExpressionFactory.Equal(value, _sqlExpressionFactory.Constant(false)),
-                                _sqlExpressionFactory.Constant("false"))
-                        ],
-                        elseResult: _sqlExpressionFactory.Constant("null"))
+                            [
+                                new CaseWhenClause(
+                                    _sqlExpressionFactory.Equal(value, _sqlExpressionFactory.Constant(true)),
+                                    _sqlExpressionFactory.Constant("true")),
+                                new CaseWhenClause(
+                                    _sqlExpressionFactory.Equal(value, _sqlExpressionFactory.Constant(false)),
+                                    _sqlExpressionFactory.Constant("false"))
+                            ],
+                            elseResult: _sqlExpressionFactory.Constant("null"))
                 ],
                 nullable: true,
                 argumentsPropagateNullability: [true],
@@ -740,7 +740,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         var jsonSet = _sqlExpressionFactory.Function(
             "json_set",
-            arguments: [
+            arguments:
+            [
                 existingSetterValue ?? jsonColumn,
                 // Hack: Rendering of JSONPATH strings happens in value generation. We can have a special expression for modify to hold the
                 // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
@@ -751,7 +752,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // json_set understand that it's JSON content and prevents escaping.
                 isJsonScalar
                     ? value
-                    : _sqlExpressionFactory.Function("json", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
+                    : _sqlExpressionFactory.Function(
+                        "json", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
             ],
             nullable: true,
             argumentsPropagateNullability: [true, true, true],
@@ -762,11 +764,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         {
             return jsonSet;
         }
-        else
-        {
-            existingSetterValue = jsonSet;
-            return null;
-        }
+
+        existingSetterValue = jsonSet;
+        return null;
     }
 
     /// <summary>
@@ -781,12 +781,12 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         {
             Tables: [var mainTable, ..],
             Orderings:
-            [
-            {
-                Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
-                IsAscending: true
-            }
-            ]
+                [
+                {
+                    Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
+                    IsAscending: true
+                }
+                ]
         }
             && orderingColumn.TableAlias == mainTable.Alias
             && IsJsonEachKeyColumn(selectExpression, orderingColumn);

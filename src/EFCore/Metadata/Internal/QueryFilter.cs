@@ -53,7 +53,7 @@ public class QueryFilter(string? key, LambdaExpression? expression, Configuratio
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryFilter(string key, LambdaExpression? expression, bool fromDataAnnotation)
-        : this(key, expression, fromDataAnnotation ? Metadata.ConfigurationSource.DataAnnotation : Metadata.ConfigurationSource.Convention)
+        : this(key, expression, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
     {
     }
 
@@ -64,7 +64,7 @@ public class QueryFilter(string? key, LambdaExpression? expression, Configuratio
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryFilter(LambdaExpression? expression, bool fromDataAnnotation)
-        : this(null, expression, fromDataAnnotation ? Metadata.ConfigurationSource.DataAnnotation : Metadata.ConfigurationSource.Convention)
+        : this(null, expression, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
     {
     }
 }

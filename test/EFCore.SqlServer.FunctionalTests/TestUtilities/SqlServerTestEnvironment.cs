@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
-using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
@@ -467,7 +466,8 @@ public static class SqlServerTestEnvironment
     public static byte SqlServerMajorVersion
         => GetProductMajorVersion();
 
-    public static bool IsNotAzureSql => !IsAzureSql;
+    public static bool IsNotAzureSql
+        => !IsAzureSql;
 
     public static bool SupportsAttach
     {

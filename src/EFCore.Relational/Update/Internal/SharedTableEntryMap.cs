@@ -14,7 +14,7 @@ public class SharedTableEntryMap<TValue>
     private readonly ITable _table;
     private readonly IUpdateAdapter _updateAdapter;
     private readonly IComparer<IUpdateEntry> _comparer;
-    private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = new();
+    private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +83,7 @@ public class SharedTableEntryMap<TValue>
 
             // When TPH entity replacement causes FindPrincipal to return null, check if the replacing
             // entry's SharedIdentityEntry has a compatible principal and use it as the main entry.
-            var keyValues = foreignKey.Properties.Select(p => entry.GetCurrentValue(p)).ToArray();
+            var keyValues = foreignKey.Properties.Select(entry.GetCurrentValue).ToArray();
             var replacingPrincipal = _updateAdapter.TryGetEntry(foreignKey.PrincipalKey, keyValues);
             if (replacingPrincipal?.SharedIdentityEntry != null
                 && foreignKey.PrincipalEntityType.IsAssignableFrom(replacingPrincipal.SharedIdentityEntry.EntityType))
@@ -131,27 +131,16 @@ public class SharedTableEntryMap<TValue>
     private sealed class EntryComparer(ITable table) : IComparer<IUpdateEntry>
     {
         public int Compare(IUpdateEntry? x, IUpdateEntry? y)
-        {
-            if (ReferenceEquals(x, y))
-            {
-                return 0;
-            }
-
-            if (x == null)
-            {
-                return -1;
-            }
-
-            if (y == null)
-            {
-                return 1;
-            }
-
-            return !table.GetRowInternalForeignKeys(x.EntityType).Any()
-                ? -1
-                : !table.GetRowInternalForeignKeys(y.EntityType).Any()
-                    ? 1
-                    : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
-        }
+            => ReferenceEquals(x, y)
+                ? 0
+                : x == null
+                    ? -1
+                    : y == null
+                        ? 1
+                        : !table.GetRowInternalForeignKeys(x.EntityType).Any()
+                            ? -1
+                            : !table.GetRowInternalForeignKeys(y.EntityType).Any()
+                                ? 1
+                                : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
     }
 }

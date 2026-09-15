@@ -139,7 +139,7 @@ public class CosmosMetadataExtensionsTest
     private class Customer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public Guid AlternateId { get; set; }
     }
 }

@@ -183,17 +183,18 @@ public abstract class SnapshotFactoryFactory
         var declaringType = (IRuntimeTypeBase)propertyBases[0]!.DeclaringType;
         var entityAccessExpression = declaringType switch
         {
-            IComplexType { ComplexProperty.IsCollection: true } declaringComplexType => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
-                declaringComplexType.ComplexProperty,
-                Expression.Convert(
-                    Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
-                    declaringComplexType.ComplexProperty.DeclaringType.ContainingEntityType.ClrType),
-                indicesExpression,
-                fromDeclaringType: false,
-                fromEntity: true,
-                shouldThrowIfMissing: ShouldThrowOnMissingCollectionElement,
-                isMissingExpression: out isMissingExpression),
-            {ContainingEntryType: IComplexType collectionComplexType } => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
+            IComplexType { ComplexProperty.IsCollection: true } declaringComplexType => PropertyAccessorsFactory
+                .CreateComplexCollectionElementAccess(
+                    declaringComplexType.ComplexProperty,
+                    Expression.Convert(
+                        Expression.Property(parameter!, nameof(IInternalEntry.Entity)),
+                        declaringComplexType.ComplexProperty.DeclaringType.ContainingEntityType.ClrType),
+                    indicesExpression,
+                    fromDeclaringType: false,
+                    fromEntity: true,
+                    shouldThrowIfMissing: ShouldThrowOnMissingCollectionElement,
+                    isMissingExpression: out isMissingExpression),
+            { ContainingEntryType: IComplexType collectionComplexType } => PropertyAccessorsFactory.CreateComplexCollectionElementAccess(
                 collectionComplexType.ComplexProperty,
                 Expression.Convert(
                     Expression.Property(parameter!, nameof(IInternalEntry.Entity)),

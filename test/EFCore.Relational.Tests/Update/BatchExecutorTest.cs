@@ -55,7 +55,7 @@ public class BatchExecutorTest
     private static FakeDbConnection SetupConnection(TestContext context)
     {
         var dataReader = new FakeDbDataReader(
-            ["RowsAffected"], new List<object[]> { new object[] { 1 } });
+            ["RowsAffected"], [new object[] { 1 }]);
 
         var connection = new FakeDbConnection(
             "A=B", new FakeCommandExecutor(
@@ -73,17 +73,17 @@ public class BatchExecutorTest
                     new ServiceCollection())
                 .BuildServiceProvider(validateScopes: true);
 
-        public DbSet<Foo> Foos { get; set; }
-        public DbSet<Bar> Bars { get; set; }
+        public DbSet<Foo> Foos { get; set; } = null!;
+        public DbSet<Bar> Bars { get; set; } = null!;
     }
 
     private class Foo
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 
     private class Bar
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 }

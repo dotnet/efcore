@@ -94,8 +94,8 @@ public class FullJoinExpression : PredicateJoinExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is FullJoinExpression fullJoinExpression
-                && Equals(fullJoinExpression));
+                || (obj is FullJoinExpression fullJoinExpression
+                    && Equals(fullJoinExpression)));
 
     private bool Equals(FullJoinExpression fullJoinExpression)
         => base.Equals(fullJoinExpression);

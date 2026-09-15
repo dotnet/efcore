@@ -35,7 +35,7 @@ public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture f
 
     public class TestEntity30244
     {
-        [DatabaseGenerated((DatabaseGeneratedOption.None))]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public string? Title { get; set; }
@@ -52,15 +52,9 @@ public abstract class SingletonInterceptorsTestBase<TContext>(NonSharedFixture f
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Book>(b =>
-            {
-                b.Property<string?>("Author");
-            });
+            modelBuilder.Entity<Book>(b => b.Property<string?>("Author"));
 
-            modelBuilder.Entity<Pamphlet>(b =>
-            {
-                b.Property<string?>("Author");
-            });
+            modelBuilder.Entity<Pamphlet>(b => b.Property<string?>("Author"));
         }
     }
 

@@ -75,14 +75,13 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
     [Fact]
     public void Autoincrement_with_value_converter_generates_consistent_migrations()
         => Execute(
-            common => common.Entity<ProductWithConverter>(
-                x =>
-                {
-                    x.Property(e => e.Id).HasConversion(
-                        v => v.Value,
-                        v => new ProductId(v));
-                    x.HasKey(e => e.Id);
-                }),
+            common => common.Entity<ProductWithConverter>(x =>
+            {
+                x.Property(e => e.Id).HasConversion(
+                    v => v.Value,
+                    v => new ProductId(v));
+                x.HasKey(e => e.Id);
+            }),
             source => { },
             target => target.Entity<ProductWithConverter>().Property(e => e.Id).UseAutoincrement(),
             upOps =>
@@ -97,15 +96,14 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
     [Fact]
     public void No_repeated_alter_column_for_autoincrement_with_converter()
         => Execute(
-            common => common.Entity<ProductWithConverter>(
-                x =>
-                {
-                    x.Property(e => e.Id).HasConversion(
-                        v => v.Value,
-                        v => new ProductId(v));
-                    x.HasKey(e => e.Id);
-                    x.Property(e => e.Id).UseAutoincrement();
-                }),
+            common => common.Entity<ProductWithConverter>(x =>
+            {
+                x.Property(e => e.Id).HasConversion(
+                    v => v.Value,
+                    v => new ProductId(v));
+                x.HasKey(e => e.Id);
+                x.Property(e => e.Id).UseAutoincrement();
+            }),
             source => { },
             target => { },
             Assert.Empty);
@@ -120,19 +118,19 @@ public class SqliteModelDifferTest : MigrationsModelDifferTestBase
                     x.Property<int>("Id");
                     x.HasKey("Id");
                 }),
-            target => target.Entity<ProductWithConverter>(
-                x =>
-                {
-                    x.Property(e => e.Id).HasConversion(
+            target => target.Entity<ProductWithConverter>(x =>
+            {
+                x.Property(e => e.Id).HasConversion(
                         v => v.Value,
                         v => new ProductId(v))
-                        .UseAutoincrement();
-                    x.HasKey(e => e.Id);
-                    x.Ignore(e => e.Name);
-                }),
+                    .UseAutoincrement();
+                x.HasKey(e => e.Id);
+                x.Ignore(e => e.Name);
+            }),
             Assert.Empty);
 
-    protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
+    protected override TestHelpers TestHelpers
+        => SqliteTestHelpers.Instance;
 
     // Test entities
     public record struct ProductId(int Value);

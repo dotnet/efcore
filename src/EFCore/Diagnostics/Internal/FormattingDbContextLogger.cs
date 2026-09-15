@@ -82,16 +82,12 @@ public class FormattingDbContextLogger : IDbContextLogger
             const string padding = "      ";
             var preambleLength = messageBuilder.Length;
 
-            if (_options == DbContextLoggerOptions.SingleLine) // Single line ONLY
-            {
-                message = messageBuilder
+            message = _options == DbContextLoggerOptions.SingleLine
+                ? messageBuilder
                     .Append(message)
                     .Replace(Environment.NewLine, "")
-                    .ToString();
-            }
-            else
-            {
-                message = (_options & DbContextLoggerOptions.SingleLine) != 0
+                    .ToString()
+                : (_options & DbContextLoggerOptions.SingleLine) != 0
                     ? messageBuilder
                         .Append("-> ")
                         .Append(message)
@@ -103,7 +99,6 @@ public class FormattingDbContextLogger : IDbContextLogger
                         .Replace(
                             Environment.NewLine, Environment.NewLine + padding, preambleLength, messageBuilder.Length - preambleLength)
                         .ToString();
-            }
         }
 
         _sink(message);

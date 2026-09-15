@@ -1,12 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
-
-#nullable disable
 
 public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : FieldsOnlyLoadTestBase<TFixture>.FieldsOnlyLoadFixtureBase
@@ -97,10 +98,10 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         {
             Id = 707,
             AlternateId = "Root",
-            Children = new List<Child> { new() { Id = 11 }, new() { Id = 12 } },
-            ChildrenAk = new List<ChildAk> { new() { Id = 31 }, new() { Id = 32 } },
-            ChildrenShadowFk = new List<ChildShadowFk> { new() { Id = 51 }, new() { Id = 52 } },
-            ChildrenCompositeKey = new List<ChildCompositeKey> { new() { Id = 51 }, new() { Id = 52 } }
+            Children = [new() { Id = 11 }, new() { Id = 12 }],
+            ChildrenAk = [new() { Id = 31 }, new() { Id = 32 }],
+            ChildrenShadowFk = [new() { Id = 51 }, new() { Id = 52 }],
+            ChildrenCompositeKey = [new() { Id = 51 }, new() { Id = 52 }]
         };
 
         context.Attach(parent);
@@ -1087,7 +1088,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         if (state == EntityState.Deleted
             && deleteOrphansTiming != CascadeTiming.Never)
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+            Assert.All(parent.Children.Select(e => e.Parent), Assert.Null);
         }
         else
         {
@@ -2139,7 +2140,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         if (state == EntityState.Deleted
             && deleteOrphansTiming != CascadeTiming.Never)
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+            Assert.All(parent.Children.Select(e => e.Parent), Assert.Null);
         }
         else
         {
@@ -2745,7 +2746,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var child = context.Attach(
-            new ChildAk { Id = 767, ParentId = null }).Entity;
+            new ChildAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -2779,7 +2780,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var single = context.Attach(
-            new SingleAk { Id = 767, ParentId = null }).Entity;
+            new SingleAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -2814,7 +2815,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var child = context.Attach(
-            new ChildAk { Id = 767, ParentId = null }).Entity;
+            new ChildAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -2845,7 +2846,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     {
         using var context = CreateContext();
         var single = context.Attach(
-            new SingleAk { Id = 767, ParentId = null }).Entity;
+            new SingleAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -4164,78 +4165,78 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
     protected class Parent
     {
         public int Id;
-        public string AlternateId;
-        public IEnumerable<Child> Children;
-        public SinglePkToPk SinglePkToPk;
-        public Single Single;
-        public IEnumerable<ChildAk> ChildrenAk;
-        public SingleAk SingleAk;
-        public IEnumerable<ChildShadowFk> ChildrenShadowFk;
-        public SingleShadowFk SingleShadowFk;
-        public IEnumerable<ChildCompositeKey> ChildrenCompositeKey;
-        public SingleCompositeKey SingleCompositeKey;
+        public string AlternateId = null!;
+        public IEnumerable<Child> Children = null!;
+        public SinglePkToPk SinglePkToPk = null!;
+        public Single Single = null!;
+        public IEnumerable<ChildAk> ChildrenAk = null!;
+        public SingleAk SingleAk = null!;
+        public IEnumerable<ChildShadowFk> ChildrenShadowFk = null!;
+        public SingleShadowFk SingleShadowFk = null!;
+        public IEnumerable<ChildCompositeKey> ChildrenCompositeKey = null!;
+        public SingleCompositeKey SingleCompositeKey = null!;
     }
 
     protected class Child
     {
         public int Id;
         public int? ParentId;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class SinglePkToPk
     {
         public int Id;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class Single
     {
         public int Id;
         public int? ParentId;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class ChildAk
     {
         public int Id;
-        public string ParentId;
-        public Parent Parent;
+        public string ParentId = null!;
+        public Parent Parent = null!;
     }
 
     protected class SingleAk
     {
         public int Id;
-        public string ParentId;
-        public Parent Parent;
+        public string ParentId = null!;
+        public Parent Parent = null!;
     }
 
     protected class ChildShadowFk
     {
         public int Id;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class SingleShadowFk
     {
         public int Id;
-        public Parent Parent;
+        public Parent Parent = null!;
     }
 
     protected class ChildCompositeKey
     {
         public int Id;
         public int? ParentId;
-        public string ParentAlternateId;
-        public Parent Parent;
+        public string ParentAlternateId = null!;
+        public Parent Parent = null!;
     }
 
     protected class SingleCompositeKey
     {
         public int Id;
         public int? ParentId;
-        public string ParentAlternateId;
-        public Parent Parent;
+        public string ParentAlternateId = null!;
+        public Parent Parent = null!;
     }
 
     protected DbContext CreateContext(bool noTracking = false)
@@ -4334,50 +4335,23 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
                     .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
             });
 
-            modelBuilder.Entity<SingleShadowFk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<SingleShadowFk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<ChildShadowFk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<ChildShadowFk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<SingleCompositeKey>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<SingleCompositeKey>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<ChildCompositeKey>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<ChildCompositeKey>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<SingleAk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<SingleAk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<ChildAk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<ChildAk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<Single>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<Single>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<SinglePkToPk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<SinglePkToPk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<Child>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<Child>(b => b.Property(e => e.Id).ValueGeneratedNever());
         }
 
         protected override Task SeedAsync(PoolableDbContext context)
@@ -4387,14 +4361,14 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
                 {
                     Id = 707,
                     AlternateId = "Root",
-                    Children = new List<Child> { new() { Id = 11 }, new() { Id = 12 } },
+                    Children = [new() { Id = 11 }, new() { Id = 12 }],
                     SinglePkToPk = new SinglePkToPk { Id = 707 },
                     Single = new Single { Id = 21 },
-                    ChildrenAk = new List<ChildAk> { new() { Id = 31 }, new() { Id = 32 } },
+                    ChildrenAk = [new() { Id = 31 }, new() { Id = 32 }],
                     SingleAk = new SingleAk { Id = 42 },
-                    ChildrenShadowFk = new List<ChildShadowFk> { new() { Id = 51 }, new() { Id = 52 } },
+                    ChildrenShadowFk = [new() { Id = 51 }, new() { Id = 52 }],
                     SingleShadowFk = new SingleShadowFk { Id = 62 },
-                    ChildrenCompositeKey = new List<ChildCompositeKey> { new() { Id = 51 }, new() { Id = 52 } },
+                    ChildrenCompositeKey = [new() { Id = 51 }, new() { Id = 52 }],
                     SingleCompositeKey = new SingleCompositeKey { Id = 62 }
                 });
 

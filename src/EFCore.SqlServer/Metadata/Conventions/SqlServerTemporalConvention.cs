@@ -53,7 +53,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
     {
         if (name == SqlServerAnnotationNames.IsTemporal)
         {
-            if (annotation?.Value as bool? == true)
+            if ((annotation?.Value as bool?) == true)
             {
                 if (entityTypeBuilder.Metadata.GetPeriodStartPropertyName() == null)
                 {

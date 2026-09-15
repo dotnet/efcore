@@ -201,16 +201,11 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
         TypeBase type,
         string propertyName,
         bool shouldThrow)
-    {
-        if (!type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
-            && shouldThrow)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.MissingBackingField(fieldName, propertyName, type.DisplayName()));
-        }
-
-        return fieldInfo;
-    }
+        => !type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
+            && shouldThrow
+                ? throw new InvalidOperationException(
+                    CoreStrings.MissingBackingField(fieldName, propertyName, type.DisplayName()))
+                : fieldInfo;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -333,34 +328,24 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
         if (entityType == null
             || !fieldInfo.DeclaringType!.IsAssignableFrom(entityType))
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityType?.ShortDisplayName()));
-            }
-
-            return false;
+            return shouldThrow
+                ? throw new InvalidOperationException(
+                    CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityType?.ShortDisplayName()))
+                : false;
         }
 
         var fieldType = fieldInfo.FieldType;
-        if (propertyType != null
-            && !propertyType.IsCompatibleWith(fieldType))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+        return propertyType == null
+            || propertyType.IsCompatibleWith(fieldType)
+            || (shouldThrow
+                ? throw new InvalidOperationException(
                     CoreStrings.BadBackingFieldType(
                         fieldInfo.Name,
                         fieldInfo.FieldType.ShortDisplayName(),
                         entityType.ShortDisplayName(),
                         propertyName,
-                        propertyType.ShortDisplayName()));
-            }
-
-            return false;
-        }
-
-        return true;
+                        propertyType.ShortDisplayName()))
+                : false);
     }
 
     /// <summary>
@@ -377,7 +362,7 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
             static property =>
             {
                 property.EnsureReadOnly();
-                ((IRuntimeEntityType)(((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType)).CalculateCounts();
+                ((IRuntimeEntityType)((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType).CalculateCounts();
             });
 
         set => NonCapturingLazyInitializer.EnsureInitialized(ref field, value);

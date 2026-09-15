@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
 public class AutoLoadConvention(ProviderConventionSetBuilderDependencies dependencies) : IModelFinalizingConvention
 {
-
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>

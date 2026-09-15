@@ -73,16 +73,13 @@ public partial class ConventionDispatcher
             return annotation;
         }
 
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnModelAnnotationChanged(
-            modelBuilder,
-            name,
-            annotation,
-            oldAnnotation);
+        return CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnModelAnnotationChanged(
+                modelBuilder,
+                name,
+                annotation,
+                oldAnnotation);
     }
 
     /// <summary>
@@ -162,18 +159,13 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnEntityTypeAnnotationChanged(
-            entityTypeBuilder,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnEntityTypeAnnotationChanged(
+                entityTypeBuilder,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -207,18 +199,13 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnComplexTypeAnnotationChanged(
-            complexTypeBuilder,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnComplexTypeAnnotationChanged(
+                complexTypeBuilder,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -264,18 +251,13 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnComplexPropertyAnnotationChanged(
-            propertyBuilder,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnComplexPropertyAnnotationChanged(
+                propertyBuilder,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -383,18 +365,13 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnForeignKeyAnnotationChanged(
-            relationshipBuilder,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnForeignKeyAnnotationChanged(
+                relationshipBuilder,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -445,19 +422,14 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnNavigationAnnotationChanged(
-            relationshipBuilder,
-            navigation,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnNavigationAnnotationChanged(
+                relationshipBuilder,
+                navigation,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -515,18 +487,13 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnSkipNavigationAnnotationChanged(
-            navigationBuilder,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnSkipNavigationAnnotationChanged(
+                navigationBuilder,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -578,18 +545,13 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnKeyAnnotationChanged(
-            keyBuilder,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnKeyAnnotationChanged(
+                keyBuilder,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -652,18 +614,13 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnIndexAnnotationChanged(
-            indexBuilder,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnIndexAnnotationChanged(
+                indexBuilder,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -735,18 +692,13 @@ public partial class ConventionDispatcher
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
-    {
-        if (CoreAnnotationNames.AllNames.Contains(name))
-        {
-            return annotation;
-        }
-
-        return _scope.OnPropertyAnnotationChanged(
-            propertyBuilder,
-            name,
-            annotation,
-            oldAnnotation);
-    }
+        => CoreAnnotationNames.AllNames.Contains(name)
+            ? annotation
+            : _scope.OnPropertyAnnotationChanged(
+                propertyBuilder,
+                name,
+                annotation,
+                oldAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

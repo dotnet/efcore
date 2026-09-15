@@ -105,7 +105,7 @@ public partial class InternalEntryBase
         {
             if (original)
             {
-                _originalEntries ??= new List<InternalComplexEntry?>(capacity);
+                _originalEntries ??= [with(capacity)];
                 for (var i = _originalEntries.Count; i < capacity; i++)
                 {
                     _originalEntries.Add(null);
@@ -122,7 +122,7 @@ public partial class InternalEntryBase
                 return _originalEntries;
             }
 
-            _entries ??= new List<InternalComplexEntry?>(capacity);
+            _entries ??= [with(capacity)];
             for (var i = _entries.Count; i < capacity; i++)
             {
                 _entries.Add(null);
@@ -179,7 +179,7 @@ public partial class InternalEntryBase
 
             if (_entries != null)
             {
-                _originalEntries ??= new List<InternalComplexEntry?>(_entries.Count);
+                _originalEntries ??= [with(_entries.Count)];
                 _originalEntries.Clear();
                 for (var i = 0; i < _entries.Count; i++)
                 {
@@ -217,7 +217,7 @@ public partial class InternalEntryBase
 
             if (_originalEntries != null)
             {
-                _entries ??= new List<InternalComplexEntry?>(_originalEntries.Count);
+                _entries ??= [with(_originalEntries.Count)];
                 _entries.Clear();
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < _originalEntries.Count; i++)

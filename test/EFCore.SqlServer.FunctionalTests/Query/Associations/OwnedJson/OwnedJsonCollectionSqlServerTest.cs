@@ -41,7 +41,7 @@ WHERE (
         else
         {
             AssertSql(
- """
+                """
  SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
  FROM [RootEntity] AS [r]
  WHERE (
@@ -75,7 +75,7 @@ WHERE (
         else
         {
             AssertSql(
- """
+                """
  SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
  FROM [RootEntity] AS [r]
  WHERE (
@@ -246,7 +246,6 @@ WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[0].Int') AS int) = 8
         }
     }
 
-
     public override async Task Index_parameter()
     {
         await base.Index_parameter();
@@ -375,7 +374,7 @@ WHERE 16 IN (
         else
         {
             AssertSql(
- """
+                """
  SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
  FROM [RootEntity] AS [r]
  WHERE 16 IN (
@@ -387,7 +386,6 @@ WHERE 16 IN (
      GROUP BY [a].[String]
  )
  """);
-
         }
     }
 
@@ -414,7 +412,7 @@ FROM [RootEntity] AS [r]
         else
         {
             AssertSql(
- """
+                """
  SELECT (
      SELECT ISNULL(SUM([s].[value]), 0)
      FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [a]

@@ -41,7 +41,7 @@ public abstract class EntryPropertyValues : PropertyValues
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override bool IsNullableComplexPropertyNull(int index)
-     => NullableComplexProperties != null && GetValueInternal(InternalEntry, NullableComplexProperties[index]) == null;
+        => NullableComplexProperties != null && GetValueInternal(InternalEntry, NullableComplexProperties[index]) == null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -319,11 +319,11 @@ public abstract class EntryPropertyValues : PropertyValues
         if (nullableComplexProperties != null && nullableComplexProperties.Count > 0)
         {
             nullValues = new bool[nullableComplexProperties.Count];
-            
+
             for (var i = 0; i < nullableComplexProperties.Count; i++)
             {
                 var complexProperty = nullableComplexProperties[i];
-                
+
                 nullValues[i] = GetValueInternal(InternalEntry, complexProperty) == null;
             }
         }

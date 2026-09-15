@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class AdHocNavigationsQuerySqlServerTest(NonSharedFixture fixture) : AdHocNavigationsQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -69,7 +67,7 @@ ORDER BY [b].[Id]
 
     protected class Context10447(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -96,14 +94,14 @@ ORDER BY [b].[Id]
         public class Blog
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; set; }
+            public List<Post> Posts { get; set; } = null!;
         }
 
         public class Post
         {
             public int Id { get; set; }
 
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
     }
 

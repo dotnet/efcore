@@ -235,7 +235,7 @@
     <value>Generate a script that can be used on a database at any migration.</value>
   </data>
   <data name="JsonDescription" xml:space="preserve">
-    <value>Show JSON output. Use with --prefix-output to parse programatically.</value>
+    <value>Show JSON output. Use with --prefix-output to parse programmatically.</value>
   </data>
   <data name="LanguageDescription" xml:space="preserve">
     <value>The language. Defaults to 'C#'.</value>

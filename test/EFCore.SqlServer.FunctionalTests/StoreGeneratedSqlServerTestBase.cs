@@ -115,13 +115,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
     protected class WrappedIntHiLoClassPrincipal
     {
         public WrappedIntHiLoKeyClass Id { get; set; } = null!;
-        public ICollection<WrappedIntHiLoClassDependentShadow> Dependents { get; } = new List<WrappedIntHiLoClassDependentShadow>();
+        public ICollection<WrappedIntHiLoClassDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedIntHiLoClassDependentRequired> RequiredDependents { get; } =
-            new List<WrappedIntHiLoClassDependentRequired>();
+            [];
 
         public ICollection<WrappedIntHiLoClassDependentOptional> OptionalDependents { get; } =
-            new List<WrappedIntHiLoClassDependentOptional>();
+            [];
     }
 
     protected class WrappedIntHiLoClassDependentShadow
@@ -147,13 +147,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
     protected class WrappedIntHiLoStructPrincipal
     {
         public WrappedIntHiLoKeyStruct Id { get; set; }
-        public ICollection<WrappedIntHiLoStructDependentShadow> Dependents { get; } = new List<WrappedIntHiLoStructDependentShadow>();
+        public ICollection<WrappedIntHiLoStructDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedIntHiLoStructDependentOptional> OptionalDependents { get; } =
-            new List<WrappedIntHiLoStructDependentOptional>();
+            [];
 
         public ICollection<WrappedIntHiLoStructDependentRequired> RequiredDependents { get; } =
-            new List<WrappedIntHiLoStructDependentRequired>();
+            [];
     }
 
     protected class WrappedIntHiLoStructDependentShadow
@@ -179,13 +179,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
     protected class WrappedIntHiLoRecordPrincipal
     {
         public WrappedIntHiLoKeyRecord Id { get; set; } = null!;
-        public ICollection<WrappedIntHiLoRecordDependentShadow> Dependents { get; } = new List<WrappedIntHiLoRecordDependentShadow>();
+        public ICollection<WrappedIntHiLoRecordDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedIntHiLoRecordDependentOptional> OptionalDependents { get; } =
-            new List<WrappedIntHiLoRecordDependentOptional>();
+            [];
 
         public ICollection<WrappedIntHiLoRecordDependentRequired> RequiredDependents { get; } =
-            new List<WrappedIntHiLoRecordDependentRequired>();
+            [];
     }
 
     protected class WrappedIntHiLoRecordDependentShadow
@@ -213,9 +213,9 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        public ICollection<LongToDecimalDependentShadow> Dependents { get; } = new List<LongToDecimalDependentShadow>();
-        public ICollection<LongToDecimalDependentRequired> RequiredDependents { get; } = new List<LongToDecimalDependentRequired>();
-        public ICollection<LongToDecimalDependentOptional> OptionalDependents { get; } = new List<LongToDecimalDependentOptional>();
+        public ICollection<LongToDecimalDependentShadow> Dependents { get; } = [];
+        public ICollection<LongToDecimalDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<LongToDecimalDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class LongToDecimalDependentShadow
@@ -644,13 +644,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
                 {
                     _id = Fixture.NullableIntSentinel,
                     Species = new Species { Id = Fixture.IntSentinel, Name = "Goldfish (with legs)" },
-                    MixedMetaphors = new List<Species>
-                    {
+                    MixedMetaphors =
+                    [
                         new() { Id = Fixture.IntSentinel, Name = "Large ground finch" },
                         new() { Id = Fixture.IntSentinel, Name = "Medium ground finch" },
                         new() { Id = Fixture.IntSentinel, Name = "Small tree finch" },
                         new() { Id = Fixture.IntSentinel, Name = "Green warbler-finch" }
-                    }
+                    ]
                 });
         }
 
@@ -659,13 +659,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
             {
                 Id = 1777,
                 Species = new Species { Id = Fixture.IntSentinel, Name = "Goldfish (with legs)" },
-                MixedMetaphors = new List<Species>
-                {
+                MixedMetaphors =
+                [
                     new() { Id = Fixture.IntSentinel, Name = "Large ground finch" },
                     new() { Id = Fixture.IntSentinel, Name = "Medium ground finch" },
                     new() { Id = Fixture.IntSentinel, Name = "Small tree finch" },
                     new() { Id = Fixture.IntSentinel, Name = "Green warbler-finch" }
-                }
+                ]
             });
 
         for (var i = 0; i < 2; i++)

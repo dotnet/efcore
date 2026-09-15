@@ -629,7 +629,7 @@ public class ValueConverterSelectorTest
 
     private static void AssertConverters(
         IList<ValueConverterInfo> converterInfos,
-        params (Type InfoType, ConverterMappingHints Hints)[] converterTypes)
+        params (Type InfoType, ConverterMappingHints? Hints)[] converterTypes)
     {
         Assert.Equal(converterTypes.Length, converterInfos.Count);
 
@@ -642,7 +642,7 @@ public class ValueConverterSelectorTest
         }
     }
 
-    private static void AssertHints(ConverterMappingHints expected, ConverterMappingHints actual)
+    private static void AssertHints(ConverterMappingHints? expected, ConverterMappingHints? actual)
     {
         Assert.Equal(actual?.IsUnicode, expected?.IsUnicode);
         Assert.Equal(actual?.Precision, expected?.Precision);

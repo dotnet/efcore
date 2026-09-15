@@ -138,17 +138,14 @@ public class SqlServerVectorTypeMapping : RelationalTypeMapping
     {
         var vector = (SqlVector<float>)value;
 
-        if (vector.IsNull)
-        {
-            return Expression.Call(_createNullMethod, Expression.Constant(vector.Length));
-        }
-
-        return Expression.New(
-            _constructor,
-            Expression.Convert(
-                Expression.Constant(vector.Memory.ToArray(), typeof(float[])),
-                typeof(ReadOnlyMemory<float>),
-                _memoryImplicitOperator));
+        return vector.IsNull
+            ? Expression.Call(_createNullMethod, Expression.Constant(vector.Length))
+            : Expression.New(
+                _constructor,
+                Expression.Convert(
+                    Expression.Constant(vector.Memory.ToArray(), typeof(float[])),
+                    typeof(ReadOnlyMemory<float>),
+                    _memoryImplicitOperator));
     }
 
     /// <summary>

@@ -15,12 +15,14 @@ public class RuntimeMigrationSqliteTest(RuntimeMigrationSqliteTest.RuntimeMigrat
     {
         var tables = new List<string>();
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name != '__EFMigrationsHistory' AND name NOT LIKE 'sqlite_%'";
+        command.CommandText =
+            "SELECT name FROM sqlite_master WHERE type='table' AND name != '__EFMigrationsHistory' AND name NOT LIKE 'sqlite_%'";
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
             tables.Add(reader.GetString(0));
         }
+
         return tables;
     }
 

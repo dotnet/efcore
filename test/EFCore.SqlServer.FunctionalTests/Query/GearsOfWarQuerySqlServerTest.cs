@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryRelationalTestBase<GearsOfWarQuerySqlServerFixture>
 {
     public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -2284,7 +2282,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g1].[Nickname]
 SELECT [t].[Id], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname]
-ORDER BY [t].[Note], [t].[Id], [g].[Nickname]
+ORDER BY [t].[Note], [t].[Id], [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -2360,7 +2358,8 @@ LEFT JOIN [Weapons] AS [w] ON [w].[SynergyWithId] IS NOT NULL
 """);
     }
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)), MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetime_constant(bool async)
     {
         using var context = CreateContext();
@@ -2382,7 +2381,8 @@ WHERE [m].[Timeline] = CAST('0010-05-03T12:00:00.0000000' AS datetime2) AT TIME 
 """);
     }
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)), MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetime_parameter(bool async)
     {
         using var context = CreateContext();
@@ -2409,7 +2409,8 @@ WHERE [m].[Timeline] = @dateTime AT TIME ZONE @timeZone
 """);
     }
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)), MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetime_column(bool async)
     {
         using var context = CreateContext();
@@ -3404,7 +3405,7 @@ LEFT JOIN (
     INNER JOIN [Squads] AS [s] ON [g0].[SquadId] = [s].[Id]
     LEFT JOIN [SquadMissions] AS [s0] ON [s].[Id] = [s0].[SquadId]
 ) AS [s1] ON [g].[Nickname] = [s1].[LeaderNickname] AND [g].[SquadId] = [s1].[LeaderSquadId]
-ORDER BY [g].[Nickname], [g].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0]
+ORDER BY [g].[Nickname], [g].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0], [s1].[MissionId]
 """);
     }
 
@@ -3479,71 +3480,6 @@ END
     ELSE N''
 END
 FROM [Factions] AS [f]
-""");
-    }
-
-    public override async Task ToString_enum_property_projection(bool async)
-    {
-        await base.ToString_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [g].[Rank]
-    WHEN 0 THEN N'None'
-    WHEN 1 THEN N'Private'
-    WHEN 2 THEN N'Corporal'
-    WHEN 4 THEN N'Sergeant'
-    WHEN 8 THEN N'Lieutenant'
-    WHEN 16 THEN N'Captain'
-    WHEN 32 THEN N'Major'
-    WHEN 64 THEN N'Colonel'
-    WHEN 128 THEN N'General'
-    ELSE CAST([g].[Rank] AS nvarchar(max))
-END
-FROM [Gears] AS [g]
-""");
-    }
-
-    public override async Task ToString_nullable_enum_property_projection(bool async)
-    {
-        await base.ToString_nullable_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END
-FROM [Weapons] AS [w]
-""");
-    }
-
-    public override async Task ToString_enum_contains(bool async)
-    {
-        await base.ToString_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [m].[CodeName]
-FROM [Missions] AS [m]
-WHERE [m].[Difficulty] LIKE N'%Med%'
-""");
-    }
-
-    public override async Task ToString_nullable_enum_contains(bool async)
-    {
-        await base.ToString_nullable_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [w].[Name]
-FROM [Weapons] AS [w]
-WHERE CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END LIKE N'%Cart%'
 """);
     }
 
@@ -3750,7 +3686,7 @@ LEFT JOIN (
     WHERE [s0].[MissionId] <> 17
 ) AS [s1] ON [s].[Id] = [s1].[SquadId]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[SquadId]
+ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[SquadId], [s1].[MissionId]
 """);
     }
 
@@ -6215,7 +6151,7 @@ ORDER BY [t].[Id], [g0].[Nickname]
 SELECT [t].[Id], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] IS NOT NULL AND [t].[GearSquadId] = [g].[SquadId] AND [t].[GearNickName] IS NOT NULL AND [t].[Note] IS NOT NULL
-ORDER BY [t].[Id], [g].[Nickname]
+ORDER BY [t].[Id], [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -7463,7 +7399,7 @@ WHERE @rank = [g].[Rank]
         await AssertQueryScalar(
             async,
             ss => ss.Set<Mission>().Select(m => EF.Functions.DataLength(m.CodeName)),
-            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName.Length * 2)));
+            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName!.Length * 2)));
 
         AssertSql(
             """

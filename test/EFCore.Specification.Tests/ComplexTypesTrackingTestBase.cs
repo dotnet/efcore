@@ -242,8 +242,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         bool async,
         Func<DbContext, TEntity> createPub)
         where TEntity : class
-    {
-        await ExecuteWithStrategyInTransactionAsync(
+        => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
                 var pub = createPub(context);
@@ -267,9 +266,8 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 var activitiesEntry = entry.ComplexCollection("Activities");
                 Assert.NotNull(activitiesEntry);
                 var activitiesValue = activitiesEntry.CurrentValue;
-                Assert.Equal(2, ((System.Collections.IList)activitiesValue!).Count);
+                Assert.Equal(2, ((IList)activitiesValue!).Count);
             });
-    }
 
     [Theory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
@@ -515,7 +513,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 AssertPropertiesModified(entry, state == EntityState.Modified);
             }
 
-            if (state == EntityState.Added || state == EntityState.Unchanged)
+            if (state is EntityState.Added or EntityState.Unchanged)
             {
                 _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
 
@@ -2388,18 +2386,15 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             modelBuilder.Entity<PubWithPropertyBagCollections>(b =>
             {
                 b.ComplexCollection(
-                    e => e.Activities, b =>
-                    {
-                        b.ComplexCollection(
-                            e => e.Teams, "TeamPropertyBag", teamBuilder =>
-                            {
-                                teamBuilder.Property<string>("Name");
-                                teamBuilder.PrimitiveCollection<List<string>>("Members");
-                                teamBuilder.Property<DateTime>("Founded");
-                                teamBuilder.Property<bool>("IsActive");
-                                teamBuilder.Property<double>("Rating");
-                            });
-                    });
+                    e => e.Activities, b => b.ComplexCollection(
+                        e => e.Teams, "TeamPropertyBag", teamBuilder =>
+                        {
+                            teamBuilder.Property<string>("Name");
+                            teamBuilder.PrimitiveCollection<List<string>>("Members");
+                            teamBuilder.Property<DateTime>("Founded");
+                            teamBuilder.Property<bool>("IsActive");
+                            teamBuilder.Property<double>("Rating");
+                        }));
                 b.ComplexProperty(
                     e => e.FeaturedTeam, "FeaturedTeamPropertyBag", featuredTeamBuilder =>
                     {
@@ -2486,10 +2481,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 modelBuilder.Entity<FieldPubWithCollections>(b =>
                 {
                     b.ComplexCollection(
-                        e => e.Activities, b =>
-                        {
-                            b.ComplexCollection(e => e.Teams);
-                        });
+                        e => e.Activities, b => b.ComplexCollection(e => e.Teams));
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
 
@@ -2520,10 +2512,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 modelBuilder.Entity<FieldPubWithRecordCollections>(b =>
                 {
                     b.ComplexCollection(
-                        e => e.Activities, b =>
-                        {
-                            b.ComplexCollection(e => e.Teams);
-                        });
+                        e => e.Activities, b => b.ComplexCollection(e => e.Teams));
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
             }
@@ -2565,10 +2554,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     });
             });
 
-            modelBuilder.Entity<EntityWithOptionalMultiPropComplex>(b =>
-            {
-                b.ComplexProperty(e => e.ComplexProp);
-            });
+            modelBuilder.Entity<EntityWithOptionalMultiPropComplex>(b => b.ComplexProperty(e => e.ComplexProp));
         }
     }
 
@@ -4550,8 +4536,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(false)]
     [InlineData(true)]
     public virtual async Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
-    {
-        await ExecuteWithStrategyInTransactionAsync(
+        => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
                 var entity = Fixture.UseProxies
@@ -4601,14 +4586,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Assert.False(entity.ComplexProp.BoolValue);
                 Assert.Equal(default, entity.ComplexProp.DateValue);
             });
-    }
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual async Task Can_null_complex_property_with_default_values_and_multiple_properties(bool async)
-    {
-        await ExecuteWithStrategyInTransactionAsync(
+        => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
                 var entity = Fixture.UseProxies
@@ -4651,7 +4634,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
                 Assert.Null(entity.ComplexProp);
             });
-    }
 
     public class EntityWithOptionalMultiPropComplex
     {

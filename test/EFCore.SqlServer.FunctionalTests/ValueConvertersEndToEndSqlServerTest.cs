@@ -176,7 +176,7 @@ WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1
             ignoreLineEndingDifferences: true);
     }
 
-    private struct WrappedString
+    private readonly struct WrappedString
     {
         public string Value { get; init; }
     }

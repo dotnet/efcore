@@ -156,7 +156,8 @@ class C
     }
 }
 """;
-        await Verify.VerifyCodeFixAsync(source, source,
+        await Verify.VerifyCodeFixAsync(
+            source, source,
             DiagnosticResult.CompilerWarning(EFDiagnostics.InterpolatedStringUsageInRawQueries).WithLocation(0));
     }
 

@@ -50,6 +50,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     private readonly IModel _model;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
+    private readonly RelationalQueryableMethodTranslatingExpressionVisitor? _relationalQueryableTranslator;
 
     private bool _throwForNotTranslatedEfProperty;
 
@@ -69,6 +70,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         _queryCompilationContext = queryCompilationContext;
         _model = queryCompilationContext.Model;
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
+        _relationalQueryableTranslator =
+            queryableMethodTranslatingExpressionVisitor as RelationalQueryableMethodTranslatingExpressionVisitor;
         _throwForNotTranslatedEfProperty = true;
     }
 
@@ -183,8 +186,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         }
 
         if (binaryExpression.NodeType == ExpressionType.Equal
-            || binaryExpression.NodeType == ExpressionType.NotEqual
-            && binaryExpression.Left.Type == typeof(Type))
+            || (binaryExpression.NodeType == ExpressionType.NotEqual
+                && binaryExpression.Left.Type == typeof(Type)))
         {
             if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
                 && IsTypeConstant(binaryExpression.Right, out var type1))
@@ -321,7 +324,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     && !entityType.GetDirectlyDerivedTypes().Any()))
             {
                 // No hierarchy
-                return _sqlExpressionFactory.Constant((typeReference.StructuralType.ClrType == comparisonType) == match);
+                return _sqlExpressionFactory.Constant(typeReference.StructuralType.ClrType == comparisonType == match);
             }
 
             if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
@@ -358,7 +361,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     var predicate = GeneratePredicateTpt(projection);
 
                     subSelectExpression.ApplyPredicate(predicate);
-                    subSelectExpression.ReplaceProjection(new List<Expression>());
+                    subSelectExpression.ReplaceProjection([]);
                     subSelectExpression.ApplyProjection();
                     if (subSelectExpression.Limit == null
                         && subSelectExpression.Offset == null)
@@ -382,7 +385,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         // TPT case
                         // Most root type doesn't have matching case
                         // All derived types needs to be excluded
-                        var derivedTypeValues = derivedType.GetDerivedTypes().Where(e => !e.IsAbstract()).Select(e => (string)e.GetDiscriminatorValue()!)
+                        var derivedTypeValues = derivedType.GetDerivedTypes().Where(e => !e.IsAbstract())
+                            .Select(e => (string)e.GetDiscriminatorValue()!)
                             .ToList();
                         var predicates = new List<SqlExpression>();
                         foreach (var caseWhenClause in caseExpression.WhenClauses)
@@ -398,7 +402,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                             }
                         }
 
-                        var result = predicates.Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
+                        var result = predicates.Aggregate(_sqlExpressionFactory.AndAlso);
 
                         return match ? result : _sqlExpressionFactory.Not(result);
                     }
@@ -586,7 +590,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     return sqlExpression;
                 }
 
-                subquery.ReplaceProjection(new List<Expression> { sqlExpression });
+                subquery.ReplaceProjection([sqlExpression]);
                 subquery.ApplyProjection();
 
                 SqlExpression scalarSubqueryExpression = new ScalarSubqueryExpression(subquery);
@@ -668,8 +672,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     return _sqlExpressionFactory.IsNotNull(sqlInner);
                 case nameof(Nullable<>.HasValue)
                     when inner is StructuralTypeReferenceExpression
-                        && TryRewriteStructuralTypeEquality(
-                            ExpressionType.NotEqual, inner, new SqlConstantExpression(null, memberExpression.Expression!.Type, null), equalsMethod: false, out var result):
+                    && TryRewriteStructuralTypeEquality(
+                        ExpressionType.NotEqual, inner, new SqlConstantExpression(null, memberExpression.Expression!.Type, null),
+                        equalsMethod: false, out var result):
                     return result;
             }
         }
@@ -886,11 +891,11 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 var elementClrType = newArray.Type.GetElementType()!.UnwrapNullableType();
 
                 return method.Name switch
-                    {
-                        nameof(RelationalDbFunctionsExtensions.Greatest) => GenerateGreatest(translatedValues, elementClrType),
-                        nameof(RelationalDbFunctionsExtensions.Least) => GenerateLeast(translatedValues, elementClrType),
-                        _ => throw new UnreachableException()
-                    }
+                {
+                    nameof(RelationalDbFunctionsExtensions.Greatest) => GenerateGreatest(translatedValues, elementClrType),
+                    nameof(RelationalDbFunctionsExtensions.Least) => GenerateLeast(translatedValues, elementClrType),
+                    _ => throw new UnreachableException()
+                }
                     ?? QueryCompilationContext.NotTranslatedExpression;
             }
 
@@ -1091,7 +1096,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 var predicate = GeneratePredicateTpt(projection);
 
                 subSelectExpression.ApplyPredicate(predicate);
-                subSelectExpression.ReplaceProjection(new List<Expression>());
+                subSelectExpression.ReplaceProjection([]);
                 subSelectExpression.ApplyProjection();
                 if (subSelectExpression.Limit == null
                     && subSelectExpression.Offset == null)
@@ -1181,8 +1186,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             case ExpressionType.ConvertChecked:
             case ExpressionType.TypeAs:
                 // Object convert needs to be converted to explicit cast when mismatching types
-                if (operand.Type.IsInterface
-                    && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                if ((operand.Type.IsInterface
+                        && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type))
                     || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
                     || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                 {
@@ -1313,9 +1318,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
                 if (allRequiredNonPkProperties.Count > 0)
                 {
-                    condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
+                    condition = allRequiredNonPkProperties.Select(projection.BindProperty)
                         .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
-                        .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
+                        .Aggregate(_sqlExpressionFactory.AndAlso);
                 }
 
                 if (nonPrincipalSharedNonPkProperties.Count != 0
@@ -1323,9 +1328,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 {
                     // If all non principal shared properties are nullable then we need additional condition
                     var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
-                        .Select(p => projection.BindProperty(p))
+                        .Select(projection.BindProperty)
                         .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
-                        .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
+                        .Aggregate(_sqlExpressionFactory.OrElse);
 
                     condition = condition == null
                         ? atLeastOneNonNullValueInNullableColumnsCondition
@@ -1339,7 +1344,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 }
 
                 return _sqlExpressionFactory.Case(
-                    new List<CaseWhenClause> { new(condition, propertyAccess) },
+                    [new CaseWhenClause(condition, propertyAccess)],
                     elseResult: null);
 
                 // We don't do above processing for subquery entity since it comes from after subquery which has been
@@ -1354,7 +1359,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
                 var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
                 var innerProjection = projection.BindProperty(property);
-                subSelectExpression.ReplaceProjection(new List<Expression> { innerProjection });
+                subSelectExpression.ReplaceProjection([innerProjection]);
                 subSelectExpression.ApplyProjection();
 
                 return new ScalarSubqueryExpression(subSelectExpression);
@@ -1480,6 +1485,25 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
                         break;
 
+                    // Any/All over a grouping element are quantifiers rather than aggregates, but over a GROUP BY they can be
+                    // computed as one, which avoids a correlated EXISTS that re-derives the whole grouping source.
+                    case nameof(Queryable.Any)
+                        when genericMethod == QueryableMethods.AnyWithoutPredicate
+                        || genericMethod == QueryableMethods.AnyWithPredicate:
+                    case nameof(Queryable.All)
+                        when genericMethod == QueryableMethods.All:
+                        if (TryTranslateQuantifierOverGrouping(
+                                genericMethod,
+                                enumerableExpression,
+                                arguments.Count > 1 ? arguments[1].UnwrapLambdaFromQuote() : null,
+                                out translation))
+                        {
+                            return true;
+                        }
+
+                        abortTranslation = true;
+                        break;
+
                     default:
                         abortTranslation = true;
                         break;
@@ -1497,6 +1521,99 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         translation = null;
         return false;
+    }
+
+    /// <summary>
+    ///     Translates <see cref="Queryable.Any{TSource}(IQueryable{TSource})" />,
+    ///     <see cref="Queryable.Any{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> and
+    ///     <see cref="Queryable.All{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> over a grouping element
+    ///     into an aggregate over the enclosing GROUP BY.
+    ///     The fallback translation is a correlated EXISTS, which cannot share the outer query's FROM and so re-derives the
+    ///     whole grouping source once per group.
+    /// </summary>
+    private bool TryTranslateQuantifierOverGrouping(
+        MethodInfo genericMethod,
+        EnumerableExpression enumerableExpression,
+        LambdaExpression? predicateLambda,
+        [NotNullWhen(true)] out SqlExpression? translation)
+    {
+        translation = null;
+
+        // DISTINCT cannot change whether any/all rows satisfy a predicate.
+        enumerableExpression = enumerableExpression.SetDistinct(false);
+
+        var isAll = genericMethod == QueryableMethods.All;
+
+        if (predicateLambda == null && enumerableExpression.Predicate == null)
+        {
+            // Any() over an unfiltered grouping element: GROUP BY never produces an empty group.
+            translation = _sqlExpressionFactory.Constant(true);
+            return true;
+        }
+
+        // What each row contributes to the count. Any counts every row its predicates leave, so any non-null marker will do;
+        // All counts only the rows that fail its predicate, which the marker itself has to decide.
+        var marker = _sqlExpressionFactory.Fragment("*");
+
+        if (predicateLambda != null)
+        {
+            if (TranslateInternal(RemapLambda(enumerableExpression, predicateLambda)) is not SqlExpression predicate)
+            {
+                return false;
+            }
+
+            if (isAll)
+            {
+                // All(p) is "no row fails p". A row fails where p is false or NULL, so the marker is NULL exactly where p
+                // holds and the count skips it - NOT p would not do, being NULL wherever p is, which the CASE would read as
+                // false and leave the row uncounted, making All wrongly come out true.
+                //
+                // Deciding it in the marker rather than by counting matches against the size of the group keeps both the
+                // grouping element's own filter and p in the SQL once each. Emitted twice, a volatile filter such as
+                // Where(o => EF.Functions.Random() > 0.5) is sampled independently per occurrence, and the counts stop
+                // describing the same rows.
+                marker = _sqlExpressionFactory.Case(
+                    [new CaseWhenClause(predicate, _sqlExpressionFactory.Constant(null, typeof(int)))],
+                    elseResult: _sqlExpressionFactory.Constant(1));
+            }
+            else
+            {
+                enumerableExpression = enumerableExpression.ApplyPredicate(predicate);
+            }
+        }
+
+        if (!TryTranslateCount(enumerableExpression, marker, out var count))
+        {
+            return false;
+        }
+
+        // Any(p) is "at least one row matched"; All(p) is "no row failed". A count is non-nullable, so no null guard is
+        // wrapped around either comparison, and both stay correct when the grouping element was already filtered down to no
+        // rows: Any is false, All is true.
+        translation = isAll
+            ? _sqlExpressionFactory.Equal(count, _sqlExpressionFactory.Constant(0))
+            : _sqlExpressionFactory.GreaterThan(count, _sqlExpressionFactory.Constant(0));
+
+        return true;
+
+        bool TryTranslateCount(EnumerableExpression source, SqlExpression selector, [NotNullWhen(true)] out SqlExpression? count)
+        {
+            // Count the caller's marker rather than the grouping element: a count ignores NULL values, so counting the
+            // element would drop every row whose element is NULL - including, for Any, the very rows a predicate such as
+            // "x == null" matched. An element selector that isn't a scalar already counts rows rather than values; this
+            // makes a scalar one (from a Select over the grouping element) behave the same.
+            //
+            // LongCount rather than Count: the quantifier returns bool, so nothing in the query asks for a 32-bit counter,
+            // and the EXISTS translation this replaces has no cardinality limit of its own.
+            source = source.ApplySelector(selector);
+
+            count = TranslateAggregateMethod(
+                source,
+                QueryableMethods.LongCountWithoutPredicate.MakeGenericMethod(source.Selector.Type),
+                []) as SqlExpression;
+
+            return count != null;
+        }
     }
 
     /// <summary>
@@ -1619,10 +1736,66 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
     }
 
-    private static Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
-        => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], enumerableExpression.Selector, lambdaExpression.Body);
+    private Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
+    {
+        var body = ReplacingExpressionVisitor.Replace(
+            lambdaExpression.Parameters[0], enumerableExpression.Selector, lambdaExpression.Body);
 
-    private static EnumerableExpression ProcessSelector(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
+        // Lambdas remapped onto a query source get their owned navigations expanded by the queryable translator, but lambdas over a
+        // grouping element are remapped here instead, so expand them now. Without this the navigation fails to bind and the aggregate
+        // falls back to a correlated subquery, or throws. Grouping has already been applied to the source, so a dependent that would
+        // need a join added to it is left unexpanded.
+        return _relationalQueryableTranslator is not null
+            && FindSourceSelectExpression(enumerableExpression.Selector) is { } selectExpression
+                ? _relationalQueryableTranslator.ExpandSharedTypeEntities(selectExpression, body, allowOwnerJoin: false)
+                : body;
+    }
+
+    // The grouping element is an entity shaper, or a transparent identifier over several of them when navigation expansion added
+    // joins to the grouped source. Anything else yields null and the lambda is left unexpanded.
+    private static SelectExpression? FindSourceSelectExpression(Expression selector)
+    {
+        SelectExpression? result = null;
+        var conflicting = false;
+        Find(selector);
+        return conflicting ? null : result;
+
+        void Find(Expression expression)
+        {
+            switch (expression)
+            {
+                case StructuralTypeShaperExpression
+                {
+                    ValueBufferExpression: ProjectionBindingExpression { QueryExpression: SelectExpression selectExpression }
+                }:
+                    conflicting |= result is not null && !ReferenceEquals(result, selectExpression);
+                    result ??= selectExpression;
+                    break;
+
+                case NewExpression newExpression:
+                    foreach (var argument in newExpression.Arguments)
+                    {
+                        Find(argument);
+                    }
+
+                    break;
+
+                case MemberInitExpression memberInitExpression:
+                    Find(memberInitExpression.NewExpression);
+                    foreach (var binding in memberInitExpression.Bindings)
+                    {
+                        if (binding is MemberAssignment memberAssignment)
+                        {
+                            Find(memberAssignment.Expression);
+                        }
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    private EnumerableExpression ProcessSelector(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
         => enumerableExpression.ApplySelector(RemapLambda(enumerableExpression, lambdaExpression));
 
     private EnumerableExpression? ProcessOrderByThenBy(
@@ -1768,18 +1941,13 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             => ExpressionType.Extension;
 
         public Expression Convert(Type type)
-        {
-            if (type == typeof(object) // Ignore object conversion
-                || type.IsAssignableFrom(Type)) // Ignore casting to base type/interface
-            {
-                return this;
-            }
-
-            return StructuralType is IEntityType entityType
-                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
-                    ? new StructuralTypeReferenceExpression(this, derivedEntityType)
-                    : QueryCompilationContext.NotTranslatedExpression;
-        }
+            => type == typeof(object) // Ignore object conversion
+                || type.IsAssignableFrom(Type)
+                    ? this
+                    : StructuralType is IEntityType entityType
+                    && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
+                        ? new StructuralTypeReferenceExpression(this, derivedEntityType)
+                        : QueryCompilationContext.NotTranslatedExpression;
 
         private string DebuggerDisplay()
             => this switch

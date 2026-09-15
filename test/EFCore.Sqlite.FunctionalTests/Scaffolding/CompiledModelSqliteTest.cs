@@ -34,14 +34,11 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
             eb.Property<string>("Name");
         });
 
-        modelBuilder.Entity<PrincipalBase>(eb =>
-        {
-            eb.Property<Point>("Point")
-                .HasColumnType("geometry")
-                .HasDefaultValue(
-                    NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
-                .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
-        });
+        modelBuilder.Entity<PrincipalBase>(eb => eb.Property<Point>("Point")
+            .HasColumnType("geometry")
+            .HasDefaultValue(
+                NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
+            .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>());
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)

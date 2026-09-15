@@ -39,7 +39,6 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     public class ShadowKeyEntity
     {
         public int Id { get; set; }
-
     }
 
     public class ShadowKeyContext(DbContextOptions options) : DbContext(options)
@@ -70,10 +69,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            context.Add(new DiscriminatorDerivedEntity
-            {
-                Name = "Name"
-            });
+            context.Add(new DiscriminatorDerivedEntity { Name = "Name" });
             await context.SaveChangesAsync();
         }
 
@@ -97,7 +93,8 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     public class DiscriminatorContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<DiscriminatorBaseEntity> Entities => Set<DiscriminatorBaseEntity>();
+        public DbSet<DiscriminatorBaseEntity> Entities
+            => Set<DiscriminatorBaseEntity>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -117,10 +114,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            context.Add(new CollectionEntity()
-            {
-                Entities = [new(), new()]
-            });
+            context.Add(new CollectionEntity() { Entities = [new(), new()] });
             await context.SaveChangesAsync();
         }
 
@@ -142,10 +136,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            context.Add(new CollectionEntity()
-            {
-                Entities = []
-            });
+            context.Add(new CollectionEntity() { Entities = [] });
             await context.SaveChangesAsync();
         }
 
@@ -163,10 +154,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-            context.Add(new CollectionEntityWithOrdinalKey()
-            {
-                Entities = [new(), new()]
-            });
+            context.Add(new CollectionEntityWithOrdinalKey() { Entities = [new(), new()] });
             await context.SaveChangesAsync();
         }
 
@@ -185,7 +173,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public List<CollectionItemEntity> Entities { get; set; } = new();
+        public List<CollectionItemEntity> Entities { get; set; } = [];
     }
 
     public class CollectionItemEntity
@@ -198,7 +186,7 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public List<CollectionItemEntityWithOrdinalKey> Entities { get; set; } = new();
+        public List<CollectionItemEntityWithOrdinalKey> Entities { get; set; } = [];
     }
 
     public class CollectionItemEntityWithOrdinalKey
@@ -208,9 +196,11 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
     public class CollectionContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<CollectionEntity> Entities => Set<CollectionEntity>();
+        public DbSet<CollectionEntity> Entities
+            => Set<CollectionEntity>();
 
-        public DbSet<CollectionEntityWithOrdinalKey> EntitiesWithOrdinalKey => Set<CollectionEntityWithOrdinalKey>();
+        public DbSet<CollectionEntityWithOrdinalKey> EntitiesWithOrdinalKey
+            => Set<CollectionEntityWithOrdinalKey>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -281,28 +271,21 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
         using (var context = factory.CreateDbContext())
         {
             context.Add(new UndefinedNestedPropertyEntity());
-            context.Add(new UndefinedNestedPropertyEntity
-            {
-                Nested = new UndefinedNestedPropertyNestedEntity
-                {
-                    Name = "Name"
-                }
-            });
-            context.Add(new UndefinedNestedPropertyEntity
-            {
-                Nested = new UndefinedNestedPropertyNestedEntity()
-            });
+            context.Add(new UndefinedNestedPropertyEntity { Nested = new UndefinedNestedPropertyNestedEntity { Name = "Name" } });
+            context.Add(new UndefinedNestedPropertyEntity { Nested = new UndefinedNestedPropertyNestedEntity() });
             await context.SaveChangesAsync();
         }
 
         using (var context = factory.CreateDbContext())
         {
             // Coalesce can be used to avoid the exception when the nested property is null
-            var results = await context.Entities.Select(x => new { Name = x.Nested!.Name ?? "", Name2 = (x.Nested!.Name ?? "") + "2" }).ToListAsync();
+            var results = await context.Entities.Select(x => new { Name = x.Nested!.Name ?? "", Name2 = (x.Nested!.Name ?? "") + "2" })
+                .ToListAsync();
             Assert.Equal(3, results.Count);
             Assert.Equivalent(new[] { "", "Name", "" }.OrderBy(x => x), results.Select(x => x.Name).OrderBy(x => x));
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Entities.Select(x => new { Name = x.Nested!.Name, Name2 = x.Nested!.Name + "2" }).ToListAsync());
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(()
+                => context.Entities.Select(x => new { x.Nested!.Name, Name2 = x.Nested!.Name + "2" }).ToListAsync());
             Assert.Equal(CosmosStrings.ProjectionUndefined, ex.Message);
         }
     }
@@ -320,8 +303,8 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Entities.Select(x => new { x.AlwaysHere, x.Nested!.Name }).ToListAsync());
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(()
+                => context.Entities.Select(x => new { x.AlwaysHere, x.Nested!.Name }).ToListAsync());
             Assert.Equal(CosmosStrings.ProjectionUndefined, ex.Message);
         }
     }
@@ -339,8 +322,8 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
 
         using (var context = factory.CreateDbContext())
         {
-
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Entities.Select(x => new { x.Nested!.Name, x.AlwaysHere }).ToListAsync());
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(()
+                => context.Entities.Select(x => new { x.Nested!.Name, x.AlwaysHere }).ToListAsync());
             Assert.Equal(CosmosStrings.ProjectionUndefined, ex.Message);
         }
     }

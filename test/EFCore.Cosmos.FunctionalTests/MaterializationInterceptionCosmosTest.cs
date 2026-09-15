@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class MaterializationInterceptionCosmosTest(NonSharedFixture fixture) :
     MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>(fixture)
 {

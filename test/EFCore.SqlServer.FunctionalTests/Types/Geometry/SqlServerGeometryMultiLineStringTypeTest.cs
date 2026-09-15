@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Types.Geometry;
 public class SqlServerGeometryMultiLineStringTypeTest(
     SqlServerGeometryMultiLineStringTypeTest.MultiLineStringTypeFixture fixture,
     ITestOutputHelper testOutputHelper)
-    : SqlServerGeometryTypeTestBase<MultiLineString, SqlServerGeometryMultiLineStringTypeTest.MultiLineStringTypeFixture>(fixture, testOutputHelper)
+    : SqlServerGeometryTypeTestBase<MultiLineString, SqlServerGeometryMultiLineStringTypeTest.MultiLineStringTypeFixture>(
+        fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
     {
@@ -38,9 +39,7 @@ WHERE [t].[Value].STEquals('MULTILINESTRING ((1 1, 2 2), (3 3, 4 4))') = CAST(1 
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -217,25 +216,29 @@ FROM [JsonTypeEntity] AS [j]
 
     public class MultiLineStringTypeFixture : GeometryTypeFixture
     {
-        public override MultiLineString Value { get; } = new MultiLineString(
+        public override MultiLineString Value { get; } = new(
         [
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(1, 1),
                 new Coordinate(2, 2)
             ]),
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(3, 3),
                 new Coordinate(4, 4)
             ])
         ]);
 
-        public override MultiLineString OtherValue { get; } = new MultiLineString(
+        public override MultiLineString OtherValue { get; } = new(
         [
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(10, 10),
                 new Coordinate(11, 11)
             ]),
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(12, 12),
                 new Coordinate(13, 13)
             ])

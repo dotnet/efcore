@@ -239,9 +239,9 @@ public class QueryLocator : CSharpSyntaxWalker
         // Work backwards through the LINQ operator chain until we reach something that isn't a method invocation
         ExpressionSyntax operatorSyntax = query;
         while (operatorSyntax is InvocationExpressionSyntax
-               {
-                   Expression: MemberAccessExpressionSyntax { Expression: var innerExpression }
-               })
+            {
+                Expression: MemberAccessExpressionSyntax { Expression: var innerExpression }
+            })
         {
             if (innerExpression is QueryExpressionSyntax or ParenthesizedExpressionSyntax { Expression: QueryExpressionSyntax })
             {

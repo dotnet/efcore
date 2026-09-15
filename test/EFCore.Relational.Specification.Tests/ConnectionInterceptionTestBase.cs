@@ -871,8 +871,8 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
 
     private static void AsertOpenCloseEvents(ITestDiagnosticListener listener)
         => listener.AssertEventsInOrder(
-            RelationalEventId.ConnectionOpening.Name,
-            RelationalEventId.ConnectionOpened.Name,
-            RelationalEventId.ConnectionClosing.Name,
-            RelationalEventId.ConnectionClosed.Name);
+            RelationalEventId.ConnectionOpening.Name!,
+            RelationalEventId.ConnectionOpened.Name!,
+            RelationalEventId.ConnectionClosing.Name!,
+            RelationalEventId.ConnectionClosed.Name!);
 }

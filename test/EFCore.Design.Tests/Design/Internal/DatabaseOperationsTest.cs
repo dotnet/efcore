@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -34,8 +33,8 @@ public class DatabaseOperationsTest
                     "",
                     "",
                     dbContextClassName: contextName,
-                    null,
-                    null,
+                    null!,
+                    null!,
                     "FakeNamespace",
                     contextNamespace: null,
                     useDataAnnotations: false,
@@ -57,7 +56,7 @@ public class DatabaseOperationsTest
             "",
             dbContextClassName: nameof(TestContext),
             schemas: ["Empty"],
-            null,
+            null!,
             null,
             contextNamespace: null,
             useDataAnnotations: false,
@@ -70,7 +69,7 @@ public class DatabaseOperationsTest
         Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
     }
 
-    private static DatabaseOperations CreateOperations(string[] args)
+    private static DatabaseOperations CreateOperations(string[]? args)
     {
         var assembly = MockAssembly.Create(typeof(TestContext));
         var operations = new DatabaseOperations(

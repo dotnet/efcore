@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-#nullable disable
-
 public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -14,7 +12,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_aggregate_root_when_eager_loaded_owned_collection(bool async)
     {
-        var contextFactory = await InitializeNonSharedTest<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
+        var contextFactory =
+            await InitializeNonSharedTest<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
         await AssertDelete(
             async, contextFactory.CreateDbContext,
             context => context.Set<Owner>(), rowsAffectedCount: 0);
@@ -25,7 +24,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_with_owned_collection_and_non_natively_translatable_query(bool async)
     {
-        var contextFactory = await InitializeNonSharedTest<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
+        var contextFactory =
+            await InitializeNonSharedTest<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
         await AssertDelete(
             async, contextFactory.CreateDbContext,
             context => context.Set<Owner>().OrderBy(o => o.Title).Skip(1), rowsAffectedCount: 0);
@@ -66,38 +66,35 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Owner
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
-        public OwnedReference OwnedReference { get; set; }
-        public List<OwnedCollection> OwnedCollections { get; set; }
+        public OwnedReference? OwnedReference { get; set; }
+        public List<OwnedCollection> OwnedCollections { get; set; } = null!;
     }
 
     public class OwnedReference
     {
         public int Number { get; set; }
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     public class OwnedCollection
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     public class OtherReference
     {
         public int Id { get; set; }
         public int Number { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_non_owned_property_on_entity_with_owned(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28671>(
-            onModelCreating: mb =>
-            {
-                mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
-            });
+            onModelCreating: mb => mb.Entity<Owner>().OwnsOne(o => o.OwnedReference));
 
         await AssertUpdate(
             async,
@@ -111,10 +108,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public virtual async Task Update_non_owned_property_on_entity_with_owned2(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28671>(
-            onModelCreating: mb =>
-            {
-                mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
-            });
+            onModelCreating: mb => mb.Entity<Owner>().OwnsOne(o => o.OwnedReference));
 
         await AssertUpdate(
             async,
@@ -128,10 +122,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public virtual async Task Update_non_owned_property_on_entity_with_owned_in_join(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28671>(
-            onModelCreating: mb =>
-            {
-                mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
-            });
+            onModelCreating: mb => mb.Entity<Owner>().OwnsOne(o => o.OwnedReference));
 
         await AssertUpdate(
             async,
@@ -145,18 +136,15 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public virtual async Task Update_owned_and_non_owned_properties_with_table_sharing(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28671>(
-            onModelCreating: mb =>
-            {
-                mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
-            });
+            onModelCreating: mb => mb.Entity<Owner>().OwnsOne(o => o.OwnedReference));
 
         await AssertUpdate(
             async,
             contextFactory.CreateDbContext,
             ss => ss.Set<Owner>(),
             s => s
-                .SetProperty(o => o.Title, o => o.OwnedReference.Number.ToString())
-                .SetProperty(o => o.OwnedReference.Number, o => o.Title.Length),
+                .SetProperty(o => o.Title, o => o.OwnedReference!.Number.ToString())
+                .SetProperty(o => o.OwnedReference!.Number, o => o.Title!.Length),
             rowsAffectedCount: 0);
     }
 
@@ -176,9 +164,9 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Context30572_Principal
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
-        public Context30572_Dependent Dependent { get; set; }
+        public Context30572_Dependent? Dependent { get; set; }
     }
 
     public class Context30572_Dependent
@@ -258,7 +246,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     {
         public int Id { get; set; }
         public int Total { get; set; }
-        public ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+        public ICollection<OrderProduct> OrderProducts { get; set; } = [];
     }
 
     public class OrderProduct
@@ -270,17 +258,17 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Blog
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
         public int Rating { get; set; }
         public DateTime CreationTimestamp { get; set; }
 
-        public virtual ICollection<Post> Posts { get; } = new List<Post>();
+        public virtual ICollection<Post> Posts { get; } = [];
     }
 
     public class Post
     {
         public int Id { get; set; }
-        public virtual Blog Blog { get; set; }
+        public virtual Blog? Blog { get; set; }
     }
 
     #region HelperMethods

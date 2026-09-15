@@ -52,7 +52,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string? name)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)ToContainer((EntityTypeBuilder)entityTypeBuilder, name);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToContainer(name);
 
     /// <summary>
     ///     Configures the container that the entity type maps to when targeting Azure Cosmos.
@@ -247,7 +247,7 @@ public static class CosmosEntityTypeBuilderExtensions
         string? name,
         params string[]? additionalPropertyNames)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasPartitionKey((EntityTypeBuilder)entityTypeBuilder, name, additionalPropertyNames);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasPartitionKey(name, additionalPropertyNames);
 
     /// <summary>
     ///     Configures the properties that are used to store the parts of a simple or
@@ -350,7 +350,7 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static EntityTypeBuilder<TEntity> UseETagConcurrency<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)UseETagConcurrency((EntityTypeBuilder)entityTypeBuilder);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).UseETagConcurrency();
 
     /// <summary>
     ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
@@ -394,7 +394,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         bool? alwaysCreate = true)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasShadowId((EntityTypeBuilder)entityTypeBuilder, alwaysCreate);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasShadowId(alwaysCreate);
 
     /// <summary>
     ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
@@ -669,7 +669,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         bool? includeDiscriminator = true)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasDiscriminatorInJsonId(includeDiscriminator);
 
     /// <summary>
     ///     Includes the discriminator value of the root entity type in the JSON "id" value. This allows types with the same
@@ -689,7 +689,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         bool? includeDiscriminator = true)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasRootDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasRootDiscriminatorInJsonId(includeDiscriminator);
 
     /// <summary>
     ///     Includes the discriminator value of the entity type in the JSON "id" value. This was the default behavior before EF Core 9.
@@ -855,7 +855,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         int? seconds)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasAnalyticalStoreTimeToLive((EntityTypeBuilder)entityTypeBuilder, seconds);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasAnalyticalStoreTimeToLive(seconds);
 
     /// <summary>
     ///     Configures the time to live for analytical store in seconds at container scope.
@@ -941,7 +941,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         int? seconds)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasDefaultTimeToLive((EntityTypeBuilder)entityTypeBuilder, seconds);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasDefaultTimeToLive(seconds);
 
     /// <summary>
     ///     Configures the default time to live in seconds at container scope.
@@ -1019,7 +1019,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         int? throughput)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasManualThroughput((EntityTypeBuilder)entityTypeBuilder, throughput);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasManualThroughput(throughput);
 
     /// <summary>
     ///     Configures the autoscale provisioned throughput offering.
@@ -1050,7 +1050,7 @@ public static class CosmosEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         int? throughput)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasAutoscaleThroughput((EntityTypeBuilder)entityTypeBuilder, throughput);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasAutoscaleThroughput(throughput);
 
     /// <summary>
     ///     Configures the provisioned throughput.

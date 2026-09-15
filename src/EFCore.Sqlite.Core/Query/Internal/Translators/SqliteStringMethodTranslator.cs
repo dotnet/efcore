@@ -90,37 +90,34 @@ public class SqliteStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
             };
         }
 
-        if (method.DeclaringType == typeof(Enumerable)
+        return method.DeclaringType == typeof(Enumerable)
             && method.Name is nameof(Enumerable.FirstOrDefault) or nameof(Enumerable.LastOrDefault)
             && method.IsGenericMethod
             && method.GetGenericArguments()[0] == typeof(char)
-            && arguments is [var source])
-        {
-            return method.Name == nameof(Enumerable.FirstOrDefault)
-                ? sqlExpressionFactory.Function(
-                    "substr",
-                    [source, sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1)],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[3],
-                    method.ReturnType)
-                : sqlExpressionFactory.Function(
-                    "substr",
-                    [
-                        source,
-                        sqlExpressionFactory.Function(
-                            "length",
-                            [source],
-                            nullable: true,
-                            argumentsPropagateNullability: Statics.TrueArrays[1],
-                            typeof(int)),
-                        sqlExpressionFactory.Constant(1)
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[3],
-                    method.ReturnType);
-        }
-
-        return null;
+            && arguments is [var source]
+                ? method.Name == nameof(Enumerable.FirstOrDefault)
+                    ? sqlExpressionFactory.Function(
+                        "substr",
+                        [source, sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1)],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[3],
+                        method.ReturnType)
+                    : sqlExpressionFactory.Function(
+                        "substr",
+                        [
+                            source,
+                            sqlExpressionFactory.Function(
+                                "length",
+                                [source],
+                                nullable: true,
+                                argumentsPropagateNullability: Statics.TrueArrays[1],
+                                typeof(int)),
+                            sqlExpressionFactory.Constant(1)
+                        ],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[3],
+                        method.ReturnType)
+                : null;
     }
 
     private SqlExpression TranslateIndexOf(SqlExpression instance, SqlExpression argument)
@@ -142,10 +139,12 @@ public class SqliteStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
     }
 
     private SqlExpression TranslateIndexOfWithStartingPosition(
-        SqlExpression instance, SqlExpression argument, SqlExpression startIndex)
+        SqlExpression instance,
+        SqlExpression argument,
+        SqlExpression startIndex)
     {
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, argument);
-        instance = sqlExpressionFactory.Function(
+        var subString = sqlExpressionFactory.Function(
             "substr",
             [instance, sqlExpressionFactory.Add(startIndex, sqlExpressionFactory.Constant(1))],
             nullable: true,
@@ -153,20 +152,28 @@ public class SqliteStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
             typeof(string),
             instance.TypeMapping);
 
-        return sqlExpressionFactory.Add(
-            sqlExpressionFactory.Subtract(
-                sqlExpressionFactory.Function(
-                    "instr",
-                    [
-                        sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping),
-                        sqlExpressionFactory.ApplyTypeMapping(
-                            argument, argument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping)
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[2],
-                    typeof(int)),
-                sqlExpressionFactory.Constant(1)),
-            startIndex);
+        var indexInSubString = sqlExpressionFactory.Function(
+            "instr",
+            [
+                sqlExpressionFactory.ApplyTypeMapping(subString, stringTypeMapping),
+                sqlExpressionFactory.ApplyTypeMapping(
+                    argument, argument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping)
+            ],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueArrays[2],
+            typeof(int));
+
+        // instr returns 0 when the value is not found, so guard against it to return -1 (as String.IndexOf does)
+        // rather than startIndex - 1.
+        return sqlExpressionFactory.Case(
+            [
+                new CaseWhenClause(
+                    sqlExpressionFactory.Equal(indexInSubString, sqlExpressionFactory.Constant(0)),
+                    sqlExpressionFactory.Constant(-1))
+            ],
+            sqlExpressionFactory.Add(
+                sqlExpressionFactory.Subtract(indexInSubString, sqlExpressionFactory.Constant(1)),
+                startIndex));
     }
 
     private SqlExpression TranslateReplace(SqlExpression instance, SqlExpression oldValue, SqlExpression newValue)

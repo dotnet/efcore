@@ -33,8 +33,8 @@ public class StructuredJsonPath
     {
         var arraySegmentCount = segments.Count(s => s.IsArray);
         if (indices is null
-            ? arraySegmentCount != 0
-            : indices.Count != arraySegmentCount)
+                ? arraySegmentCount != 0
+                : indices.Count != arraySegmentCount)
         {
             throw new ArgumentException(
                 CoreStrings.InvalidStructuredJsonPathIndexCount(indices?.Count ?? 0, arraySegmentCount),
@@ -82,7 +82,8 @@ public class StructuredJsonPath
         {
             if (segment.IsArray)
             {
-                Check.DebugAssert(Indices is not null, "Indices must be non-null when a segment is an array (enforced by the constructor).");
+                Check.DebugAssert(
+                    Indices is not null, "Indices must be non-null when a segment is an array (enforced by the constructor).");
 
                 if (Indices[indexPosition] is { } index)
                 {

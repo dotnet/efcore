@@ -53,7 +53,8 @@ public class PhysicalAddressToStringConverter : ValueConverter<PhysicalAddress?,
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(PhysicalAddress), typeof(string),
+        = new(
+            typeof(PhysicalAddress), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new PhysicalAddressToStringConverter(i.MappingHints),
             DefaultHints);
 

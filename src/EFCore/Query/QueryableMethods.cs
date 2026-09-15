@@ -280,14 +280,14 @@ public static class QueryableMethods
     /// <summary>
     ///     The <see cref="MethodInfo" /> for
     ///     <see
-    ///         cref="Queryable.MaxBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})"/>
+    ///         cref="Queryable.MaxBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})" />
     /// </summary>
     public static MethodInfo MaxBy { get; }
 
     /// <summary>
     ///     The <see cref="MethodInfo" /> for
     ///     <see
-    ///         cref="Queryable.MinBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})"/>
+    ///         cref="Queryable.MinBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})" />
     /// </summary>
     public static MethodInfo MinBy { get; }
 
@@ -904,10 +904,10 @@ public static class QueryableMethods
             typeof(decimal?)
         };
 
-        AverageWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
-        AverageWithSelectorMethods = new Dictionary<Type, MethodInfo>();
-        SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
-        SumWithSelectorMethods = new Dictionary<Type, MethodInfo>();
+        AverageWithoutSelectorMethods = [];
+        AverageWithSelectorMethods = [];
+        SumWithoutSelectorMethods = [];
+        SumWithSelectorMethods = [];
 
         foreach (var type in numericTypes)
         {

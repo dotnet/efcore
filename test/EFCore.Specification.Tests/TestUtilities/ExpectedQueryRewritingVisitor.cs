@@ -19,7 +19,7 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
     private static readonly MethodInfo _maybeScalarNonNullableMethod;
 
     private readonly Dictionary<(Type, string), Func<object, object>> _shadowPropertyMappings =
-        shadowPropertyMappings ?? new Dictionary<(Type, string), Func<object, object>>();
+        shadowPropertyMappings ?? [];
 
     private bool _negated;
 
@@ -79,7 +79,7 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
                 return RewriteJoinGroupJoin(methodCallExpression);
             }
         }
-        
+
         if (methodCallExpression.Method.IsEFPropertyMethod())
         {
             var rewritten = TryConvertEFPropertyToMemberAccess(methodCallExpression);

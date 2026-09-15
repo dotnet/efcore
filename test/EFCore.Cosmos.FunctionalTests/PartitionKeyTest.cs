@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 // TODO: Consider removing these in favor of ReadItemPartitionKeyQueryTest
 public class PartitionKeyTest : IClassFixture<PartitionKeyTest.CosmosPartitionKeyFixture>
 {
@@ -190,7 +188,8 @@ OFFSET 0 LIMIT 1
 
     public class PartitionKeyContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<Customer> Customers
+            => Set<Customer>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>(cb =>
@@ -204,7 +203,7 @@ OFFSET 0 LIMIT 1
     public class Customer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int PartitionKey { get; set; }
     }
 }

@@ -45,7 +45,7 @@ public static class RelationalPropertiesConfigurationBuilderExtensions
     public static PropertiesConfigurationBuilder<TProperty> HaveColumnType<TProperty>(
         this PropertiesConfigurationBuilder<TProperty> propertyBuilder,
         string typeName)
-        => (PropertiesConfigurationBuilder<TProperty>)HaveColumnType((PropertiesConfigurationBuilder)propertyBuilder, typeName);
+        => (PropertiesConfigurationBuilder<TProperty>)((PropertiesConfigurationBuilder)propertyBuilder).HaveColumnType(typeName);
 
     /// <summary>
     ///     Configures the property as capable of storing only fixed-length data, such as strings.
@@ -78,7 +78,7 @@ public static class RelationalPropertiesConfigurationBuilderExtensions
     public static PropertiesConfigurationBuilder<TProperty> AreFixedLength<TProperty>(
         this PropertiesConfigurationBuilder<TProperty> propertyBuilder,
         bool fixedLength = true)
-        => (PropertiesConfigurationBuilder<TProperty>)AreFixedLength((PropertiesConfigurationBuilder)propertyBuilder, fixedLength);
+        => (PropertiesConfigurationBuilder<TProperty>)((PropertiesConfigurationBuilder)propertyBuilder).AreFixedLength(fixedLength);
 
     /// <summary>
     ///     Configures the property to use the given collation. The database column will be created with the given
@@ -112,5 +112,5 @@ public static class RelationalPropertiesConfigurationBuilderExtensions
     public static PropertiesConfigurationBuilder<TProperty> UseCollation<TProperty>(
         this PropertiesConfigurationBuilder<TProperty> propertyBuilder,
         string collation)
-        => (PropertiesConfigurationBuilder<TProperty>)UseCollation((PropertiesConfigurationBuilder)propertyBuilder, collation);
+        => (PropertiesConfigurationBuilder<TProperty>)((PropertiesConfigurationBuilder)propertyBuilder).UseCollation(collation);
 }

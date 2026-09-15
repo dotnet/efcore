@@ -23,7 +23,9 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     // Warning: Never access these fields directly as access needs to be thread-safe
     private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
+
     private ICollectionLoader? _manyToManyLoader;
+
     // An optional compiled-model delegate that creates the loader, letting a compiled model carry the
     // concrete generic types for native AOT. Null unless set during model build.
     private Func<IManyToManyLoaderFactory, ISkipNavigation, ICollectionLoader>? _manyToManyLoaderDelegatedFactory;

@@ -187,17 +187,15 @@ public static class RelationalQueryableExtensions
         var entityQueryRootExpression = (EntityQueryRootExpression)source.Expression;
 
         var entityType = entityQueryRootExpression.EntityType;
-        if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
-            && entityType.FindDiscriminatorProperty() == null)
-        {
-            throw new InvalidOperationException(RelationalStrings.MethodOnNonTphRootNotSupported(memberName, entityType.DisplayName()));
-        }
-
-        return new FromSqlQueryRootExpression(
-            entityQueryRootExpression.QueryProvider!,
-            entityType,
-            sql,
-            Expression.Constant(arguments));
+        return (entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
+            && entityType.FindDiscriminatorProperty() == null
+                ? throw new InvalidOperationException(
+                    RelationalStrings.MethodOnNonTphRootNotSupported(memberName, entityType.DisplayName()))
+                : new FromSqlQueryRootExpression(
+                    entityQueryRootExpression.QueryProvider!,
+                    entityType,
+                    sql,
+                    Expression.Constant(arguments));
     }
 
     #endregion

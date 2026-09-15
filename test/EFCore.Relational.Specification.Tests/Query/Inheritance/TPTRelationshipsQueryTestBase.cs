@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public abstract class TPTRelationshipsQueryTestBase<TFixture>(TFixture fixture)
     : InheritanceRelationshipsQueryRelationalTestBase<TFixture>(fixture)
     where TFixture : TPTRelationshipsQueryRelationalFixture, new();

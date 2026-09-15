@@ -3,22 +3,20 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
-#nullable disable
-
 public abstract class Nougat
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 }
 
 public class CrunchyNougat : Nougat
 {
-    public NougatFilling Filling { get; set; }
+    public NougatFilling? Filling { get; set; }
 }
 
 public class SoftNougat : Nougat
 {
-    public NougatFilling Filling { get; set; }
+    public NougatFilling? Filling { get; set; }
 }
 
 public class NougatFilling

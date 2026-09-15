@@ -148,7 +148,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             .GetDifferences(lastModel, Dependencies.Model.GetRelationalModel());
         var downOperations = upOperations.Count > 0
             ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model.GetRelationalModel(), lastModel)
-            : new List<MigrationOperation>();
+            : [];
         var migrationId = Dependencies.MigrationsIdGenerator.GenerateId(migrationName);
         var modelSnapshotNamespace = overrideNamespace
             ? migrationNamespace
@@ -268,10 +268,11 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
             if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model, resetVersion: true).GetRelationalModel()))
+                    model.GetRelationalModel(),
+                    Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model, resetVersion: true).GetRelationalModel()))
             {
                 var applied = false;
-                
+
                 if (!offline)
                 {
                     try

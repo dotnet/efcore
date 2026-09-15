@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 foreignKeyName, existingForeignKey);
 
         /// <summary>
-        ///     The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.
+        ///     The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommended to put migrations for different DbContext classes into different namespaces.
         /// </summary>
         public static string ForeignMigrations(object? migrationsNamespace)
             => string.Format(
