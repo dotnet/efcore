@@ -162,7 +162,7 @@ public class NavigationEntryTest
         public int Id { get; set; }
 
         public int? GarciaId { get; set; }
-        public Cherry Garcia { get; set; }
+        public Cherry Garcia { get; set; } = null!;
     }
 
     private class Cherry
@@ -172,7 +172,7 @@ public class NavigationEntryTest
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public int Id { get; set; }
 
-        public ICollection<Chunky> Monkeys { get; set; }
+        public ICollection<Chunky> Monkeys { get; set; } = null!;
     }
 
     private class FreezerContext : DbContext
@@ -182,6 +182,6 @@ public class NavigationEntryTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FreezerContext));
 
-        public DbSet<Chunky> Icecream { get; set; }
+        public DbSet<Chunky> Icecream { get; set; } = null!;
     }
 }

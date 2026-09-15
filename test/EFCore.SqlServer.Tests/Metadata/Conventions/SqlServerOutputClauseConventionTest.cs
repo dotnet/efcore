@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-#nullable enable
-
 public class SqlServerOutputClauseConventionTest
 {
     [Fact]

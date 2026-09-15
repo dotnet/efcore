@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class LoadTestBase<TFixture>
 {
     [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
@@ -1787,7 +1785,7 @@ public abstract partial class LoadTestBase<TFixture>
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
         context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
-        var child = context.Attach(new ChildAk { Id = 767, ParentId = null }).Entity;
+        var child = context.Attach(new ChildAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -1833,7 +1831,7 @@ public abstract partial class LoadTestBase<TFixture>
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
         context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
-        var single = context.Attach(new SingleAk { Id = 767, ParentId = null }).Entity;
+        var single = context.Attach(new SingleAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 

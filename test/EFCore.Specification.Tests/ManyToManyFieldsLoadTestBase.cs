@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ManyToManyFieldsLoadTestBase<TFixture>.ManyToManyFieldsLoadFixtureBase
 {
@@ -38,9 +36,9 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkip);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkip);
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -54,7 +52,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
         }
 
         Assert.True(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkip)
+        foreach (var entityTwo in left!.TwoSkip)
         {
             Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkip).IsLoaded);
         }
@@ -81,9 +79,9 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -92,7 +90,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
             : collectionEntry.Query().ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
         }
@@ -249,9 +247,9 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var navigationEntry = context.Entry(left).Navigation("TwoSkip");
+        var navigationEntry = context.Entry(left!).Navigation("TwoSkip");
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(navigationEntry.IsLoaded);
 
@@ -265,7 +263,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
         }
 
         Assert.True(navigationEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkip)
+        foreach (var entityTwo in left!.TwoSkip)
         {
             Assert.False(context.Entry((object)entityTwo).Collection("OneSkip").IsLoaded);
         }
@@ -292,9 +290,9 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Navigation("TwoSkipShared");
+        var collectionEntry = context.Entry(left!).Navigation("TwoSkipShared");
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -303,7 +301,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
             : collectionEntry.Query().ToList<object>();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.False(context.Entry((object)entityTwo).Collection("OneSkipShared").IsLoaded);
         }
@@ -500,9 +498,9 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.ThreeSkipFull);
+        var collectionEntry = context.Entry(left!).Collection(e => e.ThreeSkipFull);
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -516,7 +514,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
         }
 
         Assert.True(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.ThreeSkipFull)
+        foreach (var entityTwo in left!.ThreeSkipFull)
         {
             Assert.False(context.Entry(entityTwo).Collection(e => e.CompositeKeySkipFull).IsLoaded);
         }
@@ -543,9 +541,9 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.ThreeSkipFull);
+        var collectionEntry = context.Entry(left!).Collection(e => e.ThreeSkipFull);
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -554,7 +552,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
             : collectionEntry.Query().ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.ThreeSkipFull)
+        foreach (var entityTwo in left!.ThreeSkipFull)
         {
             Assert.False(context.Entry(entityTwo).Collection(e => e.CompositeKeySkipFull).IsLoaded);
         }
@@ -625,7 +623,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -634,7 +632,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
             : collectionEntry.Query().Include(e => e.ThreeSkipFull).ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
             Assert.True(context.Entry(entityTwo).Collection(e => e.ThreeSkipFull).IsLoaded);
@@ -671,7 +669,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -681,7 +679,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
             : queryable.ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.True(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
         }
@@ -707,7 +705,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -717,7 +715,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
             : queryable.ToList();
 
         Assert.True(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.True(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
         }
@@ -743,7 +741,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -752,7 +750,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
             : collectionEntry.Query().Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11)).ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipShared).IsLoaded);
             Assert.True(context.Entry(entityTwo).Collection(e => e.ThreeSkipFull).IsLoaded);
@@ -790,7 +788,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -812,7 +810,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         RecordLog();
         Assert.False(collectionEntry.IsLoaded);
-        Assert.Empty(left.TwoSkipShared);
+        Assert.Empty(left!.TwoSkipShared);
         Assert.Single(context.ChangeTracker.Entries());
 
         Assert.Equal(3, projected.Count);
@@ -842,7 +840,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture>(TFixture fixture) :
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 

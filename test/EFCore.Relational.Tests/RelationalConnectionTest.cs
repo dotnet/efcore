@@ -67,7 +67,7 @@ public class RelationalConnectionTest
         using var serviceScope = appServiceProvider
             .GetRequiredService<IServiceScopeFactory>()
             .CreateScope();
-        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()!;
 
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
@@ -93,7 +93,7 @@ public class RelationalConnectionTest
         using var serviceScope = appServiceProvider
             .GetRequiredService<IServiceScopeFactory>()
             .CreateScope();
-        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
+        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>()!;
 
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
@@ -772,7 +772,7 @@ public class RelationalConnectionTest
 
         using (connection.UseTransaction(dbTransaction))
         {
-            Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
+            Assert.Equal(dbTransaction, connection.CurrentTransaction!.GetDbTransaction());
         }
 
         Assert.Null(connection.CurrentTransaction);
@@ -793,7 +793,7 @@ public class RelationalConnectionTest
 
         using (var transaction = connection.UseTransaction(dbTransaction, transactionId))
         {
-            Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
+            Assert.Equal(dbTransaction, connection.CurrentTransaction!.GetDbTransaction());
             Assert.Equal(transactionId, transaction.TransactionId);
         }
 
@@ -941,7 +941,7 @@ public class RelationalConnectionTest
 
     private class AnotherFakeRelationalOptionsExtension : RelationalOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         public AnotherFakeRelationalOptionsExtension()
         {
@@ -1171,7 +1171,7 @@ public class RelationalConnectionTest
         public bool DetailedErrorsEnabled { get; } = detailedErrorsEnabled;
 
         public WarningsConfiguration WarningsConfiguration
-            => null;
+            => null!;
 
         public virtual bool ShouldWarnForStringEnumValueInJson(Type enumType)
             => true;

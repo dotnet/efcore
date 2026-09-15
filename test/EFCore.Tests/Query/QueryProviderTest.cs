@@ -37,7 +37,7 @@ public class QueryProviderTest
         IQueryable q = context.TestEntities;
         var expr = Expression.Call(null, func.GetMethodInfo(), q.Expression);
         Assert.Equal(0, q.Provider.Execute<int>(expr));
-        Assert.Equal(0, (int)q.Provider.Execute(expr));
+        Assert.Equal(0, (int)q.Provider.Execute(expr)!);
     }
 
     #region Fixture
@@ -50,7 +50,7 @@ public class QueryProviderTest
     private class TestContext : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<TestEntity> TestEntities { get; set; }
+        public DbSet<TestEntity> TestEntities { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

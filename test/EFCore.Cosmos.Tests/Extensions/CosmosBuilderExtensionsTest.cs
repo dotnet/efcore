@@ -150,7 +150,7 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal("$type", entityType.FindDiscriminatorProperty()!.GetJsonPropertyName());
         Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
 
-        modelBuilder.Entity<Customer>().HasBaseType((string)null);
+        modelBuilder.Entity<Customer>().HasBaseType((string?)null);
 
         Assert.Null(entityType.FindDiscriminatorProperty());
     }
@@ -242,8 +242,8 @@ public class CosmosBuilderExtensionsTest
     private class Customer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public short SomeShort { get; set; }
-        public string ETag { get; set; }
+        public string ETag { get; set; } = null!;
     }
 }

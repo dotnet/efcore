@@ -92,25 +92,25 @@ public class ModelTest
     public void Can_add_and_remove_entity_by_name()
     {
         var model = CreateModel();
-        Assert.Null(model.FindEntityType(typeof(Customer).FullName));
-        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
+        Assert.Null(model.FindEntityType(typeof(Customer).FullName!));
+        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName!));
 
-        var entityType = model.AddEntityType(typeof(Customer).FullName);
+        var entityType = model.AddEntityType(typeof(Customer).FullName!);
 
         Assert.Equal(typeof(Dictionary<string, object>), entityType.ClrType);
         Assert.Equal(typeof(Customer).FullName, entityType.Name);
-        Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
+        Assert.NotNull(model.FindEntityType(typeof(Customer).FullName!));
         Assert.Same(model, entityType.Model);
         Assert.True(((EntityType)entityType).IsInModel);
 
-        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
+        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName!));
 
         Assert.Equal([entityType], model.GetEntityTypes().ToArray());
 
         Assert.Same(entityType, model.RemoveEntityType(entityType.Name));
 
         Assert.Null(model.RemoveEntityType(entityType.Name));
-        Assert.Null(model.FindEntityType(typeof(Customer).FullName));
+        Assert.Null(model.FindEntityType(typeof(Customer).FullName!));
         Assert.False(((EntityType)entityType).IsInModel);
     }
 
@@ -201,7 +201,7 @@ public class ModelTest
     public void Adding_duplicate_entity_by_type_throws()
     {
         var model = CreateModel();
-        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
+        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName!));
 
         model.AddEntityType(typeof(Customer));
 
@@ -220,14 +220,14 @@ public class ModelTest
 
         Assert.Equal(
             CoreStrings.DuplicateEntityType(typeof(Customer).FullName + " (Dictionary<string, object>)"),
-            Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
+            Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName!)).Message);
     }
 
     [Fact]
     public void Adding_duplicate_shared_type_throws()
     {
         var model = (Model)CreateModel();
-        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
+        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName!));
 
         model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit);
 
@@ -252,10 +252,10 @@ public class ModelTest
     public void Can_get_entity_by_name()
     {
         var model = CreateModel();
-        var entityType = model.AddEntityType(typeof(Customer).FullName);
+        var entityType = model.AddEntityType(typeof(Customer).FullName!);
 
-        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
-        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
+        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName!));
+        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName!));
         Assert.Null(model.FindEntityType(typeof(string)));
     }
 
@@ -290,21 +290,21 @@ public class ModelTest
 
     private class Customer
     {
-        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id));
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id))!;
 
         public int Id { get; set; }
-        public string Name { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public string Name { get; set; } = null!;
+        public ICollection<Order> Orders { get; set; } = null!;
     }
 
     private class SpecialCustomer : Customer;
 
     private class Order
     {
-        public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
+        public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId")!;
 
         public int Id { get; set; }
         public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 }

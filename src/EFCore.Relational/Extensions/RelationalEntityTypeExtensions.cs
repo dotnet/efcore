@@ -1400,7 +1400,7 @@ public static class RelationalEntityTypeExtensions
 
         var overrides = entityType.FindMappingFragment(storeObject);
         return overrides != null
-            ? overrides.IsTableExcludedFromMigrations ?? entityType.IsTableExcludedFromMigrations()
+            ? overrides.IsTableExcludedFromMigrations ?? false
             : StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject
                 ? entityType.IsTableExcludedFromMigrations()
                 : throw new InvalidOperationException(

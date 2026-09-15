@@ -143,12 +143,12 @@ public abstract class TrackGraphTestBase
             + "--> "
             + EntryString(node.Entry);
 
-    private static string EntryString(EntityEntry entry)
+    private static string EntryString(EntityEntry? entry)
         => entry == null
             ? "<None>"
             : entry.Metadata.DisplayName()
             + ":"
-            + entry.Property(entry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue;
+            + entry.Property(entry.Metadata.FindPrimaryKey()!.Properties[0].Name).CurrentValue;
 
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_attach_nullable_PK_parent_with_child_collection(bool useAttach, bool setKeys)
@@ -269,10 +269,10 @@ public abstract class TrackGraphTestBase
 
         if (setDependentKey)
         {
-            var dreamsEntry = context.Entry(sweet).Reference(e => e.Dreams).TargetEntry;
+            var dreamsEntry = context.Entry(sweet).Reference(e => e.Dreams).TargetEntry!;
             dreamsEntry.Property("SweetId").CurrentValue = 1;
-            dreamsEntry.Reference(e => e.Are).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
-            dreamsEntry.Reference(e => e.Made).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+            dreamsEntry.Reference(e => e.Are).TargetEntry!.Property("DreamsSweetId").CurrentValue = 1;
+            dreamsEntry.Reference(e => e.Made).TargetEntry!.Property("DreamsSweetId").CurrentValue = 1;
         }
 
         if (useAttach)
@@ -293,7 +293,7 @@ public abstract class TrackGraphTestBase
                     context,
                     sweet,
                     node => node.Entry.State = node.Entry.Metadata.IsOwned()
-                        ? node.SourceEntry.State
+                        ? node.SourceEntry!.State
                         : node.Entry.IsKeySet
                             ? EntityState.Unchanged
                             : EntityState.Added));
@@ -318,9 +318,9 @@ public abstract class TrackGraphTestBase
         Assert.Equal(expectedDependentState, dependentEntry2b.State);
 
         Assert.Equal(1, sweet.Id);
-        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
-        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
-        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
     }
 
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
@@ -338,8 +338,8 @@ public abstract class TrackGraphTestBase
         {
             var dreamsEntry = context.Entry(dreams);
             dreamsEntry.Property("SweetId").CurrentValue = 1;
-            dreamsEntry.Reference(e => e.Are).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
-            dreamsEntry.Reference(e => e.Made).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+            dreamsEntry.Reference(e => e.Are).TargetEntry!.Property("DreamsSweetId").CurrentValue = 1;
+            dreamsEntry.Reference(e => e.Made).TargetEntry!.Property("DreamsSweetId").CurrentValue = 1;
         }
 
         if (useAttach)
@@ -379,9 +379,9 @@ public abstract class TrackGraphTestBase
         Assert.Equal(expectedDependentState, dependentEntry2b.State);
 
         Assert.Equal(1, dreams.Sweet.Id);
-        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
-        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
-        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
     }
 
     [Fact]
@@ -710,8 +710,8 @@ public abstract class TrackGraphTestBase
         {
             var dreamsEntry = context.Entry(dreams);
             dreamsEntry.Property("SweetId").CurrentValue = 1;
-            dreamsEntry.Reference(e => e.Are).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
-            dreamsEntry.Reference(e => e.Made).TargetEntry.Property("DreamsSweetId").CurrentValue = 1;
+            dreamsEntry.Reference(e => e.Are).TargetEntry!.Property("DreamsSweetId").CurrentValue = 1;
+            dreamsEntry.Reference(e => e.Made).TargetEntry!.Property("DreamsSweetId").CurrentValue = 1;
         }
 
         if (useAdd)
@@ -752,9 +752,9 @@ public abstract class TrackGraphTestBase
         Assert.Equal(expectedDependentState, dependentEntry2b.State);
 
         Assert.Equal(1, dreams.Sweet.Id);
-        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
-        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
-        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey()!.Properties[0]).CurrentValue);
     }
 
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #12590
@@ -1105,7 +1105,7 @@ public abstract class TrackGraphTestBase
         {
             if (!entry.IsKeySet)
             {
-                entry.GetInfrastructure()[entry.Metadata.FindPrimaryKey().Properties.Single()] = 777;
+                entry.GetInfrastructure()[entry.Metadata.FindPrimaryKey()!.Properties.Single()] = 777;
                 return EntityState.Added;
             }
 
@@ -1244,7 +1244,7 @@ public abstract class TrackGraphTestBase
     {
         public int Id { get; set; }
 
-        public List<Product> Products { get; set; }
+        public List<Product> Products { get; set; } = null!;
     }
 
     private class Product
@@ -1252,38 +1252,38 @@ public abstract class TrackGraphTestBase
         public int Id { get; set; }
 
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
 
-        public ProductDetails Details { get; set; }
+        public ProductDetails Details { get; set; } = null!;
 
         // ReSharper disable once CollectionNeverUpdated.Local
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public List<OrderDetails> OrderDetails { get; set; }
+        public List<OrderDetails> OrderDetails { get; set; } = null!;
     }
 
     private class ProductDetails
     {
         public int Id { get; set; }
 
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
 
-        public ProductDetailsTag Tag { get; set; }
+        public ProductDetailsTag Tag { get; set; } = null!;
     }
 
     private class ProductDetailsTag
     {
         public int Id { get; set; }
 
-        public ProductDetails Details { get; set; }
+        public ProductDetails Details { get; set; } = null!;
 
-        public ProductDetailsTagDetails TagDetails { get; set; }
+        public ProductDetailsTagDetails TagDetails { get; set; } = null!;
     }
 
     private class ProductDetailsTagDetails
     {
         public int Id { get; }
 
-        public ProductDetailsTag Tag { get; }
+        public ProductDetailsTag Tag { get; } = null!;
     }
 
     private class Order
@@ -1292,7 +1292,7 @@ public abstract class TrackGraphTestBase
 
         // ReSharper disable once CollectionNeverUpdated.Local
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public List<OrderDetails> OrderDetails { get; }
+        public List<OrderDetails> OrderDetails { get; } = null!;
     }
 
     private class OrderDetails
@@ -1300,40 +1300,40 @@ public abstract class TrackGraphTestBase
         public int OrderId { get; set; }
         public int ProductId { get; set; }
 
-        public Order Order { get; set; }
-        public Product Product { get; set; }
+        public Order Order { get; set; } = null!;
+        public Product Product { get; set; } = null!;
     }
 
     private class NullbileCategory
     {
-        public List<NullbileProduct> Products { get; set; }
-        public NullbileCategoryInfo Info { get; set; }
+        public List<NullbileProduct> Products { get; set; } = null!;
+        public NullbileCategoryInfo Info { get; set; } = null!;
     }
 
     private class NullbileCategoryInfo
     {
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public NullbileCategory Category { get; set; }
+        public NullbileCategory Category { get; set; } = null!;
     }
 
     private class NullbileProduct
     {
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public NullbileCategory Category { get; set; }
+        public NullbileCategory Category { get; set; } = null!;
     }
 
     private class Sweet
     {
         public int? Id { get; set; }
-        public Dreams Dreams { get; set; }
+        public Dreams Dreams { get; set; } = null!;
     }
 
     private class Dreams
     {
-        public Sweet Sweet { get; set; }
-        public AreMade Are { get; set; }
-        public AreMade Made { get; set; }
-        public OfThis OfThis { get; }
+        public Sweet Sweet { get; set; } = null!;
+        public AreMade Are { get; set; } = null!;
+        public AreMade Made { get; set; } = null!;
+        public OfThis OfThis { get; } = null!;
     }
 
     private class AreMade;

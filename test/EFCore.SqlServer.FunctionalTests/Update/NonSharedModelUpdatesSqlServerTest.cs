@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public class NonSharedModelUpdatesSqlServerTest(NonSharedFixture fixture) : NonSharedModelUpdatesTestBase(fixture)
 {
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
@@ -129,7 +127,7 @@ WHERE [Id] = @p5;
     public class DailyDigest
     {
         public int Id { get; set; }
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 
     public override async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)

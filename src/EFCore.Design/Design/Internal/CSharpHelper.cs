@@ -496,7 +496,24 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(float value)
-        => value.ToString(CultureInfo.InvariantCulture) + "f";
+    {
+        if (float.IsNaN(value))
+        {
+            return $"float.{nameof(float.NaN)}";
+        }
+
+        if (float.IsNegativeInfinity(value))
+        {
+            return $"float.{nameof(float.NegativeInfinity)}";
+        }
+
+        if (float.IsPositiveInfinity(value))
+        {
+            return $"float.{nameof(float.PositiveInfinity)}";
+        }
+
+        return value.ToString(CultureInfo.InvariantCulture) + "f";
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -679,6 +696,12 @@ public class CSharpHelper : ICSharpHelper
             else if (type == typeof(object))
             {
                 builder.Append(" object");
+            }
+            else if (Nullable.GetUnderlyingType(type) != null)
+            {
+                // Elements are emitted as their underlying type, so an implicitly-typed array would be inferred as
+                // the non-nullable type; emit the element type explicitly to keep the array type correct.
+                builder.Append(' ').Append(Reference(type));
             }
 
             if (vertical)
@@ -1512,7 +1535,7 @@ public class CSharpHelper : ICSharpHelper
         var builder = new StringBuilder();
 
         var first = true;
-        foreach (var line in comment.Split(["\r\n", "\n", "\r"], StringSplitOptions.None))
+        foreach (var line in comment.Split(["\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029"], StringSplitOptions.None))
         {
             if (!first)
             {

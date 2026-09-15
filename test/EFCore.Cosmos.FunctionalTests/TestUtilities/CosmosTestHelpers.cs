@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
@@ -33,6 +36,22 @@ public class CosmosTestHelpers : TestHelpers
                 "UnitTests");
 
     public override LoggingDefinitions LoggingDefinitions { get; } = new CosmosLoggingDefinitions();
+
+    public static Task CreateOrReplaceTriggerAsync(
+        DbContext context,
+        Container container,
+        TriggerProperties triggerDefinition)
+        => context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            try
+            {
+                await container.Scripts.CreateTriggerAsync(triggerDefinition);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
+            {
+                await container.Scripts.ReplaceTriggerAsync(triggerDefinition);
+            }
+        });
 
     public async Task NoSyncTest(bool async, Func<bool, Task> testCode)
     {

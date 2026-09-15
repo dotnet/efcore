@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
@@ -193,7 +191,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         var query = context
             .Set<MostExpensiveProduct>()
             .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-            .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
+            .Where(mep => mep.TenMostExpensiveProducts!.Contains("C"))
             .OrderBy(mep => mep.UnitPrice);
 
         Assert.Equal(
@@ -214,7 +212,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         var actual = (async
                 ? await query.ToListAsync()
                 : query.ToList())
-            .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
+            .Where(mep => mep.TenMostExpensiveProducts!.Contains("C"))
             .OrderBy(mep => mep.UnitPrice)
             .ToArray();
 
@@ -231,7 +229,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         var query = context
             .Set<CustomerOrderHistory>()
             .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
-            .Where(coh => coh.ProductName.Contains("C"))
+            .Where(coh => coh.ProductName!.Contains("C"))
             .OrderBy(coh => coh.Total);
 
         Assert.Equal(
@@ -252,7 +250,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         var actual = (async
                 ? await query.ToListAsync()
                 : query.ToList())
-            .Where(coh => coh.ProductName.Contains("C"))
+            .Where(coh => coh.ProductName!.Contains("C"))
             .OrderBy(coh => coh.Total)
             .ToArray();
 

@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class SpatialQuerySqlServerFixture : SpatialQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -30,7 +28,7 @@ public class SpatialQuerySqlServerFixture : SpatialQueryRelationalFixture
         base.OnModelCreating(modelBuilder, context);
 
         modelBuilder.HasDbFunction(
-            typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
+            typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance))!,
             b => b.HasTranslation(e => new SqlFunctionExpression(
                 instance: e[0],
                 "STDistance",

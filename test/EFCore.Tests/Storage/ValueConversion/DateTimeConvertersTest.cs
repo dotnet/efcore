@@ -220,7 +220,7 @@ public class DateTimeConvertersTest
         Assert.NotEqual(DateTimeKind.Utc, converter("1973-09-03 00:10:15").Kind);
         Assert.Equal(new DateTime(), converter("0001-01-01 00:00:00"));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
         Assert.Throws<FormatException>(() => converter("Not a DateTime"));
     }
 

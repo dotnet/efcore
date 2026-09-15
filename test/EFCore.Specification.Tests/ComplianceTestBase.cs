@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ComplianceTestBase
 {
     protected abstract Assembly TargetAssembly { get; }
@@ -67,13 +65,13 @@ public abstract class ComplianceTestBase
 
     private static IEnumerable<Type> GetBaseTypes(Type type)
     {
-        type = type.BaseType;
+        type = type.BaseType!;
 
         while (type != null)
         {
             yield return type;
 
-            type = type.BaseType;
+            type = type.BaseType!;
         }
     }
 }

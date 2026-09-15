@@ -55,6 +55,6 @@ public class InternalEntityEntryFactoryTest
     {
         public int Id { get; set; }
         public int Long { get; set; }
-        public string Hammer { get; set; }
+        public string Hammer { get; set; } = null!;
     }
 }

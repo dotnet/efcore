@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ConcurrencyDetectorEnabledRelationalTestBase<TFixture>(TFixture fixture)
     : ConcurrencyDetectorEnabledTestBase<TFixture>(fixture)
     where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()

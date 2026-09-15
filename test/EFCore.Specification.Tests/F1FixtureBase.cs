@@ -102,6 +102,8 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
 
         modelBuilder.Entity<Team>(b =>
         {
+            b.Property<int?>("EngineId");
+            b.HasOne(e => e.Engine).WithMany(e => e.Teams).HasForeignKey("EngineId").IsRequired(false);
             b.HasOne(e => e.Gearbox).WithOne().HasForeignKey<Team>(e => e.GearboxId);
             b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
 

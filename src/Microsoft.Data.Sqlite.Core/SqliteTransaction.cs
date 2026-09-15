@@ -222,9 +222,13 @@ public class SqliteTransaction : DbTransaction
     {
         try
         {
-            if (!ExternalRollback)
+            // The handle can already be gone when the connection was torn down underneath the
+            // transaction. There is nothing left to roll back in that case, and reaching into it
+            // only throws.
+            if (!ExternalRollback
+                && _connection!.Handle is { IsClosed: false, IsInvalid: false })
             {
-                sqlite3_rollback_hook(_connection!.Handle, null, null);
+                sqlite3_rollback_hook(_connection.Handle, null, null);
                 _connection.ExecuteNonQuery("ROLLBACK;");
             }
         }
@@ -236,7 +240,16 @@ public class SqliteTransaction : DbTransaction
 
     private void RollbackExternal(object userData)
     {
-        sqlite3_rollback_hook(_connection!.Handle, null, null);
+        // SQLite invokes this while it rolls back, which includes the implicit rollback inside
+        // sqlite3_close_v2. The handle is being released by then, so clearing the hook through it
+        // throws, and on the pool prune timer that exception has nowhere to go and takes the
+        // process down. The hook is torn down with the connection anyway.
+        var handle = _connection!.Handle;
+        if (handle is { IsClosed: false, IsInvalid: false })
+        {
+            sqlite3_rollback_hook(handle, null, null);
+        }
+
         ExternalRollback = true;
     }
 }

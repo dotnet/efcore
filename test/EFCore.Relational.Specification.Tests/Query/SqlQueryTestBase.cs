@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
@@ -141,7 +139,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>
                 (NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'")),
-            ss => ss.Set<Customer>().Where(x => x.ContactName.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
+            ss => ss.Set<Customer>().Where(x => x.ContactName!.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
@@ -151,7 +149,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             _ => Fixture.CreateContext().Database.SqlQueryRaw<CustomerQuery>
                 (NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'")),
-            ss => ss.Set<CustomerQuery>().Where(x => x.ContactName.Contains("z")));
+            ss => ss.Set<CustomerQuery>().Where(x => x.ContactName!.Contains("z")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_simple_columns_out_of_order(bool async)
@@ -211,8 +209,8 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z")),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
+                .Where(c => c.ContactName!.Contains("z")),
+            ss => ss.Set<Customer>().Where(c => c.ContactName!.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
@@ -223,8 +221,8 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString(
                         _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + "* FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z")),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
+                .Where(c => c.ContactName!.Contains("z")),
+            ss => ss.Set<Customer>().Where(c => c.ContactName!.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
@@ -235,7 +233,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         {
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -248,7 +246,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         {
             var query = EF.CompileQuery((NorthwindContext context) => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -266,7 +264,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         {
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -279,7 +277,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         {
             var query = EF.CompileQuery((NorthwindContext context) => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -298,7 +296,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
                     CreateDbParameter("customer", "CONSH"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -312,7 +310,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
             var query = EF.CompileQuery((NorthwindContext context) => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
                     CreateDbParameter("customer", "CONSH"))
-                .Where(c => c.ContactName.Contains("z")));
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -330,8 +328,8 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         {
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
-                    CreateDbParameter(null, "CONSH"))
-                .Where(c => c.ContactName.Contains("z")));
+                    CreateDbParameter(null!, "CONSH"))
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -344,8 +342,8 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         {
             var query = EF.CompileQuery((NorthwindContext context) => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
-                    CreateDbParameter(null, "CONSH"))
-                .Where(c => c.ContactName.Contains("z")));
+                    CreateDbParameter(null!, "CONSH"))
+                .Where(c => c.ContactName!.Contains("z")));
 
             using (var context = CreateContext())
             {
@@ -723,7 +721,7 @@ FROM [Customers]"))
     public virtual async Task SqlQueryRaw_queryable_simple_projection_composed(bool async)
     {
         using var context = CreateContext();
-        var boolMapping = (RelationalTypeMapping)context.GetService<ITypeMappingSource>().FindMapping(typeof(bool));
+        var boolMapping = (RelationalTypeMapping)context.GetService<ITypeMappingSource>().FindMapping(typeof(bool))!;
         var boolLiteral = boolMapping.GenerateSqlLiteral(true);
 
         await AssertQuery(
@@ -769,8 +767,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             async,
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                .Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1)),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1))
+                .Where(c => c.ContactName!.Substring(0, 1) == c.CompanyName!.Substring(0, 1)),
+            ss => ss.Set<Customer>().Where(c => c.ContactName!.Substring(0, 1) == c.CompanyName!.Substring(0, 1))
                 .Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
@@ -1023,7 +1021,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 NormalizeDelimitersInRawString("SELECT * FROM [Orders]")).Where(o => context.Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
                     // ReSharper disable once FormatStringProblem
-                    CreateDbParameter(null, "London"))
+                    CreateDbParameter(null!, "London"))
                 .Select(c => c.CustomerID)
                 .Contains(o.CustomerID)),
             ss => ss.Set<Order>().Select(e => UnmappedOrder.FromOrder(e)).Where(o => ss.Set<Customer>()
@@ -1110,8 +1108,8 @@ WITH [Customers2] AS (
 )
 SELECT * FROM [Customers2]
 """))
-                .Where(c => c.ContactName.Contains("z")),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
+                .Where(c => c.ContactName!.Contains("z")),
+            ss => ss.Set<Customer>().Where(c => c.ContactName!.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
@@ -1212,20 +1210,20 @@ SELECT * FROM [Customers2]
     protected class Blog
     {
         public int Id { get; set; }
-        public List<Post> Posts { get; set; }
+        public List<Post> Posts { get; set; } = null!;
     }
 
     protected class Post
     {
         public int Id { get; set; }
         public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
     }
 
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public ContactInfo Contact { get; set; }
     }
 

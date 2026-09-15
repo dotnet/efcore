@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class AdHocMiscellaneousQuerySqliteTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -225,7 +223,7 @@ LEFT JOIN "Principal13146" AS "p" ON "d"."PrincipalId" = "p"."Id"
     {
         public int Id { get; set; }
         public int PrincipalId { get; set; }
-        public Principal13146 Principal { get; set; }
+        public Principal13146 Principal { get; set; } = null!;
     }
 
     #endregion

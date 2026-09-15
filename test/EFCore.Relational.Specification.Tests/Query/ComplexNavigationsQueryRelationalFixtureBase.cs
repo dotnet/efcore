@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class ComplexNavigationsQueryRelationalFixtureBase : ComplexNavigationsQueryFixtureBase, ITestSqlLoggerFactory
 {
     public TestSqlLoggerFactory TestSqlLoggerFactory

@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerApiConsistencyFixture fixture)
     : ApiConsistencyTestBase<SqlServerApiConsistencyTest.SqlServerApiConsistencyFixture>(fixture)
 {
@@ -22,10 +20,10 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
         [
             typeof(SqlServerIndexExtensions).GetMethod(
                 nameof(SqlServerIndexExtensions.SetFullTextLanguage),
-                [typeof(IMutableIndex), typeof(string), typeof(string)]),
+                [typeof(IMutableIndex), typeof(string), typeof(string)])!,
             typeof(SqlServerIndexExtensions).GetMethod(
                 nameof(SqlServerIndexExtensions.SetFullTextLanguage),
-                [typeof(IConventionIndex), typeof(string), typeof(string), typeof(bool)])
+                [typeof(IConventionIndex), typeof(string), typeof(string), typeof(bool)])!
         ];
 
         public override HashSet<Type> FluentApiTypes { get; } =
@@ -72,7 +70,7 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
                         typeof(SqlServerModelExtensions),
                         typeof(SqlServerModelExtensions),
                         typeof(SqlServerModelBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
@@ -81,7 +79,7 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
                         typeof(SqlServerEntityTypeExtensions),
                         typeof(SqlServerEntityTypeExtensions),
                         typeof(SqlServerEntityTypeBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
@@ -90,7 +88,7 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
                         typeof(SqlServerKeyExtensions),
                         typeof(SqlServerKeyExtensions),
                         typeof(SqlServerKeyBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
@@ -99,7 +97,7 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
                         typeof(SqlServerPropertyExtensions),
                         typeof(SqlServerPropertyExtensions),
                         typeof(SqlServerPropertyBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
@@ -108,16 +106,16 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
                         typeof(SqlServerIndexExtensions),
                         typeof(SqlServerIndexExtensions),
                         typeof(SqlServerIndexBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
                     typeof(IReadOnlyElementType), (
-                        null,
-                        null,
-                        null,
+                        null!,
+                        null!,
+                        null!,
                         typeof(SqlServerEntityTypeBuilderExtensions),
-                        null
+                        null!
                     )
                 }
             };

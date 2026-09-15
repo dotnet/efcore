@@ -5,8 +5,6 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonQueryData : ISetSource
 {
     public JsonQueryData()
@@ -826,7 +824,7 @@ public class JsonQueryData : ISetSource
             TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
             TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
             TestMaxLengthStringCollectionCollection =
-                [new ReadOnlyCollection<string>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string>(["S21", null, "S23"])],
+                [new ReadOnlyCollection<string?>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string?>(["S21", null, "S23"])],
             TestBooleanCollectionCollection = [[true], null, [true, false]],
             TestCharacterCollectionCollection = [['A', 'B', 'C'], null, ['D', 'E', 'F']],
             TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
@@ -950,7 +948,7 @@ public class JsonQueryData : ISetSource
             TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
             TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
             TestMaxLengthStringCollectionCollection =
-                [new ReadOnlyCollection<string>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string>(["S21", null, "S23"])],
+                [new ReadOnlyCollection<string?>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string?>(["S21", null, "S23"])],
             TestBooleanCollectionCollection = [[true], null, [true, false]],
             TestCharacterCollectionCollection = [['A', 'B', 'C'], null, ['D', 'E', 'F']],
             TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
@@ -1076,7 +1074,7 @@ public class JsonQueryData : ISetSource
             TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
             TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
             TestMaxLengthStringCollectionCollection =
-                [new ReadOnlyCollection<string>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string>(["S21", null, "S23"])],
+                [new ReadOnlyCollection<string?>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string?>(["S21", null, "S23"])],
             TestBooleanCollectionCollection = [[true], null, [true, false]],
             TestCharacterCollectionCollection = [['A', 'B', 'C'], null, ['D', 'E', 'F']],
             TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
@@ -1200,7 +1198,7 @@ public class JsonQueryData : ISetSource
             TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
             TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
             TestMaxLengthStringCollectionCollection =
-                [new ReadOnlyCollection<string>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string>(["S21", null, "S23"])],
+                [new ReadOnlyCollection<string?>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string?>(["S21", null, "S23"])],
             TestBooleanCollectionCollection = [[true], null, [true, false]],
             TestCharacterCollectionCollection = [['A', 'B', 'C'], null, ['D', 'E', 'F']],
             TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],

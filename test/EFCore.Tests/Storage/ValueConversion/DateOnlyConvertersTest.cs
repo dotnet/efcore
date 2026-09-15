@@ -24,7 +24,7 @@ public class DateOnlyConvertersTest
         Assert.Equal(new DateOnly(1973, 9, 3), converter("1973-09-03"));
         Assert.Equal(new DateOnly(), converter("0001-01-01"));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
         Assert.Throws<FormatException>(() => converter("Not a DateOnly"));
     }
 

@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : F1FixtureBase<byte[]>, new()
 {
@@ -855,7 +853,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         var bindingList = testDrivers.Local.ToBindingList();
 
         ((IBindingList)bindingList).ApplySort(
-            TypeDescriptor.GetProperties(typeof(Driver))["Id"],
+            TypeDescriptor.GetProperties(typeof(Driver))["Id"]!,
             ListSortDirection.Ascending);
 
         Assert.Equal(1, bindingList[0].Id);
@@ -877,7 +875,7 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         var bindingList = context.Drivers.Local.ToBindingList();
 
         ((IBindingList)bindingList).ApplySort(
-            TypeDescriptor.GetProperties(typeof(Driver))["Id"],
+            TypeDescriptor.GetProperties(typeof(Driver))["Id"]!,
             ListSortDirection.Ascending);
 
         Assert.Equal(1, bindingList[0].Id);

@@ -33,7 +33,7 @@ public class StructuredJsonPathTest
         var path = StructuredJsonPath.Root;
         Assert.True(path.IsRoot);
         Assert.Empty(path.Segments);
-        Assert.Empty(path.Indices);
+        Assert.Empty(path.Indices!);
         Assert.Equal("$", path.ToString());
     }
 

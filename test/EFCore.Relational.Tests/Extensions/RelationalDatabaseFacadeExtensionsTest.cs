@@ -114,7 +114,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
         var transaction = new FakeDbTransaction(dbConnection, IsolationLevel.Chaos);
 
-        Assert.Same(transaction, context.Database.UseTransaction(transaction).GetDbTransaction());
+        Assert.Same(transaction, context.Database.UseTransaction(transaction)!.GetDbTransaction());
     }
 
     [Theory, InlineData(true), InlineData(false)]
@@ -175,11 +175,11 @@ public class RelationalDatabaseFacadeExtensionsTest
         public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
-        public IDbContextTransaction CurrentTransaction { get; }
+        public IDbContextTransaction? CurrentTransaction { get; }
 
-        public Transaction EnlistedTransaction { get; }
+        public Transaction? EnlistedTransaction { get; }
 
-        public void EnlistTransaction(Transaction transaction)
+        public void EnlistTransaction(Transaction? transaction)
         {
         }
     }
@@ -200,7 +200,7 @@ public class RelationalDatabaseFacadeExtensionsTest
     {
         var migrations = new[] { "00000000000001_One", "00000000000002_Two", "00000000000003_Three" };
 
-        var migrationsAssembly = new FakeIMigrationsAssembly { Migrations = migrations.ToDictionary(x => x, x => default(TypeInfo)) };
+        var migrationsAssembly = new FakeIMigrationsAssembly { Migrations = migrations.ToDictionary(x => x, x => default(TypeInfo)!) };
 
         var db = FakeRelationalTestHelpers.Instance.CreateContext(
             new ServiceCollection().AddSingleton<IMigrationsAssembly>(migrationsAssembly));
@@ -210,9 +210,9 @@ public class RelationalDatabaseFacadeExtensionsTest
 
     private class FakeIMigrationsAssembly : IMigrationsAssembly
     {
-        public IReadOnlyDictionary<string, TypeInfo> Migrations { get; set; }
-        public ModelSnapshot ModelSnapshot { get; set; }
-        public Assembly Assembly { get; }
+        public IReadOnlyDictionary<string, TypeInfo> Migrations { get; set; } = null!;
+        public ModelSnapshot? ModelSnapshot { get; set; }
+        public Assembly Assembly { get; } = null!;
 
         public string FindMigrationId(string nameOrId)
             => throw new NotImplementedException();
@@ -294,7 +294,7 @@ public class RelationalDatabaseFacadeExtensionsTest
 
     private class TestDbContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Simple> Simples { get; set; }
+        public DbSet<Simple> Simples { get; set; } = null!;
 
         public class Simple
         {
@@ -315,7 +315,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         public virtual LockReleaseBehavior LockReleaseBehavior
             => LockReleaseBehavior.Explicit;
 
-        public List<HistoryRow> AppliedMigrations { get; set; }
+        public List<HistoryRow> AppliedMigrations { get; set; } = null!;
 
         public IReadOnlyList<HistoryRow> GetAppliedMigrations()
             => AppliedMigrations;
@@ -370,7 +370,7 @@ public class RelationalDatabaseFacadeExtensionsTest
 
         var appliedMigrations = new[] { "00000000000001_One", "00000000000002_Two" };
 
-        var migrationsAssembly = new FakeIMigrationsAssembly { Migrations = migrations.ToDictionary(x => x, x => default(TypeInfo)) };
+        var migrationsAssembly = new FakeIMigrationsAssembly { Migrations = migrations.ToDictionary(x => x, x => default(TypeInfo)!) };
 
         var repository = new FakeHistoryRepository
         {
@@ -614,21 +614,21 @@ public class RelationalDatabaseFacadeExtensionsTest
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory = relationalCommandBuilderFactory;
 
-        public string Sql { get; private set; }
-        public IEnumerable<object> Parameters { get; private set; }
+        public string Sql { get; private set; } = null!;
+        public IEnumerable<object?> Parameters { get; private set; } = null!;
 
         public IRelationalCommand Build(string sql)
             => throw new NotImplementedException();
 
-        public RawSqlCommand Build(string sql, IEnumerable<object> parameters)
+        public RawSqlCommand Build(string sql, IEnumerable<object?> parameters)
             => throw new NotImplementedException();
 
-        public RawSqlCommand Build(string sql, IEnumerable<object> parameters, IModel model)
+        public RawSqlCommand Build(string sql, IEnumerable<object?> parameters, IModel model)
         {
             Sql = sql;
             Parameters = parameters;
 
-            return new RawSqlCommand(_commandBuilderFactory.Create().Build(), new Dictionary<string, object>());
+            return new RawSqlCommand(_commandBuilderFactory.Create().Build(), new Dictionary<string, object?>());
         }
     }
 }

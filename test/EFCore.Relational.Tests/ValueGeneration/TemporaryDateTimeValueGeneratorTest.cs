@@ -12,8 +12,8 @@ public class TemporaryDateTimeValueGeneratorTest
     {
         var generator = new TemporaryDateTimeValueGenerator();
 
-        Assert.Equal(new DateTime(1), generator.Next(null));
-        Assert.Equal(new DateTime(2), generator.Next(null));
+        Assert.Equal(new DateTime(1), generator.Next(null!));
+        Assert.Equal(new DateTime(2), generator.Next(null!));
     }
 
     [Fact]

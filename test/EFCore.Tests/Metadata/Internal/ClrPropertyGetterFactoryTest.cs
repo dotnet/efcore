@@ -126,15 +126,15 @@ public class ClrPropertyGetterFactoryTest
         public bool HasSentinelValueUsingContainingEntity(object entity, IReadOnlyList<int> indices)
             => throw new NotImplementedException();
 
-        public string Name { get; }
-        public ITypeBase DeclaringType { get; }
-        public Type ClrType { get; }
+        public string Name { get; } = null!;
+        public ITypeBase DeclaringType { get; } = null!;
+        public Type ClrType { get; } = null!;
         public bool IsNullable { get; }
         public ValueGenerated ValueGenerated { get; }
         public bool IsConcurrencyToken { get; }
-        public object Sentinel { get; }
-        public PropertyInfo PropertyInfo { get; }
-        public FieldInfo FieldInfo { get; }
+        public object? Sentinel { get; }
+        public PropertyInfo? PropertyInfo { get; }
+        public FieldInfo? FieldInfo { get; }
 
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
             => throw new NotImplementedException();
@@ -150,7 +150,7 @@ public class ClrPropertyGetterFactoryTest
         modelBuilder.Entity<Customer>().Property(e => e.Id);
         var model = modelBuilder.FinalizeModel();
 
-        var idProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+        var idProperty = model.FindEntityType(typeof(Customer))!.FindProperty(nameof(Customer.Id))!;
 
         Assert.Equal(
             7, ClrPropertyGetterFactory.Instance.Create(idProperty).GetClrValueUsingContainingEntity(
@@ -160,7 +160,7 @@ public class ClrPropertyGetterFactoryTest
     [Fact]
     public void Delegate_getter_is_returned_for_property_info()
         => Assert.Equal(
-            7, ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")).GetClrValueUsingContainingEntity(
+            7, ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")!).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
 
     [Fact]
@@ -181,7 +181,7 @@ public class ClrPropertyGetterFactoryTest
     public void Delegate_getter_is_returned_for_struct_property_info()
         => Assert.Equal(
             new Fuel(1.0),
-            ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValueUsingContainingEntity(
+            ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Fuel")!).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
 
     [Fact]

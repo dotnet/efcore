@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture)
     : InterceptionTestBase(fixture)
 {
@@ -32,7 +30,7 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
         var interceptor2 = new QueryChangingExpressionInterceptor();
 
         using var context = await CreateContextAsync(
-            appInterceptor: null, interceptor1, interceptor2);
+            appInterceptor: null!, interceptor1, interceptor2);
 
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
 
@@ -45,8 +43,8 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
         AssertNormalOutcome(context, interceptor2);
 
         listener.AssertEventsInOrder(
-            CoreEventId.QueryCompilationStarting.Name,
-            CoreEventId.QueryExecutionPlanned.Name);
+            CoreEventId.QueryCompilationStarting.Name!,
+            CoreEventId.QueryExecutionPlanned.Name!);
 
         _ = async ? await query.ToListAsync() : query.ToList();
     }
@@ -120,15 +118,15 @@ public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.I
     protected class TestQueryExpressionInterceptor : IQueryExpressionInterceptor
     {
         public bool QueryCompilationStartingCalled { get; set; }
-        public string QueryExpression { get; set; }
-        public DbContext Context { get; set; }
+        public string QueryExpression { get; set; } = null!;
+        public DbContext Context { get; set; } = null!;
 
         public virtual Expression QueryCompilationStarting(
             Expression queryExpression,
             QueryExpressionEventData eventData)
         {
             QueryCompilationStartingCalled = true;
-            Context = eventData.Context;
+            Context = eventData.Context!;
             QueryExpression = eventData.ExpressionPrinter.PrintExpression(queryExpression);
 
             return queryExpression;

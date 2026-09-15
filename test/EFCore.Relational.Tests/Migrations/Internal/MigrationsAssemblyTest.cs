@@ -48,7 +48,7 @@ public class MigrationsAssemblyTest
     }
 
     private IMigrationsAssembly CreateMigrationsAssembly(
-        IDiagnosticsLogger<DbLoggerCategory.Migrations> logger = null)
+        IDiagnosticsLogger<DbLoggerCategory.Migrations>? logger = null)
         => new MigrationsAssembly(
             new CurrentDbContext(new Context()),
             new DbContextOptions<DbContext>(

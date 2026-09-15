@@ -56,13 +56,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                     base.Primitive_collections_can_be_made_concurrency_tokens).Message);
 
         public override void Properties_can_have_custom_type_value_converter_type_set()
-            => Properties_can_have_custom_type_value_converter_type_set<string>();
+            => Properties_can_have_custom_type_value_converter_type_set_implementation<string>();
 
         public override void Properties_can_have_non_generic_value_converter_set()
-            => Properties_can_have_non_generic_value_converter_set<string>();
+            => Properties_can_have_non_generic_value_converter_set_implementation<string>();
 
         public override void Properties_can_have_provider_type_set()
-            => Properties_can_have_provider_type_set<string>();
+            => Properties_can_have_provider_type_set_implementation<string>();
 
         public override void Properties_can_be_set_to_generate_values_on_Add()
         {
@@ -712,13 +712,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         : ComplexTypeTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Properties_can_have_custom_type_value_converter_type_set()
-            => Properties_can_have_custom_type_value_converter_type_set<string>();
+            => Properties_can_have_custom_type_value_converter_type_set_implementation<string>();
 
         public override void Properties_can_have_non_generic_value_converter_set()
-            => Properties_can_have_non_generic_value_converter_set<string>();
+            => Properties_can_have_non_generic_value_converter_set_implementation<string>();
 
         public override void Properties_can_have_provider_type_set()
-            => Properties_can_have_provider_type_set<string>();
+            => Properties_can_have_provider_type_set_implementation<string>();
 
         public override void Complex_properties_can_be_configured_by_type()
             => base.Complex_properties_can_be_configured_by_type();

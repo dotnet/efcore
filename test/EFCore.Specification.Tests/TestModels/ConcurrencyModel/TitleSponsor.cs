@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public class TitleSponsor : Sponsor
 {
     public class TitleSponsorProxy(ILazyLoader loader) : TitleSponsor(loader), IF1Proxy
@@ -14,7 +12,7 @@ public class TitleSponsor : Sponsor
         public bool InitializedCalled { get; set; }
     }
 
-    private readonly ILazyLoader _loader;
+    private readonly ILazyLoader _loader = null!;
 
     public TitleSponsor()
     {
@@ -29,7 +27,7 @@ public class TitleSponsor : Sponsor
 
     public SponsorDetails Details
     {
-        get => _loader.Load(this, ref field);
+        get => _loader.Load(this, ref field)!;
         set;
     }
 }

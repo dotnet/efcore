@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
-#nullable enable
-
 public class CSharpHelperTest
 {
     private static readonly string EOL = Environment.NewLine;
@@ -50,6 +48,12 @@ public class CSharpHelperTest
          "-3.402823E+38f"), InlineData(
          3.402823E+38f, // Single MaxValue
          "3.402823E+38f"), InlineData(
+         float.NegativeInfinity,
+         "float.NegativeInfinity"), InlineData(
+         float.PositiveInfinity,
+         "float.PositiveInfinity"), InlineData(
+         float.NaN,
+         "float.NaN"), InlineData(
          42,
          "42"), InlineData(
          42L,
@@ -95,6 +99,18 @@ public class CSharpHelperTest
         => Literal_works(
             new byte[] { 1, 2 },
             "new byte[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array()
+        => Literal_works(
+            new int?[] { 1, 2 },
+            "new int?[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array_with_null_element()
+        => Literal_works(
+            new int?[] { 1, null, 3 },
+            "new int?[] { 1, null, 3 }");
 
     [Fact]
     public void Literal_works_when_empty_list()
@@ -540,6 +556,16 @@ public class CSharpHelperTest
         Assert.Equal("builder.TestFunc(true, 42)", result);
     }
 #pragma warning restore CS0618
+
+    [Fact]
+    public void XmlComment_handles_all_line_terminators()
+    {
+        var result = new CSharpHelper(TypeMappingSource).XmlComment("one\r\ntwo\rthree\nfour\u0085five\u2028six\u2029seven", indent: 1);
+
+        Assert.Equal(
+            $"one{EOL}    /// two{EOL}    /// three{EOL}    /// four{EOL}    /// five{EOL}    /// six{EOL}    /// seven",
+            result);
+    }
 
     [Fact]
     public void Really_unknown_literal_with_no_mapping_support()

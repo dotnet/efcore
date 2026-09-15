@@ -9,8 +9,6 @@
 // ReSharper disable MethodHasAsyncOverload
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ConcurrencyDetectorTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()
 {
@@ -18,7 +16,7 @@ public abstract class ConcurrencyDetectorTestBase<TFixture>(TFixture fixture) : 
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Find(bool async)
-        => ConcurrencyDetectorTest(async c => async ? await c.Products.FindAsync(1) : c.Products.Find(1));
+        => ConcurrencyDetectorTest(async c => async ? (await c.Products.FindAsync(1))! : c.Products.Find(1)!);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Count(bool async)
@@ -59,7 +57,7 @@ public abstract class ConcurrencyDetectorTestBase<TFixture>(TFixture fixture) : 
 
     public class ConcurrencyDetectorDbContext(DbContextOptions<ConcurrencyDetectorDbContext> options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         public static Task SeedAsync(ConcurrencyDetectorDbContext context)
         {
@@ -71,7 +69,7 @@ public abstract class ConcurrencyDetectorTestBase<TFixture>(TFixture fixture) : 
     public class Product
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public abstract class ConcurrencyDetectorFixtureBase : SharedStoreFixtureBase<ConcurrencyDetectorDbContext>

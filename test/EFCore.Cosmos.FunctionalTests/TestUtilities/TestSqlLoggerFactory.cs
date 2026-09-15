@@ -9,8 +9,6 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public class TestSqlLoggerFactory : ListLoggerFactory
 {
     private const string FileNewLine = @"
@@ -285,15 +283,15 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         protected override void UnsafeLog<TState>(
             LogLevel logLevel,
             EventId eventId,
-            string message,
+            string? message,
             TState state,
-            Exception exception)
+            Exception? exception)
         {
             if (eventId.Id == CosmosEventId.ExecutingSqlQuery)
             {
                 if (message != null)
                 {
-                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state!;
 
                     var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
                     var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();
@@ -312,7 +310,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             {
                 if (message != null)
                 {
-                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state!;
 
                     var partitionKey = structure.Where(i => i.Key == "partitionKey").Select(i => (string)i.Value).First();
                     var resourceId = structure.Where(i => i.Key == "resourceId").Select(i => (string)i.Value).First();

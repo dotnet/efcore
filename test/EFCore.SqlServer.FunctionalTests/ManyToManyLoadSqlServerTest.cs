@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ManyToManyLoadSqlServerTest(ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture fixture)
     : ManyToManyLoadTestBase<ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture>(fixture)
 {
@@ -109,7 +107,7 @@ LEFT JOIN (
     WHERE [e3].[Id] = @p
 ) AS [s1] ON [s].[Id] = [s1].[TwoSkipSharedId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[OneSkipSharedId0]
+ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[OneSkipSharedId0], [s1].[TwoSkipSharedId0]
 """);
     }
 
@@ -275,7 +273,7 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1]
             var testInfo = testName + " : " + lineNumber + FileNewLine;
 
             var newBaseLine = $@"            AssertSql(
-                {"@\"" + Sql.Replace("\"", "\"\"") + "\""});
+                {"@\"" + Sql!.Replace("\"", "\"\"") + "\""});
 
 ";
 
@@ -287,7 +285,7 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1]
         }
     }
 
-    private string Sql { get; set; }
+    private string? Sql { get; set; }
 
     public class ManyToManyLoadSqlServerFixture : ManyToManyLoadFixtureBase, ITestSqlLoggerFactory
     {

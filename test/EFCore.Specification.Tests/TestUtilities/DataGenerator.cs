@@ -5,8 +5,6 @@ using System.Collections.Concurrent;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public static class DataGenerator
 {
     private static readonly ConcurrentDictionary<Type, object[]> Values = new();
@@ -18,7 +16,7 @@ public static class DataGenerator
     static DataGenerator()
     {
         Values[typeof(bool)] = [false, true];
-        Values[typeof(bool?)] = [null, false, true];
+        Values[typeof(bool?)] = [null!, false, true];
     }
 
     public static object[][] GetCombinations(object[] set, int length)
@@ -39,7 +37,7 @@ public static class DataGenerator
                 var underlyingType = Nullable.GetUnderlyingType(type);
                 if (underlyingType != null && underlyingType.IsEnum)
                 {
-                    values = [null, .. Enum.GetValues(underlyingType).Cast<object>()];
+                    values = [null!, .. Enum.GetValues(underlyingType).Cast<object>()];
                     Values[type] = values;
                 }
                 else if (!type.IsDefined(typeof(FlagsAttribute), false))

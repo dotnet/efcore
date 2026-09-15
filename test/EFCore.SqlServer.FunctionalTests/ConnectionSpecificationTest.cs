@@ -10,8 +10,6 @@ using Microsoft.Extensions.Configuration;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ConnectionSpecificationTest
 {
     [Fact]
@@ -469,7 +467,7 @@ public class ConnectionSpecificationTest
     {
         var configBuilder = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string> { { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString } });
+                new Dictionary<string, string?> { { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString } });
 
         var serviceProvider
             = new ServiceCollection()
@@ -498,7 +496,7 @@ public class ConnectionSpecificationTest
         {
         }
 
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>(b =>
@@ -510,12 +508,12 @@ public class ConnectionSpecificationTest
 
     private class Customer
     {
-        public string CustomerID { get; set; }
+        public string CustomerID { get; set; } = null!;
 
         // ReSharper disable UnusedMember.Local
-        public string CompanyName { get; set; }
+        public string? CompanyName { get; set; }
 
-        public string Fax { get; set; }
+        public string? Fax { get; set; }
         // ReSharper restore UnusedMember.Local
     }
 
@@ -580,7 +578,7 @@ public class ConnectionSpecificationTest
         private readonly SqlConnection _connection = connection;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

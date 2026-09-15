@@ -634,6 +634,37 @@ mb.AlterColumn<int>(
             });
 
     [Fact]
+    public void AlterColumnOperation_computed_to_non_computed_preserves_oldStored()
+        => Test(
+            new AlterColumnOperation
+            {
+                Name = "Id",
+                Table = "Post",
+                ClrType = typeof(int),
+                OldColumn =
+                {
+                    ComputedColumnSql = "1",
+                    IsStored = true
+                }
+            },
+            """
+mb.AlterColumn<int>(
+    name: "Id",
+    table: "Post",
+    nullable: false,
+    oldComputedColumnSql: "1",
+    oldStored: true);
+""",
+            o =>
+            {
+                Assert.Equal("Id", o.Name);
+                Assert.Equal("Post", o.Table);
+                Assert.Equal(typeof(int), o.ClrType);
+                Assert.Equal("1", o.OldColumn.ComputedColumnSql);
+                Assert.True(o.OldColumn.IsStored);
+            });
+
+    [Fact]
     public void AlterColumnOperation_DefaultValueSql()
         => Test(
             new AlterColumnOperation
@@ -2386,7 +2417,7 @@ mb.RestartSequence(
                 Columns = ["Id", "Full Name", "Geometry"],
                 Values = new object[,]
                 {
-                    { 0, null, null },
+                    { 0, null!, null! },
                     { 1, "Daenerys Targaryen", _point1 },
                     { 2, "John Snow", _polygon1 },
                     { 3, "Arya Stark", _lineString1 },
@@ -2475,7 +2506,7 @@ mb.InsertData(
                 Assert.Single(o.Columns);
                 Assert.Equal(1, o.Values.GetLength(0));
                 Assert.Equal(1, o.Values.GetLength(1));
-                Assert.Equal(new string[0], (string[])o.Values[0, 0]);
+                Assert.Equal(new string[0], (string[])o.Values[0, 0]!);
             });
 
     [Fact]
@@ -2485,7 +2516,7 @@ mb.InsertData(
             {
                 Table = "People",
                 Columns = ["First Name", "Last Name", "Geometry"],
-                Values = new object[,] { { "John", null, Array.Empty<string>() } }
+                Values = new object[,] { { "John", null!, Array.Empty<string>() } }
             },
             """
 mb.InsertData(
@@ -2500,7 +2531,7 @@ mb.InsertData(
                 Assert.Equal(1, o.Values.GetLength(0));
                 Assert.Equal(3, o.Values.GetLength(1));
                 Assert.Null(o.Values[0, 1]);
-                Assert.Equal(new string[0], (string[])o.Values[0, 2]);
+                Assert.Equal(new string[0], (string[])o.Values[0, 2]!);
             });
 
     [Fact]
@@ -2642,7 +2673,7 @@ mb.DeleteData(
                 KeyColumnTypes = ["string", "string"],
                 KeyValues = new object[,]
                 {
-                    { "Hodor", null }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
+                    { "Hodor", null! }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
                 }
             },
             """
@@ -2802,7 +2833,7 @@ mb.UpdateData(
             {
                 Table = "People",
                 KeyColumns = ["First Name", "Last Name"],
-                KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } },
+                KeyValues = new object[,] { { "Hodor", null! }, { "Daenerys", "Targaryen" } },
                 Columns = ["House Allegiance"],
                 Values = new object[,] { { "Stark" }, { "Targaryen" } }
             },
@@ -2842,7 +2873,7 @@ mb.UpdateData(
             {
                 Table = "People",
                 KeyColumns = ["First Name", "Last Name"],
-                KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } },
+                KeyValues = new object[,] { { "Hodor", null! }, { "Daenerys", "Targaryen" } },
                 Columns = ["Birthplace", "House Allegiance", "Culture"],
                 Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
             },
@@ -3203,9 +3234,9 @@ mb.AlterTable(
 
         var assembly = build.BuildInMemory();
         var factoryType = assembly.GetType("OperationsFactory");
-        var createMethod = factoryType.GetTypeInfo().GetDeclaredMethod("Create");
+    var createMethod = factoryType!.GetTypeInfo().GetDeclaredMethod("Create");
         var mb = new MigrationBuilder(activeProvider: null);
-        createMethod.Invoke(null, [mb]);
+    createMethod!.Invoke(null, [mb]);
         var result = mb.Operations.Cast<T>().Single();
 
         assert(result);

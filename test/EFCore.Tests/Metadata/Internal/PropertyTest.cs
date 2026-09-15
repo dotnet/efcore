@@ -82,23 +82,23 @@ public class PropertyTest
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
-            Assert.Throws<InvalidOperationException>(() => property.SetValueComparer((ValueComparer)null)).Message);
+            Assert.Throws<InvalidOperationException>(() => property.SetValueComparer((ValueComparer?)null)).Message);
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
-            Assert.Throws<InvalidOperationException>(() => property.SetValueComparer((Type)null)).Message);
+            Assert.Throws<InvalidOperationException>(() => property.SetValueComparer((Type?)null)).Message);
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
-            Assert.Throws<InvalidOperationException>(() => property.SetValueConverter((ValueConverter)null)).Message);
+            Assert.Throws<InvalidOperationException>(() => property.SetValueConverter((ValueConverter?)null)).Message);
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
-            Assert.Throws<InvalidOperationException>(() => property.SetValueConverter((Type)null)).Message);
+            Assert.Throws<InvalidOperationException>(() => property.SetValueConverter((Type?)null)).Message);
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
-            Assert.Throws<InvalidOperationException>(() => property.SetValueGeneratorFactory((Type)null)).Message);
+            Assert.Throws<InvalidOperationException>(() => property.SetValueGeneratorFactory((Type?)null)).Message);
     }
 
     [Fact]
@@ -298,13 +298,13 @@ public class PropertyTest
     private class NonDerivedValueGeneratorFactory
     {
         public ValueGenerator Create(IProperty property, ITypeBase typeBase)
-            => null;
+            => null!;
     }
 
     private abstract class AbstractValueGeneratorFactory : ValueGeneratorFactory
     {
         public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
-            => null;
+            => null!;
     }
 
     private class StaticValueGeneratorFactory : ValueGeneratorFactory
@@ -314,7 +314,7 @@ public class PropertyTest
         }
 
         public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
-            => null;
+            => null!;
     }
 
     private class PrivateValueGeneratorFactory : ValueGeneratorFactory
@@ -324,7 +324,7 @@ public class PropertyTest
         }
 
         public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
-            => null;
+            => null!;
     }
 
 #pragma warning disable CS9113 // Parameter '_' is unread
@@ -332,7 +332,7 @@ public class PropertyTest
 #pragma warning restore CS9113
     {
         public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
-            => null;
+            => null!;
     }
 
     [Fact]
@@ -387,7 +387,7 @@ public class PropertyTest
         }
     }
 
-    private class NonParameterlessValueConverter(ConverterMappingHints mappingHints = null) : StringToBoolConverter(mappingHints);
+    private class NonParameterlessValueConverter(ConverterMappingHints? mappingHints = null) : StringToBoolConverter(mappingHints);
 
     [Fact]
     public void Throws_when_ValueComparer_type_is_invalid()
@@ -529,7 +529,7 @@ public class PropertyTest
     {
         var model = CreateModel();
         var entityType = model.AddEntityType(typeof(Customer));
-        var memberInfo = typeof(Customer).GetProperty(nameof(Customer.Numbers));
+        var memberInfo = typeof(Customer).GetProperty(nameof(Customer.Numbers))!;
         var property = entityType.AddPrimitiveCollection(nameof(Customer.Numbers), typeof(IList<int>), memberInfo, typeof(int));
 
         Assert.Equal(typeof(int), property.GetElementType()!.ClrType);
@@ -555,7 +555,7 @@ public class PropertyTest
 
     private class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>
     {
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -571,7 +571,7 @@ public class PropertyTest
     {
         private static JasonValueReaderWriterWithPrivateInstance Instance { get; } = new();
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -587,7 +587,7 @@ public class PropertyTest
     {
         public static object Instance { get; } = new();
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -601,7 +601,7 @@ public class PropertyTest
     {
         public static SimpleJasonValueReaderWriterWithInstance Instance { get; } = new();
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -621,7 +621,7 @@ public class PropertyTest
         {
         }
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -637,11 +637,11 @@ public class PropertyTest
 
     private class NonGenericJsonValueReaderWriter : JsonValueReaderWriter
     {
-        public override object FromJson(ref Utf8JsonReaderManager manager, object existingObject = null)
+        public override object FromJson(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
 
-        public override void ToJson(Utf8JsonWriter writer, object value)
-            => writer.WriteStringValue((string)value);
+        public override void ToJson(Utf8JsonWriter writer, object? value)
+            => writer.WriteStringValue((string)value!);
 
         public override Type ValueType
             => typeof(string);
@@ -660,7 +660,7 @@ public class PropertyTest
         {
         }
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -674,7 +674,7 @@ public class PropertyTest
 
     private class NonParameterlessJsonValueReaderWriter(bool _) : JsonValueReaderWriter<string>
     {
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -691,7 +691,7 @@ public class PropertyTest
 
     private class Entity
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int? Id { get; set; }
     }
 
@@ -704,21 +704,21 @@ public class PropertyTest
     {
         public int AlternateId { get; set; }
         public Guid Unique { get; set; }
-        public string Name { get; set; }
-        public string Mane { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public string Name { get; set; } = null!;
+        public string Mane { get; set; } = null!;
+        public ICollection<Order> Orders { get; set; } = null!;
 
-        public IEnumerable<Order> EnumerableOrders { get; set; }
-        public Order NotCollectionOrders { get; set; }
-        public IList<int> Numbers { get; set; }
+        public IEnumerable<Order> EnumerableOrders { get; set; } = null!;
+        public Order NotCollectionOrders { get; set; } = null!;
+        public IList<int> Numbers { get; set; } = null!;
     }
 
     private class Order : BaseType
     {
         public int CustomerId { get; set; }
         public Guid CustomerUnique { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
 
-        public Order OrderCustomer { get; set; }
+        public Order OrderCustomer { get; set; } = null!;
     }
 }

@@ -12,13 +12,13 @@ public partial class EntityTypeTest
     {
         var model = (IConventionModel)CreateModel();
 
-        var a = model.AddEntityType(typeof(A).Name);
-        var b = model.AddEntityType(typeof(B).Name);
+        var a = model.AddEntityType(typeof(A).Name)!;
+        var b = model.AddEntityType(typeof(B).Name)!;
 
         Assert.Same(a, b.SetBaseType(a));
 
         var finalModel = model.FinalizeModel();
-        Assert.Same(finalModel.FindEntityType(typeof(A).Name), finalModel.FindEntityType(typeof(B).Name).BaseType);
+        Assert.Same(finalModel.FindEntityType(typeof(A).Name), finalModel.FindEntityType(typeof(B).Name)!.BaseType);
     }
 
     [Fact]
@@ -253,8 +253,8 @@ public partial class EntityTypeTest
         cType.BaseType = a;
 
         var builtModel = model.FinalizeModel();
-        var b = builtModel.FindEntityType(typeof(B));
-        var c = builtModel.FindEntityType(typeof(C));
+        var b = builtModel.FindEntityType(typeof(B))!;
+        var c = builtModel.FindEntityType(typeof(C))!;
 
         Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G", "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -290,8 +290,8 @@ public partial class EntityTypeTest
         cType.AddProperty("I", typeof(string));
 
         var builtModel = model.FinalizeModel();
-        var b = builtModel.FindEntityType(typeof(B));
-        var c = builtModel.FindEntityType(typeof(C));
+        var b = builtModel.FindEntityType(typeof(B))!;
+        var c = builtModel.FindEntityType(typeof(C))!;
 
         Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G", "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -346,9 +346,9 @@ public partial class EntityTypeTest
         cType.BaseType = aType;
 
         var builtModel = model.FinalizeModel();
-        var a = builtModel.FindEntityType(typeof(A));
-        var c = builtModel.FindEntityType(typeof(C));
-        var d = builtModel.FindEntityType(typeof(D));
+        var a = builtModel.FindEntityType(typeof(A))!;
+        var c = builtModel.FindEntityType(typeof(C))!;
+        var d = builtModel.FindEntityType(typeof(D))!;
 
         Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "E", "G", "F", "H" }, c.GetProperties().Select(p => p.Name).ToArray());
@@ -516,7 +516,7 @@ public partial class EntityTypeTest
         bType.BaseType = a;
 
         var builtModel = model.FinalizeModel();
-        var b = builtModel.FindEntityType(typeof(B));
+        var b = builtModel.FindEntityType(typeof(B))!;
 
         Assert.Equal(
             [["E"], ["G"]],
@@ -527,8 +527,8 @@ public partial class EntityTypeTest
         Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "G", "E", "F" }, b.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal([0, 1, 2], b.GetProperties().Select(p => p.GetIndex()));
-        Assert.Same(pk, b.FindProperty("G").FindContainingPrimaryKey());
-        Assert.Same(b.FindKey(b.FindProperty("G")), a.FindKey(a.FindProperty("G")));
+        Assert.Same(pk, b.FindProperty("G")!.FindContainingPrimaryKey());
+        Assert.Same(b.FindKey(b.FindProperty("G")!), a.FindKey(a.FindProperty("G")!));
     }
 
     [Fact]
@@ -545,8 +545,8 @@ public partial class EntityTypeTest
 
         b.BaseType = a;
 
-        a.SetPrimaryKey(a.FindProperty("G"));
-        a.AddKey(a.FindProperty("E"));
+        a.SetPrimaryKey(a.FindProperty("G")!);
+        a.AddKey(a.FindProperty("E")!);
 
         model.FinalizeModel();
 

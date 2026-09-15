@@ -8,9 +8,9 @@ public class ComplexTypesTrackingInMemoryTest(ComplexTypesTrackingInMemoryTest.I
 {
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
-        Func<DbContext, Task> nestedTestOperation1 = null,
-        Func<DbContext, Task> nestedTestOperation2 = null,
-        Func<DbContext, Task> nestedTestOperation3 = null)
+        Func<DbContext, Task>? nestedTestOperation1 = null,
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
     {
         try
         {

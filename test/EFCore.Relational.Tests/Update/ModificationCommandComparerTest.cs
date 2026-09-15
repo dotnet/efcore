@@ -222,7 +222,7 @@ public class ModificationCommandComparerTest
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,
-        string schema,
+        string? schema,
         bool sensitiveLoggingEnabled)
         => CreateModificationCommandSource().CreateNonTrackedModificationCommand(
             new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));

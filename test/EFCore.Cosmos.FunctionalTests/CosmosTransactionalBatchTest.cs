@@ -316,15 +316,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
             Body = @"function trigger() {}"
         };
 
-        try
-        {
-            await container.Scripts.CreateTriggerAsync(preInsertTriggerDefinition);
-        }
-        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
-        {
-            // Trigger already exists, replace it
-            await container.Scripts.ReplaceTriggerAsync(preInsertTriggerDefinition);
-        }
+        await CosmosTestHelpers.CreateOrReplaceTriggerAsync(context, container, preInsertTriggerDefinition);
 
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
 
@@ -388,7 +380,8 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         Assert.Equal(3, customersCount);
     }
 
-    [Fact]
+    // Linux emulator times out instead of rejecting oversized requests.
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task SaveChanges_entity_too_large_throws()
     {
         using var context = Fixture.CreateContext();
@@ -439,7 +432,8 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         Assert.Equal("1", (await assertContext.Customers.FirstAsync()).Id);
     }
 
-    [Fact]
+    // Linux emulator times out instead of rejecting oversized transactional batches.
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task SaveChanges_transaction_behavior_always_payload_larger_than_cosmos_limit_throws()
     {
         using var context = Fixture.CreateContext();

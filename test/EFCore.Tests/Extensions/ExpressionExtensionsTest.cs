@@ -213,20 +213,20 @@ public class ExpressionExtensionsTest
 
     private sealed class ComplexBlog
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
         public List<ComplexPost> Posts { get; } = [];
         public ComplexPost[] PostArray { get; } = [];
     }
 
     private sealed class ComplexPost
     {
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
         public List<ComplexComment> Comments { get; } = [];
     }
 
     private sealed class ComplexComment
     {
-        public string Text { get; set; }
+        public string Text { get; set; } = null!;
     }
 
     [Fact]

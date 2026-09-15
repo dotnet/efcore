@@ -12,7 +12,9 @@ public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : Q
         => Fixture.CreateContext();
 
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
-        => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings()).Visit(expectedQueryExpression);
+        => new ExpectedQueryRewritingVisitor(
+            Fixture.GetShadowPropertyMappings().ToDictionary(e => e.Key, e => new Func<object, object>(o => e.Value(o)!)))
+            .Visit(expectedQueryExpression);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_multiple_collections_same_level_top_level_ordering(bool async)

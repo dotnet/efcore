@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Xunit.Sdk;
 using static System.Linq.Expressions.Expression;
@@ -3986,7 +3985,7 @@ WHERE (
     private async Task TestOrderedArray<TElement>(
         TElement value1,
         TElement value2,
-        Action<ModelBuilder> onModelCreating = null)
+        Action<ModelBuilder>? onModelCreating = null)
     {
         var arrayClrType = typeof(TElement).MakeArrayType();
 
@@ -4182,7 +4181,7 @@ WHERE (
         await using var context = contextFactory.CreateDbContext();
 
         _ = await context.Set<Context32976.Principal>()
-            .Where(p => p.Ints.Skip(1).Contains(3))
+            .Where(p => p.Ints!.Skip(1).Contains(3))
             .Include(p => p.Dependents)
             .AsSplitQuery()
             .SingleAsync();
@@ -4193,14 +4192,14 @@ WHERE (
         public class Principal
         {
             public int Id { get; set; }
-            public List<int> Ints { get; set; }
-            public List<Dependent> Dependents { get; set; }
+            public List<int>? Ints { get; set; }
+            public List<Dependent> Dependents { get; set; } = null!;
         }
 
         public class Dependent
         {
             public int Id { get; set; }
-            public Principal Principal { get; set; }
+            public Principal? Principal { get; set; }
         }
     }
 

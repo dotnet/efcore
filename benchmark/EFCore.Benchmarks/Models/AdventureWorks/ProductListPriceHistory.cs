@@ -13,5 +13,5 @@ public class ProductListPriceHistory
     public decimal ListPrice { get; set; }
     public DateTime ModifiedDate { get; set; }
 
-    public virtual Product Product { get; set; }
+    public virtual Product Product { get; set; } = null!;
 }

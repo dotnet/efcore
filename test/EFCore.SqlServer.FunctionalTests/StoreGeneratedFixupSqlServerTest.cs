@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture fixture)
     : StoreGeneratedFixupRelationalTestBase<
         StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>(fixture)

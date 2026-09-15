@@ -34,7 +34,7 @@ public class DateTimeOffsetConvertersTest
             new DateTimeOffset(),
             converter("0001-01-01 00:00:00+00:00"));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
         Assert.Throws<FormatException>(() => converter("Not a DateTimeOffset"));
     }
 
@@ -101,7 +101,7 @@ public class DateTimeOffsetConvertersTest
             converter([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
 
         Assert.Equal(new DateTimeOffset(), converter([]));
-        Assert.Throws<NullReferenceException>(() => converter(null));
+        Assert.Throws<NullReferenceException>(() => converter(null!));
         Assert.Throws<IndexOutOfRangeException>(() => converter([1, 2]));
     }
 

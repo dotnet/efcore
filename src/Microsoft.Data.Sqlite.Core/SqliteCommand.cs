@@ -430,8 +430,12 @@ public class SqliteCommand : DbCommand
             throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteNonQuery)));
         }
 
-        var reader = ExecuteReader();
-        reader.Dispose();
+        using var reader = ExecuteReader();
+
+        // Run the remaining statements here. Disposing the reader would run them too, but it swallows their errors
+        while (reader.NextResult())
+        {
+        }
 
         return reader.RecordsAffected;
     }
@@ -450,9 +454,16 @@ public class SqliteCommand : DbCommand
         }
 
         using var reader = ExecuteReader();
-        return reader.Read()
+        var result = reader.Read()
             ? reader.GetValue(0)
             : null;
+
+        // Run the remaining statements here. Disposing the reader would run them too, but it swallows their errors
+        while (reader.NextResult())
+        {
+        }
+
+        return result;
     }
 
     /// <summary>

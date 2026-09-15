@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class FindSqlServerTest : FindTestBase<FindSqlServerTest.FindSqlServerFixture>
 {
     protected FindSqlServerTest(FindSqlServerFixture fixture)
@@ -55,7 +53,7 @@ LEFT JOIN (
 LEFT JOIN [IntKey_NestedOwnedCollection] AS [i2] ON CASE
     WHEN [i3].[OwnedReference_Prop] IS NOT NULL THEN [i3].[Id]
 END = [i2].[Owned1IntKeyId]
-ORDER BY [i3].[Id], [s].[IntKeyId], [s].[Id], [s].[Owned1IntKeyId], [s].[Owned1Id], [s].[Id0], [i2].[Owned1IntKeyId]
+ORDER BY [i3].[Id], [s].[IntKeyId], [s].[Id], [s].[Owned1IntKeyId], [s].[Owned1Id], [s].[Id0], [i2].[Owned1IntKeyId], [i2].[Id]
 """);
     }
 
@@ -81,7 +79,7 @@ LEFT JOIN (
 LEFT JOIN [IntKey_NestedOwnedCollection] AS [i2] ON CASE
     WHEN [i3].[OwnedReference_Prop] IS NOT NULL THEN [i3].[Id]
 END = [i2].[Owned1IntKeyId]
-ORDER BY [i3].[Id], [s].[IntKeyId], [s].[Id], [s].[Owned1IntKeyId], [s].[Owned1Id], [s].[Id0], [i2].[Owned1IntKeyId]
+ORDER BY [i3].[Id], [s].[IntKeyId], [s].[Id], [s].[Owned1IntKeyId], [s].[Owned1Id], [s].[Id0], [i2].[Owned1IntKeyId], [i2].[Id]
 """);
     }
 

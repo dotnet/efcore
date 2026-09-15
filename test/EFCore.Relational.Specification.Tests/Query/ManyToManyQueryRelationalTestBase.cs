@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixture) : ManyToManyQueryTestBase<TFixture>(fixture)
     where TFixture : ManyToManyQueryFixtureBase, new()
 {

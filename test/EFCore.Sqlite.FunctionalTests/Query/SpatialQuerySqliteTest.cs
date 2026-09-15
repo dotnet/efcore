@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.SpatialiteAvailable))]
 public class SpatialQuerySqliteTest : SpatialQueryRelationalTestBase<SpatialQuerySqliteFixture>
 {

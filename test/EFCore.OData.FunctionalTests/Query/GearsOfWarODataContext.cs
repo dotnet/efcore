@@ -10,16 +10,16 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class GearsOfWarODataContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public DbSet<Gear> Gears { get; set; }
-    public DbSet<Squad> Squads { get; set; }
-    public DbSet<CogTag> Tags { get; set; }
-    public DbSet<Weapon> Weapons { get; set; }
-    public DbSet<City> Cities { get; set; }
-    public DbSet<Mission> Missions { get; set; }
-    public DbSet<SquadMission> SquadMissions { get; set; }
-    public DbSet<Faction> Factions { get; set; }
-    public DbSet<LocustLeader> LocustLeaders { get; set; }
-    public DbSet<LocustHighCommand> LocustHighCommands { get; set; }
+    public DbSet<Gear> Gears { get; set; } = null!;
+    public DbSet<Squad> Squads { get; set; } = null!;
+    public DbSet<CogTag> Tags { get; set; } = null!;
+    public DbSet<Weapon> Weapons { get; set; } = null!;
+    public DbSet<City> Cities { get; set; } = null!;
+    public DbSet<Mission> Missions { get; set; } = null!;
+    public DbSet<SquadMission> SquadMissions { get; set; } = null!;
+    public DbSet<Faction> Factions { get; set; } = null!;
+    public DbSet<LocustLeader> LocustLeaders { get; set; } = null!;
+    public DbSet<LocustHighCommand> LocustHighCommands { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

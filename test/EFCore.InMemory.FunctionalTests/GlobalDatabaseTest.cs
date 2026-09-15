@@ -50,7 +50,7 @@ public class GlobalDatabaseTest
 
         using var scope = serviceProvider.CreateScope();
         {
-            var context = scope.ServiceProvider.GetService<BooFooContext>();
+            var context = scope.ServiceProvider.GetService<BooFooContext>()!;
             Assert.NotEmpty(context.Foos.ToList());
         }
     }
@@ -136,7 +136,7 @@ public class GlobalDatabaseTest
 
         using var scope = serviceProvider.CreateScope();
         {
-            var context = scope.ServiceProvider.GetService<BooFooContext>();
+            var context = scope.ServiceProvider.GetService<BooFooContext>()!;
             Assert.Equal(1, context.Boos.Count());
         }
     }
@@ -210,26 +210,26 @@ public class GlobalDatabaseTest
             });
         }
 
-        public DbSet<Foo> Foos { get; set; }
-        public DbSet<Boo> Boos { get; set; }
+        public DbSet<Foo> Foos { get; set; } = null!;
+        public DbSet<Boo> Boos { get; set; } = null!;
     }
 
     private class Foo
     {
         public int Id { get; set; }
-        public Goo Goo1 { get; set; }
-        public Goo Goo2 { get; set; }
+        public Goo? Goo1 { get; set; }
+        public Goo? Goo2 { get; set; }
     }
 
     private class Boo
     {
         public int Id { get; set; }
-        public Goo Goo1 { get; set; }
-        public Goo Goo2 { get; set; }
+        public Goo? Goo1 { get; set; }
+        public Goo? Goo2 { get; set; }
     }
 
     private class Goo
     {
-        public string Goop { get; set; }
+        public string? Goop { get; set; }
     }
 }

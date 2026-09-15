@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -77,7 +75,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 jsonIdDefinition != null,
                 "Should not be using this enumerable if not using ReadItem, which needs an id definition.");
 
-            var values = new List<object>(jsonIdDefinition.Properties.Count);
+            var values = new List<object?>(jsonIdDefinition.Properties.Count);
             foreach (var property in jsonIdDefinition.Properties)
             {
                 var value = _readItemInfo.PropertyValues[property] switch
@@ -103,7 +101,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
-            private readonly IConcurrencyDetector _concurrencyDetector;
+            private readonly IConcurrencyDetector? _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
             private readonly ReadItemQueryingEnumerable<T> _readItemEnumerable;
             private readonly CancellationToken _cancellationToken;
@@ -123,6 +121,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _exceptionDetector = _cosmosQueryContext.ExceptionDetector;
                 _readItemEnumerable = readItemEnumerable;
                 _cancellationToken = cancellationToken;
+                Current = default!;
 
                 _concurrencyDetector = readItemEnumerable._threadSafetyChecksEnabled
                     ? _cosmosQueryContext.ConcurrencyDetector
@@ -187,18 +186,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             private bool ShapeResult()
             {
-                var hasNext = _response is not null;
-
                 _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
 
-                Current
-                    = hasNext
-                        ? _shaper(_cosmosQueryContext, _response.Value, ordinal: 0, out _)
-                        : default;
+                if (_response is not { } response)
+                {
+                    Current = default!;
+                    _hasExecuted = true;
+                    return false;
+                }
+
+                Current = _shaper(_cosmosQueryContext, response, ordinal: 0, out _);
 
                 _hasExecuted = true;
 
-                return hasNext;
+                return true;
             }
         }
     }

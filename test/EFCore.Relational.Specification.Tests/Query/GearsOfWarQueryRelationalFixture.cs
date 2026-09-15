@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase, ITestSqlLoggerFactory
 {
-    public override Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
+    public override Dictionary<(Type, string), Func<object, object?>> GetShadowPropertyMappings()
     {
-        var discriminatorMapping = new Dictionary<(Type, string), Func<object, object>>
+        var discriminatorMapping = new Dictionary<(Type, string), Func<object, object?>>
         {
             {
                 (typeof(Gear), "Discriminator"), e => (((Gear)e)?.Nickname)switch

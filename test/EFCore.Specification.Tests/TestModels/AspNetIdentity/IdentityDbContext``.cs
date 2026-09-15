@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
-#nullable disable
-
 public abstract class
     IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> : IdentityUserContext<TUser, TKey,
     TUserClaim, TUserLogin, TUserToken>
@@ -26,9 +24,9 @@ public abstract class
     {
     }
 
-    public virtual DbSet<TUserRole> UserRoles { get; set; }
-    public virtual DbSet<TRole> Roles { get; set; }
-    public virtual DbSet<TRoleClaim> RoleClaims { get; set; }
+    public virtual DbSet<TUserRole> UserRoles { get; set; } = null!;
+    public virtual DbSet<TRole> Roles { get; set; } = null!;
+    public virtual DbSet<TRoleClaim> RoleClaims { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

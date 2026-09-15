@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ManyToManyTrackingSqliteTest(ManyToManyTrackingSqliteTest.ManyToManyTrackingSqliteFixture fixture)
     : ManyToManyTrackingRelationalTestBase<ManyToManyTrackingSqliteTest.ManyToManyTrackingSqliteFixture>(fixture)
 {

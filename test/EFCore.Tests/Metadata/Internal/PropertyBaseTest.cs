@@ -1003,7 +1003,7 @@ public class PropertyBaseTest
     private static string NoGetterSkipColl<TEntity>()
         => CoreStrings.NoGetter(SkipCollection, typeof(TEntity).Name, nameof(PropertyAccessMode));
 
-    private static IMutableProperty CreateProperty<TEntity>(string fieldName, string propertyName = Property)
+    private static IMutableProperty CreateProperty<TEntity>(string? fieldName, string propertyName = Property)
         where TEntity : class
     {
         var model = CreateModelBuilder();
@@ -1021,7 +1021,7 @@ public class PropertyBaseTest
     }
 
     private static IMutableNavigation CreateReferenceNavigation<TEntity>(
-        string fieldName,
+        string? fieldName,
         string navigationName = Reference)
         where TEntity : class
     {
@@ -1033,14 +1033,14 @@ public class PropertyBaseTest
             .HasOne(typeof(TEntity), navigationName)
             .WithMany();
 
-        var navigation = relationship.Metadata.DependentToPrincipal;
+        var navigation = relationship.Metadata.DependentToPrincipal!;
         navigation.SetField(fieldName);
 
         return navigation;
     }
 
     private static IMutableNavigation CreateCollectionNavigation<TEntity>(
-        string fieldName,
+        string? fieldName,
         string navigationName = Collection)
         where TEntity : class
     {
@@ -1052,14 +1052,14 @@ public class PropertyBaseTest
             .HasMany(typeof(TEntity), navigationName)
             .WithOne();
 
-        var navigation = relationship.Metadata.PrincipalToDependent;
+        var navigation = relationship.Metadata.PrincipalToDependent!;
         navigation.SetField(fieldName);
 
         return navigation;
     }
 
     private static IMutableSkipNavigation CreateSkipCollectionNavigation<TEntity, TOtherEntity>(
-        string fieldName,
+        string? fieldName,
         string navigationName = SkipCollection)
         where TEntity : class
         where TOtherEntity : class
@@ -1072,7 +1072,7 @@ public class PropertyBaseTest
             .HasMany(typeof(TOtherEntity), navigationName)
             .WithMany();
 
-        var navigation = model.Entity<TEntity>().Navigation(navigationName);
+        var navigation = model.Entity<TEntity>().Navigation(navigationName)!;
         navigation.HasField(fieldName);
 
         return (IMutableSkipNavigation)navigation.Metadata;
@@ -1084,9 +1084,9 @@ public class PropertyBaseTest
     private void MemberInfoTest(
         IMutableProperty property,
         PropertyAccessMode? accessMode,
-        string forConstruction,
-        string forSet,
-        string forGet)
+        string? forConstruction,
+        string? forSet,
+        string? forGet)
     {
         property.SetPropertyAccessMode(accessMode);
 
@@ -1096,9 +1096,9 @@ public class PropertyBaseTest
     private void MemberInfoTest(
         IMutableNavigationBase navigation,
         PropertyAccessMode? accessMode,
-        string forConstruction,
-        string forSet,
-        string forGet)
+        string? forConstruction,
+        string? forSet,
+        string? forGet)
     {
         navigation.SetPropertyAccessMode(accessMode);
 
@@ -1108,11 +1108,11 @@ public class PropertyBaseTest
     private void MemberInfoTestCommon(
         IPropertyBase propertyBase,
         PropertyAccessMode? accessMode,
-        string forConstruction,
-        string forSet,
-        string forGet)
+        string? forConstruction,
+        string? forSet,
+        string? forGet)
     {
-        string failMessage = null;
+        string? failMessage = null;
         try
         {
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: true, forSet: true);
@@ -1212,7 +1212,7 @@ public class PropertyBaseTest
     [Fact]
     public virtual void Properties_can_have_field_cleared()
     {
-        var propertyInfo = typeof(FullProp).GetAnyProperty("Foo");
+        var propertyInfo = typeof(FullProp).GetAnyProperty("Foo")!;
 
         Properties_can_have_field_cleared_test(
             ((IMutableModel)new Model()).AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
@@ -1233,13 +1233,13 @@ public class PropertyBaseTest
     {
         var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(FullProp));
         var property = entityType.AddProperty("Id", typeof(int));
-        var key = entityType.SetPrimaryKey(property);
+        var key = entityType.SetPrimaryKey(property)!;
         var foreignKey = entityType.AddForeignKey(property, key, entityType);
 
-        var propertyInfo = typeof(FullProp).GetAnyProperty("Reference");
+        var propertyInfo = typeof(FullProp).GetAnyProperty("Reference")!;
 
         Properties_can_have_field_cleared_test(
-            foreignKey.SetDependentToPrincipal(propertyInfo), propertyInfo, "_reference");
+            foreignKey.SetDependentToPrincipal(propertyInfo)!, propertyInfo, "_reference");
     }
 
     private void Properties_can_have_field_cleared_test(IMutablePropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
@@ -1251,7 +1251,7 @@ public class PropertyBaseTest
         propertyBase.SetField(fieldName);
 
         Assert.Equal(fieldName, propertyBase.GetFieldName());
-        var fieldInfo = propertyBase.FieldInfo;
+        var fieldInfo = propertyBase.FieldInfo!;
         Assert.Equal(fieldName, fieldInfo.Name);
         Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
@@ -1290,9 +1290,9 @@ public class PropertyBaseTest
     {
         public int Id { get; set; }
         public int Foo { get; set; }
-        public AutoProp Reference { get; set; }
-        public IEnumerable<AutoProp> Collection { get; set; }
-        public IEnumerable<AutoPropOther> SkipCollection { get; set; }
+        public AutoProp Reference { get; set; } = null!;
+        public IEnumerable<AutoProp> Collection { get; set; } = null!;
+        public IEnumerable<AutoPropOther> SkipCollection { get; set; } = null!;
     }
 
     private class AutoPropOther
@@ -1303,9 +1303,9 @@ public class PropertyBaseTest
     private class FullProp
     {
         private int _foo;
-        private FullProp _reference;
-        private IEnumerable<FullProp> _collection;
-        private IEnumerable<FullPropOther> _skipCollection;
+        private FullProp _reference = null!;
+        private IEnumerable<FullProp> _collection = null!;
+        private IEnumerable<FullPropOther> _skipCollection = null!;
 
         public int Id { get; set; }
 
@@ -1342,9 +1342,9 @@ public class PropertyBaseTest
     private class ReadOnlyProp
     {
         private readonly int _foo;
-        private readonly ReadOnlyProp _reference;
-        private readonly IEnumerable<ReadOnlyProp> _collection;
-        private readonly IEnumerable<ReadOnlyPropOther> _skipCollection;
+        private readonly ReadOnlyProp _reference = null!;
+        private readonly IEnumerable<ReadOnlyProp> _collection = null!;
+        private readonly IEnumerable<ReadOnlyPropOther> _skipCollection = null!;
 
         public int Id { get; set; }
 
@@ -1402,9 +1402,9 @@ public class PropertyBaseTest
 
         public int Id { get; set; }
         public int Foo { get; }
-        public ReadOnlyAutoProp Reference { get; }
-        public IEnumerable<ReadOnlyAutoProp> Collection { get; }
-        public IEnumerable<ReadOnlyAutoPropOther> SkipCollection { get; }
+        public ReadOnlyAutoProp Reference { get; } = null!;
+        public IEnumerable<ReadOnlyAutoProp> Collection { get; } = null!;
+        public IEnumerable<ReadOnlyAutoPropOther> SkipCollection { get; } = null!;
     }
 
     private class ReadOnlyAutoPropOther
@@ -1415,9 +1415,9 @@ public class PropertyBaseTest
     private class ReadOnlyFieldProp
     {
         private readonly int _foo;
-        private readonly ReadOnlyFieldProp _reference;
-        private readonly IEnumerable<ReadOnlyFieldProp> _collection;
-        private readonly IEnumerable<ReadOnlyFieldPropOther> _skipCollection;
+        private readonly ReadOnlyFieldProp _reference = null!;
+        private readonly IEnumerable<ReadOnlyFieldProp> _collection = null!;
+        private readonly IEnumerable<ReadOnlyFieldPropOther> _skipCollection = null!;
 
         public ReadOnlyFieldProp()
         {
@@ -1458,9 +1458,9 @@ public class PropertyBaseTest
     private class WriteOnlyProp
     {
         private int _foo;
-        private WriteOnlyProp _reference;
-        private IEnumerable<WriteOnlyProp> _collection;
-        private IEnumerable<WriteOnlyPropOther> _skipCollection;
+        private WriteOnlyProp _reference = null!;
+        private IEnumerable<WriteOnlyProp> _collection = null!;
+        private IEnumerable<WriteOnlyPropOther> _skipCollection = null!;
 
         public int Id { get; set; }
 
@@ -1507,9 +1507,9 @@ public class PropertyBaseTest
     private class FullPropNoField
     {
         private int _notFound;
-        private FullPropNoField _notFoundRef;
-        private IEnumerable<FullPropNoField> _notFoundColl;
-        private IEnumerable<FullPropNoFieldOther> _notFoundSkipColl;
+        private FullPropNoField _notFoundRef = null!;
+        private IEnumerable<FullPropNoField> _notFoundColl = null!;
+        private IEnumerable<FullPropNoFieldOther> _notFoundSkipColl = null!;
 
         public int Id { get; set; }
 
@@ -1546,9 +1546,9 @@ public class PropertyBaseTest
     private class ReadOnlyPropNoField
     {
         private readonly int _notFound;
-        private readonly ReadOnlyPropNoField _notFoundRef;
-        private readonly IEnumerable<ReadOnlyPropNoField> _notFoundColl;
-        private readonly IEnumerable<ReadOnlyPropNoFieldOther> _notFoundSkipColl;
+        private readonly ReadOnlyPropNoField _notFoundRef = null!;
+        private readonly IEnumerable<ReadOnlyPropNoField> _notFoundColl = null!;
+        private readonly IEnumerable<ReadOnlyPropNoFieldOther> _notFoundSkipColl = null!;
 
         public ReadOnlyPropNoField()
         {
@@ -1589,9 +1589,9 @@ public class PropertyBaseTest
     private class WriteOnlyPropNoField
     {
         private int _notFound;
-        private WriteOnlyPropNoField _notFoundRef;
-        private IEnumerable<WriteOnlyPropNoField> _notFoundColl;
-        private IEnumerable<WriteOnlyPropNoFieldOther> _notFoundSkipColl;
+        private WriteOnlyPropNoField _notFoundRef = null!;
+        private IEnumerable<WriteOnlyPropNoField> _notFoundColl = null!;
+        private IEnumerable<WriteOnlyPropNoFieldOther> _notFoundSkipColl = null!;
 
         public int Id { get; set; }
 
@@ -1640,9 +1640,9 @@ public class PropertyBaseTest
     {
         public int Id { get; set; }
         protected int _foo;
-        protected PrivateSetterInBase _reference;
-        protected IEnumerable<PrivateSetterInBase> _collection;
-        protected IEnumerable<PrivateSetterBaseOther> _skipCollection;
+        protected PrivateSetterInBase _reference = null!;
+        protected IEnumerable<PrivateSetterInBase> _collection = null!;
+        protected IEnumerable<PrivateSetterBaseOther> _skipCollection = null!;
 
         public virtual int Foo
         {
@@ -1701,9 +1701,9 @@ public class PropertyBaseTest
     {
         public int Id { get; set; }
         protected int _foo;
-        protected PrivateGetterInBase _reference;
-        protected IEnumerable<PrivateGetterInBase> _collection;
-        protected IEnumerable<PrivateGetterBaseOther> _skipCollection;
+        protected PrivateGetterInBase _reference = null!;
+        protected IEnumerable<PrivateGetterInBase> _collection = null!;
+        protected IEnumerable<PrivateGetterBaseOther> _skipCollection = null!;
 
         public virtual int Foo
         {

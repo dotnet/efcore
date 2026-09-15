@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCGearsOfWarQuerySqlServerTest : TPCGearsOfWarQueryRelationalTestBase<TPCGearsOfWarQuerySqlServerFixture>
 {
     public TPCGearsOfWarQuerySqlServerTest(TPCGearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -3159,7 +3157,7 @@ LEFT JOIN (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname]
-ORDER BY [t].[Note], [t].[Id], [u].[Nickname]
+ORDER BY [t].[Note], [t].[Id], [u].[Nickname], [u].[SquadId]
 """);
     }
 
@@ -4635,7 +4633,7 @@ LEFT JOIN (
     INNER JOIN [Squads] AS [s] ON [u0].[SquadId] = [s].[Id]
     LEFT JOIN [SquadMissions] AS [s0] ON [s].[Id] = [s0].[SquadId]
 ) AS [s1] ON [u].[Nickname] = [s1].[LeaderNickname] AND [u].[SquadId] = [s1].[LeaderSquadId]
-ORDER BY [u].[Nickname], [u].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0]
+ORDER BY [u].[Nickname], [u].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0], [s1].[MissionId]
 """);
     }
 
@@ -4657,77 +4655,6 @@ LEFT JOIN (
     SELECT [o].[Nickname], [o].[SquadId], [o].[HasSoulPatch]
     FROM [Officers] AS [o]
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
-""");
-    }
-
-    public override async Task ToString_enum_property_projection(bool async)
-    {
-        await base.ToString_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [u].[Rank]
-    WHEN 0 THEN N'None'
-    WHEN 1 THEN N'Private'
-    WHEN 2 THEN N'Corporal'
-    WHEN 4 THEN N'Sergeant'
-    WHEN 8 THEN N'Lieutenant'
-    WHEN 16 THEN N'Captain'
-    WHEN 32 THEN N'Major'
-    WHEN 64 THEN N'Colonel'
-    WHEN 128 THEN N'General'
-    ELSE CAST([u].[Rank] AS nvarchar(max))
-END
-FROM (
-    SELECT [g].[Rank]
-    FROM [Gears] AS [g]
-    UNION ALL
-    SELECT [o].[Rank]
-    FROM [Officers] AS [o]
-) AS [u]
-""");
-    }
-
-    public override async Task ToString_nullable_enum_property_projection(bool async)
-    {
-        await base.ToString_nullable_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END
-FROM [Weapons] AS [w]
-""");
-    }
-
-    public override async Task ToString_enum_contains(bool async)
-    {
-        await base.ToString_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [m].[CodeName]
-FROM [Missions] AS [m]
-WHERE [m].[Difficulty] LIKE N'%Med%'
-""");
-    }
-
-    public override async Task ToString_nullable_enum_contains(bool async)
-    {
-        await base.ToString_nullable_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [w].[Name]
-FROM [Weapons] AS [w]
-WHERE CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END LIKE N'%Cart%'
 """);
     }
 
@@ -5009,7 +4936,7 @@ LEFT JOIN (
     WHERE [s0].[MissionId] <> 17
 ) AS [s1] ON [s].[Id] = [s1].[SquadId]
 WHERE [u].[Nickname] <> N'Marcus'
-ORDER BY [u].[FullName], [u].[Nickname], [u].[SquadId], [s1].[SquadId]
+ORDER BY [u].[FullName], [u].[Nickname], [u].[SquadId], [s1].[SquadId], [s1].[MissionId]
 """);
     }
 
@@ -8401,7 +8328,7 @@ LEFT JOIN (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] IS NOT NULL AND [t].[GearSquadId] = [u].[SquadId] AND [t].[GearNickName] IS NOT NULL AND [t].[Note] IS NOT NULL
-ORDER BY [t].[Id], [u].[Nickname]
+ORDER BY [t].[Id], [u].[Nickname], [u].[SquadId]
 """);
     }
 
@@ -9961,7 +9888,7 @@ WHERE @rank = [u].[Rank]
         await AssertQueryScalar(
             async,
             ss => ss.Set<Mission>().Select(m => EF.Functions.DataLength(m.CodeName)),
-            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName.Length * 2)));
+            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName!.Length * 2)));
 
         AssertSql(
             """

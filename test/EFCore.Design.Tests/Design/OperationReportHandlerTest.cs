@@ -22,7 +22,7 @@ public class OperationReportHandlerTest
     [Fact]
     public void OnWarning_works()
     {
-        string result = null;
+        string? result = null;
         var handler = new OperationReportHandler(warningHandler: m => result = m);
         var message = "Princess Celestia is in danger.";
 
@@ -34,7 +34,7 @@ public class OperationReportHandlerTest
     [Fact]
     public void OnInformation_works()
     {
-        string result = null;
+        string? result = null;
         var handler = new OperationReportHandler(informationHandler: m => result = m);
         var message = "Princess Celestia is on her way.";
 
@@ -46,7 +46,7 @@ public class OperationReportHandlerTest
     [Fact]
     public void OnVerbose_works()
     {
-        string result = null;
+        string? result = null;
         var handler = new OperationReportHandler(verboseHandler: m => result = m);
         var message = "Princess Celestia is an alicorn.";
 

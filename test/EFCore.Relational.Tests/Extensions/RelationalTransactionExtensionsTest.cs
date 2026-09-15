@@ -73,7 +73,7 @@ public class RelationalTransactionExtensionsTest
     private const string ConnectionString = "Fake Connection String";
 
     public static IDbContextOptions CreateOptions(
-        FakeRelationalOptionsExtension optionsExtension = null)
+        FakeRelationalOptionsExtension? optionsExtension = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
 

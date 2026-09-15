@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable ConvertToConstant.Local
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<SqlExecutorModelCustomizer>, new()
 {
@@ -142,7 +140,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_positional_dbParameter_without_name(bool async)
     {
-        var city = CreateDbParameter(name: null, value: "London");
+        var city = CreateDbParameter(name: null!, value: "London");
 
         using var context = CreateContext();
 

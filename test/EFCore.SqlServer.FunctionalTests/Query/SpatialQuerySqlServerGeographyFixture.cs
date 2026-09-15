@@ -9,11 +9,9 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class SpatialQuerySqlServerGeographyFixture : SpatialQuerySqlServerFixture
 {
-    private GeometryFactory _geometryFactory;
+    private GeometryFactory _geometryFactory = null!;
 
     public NtsGeometryServices GeometryServices
         => LazyInitializer.EnsureInitialized(
@@ -43,9 +41,9 @@ public class SpatialQuerySqlServerGeographyFixture : SpatialQuerySqlServerFixtur
         ISqlServerSingletonOptions sqlServerSingletonOptions)
         : SqlServerTypeMappingSource(dependencies, relationalDependencies, sqlServerSingletonOptions)
     {
-        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => mappingInfo.ClrType == typeof(GeoPoint)
-                ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))
+                ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))!
                     .WithComposedConverter(new GeoPointConverter(CreateGeometryServices().CreateGeometryFactory())))
                 .WithStoreTypeAndSize("geography", null)
                 : base.FindMapping(mappingInfo);

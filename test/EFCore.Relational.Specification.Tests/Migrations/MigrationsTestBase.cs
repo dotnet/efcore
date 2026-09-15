@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : MigrationsTestBase<TFixture>.MigrationsFixtureBase, new()
 {
@@ -20,8 +18,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected MigrationsTestBase(TFixture fixture)
     {
         Fixture = fixture;
-        _sqlGenerationHelper = Fixture.ServiceProvider.GetService<ISqlGenerationHelper>();
-        _typeMappingSource = Fixture.ServiceProvider.GetService<IRelationalTypeMappingSource>();
+        _sqlGenerationHelper = Fixture.ServiceProvider.GetRequiredService<ISqlGenerationHelper>();
+        _typeMappingSource = Fixture.ServiceProvider.GetRequiredService<IRelationalTypeMappingSource>();
     }
 
     [Fact]
@@ -50,8 +48,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Create_table_all_settings()
     {
-        var intStoreType = TypeMappingSource.FindMapping(typeof(int)).StoreType;
-        var char11StoreType = TypeMappingSource.FindMapping(typeof(string), storeTypeName: null, size: 11).StoreType;
+        var intStoreType = TypeMappingSource.FindMapping(typeof(int))!.StoreType;
+        var char11StoreType = TypeMappingSource.FindMapping(typeof(string), storeTypeName: null, size: 11)!.StoreType;
 
         await Test(
             builder => builder.Entity(
@@ -726,7 +724,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected class Owner
     {
         public int Id { get; set; }
-        public Owned Owned { get; set; }
+        public Owned? Owned { get; set; }
     }
 
     protected class Owned
@@ -856,7 +854,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var table = Assert.Single(model.Tables);
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
-                Assert.Equal(TypeMappingSource.FindMapping(typeof(string)).StoreType, column.StoreType);
+                Assert.Equal(TypeMappingSource.FindMapping(typeof(string))!.StoreType, column.StoreType);
                 Assert.False(column.IsNullable);
             });
 
@@ -872,7 +870,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, unicode: false)
+                        .FindMapping(typeof(string), storeTypeName: null, unicode: false)!
                         .StoreType, column.StoreType);
                 Assert.True(column.IsNullable);
             });
@@ -889,7 +887,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, size: 30)
+                        .FindMapping(typeof(string), storeTypeName: null, size: 30)!
                         .StoreType,
                     column.StoreType);
             });
@@ -906,7 +904,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, size: -1)
+                        .FindMapping(typeof(string), storeTypeName: null, size: -1)!
                         .StoreType,
                     column.StoreType);
             });
@@ -934,7 +932,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, size: 30)
+                        .FindMapping(typeof(string), storeTypeName: null, size: 30)!
                         .StoreType,
                     column.StoreType);
             });
@@ -953,7 +951,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var column = Assert.Single(table.Columns, c => c.Name == "Name");
                 Assert.Equal(
                     TypeMappingSource
-                        .FindMapping(typeof(string), storeTypeName: null, fixedLength: true, size: 100)
+                        .FindMapping(typeof(string), storeTypeName: null, fixedLength: true, size: 100)!
                         .StoreType,
                     column.StoreType);
             });
@@ -1060,7 +1058,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var table = Assert.Single(model.Tables);
                 var column = Assert.Single(table.Columns, c => c.Name == "SomeColumn");
-                Assert.Equal(_typeMappingSource.FindMapping(typeof(long)).StoreType, column.StoreType);
+                Assert.Equal(_typeMappingSource.FindMapping(typeof(long))!.StoreType, column.StoreType);
             });
 
     [Fact]
@@ -1089,7 +1087,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     e.Property<int>("Id");
                     e.Property<string>("SomeColumn");
-                    e.HasData(new Dictionary<string, object> { { "Id", 1 }, { "SomeColumn", null } });
+                    e.HasData(new Dictionary<string, object?> { { "Id", 1 }, { "SomeColumn", null } });
                 }),
             builder => { },
             builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(),
@@ -1391,7 +1389,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     "Owned", "OwnedReference", o =>
                     {
                         o.Property<DateTime>("Date");
-                        o.ToTable("Owned", (string)null);
+                        o.ToTable("Owned", (string?)null);
                     })),
             target => target.Entity(
                 "Owned", e =>
@@ -1399,7 +1397,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("EntityId").ValueGeneratedNever();
                     e.HasKey("EntityId");
                     e.Property<DateTime>("Date");
-                    e.ToTable("Owned", (string)null);
+                    e.ToTable("Owned", (string?)null);
                 }),
             model =>
             {
@@ -2804,10 +2802,10 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected class MyComplex
     {
         [Required]
-        public string Prop { get; set; }
+        public string Prop { get; set; } = null!;
 
-        public MyNestedComplex Nested { get; set; }
-        public List<MyNestedComplex> NestedCollection { get; set; }
+        public MyNestedComplex Nested { get; set; } = null!;
+        public List<MyNestedComplex> NestedCollection { get; set; } = [];
     }
 
     public class MyNestedComplex
@@ -3407,16 +3405,16 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     protected class MyJsonComplex
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
         public DateTime Date { get; set; }
-        public MyNestedComplex Nested { get; set; }
-        public List<MyNestedComplex> NestedCollection { get; set; }
+        public MyNestedComplex Nested { get; set; } = null!;
+        public List<MyNestedComplex> NestedCollection { get; set; } = [];
     }
 
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int AnotherId { get; set; }
         public int Age { get; set; }
     }
@@ -3457,7 +3455,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected virtual Task Test(
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
-        Action<DatabaseModel> asserter,
+        Action<DatabaseModel>? asserter,
         bool withConventions = true,
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
         => Test(_ => { }, buildSourceAction, buildTargetAction, asserter, withConventions, migrationsSqlGenerationOptions);
@@ -3503,7 +3501,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         Action<ModelBuilder> buildCommonAction,
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
-        Action<DatabaseModel> asserter,
+        Action<DatabaseModel>? asserter,
         bool withConventions = true,
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
     {
@@ -3577,9 +3575,9 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     protected virtual async Task Test(
         IModel sourceModel,
-        IModel targetModel,
+        IModel? targetModel,
         IReadOnlyList<MigrationOperation> operations,
-        Action<DatabaseModel> asserter,
+        Action<DatabaseModel>? asserter,
         MigrationsSqlGenerationOptions migrationsSqlGenerationOptions = MigrationsSqlGenerationOptions.Default)
     {
         var context = CreateContext();
@@ -3669,14 +3667,14 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         var assembly = build.BuildInMemory();
-        var factoryType = assembly.GetType("MigrationsTestSnapshot");
+        var factoryType = assembly.GetType("MigrationsTestSnapshot")!;
 
         var buildModelMethod = factoryType.GetMethod(
             "BuildModel",
             BindingFlags.Instance | BindingFlags.NonPublic,
             null,
             [typeof(ModelBuilder)],
-            null);
+            null)!;
 
         var builder = new ModelBuilder();
         builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
@@ -3686,8 +3684,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             [builder]);
 
         var services = Fixture.TestHelpers.CreateContextServices();
-        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
-        return processor.Process(builder.Model);
+        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetRequiredService<IModelRuntimeInitializer>());
+        return processor.Process(builder.Model)!;
     }
 
     protected virtual ICollection<BuildReference> GetAdditionalReferences()

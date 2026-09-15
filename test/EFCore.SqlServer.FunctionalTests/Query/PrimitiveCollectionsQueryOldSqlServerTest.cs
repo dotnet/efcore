@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 /// <summary>
 ///     Runs all primitive collection tests with SQL Server compatibility level 120 (SQL Server 2014), which doesn't support OPENJSON.
 ///     This exercises the older translation paths for e.g. Contains, to make sure things work for providers with no queryable constant/

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class OptimisticConcurrencyULongSqliteTest(F1ULongSqliteFixture fixture)
     : OptimisticConcurrencySqliteTestBase<F1ULongSqliteFixture, ulong?>(fixture);
 

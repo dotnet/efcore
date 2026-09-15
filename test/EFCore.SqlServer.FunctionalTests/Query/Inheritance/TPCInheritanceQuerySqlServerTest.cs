@@ -3,7 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCInheritanceQuerySqlServerTest(TPCInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : TPCInheritanceQuerySqlServerTestBase<TPCInheritanceQuerySqlServerFixture>(fixture, testOutputHelper);

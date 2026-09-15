@@ -6,8 +6,6 @@ using Product = Microsoft.EntityFrameworkCore.TestModels.Northwind.Product;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>
     where TModelCustomizer : ITestModelCustomizer, new()
 {

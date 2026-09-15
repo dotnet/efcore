@@ -54,7 +54,7 @@ public class ObservableHashSetTest
         {
             Assert.Equal(NotifyCollectionChangedAction.Add, a.Action);
             Assert.Null(a.OldItems);
-            Assert.Equal(adding, a.NewItems.OfType<string>());
+            Assert.Equal(adding, a.NewItems!.OfType<string>());
             collectionChanged++;
         };
 
@@ -99,8 +99,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(testData.OrderBy(i => i), a.OldItems.OfType<int>().OrderBy(i => i));
-            Assert.Empty(a.NewItems);
+            Assert.Equal(testData.OrderBy(i => i), a.OldItems!.OfType<int>().OrderBy(i => i));
+            Assert.Empty(a.NewItems!);
             collectionChanged++;
         };
 
@@ -182,7 +182,7 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Remove, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>());
+            Assert.Equal(removing, a.OldItems!.OfType<string>());
             Assert.Null(a.NewItems);
             collectionChanged++;
         };
@@ -231,8 +231,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Empty(a.OldItems);
-            Assert.Equal(adding, a.NewItems.OfType<string>().OrderBy(i => i));
+            Assert.Empty(a.OldItems!);
+            Assert.Equal(adding, a.NewItems!.OfType<string>().OrderBy(i => i));
             collectionChanged++;
         };
 
@@ -273,8 +273,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>().OrderBy(i => i));
-            Assert.Empty(a.NewItems);
+            Assert.Equal(removing, a.OldItems!.OfType<string>().OrderBy(i => i));
+            Assert.Empty(a.NewItems!);
             collectionChanged++;
         };
 
@@ -315,8 +315,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>().OrderBy(i => i));
-            Assert.Empty(a.NewItems);
+            Assert.Equal(removing, a.OldItems!.OfType<string>().OrderBy(i => i));
+            Assert.Empty(a.NewItems!);
             collectionChanged++;
         };
 
@@ -358,8 +358,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>().OrderBy(i => i));
-            Assert.Equal(adding, a.NewItems.OfType<string>().OrderBy(i => i));
+            Assert.Equal(removing, a.OldItems!.OfType<string>().OrderBy(i => i));
+            Assert.Equal(adding, a.NewItems!.OfType<string>().OrderBy(i => i));
             collectionChanged++;
         };
 
@@ -481,8 +481,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>().OrderBy(i => i));
-            Assert.Empty(a.NewItems);
+            Assert.Equal(removing, a.OldItems!.OfType<string>().OrderBy(i => i));
+            Assert.Empty(a.NewItems!);
             collectionChanged++;
         };
 
@@ -516,7 +516,7 @@ public class ObservableHashSetTest
 
     private static void AssertCountChanging<T>(
         ObservableHashSet<T> hashSet,
-        object sender,
+        object? sender,
         PropertyChangingEventArgs eventArgs,
         int expectedCount,
         ref int changingCount)
@@ -529,7 +529,7 @@ public class ObservableHashSetTest
 
     private static void AssertCountChanged<T>(
         ObservableHashSet<T> hashSet,
-        object sender,
+        object? sender,
         PropertyChangedEventArgs eventArgs,
         ref int expectedCount,
         int countDelta,

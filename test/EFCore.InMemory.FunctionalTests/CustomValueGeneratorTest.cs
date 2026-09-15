@@ -150,8 +150,8 @@ public class CustomValueGeneratorTest
     {
         public Guid Id { get; set; }
         public Guid SpecialId { get; set; }
-        public string SpecialString { get; set; }
-        public string Name { get; set; }
+        public string SpecialString { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 
     private readonly string[] _names =
@@ -245,6 +245,6 @@ public class CustomValueGeneratorTest
                 : property.ClrType == typeof(string)
                 && property.DeclaringType.ClrType == typeof(SomeEntity)
                     ? new SomeEntityStringValueGenerator()
-                    : null;
+                    : null!;
     }
 }

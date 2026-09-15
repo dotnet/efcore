@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OperatorsQuerySqlServerTest(NonSharedFixture fixture) : OperatorsQueryTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -263,7 +261,7 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
 
         var actual = (from e in context.Set<OperatorEntityNullableDateTimeOffset>()
 #pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                      where EF.Functions.AtTimeZone(e.Value.Value, "UTC") == null
+                    where EF.Functions.AtTimeZone(e.Value!.Value, "UTC") == null
 #pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
                       select e.Id).ToList();
 

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class DesignTimeTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : DesignTimeTestBase<TFixture>.DesignTimeFixtureBase
 {
@@ -20,8 +18,8 @@ public abstract class DesignTimeTestBase<TFixture>(TFixture fixture) : IClassFix
             .AddEntityFrameworkDesignTimeServices();
         ((IDesignTimeServices)Activator.CreateInstance(
                 ProviderAssembly.GetType(
-                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
-                    throwOnError: true))!)
+                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>()!.TypeName,
+                    throwOnError: true)!)!)
             .ConfigureDesignTimeServices(serviceCollection);
         using var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
@@ -39,8 +37,8 @@ public abstract class DesignTimeTestBase<TFixture>(TFixture fixture) : IClassFix
             .AddDbContextDesignTimeServices(context);
         ((IDesignTimeServices)Activator.CreateInstance(
                 ProviderAssembly.GetType(
-                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
-                    throwOnError: true))!)
+                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>()!.TypeName,
+                    throwOnError: true)!)!)
             .ConfigureDesignTimeServices(serviceCollection);
         using var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 

@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
-    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
   </ItemGroup>
 
 </Project>

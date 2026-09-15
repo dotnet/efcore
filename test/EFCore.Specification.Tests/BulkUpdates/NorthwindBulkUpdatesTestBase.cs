@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-#nullable disable
-
 public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) : BulkUpdatesTestBase<TFixture>(fixture)
     where TFixture : NorthwindBulkUpdatesFixture<NoopModelCustomizer>, new()
 {
@@ -56,11 +54,11 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertUpdate(
             async,
             ss => ss.Set<Order>()
-                .Where(o => o.CustomerID.StartsWith("F"))
+                .Where(o => o.CustomerID!.StartsWith("F"))
                 .Select(e => new { e, e.Customer }),
             e => e.Customer,
             s => s
-                .SetProperty(c => c.Customer.ContactName, "Name")
+                .SetProperty(c => c.Customer!.ContactName, "Name")
                 .SetProperty(c => c.e.OrderDate, new DateTime(2020, 1, 1)),
             rowsAffectedCount: 0);
 
@@ -229,14 +227,14 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
     public virtual Task Delete_Where_using_navigation(bool async)
         => AssertDelete(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.Order.OrderDate.Value.Year == 2000),
+            ss => ss.Set<OrderDetail>().Where(od => od.Order.OrderDate!.Value.Year == 2000),
             rowsAffectedCount: 0);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_Where_using_navigation_2(bool async)
         => AssertDelete(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.Order.Customer.CustomerID.StartsWith("F")),
+            ss => ss.Set<OrderDetail>().Where(od => od.Order.Customer!.CustomerID.StartsWith("F")),
             rowsAffectedCount: 164);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -276,7 +274,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertDelete(
             async,
             ss => from od in ss.Set<OrderDetail>()
-                  where od.Order.Customer.City.StartsWith("Se")
+                  where od.Order.Customer!.City!.StartsWith("Se")
                   select od,
             rowsAffectedCount: 66);
 
@@ -368,7 +366,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             async,
             ss => ss.Set<Customer>().TagWith("MyUpdate"),
             e => e,
-            s => s.SetProperty(c => c.ContactName, (string)null),
+            s => s.SetProperty(c => c.ContactName, (string)null!),
             rowsAffectedCount: 91,
             (b, a) => Assert.All(a, c => Assert.Null(c.ContactName)));
 
@@ -476,12 +474,12 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
 
     private class Container
     {
-        public Containee Containee { get; set; }
+        public Containee Containee { get; set; } = null!;
     }
 
     private class Containee
     {
-        public string Property { get; set; }
+        public string Property { get; set; } = null!;
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -629,7 +627,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
     public virtual Task Update_Where_using_navigation_set_null(bool async)
         => AssertUpdate(
             async,
-            ss => ss.Set<Order>().Where(o => o.Customer.City == "Seattle"),
+            ss => ss.Set<Order>().Where(o => o.Customer!.City == "Seattle"),
             e => e,
             s => s.SetProperty(c => c.OrderDate, (DateTime?)null),
             rowsAffectedCount: 14,
@@ -639,7 +637,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
     public virtual Task Update_Where_using_navigation_2_set_constant(bool async)
         => AssertUpdate(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.Order.Customer.City == "Seattle"),
+            ss => ss.Set<OrderDetail>().Where(od => od.Order.Customer!.City == "Seattle"),
             e => e,
             s => s.SetProperty(c => c.Quantity, 1),
             rowsAffectedCount: 40,
@@ -704,7 +702,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
             e => e,
-            s => s.SetProperty(c => c.ContactName, (string)null),
+            s => s.SetProperty(c => c.ContactName, (string)null!),
             rowsAffectedCount: 8,
             (b, a) => Assert.All(a, c => Assert.Null(c.ContactName)));
 
@@ -824,7 +822,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
                     c => c.CustomerID,
                     (o, c) => new { Order = o, Customers = c }),
             e => e.Order,
-            s => s.SetProperty(t => t.Order.OrderDate, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+            s => s.SetProperty(t => t.Order!.OrderDate, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
             rowsAffectedCount: 2,
             // The RIGHT JOIN returns all F-prefixed customers; those without a matching order (OrderID < 10300) yield a null outer
             // Order, which is left untouched. Only the matched (non-null) orders are updated.
@@ -855,7 +853,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertUpdate(
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length)
+                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate!.Value.Year < c.ContactName!.Length)
                   select new { c, o },
             e => e.c,
             s => s.SetProperty(c => c.c.ContactName, "Updated"),
@@ -867,7 +865,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertUpdate(
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length).DefaultIfEmpty()
+                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate!.Value.Year < c.ContactName!.Length).DefaultIfEmpty()
                   select new { c, o },
             e => e.c,
             s => s.SetProperty(c => c.c.ContactName, "Updated"),
@@ -879,7 +877,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertUpdate(
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
+                  from c2 in ss.Set<Customer>().Where(c => c.City!.StartsWith("S"))
                   join o in ss.Set<Order>().Where(o => o.OrderID < 10300)
                       on c.CustomerID equals o.CustomerID into grouping
                   from o in grouping.DefaultIfEmpty()
@@ -899,8 +897,8 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertUpdate(
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
-                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length)
+                  from c2 in ss.Set<Customer>().Where(c => c.City!.StartsWith("S"))
+                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate!.Value.Year < c.ContactName!.Length)
                   select new { c, o },
             e => e.c,
             s => s.SetProperty(c => c.c.ContactName, "Updated"),
@@ -912,8 +910,8 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertUpdate(
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
-                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length).DefaultIfEmpty()
+                  from c2 in ss.Set<Customer>().Where(c => c.City!.StartsWith("S"))
+                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate!.Value.Year < c.ContactName!.Length).DefaultIfEmpty()
                   select new
                   {
                       c,
@@ -930,7 +928,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                .SelectMany(c => c.Orders.Where(o => o.OrderDate.Value.Year == 1997)),
+                .SelectMany(c => c.Orders.Where(o => o.OrderDate!.Value.Year == 1997)),
             e => e,
             s => s.SetProperty(c => c.OrderDate, (DateTime?)null),
             rowsAffectedCount: 35,
@@ -943,7 +941,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                   select new { c, LastOrder = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault() },
             e => e.c,
-            s => s.SetProperty(c => c.c.City, c => c.LastOrder.OrderDate.Value.Year.ToString()),
+            s => s.SetProperty(c => c.c.City, c => c.LastOrder.OrderDate!.Value.Year.ToString()),
             rowsAffectedCount: 8,
             (b, a) => Assert.All(a, c => Assert.NotNull(c.City)));
 
@@ -964,7 +962,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
         => AssertUpdate(
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                  select new { c, LastOrderDate = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault().OrderDate.Value.Year },
+                  select new { c, LastOrderDate = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault()!.OrderDate!.Value.Year },
             e => e.c,
             s => s.SetProperty(c => c.c.City, c => c.LastOrderDate.ToString()),
             rowsAffectedCount: 8,

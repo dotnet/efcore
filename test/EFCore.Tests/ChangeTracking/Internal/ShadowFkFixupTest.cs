@@ -1310,21 +1310,21 @@ public class ShadowFkFixupTest
     {
         public int Id { get; set; }
 
-        public Child Child { get; set; }
+        public Child Child { get; set; } = null!;
     }
 
     private class Child
     {
         public int Id { get; set; }
 
-        public Parent Parent { get; set; }
+        public Parent Parent { get; set; } = null!;
     }
 
     private class ParentPN
     {
         public int Id { get; set; }
 
-        public ChildPN Child { get; set; }
+        public ChildPN Child { get; set; } = null!;
     }
 
     private class ChildPN
@@ -1341,7 +1341,7 @@ public class ShadowFkFixupTest
     {
         public int Id { get; set; }
 
-        public ParentDN Parent { get; set; }
+        public ParentDN Parent { get; set; } = null!;
     }
 
     private class ParentNN
@@ -1363,7 +1363,7 @@ public class ShadowFkFixupTest
     {
         public int Id { get; set; }
 
-        public CategoryDN Category { get; set; }
+        public CategoryDN Category { get; set; } = null!;
     }
 
     private class CategoryPN
@@ -1399,7 +1399,7 @@ public class ShadowFkFixupTest
     {
         public int Id { get; set; }
 
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
 
         // ReSharper disable once CollectionNeverUpdated.Local
         public ICollection<SpecialOffer> SpecialOffers { get; } = new List<SpecialOffer>();
@@ -1409,7 +1409,7 @@ public class ShadowFkFixupTest
     {
         public int Id { get; set; }
 
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
     }
 
     private class FixupContext : DbContext

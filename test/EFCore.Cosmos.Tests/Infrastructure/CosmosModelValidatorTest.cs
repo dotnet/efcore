@@ -26,7 +26,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
         var model = Validate(modelBuilder);
 
-        Assert.Empty(model.FindEntityType(typeof(Customer)).GetKeys());
+        Assert.Empty(model.FindEntityType(typeof(Customer))!.GetKeys());
     }
 
     [Fact]
@@ -735,7 +735,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     private class NonVector
     {
         public Guid Id { get; set; }
-        public double[] Vector { get; set; }
+        public double[] Vector { get; set; } = null!;
     }
 
     [Fact]
@@ -775,13 +775,13 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
     private class EntityWithComplexTypeCollection
     {
-        public string Id { get; set; }
-        public List<ComplexTypeInCollection> ComplexTypes { get; set; }
+        public string Id { get; set; } = null!;
+        public List<ComplexTypeInCollection> ComplexTypes { get; set; } = null!;
     }
 
     private class ComplexTypeInCollection
     {
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
     }
 
     [Fact]
@@ -805,8 +805,8 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
     private class EntityWithVectorInComplexType
     {
-        public string Id { get; set; }
-        public EmbeddingDetails Details { get; set; }
+        public string Id { get; set; } = null!;
+        public EmbeddingDetails Details { get; set; } = null!;
     }
 
     private class EmbeddingDetails
@@ -898,19 +898,19 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
     private class EntityWithVectorsInComplexCollection
     {
-        public string Id { get; set; }
-        public List<EmbeddingDetails> Items { get; set; }
+        public string Id { get; set; } = null!;
+        public List<EmbeddingDetails> Items { get; set; } = null!;
     }
 
     private class EntityWithStringsInComplexCollection
     {
-        public string Id { get; set; }
-        public List<DescriptionItem> Items { get; set; }
+        public string Id { get; set; } = null!;
+        public List<DescriptionItem> Items { get; set; } = null!;
     }
 
     private class DescriptionItem
     {
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
     }
 
     [Fact]
@@ -986,13 +986,13 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
     protected class SpecialCustomer : Customer
     {
-        public string SpecialProperty { get; set; }
+        public string SpecialProperty { get; set; } = null!;
     }
 
     private class RememberMyName<T>
     {
-        public string Id { get; set; }
-        public T ForgetMeNot { get; set; }
+        public string Id { get; set; } = null!;
+        public T ForgetMeNot { get; set; } = default!;
     }
 
     protected override TestHelpers TestHelpers

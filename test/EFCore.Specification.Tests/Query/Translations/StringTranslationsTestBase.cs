@@ -19,7 +19,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     #region Equals
 
     [Fact]
-    public virtual Task Equals()
+    public virtual Task Instance_Equals()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("Seattle")))
             : AssertQuery(

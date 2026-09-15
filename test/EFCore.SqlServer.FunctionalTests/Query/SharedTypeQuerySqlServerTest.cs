@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class SharedTypeQuerySqlServerTest(NonSharedFixture fixture) : SharedTypeQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory

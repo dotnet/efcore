@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-#nullable disable
-
 public class SqliteDatabaseModelFactoryTest : IClassFixture<SqliteDatabaseModelFactoryTest.SqliteDatabaseModelFixture>
 {
     protected SqliteDatabaseModelFixture Fixture { get; }
@@ -186,9 +184,9 @@ SELECT
             [],
             dbModel =>
             {
-                var pk = dbModel.Tables.Single().PrimaryKey;
+                var pk = Assert.IsType<DatabasePrimaryKey>(dbModel.Tables.Single().PrimaryKey);
 
-                Assert.Equal("Place", pk.Table.Name);
+                Assert.Equal("Place", pk.Table!.Name);
                 Assert.Equal(
                     ["Id"], pk.Columns.Select(ic => ic.Name).ToList());
             },
@@ -238,7 +236,7 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
 
                 Assert.Equal(2, table.Indexes.Count);
                 Assert.All(
-                    table.Indexes, c => Assert.Equal("IndexTable", c.Table.Name));
+                    table.Indexes, c => Assert.Equal("IndexTable", c.Table!.Name));
 
                 Assert.Single(table.Indexes, c => c.Name == "IX_NAME");
                 Assert.Single(table.Indexes, c => c.Name == "IX_INDEX");
@@ -412,7 +410,7 @@ CREATE TABLE StoreType (
      InlineData("MULTIPOLYGONZM", null), InlineData("POINT", null), InlineData("POINTZ", null), InlineData("POINTM", null),
      InlineData("POINTZM", null), InlineData("POLYGON", null), InlineData("POLYGONZ", null), InlineData("POLYGONM", null),
      InlineData("POLYGONZM", null)]
-    public void Column_ClrType_is_set_when_no_data(string storeType, Type expected)
+    public void Column_ClrType_is_set_when_no_data(string storeType, Type? expected)
         => Test(
             $@"
 CREATE TABLE ClrType (
@@ -424,7 +422,7 @@ CREATE TABLE ClrType (
             {
                 var table = Assert.Single(model.Tables);
                 var column = Assert.Single(table.Columns);
-                Assert.Equal(expected, (Type)column[ScaffoldingAnnotationNames.ClrType]);
+                Assert.Equal(expected, (Type?)column[ScaffoldingAnnotationNames.ClrType]);
             },
             "DROP TABLE ClrType");
 
@@ -444,7 +442,7 @@ CREATE TABLE ClrType (
          "POINT",
          "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'",
          null)]
-    public void Column_ClrType_is_set_when_data(string storeType, string value, Type expected)
+    public void Column_ClrType_is_set_when_data(string storeType, string value, Type? expected)
         => Test(
             $@"
 CREATE TABLE IF NOT EXISTS ClrTypeWithData (
@@ -458,7 +456,7 @@ INSERT INTO ClrTypeWithData VALUES ({value});",
             {
                 var table = Assert.Single(model.Tables);
                 var column = Assert.Single(table.Columns);
-                Assert.Equal(expected, (Type)column[ScaffoldingAnnotationNames.ClrType]);
+                Assert.Equal(expected, (Type?)column[ScaffoldingAnnotationNames.ClrType]);
             },
             "DROP TABLE ClrTypeWithData");
 
@@ -473,7 +471,7 @@ INSERT INTO ClrTypeWithData VALUES ({value});",
      InlineData("TIME", "'A'", typeof(string)), InlineData("TIMEONLY", "'A'", typeof(string)),
      InlineData("TIMEONLY", "'24:00:00'", typeof(TimeSpan)), InlineData("BLOB", "1", null), InlineData("GEOMETRY", "1", null),
      InlineData("POINT", "1", null)]
-    public void Column_ClrType_is_set_when_insane(string storeType, string value, Type expected)
+    public void Column_ClrType_is_set_when_insane(string storeType, string value, Type? expected)
         => Test(
             $@"
 CREATE TABLE IF NOT EXISTS ClrTypeWithData (
@@ -487,7 +485,7 @@ INSERT INTO ClrTypeWithData VALUES ({value});",
             {
                 var table = Assert.Single(model.Tables);
                 var column = Assert.Single(table.Columns);
-                Assert.Equal(expected, (Type)column[ScaffoldingAnnotationNames.ClrType]);
+                Assert.Equal(expected, (Type?)column[ScaffoldingAnnotationNames.ClrType]);
             },
             "DROP TABLE ClrTypeWithData");
 
@@ -706,15 +704,15 @@ INSERT INTO MyTable VALUES (1, 1.1, 1.2, 1.3);",
 
                 var column = columns.Single(c => c.Name == "A");
                 Assert.Equal("-1.1111", column.DefaultValueSql);
-                Assert.Equal(-1.1111, (double)column.DefaultValue, 3);
+                Assert.Equal(-1.1111, (double)column.DefaultValue!, 3);
 
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("0.0", column.DefaultValueSql);
-                Assert.Equal(0, (double)column.DefaultValue, 3);
+                Assert.Equal(0, (double)column.DefaultValue!, 3);
 
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("1.1000000000000001e+000", column.DefaultValueSql);
-                Assert.Equal(1.1000000000000001e+000, (double)column.DefaultValue, 3);
+                Assert.Equal(1.1000000000000001e+000, (double)column.DefaultValue!, 3);
             },
             "DROP TABLE MyTable;");
 
@@ -737,15 +735,15 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3');",
 
                 var column = columns.Single(c => c.Name == "A");
                 Assert.Equal("-1.1111", column.DefaultValueSql);
-                Assert.Equal((float)-1.1111, (float)column.DefaultValue, 0.01);
+                Assert.Equal((float)-1.1111, (float)column.DefaultValue!, 0.01);
 
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("0.0", column.DefaultValueSql);
-                Assert.Equal(0, (float)column.DefaultValue, 0.01);
+                Assert.Equal(0, (float)column.DefaultValue!, 0.01);
 
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("1.1000000000000001e+000", column.DefaultValueSql);
-                Assert.Equal((float)1.1000000000000001e+000, (float)column.DefaultValue, 0.01);
+                Assert.Equal((float)1.1000000000000001e+000, (float)column.DefaultValue!, 0.01);
             },
             "DROP TABLE MyTable;");
 
@@ -769,7 +767,7 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
 
                 var column = columns.Single(c => c.Name == "A");
                 Assert.Equal("'-1.1111'", column.DefaultValueSql);
-                Assert.Equal((decimal)-1.1111, column.DefaultValue);
+                Assert.Equal(-1.1111m, column.DefaultValue);
 
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("'0.0'", column.DefaultValueSql);
@@ -812,7 +810,7 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
 
                     var column = columns.Single(c => c.Name == "A");
                     Assert.Equal("'-1.1111'", column.DefaultValueSql);
-                    Assert.Equal((decimal)-1.1111, column.DefaultValue);
+                    Assert.Equal(-1.1111m, column.DefaultValue);
 
                     column = columns.Single(c => c.Name == "B");
                     Assert.Equal("'0.0'", column.DefaultValueSql);
@@ -1116,9 +1114,9 @@ CREATE TABLE CompositePrimaryKey (
             [],
             dbModel =>
             {
-                var pk = dbModel.Tables.Single().PrimaryKey;
+                var pk = Assert.IsType<DatabasePrimaryKey>(dbModel.Tables.Single().PrimaryKey);
 
-                Assert.Equal("CompositePrimaryKey", pk.Table.Name);
+                Assert.Equal("CompositePrimaryKey", pk.Table!.Name);
                 Assert.Equal(
                     ["Id2", "Id1"], pk.Columns.Select(ic => ic.Name).ToList());
             },
@@ -1135,9 +1133,9 @@ CREATE TABLE RowidPrimaryKey (
             [],
             dbModel =>
             {
-                var pk = dbModel.Tables.Single().PrimaryKey;
+                var pk = Assert.IsType<DatabasePrimaryKey>(dbModel.Tables.Single().PrimaryKey);
 
-                Assert.Equal("RowidPrimaryKey", pk.Table.Name);
+                Assert.Equal("RowidPrimaryKey", pk.Table!.Name);
                 Assert.Equal(
                     ["Id"], pk.Columns.Select(ic => ic.Name).ToList());
             },
@@ -1155,9 +1153,9 @@ CREATE TABLE PrimaryKeyName (
             [],
             dbModel =>
             {
-                var pk = dbModel.Tables.Single().PrimaryKey;
+                var pk = Assert.IsType<DatabasePrimaryKey>(dbModel.Tables.Single().PrimaryKey);
 
-                Assert.Equal("PrimaryKeyName", pk.Table.Name);
+                Assert.Equal("PrimaryKeyName", pk.Table!.Name);
                 Assert.Equal("PK", pk.Name);
                 Assert.Equal(
                     ["Id"], pk.Columns.Select(ic => ic.Name).ToList());
@@ -1233,7 +1231,7 @@ CREATE INDEX IX_COMPOSITE on CompositeIndex (Id2, Id1);",
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
                 // ReSharper disable once PossibleNullReferenceException
-                Assert.Equal("CompositeIndex", index.Table.Name);
+                Assert.Equal("CompositeIndex", index.Table!.Name);
                 Assert.Equal("IX_COMPOSITE", index.Name);
                 Assert.Equal(
                     ["Id2", "Id1"], index.Columns.Select(ic => ic.Name).ToList());
@@ -1257,7 +1255,7 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
                 // ReSharper disable once PossibleNullReferenceException
-                Assert.Equal("UniqueIndex", index.Table.Name);
+                Assert.Equal("UniqueIndex", index.Table!.Name);
                 Assert.Equal("IX_UNIQUE", index.Name);
                 Assert.True(index.IsUnique);
                 Assert.Equal(

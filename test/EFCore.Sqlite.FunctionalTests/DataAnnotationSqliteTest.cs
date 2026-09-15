@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnnotationSqliteTest.DataAnnotationSqliteFixture>
 {
     public DataAnnotationSqliteTest(DataAnnotationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
@@ -83,7 +81,7 @@ public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnn
     {
         var model = base.TableNameAttribute_affects_table_name_in_TPH();
 
-        var relational = model.FindEntityType(typeof(TNAttrBase));
+        var relational = model.FindEntityType(typeof(TNAttrBase))!;
         Assert.Equal("A", relational.GetTableName());
 
         return model;
@@ -155,7 +153,7 @@ RETURNING "Unique_No";
     public override Task MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
         using var context = CreateContext();
-        Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
+        Assert.Equal(10, context.Model.FindEntityType(typeof(One))!.FindProperty("MaxLengthProperty")!.GetMaxLength());
         return Task.CompletedTask;
     }
 
@@ -163,7 +161,7 @@ RETURNING "Unique_No";
     public override Task StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
         using var context = CreateContext();
-        Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
+        Assert.Equal(16, context.Model.FindEntityType(typeof(Two))!.FindProperty("Data")!.GetMaxLength());
         return Task.CompletedTask;
     }
 
@@ -171,7 +169,7 @@ RETURNING "Unique_No";
     public override Task TimestampAttribute_throws_if_value_in_database_changed()
     {
         using var context = CreateContext();
-        Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
+        Assert.True(context.Model.FindEntityType(typeof(Two))!.FindProperty("Timestamp")!.IsConcurrencyToken);
         return Task.CompletedTask;
     }
 

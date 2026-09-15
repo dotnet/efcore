@@ -13,8 +13,6 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable PossibleInvalidOperationException
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 [ConditionalClass(
     typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql), nameof(SqlServerTestEnvironment.IsUtf8Supported))]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
@@ -706,7 +704,7 @@ WHERE [m].[TimeSpanAsTime] = @timeSpan
         {
             var results = context.Set<MappedNullableDataTypes>()
                 .Where(e => e.Int == 81)
-                .Select(m => m.StringAsVarcharMax.IndexOf("a"))
+                .Select(m => m.StringAsVarcharMax!.IndexOf("a"))
                 .ToList();
 
             Assert.Equal(-1, Assert.Single(results));
@@ -1083,10 +1081,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsVarcharMax == param60));
 
             object param61 = "Bang!";
-            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantString.Equals(param61)));
+            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantString!.Equals(param61)));
 
             object param62 = 887876;
-            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantInt.Equals(param62)));
+            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantInt!.Equals(param62)));
         }
     }
 
@@ -1161,49 +1159,49 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             TimeSpan? param13b = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.TimeSpanAsTime == param13b));
 
-            string param19 = null;
+            string? param19 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsVarcharMax == param19));
 
-            string param20 = null;
+            string? param20 = null;
             Assert.Same(
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsCharVaryingMax == param20));
 
-            string param21 = null;
+            string? param21 = null;
             Assert.Same(
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsCharacterVaryingMax == param21));
 
-            string param27 = null;
+            string? param27 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNvarcharMax == param27));
 
-            string param28 = null;
+            string? param28 = null;
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNationalCharVaryingMax == param28));
 
-            string param29 = null;
+            string? param29 = null;
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNationalCharacterVaryingMax == param29));
 
-            string param30 = null;
+            string? param30 = null;
 
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsText == param30));
 
-            string param31 = null;
+            string? param31 = null;
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNtext == param31));
 
-            byte[] param35 = null;
+            byte[]? param35 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsVarbinaryMax == param35));
 
-            byte[] param36 = null;
+            byte[]? param36 = null;
             Assert.Same(
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsBinaryVaryingMax == param36));
 
-            byte[] param37 = null;
+            byte[]? param37 = null;
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsImage == param37));
@@ -1283,9 +1281,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             StringEnum16? param60 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.EnumAsVarcharMax == param60));
 
-            object param61 = null;
+            object? param61 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantString == param61));
-            object param62 = null;
+            object? param62 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantInt == param62));
         }
     }
@@ -1752,8 +1750,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
     {
         Assert.Equal(id, entity.Int);
         Assert.Equal(78, entity.LongAsBigint);
-        Assert.Equal(79, entity.ShortAsSmallint.Value);
-        Assert.Equal(80, entity.ByteAsTinyint.Value);
+        Assert.Equal(79, entity.ShortAsSmallint!.Value);
+        Assert.Equal(80, entity.ByteAsTinyint!.Value);
         Assert.Equal(uint.MaxValue, entity.UintAsInt);
         Assert.Equal(ulong.MaxValue, entity.UlongAsBigint);
         Assert.Equal(ushort.MaxValue, entity.UShortAsSmallint);
@@ -2839,8 +2837,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
     {
         Assert.Equal(id, entity.Int);
         Assert.Equal(78, entity.LongAsBigint);
-        Assert.Equal(79, entity.ShortAsSmallint.Value);
-        Assert.Equal(80, entity.ByteAsTinyint.Value);
+        Assert.Equal(79, entity.ShortAsSmallint!.Value);
+        Assert.Equal(80, entity.ByteAsTinyint!.Value);
         Assert.Equal(uint.MaxValue, entity.UintAsInt);
         Assert.Equal(ulong.MaxValue, entity.UlongAsBigint);
         Assert.Equal(ushort.MaxValue, entity.UshortAsSmallint);
@@ -3697,7 +3695,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             {
                 Assert.Equal(
                     columnType.ToLowerInvariant(),
-                    typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
+                    typeMapper.FindMapping(property)!.StoreType.ToLowerInvariant());
             }
         }
     }
@@ -3903,7 +3901,7 @@ WHERE [x].[Id] = @id
     private class XmlTestDocument
     {
         public int Id { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
     }
 
     private void AssertSql(params string[] expected)
@@ -3967,9 +3965,10 @@ WHERE [x].[Id] = @id
             modelBuilder.Entity<MappedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedNullableDataTypesWithIdentity>();
 
-            modelBuilder.Entity<MappedSizedDataTypes>()
-                .Property(e => e.Id)
-                .ValueGeneratedNever();
+            modelBuilder.Entity<MappedSizedDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
             modelBuilder.Entity<MappedScaledDataTypes>(b =>
             {
@@ -4059,6 +4058,25 @@ WHERE [x].[Id] = @id
                 b.Property(e => e.DecimalAsDec52).HasPrecision(5, 2);
                 b.Property(e => e.DecimalAsNumeric52).HasPrecision(5, 2);
             });
+
+            MakeReferencePropertiesOptional<MappedNullableDataTypes>(modelBuilder);
+            MakeReferencePropertiesOptional<MappedNullableDataTypesWithIdentity>(modelBuilder);
+            MakeReferencePropertiesOptional<MappedSizedDataTypes>(modelBuilder);
+            MakeReferencePropertiesOptional<MappedSizedDataTypesWithIdentity>(modelBuilder);
+            MakeReferencePropertiesOptional<MappedSizedSeparatelyDataTypes>(modelBuilder);
+            MakeReferencePropertiesOptional<XmlTestDocument>(modelBuilder);
+        }
+
+        private static void MakeReferencePropertiesOptional<TEntity>(ModelBuilder modelBuilder)
+            where TEntity : class
+        {
+            foreach (var property in modelBuilder.Entity<TEntity>().Metadata.GetDeclaredProperties())
+            {
+                if (!property.ClrType.IsValueType)
+                {
+                    property.IsNullable = true;
+                }
+            }
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -4162,46 +4180,46 @@ WHERE [x].[Id] = @id
         public TimeSpan TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "varchar(max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string StringAsVarcharMax { get; set; } = null!;
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsCharVaryingMax { get; set; }
+        public string StringAsCharVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "character varying(max)")]
-        public string StringAsCharacterVaryingMax { get; set; }
+        public string StringAsCharacterVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "nvarchar(max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string StringAsNvarcharMax { get; set; } = null!;
 
         [Column(TypeName = "national char varying(max)")]
-        public string StringAsNationalCharVaryingMax { get; set; }
+        public string StringAsNationalCharVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "national character varying(max)")]
-        public string StringAsNationalCharacterVaryingMax { get; set; }
+        public string StringAsNationalCharacterVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "varchar(max)"), Unicode]
-        public string StringAsVarcharMaxUtf8 { get; set; }
+        public string StringAsVarcharMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "char varying(max)"), Unicode]
-        public string StringAsCharVaryingMaxUtf8 { get; set; }
+        public string StringAsCharVaryingMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "character varying(max)"), Unicode]
-        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+        public string StringAsCharacterVaryingMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "text")]
-        public string StringAsText { get; set; }
+        public string StringAsText { get; set; } = null!;
 
         [Column(TypeName = "ntext")]
-        public string StringAsNtext { get; set; }
+        public string StringAsNtext { get; set; } = null!;
 
         [Column(TypeName = "varbinary(max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[] BytesAsVarbinaryMax { get; set; } = null!;
 
         [Column(TypeName = "binary varying(max)")]
-        public byte[] BytesAsBinaryVaryingMax { get; set; }
+        public byte[] BytesAsBinaryVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "image")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[] BytesAsImage { get; set; } = null!;
 
         [Column(TypeName = "decimal")]
         public decimal Decimal { get; set; }
@@ -4261,10 +4279,10 @@ WHERE [x].[Id] = @id
         public StringEnumU16 EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantString { get; set; }
+        public object SqlVariantString { get; set; } = null!;
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantInt { get; set; }
+        public object SqlVariantInt { get; set; } = null!;
     }
 
     protected class MappedSquareDataTypes
@@ -4333,22 +4351,22 @@ WHERE [x].[Id] = @id
         public TimeSpan TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "[varchar](max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string StringAsVarcharMax { get; set; } = null!;
 
         [Column(TypeName = "[nvarchar](max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string StringAsNvarcharMax { get; set; } = null!;
 
         [Column(TypeName = "[text]")]
-        public string StringAsText { get; set; }
+        public string StringAsText { get; set; } = null!;
 
         [Column(TypeName = "[ntext]")]
-        public string StringAsNtext { get; set; }
+        public string StringAsNtext { get; set; } = null!;
 
         [Column(TypeName = "[varbinary](max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[] BytesAsVarbinaryMax { get; set; } = null!;
 
         [Column(TypeName = "[image]")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[] BytesAsImage { get; set; } = null!;
 
         [Column(TypeName = "[decimal]")]
         public decimal Decimal { get; set; }
@@ -4396,10 +4414,10 @@ WHERE [x].[Id] = @id
         public StringEnumU16 EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "[sql_variant]")]
-        public object SqlVariantString { get; set; }
+        public object SqlVariantString { get; set; } = null!;
 
         [Column(TypeName = "[sql_variant]")]
-        public object SqlVariantInt { get; set; }
+        public object SqlVariantInt { get; set; } = null!;
     }
 
     protected class MappedSizedDataTypes
@@ -4407,58 +4425,58 @@ WHERE [x].[Id] = @id
         public int Id { get; set; }
 
         [Column(TypeName = "char(3)")]
-        public string StringAsChar3 { get; set; }
+        public string? StringAsChar3 { get; set; }
 
         [Column(TypeName = "character(3)")]
-        public string StringAsCharacter3 { get; set; }
+        public string? StringAsCharacter3 { get; set; }
 
         [Column(TypeName = "varchar(3)")]
-        public string StringAsVarchar3 { get; set; }
+        public string? StringAsVarchar3 { get; set; }
 
         [Column(TypeName = "char varying(3)")]
-        public string StringAsCharVarying3 { get; set; }
+        public string? StringAsCharVarying3 { get; set; }
 
         [Column(TypeName = "character varying(3)")]
-        public string StringAsCharacterVarying3 { get; set; }
+        public string? StringAsCharacterVarying3 { get; set; }
 
         [Column(TypeName = "nchar(3)")]
-        public string StringAsNchar3 { get; set; }
+        public string? StringAsNchar3 { get; set; }
 
         [Column(TypeName = "national character(3)")]
-        public string StringAsNationalCharacter3 { get; set; }
+        public string? StringAsNationalCharacter3 { get; set; }
 
         [Column(TypeName = "nvarchar(3)")]
-        public string StringAsNvarchar3 { get; set; }
+        public string? StringAsNvarchar3 { get; set; }
 
         [Column(TypeName = "national char varying(3)")]
-        public string StringAsNationalCharVarying3 { get; set; }
+        public string? StringAsNationalCharVarying3 { get; set; }
 
         [Column(TypeName = "national character varying(3)")]
-        public string StringAsNationalCharacterVarying3 { get; set; }
+        public string? StringAsNationalCharacterVarying3 { get; set; }
 
         [Column(TypeName = "char(3)"), Unicode]
-        public string StringAsChar3Utf8 { get; set; }
+        public string? StringAsChar3Utf8 { get; set; }
 
         [Column(TypeName = "character(3)"), Unicode]
-        public string StringAsCharacter3Utf8 { get; set; }
+        public string? StringAsCharacter3Utf8 { get; set; }
 
         [Column(TypeName = "varchar(3)"), Unicode]
-        public string StringAsVarchar3Utf8 { get; set; }
+        public string? StringAsVarchar3Utf8 { get; set; }
 
         [Column(TypeName = "char varying(3)"), Unicode]
-        public string StringAsCharVarying3Utf8 { get; set; }
+        public string? StringAsCharVarying3Utf8 { get; set; }
 
         [Column(TypeName = "character varying(3)"), Unicode]
-        public string StringAsCharacterVarying3Utf8 { get; set; }
+        public string? StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary(3)")]
-        public byte[] BytesAsBinary3 { get; set; }
+        public byte[]? BytesAsBinary3 { get; set; }
 
         [Column(TypeName = "varbinary(3)")]
-        public byte[] BytesAsVarbinary3 { get; set; }
+        public byte[]? BytesAsVarbinary3 { get; set; }
 
         [Column(TypeName = "binary varying(3)")]
-        public byte[] BytesAsBinaryVarying3 { get; set; }
+        public byte[]? BytesAsBinaryVarying3 { get; set; }
 
         [Column(TypeName = "varchar(3)")]
         public char? CharAsVarchar3 { get; set; }
@@ -4484,58 +4502,58 @@ WHERE [x].[Id] = @id
         public int Id { get; set; }
 
         [Column(TypeName = "char")]
-        public string StringAsChar3 { get; set; }
+        public string? StringAsChar3 { get; set; }
 
         [Column(TypeName = "character")]
-        public string StringAsCharacter3 { get; set; }
+        public string? StringAsCharacter3 { get; set; }
 
         [Column(TypeName = "varchar")]
-        public string StringAsVarchar3 { get; set; }
+        public string? StringAsVarchar3 { get; set; }
 
         [Column(TypeName = "char varying")]
-        public string StringAsCharVarying3 { get; set; }
+        public string? StringAsCharVarying3 { get; set; }
 
         [Column(TypeName = "character varying")]
-        public string StringAsCharacterVarying3 { get; set; }
+        public string? StringAsCharacterVarying3 { get; set; }
 
         [Column(TypeName = "nchar")]
-        public string StringAsNchar3 { get; set; }
+        public string? StringAsNchar3 { get; set; }
 
         [Column(TypeName = "national character")]
-        public string StringAsNationalCharacter3 { get; set; }
+        public string? StringAsNationalCharacter3 { get; set; }
 
         [Column(TypeName = "nvarchar")]
-        public string StringAsNvarchar3 { get; set; }
+        public string? StringAsNvarchar3 { get; set; }
 
         [Column(TypeName = "national char varying")]
-        public string StringAsNationalCharVarying3 { get; set; }
+        public string? StringAsNationalCharVarying3 { get; set; }
 
         [Column(TypeName = "national character varying")]
-        public string StringAsNationalCharacterVarying3 { get; set; }
+        public string? StringAsNationalCharacterVarying3 { get; set; }
 
         [Column(TypeName = "char")]
-        public string StringAsChar3Utf8 { get; set; }
+        public string? StringAsChar3Utf8 { get; set; }
 
         [Column(TypeName = "character")]
-        public string StringAsCharacter3Utf8 { get; set; }
+        public string? StringAsCharacter3Utf8 { get; set; }
 
         [Column(TypeName = "varchar")]
-        public string StringAsVarchar3Utf8 { get; set; }
+        public string? StringAsVarchar3Utf8 { get; set; }
 
         [Column(TypeName = "char varying")]
-        public string StringAsCharVarying3Utf8 { get; set; }
+        public string? StringAsCharVarying3Utf8 { get; set; }
 
         [Column(TypeName = "character varying")]
-        public string StringAsCharacterVarying3Utf8 { get; set; }
+        public string? StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary")]
-        public byte[] BytesAsBinary3 { get; set; }
+        public byte[]? BytesAsBinary3 { get; set; }
 
         [Column(TypeName = "varbinary")]
-        public byte[] BytesAsVarbinary3 { get; set; }
+        public byte[]? BytesAsVarbinary3 { get; set; }
 
         [Column(TypeName = "binary varying")]
-        public byte[] BytesAsBinaryVarying3 { get; set; }
+        public byte[]? BytesAsBinaryVarying3 { get; set; }
 
         [Column(TypeName = "varchar")]
         public char? CharAsVarchar3 { get; set; }
@@ -4737,46 +4755,46 @@ WHERE [x].[Id] = @id
         public TimeSpan? TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "varchar(max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string? StringAsVarcharMax { get; set; }
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsCharVaryingMax { get; set; }
+        public string? StringAsCharVaryingMax { get; set; }
 
         [Column(TypeName = "character varying(max)")]
-        public string StringAsCharacterVaryingMax { get; set; }
+        public string? StringAsCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "nvarchar(max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string? StringAsNvarcharMax { get; set; }
 
         [Column(TypeName = "national char varying(max)"), MaxLength(100)]
-        public string StringAsNationalCharVaryingMax { get; set; }
+        public string? StringAsNationalCharVaryingMax { get; set; }
 
         [Column(TypeName = "national character varying(max)"), StringLength(100)]
-        public string StringAsNationalCharacterVaryingMax { get; set; }
+        public string? StringAsNationalCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "varchar(max)"), Unicode]
-        public string StringAsVarcharMaxUtf8 { get; set; }
+        public string? StringAsVarcharMaxUtf8 { get; set; }
 
         [Column(TypeName = "char varying(max)"), Unicode]
-        public string StringAsCharVaryingMaxUtf8 { get; set; }
+        public string? StringAsCharVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "character varying(max)"), Unicode]
-        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+        public string? StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
-        public string StringAsText { get; set; }
+        public string? StringAsText { get; set; }
 
         [Column(TypeName = "ntext")]
-        public string StringAsNtext { get; set; }
+        public string? StringAsNtext { get; set; }
 
         [Column(TypeName = "varbinary(max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[]? BytesAsVarbinaryMax { get; set; }
 
         [Column(TypeName = "binary varying(max)")]
-        public byte[] BytesAsBinaryVaryingMax { get; set; }
+        public byte[]? BytesAsBinaryVaryingMax { get; set; }
 
         [Column(TypeName = "image")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[]? BytesAsImage { get; set; }
 
         [Column(TypeName = "decimal")]
         public decimal? Decimal { get; set; }
@@ -4836,10 +4854,10 @@ WHERE [x].[Id] = @id
         public StringEnumU16? EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantString { get; set; }
+        public object? SqlVariantString { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantInt { get; set; }
+        public object? SqlVariantInt { get; set; }
     }
 
     protected class MappedDataTypesWithIdentity
@@ -4913,46 +4931,46 @@ WHERE [x].[Id] = @id
         public TimeSpan TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "varchar(max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string StringAsVarcharMax { get; set; } = null!;
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsCharVaryingMax { get; set; }
+        public string StringAsCharVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "character varying(max)")]
-        public string StringAsCharacterVaryingMax { get; set; }
+        public string StringAsCharacterVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "nvarchar(max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string StringAsNvarcharMax { get; set; } = null!;
 
         [Column(TypeName = "national char varying(max)")]
-        public string StringAsNationalCharVaryingMax { get; set; }
+        public string StringAsNationalCharVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "national character varying(max)")]
-        public string StringAsNationalCharacterVaryingMax { get; set; }
+        public string StringAsNationalCharacterVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "varchar(max)"), Unicode]
-        public string StringAsVarcharMaxUtf8 { get; set; }
+        public string StringAsVarcharMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "char varying(max)"), Unicode]
-        public string StringAsCharVaryingMaxUtf8 { get; set; }
+        public string StringAsCharVaryingMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "character varying(max)"), Unicode]
-        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+        public string StringAsCharacterVaryingMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "text")]
-        public string StringAsText { get; set; }
+        public string StringAsText { get; set; } = null!;
 
         [Column(TypeName = "ntext")]
-        public string StringAsNtext { get; set; }
+        public string StringAsNtext { get; set; } = null!;
 
         [Column(TypeName = "varbinary(max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[] BytesAsVarbinaryMax { get; set; } = null!;
 
         [Column(TypeName = "binary varying(max)")]
-        public byte[] BytesAsBinaryVaryingMax { get; set; }
+        public byte[] BytesAsBinaryVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "image")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[] BytesAsImage { get; set; } = null!;
 
         [Column(TypeName = "decimal")]
         public decimal Decimal { get; set; }
@@ -5012,10 +5030,10 @@ WHERE [x].[Id] = @id
         public StringEnumU16 EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantString { get; set; }
+        public object SqlVariantString { get; set; } = null!;
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantInt { get; set; }
+        public object SqlVariantInt { get; set; } = null!;
     }
 
     protected class MappedSizedDataTypesWithIdentity
@@ -5024,58 +5042,58 @@ WHERE [x].[Id] = @id
         public int Int { get; set; }
 
         [Column(TypeName = "char(3)")]
-        public string StringAsChar3 { get; set; }
+        public string? StringAsChar3 { get; set; }
 
         [Column(TypeName = "character(3)")]
-        public string StringAsCharacter3 { get; set; }
+        public string? StringAsCharacter3 { get; set; }
 
         [Column(TypeName = "varchar(3)")]
-        public string StringAsVarchar3 { get; set; }
+        public string? StringAsVarchar3 { get; set; }
 
         [Column(TypeName = "char varying(3)")]
-        public string StringAsCharVarying3 { get; set; }
+        public string? StringAsCharVarying3 { get; set; }
 
         [Column(TypeName = "character varying(3)")]
-        public string StringAsCharacterVarying3 { get; set; }
+        public string? StringAsCharacterVarying3 { get; set; }
 
         [Column(TypeName = "nchar(3)")]
-        public string StringAsNchar3 { get; set; }
+        public string? StringAsNchar3 { get; set; }
 
         [Column(TypeName = "national character(3)")]
-        public string StringAsNationalCharacter3 { get; set; }
+        public string? StringAsNationalCharacter3 { get; set; }
 
         [Column(TypeName = "nvarchar(3)")]
-        public string StringAsNvarchar3 { get; set; }
+        public string? StringAsNvarchar3 { get; set; }
 
         [Column(TypeName = "national char varying(3)")]
-        public string StringAsNationalCharVarying3 { get; set; }
+        public string? StringAsNationalCharVarying3 { get; set; }
 
         [Column(TypeName = "national character varying(3)")]
-        public string StringAsNationalCharacterVarying3 { get; set; }
+        public string? StringAsNationalCharacterVarying3 { get; set; }
 
         [Column(TypeName = "char(3)"), Unicode]
-        public string StringAsChar3Utf8 { get; set; }
+        public string? StringAsChar3Utf8 { get; set; }
 
         [Column(TypeName = "character(3)"), Unicode]
-        public string StringAsCharacter3Utf8 { get; set; }
+        public string? StringAsCharacter3Utf8 { get; set; }
 
         [Column(TypeName = "varchar(3)"), Unicode]
-        public string StringAsVarchar3Utf8 { get; set; }
+        public string? StringAsVarchar3Utf8 { get; set; }
 
         [Column(TypeName = "char varying(3)"), Unicode]
-        public string StringAsCharVarying3Utf8 { get; set; }
+        public string? StringAsCharVarying3Utf8 { get; set; }
 
         [Column(TypeName = "character varying(3)"), Unicode]
-        public string StringAsCharacterVarying3Utf8 { get; set; }
+        public string? StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary(3)")]
-        public byte[] BytesAsBinary3 { get; set; }
+        public byte[]? BytesAsBinary3 { get; set; }
 
         [Column(TypeName = "varbinary(3)")]
-        public byte[] BytesAsVarbinary3 { get; set; }
+        public byte[]? BytesAsVarbinary3 { get; set; }
 
         [Column(TypeName = "binary varying(3)")]
-        public byte[] BytesAsBinaryVarying3 { get; set; }
+        public byte[]? BytesAsBinaryVarying3 { get; set; }
 
         [Column(TypeName = "varchar(3)")]
         public char? CharAsVarchar3 { get; set; }
@@ -5221,46 +5239,46 @@ WHERE [x].[Id] = @id
         public TimeSpan? TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "varchar(max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string? StringAsVarcharMax { get; set; }
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsCharVaryingMax { get; set; }
+        public string? StringAsCharVaryingMax { get; set; }
 
         [Column(TypeName = "character varying(max)")]
-        public string StringAsCharacterVaryingMax { get; set; }
+        public string? StringAsCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "nvarchar(max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string? StringAsNvarcharMax { get; set; }
 
         [Column(TypeName = "national char varying(max)")]
-        public string StringAsNationalCharVaryingMax { get; set; }
+        public string? StringAsNationalCharVaryingMax { get; set; }
 
         [Column(TypeName = "national character varying(max)")]
-        public string StringAsNationalCharacterVaryingMax { get; set; }
+        public string? StringAsNationalCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "varchar(max)"), Unicode]
-        public string StringAsVarcharMaxUtf8 { get; set; }
+        public string? StringAsVarcharMaxUtf8 { get; set; }
 
         [Column(TypeName = "char varying(max)"), Unicode]
-        public string StringAsCharVaryingMaxUtf8 { get; set; }
+        public string? StringAsCharVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "character varying(max)"), Unicode]
-        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+        public string? StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
-        public string StringAsText { get; set; }
+        public string? StringAsText { get; set; }
 
         [Column(TypeName = "ntext")]
-        public string StringAsNtext { get; set; }
+        public string? StringAsNtext { get; set; }
 
         [Column(TypeName = "varbinary(max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[]? BytesAsVarbinaryMax { get; set; }
 
         [Column(TypeName = "binary varying(max)")]
-        public byte[] BytesAsVaryingMax { get; set; }
+        public byte[]? BytesAsVaryingMax { get; set; }
 
         [Column(TypeName = "image")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[]? BytesAsImage { get; set; }
 
         [Column(TypeName = "decimal")]
         public decimal? Decimal { get; set; }
@@ -5320,17 +5338,17 @@ WHERE [x].[Id] = @id
         public StringEnumU16? EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantString { get; set; }
+        public object? SqlVariantString { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantInt { get; set; }
+        public object? SqlVariantInt { get; set; }
     }
 
     public class ColumnInfo
     {
-        public string TableName { get; set; }
-        public string ColumnName { get; set; }
-        public string DataType { get; set; }
+        public string TableName { get; set; } = null!;
+        public string ColumnName { get; set; } = null!;
+        public string DataType { get; set; } = null!;
         public bool? IsNullable { get; set; }
         public int? MaxLength { get; set; }
         public int? NumericPrecision { get; set; }

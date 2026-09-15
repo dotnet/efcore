@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public partial class NorthwindData : ISetSource
 {
     public static readonly NorthwindData Instance = new();
@@ -15,9 +13,9 @@ public partial class NorthwindData : ISetSource
     public Employee[] Employees { get; }
     public Product[] Products { get; }
     public ProductQuery[] ProductQueries { get; }
-    public ProductView[] ProductViews { get; }
+    public ProductView[] ProductViews { get; } = [];
     public Order[] Orders { get; }
-    public OrderQuery[] OrderQueries { get; }
+    public OrderQuery[] OrderQueries { get; } = [];
     public OrderDetail[] OrderDetails { get; }
 
     private readonly Dictionary<int, string> _categoryNameMap = new()

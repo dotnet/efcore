@@ -10,7 +10,7 @@ public class NavigationTest
     {
         var foreignKey = CreateForeignKey();
 
-        var navigation = foreignKey.SetDependentToPrincipal(E.DeceptionProperty);
+        var navigation = foreignKey.SetDependentToPrincipal(E.DeceptionProperty)!;
 
         Assert.Same(foreignKey, navigation.ForeignKey);
         Assert.Equal(nameof(E.Deception), navigation.Name);
@@ -23,7 +23,7 @@ public class NavigationTest
         IMutableModel model = new Model();
         var entityType = model.AddEntityType(typeof(B));
         var idProperty = entityType.AddProperty("id", typeof(int));
-        var key = entityType.SetPrimaryKey(idProperty);
+        var key = entityType.SetPrimaryKey(idProperty)!;
         var keylessType = model.AddEntityType(typeof(A));
         keylessType.IsKeyless = true;
         var fkProperty = keylessType.AddProperty("p", typeof(int));
@@ -38,7 +38,7 @@ public class NavigationTest
         IMutableModel model = new Model();
         var entityType = model.AddEntityType(typeof(E));
         var idProperty = entityType.AddProperty("id", typeof(int));
-        var key = entityType.SetPrimaryKey(idProperty);
+        var key = entityType.SetPrimaryKey(idProperty)!;
         var fkProperty = entityType.AddProperty("p", typeof(int));
         return entityType.AddForeignKey(fkProperty, key, entityType);
     }
@@ -62,15 +62,15 @@ public class NavigationTest
         public int? P2 { get; set; }
         public int? P3 { get; set; }
 
-        public A A { get; set; }
-        public A AnotherA { get; set; }
-        public ICollection<A> ManyAs { get; set; }
+        public A A { get; set; } = null!;
+        public A AnotherA { get; set; } = null!;
+        public ICollection<A> ManyAs { get; set; } = null!;
     }
 
     private class E
     {
-        public static readonly PropertyInfo DeceptionProperty = typeof(E).GetProperty(nameof(Deception));
+        public static readonly PropertyInfo DeceptionProperty = typeof(E).GetProperty(nameof(Deception))!;
 
-        public E Deception { get; set; }
+        public E Deception { get; set; } = null!;
     }
 }

@@ -8,8 +8,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindSelectQueryCosmosTest : NorthwindSelectQueryTestBase<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
 {
     public NorthwindSelectQueryCosmosTest(

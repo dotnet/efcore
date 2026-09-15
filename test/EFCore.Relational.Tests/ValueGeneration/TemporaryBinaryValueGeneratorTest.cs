@@ -15,7 +15,7 @@ public class TemporaryBinaryValueGeneratorTest
         var values = new HashSet<Guid>();
         for (var i = 0; i < 100; i++)
         {
-            var generatedValue = generator.Next(null);
+            var generatedValue = generator.Next(null!);
 
             values.Add(new Guid(generatedValue));
         }

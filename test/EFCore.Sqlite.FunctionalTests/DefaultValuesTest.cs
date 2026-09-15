@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
 {
     [Fact]
@@ -46,7 +44,7 @@ public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
     private class ChipsContext(DbContextOptions options) : PoolableDbContext(options)
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<KettleChips> Chips { get; set; }
+        public DbSet<KettleChips> Chips { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<KettleChips>()
@@ -59,7 +57,7 @@ public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
         // ReSharper disable once UnusedMember.Local
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime BestBuyDate { get; set; }
     }
 }

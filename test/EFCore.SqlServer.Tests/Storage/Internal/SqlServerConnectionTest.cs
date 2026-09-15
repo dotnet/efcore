@@ -26,7 +26,7 @@ public class SqlServerConnectionTest
     {
         using var connection = new SqlServerConnection(CreateDependencies());
         using var master = connection.CreateMasterConnection();
-        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString));
+        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString!));
         Assert.Equal(60, master.CommandTimeout);
     }
 
@@ -41,7 +41,7 @@ public class SqlServerConnectionTest
 
         using var connection = new SqlServerConnection(CreateDependencies(options));
         using var master = connection.CreateMasterConnection();
-        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString));
+        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString!));
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class SqlServerConnectionTest
         return builder.ToString();
     }
 
-    public static RelationalConnectionDependencies CreateDependencies(DbContextOptions options = null)
+    public static RelationalConnectionDependencies CreateDependencies(DbContextOptions? options = null)
     {
         options ??= new DbContextOptionsBuilder()
             .UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest")
@@ -160,7 +160,7 @@ public class SqlServerConnectionTest
     private const string ConnectionString = "Fake Connection String";
 
     private static IDbContextOptions CreateOptions(
-        RelationalOptionsExtension optionsExtension = null)
+        RelationalOptionsExtension? optionsExtension = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
 

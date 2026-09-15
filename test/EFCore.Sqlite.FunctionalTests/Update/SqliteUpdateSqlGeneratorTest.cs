@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public class SqliteUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
 {
     protected override IUpdateSqlGenerator CreateSqlGenerator()
@@ -25,7 +23,7 @@ public class SqliteUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
         => "changes()";
 
     protected override string Schema
-        => null;
+        => null!;
 
     protected override string GetIdentityWhereCondition(string columnName)
         => OpenDelimiter + "rowid" + CloseDelimiter + " = last_insert_rowid()";

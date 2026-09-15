@@ -10,12 +10,14 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
 {
     protected virtual Type ContextType { get; } = typeof(TContext);
 
+    private IServiceProvider? _serviceProvider;
+
     public IServiceProvider ServiceProvider
     {
-        get => field
+        get => _serviceProvider
             ?? throw new InvalidOperationException(
                 $"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(ServiceProvider)} property will be available.");
-        private set;
+        private set => _serviceProvider = value;
     }
 
     protected abstract string StoreName { get; }
@@ -112,5 +114,21 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
     }
 
     public virtual async ValueTask DisposeAsync()
-        => await TestStore.DisposeAsync();
+    {
+        try
+        {
+            await TestStore.DisposeAsync();
+        }
+        finally
+        {
+            if (_serviceProvider is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync();
+            }
+            else if (_serviceProvider is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
+    }
 }

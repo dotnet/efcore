@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using CommandAction = System.Action<
     Microsoft.EntityFrameworkCore.Storage.IRelationalConnection,
-    Microsoft.EntityFrameworkCore.Storage.IRelationalCommand, System.Collections.Generic.IReadOnlyDictionary<string, object>,
-    Microsoft.EntityFrameworkCore.Diagnostics.IRelationalCommandDiagnosticsLogger>;
+    Microsoft.EntityFrameworkCore.Storage.IRelationalCommand, System.Collections.Generic.IReadOnlyDictionary<string, object?>?,
+    Microsoft.EntityFrameworkCore.Diagnostics.IRelationalCommandDiagnosticsLogger?>;
 using CommandFunc = System.Func<
     Microsoft.EntityFrameworkCore.Storage.IRelationalConnection,
-    Microsoft.EntityFrameworkCore.Storage.IRelationalCommand, System.Collections.Generic.IReadOnlyDictionary<string, object>,
-    Microsoft.EntityFrameworkCore.Diagnostics.IRelationalCommandDiagnosticsLogger,
+    Microsoft.EntityFrameworkCore.Storage.IRelationalCommand, System.Collections.Generic.IReadOnlyDictionary<string, object?>?,
+    Microsoft.EntityFrameworkCore.Diagnostics.IRelationalCommandDiagnosticsLogger?,
     System.Threading.Tasks.Task>;
 
 // ReSharper disable InconsistentNaming
@@ -187,7 +187,7 @@ public class RelationalCommandTest
 
         var result = (string)relationalCommand.ExecuteScalar(
             new RelationalCommandParameterObject(
-                new FakeRelationalConnection(options), null, null, null, null));
+            new FakeRelationalConnection(options), null, null, null, null))!;
 
         Assert.Equal("ExecuteScalar Result", result);
 
@@ -216,7 +216,7 @@ public class RelationalCommandTest
                 {
                     executeScalarCount++;
                     disposeCount = c.DisposeCount;
-                    return Task.FromResult<object>("ExecuteScalar Result");
+                    return Task.FromResult<object?>("ExecuteScalar Result");
                 }));
 
         var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
@@ -225,9 +225,9 @@ public class RelationalCommandTest
 
         var relationalCommand = CreateRelationalCommand();
 
-        var result = (string)await relationalCommand.ExecuteScalarAsync(
+        var result = (string)(await relationalCommand.ExecuteScalarAsync(
             new RelationalCommandParameterObject(
-                new FakeRelationalConnection(options), null, null, null, null));
+            new FakeRelationalConnection(options), null, null, null, null)))!;
 
         Assert.Equal("ExecuteScalar Result", result);
 
@@ -523,7 +523,7 @@ public class RelationalCommandTest
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 }, { "SecondInvariant", 18L } };
+        var parameterValues = new Dictionary<string, object?> { { "FirstInvariant", 17 }, { "SecondInvariant", 18L } };
 
         if (async)
         {
@@ -559,7 +559,7 @@ public class RelationalCommandTest
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             ]);
 
-        var parameterValues = new Dictionary<string, object>
+        var parameterValues = new Dictionary<string, object?>
         {
             { "FirstInvariant", 17 },
             { "SecondInvariant", 18L },
@@ -626,7 +626,7 @@ public class RelationalCommandTest
                     ])
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", new object[] { 17, 18L, null } } };
+        var parameterValues = new Dictionary<string, object?> { { "CompositeInvariant", new object?[] { 17, 18L, null } } };
 
         if (async)
         {
@@ -688,7 +688,7 @@ public class RelationalCommandTest
                     ])
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", new object[] { 17, 18L } } };
+        var parameterValues = new Dictionary<string, object?> { { "CompositeInvariant", new object?[] { 17, 18L } } };
 
         if (async)
         {
@@ -726,7 +726,7 @@ public class RelationalCommandTest
                     ])
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "CompositeInvariant", 17 } };
+        var parameterValues = new Dictionary<string, object?> { { "CompositeInvariant", 17 } };
 
         if (async)
         {
@@ -842,7 +842,7 @@ public class RelationalCommandTest
                 DbCommand command,
                 DbDataReader reader,
                 Guid commandId,
-                IRelationalCommandDiagnosticsLogger logger)
+                IRelationalCommandDiagnosticsLogger? logger)
                 => throw new InvalidOperationException("Bang!");
         }
     }
@@ -964,7 +964,7 @@ public class RelationalCommandTest
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
+        var parameterValues = new Dictionary<string, object?> { { "FirstInvariant", 17 } };
 
         if (async)
         {
@@ -1022,7 +1022,7 @@ public class RelationalCommandTest
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
+        var parameterValues = new Dictionary<string, object?> { { "FirstInvariant", 17 } };
 
         if (async)
         {
@@ -1080,7 +1080,7 @@ public class RelationalCommandTest
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
+        var parameterValues = new Dictionary<string, object?> { { "FirstInvariant", 17 } };
 
         if (async)
         {
@@ -1152,7 +1152,7 @@ public class RelationalCommandTest
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
+        var parameterValues = new Dictionary<string, object?> { { "FirstInvariant", 17 } };
 
         if (async)
         {
@@ -1228,7 +1228,7 @@ public class RelationalCommandTest
                     "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             ]);
 
-        var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
+        var parameterValues = new Dictionary<string, object?> { { "FirstInvariant", 17 } };
 
         if (async)
         {
@@ -1263,11 +1263,11 @@ public class RelationalCommandTest
 
     private const string ConnectionString = "Fake Connection String";
 
-    private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
+    private static FakeRelationalConnection CreateConnection(IDbContextOptions? options = null)
         => new(options ?? CreateOptions());
 
     private static IDbContextOptions CreateOptions(
-        RelationalOptionsExtension optionsExtension = null)
+        RelationalOptionsExtension? optionsExtension = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
 
@@ -1295,7 +1295,7 @@ public class RelationalCommandTest
         public bool DetailedErrorsEnabled { get; } = detailedErrorsEnabled;
 
         public WarningsConfiguration WarningsConfiguration
-            => null;
+            => null!;
 
         public virtual bool ShouldWarnForStringEnumValueInJson(Type enumType)
             => true;
@@ -1304,7 +1304,7 @@ public class RelationalCommandTest
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
         string logCommandText = "Log Command Text",
-        IReadOnlyList<IRelationalParameter> parameters = null)
+        IReadOnlyList<IRelationalParameter>? parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(

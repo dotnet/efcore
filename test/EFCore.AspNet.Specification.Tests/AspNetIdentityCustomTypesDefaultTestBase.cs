@@ -367,14 +367,14 @@ public class CustomUserString : IdentityUser<string>
     public CustomUserString()
         => Id = Guid.NewGuid().ToString();
 
-    public string CustomTag { get; set; }
+    public string? CustomTag { get; set; }
 
-    public virtual ICollection<CustomRoleString> Roles { get; set; }
+    public virtual ICollection<CustomRoleString> Roles { get; set; } = null!;
 
-    public virtual ICollection<CustomUserClaimString> Claims { get; set; }
-    public virtual ICollection<CustomUserLoginString> Logins { get; set; }
-    public virtual ICollection<CustomUserTokenString> Tokens { get; set; }
-    public virtual ICollection<CustomUserRoleString> UserRoles { get; set; }
+    public virtual ICollection<CustomUserClaimString> Claims { get; set; } = null!;
+    public virtual ICollection<CustomUserLoginString> Logins { get; set; } = null!;
+    public virtual ICollection<CustomUserTokenString> Tokens { get; set; } = null!;
+    public virtual ICollection<CustomUserRoleString> UserRoles { get; set; } = null!;
 }
 
 public class CustomRoleString : IdentityRole<string>
@@ -382,34 +382,34 @@ public class CustomRoleString : IdentityRole<string>
     public CustomRoleString()
         => Id = Guid.NewGuid().ToString();
 
-    public virtual ICollection<CustomUserString> Users { get; set; }
+    public virtual ICollection<CustomUserString> Users { get; set; } = null!;
 
-    public virtual ICollection<CustomUserRoleString> UserRoles { get; set; }
-    public virtual ICollection<CustomRoleClaimString> RoleClaims { get; set; }
+    public virtual ICollection<CustomUserRoleString> UserRoles { get; set; } = null!;
+    public virtual ICollection<CustomRoleClaimString> RoleClaims { get; set; } = null!;
 }
 
 public class CustomUserRoleString : IdentityUserRole<string>
 {
-    public virtual CustomUserString User { get; set; }
-    public virtual CustomRoleString Role { get; set; }
+    public virtual CustomUserString User { get; set; } = null!;
+    public virtual CustomRoleString Role { get; set; } = null!;
 }
 
 public class CustomUserClaimString : IdentityUserClaim<string>
 {
-    public virtual CustomUserString User { get; set; }
+    public virtual CustomUserString User { get; set; } = null!;
 }
 
 public class CustomUserLoginString : IdentityUserLogin<string>
 {
-    public virtual CustomUserString User { get; set; }
+    public virtual CustomUserString User { get; set; } = null!;
 }
 
 public class CustomRoleClaimString : IdentityRoleClaim<string>
 {
-    public virtual CustomRoleString Role { get; set; }
+    public virtual CustomRoleString Role { get; set; } = null!;
 }
 
 public class CustomUserTokenString : IdentityUserToken<string>
 {
-    public virtual CustomUserString User { get; set; }
+    public virtual CustomUserString User { get; set; } = null!;
 }

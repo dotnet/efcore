@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -266,7 +264,7 @@ WHERE PATINDEX(N'%Nancy%', [e].[FirstName]) = CAST(1 AS bigint)
             ss => ss.Set<Order>(),
             ss => ss.Set<Order>(),
             c => EF.Functions.DateDiffYear(c.OrderDate, DateTime.Now) == 0,
-            c => c.OrderDate.Value.Year - DateTime.Now.Year == 0);
+            c => c.OrderDate!.Value.Year - DateTime.Now.Year == 0);
 
         AssertSql(
             """
@@ -285,7 +283,7 @@ WHERE DATEDIFF(year, [o].[OrderDate], GETDATE()) = 0
             ss => ss.Set<Order>(),
             ss => ss.Set<Order>(),
             c => EF.Functions.DateDiffMonth(c.OrderDate, DateTime.Now) == 0,
-            c => (c.OrderDate.Value.Year * 12) + c.OrderDate.Value.Month - ((now.Year * 12) + now.Month) == 0);
+            c => (c.OrderDate!.Value.Year * 12) + c.OrderDate.Value.Month - ((now.Year * 12) + now.Month) == 0);
 
         AssertSql(
             """
@@ -486,7 +484,7 @@ WHERE DATEDIFF(week, NULL, [o].[OrderDate]) = 5
     {
         await AssertQueryScalar(
             async,
-            ss => ss.Set<Order>().Where(o => !EF.Functions.IsDate(o.CustomerID)).Select(o => EF.Functions.IsDate(o.CustomerID)),
+            ss => ss.Set<Order>().Where(o => !EF.Functions.IsDate(o.CustomerID!)).Select(o => EF.Functions.IsDate(o.CustomerID!)),
             ss => ss.Set<Order>().Select(c => false));
 
         AssertSql(
@@ -503,8 +501,8 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)
         await AssertQueryScalar(
             async,
             ss => ss.Set<Order>()
-                .Where(o => EF.Functions.IsDate(o.OrderDate.Value.ToString()))
-                .Select(o => EF.Functions.IsDate(o.OrderDate.Value.ToString())),
+                .Where(o => EF.Functions.IsDate(o.OrderDate!.Value.ToString()))
+                .Select(o => EF.Functions.IsDate(o.OrderDate!.Value.ToString())),
             ss => ss.Set<Order>().Select(o => true));
 
         AssertSql(
@@ -549,8 +547,8 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarch
         await AssertQueryScalar(
             async,
             ss => ss.Set<Order>()
-                .Where(o => !EF.Functions.IsNumeric(o.OrderDate.Value.ToString()))
-                .Select(o => EF.Functions.IsNumeric(o.OrderDate.Value.ToString())),
+                .Where(o => !EF.Functions.IsNumeric(o.OrderDate!.Value.ToString()))
+                .Select(o => EF.Functions.IsNumeric(o.OrderDate!.Value.ToString())),
             ss => ss.Set<Order>().Select(c => false));
 
         AssertSql(

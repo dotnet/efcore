@@ -67,7 +67,7 @@ public class CollectionEntryTest
         Assert.Same(chunky, cherry.Monkeys.Single());
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(chunky, collection.CurrentValue.Cast<Chunky>().Single());
-        Assert.Same(collection.FindEntry(chunky).GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
+        Assert.Same(collection.FindEntry(chunky)!.GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
 
         collection.CurrentValue = null;
 
@@ -96,7 +96,7 @@ public class CollectionEntryTest
         Assert.Same(chunky, cherry.Monkeys.Single());
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(chunky, collection.CurrentValue.Single());
-        Assert.Same(collection.FindEntry(chunky).GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
+        Assert.Same(collection.FindEntry(chunky)!.GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
 
         collection.CurrentValue = null;
 
@@ -453,7 +453,7 @@ public class CollectionEntryTest
         public int Id { get; set; }
 
         public int? GarciaId { get; set; }
-        public Cherry Garcia { get; set; }
+        public Cherry Garcia { get; set; } = null!;
     }
 
     private class Cherry
@@ -461,7 +461,7 @@ public class CollectionEntryTest
         public int Garcia { get; set; }
         public int Id { get; set; }
 
-        public ICollection<Chunky> Monkeys { get; set; }
+        public ICollection<Chunky> Monkeys { get; set; } = null!;
     }
 
     private class FreezerContext : DbContext
@@ -471,7 +471,7 @@ public class CollectionEntryTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FreezerContext));
 
-        public DbSet<Chunky> Icecream { get; set; }
+        public DbSet<Chunky> Icecream { get; set; } = null!;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

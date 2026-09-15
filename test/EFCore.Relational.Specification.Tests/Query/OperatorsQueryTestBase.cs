@@ -297,11 +297,11 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         using var context = contextFactory.CreateDbContext();
 
         var expected = (from e in ExpectedData.OperatorEntitiesString
-                        where !e.Value.StartsWith("A")
+                                                where !e.Value!.StartsWith("A")
                         select e.Id).ToList();
 
         var actual = (from e in context.Set<OperatorEntityString>()
-                      where !e.Value.StartsWith("A")
+                                            where !e.Value!.StartsWith("A")
                       select e.Id).ToList();
 
         Assert.Equal(expected.Count, actual.Count);

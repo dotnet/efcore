@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture)
     : OptimisticConcurrencySqlServerTestBase<F1ULongSqlServerFixture, ulong>(fixture)
 {
@@ -354,7 +352,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                 using var transaction = context.Database.BeginTransaction();
                 var sponsor = context.Set<TitleSponsor>().Single();
                 var sponsorEntry = c.Entry(sponsor);
-                var detailsEntry = sponsorEntry.Reference(s => s.Details).TargetEntry;
+                var detailsEntry = sponsorEntry.Reference(s => s.Details).TargetEntry!;
                 var sponsorVersion = sponsorEntry.Property<TRowVersion>("Version").CurrentValue;
                 var detailsVersion = detailsEntry.Property<TRowVersion>("Version").CurrentValue;
 
@@ -397,7 +395,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
 
                 context.ChangeTracker.DetectChanges();
 
-                var detailsEntry = sponsorEntry.Reference(s => s.Details).TargetEntry;
+                var detailsEntry = sponsorEntry.Reference(s => s.Details).TargetEntry!;
                 detailsEntry.Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
 
                 await context.SaveChangesAsync();

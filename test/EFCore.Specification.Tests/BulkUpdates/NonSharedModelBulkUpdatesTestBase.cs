@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-#nullable disable
-
 public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -68,28 +66,28 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Owner
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
-        public OwnedReference OwnedReference { get; set; }
-        public List<OwnedCollection> OwnedCollections { get; set; }
+        public OwnedReference? OwnedReference { get; set; }
+        public List<OwnedCollection> OwnedCollections { get; set; } = null!;
     }
 
     public class OwnedReference
     {
         public int Number { get; set; }
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     public class OwnedCollection
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     public class OtherReference
     {
         public int Id { get; set; }
         public int Number { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -145,8 +143,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
             contextFactory.CreateDbContext,
             ss => ss.Set<Owner>(),
             s => s
-                .SetProperty(o => o.Title, o => o.OwnedReference.Number.ToString())
-                .SetProperty(o => o.OwnedReference.Number, o => o.Title.Length),
+                .SetProperty(o => o.Title, o => o.OwnedReference!.Number.ToString())
+                .SetProperty(o => o.OwnedReference!.Number, o => o.Title!.Length),
             rowsAffectedCount: 0);
     }
 
@@ -166,9 +164,9 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Context30572_Principal
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
-        public Context30572_Dependent Dependent { get; set; }
+        public Context30572_Dependent? Dependent { get; set; }
     }
 
     public class Context30572_Dependent
@@ -260,7 +258,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Blog
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
         public int Rating { get; set; }
         public DateTime CreationTimestamp { get; set; }
 
@@ -270,7 +268,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Post
     {
         public int Id { get; set; }
-        public virtual Blog Blog { get; set; }
+        public virtual Blog? Blog { get; set; }
     }
 
     #region HelperMethods

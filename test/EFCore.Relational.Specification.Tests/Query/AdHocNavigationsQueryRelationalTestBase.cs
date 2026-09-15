@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture fixture) : AdHocNavigationsQueryTestBase(fixture)
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -43,7 +41,7 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context21803(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<AppEntity> Entities { get; set; }
+        public DbSet<AppEntity> Entities { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -70,7 +68,7 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
         public class OtherEntity
         {
             public int Id { get; private set; }
-            public AppEntity AppEntity { get; set; }
+            public AppEntity AppEntity { get; set; } = null!;
         }
     }
 
@@ -153,7 +151,7 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
 
     protected class ContextConditionalProjection(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -176,20 +174,20 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
         {
             public long Id { get; set; }
             public long? JobId { get; set; }
-            public Job Job { get; set; }
+            public Job? Job { get; set; }
         }
 
         public class Job
         {
             public long Id { get; set; }
             public long AddressId { get; set; }
-            public Address Address { get; set; }
+            public Address Address { get; set; } = null!;
         }
 
         public class Address
         {
             public long Id { get; set; }
-            public string Street { get; set; }
+            public string Street { get; set; } = null!;
         }
     }
 

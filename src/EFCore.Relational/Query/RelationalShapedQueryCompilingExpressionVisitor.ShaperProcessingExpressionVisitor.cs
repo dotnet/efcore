@@ -3005,7 +3005,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             // throw a cryptic "Invalid token type: 'Null'". This applies both when materializing an entity (the property is
             // available) and when projecting the collection column directly (no property; a collection type mapping is
             // identified by its ElementTypeMapping).
-            var jsonPrimitiveCollectionReaderWriter = converter is { ConvertsNulls: false }
+            var jsonPrimitiveCollectionReaderWriter = converter is { ConvertsNulls: false, ProviderClrType: var providerClrType }
+                && providerClrType == typeof(string)
                 ? property is IProperty { IsPrimitiveCollection: true } primitiveCollectionProperty
                     ? primitiveCollectionProperty.GetJsonValueReaderWriter()
                     ?? primitiveCollectionProperty.GetTypeMapping().JsonValueReaderWriter

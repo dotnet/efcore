@@ -29,7 +29,7 @@ LEFT JOIN (
 ) AS [s] ON [r].[Id] = [s].[RootEntityId]
 LEFT JOIN [OptionalRelated_NestedCollection] AS [o2] ON [o].[RootEntityId] = [o2].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r7] ON [r0].[RootEntityId] = [r7].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r7].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r7].[AssociateTypeRootEntityId], [r7].[Id]
 """);
     }
 
@@ -101,7 +101,7 @@ LEFT JOIN [RequiredRelated] AS [r0] ON [r].[Id] = [r0].[RootEntityId]
 LEFT JOIN [RequiredRelated_OptionalNested] AS [r1] ON [r0].[RootEntityId] = [r1].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_RequiredNested] AS [r2] ON [r0].[RootEntityId] = [r2].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r3] ON [r0].[RootEntityId] = [r3].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r3].[Id]
 """);
         }
     }
@@ -120,7 +120,7 @@ LEFT JOIN [OptionalRelated] AS [o] ON [r].[Id] = [o].[RootEntityId]
 LEFT JOIN [OptionalRelated_OptionalNested] AS [o0] ON [o].[RootEntityId] = [o0].[AssociateTypeRootEntityId]
 LEFT JOIN [OptionalRelated_RequiredNested] AS [o1] ON [o].[RootEntityId] = [o1].[AssociateTypeRootEntityId]
 LEFT JOIN [OptionalRelated_NestedCollection] AS [o2] ON [o].[RootEntityId] = [o2].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [o2].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [o2].[AssociateTypeRootEntityId], [o2].[Id]
 """);
         }
     }
@@ -204,7 +204,7 @@ LEFT JOIN [RequiredRelated] AS [r1] ON [r0].[Id] = [r1].[RootEntityId]
 LEFT JOIN [RequiredRelated_OptionalNested] AS [r2] ON [r1].[RootEntityId] = [r2].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_RequiredNested] AS [r3] ON [r1].[RootEntityId] = [r3].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r4] ON [r1].[RootEntityId] = [r4].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r4].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r4].[AssociateTypeRootEntityId], [r4].[Id]
 """);
         }
     }
@@ -223,7 +223,7 @@ LEFT JOIN [RequiredRelated] AS [r0] ON [r].[Id] = [r0].[RootEntityId]
 LEFT JOIN [RequiredRelated_OptionalNested] AS [r1] ON [r0].[RootEntityId] = [r1].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_RequiredNested] AS [r2] ON [r0].[RootEntityId] = [r2].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r3] ON [r0].[RootEntityId] = [r3].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r3].[Id]
 """);
         }
     }
@@ -261,7 +261,7 @@ LEFT JOIN (
     LEFT JOIN [RelatedCollection_RequiredNested] AS [r2] ON [r0].[RootEntityId] = [r2].[AssociateTypeRootEntityId] AND [r0].[Id] = [r2].[AssociateTypeId]
     LEFT JOIN [RelatedCollection_NestedCollection] AS [r3] ON [r0].[RootEntityId] = [r3].[AssociateTypeRootEntityId] AND [r0].[Id] = [r3].[AssociateTypeId]
 ) AS [s] ON [r].[Id] = [s].[RootEntityId]
-ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1]
+ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0]
 """);
         }
     }
@@ -278,7 +278,7 @@ SELECT [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r1].[Id
 FROM [RootEntity] AS [r]
 LEFT JOIN [RequiredRelated] AS [r0] ON [r].[Id] = [r0].[RootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r1] ON [r0].[RootEntityId] = [r1].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r1].[Id]
 """);
         }
     }
@@ -295,7 +295,7 @@ SELECT [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o0].[Id]
 FROM [RootEntity] AS [r]
 LEFT JOIN [OptionalRelated] AS [o] ON [r].[Id] = [o].[RootEntityId]
 LEFT JOIN [OptionalRelated_NestedCollection] AS [o0] ON [o].[RootEntityId] = [o0].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o0].[Id]
 """);
         }
     }
@@ -314,7 +314,7 @@ INNER JOIN [RelatedCollection] AS [r0] ON [r].[Id] = [r0].[RootEntityId]
 LEFT JOIN [RelatedCollection_OptionalNested] AS [r1] ON [r0].[RootEntityId] = [r1].[AssociateTypeRootEntityId] AND [r0].[Id] = [r1].[AssociateTypeId]
 LEFT JOIN [RelatedCollection_RequiredNested] AS [r2] ON [r0].[RootEntityId] = [r2].[AssociateTypeRootEntityId] AND [r0].[Id] = [r2].[AssociateTypeId]
 LEFT JOIN [RelatedCollection_NestedCollection] AS [r3] ON [r0].[RootEntityId] = [r3].[AssociateTypeRootEntityId] AND [r0].[Id] = [r3].[AssociateTypeId]
-ORDER BY [r].[Id], [r0].[RootEntityId], [r0].[Id], [r1].[AssociateTypeRootEntityId], [r1].[AssociateTypeId], [r2].[AssociateTypeRootEntityId], [r2].[AssociateTypeId], [r3].[AssociateTypeRootEntityId], [r3].[AssociateTypeId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [r0].[Id], [r1].[AssociateTypeRootEntityId], [r1].[AssociateTypeId], [r2].[AssociateTypeRootEntityId], [r2].[AssociateTypeId], [r3].[AssociateTypeRootEntityId], [r3].[AssociateTypeId], [r3].[Id]
 """);
         }
     }
@@ -387,7 +387,7 @@ LEFT JOIN (
 ) AS [s0] ON [r].[Id] = [s0].[RootEntityId]
 LEFT JOIN [OptionalRelated_NestedCollection] AS [o3] ON [o].[RootEntityId] = [o3].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r12] ON [r0].[RootEntityId] = [r12].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r7].[AssociateTypeRootEntityId], [r7].[Id], [s0].[RootEntityId], [s0].[Id], [s0].[AssociateTypeRootEntityId], [s0].[AssociateTypeId], [s0].[AssociateTypeRootEntityId0], [s0].[AssociateTypeId0], [s0].[AssociateTypeRootEntityId1], [s0].[AssociateTypeId1], [s0].[Id0], [o3].[AssociateTypeRootEntityId], [o3].[Id], [r12].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r7].[AssociateTypeRootEntityId], [r7].[Id], [s0].[RootEntityId], [s0].[Id], [s0].[AssociateTypeRootEntityId], [s0].[AssociateTypeId], [s0].[AssociateTypeRootEntityId0], [s0].[AssociateTypeId0], [s0].[AssociateTypeRootEntityId1], [s0].[AssociateTypeId1], [s0].[Id0], [o3].[AssociateTypeRootEntityId], [o3].[Id], [r12].[AssociateTypeRootEntityId], [r12].[Id]
 """);
     }
 
@@ -406,7 +406,7 @@ LEFT JOIN [RequiredRelated_OptionalNested] AS [r1] ON [r0].[RootEntityId] = [r1]
 LEFT JOIN [RequiredRelated_RequiredNested] AS [r2] ON [r0].[RootEntityId] = [r2].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r3] ON [r0].[RootEntityId] = [r3].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r4] ON [r0].[RootEntityId] = [r4].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r3].[Id], [r4].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r3].[Id], [r4].[AssociateTypeRootEntityId], [r4].[Id]
 """);
         }
     }
@@ -429,7 +429,7 @@ LEFT JOIN [OptionalRelated_OptionalNested] AS [o0] ON [o].[RootEntityId] = [o0].
 LEFT JOIN [OptionalRelated_RequiredNested] AS [o1] ON [o].[RootEntityId] = [o1].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r3] ON [r0].[RootEntityId] = [r3].[AssociateTypeRootEntityId]
 LEFT JOIN [OptionalRelated_NestedCollection] AS [o2] ON [o].[RootEntityId] = [o2].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r3].[Id], [o2].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r3].[Id], [o2].[AssociateTypeRootEntityId], [o2].[Id]
 """);
         }
     }
@@ -449,7 +449,7 @@ LEFT JOIN [OptionalRelated_OptionalNested] AS [o0] ON [o].[RootEntityId] = [o0].
 LEFT JOIN [OptionalRelated_RequiredNested] AS [o1] ON [o].[RootEntityId] = [o1].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated] AS [r0] ON [r].[Id] = [r0].[RootEntityId]
 LEFT JOIN [OptionalRelated_NestedCollection] AS [o2] ON [o].[RootEntityId] = [o2].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r0].[RootEntityId], [o2].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r0].[RootEntityId], [o2].[AssociateTypeRootEntityId], [o2].[Id]
 """);
         }
     }
@@ -468,7 +468,7 @@ LEFT JOIN [RequiredRelated] AS [r0] ON [r].[Id] = [r0].[RootEntityId]
 LEFT JOIN [RequiredRelated_OptionalNested] AS [r1] ON [r0].[RootEntityId] = [r1].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_RequiredNested] AS [r2] ON [r0].[RootEntityId] = [r2].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r3] ON [r0].[RootEntityId] = [r3].[AssociateTypeRootEntityId]
-ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r3].[Id]
 """);
         }
     }
@@ -499,7 +499,7 @@ LEFT JOIN (
     LEFT JOIN [RelatedCollection_RequiredNested] AS [r3] ON [r1].[RootEntityId] = [r3].[AssociateTypeRootEntityId] AND [r1].[Id] = [r3].[AssociateTypeId]
     LEFT JOIN [RelatedCollection_NestedCollection] AS [r4] ON [r1].[RootEntityId] = [r4].[AssociateTypeRootEntityId] AND [r1].[Id] = [r4].[AssociateTypeId]
 ) AS [s] ON [r5].[Id] = [s].[RootEntityId]
-ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1]
+ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0]
 """);
         }
     }

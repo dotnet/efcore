@@ -10,8 +10,6 @@ using IsolationLevel = System.Data.IsolationLevel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : TransactionTestBase<TFixture>.TransactionFixtureBase, new()
 {
@@ -336,7 +334,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
             return;
         }
 
-        DbConnection connection = null;
+        DbConnection? connection = null;
 
         await RetryOnDistributedTransactionNotSupportedAsync(async () =>
         {
@@ -383,7 +381,7 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
             }
         });
 
-        Assert.Equal(ConnectionState.Closed, connection.State);
+        Assert.Equal(ConnectionState.Closed, connection!.State);
 
         AssertStoreInitialState();
     }
@@ -1500,9 +1498,9 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
     protected abstract class TransactionEntity
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is TransactionCustomer otherCustomer && Id == otherCustomer.Id && Name == otherCustomer.Name;
 
         public override string ToString()

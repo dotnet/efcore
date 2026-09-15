@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql))]
 public class ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture fixture)
     : ConvertToProviderTypesTestBase<

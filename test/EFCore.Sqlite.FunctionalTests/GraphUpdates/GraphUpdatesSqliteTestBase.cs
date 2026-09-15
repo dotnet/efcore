@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class GraphUpdatesSqliteTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesSqliteTestBase<TFixture>.GraphUpdatesSqliteFixtureBase, new()
 {

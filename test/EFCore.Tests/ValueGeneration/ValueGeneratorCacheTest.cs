@@ -9,9 +9,9 @@ public class ValueGeneratorCacheTest
     public void Uses_single_generator_per_property()
     {
         var model = CreateModel();
-        var entityType = model.FindEntityType("Led");
-        var property1 = entityType.FindProperty("Zeppelin");
-        var property2 = entityType.FindProperty("Stairway");
+        var entityType = model.FindEntityType("Led")!;
+        var property1 = entityType.FindProperty("Zeppelin")!;
+        var property2 = entityType.FindProperty("Stairway")!;
         var cache = InMemoryTestHelpers.Instance.CreateContextServices(model)
             .GetRequiredService<IValueGeneratorCache>();
 

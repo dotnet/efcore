@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             builder.Entity<Post>().Property(e => e.BlogId);
             var foreignKey = builder.Entity<Blog>().HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId).Metadata;
-            var nav1 = foreignKey.DependentToPrincipal;
-            var nav2 = foreignKey.PrincipalToDependent;
+            var nav1 = foreignKey.DependentToPrincipal!;
+            var nav2 = foreignKey.PrincipalToDependent!;
 
             var index = builder.Entity<Post>().HasIndex(e => e.BlogId).Metadata;
 
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal(RelationalStrings.MultipleAnnotationConflict("DefaultSchema"), message);
             Assert.Equal(2, model.GetAnnotations().Count());
 
-            var actual = (string)model["Relational:DefaultSchema"];
+            var actual = (string)model["Relational:DefaultSchema"]!;
             Assert.True(actual is "Value1" or "Value2");
         }
 
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal(RelationalStrings.MultipleAnnotationConflict("DefaultSchema"), message);
             Assert.Equal(2, model.GetAnnotations().Count());
 
-            var actual = (string)model["Relational:DefaultSchema"];
+            var actual = (string)model["Relational:DefaultSchema"]!;
             Assert.True(actual is "Value1" or "Value2");
         }
 
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
 
             Assert.Equal(2, model.GetAnnotations().Count());
-            Assert.Equal("Value", (string)model["Relational:DefaultSchema"]);
+            Assert.Equal("Value", (string)model["Relational:DefaultSchema"]!);
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
 
             Assert.Equal(2, model.GetAnnotations().Count());
-            Assert.Equal("Value", (string)model["Unicorn:DefaultSchema"]);
+            Assert.Equal("Value", (string)model["Unicorn:DefaultSchema"]!);
         }
 
         [Fact]
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
             Assert.Equal(
                 nameof(BlogDetails.BlogId),
-                model.FindEntityType(typeof(Blog)).FindNavigation(nameof(Blog.Details)).TargetEntityType.FindPrimaryKey().Properties
+                model.FindEntityType(typeof(Blog))!.FindNavigation(nameof(Blog.Details))!.TargetEntityType.FindPrimaryKey()!.Properties
                     .Single()
                     .Name);
         }
@@ -321,13 +321,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private static void AssertSameSnapshot(Type snapshotType, DbContext context)
         {
             var differ = context.GetService<IMigrationsModelDiffer>();
-            var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
+            var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType)!;
             var reporter = new TestOperationReporter();
             var modelRuntimeInitializer =
                 SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
 
             var model = PreprocessModel(snapshot);
-            model = new SnapshotModelProcessor(reporter, modelRuntimeInitializer).Process(model, resetVersion: true);
+            model = new SnapshotModelProcessor(reporter, modelRuntimeInitializer).Process(model, resetVersion: true)!;
             var currentModel = context.GetService<IDesignTimeModel>().Model;
 
             var differences = differ.GetDifferences(
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 #pragma warning restore CS0618 // Type or member is obsolete
                              && a.IndexOf(':') > 0))
             {
-                Assert.Equal("Value", (string)element[annotationName]);
+                Assert.Equal("Value", (string)element[annotationName]!);
             }
         }
 
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public IModel Initialize(
                 IModel model,
                 bool designTime = true,
-                IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
+                IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger = null)
                 => model;
 
             public static DummyModelRuntimeInitializer Instance { get; } = new();
@@ -463,21 +463,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             public int Id { get; set; }
 
-            public ICollection<Post> Posts { get; set; }
-            public BlogDetails Details { get; set; }
+            public ICollection<Post> Posts { get; set; } = null!;
+            public BlogDetails Details { get; set; } = null!;
         }
 
         private class Post
         {
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog Blog { get; set; } = null!;
         }
 
         private class BlogDetails
         {
             public int BlogId { get; set; }
 
-            public ICollection<Post> Posts { get; set; }
+            public ICollection<Post> Posts { get; set; } = null!;
         }
 
         private class EntityWithComplexProperty
@@ -1607,23 +1607,23 @@ namespace Ownership
     internal class OwningType1
     {
         public int Id { get; set; }
-        public OwnedType OwnedType1 { get; set; }
-        public OwnedType OwnedType2 { get; set; }
+        public OwnedType? OwnedType1 { get; set; }
+        public OwnedType? OwnedType2 { get; set; }
     }
 
     internal class OwningType2
     {
         public int Id { get; set; }
-        public OwnedType OwnedType1 { get; set; }
-        public OwnedType OwnedType2 { get; set; }
+        public OwnedType? OwnedType1 { get; set; }
+        public OwnedType? OwnedType2 { get; set; }
     }
 
     [Owned]
     internal class OwnedType
     {
         public bool Exists { get; set; }
-        public NestedOwnedType NestedOwnedType1 { get; set; }
-        public NestedOwnedType NestedOwnedType2 { get; set; }
+        public NestedOwnedType? NestedOwnedType1 { get; set; }
+        public NestedOwnedType? NestedOwnedType2 { get; set; }
     }
 
     [Owned]

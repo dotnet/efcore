@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 // ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     [Theory, InlineData(false), InlineData(true)]
@@ -75,7 +73,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         using (var context = CreateContext(contextFactory, transactionalBatch))
         {
-            var customerFromStore = await context.FindAsync<Customer>(42);
+            var customerFromStore = (await context.FindAsync<Customer>(42))!;
 
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
@@ -118,7 +116,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
-        string storeId = null;
+        string? storeId = null;
         using (var context = CreateContext(contextFactory, transactionalBatch))
         {
             var entry = await context.AddAsync(customer);
@@ -294,16 +292,16 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
     private class Customer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int PartitionKey1 { get; set; }
         public bool PartitionKey3 { get; set; }
-        public string PartitionKey2 { get; set; }
+        public string PartitionKey2 { get; set; } = null!;
     }
 
     private class CustomerWithResourceId
     {
-        public string id { get; set; }
-        public string Name { get; set; }
+        public string id { get; set; } = null!;
+        public string Name { get; set; } = null!;
         public int PartitionKey1 { get; set; }
         public decimal PartitionKey2 { get; set; }
     }
@@ -311,14 +309,14 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
     private class CustomerGuid
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int PartitionKey { get; set; }
     }
 
     private class CustomerDateTime
     {
         public DateTime Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public int PartitionKey { get; set; }
         public int Value { get; set; }
     }
@@ -326,7 +324,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
     private class CustomerNoPartitionKey
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [Theory, InlineData(false), InlineData(true)]
@@ -365,7 +363,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         using (var context = CreateContext(contextFactory, transactionalBatch))
         {
-            var customerFromStore = await context.FindAsync<Customer>(42);
+            var customerFromStore = (await context.FindAsync<Customer>(42))!;
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("2021-08-23T06:23:40+02:00", customerFromStore.Name);
@@ -438,8 +436,11 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
     protected class IdentifierShadowValuePresenceTestContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public DbSet<GItem> GItems { get; set; }
-        public DbSet<Item> Items { get; set; }
+        public DbSet<GItem> GItems
+            => Set<GItem>();
+
+        public DbSet<Item> Items
+            => Set<Item>();
     }
 
     protected class GItem
@@ -476,7 +477,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             },
             [3, null]);
 
-        await Can_add_update_delete_with_collection<IReadOnlyList<string>>(
+        await Can_add_update_delete_with_collection<IReadOnlyList<string?>>(
             transactionalBatch,
             ["1", null],
             c => c.Collection =
@@ -561,7 +562,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             },
             new List<List<short>> { new() { 3 } });
 
-        await Can_add_update_delete_with_collection<IList<byte?[]>>(
+        await Can_add_update_delete_with_collection<IList<byte?[]?>>(
             transactionalBatch,
             [],
             c =>
@@ -571,14 +572,14 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             },
             [new byte?[] { 3, null }, null]);
 
-        await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
+        await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string?>>>(
             transactionalBatch,
-            [new Dictionary<string, string> { { "1", null } }],
+            [new Dictionary<string, string?> { { "1", null } }],
             c =>
             {
                 var dictionary = c.Collection[0]["3"] = "2";
             },
-            [new Dictionary<string, string> { { "1", null }, { "3", "2" } }]);
+            [new Dictionary<string, string?> { { "1", null }, { "3", "2" } }]);
 
         await Can_add_update_delete_with_collection(
             transactionalBatch,
@@ -605,49 +606,49 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             c => c.Collection["2"] = ["3"],
             new Dictionary<string, string[]> { { "1", ["1"] }, { "2", ["3"] } });
 
-        await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
+        await Can_add_update_delete_with_collection<IDictionary<string, long?[]?>>(
             transactionalBatch,
-            new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
+            new SortedDictionary<string, long?[]?> { { "2", [2] }, { "1", [1] } },
             c =>
             {
                 c.Collection.Clear();
                 c.Collection["2"] = [null];
             },
-            new SortedDictionary<string, long?[]> { { "2", [null] } });
+            new SortedDictionary<string, long?[]?> { { "2", [null] } });
 
-        await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
+        await Can_add_update_delete_with_collection<IDictionary<string, long?[]?>>(
             transactionalBatch,
-            new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
+            new SortedDictionary<string, long?[]?> { { "2", [2] }, { "1", [1] } },
             c =>
             {
                 c.Collection.Clear();
                 c.Collection["2"] = null;
             },
-            new SortedDictionary<string, long?[]> { { "2", null } });
+            new SortedDictionary<string, long?[]?> { { "2", null } });
 
-        await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
+        await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>?>>(
             transactionalBatch,
-            new Dictionary<string, Dictionary<string, short?>>
+            new Dictionary<string, Dictionary<string, short?>?>
             {
                 { "2", new Dictionary<string, short?> { { "value", 2 } } }, { "1", new Dictionary<string, short?> { { "value", 1 } } }
             },
-            c => c.Collection = new Dictionary<string, Dictionary<string, short?>>
+            c => c.Collection = new Dictionary<string, Dictionary<string, short?>?>
             {
                 { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
             },
-            new Dictionary<string, Dictionary<string, short?>>
+            new Dictionary<string, Dictionary<string, short?>?>
             {
                 { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
             });
 
-        await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
+        await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>?>>(
             transactionalBatch,
-            ImmutableDictionary<string, Dictionary<string, short?>>.Empty
+            ImmutableDictionary<string, Dictionary<string, short?>?>.Empty
                 .Add("2", new Dictionary<string, short?> { { "value", 2 } })
                 .Add("1", new Dictionary<string, short?> { { "value", 1 } }),
-            c => c.Collection = ImmutableDictionary<string, Dictionary<string, short?>>.Empty
+            c => c.Collection = ImmutableDictionary<string, Dictionary<string, short?>?>.Empty
                 .Add("1", new Dictionary<string, short?> { { "value", 1 } }).Add("2", null),
-            new Dictionary<string, Dictionary<string, short?>>
+            new Dictionary<string, Dictionary<string, short?>?>
             {
                 { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
             });
@@ -707,7 +708,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
         TCollection initialValue,
         Action<CustomerWithCollection<TCollection>> modify,
         TCollection modifiedValue,
-        Action<ModelBuilder> onModelBuilder = null)
+        Action<ModelBuilder>? onModelBuilder = null)
         where TCollection : class
     {
         var contextFactory = await InitializeNonSharedTest<CollectionCustomerContext<TCollection>>(
@@ -748,7 +749,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal(modifiedValue, customerFromStore.Collection);
 
-            customerFromStore.Collection = null;
+            customerFromStore.Collection = null!;
 
             await context.SaveChangesAsync();
         }
@@ -765,15 +766,16 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
     private class CustomerWithCollection<TCollection>
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public TCollection Collection { get; set; }
+        public string Name { get; set; } = null!;
+        public TCollection Collection { get; set; } = default!;
     }
 
-    private class CollectionCustomerContext<TCollection>(DbContextOptions dbContextOptions, Action<ModelBuilder> onModelBuilder = null)
+    private class CollectionCustomerContext<TCollection>(DbContextOptions dbContextOptions, Action<ModelBuilder>? onModelBuilder = null)
         : DbContext(dbContextOptions)
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<CustomerWithCollection<TCollection>> Customers { get; set; }
+        public DbSet<CustomerWithCollection<TCollection>> Customers
+            => Set<CustomerWithCollection<TCollection>>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => onModelBuilder?.Invoke(modelBuilder);
@@ -816,8 +818,8 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         await using (var context = CreateContext(contextFactory, false))
         {
-            var customerFromStore = await context.Set<CustomerWithResourceId>()
-                .FindAsync(pk1, 3.15m, "42");
+            var customerFromStore = (await context.Set<CustomerWithResourceId>()
+                .FindAsync(pk1, 3.15m, "42"))!;
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon", customerFromStore.Name);
@@ -895,8 +897,8 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         await using (var context = CreateContext(contextFactory, false))
         {
-            var customerFromStore = await context.Set<Customer>()
-                .FindAsync(pk1, 42, "One", true);
+            var customerFromStore = (await context.Set<Customer>()
+                .FindAsync(pk1, 42, "One", true))!;
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
@@ -957,8 +959,8 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         using (var context = CreateContext(contextFactory, false))
         {
-            var customerFromStore = await context.Set<Customer>()
-                .FindAsync(pk1, "One", true, 42);
+            var customerFromStore = (await context.Set<Customer>()
+                .FindAsync(pk1, "One", true, 42))!;
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
@@ -1017,7 +1019,7 @@ ReadItem([1.0,"One",true], 42)
 
         using (var context = CreateContext(contextFactory, false))
         {
-            var customerFromStore = await context.Set<Customer>().FindAsync(42);
+            var customerFromStore = (await context.Set<Customer>().FindAsync(42))!;
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
@@ -1043,7 +1045,7 @@ ReadItem([1.0,"One",true], 42)
 
         await using (var context = CreateContext(contextFactory, false))
         {
-            var customerFromStore = await context.Set<CustomerNoPartitionKey>().FindAsync(42);
+            var customerFromStore = (await context.Set<CustomerNoPartitionKey>().FindAsync(42))!;
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
@@ -1067,7 +1069,7 @@ ReadItem([1.0,"One",true], 42)
 
         await using (var context = CreateContext(contextFactory, false))
         {
-            var customerFromStore = await context.Set<CustomerGuid>().FindAsync(customer.Id);
+            var customerFromStore = (await context.Set<CustomerGuid>().FindAsync(customer.Id))!;
 
             Assert.Equal(customer.Id, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
@@ -1091,7 +1093,7 @@ ReadItem([1.0,"One",true], 42)
 
         await using (var context = CreateContext(contextFactory, false))
         {
-            var customerFromStore = await context.Set<CustomerWithResourceId>().FindAsync("42");
+            var customerFromStore = (await context.Set<CustomerWithResourceId>().FindAsync("42"))!;
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon", customerFromStore.Name);
@@ -1456,7 +1458,7 @@ OFFSET 0 LIMIT 1
     {
         // ReSharper disable once InconsistentNaming
         public int id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public class ConflictingIncompatibleIdContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
@@ -1521,8 +1523,8 @@ OFFSET 0 LIMIT 1
 
     private class ConflictingId
     {
-        public string id { get; set; }
-        public string Name { get; set; }
+        public string id { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 
     public class ConflictingIdContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
@@ -1642,7 +1644,7 @@ OFFSET 0 LIMIT 1
         logger.AssertBaseline(expected);
     }
 
-    protected ListLoggerFactory LoggerFactory { get; }
+    protected ListLoggerFactory LoggerFactory { get; } = null!;
 
     protected override string NonSharedStoreName
         => nameof(EndToEndCosmosTest);
@@ -1650,12 +1652,12 @@ OFFSET 0 LIMIT 1
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
-    protected ContextFactory<DbContext> ContextFactory { get; private set; }
+    protected ContextFactory<DbContext> ContextFactory { get; private set; } = null!;
 
     protected async Task InitializeAsync(
         Action<ModelBuilder> onModelCreating,
-        Func<DbContextOptionsBuilder, Task> onConfiguring = null,
-        Func<DbContext, Task> seed = null,
+        Func<DbContextOptionsBuilder, Task>? onConfiguring = null,
+        Func<DbContext, Task>? seed = null,
         bool sensitiveLogEnabled = true)
         => ContextFactory = await InitializeNonSharedTest(
             onModelCreating,

@@ -9,8 +9,6 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SerializationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : F1FixtureBase<byte[]>, new()
 {
@@ -39,16 +37,16 @@ public abstract class SerializationTestBase<TFixture>(TFixture fixture) : IClass
 
         foreach (var team in teamsAgain)
         {
-            VerifyTeam(context, team, teamsMap);
-            VerifyEngine(context, team.Engine, enginesMap);
-            VerifyEngineSupplier(context, team.Engine.EngineSupplier, engineSupplierMap);
+            VerifyTeam(context, team, teamsMap!);
+            VerifyEngine(context, team.Engine, enginesMap!);
+            VerifyEngineSupplier(context, team.Engine.EngineSupplier, engineSupplierMap!);
         }
     }
 
     private static void VerifyTeam(F1Context context, Team team, IDictionary<int, Team> teamsMap)
     {
         var trackedTeam = context.Teams.Find(team.Id);
-        Assert.Equal(trackedTeam.Constructor, team.Constructor);
+        Assert.Equal(trackedTeam!.Constructor, team.Constructor);
         Assert.Equal(trackedTeam.Name, team.Name);
         Assert.Equal(trackedTeam.Poles, team.Poles);
         Assert.Equal(trackedTeam.Principal, team.Principal);
@@ -73,7 +71,7 @@ public abstract class SerializationTestBase<TFixture>(TFixture fixture) : IClass
     private static void VerifyEngine(F1Context context, Engine engine, IDictionary<int, Engine> enginesMap)
     {
         var trackedEngine = context.Engines.Find(engine.Id);
-        Assert.Equal(trackedEngine.StorageLocation.Latitude, engine.StorageLocation.Latitude);
+        Assert.Equal(trackedEngine!.StorageLocation!.Latitude, engine.StorageLocation!.Latitude);
         Assert.Equal(trackedEngine.StorageLocation.Longitude, engine.StorageLocation.Longitude);
         Assert.Equal(trackedEngine.Name, engine.Name);
 
@@ -94,7 +92,7 @@ public abstract class SerializationTestBase<TFixture>(TFixture fixture) : IClass
         IDictionary<string, EngineSupplier> engineSupplierMap)
     {
         var trackedEngineSupplier = context.EngineSuppliers.Find(engineSupplier.Name);
-        Assert.Equal(trackedEngineSupplier.Name, engineSupplier.Name);
+        Assert.Equal(trackedEngineSupplier!.Name, engineSupplier.Name);
 
         if (engineSupplierMap != null)
         {
@@ -118,7 +116,7 @@ public abstract class SerializationTestBase<TFixture>(TFixture fixture) : IClass
             MaxDepth = maxDepth
         };
 
-        return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(collection, options), options);
+        return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(collection, options), options)!;
     }
 
     private static T RoundtripThroughNewtonsoftJson<T>(T collection, bool ignoreLoops, bool writeIndented)
@@ -139,6 +137,6 @@ public abstract class SerializationTestBase<TFixture>(TFixture fixture) : IClass
 
         var serializeObject = JsonConvert.SerializeObject(collection, options);
 
-        return JsonConvert.DeserializeObject<T>(serializeObject);
+        return JsonConvert.DeserializeObject<T>(serializeObject)!;
     }
 }

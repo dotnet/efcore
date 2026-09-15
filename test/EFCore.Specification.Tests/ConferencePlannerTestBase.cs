@@ -11,8 +11,6 @@ using Track = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.Track;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ConferencePlannerTestBase<TFixture>.ConferencePlannerFixtureBase, new()
 {
@@ -30,14 +28,14 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
             var attendee = await controller.Get("RainbowDash");
 
-            Assert.Equal("Rainbow", attendee.FirstName);
+            Assert.Equal("Rainbow", attendee!.FirstName);
             Assert.Equal("Dash", attendee.LastName);
             Assert.Equal("RainbowDash", attendee.UserName);
             Assert.Equal("sonicrainboom@sample.com", attendee.EmailAddress);
 
             var sessions = attendee.Sessions;
 
-            Assert.Equal(21, sessions.Count);
+            Assert.Equal(21, sessions!.Count);
             Assert.All(sessions, s => Assert.NotEmpty(s.Title));
         });
 
@@ -51,7 +49,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
             Assert.Equal(21, sessions.Count);
             Assert.All(sessions, s => Assert.NotEmpty(s.Abstract));
-            Assert.All(sessions, s => Assert.NotEmpty(s.Speakers));
+            Assert.All(sessions, s => Assert.NotEmpty(s.Speakers!));
             Assert.All(sessions, s => Assert.NotNull(s.Track));
         });
 
@@ -70,7 +68,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                     UserName = "Discord!"
                 });
 
-            Assert.NotEqual(default, result.Id);
+            Assert.NotEqual(default, result!.Id);
             Assert.Equal("discord@sample.com", result.EmailAddress);
             Assert.Equal("", result.FirstName);
             Assert.Equal("Discord", result.LastName);
@@ -115,7 +113,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
             var result = (AttendeeResponse)await controller.AddSession("Pinks", session.Id);
 
-            Assert.Equal(22, result.Sessions.Count);
+            Assert.Equal(22, result.Sessions!.Count);
             Assert.Contains(session.Id, result.Sessions.Select(s => s.Id));
 
             Assert.Equal(pinky.Id, result.Id);
@@ -222,7 +220,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
     {
         private readonly ApplicationDbContext _db = db;
 
-        public async Task<AttendeeResponse> Get(string username)
+        public async Task<AttendeeResponse?> Get(string username)
         {
             var attendee = await _db.Attendees
                 .Include(a => a.SessionsAttendees)
@@ -241,7 +239,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 .Select(m => m.MapSessionResponse())
                 .ToListAsync();
 
-        public async Task<AttendeeResponse> Post(Attendee input)
+        public async Task<AttendeeResponse?> Post(Attendee input)
         {
             var existingAttendee = await _db.Attendees
                 .Where(a => a.UserName == input.UserName)
@@ -312,7 +310,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             }
 
             var sessionAttendee = attendee.SessionsAttendees.FirstOrDefault(sa => sa.SessionId == sessionId);
-            attendee.SessionsAttendees.Remove(sessionAttendee);
+            attendee.SessionsAttendees.Remove(sessionAttendee!);
 
             await _db.SaveChangesAsync();
 
@@ -341,11 +339,11 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Equal(totalCount - sessionCount, speakers.Count);
 
             Assert.All(sessions, s => Assert.NotEqual(default, s.Id));
-            Assert.All(sessions, s => Assert.NotEmpty(s.Speakers));
+            Assert.All(sessions, s => Assert.NotEmpty(s.Speakers!));
             Assert.All(sessions, s => Assert.NotNull(s.Track));
 
             Assert.All(speakers, s => Assert.NotEqual(default, s.Id));
-            Assert.All(speakers, s => Assert.NotEmpty(s.Sessions));
+            Assert.All(speakers, s => Assert.NotEmpty(s.Sessions!));
         });
 
     protected class SearchController(ApplicationDbContext db)
@@ -360,7 +358,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 .Include(s => s.SessionSpeakers)
                 .ThenInclude(ss => ss.Speaker)
                 .Where(s =>
-                    s.Title.Contains(query) || s.Track.Name.Contains(query)
+                    s.Title.Contains(query) || s.Track.Name!.Contains(query)
                 )
                 .ToListAsync();
 
@@ -368,7 +366,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 .Include(s => s.SessionSpeakers)
                 .ThenInclude(ss => ss.Session)
                 .Where(s =>
-                    s.Name.Contains(query) || s.Bio.Contains(query) || s.WebSite.Contains(query)
+                    s.Name.Contains(query) || s.Bio!.Contains(query) || s.WebSite!.Contains(query)
                 )
                 .ToListAsync();
 
@@ -393,7 +391,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Equal(57, results.Count);
 
             Assert.All(results, s => Assert.NotEqual(default, s.Id));
-            Assert.All(results, s => Assert.NotEmpty(s.Speakers));
+            Assert.All(results, s => Assert.NotEmpty(s.Speakers!));
             Assert.All(results, s => Assert.NotNull(s.Track));
         });
 
@@ -407,8 +405,8 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
             var result = await controller.Get(session.Id);
 
-            Assert.Equal(session.Id, result.Id);
-            Assert.NotEmpty(result.Speakers);
+            Assert.Equal(session.Id, result!.Id);
+            Assert.NotEmpty(result.Speakers!);
             Assert.NotNull(result.Track);
         });
 
@@ -498,7 +496,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
             var result = await controller.Delete(session.Id);
 
-            Assert.Equal(session.Id, result.Id);
+            Assert.Equal(session.Id, result!.Id);
             Assert.Null(result.Speakers);
             Assert.NotNull(result.Track);
 
@@ -528,7 +526,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 .Select(m => m.MapSessionResponse())
                 .ToListAsync();
 
-        public async Task<SessionResponse> Get(int id)
+        public async Task<SessionResponse?> Get(int id)
         {
             var session = await _db.Sessions.AsNoTracking()
                 .Include(s => s.Track)
@@ -577,7 +575,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             return "Success";
         }
 
-        public async Task<SessionResponse> Delete(int id)
+        public async Task<SessionResponse?> Delete(int id)
         {
             var session = await _db.Sessions.FindAsync(id);
 
@@ -604,7 +602,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             Assert.Equal(70, results.Count);
 
             Assert.All(results, s => Assert.NotEqual(default, s.Id));
-            Assert.All(results, s => Assert.NotEmpty(s.Sessions));
+            Assert.All(results, s => Assert.NotEmpty(s.Sessions!));
         });
 
     [Fact]
@@ -617,8 +615,8 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
             var result = await controller.GetSpeaker(speaker.Id);
 
-            Assert.Equal(speaker.Id, result.Id);
-            Assert.NotEmpty(result.Sessions);
+            Assert.Equal(speaker.Id, result!.Id);
+            Assert.NotEmpty(result.Sessions!);
         });
 
     [Fact]
@@ -643,7 +641,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 .Select(s => s.MapSpeakerResponse())
                 .ToListAsync();
 
-        public async Task<SpeakerResponse> GetSpeaker(int id)
+        public async Task<SpeakerResponse?> GetSpeaker(int id)
         {
             var speaker = await _db.Speakers.AsNoTracking()
                 .Include(s => s.SessionSpeakers)
@@ -661,9 +659,9 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<ApplicationDbContext, Task> testOperation,
-        Func<ApplicationDbContext, Task> nestedTestOperation1 = null,
-        Func<ApplicationDbContext, Task> nestedTestOperation2 = null,
-        Func<ApplicationDbContext, Task> nestedTestOperation3 = null)
+        Func<ApplicationDbContext, Task>? nestedTestOperation1 = null,
+        Func<ApplicationDbContext, Task>? nestedTestOperation2 = null,
+        Func<ApplicationDbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
             UseTransaction,
@@ -748,25 +746,25 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             var root = document.RootElement;
             foreach (var dayJson in root.EnumerateArray())
             {
-                foreach (var roomJson in dayJson.GetProperty("rooms").EnumerateArray())
+                foreach (var roomJson in dayJson.GetProperty("rooms")!.EnumerateArray())
                 {
-                    var roomId = roomJson.GetProperty("id").GetInt32();
+                    var roomId = roomJson.GetProperty("id")!.GetInt32();
                     if (!tracks.TryGetValue(roomId, out var track))
                     {
-                        track = new Track { Name = roomJson.GetProperty("name").GetString(), Sessions = [] };
+                        track = new Track { Name = roomJson.GetProperty("name")!.GetString(), Sessions = [] };
 
                         tracks[roomId] = track;
                     }
 
-                    foreach (var sessionJson in roomJson.GetProperty("sessions").EnumerateArray())
+                    foreach (var sessionJson in roomJson.GetProperty("sessions")!.EnumerateArray())
                     {
                         var sessionSpeakers = new List<Speaker>();
-                        foreach (var speakerJson in sessionJson.GetProperty("speakers").EnumerateArray())
+                        foreach (var speakerJson in sessionJson.GetProperty("speakers")!.EnumerateArray())
                         {
-                            var speakerId = speakerJson.GetProperty("id").GetGuid();
+                            var speakerId = speakerJson.GetProperty("id")!.GetGuid();
                             if (!speakers.TryGetValue(speakerId, out var speaker))
                             {
-                                speaker = new Speaker { Name = speakerJson.GetProperty("name").GetString() };
+                                speaker = new Speaker { Name = speakerJson.GetProperty("name")!.GetString()! };
 
                                 speakers[speakerId] = speaker;
                             }
@@ -776,17 +774,17 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
                         var session = new TestModels.ConferencePlanner.Session
                         {
-                            Title = sessionJson.GetProperty("title").GetString(),
-                            Abstract = sessionJson.GetProperty("description").GetString(),
-                            StartTime = sessionJson.GetProperty("startsAt").GetDateTime(),
-                            EndTime = sessionJson.GetProperty("endsAt").GetDateTime()
+                            Title = sessionJson.GetProperty("title")!.GetString()!,
+                            Abstract = sessionJson.GetProperty("description")!.GetString()!,
+                            StartTime = sessionJson.GetProperty("startsAt")!.GetDateTime(),
+                            EndTime = sessionJson.GetProperty("endsAt")!.GetDateTime()
                         };
 
                         session.SessionSpeakers =
                             sessionSpeakers.Select(s => new SessionSpeaker { Session = session, Speaker = s }).ToList();
 
                         var trackName = track.Name;
-                        var attendees = trackName.Contains("1") ? attendees1
+                        var attendees = trackName!.Contains("1") ? attendees1
                             : trackName.Contains("2") ? attendees2
                             : trackName.Contains("3") ? attendees3
                             : attendees1.Concat(attendees2).Concat(attendees3).ToList();

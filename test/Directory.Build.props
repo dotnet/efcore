@@ -29,6 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(IsTestProject)' != 'false'">
+    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
   </ItemGroup>
 
