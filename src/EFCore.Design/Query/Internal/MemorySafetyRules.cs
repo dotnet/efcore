@@ -19,9 +19,10 @@ internal static class MemorySafetyRules
     // This is the feature flag name recognized by the C# parser (passed via '/features:updated-memory-safety-rules'
     // or the equivalent LangVersion/parse options). Roslyn does not yet expose a stable, non-experimental API for
     // querying whether a compilation was parsed with the updated memory safety rules enabled
-    // (see https://github.com/dotnet/roslyn/issues/82546), so this flag is used as a fallback whenever the
-    // Roslyn version referenced by this generator doesn't expose the (currently experimental)
-    // CSharpCompilationOptions.MemorySafetyRulesVersion API looked up reflectively below.
+    // (see https://github.com/dotnet/roslyn/issues/82789), so this flag is also checked even when the
+    // (currently experimental) CSharpCompilationOptions.MemorySafetyRulesVersion API looked up reflectively below
+    // is available: Roslyn treats the feature as an opt-in fallback when that option is Version1, so a
+    // compilation carrying the feature can still use the updated rules.
     private const string UpdatedMemorySafetyRulesFeature = "updated-memory-safety-rules";
 
     // SyntaxKind.SafeKeyword is still experimental (RSEXPERIMENTAL006) and may not exist on the
@@ -39,9 +40,10 @@ internal static class MemorySafetyRules
     public static bool UseUpdatedMemorySafetyRules(this Compilation compilation)
     {
         if (MemorySafetyRulesVersionProperty is not null
-            && compilation is CSharpCompilation { Options: CSharpCompilationOptions options })
+            && compilation is CSharpCompilation { Options: CSharpCompilationOptions options }
+            && MemorySafetyRulesVersionProperty.GetValue(options)?.ToString() == "Version2")
         {
-            return MemorySafetyRulesVersionProperty.GetValue(options)?.ToString() == "Version2";
+            return true;
         }
 
         return compilation.SyntaxTrees.FirstOrDefault()?.Options.Features.ContainsKey(UpdatedMemorySafetyRulesFeature) == true;
