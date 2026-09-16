@@ -1,0 +1,56 @@
+name: scaffolding
+description: Evaluates reverse-engineering guidance against EF Core scaffolding implementation and tests.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 5m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/scaffolding
+stimuli:
+  - name: place-a-database-model-shape-change
+    prompt: |-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore.Design/Scaffolding/Internal/ReverseEngineerScaffolder.cs, test/EFCore.Design.Tests/Scaffolding/Internal/RelationalScaffoldingModelFactoryTest.cs, and test/EFCore.Design.Tests/Scaffolding/Internal/ReverseEngineerScaffolderTest.cs. Write analysis.md explaining where a new DatabaseModel shape should be read, converted to EF metadata, and emitted as C#, and identify the focused staged tests that should change. Keep this reverse-engineering path distinct from compiled-model generation and include how to validate the generated C# code. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Design/Scaffolding/Internal/ReverseEngineerScaffolder.cs
+          dest: src/EFCore.Design/Scaffolding/Internal/ReverseEngineerScaffolder.cs
+        - src: ../../../../test/EFCore.Design.Tests/Scaffolding/Internal/RelationalScaffoldingModelFactoryTest.cs
+          dest: test/EFCore.Design.Tests/Scaffolding/Internal/RelationalScaffoldingModelFactoryTest.cs
+        - src: ../../../../test/EFCore.Design.Tests/Scaffolding/Internal/ReverseEngineerScaffolderTest.cs
+          dest: test/EFCore.Design.Tests/Scaffolding/Internal/ReverseEngineerScaffolderTest.cs
+    rubric:
+      - The analysis distinguishes IDatabaseModelFactory, IScaffoldingModelFactory, IModelCodeGenerator, and orchestration roles.
+      - It grounds the proposed changes in the staged model-factory and reverse-engineer tests.
+      - It keeps reverse engineering separate from compiled-model generation and includes generated-code validation.
+    graders:
+      - type: skill-invocation
+        config:
+          required: [ scaffolding ]
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: IDatabaseModelFactory[\s\S]*IScaffoldingModelFactory[\s\S]*IModelCodeGenerator
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

@@ -1,0 +1,58 @@
+name: tooling
+description: Evaluates dotnet-ef tooling guidance against the EF Core command implementation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 5m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/tooling
+stimuli:
+  - name: thread-a-migrations-add-option
+    prompt: |-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/dotnet-ef/RootCommand.cs, src/ef/Commands/MigrationsAddCommand.cs, test/dotnet-ef.Tests/CommandsTest.cs, and test/ef.Tests/CommandsTest.cs. Write tooling-plan.md for adding a --suppress-summary option to dotnet ef migrations add, tracing the value from parsing through the design-time operation host and identifying focused tests. Specify its help text, default and forwarding behavior, preserve public command compatibility, and keep the dotnet-ef path distinct from PMC and EFCore.Tasks. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
+    agent_environment:
+      files:
+        - src: ../../../../src/dotnet-ef/RootCommand.cs
+          dest: src/dotnet-ef/RootCommand.cs
+        - src: ../../../../src/ef/Commands/MigrationsAddCommand.cs
+          dest: src/ef/Commands/MigrationsAddCommand.cs
+        - src: ../../../../test/dotnet-ef.Tests/CommandsTest.cs
+          dest: test/dotnet-ef.Tests/CommandsTest.cs
+        - src: ../../../../test/ef.Tests/CommandsTest.cs
+          dest: test/ef.Tests/CommandsTest.cs
+    rubric:
+      - The plan is grounded in the staged command types and traces build, dotnet exec ef.dll, and OperationExecutor boundaries.
+      - It identifies focused CLI/operation tests and does not conflate dotnet-ef with PMC or EFCore.Tasks.
+      - The option has clear help/default/forwarding behavior and preserves public command compatibility.
+    graders:
+      - type: skill-invocation
+        config:
+          required: [ tooling ]
+      - type: file-matches
+        config:
+          path: tooling-plan.md
+          pattern: suppress-summary[\s\S]*(OperationExecutor|ef\.dll)
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

@@ -1,0 +1,59 @@
+name: cosmos-provider
+description: Evaluates Cosmos provider guidance against EF Core ReadItem translation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 25m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/cosmos-provider
+stimuli:
+  - name: explain-readitem-discriminator-selection
+    prompt: >-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore.Cosmos/Query/Internal/CosmosReadItemAndPartitionKeysExtractor.cs, test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTestBase.cs, and test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTest.cs. Write analysis.md explaining why ReadItem_with_single_explicit_discriminator_mapping emits ReadItem, while ReadItem_with_single_explicit_incorrect_discriminator_mapping and ReadItem_with_single_explicit_parameterized_discriminator_mapping emit general queries. Identify the exact extractor condition responsible, explain why retaining each predicate is required for correctness, and outline the assertions that preserve all three behaviors during a refactor. Do not edit source. Include the exact focused EFCore.Cosmos.FunctionalTests command and state whether these tests require the emulator or a Linux-emulator condition.
+    constraints:
+      max_turns: 80
+      max_tokens: 2000000
+      max_duration: 25m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Cosmos/Query/Internal/CosmosReadItemAndPartitionKeysExtractor.cs
+          dest: src/EFCore.Cosmos/Query/Internal/CosmosReadItemAndPartitionKeysExtractor.cs
+        - src: ../../../../test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTestBase.cs
+          dest: test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTestBase.cs
+        - src: ../../../../test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTest.cs
+          dest: test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTest.cs
+    rubric:
+      - The analysis identifies the SqlConstantExpression discriminator condition in CosmosReadItemAndPartitionKeysExtractor.
+      - It correctly explains the existing ReadItem result for the matching constant and general-query results for incorrect and parameterized discriminator values.
+      - It preserves all three base/override assertions and includes the focused Cosmos functional-test command and emulator constraints.
+    graders:
+      - type: skill-invocation
+        config:
+          required:
+            - cosmos-provider
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?=[\s\S]*CosmosReadItemAndPartitionKeysExtractor)(?=[\s\S]*ReadItem)(?=[\s\S]*(EFCore\.Cosmos\.FunctionalTests|dotnet test))(?=[\s\S]*emulator)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - repo
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 2000000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

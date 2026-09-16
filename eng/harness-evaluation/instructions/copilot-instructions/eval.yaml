@@ -1,0 +1,87 @@
+name: copilot-instructions
+description: Evaluates repository-wide Copilot guidance for EF Core internal APIs and provider test hierarchies.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  files:
+    - src: ../../../../.github/copilot-instructions.md
+      dest: .github/copilot-instructions.md
+stimuli:
+  - name: review-an-internal-public-api-change
+    prompt: |-
+      Inspect src/EFCore/Metadata/Internal/EntityType.cs. A proposed change adds a new public virtual member in this internal namespace; the member activates a CLR type through reflection and awaits a callback. Write api-review.md listing every repository-wide implementation, documentation, compatibility, and validation requirement that must be satisfied before accepting the change. Ground the review by naming at least two relevant existing members or annotations found in the staged file. Do not edit source.
+    constraints:
+      max_turns: 50
+      max_tokens: 1000000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore/Metadata/Internal/EntityType.cs
+          dest: src/EFCore/Metadata/Internal/EntityType.cs
+    rubric:
+      - The review requires the standard EF Core internal-API warning XML documentation on the public member.
+      - It addresses NativeAOT compatibility by avoiding reflection or requiring the appropriate annotations or exception.
+      - It requires ConfigureAwait(false) on the awaited callback and EFCore.ApiBaseline.Tests for the public API change.
+      - The advice names at least two relevant members or annotations from the staged EntityType implementation rather than giving generic library guidance.
+    graders:
+      - type: file-matches
+        config:
+          path: api-review.md
+          pattern: (?=[\s\S]*internal API)(?=[\s\S]*(NativeAOT|RequiresDynamicCode|DynamicallyAccessedMembers))(?=[\s\S]*ConfigureAwait\(false\))(?=[\s\S]*EFCore\.ApiBaseline\.Tests)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence:
+            - trajectory
+            - repo
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: add-a-query-test-through-provider-hierarchies
+    prompt: |-
+      Inspect test/EFCore.Specification.Tests/Query/QueryTestBase.cs, test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs, test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs, and test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs. Write test-plan.md for adding a new Where_with_parameterized_limit case through this hierarchy, including result assertions, provider overrides, SQL baselines, and focused commands to validate it. Include `restore.cmd` and dot-sourced `activate.ps1` setup, then use `dotnet exec` on each built provider test DLL with `--filter-method`, `--filter-not-trait category=failing`, and `--ignore-exit-code 8`. Do not put `--no-build` on test commands. Do not edit source.
+    constraints:
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
+    agent_environment:
+      files:
+        - src: ../../../../test/EFCore.Specification.Tests/Query/QueryTestBase.cs
+          dest: test/EFCore.Specification.Tests/Query/QueryTestBase.cs
+        - src: ../../../../test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs
+          dest: test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs
+        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs
+          dest: test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs
+        - src: ../../../../test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs
+          dest: test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs
+    rubric:
+      - The plan puts provider-independent behavior in the specification test and identifies every relevant staged provider override.
+      - Provider overrides call the base test and use AssertSql only where SQL is produced.
+      - The commands follow this repository's restore, activation, and focused Microsoft Testing Platform conventions without stale --no-build usage.
+    graders:
+      - type: file-matches
+        config:
+          path: test-plan.md
+          pattern: (?=[\s\S]*Where_with_parameterized_limit)(?=[\s\S]*restore\.cmd)(?=[\s\S]*activate\.ps1)(?=[\s\S]*base)(?=[\s\S]*AssertSql)(?=[\s\S]*dotnet exec)(?=[\s\S]*--filter-method)(?=[\s\S]*--filter-not-trait category=failing)(?=[\s\S]*--ignore-exit-code 8)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    file-matches: 0.36
+    prompt: 0.54
+    token-budget: 0.1
+  threshold: 0.8

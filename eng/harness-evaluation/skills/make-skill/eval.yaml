@@ -1,0 +1,62 @@
+name: make-skill
+description: Evaluates skill authoring from EF Core context-pooling implementation details.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 20m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/make-skill
+stimuli:
+  - name: create-context-pool-diagnostics-skill
+    prompt: >-
+      Before creating files, use the available repository skill that applies to this task. Inspect src/EFCore/Internal/DbContextPool.cs and test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs. Create a background-only agent skill under .agents/skills/ for diagnosing EF Core context-pool reset and lifetime issues, together with its Vally eval under eng/harness-evaluation/skills/. Derive its workflow, pitfalls, and validation steps from the staged implementation and tests rather than generic pooling advice.
+    constraints:
+      max_turns: 60
+      max_tokens: 1500000
+      max_duration: 20m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore/Internal/DbContextPool.cs
+          dest: src/EFCore/Internal/DbContextPool.cs
+        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
+          dest: test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
+    rubric:
+      - The created SKILL.md has valid matching name/frontmatter and is explicitly non-user-invocable.
+      - Its workflow cites concrete DbContextPool reset, lease, or lifetime behavior visible in the staged source and tests.
+      - It contains observable validation steps, relevant pitfalls, and no duplicated generic repository instructions.
+      - The matching eval declares the target skill, bounded resources, token grading, an exact skill-invocation grader, deterministic output checks where possible, a focused semantic rubric, and a committed scoring threshold.
+    graders:
+      - type: skill-invocation
+        config:
+          required:
+            - make-skill
+      - type: file-matches
+        config:
+          path: .agents/skills/*/SKILL.md
+          pattern: '(?m)^---[\s\S]*^name:[\s\S]*DbContextPool'
+      - type: file-matches
+        config:
+          path: eng/harness-evaluation/skills/*/eval.yaml
+          pattern: '(?=[\s\S]*runs:)(?=[\s\S]*agent_environment:)(?=[\s\S]*skills:)(?=[\s\S]*skill-invocation)(?=[\s\S]*token-budget)(?=[\s\S]*scoring:)(?=[\s\S]*threshold:)[\s\S]+'
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - repo
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1500000
+scoring:
+  weights:
+    skill-invocation: 0.18
+    file-matches: 0.36
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75
