@@ -5,7 +5,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal;
+namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 /// <summary>
 ///     Detects whether a <see cref="Compilation" /> was parsed with C#'s "updated memory safety rules"
@@ -49,3 +49,4 @@ internal static class MemorySafetyRules
         return compilation.SyntaxTrees.FirstOrDefault()?.Options.Features.ContainsKey(UpdatedMemorySafetyRulesFeature) == true;
     }
 }
+
