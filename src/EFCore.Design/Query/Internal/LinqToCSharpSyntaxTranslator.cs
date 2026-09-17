@@ -26,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 {
-    internal LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
+    public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
         : this(syntaxGenerator, useUpdatedMemorySafetyRules: false)
     {
     }
 
-    internal LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator, bool useUpdatedMemorySafetyRules)
+    public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator, bool useUpdatedMemorySafetyRules)
     {
         _g = syntaxGenerator;
         _useUpdatedMemorySafetyRules = useUpdatedMemorySafetyRules;

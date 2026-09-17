@@ -22,12 +22,12 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
 {
     private IReadOnlyDictionary<MemberInfo, QualifiedName>? _memberAccessReplacements;
 
-    internal RuntimeModelLinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
+    public RuntimeModelLinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
         : this(syntaxGenerator, useUpdatedMemorySafetyRules: false)
     {
     }
 
-    internal RuntimeModelLinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator, bool useUpdatedMemorySafetyRules)
+    public RuntimeModelLinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator, bool useUpdatedMemorySafetyRules)
         : base(syntaxGenerator, useUpdatedMemorySafetyRules)
     {
     }
