@@ -1,11 +1,11 @@
 # Discovers affected harness components for every PR. Automatic evaluation is
-# limited to trusted authors; contributors can explicitly evaluate any PR.
+# limited to trusted authors; harness changes are evaluated after they are merged.
 
 name: Agent Harness Evaluation
 
 on:
   pull_request_target:
-    types: [opened, reopened, ready_for_review, synchronize]
+    types: [opened, reopened, ready_for_review, synchronize, closed]
   workflow_dispatch:
     inputs:
       pull_request:
@@ -38,6 +38,7 @@ jobs:
     outputs:
       base_sha: ${{ steps.pr.outputs.base_sha }}
       head_sha: ${{ steps.pr.outputs.target_sha }}
+      trusted_sha: ${{ steps.pr.outputs.trusted_sha }}
       pull_request: ${{ steps.pr.outputs.pull_request }}
       can_use_secrets: ${{ steps.pr.outputs.can_use_secrets }}
       component_filter: ${{ steps.pr.outputs.component_filter }}
@@ -70,13 +71,17 @@ jobs:
               repo: context.repo.repo,
               pull_number: pullNumber
             });
+            const mergedIntoDefault = context.eventName === 'pull_request_target'
+              && context.payload.action === 'closed'
+              && pull.merged === true
+              && pull.base.ref === context.payload.repository.default_branch;
             const author = pull.user.login;
             const componentFilter = manual ? process.env.MANUAL_COMPONENT.trim() : '';
-            const requestedSha = manual ? process.env.MANUAL_COMMIT_SHA.trim() : '';
+            const requestedSha = manual ? process.env.MANUAL_COMMIT_SHA.trim().toLowerCase() : '';
             if (requestedSha && !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i.test(requestedSha)) {
               throw new Error(`Invalid commit SHA: ${requestedSha}`);
             }
-            const targetSha = requestedSha || pull.head.sha;
+            const targetSha = requestedSha || (mergedIntoDefault ? pull.merge_commit_sha : pull.head.sha);
             if (requestedSha) {
               const commits = await github.paginate(github.rest.pulls.listCommits, {
                 owner: context.repo.owner,
@@ -90,15 +95,17 @@ jobs:
             }
 
             let permission = 'none';
-            try {
-              const response = await github.rest.repos.getCollaboratorPermissionLevel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                username: author
-              });
-              permission = response.data.permission;
-            } catch (error) {
-              if (error.status !== 404) throw error;
+            if (!mergedIntoDefault) {
+              try {
+                const response = await github.rest.repos.getCollaboratorPermissionLevel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  username: author
+                });
+                permission = response.data.permission;
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
             }
 
             // Helper function to check if a user is a bot
@@ -111,11 +118,16 @@ jobs:
             };
             const fromBranch = pull.head.repo?.id === pull.base.repo.id;
             const automatic = context.eventName === 'pull_request_target'
-              && context.payload.action !== 'synchronize';
-            const canUseSecrets = isBot(author)
+              && !['synchronize', 'closed'].includes(context.payload.action);
+            const canUseSecrets = mergedIntoDefault || (isBot(author)
               ? fromBranch && (manual || automatic)
-              : manual || (automatic && ['admin', 'maintain', 'write'].includes(permission));
+              : manual || (automatic && ['admin', 'maintain', 'write'].includes(permission)));
 
+            const { data: trustedCommit } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: mergedIntoDefault ? targetSha : context.payload.repository.default_branch
+            });
             const { data: targetCommit } = await github.rest.repos.getCommit({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -192,14 +204,14 @@ jobs:
               }
             }
             for (const path of paths) {
-              if (/^eng\/harness-evaluation\/(?:skills|instructions|agents|workflows|prompts)\/[^/]+\/eval\.yaml$/.test(path)
+               if (/^eng\/harness-evaluation\/(?:skills|instructions|agents|workflows|prompts)\/[^/]+(?:\/[^/]+)*\/eval\.yaml$/.test(path)
                   && !componentEvals.has(path)) {
                 throw new Error(`Evaluation has no matching harness component: ${path}`);
               }
             }
 
             let files;
-            if (targetSha === pull.head.sha) {
+            if (mergedIntoDefault || targetSha === pull.head.sha) {
               files = await github.paginate(github.rest.pulls.listFiles, {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -220,22 +232,27 @@ jobs:
             const changedFiles = files.flatMap(file =>
               file.previous_filename ? [file.filename, file.previous_filename] : [file.filename]);
             // package-lock.json is intentionally excluded because dependency-only changes should not affect eval results.
-            const infrastructurePrefixes = [
+            const harnessInfrastructurePrefixes = [
+              '.github/workflows/agent-harness-evaluation.yml',
               `${evaluationRoot}/src/`,
               `${evaluationRoot}/package.json`,
               `${evaluationRoot}/harness.experiment.yaml`
             ];
+            const harnessInfrastructureChanged = changedFiles.some(path =>
+              harnessInfrastructurePrefixes.some(prefix => path.startsWith(prefix)));
             const pathMatches = (path, candidate) => path === candidate || path.startsWith(`${candidate}/`);
-            let selected = changedFiles.some(path =>
-              infrastructurePrefixes.some(prefix => path.startsWith(prefix)))
-              ? components.map(component => component.id)
+            // Candidate harness infrastructure is not executed during PR evaluation; validate it only after merge.
+            let selected = context.payload.action === 'closed'
+              ? mergedIntoDefault && harnessInfrastructureChanged
+                ? components.map(component => component.id)
+                : []
               : components
-                .filter(component => changedFiles.some(path =>
-                  pathMatches(path, component.eval.slice(0, component.eval.lastIndexOf('/')))
-                   || pathMatches(path, component.kind === 'skill'
-                     ? component.source.slice(0, component.source.lastIndexOf('/'))
-                     : component.source)))
-                .map(component => component.id);
+                  .filter(component => changedFiles.some(path =>
+                    pathMatches(path, component.eval.slice(0, component.eval.lastIndexOf('/')))
+                     || pathMatches(path, component.kind === 'skill'
+                       ? component.source.slice(0, component.source.lastIndexOf('/'))
+                       : component.source)))
+                  .map(component => component.id);
             selected = [...new Set(selected)].sort((left, right) => left.localeCompare(right));
             const byId = new Map(components.map(component => [component.id, component]));
             if (componentFilter) {
@@ -259,6 +276,7 @@ jobs:
 
             core.setOutput('base_sha', pull.base.sha);
             core.setOutput('target_sha', targetSha);
+            core.setOutput('trusted_sha', trustedCommit.sha);
             core.setOutput('pull_request', String(pullNumber));
             core.setOutput('can_use_secrets', String(canUseSecrets));
             core.setOutput('component_filter', componentFilter);
@@ -273,6 +291,10 @@ jobs:
               .write();
 
       - name: Update pull request metadata
+        if: >-
+          github.event.action != 'closed' ||
+          (github.event.pull_request.merged == true &&
+           github.event.pull_request.base.ref == github.event.repository.default_branch)
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         env:
           CAN_USE_SECRETS: ${{ steps.pr.outputs.can_use_secrets }}
@@ -290,7 +312,7 @@ jobs:
               issue_number: issueNumber,
               per_page: 100
             });
-            if (!process.env.COMPONENT_FILTER) {
+            if (context.payload.action !== 'closed' && !process.env.COMPONENT_FILTER) {
               for (const comment of comments) {
                 const match = comment.body?.match(/^<!-- agent-harness-eval:([^ ]+) -->/);
                 if (comment.user?.login !== 'github-actions[bot]' || !match || selected.has(match[1])) continue;
@@ -397,14 +419,26 @@ jobs:
       pull-requests: read
     env:
       COMPONENT: ${{ matrix.id }}
-      RESULT_ROOT: artifacts/TestResults/harness-evaluation/${{ matrix.id }}
+      CANDIDATE_ROOT: candidate
+      RESULT_ROOT: candidate/artifacts/TestResults/harness-evaluation/${{ matrix.id }}
+      TRUSTED_ROOT: trusted
     steps:
-      - name: Check out pull request
+      - name: Check out trusted evaluation runner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.discover.outputs.trusted_sha }}
+          path: ${{ env.TRUSTED_ROOT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out pull request candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ needs.discover.outputs.head_sha }}
+          path: ${{ env.CANDIDATE_ROOT }}
           fetch-depth: 0
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Report evaluation started
         continue-on-error: true
@@ -440,6 +474,7 @@ jobs:
             }
 
       - name: Restore repository SDK
+        working-directory: ${{ env.TRUSTED_ROOT }}
         shell: bash
         run: |
           ./restore.sh
@@ -450,12 +485,12 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          node-version: 22
+          node-version: 22.12
           cache: npm
-          cache-dependency-path: eng/harness-evaluation/package-lock.json
+          cache-dependency-path: ${{ env.TRUSTED_ROOT }}/eng/harness-evaluation/package-lock.json
 
       - name: Install evaluation tools
-        working-directory: eng/harness-evaluation
+        working-directory: ${{ env.TRUSTED_ROOT }}/eng/harness-evaluation
         run: npm ci
 
       - name: Run treatment, unskilled control, and comparison
@@ -465,10 +500,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           timeout --signal=TERM --kill-after=30s "${{ matrix.watchdog_minutes }}m" \
-            node eng/harness-evaluation/src/cli.mjs eval "$COMPONENT" \
+            node "$TRUSTED_ROOT/eng/harness-evaluation/src/cli.mjs" eval "$COMPONENT" \
+              --repo-root "$GITHUB_WORKSPACE/$CANDIDATE_ROOT" \
               --workers 1 \
               --require-pass \
-              --output "$RESULT_ROOT"
+              --output "$GITHUB_WORKSPACE/$RESULT_ROOT"
 
       - name: Upload component results
         id: upload
@@ -501,8 +537,8 @@ jobs:
             }
           };
           visit(process.env.RESULT_ROOT);
-          const controlFile = resultFiles.find(file => file.split(path.sep).includes('control'));
-          const treatmentFile = resultFiles.find(file => file.split(path.sep).includes('treatment'));
+          const controlFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'control');
+          const treatmentFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'treatment');
           if (!controlFile || !treatmentFile || resultFiles.length !== 2) {
             throw new Error(`Expected control and treatment results.jsonl files, found ${resultFiles.length}.`);
           }
@@ -620,7 +656,7 @@ jobs:
 
             try {
               const treatmentFiles = findFiles(process.env.RESULT_ROOT, 'results.jsonl')
-                .filter(file => file.split(path.sep).includes('treatment'));
+                .filter(file => path.basename(path.dirname(file)) === 'treatment');
               if (treatmentFiles.length !== 1) {
                 throw new Error(`expected one treatment results file, found ${treatmentFiles.length}`);
               }
@@ -682,8 +718,8 @@ jobs:
               }
 
               if (existedAtBase) {
-                const query = `repo:${context.repo.owner}/${context.repo.repo} is:pr label:area-harness ` +
-                  `in:comments "agent-harness-eval:${process.env.COMPONENT}"`;
+               const query = `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged label:area-harness ` +
+                 `in:comments "agent-harness-eval:${process.env.COMPONENT}"`;
                 const { data } = await github.rest.search.issuesAndPullRequests({
                   q: query, sort: 'updated', order: 'desc', per_page: 100
                 });

@@ -30,9 +30,11 @@ Skill evals load only their target skill and require a `skill-invocation` grader
 
 ## Acceptance
 
-Pull request and manual evaluation use `vally experiment run` to execute the eval's configured number of unskilled-control and treatment trials, then use `vally compare` to judge paired trajectories. The treatment must meet the eval's committed `scoring.threshold`, comparison judging must complete, and `--fail-on-regression` rejects a statistically significant treatment regression. Reports include the treatment-relative quality verdict and mean token delta.
+Pull request, post-merge harness, and manual evaluation use `vally experiment run` to execute the eval's configured number of unskilled-control and treatment trials, then use `vally compare` to judge paired trajectories. The treatment must meet the eval's committed `scoring.threshold`, comparison judging must complete, and `--fail-on-regression` rejects a statistically significant treatment regression. Reports include the treatment-relative quality verdict and mean token delta.
 
-The workflow discovers and labels affected PRs when they are opened, reopened, or marked ready for review. Evaluation starts automatically for authorized contributors and same-repository bot branches. A contributor with write access can comment `/eval` to rerun all affected components or `/eval <component>` to rerun one. Manual dispatch from the repository default branch accepts a PR number, PR commit SHA and optional component filter.
+GitHub Actions pins the evaluation runner and dependencies to the repository default branch, then evaluates the authorized pull request from a separate candidate checkout. The candidate's customizations, eval specifications, and declared input files are data consumed by the trusted runner; candidate harness scripts are not executed.
+
+The workflow discovers and labels affected PRs when they are opened, reopened, or marked ready for review. Component and eval changes are evaluated from authorized PRs, while harness infrastructure changes fan out to all components only after merging into the default branch. A contributor with write access can comment `/eval` to rerun all affected components or `/eval <component>` to rerun one. Manual dispatch from the repository default branch accepts a PR number, PR commit SHA and optional component filter.
 
 ## Local validation
 

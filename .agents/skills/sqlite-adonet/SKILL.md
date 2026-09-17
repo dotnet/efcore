@@ -12,4 +12,3 @@ Standalone ADO.NET provider in `src/Microsoft.Data.Sqlite.Core/`, independent of
 
 - Static constructor calls `SQLitePCL.Batteries_V2.Init()` reflectively
 - `CreateFunction()`/`CreateAggregate()` overloads generated from T4 templates (`.tt` files)
-- `DbConnection.Close()` closes the connection but does not dispose commands associated with it; a reusable `DbCommand` may remain associated and execute after that same connection is reopened. Keep connection-driven statement cleanup separate from `DbCommand.Dispose()`, which is the terminal command-lifetime operation.

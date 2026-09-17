@@ -13,7 +13,7 @@ agent_environment:
 stimuli:
   - name: create-context-pool-diagnostics-skill
     prompt: >-
-      Before creating files, use the available repository skill that applies to this task. Inspect src/EFCore/Internal/DbContextPool.cs and test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs. Create a background-only agent skill under .agents/skills/ for diagnosing EF Core context-pool reset and lifetime issues, together with its Vally eval under eng/harness-evaluation/skills/. Derive its workflow, pitfalls, and validation steps from the staged implementation and tests rather than generic pooling advice.
+      Before creating files, use the available repository skill that applies to this task. Inspect src/EFCore/Internal/DbContextPool.cs and test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs. Create a background-only agent skill with the fixed ID `context-pooling` at `.agents/skills/context-pooling/SKILL.md`, together with its Vally eval at `eng/harness-evaluation/skills/context-pooling/eval.yaml`. Derive its workflow, pitfalls, and validation steps from the staged implementation and tests rather than generic pooling advice.
     constraints:
       max_turns: 60
       max_tokens: 1500000
@@ -24,11 +24,15 @@ stimuli:
           dest: src/EFCore/Internal/DbContextPool.cs
         - src: ../../../../test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
           dest: test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../eng/harness-evaluation/README.md
+          dest: eng/harness-evaluation/README.md
     rubric:
-      - The created SKILL.md has valid matching name/frontmatter and is explicitly non-user-invocable.
+      - The created `.agents/skills/context-pooling/SKILL.md` has `context-pooling` as its matching name/frontmatter and is explicitly non-user-invocable.
       - Its workflow cites concrete DbContextPool reset, lease, or lifetime behavior visible in the staged source and tests.
       - It contains observable validation steps, relevant pitfalls, and no duplicated generic repository instructions.
-      - The matching eval declares the target skill, bounded resources, token grading, an exact skill-invocation grader, deterministic output checks where possible, a focused semantic rubric, and a committed scoring threshold.
+      - The matching `eng/harness-evaluation/skills/context-pooling/eval.yaml` declares `context-pooling` as its name and target skill, bounded resources, token grading, an exact skill-invocation grader, deterministic output checks where possible, a focused semantic rubric, and a committed scoring threshold.
     graders:
       - type: skill-invocation
         config:
@@ -36,12 +40,12 @@ stimuli:
             - make-skill
       - type: file-matches
         config:
-          path: .agents/skills/*/SKILL.md
-          pattern: '(?m)^---[\s\S]*^name:[\s\S]*DbContextPool'
+          path: .agents/skills/context-pooling/SKILL.md
+          pattern: '(?m)^---(?=[\s\S]*^name:\s*context-pooling\s*$)(?=[\s\S]*^user-invocable:\s*false\s*$)[\s\S]*DbContextPool'
       - type: file-matches
         config:
-          path: eng/harness-evaluation/skills/*/eval.yaml
-          pattern: '(?=[\s\S]*runs:)(?=[\s\S]*agent_environment:)(?=[\s\S]*skills:)(?=[\s\S]*skill-invocation)(?=[\s\S]*token-budget)(?=[\s\S]*scoring:)(?=[\s\S]*threshold:)[\s\S]+'
+          path: eng/harness-evaluation/skills/context-pooling/eval.yaml
+          pattern: '(?m)(?=[\s\S]*^name:\s*context-pooling\s*$)(?=[\s\S]*runs:)(?=[\s\S]*^agent_environment:\s*$\r?\n\s+skills:\s*$\r?\n\s+-\s+\.\./\.\./\.\./\.\./\.agents/skills/context-pooling\s*$)(?=[\s\S]*skill-invocation[\s\S]*required:\s*\[\s*context-pooling\s*\])(?=[\s\S]*token-budget)(?=[\s\S]*scoring:)(?=[\s\S]*threshold:)[\s\S]+'
       - type: prompt
         config:
           scoring: binary

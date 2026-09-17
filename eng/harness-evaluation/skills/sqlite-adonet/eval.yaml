@@ -13,7 +13,7 @@ agent_environment:
 stimuli:
   - name: diagnose-reused-command-state
     prompt: |-
-      Before analyzing files, use the available repository skill that applies to this task. Inspect src/Microsoft.Data.Sqlite.Core/SqliteConnection.cs, src/Microsoft.Data.Sqlite.Core/SqliteCommand.cs, test/Microsoft.Data.Sqlite.Tests/SqliteConnectionTest.cs, and test/Microsoft.Data.Sqlite.Tests/SqliteCommandTest.cs. Write analysis.md for a bug where state from a reused command survives after its connection is closed and reopened. Identify the likely ADO.NET ownership boundary and the focused tests to add. Keep the fix independent of EF Core provider abstractions, preserve SQLitePCL initialization behavior, and identify the T4 owner before changing any generated API. Explicitly distinguish the `DbConnection.Close()` contract from terminal `DbCommand.Dispose()` and preserve command reuse after reopening the same connection. Do not edit source.
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/Microsoft.Data.Sqlite.Core/SqliteConnection.cs, src/Microsoft.Data.Sqlite.Core/SqliteCommand.cs, test/Microsoft.Data.Sqlite.Tests/SqliteConnectionTest.cs, and test/Microsoft.Data.Sqlite.Tests/SqliteCommandTest.cs. Write analysis.md assessing a report that state from a reused command survives after its connection is closed and reopened. Identify the ADO.NET ownership boundary and whether the reported lifecycle is possible. Keep the analysis independent of EF Core provider abstractions, preserve SQLitePCL initialization behavior, and identify the T4 owner before changing any generated API. Explicitly explain what `SqliteConnection.Close()` does to tracked commands and whether a disposed command can be reused after reopening the same connection. Do not edit source.
     constraints: &short_constraints
       max_turns: 40
       max_tokens: 750000
@@ -31,7 +31,7 @@ stimuli:
     rubric:
       - The analysis is grounded in the staged SqliteConnection/SqliteCommand lifecycle and System.Data.Common contracts.
       - It keeps the fix independent of EF Core provider abstractions and preserves SQLitePCL initialization behavior.
-      - It proposes focused tests in the staged Microsoft.Data.Sqlite test classes and notes T4 ownership if generated APIs are touched.
+      - It proposes focused tests only if a reachable defect remains and notes T4 ownership if generated APIs are touched.
     graders:
       - type: skill-invocation
         config:

@@ -22,7 +22,7 @@ function valueAfter(args, name, fallback) {
 function printUsage() {
   console.error(`Usage:
   node src/cli.mjs lint
-  node src/cli.mjs eval <component> [--runs <n>] [--workers <n>] [--require-pass] [--output <directory>]`);
+  node src/cli.mjs eval <component> [--repo-root <directory>] [--runs <n>] [--workers <n>] [--require-pass] [--output <directory>]`);
 }
 
 async function lint() {
@@ -52,18 +52,23 @@ async function evaluate(args) {
   }
 
   validateComponentId(componentId);
-  const component = await resolveComponent(componentId);
+  const repoRoot = resolve(valueAfter(args, '--repo-root', defaultRepoRoot));
+  const component = await resolveComponent(componentId, repoRoot);
   const runsValue = valueAfter(args, '--runs');
   const runs = runsValue === undefined ? undefined : Number(runsValue);
   if (runs !== undefined && (!Number.isSafeInteger(runs) || runs <= 0)) {
     throw new Error(`--runs must be a positive integer: ${runsValue}`);
   }
-  const workers = Number(valueAfter(args, '--workers', '1'));
+  const workersValue = valueAfter(args, '--workers', '1');
+  const workers = Number(workersValue);
+  if (!Number.isSafeInteger(workers) || workers <= 0) {
+    throw new Error(`--workers must be a positive integer: ${workersValue}`);
+  }
   const requirePass = args.includes('--require-pass');
-  const outputRoot = resolve(valueAfter(args, '--output', join(defaultRepoRoot, 'artifacts', 'TestResults', 'harness-evaluation', componentId)));
-  validateOutputRoot(outputRoot);
-  const evalPath = join(defaultRepoRoot, component.eval);
-  const experimentPath = join(defaultRepoRoot, 'eng', 'harness-evaluation', 'harness.experiment.yaml');
+  const outputRoot = resolve(valueAfter(args, '--output', join(repoRoot, 'artifacts', 'TestResults', 'harness-evaluation', componentId)));
+  validateOutputRoot(outputRoot, repoRoot);
+  const evalPath = join(repoRoot, component.eval);
+  const experimentPath = join(repoRoot, 'eng', 'harness-evaluation', 'harness.experiment.yaml');
   await rm(outputRoot, { recursive: true, force: true });
   const experimentArguments = [
     'experiment', 'run', experimentPath,
@@ -75,7 +80,7 @@ async function evaluate(args) {
   if (runs !== undefined) {
     experimentArguments.push('--param', `RUNS=${runs}`);
   }
-  const experimentResult = runVally(experimentArguments, { inherit: true });
+  const experimentResult = runVally(experimentArguments, { cwd: repoRoot, inherit: true });
   if (experimentResult.status !== 0) {
     process.exitCode = 1;
     return;
@@ -83,8 +88,9 @@ async function evaluate(args) {
 
   const experimentDirectory = await findExperimentRunDirectory(outputRoot);
   const treatmentResults = join(experimentDirectory, 'treatment', 'results.jsonl');
+  const experimentPlan = join(experimentDirectory, 'plan-snapshot.json');
   const treatmentSpec = parse(await readFile(evalPath, 'utf8'));
-  const treatmentPass = !requirePass || await variantPassed(treatmentResults, evalPath);
+  const treatmentPass = !requirePass || await variantPassed(treatmentResults, evalPath, experimentPlan);
   if (!treatmentPass) {
     console.error(`Treatment '${componentId}' did not meet its committed scoring threshold.`);
   }
@@ -98,7 +104,7 @@ async function evaluate(args) {
   if (treatmentSpec.defaults?.judge_model) {
     comparisonArguments.push('--judge-model', treatmentSpec.defaults.judge_model);
   }
-  const comparisonResult = runVally(comparisonArguments, { inherit: true });
+  const comparisonResult = runVally(comparisonArguments, { cwd: repoRoot, inherit: true });
   if (!treatmentPass || comparisonResult.status !== 0) {
     process.exitCode = 1;
   }

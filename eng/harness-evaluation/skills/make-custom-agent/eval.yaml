@@ -28,6 +28,8 @@ stimuli:
           dest: src/EFCore/EFCore.baseline.json
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
+        - src: ../../../../eng/harness-evaluation/README.md
+          dest: eng/harness-evaluation/README.md
     rubric:
       - The output is .github/agents/efcore-api-review.agent.md with valid frontmatter whose name is efcore-api-review.
       - The output includes eng/harness-evaluation/agents/efcore-api-review/eval.yaml with a matching eval name and the required harness structure.

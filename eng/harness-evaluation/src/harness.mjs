@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, realpathSync } from 'node:fs';
+import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import {
   readFile,
   readdir,
@@ -38,6 +38,21 @@ export function validateOutputRoot(outputRoot, repoRoot = defaultRepoRoot) {
   const relativeOutput = relative(artifactsRoot, resolvedOutput);
   if (!relativeOutput || relativeOutput === '..' || relativeOutput.startsWith(`..${sep}`) || isAbsolute(relativeOutput)) {
     throw new Error(`Output path must be a descendant of '${artifactsRoot}': ${outputRoot}`);
+  }
+
+  let currentPath = resolve(repoRoot);
+  for (const segment of relative(currentPath, resolvedOutput).split(sep)) {
+    currentPath = join(currentPath, segment);
+    try {
+      if (lstatSync(currentPath).isSymbolicLink()) {
+        throw new Error(`Output path must not contain symbolic links or junctions: ${currentPath}`);
+      }
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        break;
+      }
+      throw error;
+    }
   }
 
   if (existsSync(artifactsRoot)) {
@@ -154,9 +169,12 @@ export async function discoverComponents(repoRoot = defaultRepoRoot) {
   return discoverNonMcpComponents(repoRoot);
 }
 
-export async function validateEval(evalPath) {
+export async function validateEval(evalPath, componentId) {
   const spec = parse(await readFile(evalPath, 'utf8'));
   const errors = [];
+  if (componentId !== undefined && spec?.name !== componentId) {
+    errors.push(`eval name '${spec?.name}' must match component id '${componentId}'`);
+  }
   if (spec?.scoring?.weights?.['token-budget'] === undefined) {
     errors.push('scoring.weights.token-budget must be defined');
   }
@@ -268,7 +286,7 @@ export async function validateInventory(repoRoot = defaultRepoRoot) {
       errors.push(`${component.id}: eval does not exist: ${evalPath}`);
     } else {
       const absoluteEvalPath = join(repoRoot, evalPath);
-      errors.push(...(await validateEval(absoluteEvalPath)).map((error) => `${component.id}: ${error}`));
+      errors.push(...(await validateEval(absoluteEvalPath, component.id)).map((error) => `${component.id}: ${error}`));
       errors.push(...(await validateActivationGraders(component, absoluteEvalPath)).map((error) => `${component.id}: ${error}`));
       errors.push(...(await validateComponentEnvironment(component, absoluteEvalPath, repoRoot)).map(
         (error) => `${component.id}: ${error}`,
@@ -314,22 +332,49 @@ export async function findExperimentRunDirectory(directory) {
   return dirname(matches[0]);
 }
 
-export async function variantPassed(resultsFile, evalFile) {
+export async function variantPassed(resultsFile, evalFile, planFile, variant = 'treatment') {
   const content = await readFile(resultsFile, 'utf8');
   const records = content.split(/\r?\n/).filter(Boolean).map(JSON.parse);
+  const trials = records.filter((record) => record.type === 'trial-result');
+  const plan = JSON.parse(await readFile(planFile, 'utf8'));
+  if (plan.type !== 'experiment-plan-snapshot' || !Array.isArray(plan.evals)) {
+    return false;
+  }
+
+  const variantPlans = plan.evals.filter((evalPlan) => evalPlan.variant === variant && !evalPlan.failure);
+  if (variantPlans.length === 0 || variantPlans.some((evalPlan) =>
+    !Number.isSafeInteger(evalPlan.runs) || evalPlan.runs <= 0
+      || !Array.isArray(evalPlan.plannedStimulusNames))) {
+    return false;
+  }
+
+  const trialKeys = trials
+    .map((trial) => `${trial.evalName}\0${trial.model ?? ''}\0${trial.stimulus}\0${trial.trialIndex ?? 0}`)
+    .sort();
+  const plannedTrialKeys = variantPlans
+    .flatMap((evalPlan) => evalPlan.plannedStimulusNames.flatMap((stimulus) =>
+      Array.from(
+        { length: evalPlan.runs },
+        (_, trialIndex) => `${evalPlan.evalName}\0${evalPlan.model ?? ''}\0${stimulus}\0${trialIndex}`,
+      )))
+    .sort();
+  if (trials.length === 0 || JSON.stringify(trialKeys) !== JSON.stringify(plannedTrialKeys)) {
+    return false;
+  }
+
   const spec = parse(await readFile(evalFile, 'utf8'));
   const threshold = spec?.scoring?.threshold;
   const stimulusScores = [];
 
   for (const stimulus of spec.stimuli ?? []) {
-    const trials = records.filter((record) => record.type === 'trial-result' && record.stimulus === stimulus.name);
-    if (trials.length === 0 || trials.some((trial) => trial.status !== 'success' || !trial.gradeResult)) {
+    const stimulusTrials = trials.filter((trial) => trial.stimulus === stimulus.name);
+    if (stimulusTrials.some((trial) => trial.status !== 'success' || !trial.gradeResult)) {
       return false;
     }
 
     stimulusScores.push(computeStimulusScore(
       stimulus.name,
-      trials.map((trial) => ({
+      stimulusTrials.map((trial) => ({
         grade: trial.gradeResult,
         passed: resolveGradePass(trial.gradeResult, threshold),
       })),

@@ -36,7 +36,7 @@ async function makeRepo() {
   await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), evalYaml('example', `      - type: skill-invocation\n        config:\n          required: [example]`));
   await writeFile(
     join(root, 'eng/harness-evaluation/instructions/copilot-instructions/eval.yaml'),
-    evalYaml('instructions', undefined, `agent_environment:\n  files:\n    - src: ../../../../.github/copilot-instructions.md\n      dest: .github/copilot-instructions.md\n`),
+    evalYaml('copilot-instructions', undefined, `agent_environment:\n  files:\n    - src: ../../../../.github/copilot-instructions.md\n      dest: .github/copilot-instructions.md\n`),
   );
 
   return root;
@@ -74,6 +74,26 @@ test('eval rejects unsafe component ids before deleting output', async () => {
   }
 });
 
+test('eval scopes component resolution and output validation to the selected repository', async () => {
+  const root = await makeRepo();
+  try {
+    const cliPath = fileURLToPath(new URL('../src/cli.mjs', import.meta.url));
+    const result = spawnSync(process.execPath, [
+      cliPath,
+      'eval',
+      'example',
+      '--repo-root', root,
+      '--output', join(root, 'outside-artifacts'),
+    ], { encoding: 'utf8' });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Output path must be a descendant/);
+    assert.match(result.stderr, new RegExp(join(root, 'artifacts').replaceAll('\\', '\\\\')));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('eval output is constrained to an artifacts descendant', async () => {
   const repoRoot = await mkdtemp(join(tmpdir(), 'efcore-agent-output-'));
   const outside = await mkdtemp(join(tmpdir(), 'efcore-agent-output-outside-'));
@@ -98,7 +118,27 @@ test('eval output is constrained to an artifacts descendant', async () => {
     await symlink(outside, join(repoRoot, 'artifacts', 'escape'), 'junction');
     assert.throws(
       () => validateOutputRoot(join(repoRoot, 'artifacts', 'escape', 'unrelated'), repoRoot),
-      /Output path must not escape repository artifacts/,
+      /Output path must not contain symbolic links or junctions/,
+    );
+
+    await rm(join(repoRoot, 'artifacts', 'escape'));
+    const missingTarget = join(outside, 'missing');
+    await symlink(
+      missingTarget,
+      join(repoRoot, 'artifacts', 'dangling'),
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+    assert.throws(
+      () => validateOutputRoot(join(repoRoot, 'artifacts', 'dangling', 'unrelated'), repoRoot),
+      /Output path must not contain symbolic links or junctions/,
+    );
+
+    await rm(join(repoRoot, 'artifacts', 'dangling'));
+    await rm(join(repoRoot, 'artifacts'), { recursive: true });
+    await symlink(missingTarget, join(repoRoot, 'artifacts'), process.platform === 'win32' ? 'junction' : 'dir');
+    assert.throws(
+      () => validateOutputRoot(join(repoRoot, 'artifacts', 'harness-evaluation'), repoRoot),
+      /Output path must not contain symbolic links or junctions/,
     );
   } finally {
     await rm(repoRoot, { recursive: true, force: true });
@@ -140,6 +180,18 @@ test('inventory fails closed for malformed eval YAML', async () => {
   try {
     await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), 'name: [');
     await assert.rejects(validateInventory(root));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('inventory requires eval names to match component ids', async () => {
+  const root = await makeRepo();
+  try {
+    const evalPath = join(root, 'eng/harness-evaluation/skills/example/eval.yaml');
+    await writeFile(evalPath, evalYaml('other', `      - type: skill-invocation\n        config:\n          required: [example]`));
+    const result = await validateInventory(root);
+    assert.match(result.errors.join('\n'), /example: eval name 'other' must match component id 'example'/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -266,7 +318,7 @@ test('eval validation delegates missing input files to Vally', async () => {
   try {
     const evalPath = join(root, 'eng/harness-evaluation/skills/example/eval.yaml');
     await writeFile(evalPath, `name: bad\ndefaults:\n  runs: \${RUNS=2}\nstimuli:\n  - name: missing-input\n    prompt: Do a generic task.\n    constraints:\n      max_turns: 10\n      max_tokens: 5000\n      max_duration: 1m\n    agent_environment:\n      files:\n        - src: src/EFCore/Missing.cs\n          dest: src/EFCore/Missing.cs\n    graders:\n      - type: token-budget\n        config:\n          max: 5000\nscoring:\n  weights:\n    token-budget: 0.1\n  threshold: 0.75\n`);
-    const errors = await validateEval(evalPath, root);
+    const errors = await validateEval(evalPath);
     assert.deepEqual(errors, []);
   } finally {
     await rm(root, { recursive: true, force: true });
@@ -313,22 +365,73 @@ test('treatment verdict uses the eval scoring threshold', async () => {
   try {
     const evalPath = join(root, 'eval.yaml');
     const resultsPath = join(root, 'results.jsonl');
+    const planPath = join(root, 'plan-snapshot.json');
     await writeFile(evalPath, `name: example\nstimuli:\n  - name: first\n    prompt: Test.\n    graders:\n      - type: output-contains\n        config: { substring: Test }\nscoring:\n  weights:\n    output-contains: 1\n  threshold: 0.75\n`);
+    await writeFile(planPath, JSON.stringify({
+      type: 'experiment-plan-snapshot',
+      evals: [{
+        variant: 'treatment',
+        evalName: 'example',
+        model: 'mock',
+        runs: 1,
+        plannedStimulusNames: ['first'],
+      }],
+    }));
     await writeFile(resultsPath, `${JSON.stringify({
       type: 'trial-result',
+      evalName: 'example',
+      model: 'mock',
       stimulus: 'first',
       status: 'success',
       gradeResult: { passed: true, score: 0.8 },
     })}\n`);
-    assert.equal(await variantPassed(resultsPath, evalPath), true);
+    assert.equal(await variantPassed(resultsPath, evalPath, planPath), true);
 
     await writeFile(resultsPath, `${JSON.stringify({
       type: 'trial-result',
+      evalName: 'example',
+      model: 'mock',
       stimulus: 'first',
       status: 'success',
       gradeResult: { passed: true, score: 0.7 },
     })}\n`);
-    assert.equal(await variantPassed(resultsPath, evalPath), false);
+    assert.equal(await variantPassed(resultsPath, evalPath, planPath), false);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('treatment verdict requires every planned trial index', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'efcore-agent-results-'));
+  try {
+    const evalPath = join(root, 'eval.yaml');
+    const resultsPath = join(root, 'results.jsonl');
+    const planPath = join(root, 'plan-snapshot.json');
+    await writeFile(evalPath, `name: example\nstimuli:\n  - name: first\n    prompt: Test.\n    graders:\n      - type: output-contains\n        config: { substring: Test }\nscoring:\n  weights:\n    output-contains: 1\n  threshold: 0.75\n`);
+    await writeFile(planPath, JSON.stringify({
+      type: 'experiment-plan-snapshot',
+      evals: [{
+        variant: 'treatment',
+        evalName: 'example',
+        model: 'mock',
+        runs: 2,
+        plannedStimulusNames: ['first'],
+      }],
+    }));
+    const passingTrial = {
+      type: 'trial-result',
+      evalName: 'example',
+      model: 'mock',
+      stimulus: 'first',
+      trialIndex: 0,
+      status: 'success',
+      gradeResult: { passed: true, score: 1 },
+    };
+    await writeFile(resultsPath, `${JSON.stringify(passingTrial)}\n`);
+    assert.equal(await variantPassed(resultsPath, evalPath, planPath), false);
+
+    await writeFile(resultsPath, `${JSON.stringify(passingTrial)}\n${JSON.stringify(passingTrial)}\n`);
+    assert.equal(await variantPassed(resultsPath, evalPath, planPath), false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
