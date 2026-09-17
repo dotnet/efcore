@@ -25,6 +25,20 @@ public class MemorySafetyRulesTest
     }
 
     [Fact]
+    public void UseUpdatedMemorySafetyRules_returns_true_when_feature_set_on_any_syntax_tree()
+    {
+        var parseOptions = CSharpParseOptions.Default.WithFeatures([new KeyValuePair<string, string>("updated-memory-safety-rules", "true")]);
+        var compilation = CSharpCompilation.Create(
+            "Test",
+            [
+                CSharpSyntaxTree.ParseText("class First { }", parseOptions),
+                CSharpSyntaxTree.ParseText("class Second { }", parseOptions)
+            ]);
+
+        Assert.True(compilation.UseUpdatedMemorySafetyRules());
+    }
+
+    [Fact]
     public void UseUpdatedMemorySafetyRules_ignores_unrelated_features()
     {
         var compilation = CreateCompilation(features: [new("some-other-feature", "true")]);

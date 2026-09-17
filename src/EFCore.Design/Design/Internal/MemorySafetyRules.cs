@@ -39,7 +39,15 @@ internal static class MemorySafetyRules
             return true;
         }
 
-        return compilation.SyntaxTrees.FirstOrDefault()?.Options.Features.ContainsKey(UpdatedMemorySafetyRulesFeature) == true;
+        foreach (var syntaxTree in compilation.SyntaxTrees)
+        {
+            if (syntaxTree.Options.Features.ContainsKey(UpdatedMemorySafetyRulesFeature))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
