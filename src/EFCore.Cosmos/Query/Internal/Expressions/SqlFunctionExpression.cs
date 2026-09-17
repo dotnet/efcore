@@ -135,8 +135,8 @@ public class SqlFunctionExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlFunctionExpression sqlFunctionExpression
-                && Equals(sqlFunctionExpression));
+                || (obj is SqlFunctionExpression sqlFunctionExpression
+                    && Equals(sqlFunctionExpression)));
 
     private bool Equals(SqlFunctionExpression sqlFunctionExpression)
         => base.Equals(sqlFunctionExpression)

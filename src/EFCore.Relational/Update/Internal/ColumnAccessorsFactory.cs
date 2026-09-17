@@ -88,6 +88,12 @@ public static class ColumnAccessorsFactory
                 for (var i = 0; i < c.Entries.Count; i++)
                 {
                     var entry = c.Entries[i];
+                    if (entry.EntityState == EntityState.Added
+                        && entry.SharedIdentityEntry != null)
+                    {
+                        entry = entry.SharedIdentityEntry;
+                    }
+
                     var property = column.FindColumnMapping(entry.EntityType)?.Property;
                     if (property == null)
                     {

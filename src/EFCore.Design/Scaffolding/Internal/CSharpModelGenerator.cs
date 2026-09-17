@@ -120,11 +120,8 @@ public class CSharpModelGenerator : ModelCodeGenerator
             _reporter.Write(error);
         }
 
-        if (transformation.Errors.HasErrors)
-        {
-            throw new OperationException(DesignStrings.ErrorGeneratingOutput(transformation.GetType().Name));
-        }
-
-        return output;
+        return transformation.Errors.HasErrors
+            ? throw new OperationException(DesignStrings.ErrorGeneratingOutput(transformation.GetType().Name))
+            : output;
     }
 }

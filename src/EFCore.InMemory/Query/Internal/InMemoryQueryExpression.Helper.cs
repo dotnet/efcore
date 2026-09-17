@@ -176,12 +176,9 @@ public partial class InMemoryQueryExpression
                 return clonedInMemoryQueryExpression;
             }
 
-            if (expression is EntityProjectionExpression entityProjectionExpression)
-            {
-                return entityProjectionExpression.Clone();
-            }
-
-            return base.Visit(expression);
+            return expression is EntityProjectionExpression entityProjectionExpression
+                ? entityProjectionExpression.Clone()
+                : base.Visit(expression);
         }
     }
 }

@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
 [DisplayName(nameof(QueryCompilationTests))]
 public abstract class QueryCompilationTests
 {
-    private OrdersContextBase _context;
-    private IQueryable<Product> _simpleQuery;
-    private IQueryable<DTO> _complexQuery;
-    private IQueryable<Customer> _multipleJoinQuery;
+    private OrdersContextBase _context = null!;
+    private IQueryable<Product> _simpleQuery = null!;
+    private IQueryable<DTO> _complexQuery = null!;
+    private IQueryable<Customer> _multipleJoinQuery = null!;
 
     public abstract OrdersFixtureBase CreateFixture();
     public abstract IServiceCollection AddProviderServices(IServiceCollection services);
@@ -97,17 +97,17 @@ public abstract class QueryCompilationTests
     private class DTO
     {
         public int ProductId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
         public int ActualStockLevel { get; set; }
-        public string SKU { get; set; }
+        public string? SKU { get; set; }
         public double Savings { get; set; }
         public int Surplus { get; set; }
     }
 
     private class NonCachingMemoryCache : IMemoryCache
     {
-        public bool TryGetValue(object key, out object value)
+        public bool TryGetValue(object key, out object? value)
         {
             value = null;
             return false;
@@ -122,13 +122,13 @@ public abstract class QueryCompilationTests
             {
             }
 
-            public object Key { get; }
-            public object Value { get; set; }
+            public object Key { get; } = null!;
+            public object? Value { get; set; }
             public DateTimeOffset? AbsoluteExpiration { get; set; }
             public TimeSpan? AbsoluteExpirationRelativeToNow { get; set; }
             public TimeSpan? SlidingExpiration { get; set; }
-            public IList<IChangeToken> ExpirationTokens { get; }
-            public IList<PostEvictionCallbackRegistration> PostEvictionCallbacks { get; }
+            public IList<IChangeToken> ExpirationTokens { get; } = null!;
+            public IList<PostEvictionCallbackRegistration> PostEvictionCallbacks { get; } = null!;
             public CacheItemPriority Priority { get; set; }
             public long? Size { get; set; }
         }

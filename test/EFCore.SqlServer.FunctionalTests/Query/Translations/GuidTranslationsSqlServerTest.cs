@@ -61,7 +61,7 @@ WHERE NEWID() <> '00000000-0000-0000-0000-000000000000'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using NetTopologySuite;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 public class SqlServerGeometryTypeMappingTests
 {
-    [ConditionalFact]
+    [Fact]
     public void GenerateSqlLiteral_works()
     {
         Assert.Equal("geometry::Parse('POINT (1 2)')", Literal(new Point(1, 2), "geometry"));

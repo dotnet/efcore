@@ -25,7 +25,7 @@ public class DatabasePrimaryKey : Annotatable
     /// <summary>
     ///     The ordered list of columns that make up the primary key.
     /// </summary>
-    public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
+    public virtual IList<DatabaseColumn> Columns { get; } = [];
 
     /// <inheritdoc />
     public override string ToString()

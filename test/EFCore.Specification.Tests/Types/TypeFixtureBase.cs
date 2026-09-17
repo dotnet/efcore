@@ -15,32 +15,35 @@ public abstract class TypeFixtureBase<T> : SharedStoreFixtureBase<DbContext>
     /// </summary>
     public abstract T OtherValue { get; }
 
-    protected override string StoreName => "TypeTest";
+    protected override string StoreName
+        => "TypeTest";
 
     public virtual Func<T, T, bool> Comparer { get; } = EqualityComparer<T>.Default.Equals;
 
-    protected override bool RecreateStore => true;
+    protected override bool RecreateStore
+        => true;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-    {
-        // Don't rely on database generated values, which aren't supported everywhere (e.g. Cosmos)
-        modelBuilder.Entity<TypeEntity<T>>().Property(e => e.Id).ValueGeneratedNever();
-    }
+        =>
+            // Don't rely on database generated values, which aren't supported everywhere (e.g. Cosmos)
+            modelBuilder.Entity<TypeEntity<T>>().Property(e => e.Id).ValueGeneratedNever();
 
     protected override async Task SeedAsync(DbContext context)
     {
         context.Set<TypeEntity<T>>().AddRange(
-            new()
+            new TypeEntity<T>
             {
                 Id = 1,
                 Value = Value,
-                OtherValue = OtherValue
+                OtherValue = OtherValue,
+                ArrayValue = [Value, Value]
             },
-            new()
+            new TypeEntity<T>
             {
                 Id = 2,
                 Value = OtherValue,
-                OtherValue = Value
+                OtherValue = Value,
+                ArrayValue = [Value, OtherValue]
             });
 
         await context.SaveChangesAsync();

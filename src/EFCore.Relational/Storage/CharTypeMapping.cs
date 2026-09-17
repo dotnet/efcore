@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public class CharTypeMapping : RelationalTypeMapping
+public class CharTypeMapping : RelationalTypeMapping<char>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,11 +69,6 @@ public class CharTypeMapping : RelationalTypeMapping
     {
         // NB: We can get Int32 values here too due to compiler-introduced convert nodes
         var charValue = Convert.ToChar(value);
-        if (charValue == '\'')
-        {
-            return "''''";
-        }
-
-        return "'" + charValue + "'";
+        return charValue == '\'' ? "''''" : "'" + charValue + "'";
     }
 }

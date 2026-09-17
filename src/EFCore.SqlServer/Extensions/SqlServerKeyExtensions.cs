@@ -40,12 +40,7 @@ public static class SqlServerKeyExtensions
         }
 
         var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
-        if (annotation != null)
-        {
-            return (bool?)annotation.Value;
-        }
-
-        return GetDefaultIsClustered(key, storeObject);
+        return annotation != null ? (bool?)annotation.Value : GetDefaultIsClustered(key, storeObject);
     }
 
     private static bool? GetDefaultIsClustered(IReadOnlyKey key, in StoreObjectIdentifier storeObject)
@@ -144,17 +139,12 @@ public static class SqlServerKeyExtensions
         this IConventionKey key,
         int? fillFactor,
         bool fromDataAnnotation = false)
-    {
-        if (fillFactor is <= 0 or > 100)
-        {
-            throw new ArgumentOutOfRangeException(nameof(fillFactor));
-        }
-
-        return (int?)key.SetAnnotation(
-            SqlServerAnnotationNames.FillFactor,
-            fillFactor,
-            fromDataAnnotation)?.Value;
-    }
+        => fillFactor is <= 0 or > 100
+            ? throw new ArgumentOutOfRangeException(nameof(fillFactor))
+            : (int?)key.SetAnnotation(
+                SqlServerAnnotationNames.FillFactor,
+                fillFactor,
+                fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for whether the key uses the fill factor.

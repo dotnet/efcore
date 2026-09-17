@@ -155,7 +155,7 @@ public static class EntityFrameworkMetricsData
                 // Report -1 for no data to avoid returning NaN, which can trigger issues in downstream consumers
                 var hitRate = hitsAndMisses == 0
                     ? -1
-                    : ((double)cacheInfo.Hits / hitsAndMisses) * 100;
+                    : (double)cacheInfo.Hits / hitsAndMisses * 100;
                 return (cacheInfo.Hits, cacheInfo.Misses, hitRate);
             }
         }

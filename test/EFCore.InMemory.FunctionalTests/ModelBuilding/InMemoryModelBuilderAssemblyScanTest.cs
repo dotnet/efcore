@@ -11,7 +11,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomerEntityConfiguration2),
         typeof(AbstractCustomerEntityConfiguration), typeof(AbstractCustomerEntityConfigurationImpl));
 
-    [ConditionalFact]
+    [Fact]
     public void Should_scan_assemblies_for_entity_type_configurations()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -21,18 +21,18 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
 
         var entityType = builder.Model.FindEntityType(typeof(ScannerCustomer));
         // ScannerCustomerEntityConfiguration called
-        Assert.Equal(200, entityType.FindProperty(nameof(ScannerCustomer.FirstName)).GetMaxLength());
+        Assert.Equal(200, entityType!.FindProperty(nameof(ScannerCustomer.FirstName))!.GetMaxLength());
         // ScannerCustomerEntityConfiguration2 called
-        Assert.Equal(1000, entityType.FindProperty(nameof(ScannerCustomer.LastName)).GetMaxLength());
+        Assert.Equal(1000, entityType.FindProperty(nameof(ScannerCustomer.LastName))!.GetMaxLength());
         // AbstractCustomerEntityConfiguration not called
-        Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.MiddleName)).GetMaxLength());
+        Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.MiddleName))!.GetMaxLength());
         // AbstractCustomerEntityConfigurationImpl called
         Assert.Single(entityType.GetIndexes());
 
         Assert.Empty(loggerFactory.Log);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Scan_reports_load_errors()
     {
         var types = new[]
@@ -58,7 +58,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         var expectedMessage = CoreResources.LogTypeLoadingErrorWarning(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("A", "B");
         var actualMessage = loggerFactory.Log[0].Message;
 
-        Assert.StartsWith(expectedMessage.Substring(0, 10), actualMessage);
+        Assert.StartsWith(expectedMessage[..10], actualMessage);
         Assert.Contains(nameof(ReflectionTypeLoadException), actualMessage);
     }
 
@@ -74,7 +74,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
             new NullDbContextLogger());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_support_filtering_for_entity_type_configurations()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -85,18 +85,18 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
 
         var entityType = builder.Model.FindEntityType(typeof(ScannerCustomer));
         // ScannerCustomerEntityConfiguration called
-        Assert.Equal(200, entityType.FindProperty(nameof(ScannerCustomer.FirstName)).GetMaxLength());
+        Assert.Equal(200, entityType!.FindProperty(nameof(ScannerCustomer.FirstName))!.GetMaxLength());
         // ScannerCustomerEntityConfiguration2 not called
-        Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.LastName)).GetMaxLength());
+        Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.LastName))!.GetMaxLength());
         // AbstractCustomerEntityConfiguration not called
-        Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.MiddleName)).GetMaxLength());
+        Assert.Null(entityType.FindProperty(nameof(ScannerCustomer.MiddleName))!.GetMaxLength());
         // AbstractCustomerEntityConfigurationImpl not called
         Assert.Empty(entityType.GetIndexes());
 
         Assert.Empty(loggerFactory.Log);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_skip_abstract_classes_for_entity_type_configurations()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -110,12 +110,12 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         Assert.Null(entityType);
 
         var expectedMessage = CoreResources.LogNoEntityTypeConfigurationsWarning(
-            new TestLogger<TestLoggingDefinitions>()).GenerateMessage(_mockEntityTypeAssembly.FullName);
+            new TestLogger<TestLoggingDefinitions>()).GenerateMessage(_mockEntityTypeAssembly.FullName!);
 
         Assert.Equal(expectedMessage, loggerFactory.Log[0].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_log_when_no_entity_type_configurations_found()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -126,12 +126,12 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         Assert.Equal(1, loggerFactory.Log.Count);
 
         var expectedMessage = CoreResources.LogNoEntityTypeConfigurationsWarning(
-            new TestLogger<TestLoggingDefinitions>()).GenerateMessage(typeof(Random).Assembly.FullName);
+            new TestLogger<TestLoggingDefinitions>()).GenerateMessage(typeof(Random).Assembly.FullName!);
 
         Assert.Equal(expectedMessage, loggerFactory.Log[0].Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Should_log_when_entity_type_configuration_has_no_parameterless_constructor()
     {
         var types = new[]
@@ -163,20 +163,20 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
     protected class ScannerCustomer
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string MiddleName { get; set; }
-        public string Address { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
+        public string MiddleName { get; set; } = null!;
+        public string Address { get; set; } = null!;
         public int IndexedField { get; set; }
     }
 
     protected class ScannerCustomer2
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string MiddleName { get; set; }
-        public string Address { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
+        public string MiddleName { get; set; } = null!;
+        public string Address { get; set; } = null!;
         public int IndexedField { get; set; }
     }
 

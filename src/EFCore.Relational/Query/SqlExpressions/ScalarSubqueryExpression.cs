@@ -32,12 +32,9 @@ public class ScalarSubqueryExpression : SqlExpression
     {
         Check.DebugAssert(!selectExpression.IsMutable, "Mutable subquery provided to ExistsExpression");
 
-        if (selectExpression.Projection.Count != 1)
-        {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(selectExpression.Print()));
-        }
-
-        return selectExpression;
+        return selectExpression.Projection.Count != 1
+            ? throw new InvalidOperationException(CoreStrings.TranslationFailed(selectExpression.Print()))
+            : selectExpression;
     }
 
     /// <summary>
@@ -90,8 +87,8 @@ public class ScalarSubqueryExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ScalarSubqueryExpression scalarSubqueryExpression
-                && Equals(scalarSubqueryExpression));
+                || (obj is ScalarSubqueryExpression scalarSubqueryExpression
+                    && Equals(scalarSubqueryExpression)));
 
     private bool Equals(ScalarSubqueryExpression scalarSubqueryExpression)
         => base.Equals(scalarSubqueryExpression)

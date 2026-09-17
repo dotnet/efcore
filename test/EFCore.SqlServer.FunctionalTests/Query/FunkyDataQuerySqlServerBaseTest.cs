@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class FunkyDataQuerySqlServerBaseTest<TFixture> : FunkyDataQueryTestBase<TFixture>
     where TFixture : FunkyDataQueryTestBase<TFixture>.FunkyDataQueryFixtureBase, ITestSqlLoggerFactory, new()
 {
@@ -14,10 +12,6 @@ public abstract class FunkyDataQuerySqlServerBaseTest<TFixture> : FunkyDataQuery
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();

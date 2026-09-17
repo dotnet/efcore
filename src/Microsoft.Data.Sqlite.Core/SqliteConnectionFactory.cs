@@ -18,7 +18,7 @@ internal class SqliteConnectionFactory
     private readonly List<SqliteConnectionPool> _poolsToRelease = [];
     private readonly ReaderWriterLockSlim _lock = new();
 
-    private Dictionary<string, SqliteConnectionPoolGroup> _poolGroups = new();
+    private Dictionary<string, SqliteConnectionPoolGroup> _poolGroups = [];
 
     protected SqliteConnectionFactory()
     {

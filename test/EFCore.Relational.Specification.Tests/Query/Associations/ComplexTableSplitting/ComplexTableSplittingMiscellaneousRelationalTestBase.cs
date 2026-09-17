@@ -15,7 +15,7 @@ public abstract class ComplexTableSplittingMiscellaneousRelationalTestBase<TFixt
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task FromSql_on_root()
         => RelationalAssociationsTests.FromSql_on_root(this, Fixture);
 

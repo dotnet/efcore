@@ -387,47 +387,6 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
 
     /// <summary>
     ///     Gets or sets a value indicating whether a transaction will be created automatically by
-    ///     <see cref="DbContext.SaveChanges()" /> if none of the 'BeginTransaction' or 'UseTransaction' methods have been called.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Setting this value to <see langword="false" /> will also disable the <see cref="IExecutionStrategy" /> for
-    ///         <see cref="DbContext.SaveChanges()" />
-    ///     </para>
-    ///     <para>
-    ///         The default value is <see langword="true" />, meaning that <see cref="DbContext.SaveChanges()" /> will always use a
-    ///         transaction when saving changes.
-    ///     </para>
-    ///     <para>
-    ///         Setting this value to <see langword="false" /> should only be done with caution, since the database could be left in an
-    ///         inconsistent state if failure occurs.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
-    ///     </para>
-    /// </remarks>
-    [Obsolete("Use " + nameof(AutoTransactionBehavior) + " instead")]
-    public virtual bool AutoTransactionsEnabled
-    {
-        get => AutoTransactionBehavior is AutoTransactionBehavior.Always or AutoTransactionBehavior.WhenNeeded;
-        set
-        {
-            if (value)
-            {
-                if (AutoTransactionBehavior == AutoTransactionBehavior.Never)
-                {
-                    AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
-                }
-            }
-            else
-            {
-                AutoTransactionBehavior = AutoTransactionBehavior.Never;
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Gets or sets a value indicating whether a transaction will be created automatically by
     ///     <see cref="DbContext.SaveChanges()" /> if neither 'BeginTransaction' nor 'UseTransaction' has been called.
     /// </summary>
     /// <remarks>

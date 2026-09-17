@@ -5,16 +5,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 
-#nullable disable
-
 public class Genre
 {
     public int GenreId { get; set; }
 
     [Required]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
-    public List<Album> Albums { get; set; }
+    public List<Album> Albums { get; set; } = null!;
 }

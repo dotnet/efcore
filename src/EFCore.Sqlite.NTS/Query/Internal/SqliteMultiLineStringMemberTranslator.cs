@@ -39,24 +39,19 @@ public class SqliteMultiLineStringMemberTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (Equals(member, IsClosed)
-            && instance != null)
-        {
-            return _sqlExpressionFactory.Case(
-                [
-                    new CaseWhenClause(
-                        _sqlExpressionFactory.IsNotNull(instance),
-                        _sqlExpressionFactory.Function(
-                            "IsClosed",
-                            [instance],
-                            nullable: false,
-                            argumentsPropagateNullability: Statics.FalseArrays[1],
-                            returnType))
-                ],
-                null);
-        }
-
-        return null;
-    }
+        => Equals(member, IsClosed)
+            && instance != null
+                ? _sqlExpressionFactory.Case(
+                    [
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.IsNotNull(instance),
+                            _sqlExpressionFactory.Function(
+                                "IsClosed",
+                                [instance],
+                                nullable: false,
+                                argumentsPropagateNullability: Statics.FalseArrays[1],
+                                returnType))
+                    ],
+                    null)
+                : null;
 }

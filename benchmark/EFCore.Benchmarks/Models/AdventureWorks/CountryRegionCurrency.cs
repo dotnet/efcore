@@ -7,10 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
 public class CountryRegionCurrency
 {
-    public string CountryRegionCode { get; set; }
-    public string CurrencyCode { get; set; }
+    public string CountryRegionCode { get; set; } = null!;
+    public string CurrencyCode { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
 
-    public virtual CountryRegion CountryRegionCodeNavigation { get; set; }
-    public virtual Currency CurrencyCodeNavigation { get; set; }
+    public virtual CountryRegion CountryRegionCodeNavigation { get; set; } = null!;
+    public virtual Currency CurrencyCodeNavigation { get; set; } = null!;
 }

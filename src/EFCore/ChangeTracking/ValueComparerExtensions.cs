@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 /// <summary>
@@ -18,5 +20,5 @@ public static class ValueComparerExtensions
     /// <returns><see langword="true" /> if the value comparer is the default; <see langword="false" /> otherwise.</returns>
     public static bool IsDefault(this ValueComparer valueComparer)
         => valueComparer.GetType().IsGenericType
-            && valueComparer.GetType().GetGenericTypeDefinition() == typeof(ValueComparer.DefaultValueComparer<>);
+            && valueComparer.GetType().GetGenericTypeDefinition() == typeof(DefaultValueComparer<>);
 }

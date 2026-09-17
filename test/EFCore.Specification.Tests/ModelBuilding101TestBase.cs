@@ -5,20 +5,18 @@ using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ModelBuilding101TestBase
 {
     protected virtual void Model101Test([CallerMemberName] string testMame = "")
     {
         var models = new List<ModelMetadata>();
-        var testTypeName = "Microsoft.EntityFrameworkCore.ModelBuilding101TestBase+" + testMame.Substring(0, testMame.Length - 4);
+        var testTypeName = "Microsoft.EntityFrameworkCore.ModelBuilding101TestBase+" + testMame[..^4];
 
-        foreach (Context101 context in Type.GetType(testTypeName, throwOnError: true)!.GetNestedTypes()
+        foreach (var context in Type.GetType(testTypeName, throwOnError: true)!.GetNestedTypes()
                      .Where(t => t.IsAssignableTo(typeof(DbContext)))
-                     .Select(Activator.CreateInstance))
+                 .Select(t => (Context101)Activator.CreateInstance(t)!))
         {
-            context.ConfigureAction = b => ConfigureContext(b);
+            context!.ConfigureAction = b => ConfigureContext(b);
             models.Add(GetModelMetadata(context));
             context.Dispose();
         }
@@ -42,11 +40,11 @@ public abstract partial class ModelBuilding101TestBase
         protected bool Equals(ModelMetadata other)
             => ModelDebugView == other.ModelDebugView;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => !ReferenceEquals(null, obj)
                 && (ReferenceEquals(this, obj)
-                    || obj.GetType() == GetType()
-                    && Equals((ModelMetadata)obj));
+                    || (obj.GetType() == GetType()
+                        && Equals((ModelMetadata)obj)));
 
         public override int GetHashCode()
             => ModelDebugView.GetHashCode();
@@ -54,7 +52,7 @@ public abstract partial class ModelBuilding101TestBase
 
     protected abstract class Context101 : DbContext
     {
-        public virtual Action<DbContextOptionsBuilder> ConfigureAction { get; set; }
+        public virtual Action<DbContextOptionsBuilder> ConfigureAction { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => ConfigureAction(optionsBuilder);

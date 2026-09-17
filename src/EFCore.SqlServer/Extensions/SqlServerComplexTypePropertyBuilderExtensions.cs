@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     SQL Server specific extension methods for <see cref="ComplexTypePropertyBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
 ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
@@ -20,7 +20,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -61,7 +61,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -74,14 +74,14 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? name = null,
         string? schema = null)
-        => (ComplexTypePropertyBuilder<TProperty>)UseHiLo((ComplexTypePropertyBuilder)propertyBuilder, name, schema);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).UseHiLo(name, schema);
 
     /// <summary>
     ///     Configures the key property to use a sequence-based key value generation pattern to generate values for new entities,
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -115,7 +115,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -128,14 +128,14 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? name = null,
         string? schema = null)
-        => (ComplexTypePropertyBuilder<TProperty>)UseSequence((ComplexTypePropertyBuilder)propertyBuilder, name, schema);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).UseSequence(name, schema);
 
     /// <summary>
     ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -165,7 +165,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -184,7 +184,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -197,14 +197,14 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         long seed = 1,
         int increment = 1)
-        => (ComplexTypePropertyBuilder<TProperty>)UseIdentityColumn((ComplexTypePropertyBuilder)propertyBuilder, seed, increment);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).UseIdentityColumn(seed, increment);
 
     /// <summary>
     ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -217,13 +217,13 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         int seed,
         int increment = 1)
-        => (ComplexTypePropertyBuilder<TProperty>)UseIdentityColumn((ComplexTypePropertyBuilder)propertyBuilder, (long)seed, increment);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).UseIdentityColumn((long)seed, increment);
 
     /// <summary>
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
@@ -243,7 +243,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
@@ -255,7 +255,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> IsSparse<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         bool sparse = true)
-        => (ComplexTypePropertyBuilder<TProperty>)IsSparse((ComplexTypePropertyBuilder)propertyBuilder, sparse);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).IsSparse(sparse);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -295,8 +295,8 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         object? value,
         string defaultConstraintName)
-        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValue(
-            (ComplexTypePropertyBuilder)propertyBuilder, value, defaultConstraintName);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasDefaultValue(
+            value, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -336,6 +336,6 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? sql,
         string defaultConstraintName)
-        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValueSql(
-            (ComplexTypePropertyBuilder)propertyBuilder, sql, defaultConstraintName);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasDefaultValueSql(
+            sql, defaultConstraintName);
 }

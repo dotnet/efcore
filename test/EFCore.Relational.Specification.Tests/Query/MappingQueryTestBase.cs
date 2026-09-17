@@ -6,15 +6,13 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixture>.MappingQueryFixtureBase fixture)
     : IClassFixture<TFixture>
     where TFixture : MappingQueryTestBase<TFixture>.MappingQueryFixtureBase, new()
 {
     protected MappingQueryFixtureBase Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_customers()
     {
         using var context = CreateContext();
@@ -25,7 +23,7 @@ public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixtu
         Assert.Equal(91, customers.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_employees()
     {
         using var context = CreateContext();
@@ -36,7 +34,7 @@ public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixtu
         Assert.Equal(9, employees.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_orders()
     {
         using var context = CreateContext();
@@ -47,7 +45,7 @@ public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixtu
         Assert.Equal(830, orders.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Project_nullable_enum()
     {
         using var context = CreateContext();
@@ -64,12 +62,12 @@ public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixtu
 
     protected class MappedCustomer : Customer
     {
-        public string CompanyName2 { get; set; }
+        public string CompanyName2 { get; set; } = null!;
     }
 
     protected class MappedEmployee : Employee
     {
-        public string City2 { get; set; }
+        public string? City2 { get; set; }
     }
 
     protected class MappedOrder : Order

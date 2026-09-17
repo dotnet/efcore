@@ -14,7 +14,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="<#= EFCoreVersion #>" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="<#= EFCoreVersion #>" Condition="'$(ManagePackageVersionsCentrally)' != 'true'" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Condition="'$(ManagePackageVersionsCentrally)' == 'true'" />
   </ItemGroup>
 
   <ItemGroup>

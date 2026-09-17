@@ -94,7 +94,7 @@ public static class SqlServerServiceCollectionExtensions
 
     /// <summary>
     ///     Registers the given Entity Framework <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />
-    ///     and configures it to connect to a Azure SQL database.
+    ///     and configures it to connect to an Azure SQL database.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -167,7 +167,7 @@ public static class SqlServerServiceCollectionExtensions
 
     /// <summary>
     ///     Registers the given Entity Framework <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />
-    ///     and configures it to connect to a Azure Synapse database.
+    ///     and configures it to connect to an Azure Synapse database.
     /// </summary>
     /// <remarks>
     ///     <para>

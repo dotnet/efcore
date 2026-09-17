@@ -93,7 +93,7 @@ public static class SqlServerDbContextOptionsExtensions
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
-        => UseSqlServer(optionsBuilder, connection, false, sqlServerOptionsAction);
+        => optionsBuilder.UseSqlServer(connection, false, sqlServerOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -156,8 +156,7 @@ public static class SqlServerDbContextOptionsExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseSqlServer(
-            (DbContextOptionsBuilder)optionsBuilder, sqlServerOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseSqlServer(sqlServerOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a SQL Server database.
@@ -177,8 +176,8 @@ public static class SqlServerDbContextOptionsExtensions
         string? connectionString,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseSqlServer(
-            (DbContextOptionsBuilder)optionsBuilder, connectionString, sqlServerOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseSqlServer(
+            connectionString, sqlServerOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -204,8 +203,7 @@ public static class SqlServerDbContextOptionsExtensions
         DbConnection connection,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseSqlServer(
-            (DbContextOptionsBuilder)optionsBuilder, connection, sqlServerOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseSqlServer(connection, sqlServerOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -236,11 +234,11 @@ public static class SqlServerDbContextOptionsExtensions
         bool contextOwnsConnection,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseSqlServer(
-            (DbContextOptionsBuilder)optionsBuilder, connection, contextOwnsConnection, sqlServerOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseSqlServer(
+            connection, contextOwnsConnection, sqlServerOptionsAction);
 
     /// <summary>
-    ///     Configures the context to connect to a Azure SQL database, but without initially setting any
+    ///     Configures the context to connect to an Azure SQL database, but without initially setting any
     ///     <see cref="DbConnection" /> or connection string.
     /// </summary>
     /// <remarks>
@@ -270,7 +268,7 @@ public static class SqlServerDbContextOptionsExtensions
     }
 
     /// <summary>
-    ///     Configures the context to connect to a Azure SQL database.
+    ///     Configures the context to connect to an Azure SQL database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -296,7 +294,7 @@ public static class SqlServerDbContextOptionsExtensions
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
-    ///     Configures the context to connect to a Azure SQL database.
+    ///     Configures the context to connect to an Azure SQL database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -316,11 +314,11 @@ public static class SqlServerDbContextOptionsExtensions
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
         Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
-        => UseAzureSql(optionsBuilder, connection, false, azureSqlOptionsAction);
+        => optionsBuilder.UseAzureSql(connection, false, azureSqlOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
-    ///     Configures the context to connect to a Azure SQL database.
+    ///     Configures the context to connect to an Azure SQL database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -357,7 +355,7 @@ public static class SqlServerDbContextOptionsExtensions
     }
 
     /// <summary>
-    ///     Configures the context to connect to a Azure SQL database, but without initially setting any
+    ///     Configures the context to connect to an Azure SQL database, but without initially setting any
     ///     <see cref="DbConnection" /> or connection string.
     /// </summary>
     /// <remarks>
@@ -379,11 +377,10 @@ public static class SqlServerDbContextOptionsExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseAzureSql(
-            (DbContextOptionsBuilder)optionsBuilder, azureSqlOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseAzureSql(azureSqlOptionsAction);
 
     /// <summary>
-    ///     Configures the context to connect to a Azure SQL database.
+    ///     Configures the context to connect to an Azure SQL database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -400,12 +397,12 @@ public static class SqlServerDbContextOptionsExtensions
         string? connectionString,
         Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseAzureSql(
-            (DbContextOptionsBuilder)optionsBuilder, connectionString, azureSqlOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseAzureSql(
+            connectionString, azureSqlOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
-    ///     Configures the context to connect to a Azure SQL database.
+    ///     Configures the context to connect to an Azure SQL database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -427,12 +424,11 @@ public static class SqlServerDbContextOptionsExtensions
         DbConnection connection,
         Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseAzureSql(
-            (DbContextOptionsBuilder)optionsBuilder, connection, azureSqlOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseAzureSql(connection, azureSqlOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
-    ///     Configures the context to connect to a Azure SQL database.
+    ///     Configures the context to connect to an Azure SQL database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -459,11 +455,11 @@ public static class SqlServerDbContextOptionsExtensions
         bool contextOwnsConnection,
         Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseAzureSql(
-            (DbContextOptionsBuilder)optionsBuilder, connection, contextOwnsConnection, azureSqlOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseAzureSql(
+            connection, contextOwnsConnection, azureSqlOptionsAction);
 
     /// <summary>
-    ///     Configures the context to connect to a Azure Synapse database, but without initially setting any
+    ///     Configures the context to connect to an Azure Synapse database, but without initially setting any
     ///     <see cref="DbConnection" /> or connection string.
     /// </summary>
     /// <remarks>
@@ -493,7 +489,7 @@ public static class SqlServerDbContextOptionsExtensions
     }
 
     /// <summary>
-    ///     Configures the context to connect to a Azure Synapse database.
+    ///     Configures the context to connect to an Azure Synapse database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -519,7 +515,7 @@ public static class SqlServerDbContextOptionsExtensions
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
-    ///     Configures the context to connect to a Azure Synapse database.
+    ///     Configures the context to connect to an Azure Synapse database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -539,11 +535,11 @@ public static class SqlServerDbContextOptionsExtensions
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
         Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
-        => UseAzureSynapse(optionsBuilder, connection, false, azureSynapseOptionsAction);
+        => optionsBuilder.UseAzureSynapse(connection, false, azureSynapseOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
-    ///     Configures the context to connect to a Azure Synapse database.
+    ///     Configures the context to connect to an Azure Synapse database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -580,7 +576,7 @@ public static class SqlServerDbContextOptionsExtensions
     }
 
     /// <summary>
-    ///     Configures the context to connect to a Azure Synapse database, but without initially setting any
+    ///     Configures the context to connect to an Azure Synapse database, but without initially setting any
     ///     <see cref="DbConnection" /> or connection string.
     /// </summary>
     /// <remarks>
@@ -602,11 +598,10 @@ public static class SqlServerDbContextOptionsExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseAzureSynapse(
-            (DbContextOptionsBuilder)optionsBuilder, azureSynapseOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseAzureSynapse(azureSynapseOptionsAction);
 
     /// <summary>
-    ///     Configures the context to connect to a Azure Synapse database.
+    ///     Configures the context to connect to an Azure Synapse database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -623,12 +618,12 @@ public static class SqlServerDbContextOptionsExtensions
         string? connectionString,
         Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseAzureSynapse(
-            (DbContextOptionsBuilder)optionsBuilder, connectionString, azureSynapseOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseAzureSynapse(
+            connectionString, azureSynapseOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
-    ///     Configures the context to connect to a Azure Synapse database.
+    ///     Configures the context to connect to an Azure Synapse database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -650,12 +645,12 @@ public static class SqlServerDbContextOptionsExtensions
         DbConnection connection,
         Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseAzureSynapse(
-            (DbContextOptionsBuilder)optionsBuilder, connection, azureSynapseOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseAzureSynapse(
+            connection, azureSynapseOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
-    ///     Configures the context to connect to a Azure Synapse database.
+    ///     Configures the context to connect to an Azure Synapse database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -682,8 +677,8 @@ public static class SqlServerDbContextOptionsExtensions
         bool contextOwnsConnection,
         Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseAzureSynapse(
-            (DbContextOptionsBuilder)optionsBuilder, connection, contextOwnsConnection, azureSynapseOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseAzureSynapse(
+            connection, contextOwnsConnection, azureSynapseOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to any of SQL Server, Azure SQL, Azure Synapse databases, but without initially setting any
@@ -736,8 +731,7 @@ public static class SqlServerDbContextOptionsExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         Action<SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)ConfigureSqlEngine(
-            (DbContextOptionsBuilder)optionsBuilder, sqlEngineOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).ConfigureSqlEngine(sqlEngineOptionsAction);
 
     private static T GetOrCreateExtension<T>(DbContextOptionsBuilder optionsBuilder)
         where T : RelationalOptionsExtension, new()

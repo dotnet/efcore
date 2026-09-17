@@ -86,7 +86,7 @@ public class ObjectBinaryExpression : Expression, IPrintableExpression
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var left = visitor.Visit(Left);
-        var right = (Expression)visitor.Visit(Right);
+        var right = visitor.Visit(Right);
 
         return Update(left, right);
     }
@@ -156,8 +156,8 @@ public class ObjectBinaryExpression : Expression, IPrintableExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ObjectBinaryExpression other
-                && Equals(other));
+                || (obj is ObjectBinaryExpression other
+                    && Equals(other)));
 
     private bool Equals(ObjectBinaryExpression other)
         => Type == other.Type

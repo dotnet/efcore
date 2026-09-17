@@ -41,26 +41,15 @@ public sealed class EntryCurrentValueComparer<TProperty> : IComparer<IUpdateEntr
     /// <param name="y">The second object to compare.</param>
     /// <returns>A negative number if 'x' is less than 'y'; a positive number if 'x' is greater than 'y'; zero otherwise.</returns>
     public int Compare(IUpdateEntry? x, IUpdateEntry? y)
-    {
-        if (ReferenceEquals(x, y))
-        {
-            return 0;
-        }
-
-        if (x is null)
-        {
-            return -1;
-        }
-
-        if (y is null)
-        {
-            return 1;
-        }
-
-        return _underlyingComparer.Compare(
-            x.GetCurrentValue<TProperty>(_property),
-            y.GetCurrentValue<TProperty>(_property));
-    }
+        => ReferenceEquals(x, y)
+            ? 0
+            : x is null
+                ? -1
+                : y is null
+                    ? 1
+                    : _underlyingComparer.Compare(
+                        x.GetCurrentValue<TProperty>(_property),
+                        y.GetCurrentValue<TProperty>(_property));
 
     /// <summary>
     ///     Determines whether the specified objects are equal.

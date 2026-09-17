@@ -12,7 +12,7 @@ public class EntityTypeMapping
     public EntityTypeMapping(IEntityType entityType)
     {
         Name = entityType.Name;
-        TableName = entityType.GetTableName();
+        TableName = entityType.GetTableName()!;
         PrimaryKey = entityType.FindPrimaryKey()!.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         Properties.AddRange(
@@ -32,9 +32,9 @@ public class EntityTypeMapping
             entityType.GetSkipNavigations().Select(n => n.ToDebugString(MetadataDebugStringOptions.SingleLineDefault)));
     }
 
-    public string Name { get; set; }
-    public string TableName { get; set; }
-    public string PrimaryKey { get; set; }
+    public string Name { get; set; } = null!;
+    public string TableName { get; set; } = null!;
+    public string PrimaryKey { get; set; } = null!;
     public List<string> Properties { get; } = [];
     public List<string> Indexes { get; set; } = [];
     public List<string> FKs { get; } = [];

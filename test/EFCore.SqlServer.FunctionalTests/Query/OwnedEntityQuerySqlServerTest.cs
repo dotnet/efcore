@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -7,30 +7,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     #region 22054
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_dependent_is_null_when_sharing_required_column_with_principal()
     {
-        var contextFactory = await InitializeAsync<Context22054>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22054>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context22054.User22054>().OrderByDescending(e => e.Id).ToList();
         Assert.Equal(3, query.Count);
         Assert.Null(query[0].Contact);
         Assert.Null(query[0].Data);
         Assert.NotNull(query[1].Data);
         Assert.NotNull(query[1].Contact);
-        Assert.Null(query[1].Contact.Address);
+        Assert.Null(query[1].Contact!.Address);
         Assert.NotNull(query[2].Data);
         Assert.NotNull(query[2].Contact);
-        Assert.NotNull(query[2].Contact.Address);
+        Assert.NotNull(query[2].Contact!.Address);
 
         AssertSql(
             """
@@ -53,10 +51,8 @@ ORDER BY [u].[Id] DESC
                         contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
 
                         contact.OwnsOne(
-                            c => c.Address, address =>
-                            {
-                                address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
-                            });
+                            c => c.Address,
+                            address => address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty"));
                     });
 
                 builder.OwnsOne(e => e.Data)
@@ -109,28 +105,28 @@ ORDER BY [u].[Id] DESC
         public class User22054
         {
             public int Id { get; set; }
-            public Data22054 Data { get; set; }
-            public Contact22054 Contact { get; set; }
-            public byte[] RowVersion { get; set; }
+            public Data22054? Data { get; set; }
+            public Contact22054? Contact { get; set; }
+            public byte[] RowVersion { get; set; } = null!;
         }
 
         public class Data22054
         {
-            public string Data { get; set; }
+            public string? Data { get; set; }
             public bool Exists { get; set; }
         }
 
         public class Contact22054
         {
-            public string MobileNumber { get; set; }
-            public string SharedProperty { get; set; }
-            public Address22054 Address { get; set; }
+            public string? MobileNumber { get; set; }
+            public string? SharedProperty { get; set; }
+            public Address22054? Address { get; set; }
         }
 
         public class Address22054
         {
-            public string City { get; set; }
-            public string SharedProperty { get; set; }
+            public string? City { get; set; }
+            public string? SharedProperty { get; set; }
             public int Zip { get; set; }
         }
     }
@@ -139,11 +135,11 @@ ORDER BY [u].[Id] DESC
 
     #region 22340
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_entity_mapped_to_separate_table()
     {
-        var contextFactory = await InitializeAsync<Context22340>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22340>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault();
 
         Assert.NotNull(masterTrunk);
@@ -160,13 +156,13 @@ FROM (
 ) AS [s1]
 LEFT JOIN [FungibleBag_Currencies] AS [f0] ON [s1].[MasterTrunk22340Id] = [f0].[CurrencyBag22340MasterTrunk22340Id]
 LEFT JOIN [StaticBag_Currencies] AS [s0] ON [s1].[MasterTrunk22340Id0] = [s0].[CurrencyBag22340MasterTrunk22340Id]
-ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id]
+ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id]
 """);
     }
 
     protected class Context22340(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MasterTrunk22340> MasterTrunk { get; set; }
+        public DbSet<MasterTrunk22340> MasterTrunk { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -178,10 +174,7 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
                 p => p.FungibleBag, p =>
                 {
                     p.OwnsMany(
-                        p => p.Currencies, p =>
-                        {
-                            p.Property(p => p.Amount).IsConcurrencyToken();
-                        });
+                        p => p.Currencies, p => p.Property(p => p.Amount).IsConcurrencyToken());
 
                     p.ToTable("FungibleBag");
                 });
@@ -190,10 +183,7 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
                 p => p.StaticBag, p =>
                 {
                     p.OwnsMany(
-                        p => p.Currencies, p =>
-                        {
-                            p.Property(p => p.Amount).IsConcurrencyToken();
-                        });
+                        p => p.Currencies, p => p.Property(p => p.Amount).IsConcurrencyToken());
                     p.ToTable("StaticBag");
                 });
         }
@@ -212,13 +202,13 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
 
         public class MasterTrunk22340
         {
-            public CurrencyBag22340 FungibleBag { get; set; }
-            public CurrencyBag22340 StaticBag { get; set; }
+            public CurrencyBag22340? FungibleBag { get; set; }
+            public CurrencyBag22340? StaticBag { get; set; }
         }
 
         public class CurrencyBag22340
         {
-            public IEnumerable<Currency22340> Currencies { get; set; }
+            public IEnumerable<Currency22340> Currencies { get; set; } = null!;
         }
 
         public class Currency22340
@@ -235,19 +225,19 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
 
     #region 23211
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Collection_include_on_owner_with_owned_type_mapped_to_different_table()
     {
-        var contextFactory = await InitializeAsync<Context23211>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context23211>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var owner = context.Set<Context23211.Owner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
             Assert.NotNull(owner.Dependents);
             Assert.Equal(2, owner.Dependents.Count);
             Assert.NotNull(owner.Owned1);
-            Assert.Equal("A", owner.Owned1.Value);
+            Assert.Equal("A", owner.Owned1!.Value);
             Assert.NotNull(owner.Owned2);
-            Assert.Equal("B", owner.Owned2.Value);
+            Assert.Equal("B", owner.Owned2!.Value);
 
             AssertSql(
                 """
@@ -272,7 +262,7 @@ ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
 """);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             ClearLog();
             var owner = context.Set<Context23211.SecondOwner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id)
@@ -280,7 +270,7 @@ ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
             Assert.NotNull(owner.Dependents);
             Assert.Equal(2, owner.Dependents.Count);
             Assert.NotNull(owner.Owned);
-            Assert.Equal("A", owner.Owned.Value);
+            Assert.Equal("A", owner.Owned!.Value);
 
             AssertSql(
                 """
@@ -326,7 +316,8 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
             Add(
                 new SecondOwner23211
                 {
-                    Dependents = [new SecondDependent23211(), new SecondDependent23211()], Owned = new OwnedType23211 { Value = "A" }
+                    Dependents = [new SecondDependent23211(), new SecondDependent23211()],
+                    Owned = new OwnedType23211 { Value = "A" }
                 });
 
             return SaveChangesAsync();
@@ -335,14 +326,14 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
         public class Owner23211
         {
             public int Id { get; set; }
-            public List<Dependent23211> Dependents { get; set; }
-            public OwnedType23211 Owned1 { get; set; }
-            public OwnedType23211 Owned2 { get; set; }
+            public List<Dependent23211> Dependents { get; set; } = null!;
+            public OwnedType23211? Owned1 { get; set; }
+            public OwnedType23211? Owned2 { get; set; }
         }
 
         public class OwnedType23211
         {
-            public string Value { get; set; }
+            public string? Value { get; set; }
         }
 
         public class Dependent23211
@@ -353,8 +344,8 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
         public class SecondOwner23211
         {
             public int Id { get; set; }
-            public List<SecondDependent23211> Dependents { get; set; }
-            public OwnedType23211 Owned { get; set; }
+            public List<SecondDependent23211> Dependents { get; set; } = null!;
+            public OwnedType23211? Owned { get; set; }
         }
 
         public class SecondDependent23211
@@ -484,7 +475,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [p].[Id], [r].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
+SELECT [p].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
 FROM [Parents] AS [p]
 LEFT JOIN [Reference] AS [r] ON [p].[Id] = [r].[ParentId]
 LEFT JOIN [Collection] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -493,7 +484,7 @@ LEFT JOIN (
     FROM [JoinEntity] AS [j]
     INNER JOIN [OtherSide] AS [o] ON [j].[OtherSideId] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[ParentId]
-ORDER BY [p].[Id], [r].[Id], [c].[Id], [s].[ParentId], [s].[OtherSideId]
+ORDER BY [p].[Id], [c].[Id], [s].[ParentId], [s].[OtherSideId]
 """,
             //
             """
@@ -549,12 +540,12 @@ ORDER BY [s].[Id], [s].[Id0], [s].[Id1]
         AssertSql(
             """
 SELECT [b].[Id], (
-    SELECT COALESCE(SUM([p].[CommentsCount]), 0)
+    SELECT ISNULL(SUM([p].[CommentsCount]), 0)
     FROM [Post] AS [p]
     WHERE [b].[Id] = [p].[BlogId]), [p0].[Title], [p0].[CommentsCount], [p0].[BlogId], [p0].[Id]
 FROM [Blog] AS [b]
 LEFT JOIN [Post] AS [p0] ON [b].[Id] = [p0].[BlogId]
-ORDER BY [b].[Id], [p0].[BlogId]
+ORDER BY [b].[Id], [p0].[BlogId], [p0].[Id]
 """);
     }
 
@@ -567,7 +558,7 @@ ORDER BY [b].[Id], [p0].[BlogId]
 SELECT [w].[WarehouseCode], [w].[Id], [w0].[CountryCode], [w0].[WarehouseCode], [w0].[Id]
 FROM [Warehouses] AS [w]
 LEFT JOIN [WarehouseDestinationCountry] AS [w0] ON [w].[WarehouseCode] = [w0].[WarehouseCode]
-ORDER BY [w].[Id], [w0].[WarehouseCode]
+ORDER BY [w].[Id], [w0].[WarehouseCode], [w0].[Id]
 """);
     }
 

@@ -1,11 +1,12 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential | CosmosCondition.IsNotEmulator)]
+[ConditionalClass(
+    typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential), nameof(CosmosTestEnvironment.IsNotEmulator))]
 public class FullTextSearchTranslationsCosmosTest : IClassFixture<FullTextSearchTranslationsCosmosTest.FullTextSearchFixture>
 {
     public FullTextSearchTranslationsCosmosTest(FullTextSearchFixture fixture, ITestOutputHelper testOutputHelper)
@@ -21,7 +22,7 @@ public class FullTextSearchTranslationsCosmosTest : IClassFixture<FullTextSearch
 
     #region FullTextContains
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContains_with_constant()
     {
         await using var context = CreateContext();
@@ -41,7 +42,7 @@ WHERE FullTextContains(c["Description"], "beaver")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContains_with_parameter()
     {
         await using var context = CreateContext();
@@ -64,7 +65,7 @@ WHERE FullTextContains(c["Description"], @beaver)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContains_projected()
     {
         await using var context = CreateContext();
@@ -88,7 +89,7 @@ ORDER BY c["Id"]
 
     #region FullTextContainsAny
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAny_with_constant()
     {
         await using var context = CreateContext();
@@ -108,7 +109,7 @@ WHERE FullTextContainsAny(c["Description"], "bat")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAny_with_constants_array()
     {
         await using var context = CreateContext();
@@ -128,7 +129,7 @@ WHERE FullTextContainsAny(c["Description"], "bat", "beaver")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAny_with_constant_and_parameter()
     {
         await using var context = CreateContext();
@@ -156,7 +157,7 @@ WHERE FullTextContainsAny(c["Description"], @beaver, "bat")
 
     #region FullTextContainsAll
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAll_with_constants_array()
     {
         await using var context = CreateContext();
@@ -167,7 +168,8 @@ WHERE FullTextContainsAny(c["Description"], @beaver, "bat")
             .ToListAsync();
 
         Assert.Equal(1, result.Count);
-        Assert.True(result.All(x => x.Description.Contains("beaver") && x.Description.Contains("salmon") && x.Description.Contains("frog")));
+        Assert.True(
+            result.All(x => x.Description.Contains("beaver") && x.Description.Contains("salmon") && x.Description.Contains("frog")));
 
         AssertSql(
             """
@@ -179,7 +181,7 @@ WHERE FullTextContainsAll(c["Description"], @beaver, "salmon", "frog")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAll_with_parameter()
     {
         await using var context = CreateContext();
@@ -202,8 +204,7 @@ WHERE FullTextContainsAll(c["Description"], @beaver)
 """);
     }
 
-
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextContainsAll_with_parameterized_array()
     {
         await using var context = CreateContext();
@@ -229,7 +230,7 @@ WHERE FullTextContainsAll(c["Description"], "beaver", "salmon", "frog")
 
     #region FullTextScore
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_constant()
     {
         await using var context = CreateContext();
@@ -246,7 +247,7 @@ ORDER BY RANK FullTextScore(c["Description"], "otter")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_parameter()
     {
         await using var context = CreateContext();
@@ -267,13 +268,13 @@ ORDER BY RANK FullTextScore(c["Description"], @otter)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_constants_array()
     {
         await using var context = CreateContext();
 
         var result = await context.Set<FullTextSearchAnimals>()
-            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new string[] { "otter", "beaver" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new[] { "otter", "beaver" }))
             .ToListAsync();
 
         AssertSql(
@@ -284,12 +285,12 @@ ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_parameterized_array()
     {
         await using var context = CreateContext();
 
-        var prm = new string[] { "otter", "beaver" };
+        var prm = new[] { "otter", "beaver" };
         var result = await context.Set<FullTextSearchAnimals>()
             .OrderBy(x => EF.Functions.FullTextScore(x.Description, prm))
             .ToListAsync();
@@ -302,7 +303,7 @@ ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_with_complex_expression()
     {
         await using var context = CreateContext();
@@ -311,33 +312,31 @@ ORDER BY RANK FullTextScore(c["Description"], "otter", "beaver")
 
         // The second through last arguments of the 'FullTextScore' function must be literals of type string or object specifying
         // the fuzzy search argument containing ...
-        var message = (await Assert.ThrowsAsync<CosmosException>(
-            () => context.Set<FullTextSearchAnimals>()
-                .OrderBy(x => EF.Functions.FullTextScore(x.Description, new string[] { x.Id > 2 ? otter : "beaver" }))
-                .ToListAsync())).Message;
+        var message = (await Assert.ThrowsAsync<CosmosException>(() => context.Set<FullTextSearchAnimals>()
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new[] { x.Id > 2 ? otter : "beaver" }))
+            .ToListAsync())).Message;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_projected()
     {
         await using var context = CreateContext();
 
-        var message = (await Assert.ThrowsAsync<CosmosException>(
-            () => context.Set<FullTextSearchAnimals>()
-                .Select(x => EF.Functions.FullTextScore(x.Description, new string[] { "otter", "beaver" }))
-                .ToListAsync())).Message;
+        var message = (await Assert.ThrowsAsync<CosmosException>(() => context.Set<FullTextSearchAnimals>()
+            .Select(x => EF.Functions.FullTextScore(x.Description, new[] { "otter", "beaver" }))
+            .ToListAsync())).Message;
 
         Assert.Contains(
             "The FullTextScore function is only allowed in the ORDER BY RANK clause.",
             message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task FullTextScore_on_non_FTS_property()
     {
         await using var context = CreateContext();
         var result = await context.Set<FullTextSearchAnimals>()
-            .OrderBy(x => EF.Functions.FullTextScore(x.PartitionKey, new string[] { "taxonomy" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.PartitionKey, new[] { "taxonomy" }))
             .ToListAsync();
 
         AssertSql(
@@ -352,15 +351,15 @@ ORDER BY RANK FullTextScore(c["PartitionKey"], "taxonomy")
 
     #region RRF
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rrf_using_two_FullTextScore_functions()
     {
         await using var context = CreateContext();
 
         var result = await context.Set<FullTextSearchAnimals>()
             .OrderBy(x => EF.Functions.Rrf(
-                EF.Functions.FullTextScore(x.Description, new string[] { "beaver" }),
-                EF.Functions.FullTextScore(x.Description, new string[] { "otter", "bat" })))
+                EF.Functions.FullTextScore(x.Description, new[] { "beaver" }),
+                EF.Functions.FullTextScore(x.Description, new[] { "otter", "bat" })))
             .ToListAsync();
 
         AssertSql(
@@ -371,18 +370,17 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), FullTextScore(c["De
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_RRF()
     {
         await using var context = CreateContext();
 
-        var message = (await Assert.ThrowsAsync<CosmosException>(
-            () => context.Set<FullTextSearchAnimals>().OrderBy(x => EF.Functions.Rrf(
+        var message = (await Assert.ThrowsAsync<CosmosException>(() => context.Set<FullTextSearchAnimals>().OrderBy(x => EF.Functions.Rrf(
                 EF.Functions.Rrf(
-                    EF.Functions.FullTextScore(x.Description, new string[] { "bison" }),
-                    EF.Functions.FullTextScore(x.Description, new string[] { "fox", "bat" })),
-                EF.Functions.FullTextScore(x.Description, new string[] { "beaver" }),
-                EF.Functions.FullTextScore(x.Description, new string[] { "otter", "bat" })))
+                    EF.Functions.FullTextScore(x.Description, new[] { "bison" }),
+                    EF.Functions.FullTextScore(x.Description, new[] { "fox", "bat" })),
+                EF.Functions.FullTextScore(x.Description, new[] { "beaver" }),
+                EF.Functions.FullTextScore(x.Description, new[] { "otter", "bat" })))
             .ToListAsync())).Message;
 
         // TODO: this doesn't seem right
@@ -395,12 +393,12 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver"), FullTextScore(c["De
 
     #region ORDER BY RANK
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderByRank_Take()
     {
         await using var context = CreateContext();
         var result = await context.Set<FullTextSearchAnimals>()
-            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new string[] { "beaver" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new[] { "beaver" }))
             .Take(10)
             .ToListAsync();
 
@@ -413,12 +411,12 @@ OFFSET 0 LIMIT 10
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderByRank_Skip_Take()
     {
         await using var context = CreateContext();
         var result = await context.Set<FullTextSearchAnimals>()
-            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new string[] { "beaver", "dolphin" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new[] { "beaver", "dolphin" }))
             .Skip(1)
             .Take(20)
             .ToListAsync();
@@ -432,13 +430,13 @@ OFFSET 1 LIMIT 20
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderByRank_scoring_function_overridden_by_another()
     {
         await using var context = CreateContext();
         var result = await context.Set<FullTextSearchAnimals>()
-            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new string[] { "beaver", "dolphin", "first" }))
-            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new string[] { "beaver", "dolphin", "second" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new[] { "beaver", "dolphin", "first" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new[] { "beaver", "dolphin", "second" }))
             .ToListAsync();
 
         AssertSql(
@@ -449,12 +447,12 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin", "second")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task OrderByRank_scoring_function_overridden_by_regular_OrderBy()
     {
         await using var context = CreateContext();
         var result = await context.Set<FullTextSearchAnimals>()
-            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new string[] { "beaver", "dolphin" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new[] { "beaver", "dolphin" }))
             .OrderBy(x => x.Name)
             .ToListAsync();
 
@@ -466,13 +464,13 @@ ORDER BY c["Name"]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Regular_OrderBy_overridden_by_OrderByRank()
     {
         await using var context = CreateContext();
         var result = await context.Set<FullTextSearchAnimals>()
             .OrderBy(x => x.Name)
-            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new string[] { "beaver", "dolphin" }))
+            .OrderBy(x => EF.Functions.FullTextScore(x.Description, new[] { "beaver", "dolphin" }))
             .ToListAsync();
 
         AssertSql(
@@ -484,6 +482,20 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
     }
 
     #endregion ORDER BY RANK
+
+    // issue #35898: full-text indexes on collection wildcard paths are not supported
+    //[Fact]
+    public virtual async Task Full_text_index_through_complex_collection_roundtrips()
+    {
+        // The fixture configures a full-text index on a property inside a complex collection
+        // ("ComplexNestedCollection[].AnotherDescription"). Loading the seeded data verifies that
+        // the container was created with that indexing-policy entry and the documents roundtrip.
+        await using var context = CreateContext();
+        var animals = await context.Set<FullTextSearchAnimals>().ToListAsync();
+
+        Assert.Equal(5, animals.Count);
+        Assert.All(animals, a => Assert.Single(a.ComplexNestedCollection));
+    }
 
     private class FullTextSearchAnimals
     {
@@ -499,6 +511,8 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
         public string DescriptionNoIndex { get; set; } = null!;
 
         public FullTextSearchOwned Owned { get; set; } = null!;
+
+        public List<FullTextSearchComplexNested> ComplexNestedCollection { get; set; } = null!;
     }
 
     private class FullTextSearchOwned
@@ -510,6 +524,11 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
     }
 
     private class FullTextSearchNested
+    {
+        public string AnotherDescription { get; set; } = null!;
+    }
+
+    private class FullTextSearchComplexNested
     {
         public string AnotherDescription { get; set; } = null!;
     }
@@ -543,28 +562,36 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 
                 b.Property(x => x.DescriptionNoIndex).EnableFullTextSearch();
 
-                b.OwnsOne(x => x.Owned, bb =>
-                {
-                    bb.OwnsOne(x => x.NestedReference, bbb =>
+                b.OwnsOne(
+                    x => x.Owned, bb =>
                     {
-                        bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
-                        bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
+                        bb.OwnsOne(
+                            x => x.NestedReference, bbb =>
+                            {
+                                bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
+                                bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
+                            });
+
+                        bb.OwnsOne(
+                            x => x.ModifiedNestedReference, bbb =>
+                            {
+                                bbb.ToJsonProperty("CustomNestedReference");
+                                bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
+                                bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
+                            });
+
+                        // issue #35898
+                        //bb.OwnsMany(x => x.NestedCollection, bbb =>
+                        //{
+                        //    bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
+                        //    bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
+                        //});
                     });
 
-                    bb.OwnsOne(x => x.ModifiedNestedReference, bbb =>
-                    {
-                        bbb.ToJsonProperty("CustomNestedReference");
-                        bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
-                        bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
-                    });
-
-                    // issue #35898
-                    //bb.OwnsMany(x => x.NestedCollection, bbb =>
-                    //{
-                    //    bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
-                    //    bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
-                    //});
-                });
+                // issue #35898: full-text indexes on collection wildcard paths are not supported
+                //b.ComplexCollection(x => x.ComplexNestedCollection, cb => cb.Property(c => c.AnotherDescription).EnableFullTextSearch());
+                //b.HasIndex(x => x.ComplexNestedCollection.Select(c => c.AnotherDescription)).IsFullTextIndex();
+                b.Ignore(x => x.ComplexNestedCollection);
             });
 
         protected override Task SeedAsync(PoolableDbContext context)
@@ -579,10 +606,11 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                 DescriptionNoIndex = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
                 Owned = new FullTextSearchOwned
                 {
-                    NestedReference = new FullTextSearchNested
-                    {
-                        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
-                    },
+                    NestedReference =
+                        new FullTextSearchNested
+                        {
+                            AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
+                        },
                     ModifiedNestedReference = new FullTextSearchNested
                     {
                         AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
@@ -595,7 +623,14 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested
+                    {
+                        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, duck, turtle, frog"
+                    }
+                ]
             };
 
             var waterAnimals = new FullTextSearchAnimals
@@ -608,10 +643,8 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                 DescriptionNoIndex = "beaver, otter, duck, dolphin, salmon, turtle, frog",
                 Owned = new FullTextSearchOwned
                 {
-                    NestedReference = new FullTextSearchNested
-                    {
-                        AnotherDescription = "beaver, otter, duck, dolphin, salmon, turtle, frog",
-                    },
+                    NestedReference =
+                        new FullTextSearchNested { AnotherDescription = "beaver, otter, duck, dolphin, salmon, turtle, frog", },
                     ModifiedNestedReference = new FullTextSearchNested
                     {
                         AnotherDescription = "beaver, otter, duck, dolphin, salmon, turtle, frog",
@@ -624,7 +657,11 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "beaver, otter, duck, dolphin, salmon, turtle, frog",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested { AnotherDescription = "beaver, otter, duck, dolphin, salmon, turtle, frog" }
+                ]
             };
 
             var airAnimals = new FullTextSearchAnimals
@@ -637,14 +674,8 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                 DescriptionNoIndex = "duck, bat, eagle, butterfly, sparrow",
                 Owned = new FullTextSearchOwned
                 {
-                    NestedReference = new FullTextSearchNested
-                    {
-                        AnotherDescription = "duck, bat, eagle, butterfly, sparrow",
-                    },
-                    ModifiedNestedReference = new FullTextSearchNested
-                    {
-                        AnotherDescription = "duck, bat, eagle, butterfly, sparrow",
-                    },
+                    NestedReference = new FullTextSearchNested { AnotherDescription = "duck, bat, eagle, butterfly, sparrow", },
+                    ModifiedNestedReference = new FullTextSearchNested { AnotherDescription = "duck, bat, eagle, butterfly, sparrow", },
                     // issue #35898
                     //NestedCollection =
                     //[
@@ -653,7 +684,11 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "duck, bat, eagle, butterfly, sparrow",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested { AnotherDescription = "duck, bat, eagle, butterfly, sparrow" }
+                ]
             };
 
             var mammals = new FullTextSearchAnimals
@@ -666,10 +701,11 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                 DescriptionNoIndex = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
                 Owned = new FullTextSearchOwned
                 {
-                    NestedReference = new FullTextSearchNested
-                    {
-                        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
-                    },
+                    NestedReference =
+                        new FullTextSearchNested
+                        {
+                            AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
+                        },
                     ModifiedNestedReference = new FullTextSearchNested
                     {
                         AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
@@ -682,7 +718,14 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested
+                    {
+                        AnotherDescription = "bison, beaver, moose, fox, wolf, marten, horse, shrew, hare, bat"
+                    }
+                ]
             };
 
             var avians = new FullTextSearchAnimals
@@ -695,14 +738,8 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                 DescriptionNoIndex = "duck, eagle, sparrow",
                 Owned = new FullTextSearchOwned
                 {
-                    NestedReference = new FullTextSearchNested
-                    {
-                        AnotherDescription = "duck, eagle, sparrow",
-                    },
-                    ModifiedNestedReference = new FullTextSearchNested
-                    {
-                        AnotherDescription = "duck, eagle, sparrow",
-                    },
+                    NestedReference = new FullTextSearchNested { AnotherDescription = "duck, eagle, sparrow", },
+                    ModifiedNestedReference = new FullTextSearchNested { AnotherDescription = "duck, eagle, sparrow", },
                     // issue #35898
                     //NestedCollection =
                     //[
@@ -711,7 +748,11 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //        AnotherDescription = "duck, eagle, sparrow",
                     //    }
                     //]
-                }
+                },
+                ComplexNestedCollection =
+                [
+                    new FullTextSearchComplexNested { AnotherDescription = "duck, eagle, sparrow" }
+                ]
             };
 
             context.Set<FullTextSearchAnimals>().AddRange(landAnimals, waterAnimals, airAnimals, mammals, avians);

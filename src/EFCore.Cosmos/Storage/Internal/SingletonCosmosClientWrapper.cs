@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
@@ -88,6 +87,13 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
             configuration.HttpClientFactory = options.HttpClientFactory;
         }
 
+        if (options.EnableBulkExecution != null)
+        {
+            configuration.AllowBulkExecution = options.EnableBulkExecution.Value;
+        }
+
+        configuration.EnableContentResponseOnWrite = options.EnableContentResponseOnWrite == true;
+
         _client = options switch
         {
             { ConnectionString: not null and not "" } => new CosmosClient(options.ConnectionString, configuration),
@@ -103,7 +109,8 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual CosmosClient Client => _client;
+    public virtual CosmosClient Client
+        => _client;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,7 +119,5 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void Dispose()
-    {
-        _client.Dispose();
-    }
+        => _client.Dispose();
 }

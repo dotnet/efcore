@@ -76,7 +76,7 @@ public class AdHocMapper : IAdHocMapper
 
     [field: AllowNull, MaybeNull]
     private ConventionSet ConventionSet
-        => (field ??= BuildConventionSet());
+        => field ??= BuildConventionSet();
 
     /// <inheritdoc />
     public virtual RuntimeEntityType GetOrAddEntityType(Type clrType)

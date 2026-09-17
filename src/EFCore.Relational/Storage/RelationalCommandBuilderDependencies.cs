@@ -51,10 +51,6 @@ public sealed record RelationalCommandBuilderDependencies
     {
         ExceptionDetector = exceptionDetector;
         LoggingOptions = loggingOptions;
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        TypeMappingSource = typeMappingSource;
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     /// <summary>
@@ -66,10 +62,4 @@ public sealed record RelationalCommandBuilderDependencies
     ///     The logging options.
     /// </summary>
     public ILoggingOptions LoggingOptions { get; init; }
-
-    /// <summary>
-    ///     The source for <see cref="RelationalTypeMapping" />s to use.
-    /// </summary>
-    [Obsolete("RelationalCommandBuilder doesn't need TypeMappingSource. Derived class should inject the service if needed.")]
-    public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 }

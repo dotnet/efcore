@@ -39,4 +39,13 @@ public interface INavigationExpansionExtensibilityHelper
     /// <param name="first">The first query root.</param>
     /// <param name="second">The second query root.</param>
     bool AreQueryRootsCompatible(EntityQueryRootExpression? first, EntityQueryRootExpression? second);
+
+    /// <summary>
+    ///     Whether navigation expansion may add joins to a source to translate aggregates over
+    ///     reference navigations inside a GroupBy result selector into the grouped query, instead
+    ///     of a correlated subquery per group. Providers that do not support joins must return
+    ///     <see langword="false" />.
+    /// </summary>
+    bool SupportsNavigationExpansionJoins
+        => false;
 }

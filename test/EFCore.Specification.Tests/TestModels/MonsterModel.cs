@@ -5,340 +5,340 @@ namespace Microsoft.EntityFrameworkCore.TestModels;
 
 public interface IBackOrderLine : IOrderLine
 {
-    DateTime ETA { get; set; }
-    int SupplierId { get; set; }
-    ISupplier Supplier { get; set; }
+    public DateTime ETA { get; set; }
+    public int SupplierId { get; set; }
+    public ISupplier Supplier { get; set; }
 }
 
 public interface IBarcodeDetail
 {
-    byte[] Code { get; set; }
-    string RegisteredTo { get; set; }
+    public byte[] Code { get; set; }
+    public string RegisteredTo { get; set; }
 }
 
 public interface IBarcode
 {
-    byte[] Code { get; set; }
-    int ProductId { get; set; }
-    string Text { get; set; }
-    IProduct Product { get; set; }
-    ICollection<IIncorrectScan> BadScans { get; set; }
-    IBarcodeDetail Detail { get; set; }
-    void InitializeCollections();
+    public byte[] Code { get; set; }
+    public int ProductId { get; set; }
+    public string Text { get; set; }
+    public IProduct Product { get; set; }
+    public ICollection<IIncorrectScan> BadScans { get; set; }
+    public IBarcodeDetail Detail { get; set; }
+    public void InitializeCollections();
 }
 
 public interface IComplaint
 {
-    int ComplaintId { get; set; }
-    int AlternateId { get; set; }
-    int? CustomerId { get; set; }
-    DateTime Logged { get; set; }
-    string Details { get; set; }
-    ICustomer Customer { get; set; }
-    IResolution Resolution { get; set; }
+    public int ComplaintId { get; set; }
+    public int AlternateId { get; set; }
+    public int? CustomerId { get; set; }
+    public DateTime Logged { get; set; }
+    public string Details { get; set; }
+    public ICustomer Customer { get; set; }
+    public IResolution Resolution { get; set; }
 }
 
 public interface IComputerDetail
 {
-    int ComputerDetailId { get; set; }
-    string Manufacturer { get; set; }
-    string Model { get; set; }
-    string Serial { get; set; }
-    string Specifications { get; set; }
-    DateTime PurchaseDate { get; set; }
-    IDimensions Dimensions { get; set; }
-    IComputer Computer { get; set; }
+    public int ComputerDetailId { get; set; }
+    public string Manufacturer { get; set; }
+    public string Model { get; set; }
+    public string Serial { get; set; }
+    public string Specifications { get; set; }
+    public DateTime PurchaseDate { get; set; }
+    public IDimensions Dimensions { get; set; }
+    public IComputer Computer { get; set; }
 }
 
 public interface IComputer
 {
-    int ComputerId { get; set; }
-    string Name { get; set; }
-    IComputerDetail ComputerDetail { get; set; }
+    public int ComputerId { get; set; }
+    public string Name { get; set; }
+    public IComputerDetail ComputerDetail { get; set; }
 }
 
 public interface IConcurrencyInfo
 {
-    bool Active { get; set; }
-    string Token { get; set; }
-    DateTime? QueriedDateTime { get; set; }
+    public bool Active { get; set; }
+    public string? Token { get; set; }
+    public DateTime? QueriedDateTime { get; set; }
 }
 
 public interface IContactDetails
 {
-    bool Active { get; set; }
-    string Email { get; set; }
+    public bool Active { get; set; }
+    public string? Email { get; set; }
 
-    IPhone HomePhone { get; set; }
-    IPhone WorkPhone { get; set; }
-    IPhone MobilePhone { get; set; }
+    public IPhone HomePhone { get; set; }
+    public IPhone WorkPhone { get; set; }
+    public IPhone MobilePhone { get; set; }
 }
 
 public interface ICustomerInfo
 {
-    int CustomerInfoId { get; set; }
-    string Information { get; set; }
+    public int CustomerInfoId { get; set; }
+    public string Information { get; set; }
 }
 
 public interface IDimensions
 {
-    decimal Width { get; set; }
-    decimal Height { get; set; }
-    decimal Depth { get; set; }
+    public decimal Width { get; set; }
+    public decimal Height { get; set; }
+    public decimal Depth { get; set; }
 }
 
 public interface IDiscontinuedProduct : IProduct
 {
-    DateTime Discontinued { get; set; }
-    int? ReplacementProductId { get; set; }
-    IProduct ReplacedBy { get; set; }
+    public DateTime Discontinued { get; set; }
+    public int? ReplacementProductId { get; set; }
+    public IProduct ReplacedBy { get; set; }
 }
 
 public interface IDriver
 {
-    string Name { get; set; }
-    DateTime BirthDate { get; set; }
-    ILicense License { get; set; }
+    public string Name { get; set; }
+    public DateTime BirthDate { get; set; }
+    public ILicense License { get; set; }
 }
 
 public interface IIncorrectScan
 {
-    int IncorrectScanId { get; set; }
-    byte[] ExpectedCode { get; set; }
-    byte[] ActualCode { get; set; }
-    DateTime ScanDate { get; set; }
-    string Details { get; set; }
-    IBarcode ExpectedBarcode { get; set; }
-    IBarcode ActualBarcode { get; set; }
+    public int IncorrectScanId { get; set; }
+    public byte[]? ExpectedCode { get; set; }
+    public byte[]? ActualCode { get; set; }
+    public DateTime ScanDate { get; set; }
+    public string Details { get; set; }
+    public IBarcode? ExpectedBarcode { get; set; }
+    public IBarcode? ActualBarcode { get; set; }
 }
 
 public interface ILastLogin
 {
-    string Username { get; set; }
-    DateTime LoggedIn { get; set; }
-    DateTime? LoggedOut { get; set; }
-    string SmartcardUsername { get; set; }
-    ILogin Login { get; set; }
+    public string Username { get; set; }
+    public DateTime LoggedIn { get; set; }
+    public DateTime? LoggedOut { get; set; }
+    public string? SmartcardUsername { get; set; }
+    public ILogin Login { get; set; }
 }
 
 public interface ILicense
 {
-    string Name { get; set; }
-    string LicenseNumber { get; set; }
-    string LicenseClass { get; set; }
-    string Restrictions { get; set; }
-    DateTime ExpirationDate { get; set; }
-    LicenseState? State { get; set; }
-    IDriver Driver { get; set; }
+    public string Name { get; set; }
+    public string LicenseNumber { get; set; }
+    public string LicenseClass { get; set; }
+    public string Restrictions { get; set; }
+    public DateTime ExpirationDate { get; set; }
+    public LicenseState? State { get; set; }
+    public IDriver Driver { get; set; }
 }
 
 public interface IMessage
 {
-    int MessageId { get; set; }
-    string FromUsername { get; set; }
-    string ToUsername { get; set; }
-    DateTime Sent { get; set; }
-    string Subject { get; set; }
-    string Body { get; set; }
-    bool IsRead { get; set; }
-    ILogin Sender { get; set; }
-    ILogin Recipient { get; set; }
+    public int MessageId { get; set; }
+    public string FromUsername { get; set; }
+    public string? ToUsername { get; set; }
+    public DateTime Sent { get; set; }
+    public string Subject { get; set; }
+    public string Body { get; set; }
+    public bool IsRead { get; set; }
+    public ILogin Sender { get; set; }
+    public ILogin? Recipient { get; set; }
 }
 
 public interface IOrderLine
 {
-    int OrderId { get; set; }
-    int ProductId { get; set; }
-    int Quantity { get; set; }
-    string ConcurrencyToken { get; set; }
-    IAnOrder Order { get; set; }
-    IProduct Product { get; set; }
+    public int OrderId { get; set; }
+    public int ProductId { get; set; }
+    public int Quantity { get; set; }
+    public string? ConcurrencyToken { get; set; }
+    public IAnOrder Order { get; set; }
+    public IProduct Product { get; set; }
 }
 
 public interface IAnOrder
 {
-    int AnOrderId { get; set; }
-    int AlternateId { get; set; }
-    int? CustomerId { get; set; }
-    IConcurrencyInfo Concurrency { get; set; }
-    ICustomer Customer { get; set; }
-    ICollection<IOrderLine> OrderLines { get; set; }
-    ICollection<IOrderNote> Notes { get; set; }
-    string Username { get; set; }
-    ILogin Login { get; set; }
-    void InitializeCollections();
+    public int AnOrderId { get; set; }
+    public int AlternateId { get; set; }
+    public int? CustomerId { get; set; }
+    public IConcurrencyInfo Concurrency { get; set; }
+    public ICustomer Customer { get; set; }
+    public ICollection<IOrderLine> OrderLines { get; set; }
+    public ICollection<IOrderNote> Notes { get; set; }
+    public string Username { get; set; }
+    public ILogin Login { get; set; }
+    public void InitializeCollections();
 }
 
 public interface IOrderNote
 {
-    int NoteId { get; set; }
-    string Note { get; set; }
-    int OrderId { get; set; }
-    IAnOrder Order { get; set; }
+    public int NoteId { get; set; }
+    public string Note { get; set; }
+    public int OrderId { get; set; }
+    public IAnOrder Order { get; set; }
 }
 
 public interface IOrderQualityCheck
 {
-    int OrderId { get; set; }
-    string CheckedBy { get; set; }
-    DateTime CheckedDateTime { get; set; }
-    IAnOrder Order { get; set; }
+    public int OrderId { get; set; }
+    public string CheckedBy { get; set; }
+    public DateTime CheckedDateTime { get; set; }
+    public IAnOrder Order { get; set; }
 }
 
 public interface IPageView
 {
-    int PageViewId { get; set; }
-    string Username { get; set; }
-    DateTime Viewed { get; set; }
-    string PageUrl { get; set; }
-    ILogin Login { get; set; }
+    public int PageViewId { get; set; }
+    public string Username { get; set; }
+    public DateTime Viewed { get; set; }
+    public string PageUrl { get; set; }
+    public ILogin Login { get; set; }
 }
 
 public interface IPasswordReset
 {
-    int ResetNo { get; set; }
-    string Username { get; set; }
-    string TempPassword { get; set; }
-    string EmailedTo { get; set; }
-    ILogin Login { get; set; }
+    public int ResetNo { get; set; }
+    public string Username { get; set; }
+    public string TempPassword { get; set; }
+    public string EmailedTo { get; set; }
+    public ILogin Login { get; set; }
 }
 
 public interface IProductDetail
 {
-    int ProductId { get; set; }
-    string Details { get; set; }
-    IProduct Product { get; set; }
+    public int ProductId { get; set; }
+    public string Details { get; set; }
+    public IProduct Product { get; set; }
 }
 
 public interface IProduct
 {
-    int ProductId { get; set; }
-    string Description { get; set; }
-    string BaseConcurrency { get; set; }
-    IDimensions Dimensions { get; set; }
-    IConcurrencyInfo ComplexConcurrency { get; set; }
-    IAuditInfo NestedComplexConcurrency { get; set; }
-    ICollection<ISupplier> Suppliers { get; set; }
-    ICollection<IDiscontinuedProduct> Replaces { get; set; }
-    IProductDetail Detail { get; set; }
-    ICollection<IProductReview> Reviews { get; set; }
-    ICollection<IProductPhoto> Photos { get; set; }
-    ICollection<IBarcode> Barcodes { get; set; }
-    void InitializeCollections();
+    public int ProductId { get; set; }
+    public string Description { get; set; }
+    public string BaseConcurrency { get; set; }
+    public IDimensions Dimensions { get; set; }
+    public IConcurrencyInfo ComplexConcurrency { get; set; }
+    public IAuditInfo NestedComplexConcurrency { get; set; }
+    public ICollection<ISupplier> Suppliers { get; set; }
+    public ICollection<IDiscontinuedProduct> Replaces { get; set; }
+    public IProductDetail Detail { get; set; }
+    public ICollection<IProductReview> Reviews { get; set; }
+    public ICollection<IProductPhoto> Photos { get; set; }
+    public ICollection<IBarcode> Barcodes { get; set; }
+    public void InitializeCollections();
 }
 
 public interface IProductPageView : IPageView
 {
-    int ProductId { get; set; }
-    IProduct Product { get; set; }
+    public int ProductId { get; set; }
+    public IProduct Product { get; set; }
 }
 
 public interface IProductPhoto
 {
-    int ProductId { get; set; }
-    int PhotoId { get; set; }
-    byte[] Photo { get; set; }
-    ICollection<IProductWebFeature> Features { get; set; }
-    void InitializeCollections();
+    public int ProductId { get; set; }
+    public int PhotoId { get; set; }
+    public byte[] Photo { get; set; }
+    public ICollection<IProductWebFeature> Features { get; set; }
+    public void InitializeCollections();
 }
 
 public interface IProductReview
 {
-    int ProductId { get; set; }
-    int ReviewId { get; set; }
-    string Review { get; set; }
-    IProduct Product { get; set; }
-    ICollection<IProductWebFeature> Features { get; set; }
-    void InitializeCollections();
+    public int ProductId { get; set; }
+    public int ReviewId { get; set; }
+    public string Review { get; set; }
+    public IProduct Product { get; set; }
+    public ICollection<IProductWebFeature> Features { get; set; }
+    public void InitializeCollections();
 }
 
 public interface IProductWebFeature
 {
-    int FeatureId { get; set; }
-    int? ProductId { get; set; }
-    int? PhotoId { get; set; }
-    int ReviewId { get; set; }
-    string Heading { get; set; }
-    IProductReview Review { get; set; }
-    IProductPhoto Photo { get; set; }
+    public int FeatureId { get; set; }
+    public int? ProductId { get; set; }
+    public int? PhotoId { get; set; }
+    public int ReviewId { get; set; }
+    public string Heading { get; set; }
+    public IProductReview Review { get; set; }
+    public IProductPhoto Photo { get; set; }
 }
 
 public interface IResolution
 {
-    int ResolutionId { get; set; }
-    string Details { get; set; }
-    IComplaint Complaint { get; set; }
+    public int ResolutionId { get; set; }
+    public string Details { get; set; }
+    public IComplaint Complaint { get; set; }
 }
 
 public interface IRsaToken
 {
-    string Serial { get; set; }
-    DateTime Issued { get; set; }
-    string Username { get; set; }
-    ILogin Login { get; set; }
+    public string Serial { get; set; }
+    public DateTime Issued { get; set; }
+    public string Username { get; set; }
+    public ILogin Login { get; set; }
 }
 
 public interface ISmartCard
 {
-    string Username { get; set; }
-    string CardSerial { get; set; }
-    DateTime Issued { get; set; }
-    ILogin Login { get; set; }
-    ILastLogin LastLogin { get; set; }
+    public string Username { get; set; }
+    public string CardSerial { get; set; }
+    public DateTime Issued { get; set; }
+    public ILogin Login { get; set; }
+    public ILastLogin? LastLogin { get; set; }
 }
 
 public interface ISupplierInfo
 {
-    int SupplierInfoId { get; set; }
-    string Information { get; set; }
-    int SupplierId { get; set; }
-    ISupplier Supplier { get; set; }
+    public int SupplierInfoId { get; set; }
+    public string Information { get; set; }
+    public int SupplierId { get; set; }
+    public ISupplier Supplier { get; set; }
 }
 
 public interface ISupplierLogo
 {
-    int SupplierId { get; set; }
-    byte[] Logo { get; set; }
+    public int SupplierId { get; set; }
+    public byte[] Logo { get; set; }
 }
 
 public interface ISupplier
 {
-    int SupplierId { get; set; }
-    string Name { get; set; }
-    ICollection<IProduct> Products { get; set; }
-    ICollection<IBackOrderLine> BackOrderLines { get; set; }
-    ISupplierLogo Logo { get; set; }
-    void InitializeCollections();
+    public int SupplierId { get; set; }
+    public string Name { get; set; }
+    public ICollection<IProduct> Products { get; set; }
+    public ICollection<IBackOrderLine> BackOrderLines { get; set; }
+    public ISupplierLogo Logo { get; set; }
+    public void InitializeCollections();
 }
 
 public interface ISuspiciousActivity
 {
-    int SuspiciousActivityId { get; set; }
-    string Activity { get; set; }
-    string Username { get; set; }
+    public int SuspiciousActivityId { get; set; }
+    public string Activity { get; set; }
+    public string Username { get; set; }
 }
 
 public interface IAuditInfo
 {
-    DateTime ModifiedDate { get; set; }
-    string ModifiedBy { get; set; }
+    public DateTime ModifiedDate { get; set; }
+    public string? ModifiedBy { get; set; }
 
-    IConcurrencyInfo Concurrency { get; set; }
+    public IConcurrencyInfo Concurrency { get; set; }
 }
 
 public interface ICustomer
 {
-    int CustomerId { get; set; }
-    int? HusbandId { get; set; }
-    string Name { get; set; }
-    IContactDetails ContactInfo { get; set; }
-    IAuditInfo Auditing { get; set; }
-    ICollection<IAnOrder> Orders { get; set; }
-    ICollection<ILogin> Logins { get; set; }
-    ICustomer Husband { get; set; }
-    ICustomer Wife { get; set; }
-    ICustomerInfo Info { get; set; }
-    void InitializeCollections();
+    public int CustomerId { get; set; }
+    public int? HusbandId { get; set; }
+    public string Name { get; set; }
+    public IContactDetails ContactInfo { get; set; }
+    public IAuditInfo Auditing { get; set; }
+    public ICollection<IAnOrder> Orders { get; set; }
+    public ICollection<ILogin> Logins { get; set; }
+    public ICustomer Husband { get; set; }
+    public ICustomer Wife { get; set; }
+    public ICustomerInfo Info { get; set; }
+    public void InitializeCollections();
 }
 
 public enum LicenseState
@@ -350,22 +350,22 @@ public enum LicenseState
 
 public interface ILogin
 {
-    string Username { get; set; }
-    string AlternateUsername { get; set; }
-    int CustomerId { get; set; }
-    ICustomer Customer { get; set; }
-    ILastLogin LastLogin { get; set; }
-    ICollection<IMessage> SentMessages { get; set; }
-    ICollection<IMessage> ReceivedMessages { get; set; }
-    ICollection<IAnOrder> Orders { get; set; }
-    void InitializeCollections();
+    public string Username { get; set; }
+    public string AlternateUsername { get; set; }
+    public int CustomerId { get; set; }
+    public ICustomer Customer { get; set; }
+    public ILastLogin LastLogin { get; set; }
+    public ICollection<IMessage> SentMessages { get; set; }
+    public ICollection<IMessage> ReceivedMessages { get; set; }
+    public ICollection<IAnOrder> Orders { get; set; }
+    public void InitializeCollections();
 }
 
 public interface IPhone
 {
-    string PhoneNumber { get; set; }
-    string Extension { get; set; }
-    PhoneType PhoneType { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string Extension { get; set; }
+    public PhoneType PhoneType { get; set; }
 }
 
 public enum PhoneType

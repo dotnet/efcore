@@ -44,14 +44,9 @@ public class LikeTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (Equals(method, MethodInfo))
-        {
-            return _sqlExpressionFactory.Like(arguments[1], arguments[2]);
-        }
-
-        return Equals(method, MethodInfoWithEscape)
-            ? _sqlExpressionFactory.Like(arguments[1], arguments[2], arguments[3])
-            : null;
-    }
+        => Equals(method, MethodInfo)
+            ? _sqlExpressionFactory.Like(arguments[1], arguments[2])
+            : Equals(method, MethodInfoWithEscape)
+                ? _sqlExpressionFactory.Like(arguments[1], arguments[2], arguments[3])
+                : null;
 }

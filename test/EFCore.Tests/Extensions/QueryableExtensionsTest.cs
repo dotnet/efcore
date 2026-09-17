@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class QueryableExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Include_on_non_ef_queryable_is_no_op()
     {
         var q = new List<Customer>().AsQueryable();
@@ -20,7 +20,7 @@ public class QueryableExtensionsTest
         Assert.Empty(q2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AsTracking_on_non_ef_queryable_is_no_op()
     {
         var q = new List<Customer>().AsQueryable();
@@ -29,7 +29,7 @@ public class QueryableExtensionsTest
         Assert.Empty(q2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AsNoTracking_on_non_ef_queryable_is_no_op()
     {
         var q = new List<Customer>().AsQueryable();
@@ -40,7 +40,7 @@ public class QueryableExtensionsTest
 
     // ReSharper disable MethodSupportsCancellation
 
-    [ConditionalFact]
+    [Fact]
     public void Extension_methods_call_provider_ExecuteAsync()
     {
         var cancellationTokenSource = new CancellationTokenSource();
@@ -159,7 +159,7 @@ public class QueryableExtensionsTest
                 Assert.Equal(expectedArgument.ToString(), actualArgument.ToString());
             }
 
-            return default;
+            return default!;
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -175,14 +175,14 @@ public class QueryableExtensionsTest
             => throw new NotImplementedException();
     }
 
-    private class FakeQueryable<TElement>(IQueryProvider provider = null) : IQueryable<TElement>
+    private class FakeQueryable<TElement>(IQueryProvider? provider = null) : IQueryable<TElement>
     {
         public Type ElementType
             => typeof(TElement);
 
-        public Expression Expression { get; set; }
+        public Expression Expression { get; set; } = null!;
 
-        public IQueryProvider Provider { get; } = provider;
+        public IQueryProvider Provider { get; } = provider!;
 
         public IEnumerator<TElement> GetEnumerator()
             => throw new NotImplementedException();
@@ -191,7 +191,7 @@ public class QueryableExtensionsTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Extension_methods_throw_on_non_async_source()
     {
         await SourceNonAsyncQueryableTest(() => Source().AllAsync(e => true));
@@ -292,11 +292,11 @@ public class QueryableExtensionsTest
         await SourceNonAsyncQueryableTest(() => Source<decimal?>().SumAsync(e => e));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e));
-        await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
-        await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
-        await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
+        await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, EqualityComparer<int>.Default));
+        await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, EqualityComparer<int>.Default));
+        await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, EqualityComparer<int>.Default));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(
-            e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
+            e => e, e => e, EqualityComparer<int>.Default, new CancellationToken()));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToHashSetAsync());
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToHashSetAsync(EqualityComparer<int>.Default));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToHashSetAsync(EqualityComparer<int>.Default, new CancellationToken()));
@@ -323,55 +323,55 @@ public class QueryableExtensionsTest
             CoreStrings.IQueryableNotAsync(typeof(T)),
             (await Assert.ThrowsAsync<InvalidOperationException>(test)).Message);
 
-    [ConditionalFact]
+    [Fact]
     public async Task Extension_methods_validate_arguments()
     {
         // ReSharper disable AssignNullToNotNullAttribute
 
-        await ArgumentNullTest("predicate", () => Source().FirstAsync(null));
-        await ArgumentNullTest("predicate", () => Source().FirstOrDefaultAsync(null));
-        await ArgumentNullTest("predicate", () => Source().SingleAsync(null));
-        await ArgumentNullTest("predicate", () => Source().SingleOrDefaultAsync(null));
-        await ArgumentNullTest("predicate", () => Source().AnyAsync(null));
-        await ArgumentNullTest("predicate", () => Source().AllAsync(null));
-        await ArgumentNullTest("predicate", () => Source().AllAsync(null, new CancellationToken()));
-        await ArgumentNullTest("predicate", () => Source().CountAsync(null));
-        await ArgumentNullTest("predicate", () => Source().LongCountAsync(null));
-        await ArgumentNullTest("predicate", () => Source().LongCountAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source().MinAsync<int, bool>(null));
-        await ArgumentNullTest("selector", () => Source().MinAsync<int, bool>(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source().MaxAsync<int, bool>(null));
-        await ArgumentNullTest("selector", () => Source().MaxAsync<int, bool>(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<int>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<int?>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<long>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<long?>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<float>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<float?>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<double>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<double?>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<decimal>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<decimal?>().SumAsync(null));
-        await ArgumentNullTest("selector", () => Source<int>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<int>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<int?>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<int?>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<long>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<long>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<long?>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<long?>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<float>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<float>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<float?>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<float?>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<double>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<double>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<double?>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<double?>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<decimal>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<decimal>().AverageAsync(null, new CancellationToken()));
-        await ArgumentNullTest("selector", () => Source<decimal?>().AverageAsync(null));
-        await ArgumentNullTest("selector", () => Source<decimal?>().AverageAsync(null, new CancellationToken()));
+        await ArgumentNullTest("predicate", () => Source().FirstAsync(null!));
+        await ArgumentNullTest("predicate", () => Source().FirstOrDefaultAsync(null!));
+        await ArgumentNullTest("predicate", () => Source().SingleAsync(null!));
+        await ArgumentNullTest("predicate", () => Source().SingleOrDefaultAsync(null!));
+        await ArgumentNullTest("predicate", () => Source().AnyAsync(null!));
+        await ArgumentNullTest("predicate", () => Source().AllAsync(null!));
+        await ArgumentNullTest("predicate", () => Source().AllAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("predicate", () => Source().CountAsync(null!));
+        await ArgumentNullTest("predicate", () => Source().LongCountAsync(null!));
+        await ArgumentNullTest("predicate", () => Source().LongCountAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source().MinAsync<int, bool>(null!));
+        await ArgumentNullTest("selector", () => Source().MinAsync<int, bool>(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source().MaxAsync<int, bool>(null!));
+        await ArgumentNullTest("selector", () => Source().MaxAsync<int, bool>(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<int>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<int?>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<long>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<long?>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<float>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<float?>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<double>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<double?>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<decimal>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<decimal?>().SumAsync(null!));
+        await ArgumentNullTest("selector", () => Source<int>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<int>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<int?>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<int?>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<long>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<long>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<long?>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<long?>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<float>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<float>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<float?>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<float?>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<double>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<double>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<double?>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<double?>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<decimal>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<decimal>().AverageAsync(null!, new CancellationToken()));
+        await ArgumentNullTest("selector", () => Source<decimal?>().AverageAsync(null!));
+        await ArgumentNullTest("selector", () => Source<decimal?>().AverageAsync(null!, new CancellationToken()));
 
         // ReSharper restore AssignNullToNotNullAttribute
     }

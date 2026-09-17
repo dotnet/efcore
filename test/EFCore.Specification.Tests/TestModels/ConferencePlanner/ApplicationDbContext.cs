@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner;
 
-#nullable disable
-
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -22,11 +20,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasKey(ss => new { ss.SessionId, ss.SpeakerId });
     }
 
-    public DbSet<Session> Sessions { get; set; }
+    public DbSet<Session> Sessions { get; set; } = null!;
 
-    public DbSet<Track> Tracks { get; set; }
+    public DbSet<Track> Tracks { get; set; } = null!;
 
-    public DbSet<Speaker> Speakers { get; set; }
+    public DbSet<Speaker> Speakers { get; set; } = null!;
 
-    public DbSet<Attendee> Attendees { get; set; }
+    public DbSet<Attendee> Attendees { get; set; } = null!;
 }

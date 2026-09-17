@@ -3,7 +3,7 @@
 
 // Skip the entire assembly if cannot connect to CosmosDb
 
-[assembly: CosmosDbConfiguredCondition]
+[assembly: ConditionalAssembly(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsAvailable))]
 
 // Waiting on Task causes deadlocks when run in parallel
 [assembly: CollectionBehavior(DisableTestParallelization = true)]

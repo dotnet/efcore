@@ -31,22 +31,5 @@ public sealed class MemberInfoNameComparer : IComparer<MemberInfo>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public int Compare(MemberInfo? x, MemberInfo? y)
-    {
-        if (ReferenceEquals(x, y))
-        {
-            return 0;
-        }
-
-        if (x is null)
-        {
-            return -1;
-        }
-
-        if (y is null)
-        {
-            return 1;
-        }
-
-        return StringComparer.Ordinal.Compare(x.Name, y.Name);
-    }
+        => ReferenceEquals(x, y) ? 0 : x is null ? -1 : y is null ? 1 : StringComparer.Ordinal.Compare(x.Name, y.Name);
 }

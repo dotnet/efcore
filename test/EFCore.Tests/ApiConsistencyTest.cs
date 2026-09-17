@@ -22,7 +22,10 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
     {
         protected override void Initialize()
         {
-            AddInstanceMethods(MetadataTypes);
+            AddInstanceMethods(
+                MetadataTypes.ToDictionary(
+                    type => type.Key,
+                    type => (type.Value.Mutable, type.Value.Convention, type.Value.ConventionBuilder!, type.Value.Runtime!)));
 
             MirrorTypes.Add(typeof(PropertyBuilder), typeof(ComplexTypePropertyBuilder));
 
@@ -81,8 +84,7 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(EntityFrameworkServiceCollectionExtensions)
         ];
 
-        public override HashSet<MethodInfo> VirtualMethodExceptions { get; } =
-        [
+        public override HashSet<MethodInfo> VirtualMethodExceptions { get; } = MethodSet(
             typeof(CompiledQueryCacheKeyGenerator).GetMethod("GenerateCacheKeyCore", AnyInstance),
             typeof(InternalEntityEntry).GetMethod("get_Item"),
             typeof(InternalEntityEntry).GetMethod("set_Item"),
@@ -97,15 +99,12 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(JsonValueReaderWriter<>).GetMethod(nameof(JsonValueReaderWriter.ToJson)),
             typeof(JsonValueReaderWriter<>).GetMethod("get_ValueType"),
             typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.FromJsonString)),
-            typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.ToJsonString))
-        ];
+            typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.ToJsonString)));
 
-        public override HashSet<MethodInfo> NotAnnotatedMethods { get; } =
-        [
+        public override HashSet<MethodInfo> NotAnnotatedMethods { get; } = MethodSet(
             typeof(DbContext).GetMethod(nameof(DbContext.OnConfiguring), AnyInstance),
             typeof(DbContext).GetMethod(nameof(DbContext.OnModelCreating), AnyInstance),
-            typeof(IEntityTypeConfiguration<>).GetMethod(nameof(IEntityTypeConfiguration<Type>.Configure))
-        ];
+            typeof(IEntityTypeConfiguration<>).GetMethod(nameof(IEntityTypeConfiguration<Type>.Configure)));
 
         public override Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new()
         {
@@ -121,8 +120,7 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             }
         };
 
-        public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } =
-        [
+        public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = MethodSet(
             typeof(PropertyBuilder).GetMethod(
                 nameof(PropertyBuilder.HasValueGenerator), 0, [typeof(Func<IProperty, ITypeBase, ValueGenerator>)]),
             typeof(ComplexPropertyBuilder).GetMethod(
@@ -183,11 +181,9 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
             typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
             typeof(IConventionTypeBaseBuilder).GetMethod(nameof(IConventionTypeBaseBuilder.RemoveUnusedImplicitProperties)),
-            typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.GetTargetEntityTypeBuilder))
-        ];
+            typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.GetTargetEntityTypeBuilder)));
 
-        public override HashSet<MethodInfo> MetadataMethodExceptions { get; } =
-        [
+        public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = MethodSet(
             typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
             typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
             typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.AddAnnotations)),
@@ -201,6 +197,9 @@ public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture
             typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType)),
             typeof(IConventionEntityType).GetMethod(
                 nameof(IConventionEntityType.SetQueryFilter), [typeof(string), typeof(LambdaExpression), typeof(bool)])
-        ];
+        );
+
+        private static HashSet<MethodInfo> MethodSet(params MethodInfo?[] methods)
+            => [.. methods.Select(method => method!)];
     }
 }

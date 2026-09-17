@@ -25,7 +25,7 @@ public class AppendIncludeToExistingExpressionMutator(DbContext context) : Expre
 
         var entityType = expr.Type.GetGenericArguments()[0];
         var propertyType = expr.Type.GetGenericArguments()[1];
-        var propertyElementType = IsEnumerableType(propertyType) || propertyType.GetInterfaces().Any(ii => IsEnumerableType(ii))
+        var propertyElementType = IsEnumerableType(propertyType) || propertyType.GetInterfaces().Any(IsEnumerableType)
             ? propertyType.GetGenericArguments()[0]
             : propertyType;
 
@@ -45,7 +45,7 @@ public class AppendIncludeToExistingExpressionMutator(DbContext context) : Expre
 
             if (thenInclude)
             {
-                var thenIncludeMethod = IsEnumerableType(propertyType) || propertyType.GetInterfaces().Any(ii => IsEnumerableType(ii))
+                var thenIncludeMethod = IsEnumerableType(propertyType) || propertyType.GetInterfaces().Any(IsEnumerableType)
                     ? ThenIncludeCollectionMethodInfo.MakeGenericMethod(entityType, propertyElementType, navigation.ClrType)
                     : ThenIncludeReferenceMethodInfo.MakeGenericMethod(entityType, propertyElementType, navigation.ClrType);
 
