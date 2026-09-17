@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -1887,6 +1888,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var declaringType = member.DeclaringType!;
         AddNamespace(declaringType, parameters.Namespaces);
         AddNamespace(typeof(UnsafeAccessorAttribute), parameters.Namespaces);
+        var safeModifier = MemorySafetyRules.SafeKeyword == SyntaxKind.None ? string.Empty : " safe";
+
         switch (member)
         {
             case FieldInfo field:
@@ -1896,7 +1899,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 parameters.MainBuilder
                     .AppendLine()
                     .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Field, Name = \"{field.Name}\")]")
-                    .Append($"public static extern ref {_code.Reference(field.FieldType)} {methodName}(")
+                    .Append($"public static extern{safeModifier} ref {_code.Reference(field.FieldType)} {methodName}(")
                     .AppendLine($"{_code.Reference(declaringType)} @this);");
                 break;
             }
@@ -1915,7 +1918,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 parameters.MainBuilder
                     .AppendLine()
                     .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Method, Name = \"{methodInfo.Name}\")]")
-                    .Append($"public static extern {returnType} {methodName}(")
+                    .Append($"public static extern{safeModifier} {returnType} {methodName}(")
                     .Append($"{_code.Reference(declaringType)} @this");
 
                 if (methodInfo.GetParameters().Length > 0)
