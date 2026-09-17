@@ -161,8 +161,9 @@ internal class SqliteConnectionInternal
 
     public void Activate(SqliteConnection outerConnection)
     {
-        _active = true;
+        // Publish the owner before making this connection eligible for leak reclamation.
         _outerConnection.SetTarget(outerConnection);
+        _active = true;
     }
 
     public void Close()
