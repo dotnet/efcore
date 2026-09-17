@@ -7,13 +7,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
-/// <summary>
-///     Detects whether a <see cref="Compilation" /> was parsed with C#'s "updated memory safety rules"
-///     (a.k.a. "unsafe evolution") enabled, and resolves the <c>safe</c> contextual keyword so that it can be
-///     emitted on generated <see cref="System.Runtime.CompilerServices.UnsafeAccessorAttribute" /> accessor
-///     methods. Adapted from
-///     https://github.com/dotnet/runtime/blob/main/src/libraries/System.Runtime.InteropServices/gen/Common/MemorySafetyRules.cs.
-/// </summary>
 internal static class MemorySafetyRules
 {
     // This is the feature flag name recognized by the C# parser (passed via '/features:updated-memory-safety-rules'
