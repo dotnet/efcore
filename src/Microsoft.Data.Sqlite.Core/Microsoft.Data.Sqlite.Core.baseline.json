@@ -590,6 +590,9 @@
           "Member": "bool RecursiveTriggers { get; set; }"
         },
         {
+          "Member": "Microsoft.Data.Sqlite.SqliteSynchronousMode? Synchronous { get; set; }"
+        },
+        {
           "Member": "override System.Collections.ICollection Values { get; }"
         },
         {
@@ -949,6 +952,32 @@
         },
         {
           "Member": "override object SyncRoot { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.Data.Sqlite.SqliteSynchronousMode",
+      "Methods": [
+        {
+          "Member": "SqliteSynchronousMode();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteSynchronousMode Extra",
+          "Value": "3"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteSynchronousMode Full",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteSynchronousMode Normal",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteSynchronousMode Off",
+          "Value": "0"
         }
       ]
     },

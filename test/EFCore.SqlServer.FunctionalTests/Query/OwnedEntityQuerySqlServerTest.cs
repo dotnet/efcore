@@ -712,4 +712,35 @@ INNER JOIN (
 ) AS [m1] ON [m].[RulerOf] = [m1].[Affiliation]
 """);
     }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(async);
+
+        AssertSql(
+            """
+SELECT [i].[Region] AS [Key], (
+    SELECT ISNULL(SUM([s].[Amount]), 0)
+    FROM [Invoice] AS [i0]
+    LEFT JOIN [Summaries] AS [s] ON [i0].[Id] = [s].[InvoiceId]
+    WHERE [i].[Region] = [i0].[Region]) AS [Total]
+FROM [Invoice] AS [i]
+GROUP BY [i].[Region]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_split_over_two_tables(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_split_over_two_tables(async);
+
+        AssertSql(
+            """
+SELECT [o].[Region] AS [Key], ISNULL(SUM([o].[Total_Net]), 0) AS [Total], ISNULL(SUM(CASE
+    WHEN [o].[Total_Net] IS NOT NULL THEN [o0].[Tax]
+END), 0) AS [Tax]
+FROM [Order] AS [o]
+LEFT JOIN [OrderTotalTax] AS [o0] ON [o].[Id] = [o0].[OrderId]
+GROUP BY [o].[Region]
+""");
+    }
 }
