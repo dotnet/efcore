@@ -1135,6 +1135,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             switch (tokenType)
             {
+                // A required complex collection has no null to hand back: an explicit null in the document materializes as empty, the
+                // same as an absent key and as the Cosmos provider does. A nullable one keeps the null. See #38625.
+                case JsonTokenType.Null when structuralProperty is IComplexProperty { IsNullable: false }:
+                    return (TResult)structuralProperty.GetCollectionAccessor()!.Create();
+
                 case JsonTokenType.Null:
                     return default;
 
