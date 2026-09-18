@@ -168,7 +168,7 @@ public class DbContextOperations
         bool scaffoldModel,
         bool precompileQueries,
         bool nativeAot,
-        string? langVersion)
+        string? langVersion = null)
     {
         var optimizeAllInAssembly = contextTypeName == "*";
         var contexts = optimizeAllInAssembly ? CreateAllContexts() : [CreateContext(contextTypeName)];

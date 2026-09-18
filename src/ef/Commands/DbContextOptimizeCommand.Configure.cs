@@ -26,7 +26,7 @@ internal partial class DbContextOptimizeCommand : ContextCommandBase
         _noScaffold = command.Option("--no-scaffold", Resources.NoScaffoldDescription);
         _precompileQueries = command.Option("--precompile-queries", Resources.PrecompileQueriesDescription);
         _nativeAot = command.Option("--nativeaot", Resources.NativeAotDescription);
-        _langVersion = command.Option("--lang-version <VERSION>", Resources.LanguageVersionDescription);
+        _langVersion = command.Option("--lang-version|--langversion <VERSION>", Resources.LanguageVersionDescription);
 
         base.Configure(command);
     }
