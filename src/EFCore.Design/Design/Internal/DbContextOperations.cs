@@ -167,7 +167,8 @@ public class DbContextOperations
         string? suffix,
         bool scaffoldModel,
         bool precompileQueries,
-        bool nativeAot)
+        bool nativeAot,
+        string? langVersion)
     {
         var optimizeAllInAssembly = contextTypeName == "*";
         var contexts = optimizeAllInAssembly ? CreateAllContexts() : [CreateContext(contextTypeName)];
@@ -188,6 +189,7 @@ public class DbContextOperations
                     context,
                     optimizeAllInAssembly,
                     nativeAot,
+                    langVersion,
                     generatedFiles,
                     generatedFileNames);
                 contextOptimized = true;
@@ -219,6 +221,7 @@ public class DbContextOperations
         DbContext context,
         bool optimizeAllInAssembly,
         bool nativeAot,
+        string? langVersion,
         List<string> generatedFiles,
         HashSet<string> generatedFileNames)
     {
@@ -232,7 +235,7 @@ public class DbContextOperations
         {
             generatedFiles.AddRange(
                 ScaffoldCompiledModel(
-                    outputDir, modelNamespace, context, suffix, nativeAot, services, generatedFileNames));
+                    outputDir, modelNamespace, context, suffix, nativeAot, langVersion, services, generatedFileNames));
             if (precompileQueries)
             {
                 memberAccessReplacements = ((IRuntimeModel)context.GetService<IDesignTimeModel>().Model).GetUnsafeAccessors();
@@ -258,6 +261,7 @@ public class DbContextOperations
         DbContext context,
         string? suffix,
         bool nativeAot,
+        string? langVersion,
         IServiceProvider services,
         ISet<string> generatedFileNames)
     {
@@ -296,6 +300,7 @@ public class DbContextOperations
                 ContextType = contextType,
                 ModelNamespace = finalModelNamespace,
                 Language = _language,
+                LangVersion = langVersion,
                 UseNullableReferenceTypes = _nullable,
                 Suffix = suffix,
                 ForNativeAot = nativeAot,

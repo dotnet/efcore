@@ -49,5 +49,50 @@ internal static class MemorySafetyRules
 
         return false;
     }
+
+    public static bool UseSafeKeyword(string? langVersion)
+    {
+        if (SafeKeyword == SyntaxKind.None)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(langVersion))
+        {
+            return true;
+        }
+
+        var normalized = langVersion.Trim();
+        if (normalized.StartsWith("CSharp", StringComparison.OrdinalIgnoreCase))
+        {
+            normalized = normalized["CSharp".Length..];
+        }
+        else if (normalized.StartsWith("C#", StringComparison.OrdinalIgnoreCase))
+        {
+            normalized = normalized["C#".Length..];
+        }
+
+        if (string.IsNullOrWhiteSpace(normalized)
+            || normalized.Equals("default", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("latest", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("latestmajor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("latestminor", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("preview", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (Version.TryParse(normalized, out var version))
+        {
+            return version.Major > 14 || (version.Major == 14 && version.Minor > 0);
+        }
+
+        if (int.TryParse(normalized, out var major))
+        {
+            return major > 14;
+        }
+
+        return true;
+    }
 }
 

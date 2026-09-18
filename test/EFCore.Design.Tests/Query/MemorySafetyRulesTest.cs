@@ -36,6 +36,18 @@ public class MemorySafetyRulesTest
     public void SafeKeyword_does_not_throw_and_is_stable()
         => Assert.Equal(MemorySafetyRules.SafeKeyword, MemorySafetyRules.SafeKeyword);
 
+    [Fact]
+    public void UseSafeKeyword_defaults_to_the_compiler_support_when_language_version_is_not_set()
+        => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(null));
+
+    [Fact]
+    public void UseSafeKeyword_respects_lower_language_versions()
+    {
+        Assert.False(MemorySafetyRules.UseSafeKeyword("14.0"));
+        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("14.1"));
+        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latest"));
+    }
+
     private static CSharpCompilation CreateCompilation(IEnumerable<KeyValuePair<string, string>>? features)
     {
         var parseOptions = CSharpParseOptions.Default;

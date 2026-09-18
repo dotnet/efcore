@@ -93,6 +93,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 }
             }
 
+            var useSafeKeyword = MemorySafetyRules.UseSafeKeyword(options.LangVersion);
             foreach (var unsafeAccessorPair in unsafeAccessorTypes)
             {
                 var (unsafeAccessorType, members) = unsafeAccessorPair;
@@ -102,7 +103,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     options.ModelNamespace,
                     unsafeAccessorClassNames[unsafeAccessorType],
                     memberAccessReplacements,
-                    nullable);
+                    nullable,
+                    useSafeKeyword);
 
                 var entityTypeFileName = UniquifyFileName(unsafeAccessorClassNames[unsafeAccessorType], options);
                 scaffoldedFiles.Add(new ScaffoldedFile(entityTypeFileName, generatedCode));
@@ -225,7 +227,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         string @namespace,
         string className,
         Dictionary<MemberInfo, QualifiedName> memberAccessReplacements,
-        bool nullable)
+        bool nullable,
+        bool useSafeKeyword)
     {
         var mainBuilder = new IndentedStringBuilder();
         var namespaces = new SortedSet<string>(new NamespaceComparer());
@@ -336,7 +339,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             foreach (var member in members)
             {
-                GeneratePrivateAccessor(member, parameters);
+                GeneratePrivateAccessor(member, parameters, useSafeKeyword);
             }
 
             var methods = methodBuilder.ToString();
@@ -1881,7 +1884,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
     private void GeneratePrivateAccessor(
         MemberInfo member,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        bool useSafeKeyword)
     {
         var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member);
         var declaringType = member.DeclaringType!;
@@ -1897,7 +1901,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 parameters.MainBuilder
                     .AppendLine()
                     .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Field, Name = \"{field.Name}\")]")
-                    .Append($"public static extern ref {_code.Reference(field.FieldType)} {methodName}(")
+                    .Append($"public static {(useSafeKeyword ? "safe " : string.Empty)}extern ref {_code.Reference(field.FieldType)} {methodName}(")
                     .AppendLine($"{_code.Reference(declaringType)} @this);");
                 break;
             }
@@ -1916,7 +1920,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 parameters.MainBuilder
                     .AppendLine()
                     .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Method, Name = \"{methodInfo.Name}\")]")
-                    .Append($"public static extern {returnType} {methodName}(")
+                    .Append($"public static {(useSafeKeyword ? "safe " : string.Empty)}extern {returnType} {methodName}(")
                     .Append($"{_code.Reference(declaringType)} @this");
 
                 if (methodInfo.GetParameters().Length > 0)

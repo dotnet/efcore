@@ -610,6 +610,7 @@ public class OperationExecutor : MarshalByRefObject
             var scaffoldModel = (bool)(args["scaffoldModel"] ?? true);
             var precompileQueries = (bool)(args["precompileQueries"] ?? false);
             var nativeAot = (bool)(args["nativeAot"] ?? false);
+            var langVersion = (string?)args["langVersion"];
 
             Execute(() => executor.OptimizeContextImpl(
                 outputDir,
@@ -618,7 +619,8 @@ public class OperationExecutor : MarshalByRefObject
                 suffix,
                 scaffoldModel,
                 precompileQueries,
-                nativeAot));
+                nativeAot,
+                langVersion));
         }
     }
 
@@ -629,8 +631,9 @@ public class OperationExecutor : MarshalByRefObject
         string? suffix,
         bool scaffoldModel,
         bool precompileQueries,
-        bool nativeAot)
-        => ContextOperations.Optimize(outputDir, modelNamespace, contextType, suffix, scaffoldModel, precompileQueries, nativeAot);
+        bool nativeAot,
+        string? langVersion)
+        => ContextOperations.Optimize(outputDir, modelNamespace, contextType, suffix, scaffoldModel, precompileQueries, nativeAot, langVersion);
 
     /// <summary>
     ///     Represents an operation to scaffold a <see cref="DbContext" /> and entity types for a database.
