@@ -991,6 +991,52 @@ INSERT INTO MyTable VALUES (1, '1973-09-03 12:00:01.0000000+10:00');",
             "DROP TABLE MyTable;");
 
     [Fact]
+    public void Simple_date_and_time_literals_are_parsed_for_HasDefaultValue_with_Persian_locale()
+    {
+        var culture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("fa-IR");
+
+            Test(
+                @"
+CREATE TABLE MyTable (
+    Id int,
+    A datetime DEFAULT (1968-10-23 12:00:01),
+    B date DEFAULT (1968-10-23),
+    C datetimeoffset DEFAULT (1973-09-03 12:00:01+10:00));
+
+INSERT INTO MyTable VALUES (1, 2023-01-20 13:37:00, 2023-01-20, 1973-09-03 12:00:01+10:00);",
+                [],
+                [],
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    var column = columns.Single(c => c.Name == "A");
+                    Assert.Equal("1968-10-23 12:00:01", column.DefaultValueSql);
+                    Assert.Equal(new DateTime(1968, 10, 23, 12, 0, 1, 0, DateTimeKind.Unspecified), column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "B");
+                    Assert.Equal("1968-10-23", column.DefaultValueSql);
+                    Assert.Equal(new DateOnly(1968, 10, 23), column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "C");
+                    Assert.Equal("1973-09-03 12:00:01+10:00", column.DefaultValueSql);
+                    Assert.Equal(
+                        new DateTimeOffset(new DateTime(1973, 9, 3, 12, 0, 1, 0, DateTimeKind.Unspecified), new TimeSpan(0, 10, 0, 0, 0)),
+                        column.DefaultValue);
+                },
+                "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
+    }
+
+    [Fact]
     public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
