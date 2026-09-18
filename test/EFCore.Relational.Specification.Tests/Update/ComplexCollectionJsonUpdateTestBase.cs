@@ -667,6 +667,111 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
+    [Fact] // Issue #38625
+    public virtual Task Complex_collection_absent_from_json_is_materialized_as_empty()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // Simulate a row persisted before the Others sub-collection was added to the type,
+                // so the key is absent from the stored document.
+                await SetStoredDocumentAsync(
+                    context, "Widgets", "Deep", id: 1, """{"Mid":{"Items":[{"Title":"Item1","Inner":[{"Value":"inner-0"}]}]}}""");
+
+                // Tracking and no-tracking queries go through separate fixup paths.
+                AssertMaterialized(await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync());
+                AssertMaterialized(await context.Set<WidgetWithDeepJson>().AsNoTracking().OrderBy(w => w.Id).FirstAsync());
+
+                static void AssertMaterialized(WidgetWithDeepJson widget)
+                {
+                    var item = Assert.Single(widget.Deep.Mid.Items);
+
+                    Assert.Equal("Item1", item.Title);
+                    Assert.Equal("inner-0", Assert.Single(item.Inner).Value);
+
+                    // A complex collection that is absent from the JSON document materializes as an empty collection, not null.
+                    Assert.NotNull(item.Others);
+                    Assert.Empty(item.Others);
+                }
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Complex_collection_explicitly_null_in_json_is_materialized_as_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // Unlike an absent key, an explicit null in the document is preserved.
+                await SetStoredDocumentAsync(
+                    context, "Widgets", "Deep", id: 1,
+                    """{"Mid":{"Items":[{"Title":"Item1","Inner":[{"Value":"inner-0"}],"Others":null}]}}""");
+
+                var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+                Assert.Null(Assert.Single(widget.Deep.Mid.Items).Others);
+
+                var untrackedWidget = await context.Set<WidgetWithDeepJson>().AsNoTracking().OrderBy(w => w.Id).FirstAsync();
+                Assert.Null(Assert.Single(untrackedWidget.Deep.Mid.Items).Others);
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Save_changes_after_loading_row_with_complex_collection_absent_from_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                await SetStoredDocumentAsync(
+                    context, "Widgets", "Deep", id: 1, """{"Mid":{"Items":[{"Title":"Item1","Inner":[{"Value":"inner-0"}]}]}}""");
+
+                var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+
+                // Modifying an unrelated scalar must not make the row unsaveable.
+                widget.Deep.Mid.Items[0].Title = "Item1-updated";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+                    var item = Assert.Single(widget.Deep.Mid.Items);
+                    Assert.Equal("Item1-updated", item.Title);
+                    Assert.Empty(item.Others);
+                }
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Saving_null_required_complex_collection_in_complex_collection_element_throws()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+                widget.Deep.Mid.Items[0].Others = null!;
+
+                Assert.Equal(
+                    CoreStrings.NullRequiredComplexProperty(nameof(DeepItem), nameof(DeepItem.Others)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+            });
+
+    private static Task SetStoredDocumentAsync(DbContext context, string table, string column, int id, string json)
+    {
+        // Identifiers are delimited by the provider so that any provider can run this test; the document is inlined rather than
+        // parameterized so that providers with a dedicated JSON store type need no cast. Braces are escaped for string.Format.
+        var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+
+        return context.Database.ExecuteSqlRawAsync(
+            $"UPDATE {Q(table)} SET {Q(column)} = '{json.Replace("{", "{{").Replace("}", "}}")}' WHERE {Q("Id")} = {id}");
+
+        string Q(string name)
+            => sqlGenerationHelper.DelimitIdentifier(name);
+    }
+
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
