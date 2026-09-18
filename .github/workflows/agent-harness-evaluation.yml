@@ -34,7 +34,7 @@ jobs:
     permissions:
       contents: read
       issues: write
-      pull-requests: read
+      pull-requests: write
     outputs:
       base_sha: ${{ steps.pr.outputs.base_sha }}
       head_sha: ${{ steps.pr.outputs.target_sha }}
@@ -45,6 +45,7 @@ jobs:
       author: ${{ steps.pr.outputs.author }}
       matrix: ${{ steps.pr.outputs.matrix }}
       has_entries: ${{ steps.pr.outputs.has_entries }}
+      harness_exists: ${{ steps.pr.outputs.harness_exists }}
       components: ${{ steps.pr.outputs.components }}
     steps:
       - name: Resolve pull request and authorization
@@ -123,6 +124,23 @@ jobs:
               ? fromBranch && (manual || automatic)
               : manual || (automatic && ['admin', 'maintain', 'write'].includes(permission)));
 
+            const evaluationRoot = 'eng/harness-evaluation';
+            try {
+              await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: evaluationRoot,
+                ref: mergedIntoDefault ? targetSha : pull.base.sha
+              });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              core.setOutput('matrix', JSON.stringify({ include: [] }));
+              core.setOutput('has_entries', 'false');
+              core.setOutput('harness_exists', 'false');
+              core.notice('Agent harness evaluation is not available on the target branch.');
+              return;
+            }
+
             const { data: trustedCommit } = await github.rest.repos.getCommit({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -143,7 +161,9 @@ jobs:
               throw new Error(`The repository tree for ${targetSha} was truncated.`);
             }
 
-            const evaluationRoot = 'eng/harness-evaluation';
+            const paths = tree.tree
+              .filter(entry => entry.type === 'blob')
+              .map(entry => entry.path);
             const componentPatterns = [
               { directory: '.github/instructions', suffixes: ['.instructions.md'], kind: 'instruction', evalDirectory: 'instructions' },
               { directory: '.github/agents', suffixes: ['.agent.md', '.md'], kind: 'agent', evalDirectory: 'agents' },
@@ -156,9 +176,6 @@ jobs:
               source: '.github/copilot-instructions.md',
               eval: `${evaluationRoot}/instructions/copilot-instructions/eval.yaml`
             }];
-            const paths = tree.tree
-              .filter(entry => entry.type === 'blob')
-              .map(entry => entry.path);
             for (const path of paths) {
               const skill = path.match(/^\.agents\/skills\/([^/]+)\/SKILL\.md$/);
               if (skill) {
@@ -283,6 +300,7 @@ jobs:
             core.setOutput('author', author);
             core.setOutput('matrix', JSON.stringify(matrix));
             core.setOutput('has_entries', String(selected.length > 0));
+            core.setOutput('harness_exists', 'true');
             core.setOutput('components', JSON.stringify(selected));
             await core.summary
               .addHeading('Agent Harness Evaluation')
@@ -292,9 +310,10 @@ jobs:
 
       - name: Update pull request metadata
         if: >-
-          github.event.action != 'closed' ||
-          (github.event.pull_request.merged == true &&
-           github.event.pull_request.base.ref == github.event.repository.default_branch)
+          steps.pr.outputs.harness_exists == 'true' &&
+          (github.event.action != 'closed' ||
+           (github.event.pull_request.merged == true &&
+            github.event.pull_request.base.ref == github.event.repository.default_branch))
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         env:
           CAN_USE_SECRETS: ${{ steps.pr.outputs.can_use_secrets }}
@@ -416,7 +435,7 @@ jobs:
       contents: read
       copilot-requests: write
       issues: write
-      pull-requests: read
+      pull-requests: write
     env:
       COMPONENT: ${{ matrix.id }}
       CANDIDATE_ROOT: candidate
