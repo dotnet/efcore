@@ -4,6 +4,7 @@
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -79,7 +80,7 @@ internal static class MemorySafetyRules
             return SafeKeyword != SyntaxKind.None && major > 14;
         }
 
-        return false;
+        throw new ArgumentException(DesignStrings.InvalidCSharpLanguageVersion(langVersion), nameof(langVersion));
     }
 }
 

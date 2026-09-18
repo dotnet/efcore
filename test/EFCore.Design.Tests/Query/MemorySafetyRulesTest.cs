@@ -64,12 +64,23 @@ public class MemorySafetyRulesTest
         => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(" 15.0 "));
 
     [Fact]
-    public void UseSafeKeyword_returns_false_for_unsupported_language_versions()
+    public void UseSafeKeyword_throws_for_unsupported_language_versions()
     {
-        Assert.False(MemorySafetyRules.UseSafeKeyword("CSharp 14.0"));
-        Assert.False(MemorySafetyRules.UseSafeKeyword("C# 14.1"));
-        Assert.False(MemorySafetyRules.UseSafeKeyword("latestminor"));
-        Assert.False(MemorySafetyRules.UseSafeKeyword("not-a-version"));
+        var ex = Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("CSharp 14.0"));
+        Assert.Equal("langVersion", ex.ParamName);
+        Assert.Contains("not supported", ex.Message);
+
+        ex = Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("C# 14.1"));
+        Assert.Equal("langVersion", ex.ParamName);
+        Assert.Contains("not supported", ex.Message);
+
+        ex = Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("latestminor"));
+        Assert.Equal("langVersion", ex.ParamName);
+        Assert.Contains("not supported", ex.Message);
+
+        ex = Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("not-a-version"));
+        Assert.Equal("langVersion", ex.ParamName);
+        Assert.Contains("not supported", ex.Message);
     }
 
     private static CSharpCompilation CreateCompilation(IEnumerable<KeyValuePair<string, string>>? features)
