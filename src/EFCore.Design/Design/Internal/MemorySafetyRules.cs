@@ -61,7 +61,7 @@ internal static class MemorySafetyRules
 
         if (string.IsNullOrWhiteSpace(langVersion))
         {
-            return true;
+            return false;
         }
 
         var normalized = langVersion.Trim();
@@ -75,8 +75,12 @@ internal static class MemorySafetyRules
         }
 
         if (string.IsNullOrWhiteSpace(normalized)
-            || normalized.Equals("default", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("latest", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("default", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (normalized.Equals("latest", StringComparison.OrdinalIgnoreCase)
             || normalized.Equals("latestmajor", StringComparison.OrdinalIgnoreCase)
             || normalized.Equals("latestminor", StringComparison.OrdinalIgnoreCase)
             || normalized.Equals("preview", StringComparison.OrdinalIgnoreCase))

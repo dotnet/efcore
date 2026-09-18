@@ -45,8 +45,8 @@ public class MemorySafetyRulesTest
         => Assert.Equal(MemorySafetyRules.SafeKeyword, MemorySafetyRules.SafeKeyword);
 
     [Fact]
-    public void UseSafeKeyword_defaults_to_the_compiler_support_when_language_version_is_not_set()
-        => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(null));
+    public void UseSafeKeyword_defaults_to_false_when_language_version_is_not_set()
+        => Assert.False(MemorySafetyRules.UseSafeKeyword(null));
 
     [Fact]
     public void UseSafeKeyword_respects_lower_language_versions()
@@ -54,11 +54,15 @@ public class MemorySafetyRulesTest
         Assert.False(MemorySafetyRules.UseSafeKeyword("14.0"));
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("14.1"));
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latest"));
+        Assert.False(MemorySafetyRules.UseSafeKeyword("default"));
     }
 
     [Fact]
     public void UseSafeKeyword_trims_csharp_prefix_and_whitespace()
-        => Assert.False(MemorySafetyRules.UseSafeKeyword(" C# 14.0 "));
+    {
+        Assert.False(MemorySafetyRules.UseSafeKeyword(" C# 14.0 "));
+        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(" C# 14.1 "));
+    }
 
     [Fact]
     public void UseSafeKeyword_returns_false_for_unrecognized_language_versions()
