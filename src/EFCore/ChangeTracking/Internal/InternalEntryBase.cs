@@ -1632,10 +1632,17 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             foreach (var complexProperty in structuralType.GetFlattenedComplexProperties())
             {
+                Check.DebugAssert(
+                    complexProperty.DeclaringType is not IComplexType { ComplexProperty.IsCollection: true }
+                    || complexProperty.DeclaringType == structuralType,
+                    "Properties of a complex collection element type are only flattened into the element's own entry");
+
                 if (!complexProperty.IsNullable
                     && this[complexProperty] == null
                     && complexProperty.ComplexType.GetProperties().Any(p => !p.IsNullable)
                     && (complexProperty.DeclaringType is not IComplexType complexType
+                        // A collection element has its own entry; its containing property lives on the parent's entry
+                        || complexType.ComplexProperty.IsCollection
                         || GetCurrentValue(complexType.ComplexProperty) != null))
                 {
                     throw new InvalidOperationException(

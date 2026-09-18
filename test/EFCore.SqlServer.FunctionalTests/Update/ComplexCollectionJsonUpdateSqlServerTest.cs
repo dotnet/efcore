@@ -362,6 +362,23 @@ WHERE [Id] = @p1;
 """);
     }
 
+    public override async Task Save_changes_after_loading_row_with_complex_collection_absent_from_json()
+    {
+        await base.Save_changes_after_loading_row_with_complex_collection_absent_from_json();
+
+        AssertSql(
+            """
+@p0='{"Mid":{"Items":[{"Title":"Item1-updated","Inner":[{"Value":"inner-0"}],"Others":[]}]}}' (Nullable = false) (Size = 87)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Widgets] SET [Deep] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
     public class ComplexCollectionJsonUpdateSqlServerFixture : ComplexCollectionJsonUpdateFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
