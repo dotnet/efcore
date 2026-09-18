@@ -52,6 +52,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 path);
 
         /// <summary>
+        ///     Could not determine the DbContext type for the bundle. Use --verbose to see errors.
+        /// </summary>
+        public static string BundleContextDiscoveryFailed
+            => GetString("BundleContextDiscoveryFailed");
+
+        /// <summary>
+        ///     Could not determine the DbContext type for the bundle. {error}
+        /// </summary>
+        public static string BundleContextDiscoveryFailedWithError(object? error)
+            => string.Format(
+                GetString("BundleContextDiscoveryFailedWithError", nameof(error)),
+                error);
+
+        /// <summary>
         ///     The configuration to use.
         /// </summary>
         public static string ConfigurationDescription
@@ -154,10 +168,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseUpdateAddDescription");
 
         /// <summary>
+        ///     An additional assembly probing path. (Used internally.)
+        /// </summary>
+        public static string AdditionalProbingPathDescription
+            => GetString("AdditionalProbingPathDescription");
+
+        /// <summary>
         ///     The data directory.
         /// </summary>
         public static string DataDirDescription
             => GetString("DataDirDescription");
+
+        /// <summary>
+        ///     The dependencies file of the startup project. (Used internally.)
+        /// </summary>
+        public static string DepsFileDescription
+            => GetString("DepsFileDescription");
 
         /// <summary>
         ///     Data source: {dataSource}
@@ -578,6 +604,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => string.Format(
                 GetString("RemainingArguments", nameof(remainingArguments)),
                 remainingArguments);
+
+        /// <summary>
+        ///     The runtime config of the startup project. (Used internally.)
+        /// </summary>
+        public static string RuntimeConfigDescription
+            => GetString("RuntimeConfigDescription");
+
+        /// <summary>
+        ///     The shared-framework version of the startup project. (Used internally.)
+        /// </summary>
+        public static string RuntimeFrameworkVersionDescription
+            => GetString("RuntimeFrameworkVersionDescription");
 
         /// <summary>
         ///     The root namespace. Defaults to the target assembly name.
