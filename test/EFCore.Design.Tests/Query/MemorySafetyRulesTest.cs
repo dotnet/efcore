@@ -48,6 +48,10 @@ public class MemorySafetyRulesTest
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latest"));
     }
 
+    [Fact]
+    public void UseSafeKeyword_returns_false_for_unrecognized_language_versions()
+        => Assert.False(MemorySafetyRules.UseSafeKeyword("not-a-version"));
+
     private static CSharpCompilation CreateCompilation(IEnumerable<KeyValuePair<string, string>>? features)
     {
         var parseOptions = CSharpParseOptions.Default;

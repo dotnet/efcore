@@ -92,7 +92,7 @@ internal static class MemorySafetyRules
             return major > 14;
         }
 
-        return true;
+        return false;
     }
 }
 
