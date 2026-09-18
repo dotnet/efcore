@@ -1901,7 +1901,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 parameters.MainBuilder
                     .AppendLine()
                     .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Field, Name = \"{field.Name}\")]")
-                    .Append($"public static {(useSafeKeyword ? "safe " : string.Empty)}extern ref {_code.Reference(field.FieldType)} {methodName}(")
+                    .Append($"public static extern {(useSafeKeyword ? "safe " : string.Empty)}ref {_code.Reference(field.FieldType)} {methodName}(")
                     .AppendLine($"{_code.Reference(declaringType)} @this);");
                 break;
             }
@@ -1920,7 +1920,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 parameters.MainBuilder
                     .AppendLine()
                     .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Method, Name = \"{methodInfo.Name}\")]")
-                    .Append($"public static {(useSafeKeyword ? "safe " : string.Empty)}extern {returnType} {methodName}(")
+                    .Append($"public static extern {(useSafeKeyword ? "safe " : string.Empty)}{returnType} {methodName}(")
                     .Append($"{_code.Reference(declaringType)} @this");
 
                 if (methodInfo.GetParameters().Length > 0)

@@ -41,7 +41,9 @@ internal static class MemorySafetyRules
 
         foreach (var syntaxTree in compilation.SyntaxTrees)
         {
-            if (syntaxTree.Options.Features.ContainsKey(UpdatedMemorySafetyRulesFeature))
+            if (syntaxTree.Options.Features.TryGetValue(UpdatedMemorySafetyRulesFeature, out var value)
+                && bool.TryParse(value, out var enabled)
+                && enabled)
             {
                 return true;
             }
@@ -65,11 +67,11 @@ internal static class MemorySafetyRules
         var normalized = langVersion.Trim();
         if (normalized.StartsWith("CSharp", StringComparison.OrdinalIgnoreCase))
         {
-            normalized = normalized["CSharp".Length..];
+            normalized = normalized["CSharp".Length..].Trim();
         }
         else if (normalized.StartsWith("C#", StringComparison.OrdinalIgnoreCase))
         {
-            normalized = normalized["C#".Length..];
+            normalized = normalized["C#".Length..].Trim();
         }
 
         if (string.IsNullOrWhiteSpace(normalized)

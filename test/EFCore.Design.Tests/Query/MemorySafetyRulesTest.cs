@@ -25,6 +25,14 @@ public class MemorySafetyRulesTest
     }
 
     [Fact]
+    public void UseUpdatedMemorySafetyRules_returns_false_when_feature_explicitly_disabled()
+    {
+        var compilation = CreateCompilation(features: [new("updated-memory-safety-rules", "false")]);
+
+        Assert.False(compilation.UseUpdatedMemorySafetyRules());
+    }
+
+    [Fact]
     public void UseUpdatedMemorySafetyRules_ignores_unrelated_features()
     {
         var compilation = CreateCompilation(features: [new("some-other-feature", "true")]);
@@ -47,6 +55,10 @@ public class MemorySafetyRulesTest
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("14.1"));
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latest"));
     }
+
+    [Fact]
+    public void UseSafeKeyword_trims_csharp_prefix_and_whitespace()
+        => Assert.False(MemorySafetyRules.UseSafeKeyword(" C# 14.0 "));
 
     [Fact]
     public void UseSafeKeyword_returns_false_for_unrecognized_language_versions()
