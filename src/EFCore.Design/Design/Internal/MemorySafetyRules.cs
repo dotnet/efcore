@@ -54,47 +54,32 @@ internal static class MemorySafetyRules
 
     public static bool UseSafeKeyword(string? langVersion)
     {
-        if (SafeKeyword == SyntaxKind.None)
-        {
-            return false;
-        }
-
         if (string.IsNullOrWhiteSpace(langVersion))
         {
-            return true;
+            return SafeKeyword != SyntaxKind.None;
         }
 
         var normalized = langVersion.Trim();
-        if (normalized.StartsWith("CSharp", StringComparison.OrdinalIgnoreCase))
-        {
-            normalized = normalized["CSharp".Length..].Trim();
-        }
-        else if (normalized.StartsWith("C#", StringComparison.OrdinalIgnoreCase))
-        {
-            normalized = normalized["C#".Length..].Trim();
-        }
 
-        if (string.IsNullOrWhiteSpace(normalized)
-            || normalized.Equals("default", StringComparison.OrdinalIgnoreCase)
+        if (normalized.Equals("default", StringComparison.OrdinalIgnoreCase)
             || normalized.Equals("latest", StringComparison.OrdinalIgnoreCase)
             || normalized.Equals("latestmajor", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("latestminor", StringComparison.OrdinalIgnoreCase)
             || normalized.Equals("preview", StringComparison.OrdinalIgnoreCase))
         {
-            return true;
+            return SafeKeyword != SyntaxKind.None;
         }
 
         if (Version.TryParse(normalized, out var version))
         {
-            return version.Major > 14 || (version.Major == 14 && version.Minor > 0);
+            return SafeKeyword != SyntaxKind.None && version.Major > 14;
         }
 
         if (int.TryParse(normalized, out var major))
         {
-            return major > 14;
+            return SafeKeyword != SyntaxKind.None && major > 14;
         }
 
-        return false;
+        throw new ArgumentException($"The specified language version '{langVersion}' is not supported.");
     }
 }
 

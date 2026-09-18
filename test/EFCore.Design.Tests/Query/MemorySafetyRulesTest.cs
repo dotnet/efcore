@@ -1,10 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Query;
+namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class MemorySafetyRulesTest
 {
@@ -52,21 +52,25 @@ public class MemorySafetyRulesTest
     public void UseSafeKeyword_respects_lower_language_versions()
     {
         Assert.False(MemorySafetyRules.UseSafeKeyword("14.0"));
-        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("14.1"));
+        Assert.False(MemorySafetyRules.UseSafeKeyword("14.1"));
+        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("15.0"));
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latest"));
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("default"));
+        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latestmajor"));
     }
 
     [Fact]
-    public void UseSafeKeyword_trims_csharp_prefix_and_whitespace()
+    public void UseSafeKeyword_trims_whitespace()
+        => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(" 15.0 "));
+
+    [Fact]
+    public void UseSafeKeyword_throws_for_unsupported_language_versions()
     {
-        Assert.False(MemorySafetyRules.UseSafeKeyword(" C# 14.0 "));
-        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(" C# 14.1 "));
+        Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("CSharp 14.0"));
+        Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("C# 14.1"));
+        Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("latestminor"));
+        Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("not-a-version"));
     }
-
-    [Fact]
-    public void UseSafeKeyword_returns_false_for_unrecognized_language_versions()
-        => Assert.False(MemorySafetyRules.UseSafeKeyword("not-a-version"));
 
     private static CSharpCompilation CreateCompilation(IEnumerable<KeyValuePair<string, string>>? features)
     {
