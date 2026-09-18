@@ -293,6 +293,37 @@ internal static class SharedTypeExtensions
             => type.GetInterfaces();
     }
 
+    /// <summary>
+    ///     The collection type the built-in JSON reader/writers are created for, when mapping a primitive collection declared as
+    ///     <paramref name="modelClrType" />. A property configured with its own <c>JsonValueReaderWriter</c> may use a different
+    ///     one. Returns <paramref name="modelClrType" /> itself when nothing else fits, which the caller must then be able to
+    ///     handle (an array, or a type with no usable parameterless constructor).
+    /// </summary>
+    public static Type FindJsonCollectionTypeToInstantiate(this Type modelClrType, Type elementType)
+    {
+        if (modelClrType.IsArray)
+        {
+            return modelClrType;
+        }
+
+        var listOfT = typeof(List<>).MakeGenericType(elementType);
+        if (modelClrType.IsAssignableFrom(listOfT))
+        {
+            if (!modelClrType.IsAbstract)
+            {
+                var constructor = modelClrType.GetDeclaredConstructor(null);
+                if (constructor?.IsPublic == true)
+                {
+                    return modelClrType;
+                }
+            }
+
+            return listOfT;
+        }
+
+        return modelClrType;
+    }
+
     public static ConstructorInfo? GetDeclaredConstructor(
         [DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
