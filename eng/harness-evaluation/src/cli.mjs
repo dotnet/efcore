@@ -72,7 +72,7 @@ async function evaluate(args) {
   await rm(outputRoot, { recursive: true, force: true });
   const experimentArguments = [
     'experiment', 'run', experimentPath,
-    '--eval-filter', evalPath,
+    '--eval-filter', component.eval.slice('eng/harness-evaluation/'.length),
     '--output-dir', outputRoot,
     '--workers', String(workers),
     '--verbose',
