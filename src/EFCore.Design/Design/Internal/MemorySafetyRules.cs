@@ -79,7 +79,7 @@ internal static class MemorySafetyRules
             return SafeKeyword != SyntaxKind.None && major > 14;
         }
 
-        throw new ArgumentException($"The specified language version '{langVersion}' is not supported.");
+        return false;
     }
 }
 

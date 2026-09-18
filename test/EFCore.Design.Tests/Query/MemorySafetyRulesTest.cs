@@ -64,12 +64,12 @@ public class MemorySafetyRulesTest
         => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(" 15.0 "));
 
     [Fact]
-    public void UseSafeKeyword_throws_for_unsupported_language_versions()
+    public void UseSafeKeyword_returns_false_for_unsupported_language_versions()
     {
-        Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("CSharp 14.0"));
-        Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("C# 14.1"));
-        Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("latestminor"));
-        Assert.Throws<ArgumentException>(() => MemorySafetyRules.UseSafeKeyword("not-a-version"));
+        Assert.False(MemorySafetyRules.UseSafeKeyword("CSharp 14.0"));
+        Assert.False(MemorySafetyRules.UseSafeKeyword("C# 14.1"));
+        Assert.False(MemorySafetyRules.UseSafeKeyword("latestminor"));
+        Assert.False(MemorySafetyRules.UseSafeKeyword("not-a-version"));
     }
 
     private static CSharpCompilation CreateCompilation(IEnumerable<KeyValuePair<string, string>>? features)
