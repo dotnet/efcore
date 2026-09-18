@@ -1,0 +1,56 @@
+name: query-pipeline
+description: Evaluates query-pipeline guidance against EF Core relational translation and SQL baselines.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/query-pipeline
+stimuli:
+  - name: place-and-validate-a-where-translation-change
+    prompt: |-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs, test/EFCore.Relational.Specification.Tests/Query/NorthwindWhereQueryRelationalTestBase.cs, and test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs. Write analysis.md for a translation change affecting the existing Where_simple test: identify the controlling pipeline stage, explain how to preserve the base LINQ semantics, explicitly reject client-side evaluation as a fix, and show how the SQL Server override should validate generated SQL. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs
+          dest: src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs
+        - src: ../../../../test/EFCore.Relational.Specification.Tests/Query/NorthwindWhereQueryRelationalTestBase.cs
+          dest: test/EFCore.Relational.Specification.Tests/Query/NorthwindWhereQueryRelationalTestBase.cs
+        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs
+          dest: test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs
+    rubric:
+      - The analysis identifies a plausible translation, postprocessing, or SQL-generation owner grounded in SelectExpression.
+      - It preserves the specification test's LINQ/result semantics and rejects client-side evaluation as a fix.
+      - It requires the provider override to call the base test and verify captured SQL with AssertSql or ToQueryString as appropriate.
+    graders:
+      - type: skill-invocation
+        config:
+          required: [ query-pipeline ]
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?=[\s\S]*SelectExpression)(?=[\s\S]*(AssertSql|ToQueryString))(?=[\s\S]*client.side)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

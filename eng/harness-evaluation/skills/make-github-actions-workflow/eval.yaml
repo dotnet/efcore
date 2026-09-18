@@ -1,0 +1,60 @@
+name: make-github-actions-workflow
+description: Evaluates workflow authoring against EF Core's fork-safe PR automation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 5m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/make-github-actions-workflow
+stimuli:
+  - name: extend-the-release-target-validation-workflow
+    prompt: >-
+      Inspect .github/workflows/validate-pr-target-branch.yml and .github/workflows/label-and-milestone-issues.yml, and inspect .github/CONTRIBUTING.md for contributor context. Modify the staged validate-pr-target-branch.yml so an invalid external PR targeting a release branch also receives one idempotent explanatory comment. Preserve its existing policy, keep the pull_request_target path safe, preserve the existing immutable actions/github-script SHA reference, and do not execute or check out fork code. Use a stable hidden HTML marker and verify the matching comment's bot author before updating the existing bot comment across reruns.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
+    agent_environment:
+      files:
+        - src: ../../../../.github/workflows/validate-pr-target-branch.yml
+          dest: .github/workflows/validate-pr-target-branch.yml
+        - src: ../../../../.github/workflows/label-and-milestone-issues.yml
+          dest: .github/workflows/label-and-milestone-issues.yml
+        - src: ../../../../.github/CONTRIBUTING.md
+          dest: .github/CONTRIBUTING.md
+    rubric:
+      - The edited workflow is valid YAML and preserves the existing release-target validation behavior.
+      - Permissions are explicit and minimal, and pull_request_target never executes or checks out untrusted PR content.
+      - Commenting preserves the staged workflow's immutable actions/github-script SHA reference and is idempotent across reruns without trusting a marker in a contributor-authored comment.
+    graders:
+      - type: skill-invocation
+        config:
+          required:
+            - make-github-actions-workflow
+      - type: file-matches
+        config:
+          path: .github/workflows/validate-pr-target-branch.yml
+          pattern: (?=[\s\S]*actions/github-script@)(?=[\s\S]*<!--)(?=[\s\S]*(user\?*\.login|\[bot\]))(?=[\s\S]*(updateComment|existing))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - diff
+            - repo
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

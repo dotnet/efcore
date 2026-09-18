@@ -1,0 +1,66 @@
+name: make-instructions
+description: Evaluates file-instruction authoring against EF Core query implementation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 15m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/make-instructions
+stimuli:
+  - name: create-query-pipeline-file-instructions
+    prompt: >-
+      Before creating files, use the available repository skill that applies to this task. Inspect src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs, src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs, and .github/copilot-instructions.md. Create concise file-based instructions with the fixed ID `query-implementation` at `.github/instructions/query-implementation.instructions.md`, together with its Vally eval at `eng/harness-evaluation/instructions/query-implementation/eval.yaml`. Scope applyTo to the relevant source trees, capture non-obvious patterns visible in the staged files, and do not repeat repository-wide guidance or create a skill.
+    constraints:
+      max_turns: 50
+      max_tokens: 1000000
+      max_duration: 15m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs
+          dest: src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs
+        - src: ../../../../src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs
+          dest: src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../eng/harness-evaluation/README.md
+          dest: eng/harness-evaluation/README.md
+    rubric:
+      - The `.github/instructions/query-implementation.instructions.md` file has valid frontmatter and uses targeted query-tree applyTo patterns.
+      - Guidance is concretely grounded in the staged relational and Cosmos query implementations.
+      - It remains concise and avoids duplicating root instructions or turning the content into a procedural skill.
+      - The matching `eng/harness-evaluation/instructions/query-implementation/eval.yaml` is named `query-implementation` and declares the exact target instruction, bounded resources, token grading, deterministic checks where practical, a focused semantic rubric, and a committed scoring threshold.
+    graders:
+      - type: skill-invocation
+        config:
+          required:
+            - make-instructions
+      - type: file-matches
+        config:
+          path: .github/instructions/query-implementation.instructions.md
+          pattern: '(?m)^---[\s\S]*^applyTo:[\s\S]*SelectExpression'
+      - type: file-matches
+        config:
+          path: eng/harness-evaluation/instructions/query-implementation/eval.yaml
+          pattern: '(?m)(?=[\s\S]*^name:\s*query-implementation\s*$)(?=[\s\S]*runs:)(?=[\s\S]*^agent_environment:\s*$\r?\n\s+files:\s*$\r?\n\s+-\s+src:\s+\.\./\.\./\.\./\.\./\.github/instructions/query-implementation\.instructions\.md\s*$\r?\n\s+dest:\s+\.github/instructions/query-implementation\.instructions\.md\s*$)(?=[\s\S]*constraints:)(?=[\s\S]*token-budget)(?=[\s\S]*scoring:)(?=[\s\S]*threshold:)[\s\S]+'
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - repo
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+scoring:
+  weights:
+    skill-invocation: 0.18
+    file-matches: 0.36
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

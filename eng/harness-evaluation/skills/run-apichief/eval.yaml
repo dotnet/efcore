@@ -1,0 +1,56 @@
+name: run-apichief
+description: Evaluates ApiChief workflow guidance against the EFCore public API baseline.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 5m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/run-apichief
+stimuli:
+  - name: plan-an-efcore-baseline-refresh
+    prompt: |-
+      Before planning commands, use the available repository skill that applies to this task. Inspect src/EFCore/EFCore.baseline.json, eng/Tools/ApiChief/ApiChief.csproj, and eng/Tools/ApiChief/README.md. Write apichief-plan.md with the exact PowerShell sequence for refreshing the EFCore baseline from this checkout, including environment setup, target assembly/TFM selection, output path, and post-generation review. Include an `emit delta` verification step and explain its exit codes for changes, no changes, and errors. Include the required ApiChief and target-project build commands in the plan, but do not execute any command or build during this task.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore/EFCore.baseline.json
+          dest: src/EFCore/EFCore.baseline.json
+        - src: ../../../../eng/Tools/ApiChief/ApiChief.csproj
+          dest: eng/Tools/ApiChief/ApiChief.csproj
+        - src: ../../../../eng/Tools/ApiChief/README.md
+          dest: eng/Tools/ApiChief/README.md
+    rubric:
+      - The plan uses restore.cmd then dot-sources activate.ps1 and builds the repository ApiChief project.
+      - It selects the highest numeric non-netstandard target under the EFCore artifacts and writes src/EFCore/EFCore.baseline.json.
+      - It preserves the committed baseline's formatting/manual metadata and accurately reports ApiChief exit semantics.
+    graders:
+      - type: skill-invocation
+        config:
+          required: [ run-apichief ]
+      - type: file-matches
+        config:
+          path: apichief-plan.md
+          pattern: (?=[\s\S]*restore\.cmd)(?=[\s\S]*activate\.ps1)(?=[\s\S]*ApiChief)(?=[\s\S]*src[/\\]EFCore[/\\]EFCore\.baseline\.json)(?=[\s\S]*0)(?=[\s\S]*2)(?=[\s\S]*-1)(?=[\s\S]*([Cc]hanges|[Dd]ifferences))(?=[\s\S]*[Nn]o ([Cc]hanges|[Dd]ifferences))(?=[\s\S]*[Ee]rror)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

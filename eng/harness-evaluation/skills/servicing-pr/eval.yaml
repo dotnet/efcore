@@ -1,0 +1,58 @@
+name: servicing-pr
+description: Evaluates servicing PR guidance using EF Core branch policy, source, and tests.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 5m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/servicing-pr
+stimuli:
+  - name: draft-a-change-tracking-servicing-pr
+    prompt: |-
+      Before drafting the PR, use the available repository skill that applies to this task. Inspect .github/dependabot.yml, .github/PULL_REQUEST_TEMPLATE.md, src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs, and test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs. An offline source-PR fixture says issue 41234 was fixed on main by changing InternalEntityEntry and adding one TemporaryValuesTest for object-typed indexer temporary-value state; it must be backported to version 10. Do not infer an unrelated FK relationship-propagation scenario. Write servicing-pr.md targeting `release/10.0`, with a title beginning `[release/10.0]`, `Fixes #41234`, customer impact, discovery, regression, testing, and risk sections. State whether an AppContext quirk is justified and use `Issue41234` only if recommending one. Do not claim a quirk was already added unless the staged source contains it. Do not call GitHub or create a real PR.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
+    agent_environment:
+      files:
+        - src: ../../../../.github/dependabot.yml
+          dest: .github/dependabot.yml
+        - src: ../../../../.github/PULL_REQUEST_TEMPLATE.md
+          dest: .github/PULL_REQUEST_TEMPLATE.md
+        - src: ../../../../src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs
+          dest: src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs
+        - src: ../../../../test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs
+          dest: test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs
+    rubric:
+      - The target is release/10.0 and the title starts with [release/10.0].
+      - The description has Fixes #41234 and every required customer impact, discovery, regression, testing, and risk section.
+      - The text accurately describes the staged InternalEntityEntry/test scope and uses Issue41234 for any justified quirk.
+    graders:
+      - type: skill-invocation
+        config:
+          required: [ servicing-pr ]
+      - type: file-matches
+        config:
+          path: servicing-pr.md
+          pattern: \[release/10\.0\][\s\S]*Fixes #41234
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

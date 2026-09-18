@@ -1,0 +1,58 @@
+name: update-pipeline
+description: Evaluates SaveChanges update-pipeline guidance against EF Core batching and SQL generation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 5m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/update-pipeline
+stimuli:
+  - name: diagnose-fk-ordering-and-concurrency
+    prompt: |-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore.Relational/Update/Internal/CommandBatchPreparer.cs, src/EFCore.Relational/Update/UpdateSqlGenerator.cs, test/EFCore.Relational.Tests/Update/CommandBatchPreparerTest.cs, and test/EFCore.Relational.Tests/Update/UpdateSqlGeneratorTest.cs. Write analysis.md for a regression where a dependent row is inserted before its principal and an UPDATE omits its concurrency predicate. Identify the owning stages and focused tests in these staged files, including the expected concurrency-token predicate in the generated UPDATE SQL. Explain how the fix preserves transaction boundaries and store-generated-value propagation. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Relational/Update/Internal/CommandBatchPreparer.cs
+          dest: src/EFCore.Relational/Update/Internal/CommandBatchPreparer.cs
+        - src: ../../../../src/EFCore.Relational/Update/UpdateSqlGenerator.cs
+          dest: src/EFCore.Relational/Update/UpdateSqlGenerator.cs
+        - src: ../../../../test/EFCore.Relational.Tests/Update/CommandBatchPreparerTest.cs
+          dest: test/EFCore.Relational.Tests/Update/CommandBatchPreparerTest.cs
+        - src: ../../../../test/EFCore.Relational.Tests/Update/UpdateSqlGeneratorTest.cs
+          dest: test/EFCore.Relational.Tests/Update/UpdateSqlGeneratorTest.cs
+    rubric:
+      - The analysis grounds dependency ordering in CommandBatchPreparer's graph/topological batching.
+      - It grounds concurrency-token predicate generation in UpdateSqlGenerator and verifies the generated UPDATE SQL.
+      - It preserves transactions and store-generated-value propagation and proposes focused tests in both staged test classes.
+    graders:
+      - type: skill-invocation
+        config:
+          required: [ update-pipeline ]
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: CommandBatchPreparer[\s\S]*(concurrency|predicate|WHERE)
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

@@ -1,0 +1,52 @@
+# Validates that every repository-owned instruction, skill, agent, agentic
+# workflow, and prompt has a well-formed EF Core-grounded Vally evaluation.
+# MCPs and plugins are excluded.
+
+name: Agent Harness Coverage
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Restore repository SDK
+        shell: bash
+        run: |
+          ./restore.sh
+          . ./activate.sh
+          echo "DOTNET_ROOT=$PWD/.dotnet" >> "$GITHUB_ENV"
+          echo "$PWD/.dotnet" >> "$GITHUB_PATH"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22.12
+          cache: npm
+          cache-dependency-path: eng/harness-evaluation/package-lock.json
+
+      - name: Install evaluation tools
+        working-directory: eng/harness-evaluation
+        run: npm ci
+
+      - name: Audit evaluation dependencies
+        working-directory: eng/harness-evaluation
+        run: npm audit --audit-level=moderate
+
+      - name: Test evaluation harness
+        working-directory: eng/harness-evaluation
+        run: npm test
+
+      - name: Validate customization coverage and lint skills and evaluations
+        working-directory: eng/harness-evaluation
+        run: npm run lint

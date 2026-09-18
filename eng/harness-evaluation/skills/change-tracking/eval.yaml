@@ -1,0 +1,59 @@
+name: change-tracking
+description: Evaluates change-tracking guidance against EF Core snapshot and entry-state code.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 30m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/change-tracking
+stimuli:
+  - name: diagnose-temporary-value-snapshot-transition
+    prompt: >-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore/ChangeTracking/Internal/SnapshotFactoryFactory.cs, src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs, and test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs. A proposed change causes a temporary property to lose its modified state when an Added entry becomes Modified. Write analysis.md identifying the controlling code path, the shared-identity edge case that must remain safe, and the focused regression test you would add. Do not edit source.
+    constraints:
+      max_turns: 80
+      max_tokens: 2000000
+      max_duration: 30m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore/ChangeTracking/Internal/SnapshotFactoryFactory.cs
+          dest: src/EFCore/ChangeTracking/Internal/SnapshotFactoryFactory.cs
+        - src: ../../../../src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs
+          dest: src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs
+        - src: ../../../../test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs
+          dest: test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs
+    rubric:
+      - The analysis distinguishes snapshot comparison from state-transition handling in InternalEntityEntry.
+      - It explicitly considers SharedIdentityEntry when Added and Deleted entries can represent the same identity.
+      - The proposed test is located in TemporaryValuesTest.cs and verifies observable property/state behavior.
+    graders:
+      - type: skill-invocation
+        config:
+          required:
+            - change-tracking
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (InternalEntityEntry|SetEntityState)[\s\S]*(TemporaryValuesTest|temporary)
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - repo
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 2000000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

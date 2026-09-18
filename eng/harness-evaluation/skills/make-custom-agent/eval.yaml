@@ -1,0 +1,68 @@
+name: make-custom-agent
+description: Evaluates custom-agent authoring for EF Core API review.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/make-custom-agent
+stimuli:
+  - name: create-an-efcore-api-review-agent
+    prompt: >-
+      Before creating files, use the available repository skill that applies to this task. Inspect .github/workflows/api-review-baselines.yml, src/EFCore/EFCore.baseline.json, and .github/copilot-instructions.md.
+      Create a read-only declarative custom agent named efcore-api-review at .github/agents/efcore-api-review.agent.md that reviews EF Core ApiChief baseline deltas, explains compatibility impact, and points reviewers to evidence from the staged workflow and baseline.
+      Also create its paired harness evaluation at eng/harness-evaluation/agents/efcore-api-review/eval.yaml following eng/harness-evaluation/README.md. Do not create a skill or duplicate the root instructions.
+    constraints:
+      max_turns: 50
+      max_tokens: 1000000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../.github/workflows/api-review-baselines.yml
+          dest: .github/workflows/api-review-baselines.yml
+        - src: ../../../../src/EFCore/EFCore.baseline.json
+          dest: src/EFCore/EFCore.baseline.json
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../eng/harness-evaluation/README.md
+          dest: eng/harness-evaluation/README.md
+    rubric:
+      - The output is .github/agents/efcore-api-review.agent.md with valid frontmatter whose name is efcore-api-review.
+      - The output includes eng/harness-evaluation/agents/efcore-api-review/eval.yaml with a matching eval name and the required harness structure.
+      - Its responsibilities and allowed tools are specifically tied to EF Core ApiChief baseline review.
+      - It remains read-only, avoids secrets and internal URLs, and does not duplicate root repository instructions.
+    graders:
+      - type: skill-invocation
+        config:
+          required:
+            - make-custom-agent
+      - type: file-matches
+        config:
+          path: .github/agents/efcore-api-review.agent.md
+          pattern: '(?m)^---[\s\S]*^name:\s*["'']?efcore-api-review["'']?\s*$[\s\S]*^description:'
+      - type: file-matches
+        config:
+          path: eng/harness-evaluation/agents/efcore-api-review/eval.yaml
+          pattern: '(?m)^name:\s*["'']?efcore-api-review["'']?\s*$[\s\S]*runs:[\s\S]*agent_environment:[\s\S]*files:[\s\S]*token-budget[\s\S]*scoring:[\s\S]*threshold:'
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - repo
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+scoring:
+  weights:
+    skill-invocation: 0.25
+    file-matches: 0.4
+    prompt: 0.25
+    token-budget: 0.1
+  threshold: 0.75

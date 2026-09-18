@@ -1,0 +1,56 @@
+name: model-building
+description: Evaluates model-building guidance against EF Core convention and property discovery code.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 20m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/model-building
+stimuli:
+  - name: place-a-property-discovery-convention-change
+    prompt: |-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore/Metadata/Conventions/PropertyDiscoveryConvention.cs, src/EFCore/Metadata/Conventions/ConventionSet.cs, and test/EFCore.Tests/Metadata/Conventions/PropertyDiscoveryConventionTest.cs. A proposed property-discovery behavior must also work for nested complex properties. Write analysis.md explaining how the current convention event and metadata interfaces provide nested discovery, where a change should be made, and the focused test to add. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 20m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore/Metadata/Conventions/PropertyDiscoveryConvention.cs
+          dest: src/EFCore/Metadata/Conventions/PropertyDiscoveryConvention.cs
+        - src: ../../../../src/EFCore/Metadata/Conventions/ConventionSet.cs
+          dest: src/EFCore/Metadata/Conventions/ConventionSet.cs
+        - src: ../../../../test/EFCore.Tests/Metadata/Conventions/PropertyDiscoveryConventionTest.cs
+          dest: test/EFCore.Tests/Metadata/Conventions/PropertyDiscoveryConventionTest.cs
+    rubric:
+      - The analysis uses the actual ConventionSet event and appropriate convention metadata interfaces.
+      - It explains that each nested complex property raises IComplexPropertyAddedConvention and discovery runs against IConventionComplexPropertyBuilder.Metadata.ComplexType through IConventionTypeBaseBuilder.
+      - The proposed test is specific to PropertyDiscoveryConventionTest and covers at least two complex-property levels.
+    graders:
+      - type: skill-invocation
+        config:
+          required: [ model-building ]
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (ConventionSet|PropertyDiscoveryConvention)[\s\S]*(complex|GetFlattenedProperties)
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

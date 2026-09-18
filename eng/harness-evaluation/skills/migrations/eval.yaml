@@ -1,0 +1,57 @@
+name: migrations
+description: Evaluates migrations guidance against EF Core model differ behavior.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 15m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/migrations
+stimuli:
+  - name: diagnose-an-upgrade-only-spurious-diff
+    prompt: >-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore.Relational/Migrations/Internal/MigrationsModelDiffer.cs and test/EFCore.Design.Tests/Migrations/Design/SnapshotModelProcessorTest.cs. An older snapshot lacks newly introduced metadata and now produces a migration with no user model change. Write analysis.md identifying the compatibility boundary, how absence should be interpreted, how snapshot property-bag CLR types affect the analysis, and the focused no-diff or round-trip test to add to the staged test file. The proposed test must use a concrete older ModelSnapshot class as the source, process it through SnapshotModelProcessor with resetVersion, compare it with the equivalent current design-time model, and assert that no migration operations are produced. In the old snapshot code, use the staged type-based `ComplexProperty(typeof(Dictionary<string, object>), ...)` property-bag form and omit `IsRequired()`, `IsRequired(false)`, and every other API that would explicitly configure the missing nullability metadata.
+    constraints:
+      max_turns: 80
+      max_tokens: 2000000
+      max_duration: 15m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Relational/Migrations/Internal/MigrationsModelDiffer.cs
+          dest: src/EFCore.Relational/Migrations/Internal/MigrationsModelDiffer.cs
+        - src: ../../../../test/EFCore.Design.Tests/Migrations/Design/SnapshotModelProcessorTest.cs
+          dest: test/EFCore.Design.Tests/Migrations/Design/SnapshotModelProcessorTest.cs
+    rubric:
+      - The analysis is grounded in MigrationsModelDiffer and distinguishes old snapshot compatibility from runtime modeling.
+      - It accounts for property-bag snapshot CLR types and treats missing new metadata as the previous default where appropriate.
+      - It proposes a concrete old-ModelSnapshot round-trip and empty-diff regression test using the staged SnapshotModelProcessorTest harness.
+    graders:
+      - type: skill-invocation
+        config:
+          required:
+            - migrations
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (SnapshotModelProcessor|snapshot)[\s\S]*(property.bag|Dictionary<string, object>)
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - repo
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 2000000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75

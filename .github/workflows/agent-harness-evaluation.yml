@@ -1,0 +1,822 @@
+# Discovers affected harness components for every PR. Automatic evaluation is
+# limited to trusted authors; harness changes are evaluated after they are merged.
+
+name: Agent Harness Evaluation
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, synchronize, closed]
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Pull request number to evaluate
+        required: true
+        type: number
+      commit_sha:
+        description: PR commit to evaluate; leave empty to evaluate the current head
+        required: false
+        type: string
+      component:
+        description: Affected component to evaluate; leave empty to evaluate all affected components
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-harness-evaluation-${{ github.event.pull_request.number || inputs.pull_request }}
+  cancel-in-progress: true
+
+jobs:
+  discover:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    outputs:
+      base_sha: ${{ steps.pr.outputs.base_sha }}
+      head_sha: ${{ steps.pr.outputs.target_sha }}
+      trusted_sha: ${{ steps.pr.outputs.trusted_sha }}
+      pull_request: ${{ steps.pr.outputs.pull_request }}
+      can_use_secrets: ${{ steps.pr.outputs.can_use_secrets }}
+      component_filter: ${{ steps.pr.outputs.component_filter }}
+      author: ${{ steps.pr.outputs.author }}
+      matrix: ${{ steps.pr.outputs.matrix }}
+      has_entries: ${{ steps.pr.outputs.has_entries }}
+      components: ${{ steps.pr.outputs.components }}
+    steps:
+      - name: Resolve pull request and authorization
+        id: pr
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        env:
+          MANUAL_COMPONENT: ${{ inputs.component }}
+          MANUAL_COMMIT_SHA: ${{ inputs.commit_sha }}
+          MANUAL_PULL_REQUEST: ${{ inputs.pull_request }}
+        with:
+          script: |
+            const manual = context.eventName === 'workflow_dispatch';
+            if (manual && context.ref !== `refs/heads/${context.payload.repository.default_branch}`) {
+              throw new Error('Run manual harness evaluations from the repository default branch.');
+            }
+            const pullNumber = manual
+              ? Number(process.env.MANUAL_PULL_REQUEST)
+              : context.payload.pull_request.number;
+            if (!Number.isInteger(pullNumber) || pullNumber <= 0) {
+              throw new Error(`Invalid pull request number: ${process.env.MANUAL_PULL_REQUEST}`);
+            }
+            const { data: pull } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber
+            });
+            const mergedIntoDefault = context.eventName === 'pull_request_target'
+              && context.payload.action === 'closed'
+              && pull.merged === true
+              && pull.base.ref === context.payload.repository.default_branch;
+            const author = pull.user.login;
+            const componentFilter = manual ? process.env.MANUAL_COMPONENT.trim() : '';
+            const requestedSha = manual ? process.env.MANUAL_COMMIT_SHA.trim().toLowerCase() : '';
+            if (requestedSha && !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i.test(requestedSha)) {
+              throw new Error(`Invalid commit SHA: ${requestedSha}`);
+            }
+            const targetSha = requestedSha || (mergedIntoDefault ? pull.merge_commit_sha : pull.head.sha);
+            if (requestedSha) {
+              const commits = await github.paginate(github.rest.pulls.listCommits, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pullNumber,
+                per_page: 100
+              });
+              if (!commits.some(commit => commit.sha === targetSha)) {
+                throw new Error(`Commit ${targetSha} does not belong to PR #${pullNumber}.`);
+              }
+            }
+
+            let permission = 'none';
+            if (!mergedIntoDefault) {
+              try {
+                const response = await github.rest.repos.getCollaboratorPermissionLevel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  username: author
+                });
+                permission = response.data.permission;
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+            }
+
+            // Helper function to check if a user is a bot
+            const isBot = (username) => {
+              const lower = username.toLowerCase();
+              return lower === 'copilot' ||
+                     lower === 'dotnet-bot' ||
+                     lower.startsWith('app/') ||
+                     lower.includes('[bot]');
+            };
+            const fromBranch = pull.head.repo?.id === pull.base.repo.id;
+            const automatic = context.eventName === 'pull_request_target'
+              && !['synchronize', 'closed'].includes(context.payload.action);
+            const canUseSecrets = mergedIntoDefault || (isBot(author)
+              ? fromBranch && (manual || automatic)
+              : manual || (automatic && ['admin', 'maintain', 'write'].includes(permission)));
+
+            const { data: trustedCommit } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: mergedIntoDefault ? targetSha : context.payload.repository.default_branch
+            });
+            const { data: targetCommit } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: targetSha
+            });
+            const { data: tree } = await github.rest.git.getTree({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tree_sha: targetCommit.commit.tree.sha,
+              recursive: 'true'
+            });
+            if (tree.truncated) {
+              throw new Error(`The repository tree for ${targetSha} was truncated.`);
+            }
+
+            const evaluationRoot = 'eng/harness-evaluation';
+            const componentPatterns = [
+              { directory: '.github/instructions', suffixes: ['.instructions.md'], kind: 'instruction', evalDirectory: 'instructions' },
+              { directory: '.github/agents', suffixes: ['.agent.md', '.md'], kind: 'agent', evalDirectory: 'agents' },
+              { directory: '.github/workflows', suffixes: ['.md'], kind: 'agentic-workflow', evalDirectory: 'workflows' },
+              { directory: '.github/prompts', suffixes: ['.prompt.md'], kind: 'prompt', evalDirectory: 'prompts' }
+            ];
+            const components = [{
+              id: 'copilot-instructions',
+              kind: 'instruction',
+              source: '.github/copilot-instructions.md',
+              eval: `${evaluationRoot}/instructions/copilot-instructions/eval.yaml`
+            }];
+            const paths = tree.tree
+              .filter(entry => entry.type === 'blob')
+              .map(entry => entry.path);
+            for (const path of paths) {
+              const skill = path.match(/^\.agents\/skills\/([^/]+)\/SKILL\.md$/);
+              if (skill) {
+                components.push({
+                  id: skill[1],
+                  kind: 'skill',
+                  source: path,
+                  eval: `${evaluationRoot}/skills/${skill[1]}/eval.yaml`
+                });
+                continue;
+              }
+              for (const componentPattern of componentPatterns) {
+                if (!path.startsWith(`${componentPattern.directory}/`)) continue;
+                const suffix = componentPattern.suffixes.find(candidate => path.endsWith(candidate));
+                if (!suffix) continue;
+                const id = path.slice(componentPattern.directory.length + 1, -suffix.length).replaceAll('/', '--');
+                components.push({
+                  id,
+                  kind: componentPattern.kind,
+                  source: path,
+                  eval: `${evaluationRoot}/${componentPattern.evalDirectory}/${id}/eval.yaml`
+                });
+                break;
+              }
+            }
+
+            const pathSet = new Set(paths);
+            const componentIds = new Set();
+            const componentEvals = new Set();
+            for (const component of components) {
+              if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(component.id)
+                  || component.id.includes('..')
+                  || componentIds.has(component.id)) {
+                throw new Error(`Invalid or duplicate component ID '${component.id}'.`);
+              }
+              componentIds.add(component.id);
+              componentEvals.add(component.eval);
+              if (!pathSet.has(component.source)) {
+                throw new Error(`${component.id}: source does not exist: ${component.source}`);
+              }
+              if (!pathSet.has(component.eval)) {
+                throw new Error(`${component.id}: eval does not exist: ${component.eval}`);
+              }
+            }
+            for (const path of paths) {
+               if (/^eng\/harness-evaluation\/(?:skills|instructions|agents|workflows|prompts)\/[^/]+(?:\/[^/]+)*\/eval\.yaml$/.test(path)
+                  && !componentEvals.has(path)) {
+                throw new Error(`Evaluation has no matching harness component: ${path}`);
+              }
+            }
+
+            let files;
+            if (mergedIntoDefault || targetSha === pull.head.sha) {
+              files = await github.paginate(github.rest.pulls.listFiles, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pullNumber,
+                per_page: 100
+              });
+            } else {
+              const { data: comparison } = await github.rest.repos.compareCommitsWithBasehead({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                basehead: `${pull.base.sha}...${targetSha}`
+              });
+              files = comparison.files ?? [];
+              if (files.length >= 300) {
+                throw new Error(`The changed-file list for ${targetSha} may be truncated.`);
+              }
+            }
+            const changedFiles = files.flatMap(file =>
+              file.previous_filename ? [file.filename, file.previous_filename] : [file.filename]);
+            // package-lock.json is intentionally excluded because dependency-only changes should not affect eval results.
+            const harnessInfrastructurePrefixes = [
+              '.github/workflows/agent-harness-evaluation.yml',
+              `${evaluationRoot}/src/`,
+              `${evaluationRoot}/package.json`,
+              `${evaluationRoot}/harness.experiment.yaml`
+            ];
+            const harnessInfrastructureChanged = changedFiles.some(path =>
+              harnessInfrastructurePrefixes.some(prefix => path.startsWith(prefix)));
+            const pathMatches = (path, candidate) => path === candidate || path.startsWith(`${candidate}/`);
+            // Candidate harness infrastructure is not executed during PR evaluation; validate it only after merge.
+            let selected = context.payload.action === 'closed'
+              ? mergedIntoDefault && harnessInfrastructureChanged
+                ? components.map(component => component.id)
+                : []
+              : components
+                  .filter(component => changedFiles.some(path =>
+                    pathMatches(path, component.eval.slice(0, component.eval.lastIndexOf('/')))
+                     || pathMatches(path, component.kind === 'skill'
+                       ? component.source.slice(0, component.source.lastIndexOf('/'))
+                       : component.source)))
+                  .map(component => component.id);
+            selected = [...new Set(selected)].sort((left, right) => left.localeCompare(right));
+            const byId = new Map(components.map(component => [component.id, component]));
+            if (componentFilter) {
+              if (!byId.has(componentFilter)) {
+                throw new Error(`Unknown component '${componentFilter}'.`);
+              }
+              if (!selected.includes(componentFilter)) {
+                throw new Error(`Component '${componentFilter}' is not affected by these changes.`);
+              }
+              selected = [componentFilter];
+            }
+            const matrix = {
+              include: selected.map(id => ({
+                id,
+                kind: byId.get(id).kind,
+                eval_path: byId.get(id).eval,
+                timeout_minutes: 360,
+                watchdog_minutes: 350
+              }))
+            };
+
+            core.setOutput('base_sha', pull.base.sha);
+            core.setOutput('target_sha', targetSha);
+            core.setOutput('trusted_sha', trustedCommit.sha);
+            core.setOutput('pull_request', String(pullNumber));
+            core.setOutput('can_use_secrets', String(canUseSecrets));
+            core.setOutput('component_filter', componentFilter);
+            core.setOutput('author', author);
+            core.setOutput('matrix', JSON.stringify(matrix));
+            core.setOutput('has_entries', String(selected.length > 0));
+            core.setOutput('components', JSON.stringify(selected));
+            await core.summary
+              .addHeading('Agent Harness Evaluation')
+              .addRaw(`PR #${pullNumber} by ${author}: repository permission ${permission}; ` +
+                `evaluation ${canUseSecrets ? 'authorized' : 'requires explicit authorization'} for ${targetSha}.`)
+              .write();
+
+      - name: Update pull request metadata
+        if: >-
+          github.event.action != 'closed' ||
+          (github.event.pull_request.merged == true &&
+           github.event.pull_request.base.ref == github.event.repository.default_branch)
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        env:
+          CAN_USE_SECRETS: ${{ steps.pr.outputs.can_use_secrets }}
+          COMPONENT_FILTER: ${{ steps.pr.outputs.component_filter }}
+          HEAD_SHA: ${{ steps.pr.outputs.target_sha }}
+          PULL_REQUEST: ${{ steps.pr.outputs.pull_request }}
+          SELECTED_COMPONENTS: ${{ steps.pr.outputs.components }}
+        with:
+          script: |
+            const issueNumber = Number(process.env.PULL_REQUEST);
+            const selected = new Set(JSON.parse(process.env.SELECTED_COMPONENTS));
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              per_page: 100
+            });
+            if (context.payload.action !== 'closed' && !process.env.COMPONENT_FILTER) {
+              for (const comment of comments) {
+                const match = comment.body?.match(/^<!-- agent-harness-eval:([^ ]+) -->/);
+                if (comment.user?.login !== 'github-actions[bot]' || !match || selected.has(match[1])) continue;
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: comment.id,
+                  body: `${match[0]}\n### Agent evaluation: \`${match[1]}\`\n\n` +
+                    `Status: **superseded** by \`${process.env.HEAD_SHA}\`; this component is no longer affected.`
+                });
+              }
+            }
+
+            const rerunMarker = '<!-- agent-harness-evaluation:rerun-required -->';
+            const rerunComment = comments.find(comment =>
+              comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(rerunMarker));
+            if (context.payload.action === 'synchronize' && selected.size > 0) {
+              const body = `${rerunMarker}\n### Agent harness evaluation is stale\n\n` +
+                `Evaluation does not run automatically for new commits. A contributor with write access can comment ` +
+                `\`/eval\` to run all affected components or \`/eval component-name\` to run one component.`;
+              if (rerunComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner, repo: context.repo.repo, comment_id: rerunComment.id, body
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body
+                });
+              }
+            }
+
+            if (selected.size === 0) return;
+
+            const label = 'area-harness';
+            try {
+              await github.rest.issues.getLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label
+              });
+            } catch (error) {
+              if (error.status === 404) {
+                throw new Error(`Required label '${label}' does not exist.`);
+              }
+              throw error;
+            }
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              labels: [label]
+            });
+
+            if (context.payload.action === 'synchronize') return;
+
+            const promptMarker = '<!-- agent-harness-evaluation:manual-required -->';
+            const prompt = comments.find(comment =>
+              comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(promptMarker));
+            if (process.env.CAN_USE_SECRETS === 'true') {
+              if (prompt && !process.env.COMPONENT_FILTER) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner, repo: context.repo.repo, comment_id: prompt.id
+                });
+              }
+              if (rerunComment && !process.env.COMPONENT_FILTER) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner, repo: context.repo.repo, comment_id: rerunComment.id
+                });
+              }
+              return;
+            }
+
+            const manualUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
+              '/actions/workflows/agent-harness-evaluation.yml';
+            const body = `${promptMarker}\n### Agent harness evaluation required\n\n` +
+              `This PR affects: ${[...selected].map(id => `\`${id}\``).join(', ')}. ` +
+              `Its author cannot use repository secrets in an automatic run. A contributor with write access can comment ` +
+              `\`/eval\` or \`/eval component-name\`, or ` +
+              `[run the workflow manually](${manualUrl}) for pull request **#${issueNumber}**.`;
+            if (prompt) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner, repo: context.repo.repo, comment_id: prompt.id, body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body
+              });
+            }
+
+  evaluate:
+    name: evaluate (${{ matrix.id }})
+    needs: discover
+    if: needs.discover.outputs.has_entries == 'true' && needs.discover.outputs.can_use_secrets == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ matrix.timeout_minutes }}
+    permissions:
+      contents: read
+      copilot-requests: write
+      issues: write
+      pull-requests: read
+    env:
+      COMPONENT: ${{ matrix.id }}
+      CANDIDATE_ROOT: candidate
+      RESULT_ROOT: candidate/artifacts/TestResults/harness-evaluation/${{ matrix.id }}
+      TRUSTED_ROOT: trusted
+    steps:
+      - name: Check out trusted evaluation runner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.discover.outputs.trusted_sha }}
+          path: ${{ env.TRUSTED_ROOT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out pull request candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.discover.outputs.head_sha }}
+          path: ${{ env.CANDIDATE_ROOT }}
+          fetch-depth: 0
+          persist-credentials: false
+          allow-unsafe-pr-checkout: true
+
+      - name: Report evaluation started
+        continue-on-error: true
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        env:
+          HEAD_SHA: ${{ needs.discover.outputs.head_sha }}
+          PULL_REQUEST: ${{ needs.discover.outputs.pull_request }}
+          COMPONENT: ${{ matrix.id }}
+        with:
+          script: |
+            const marker = `<!-- agent-harness-eval:${process.env.COMPONENT} -->`;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const manualUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
+              '/actions/workflows/agent-harness-evaluation.yml';
+            const body = `${marker}\n### Agent evaluation: \`${process.env.COMPONENT}\`\n\n` +
+              `Status: **running** for \`${process.env.HEAD_SHA}\`\n\n` +
+              `PR updates do not rerun evaluations automatically. [Run again manually](${manualUrl}) after later commits.\n\n` +
+              `[View workflow run](${runUrl})`;
+            const issueNumber = Number(process.env.PULL_REQUEST);
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, per_page: 100
+            });
+            const existing = comments.find(comment =>
+              comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body
+              });
+            }
+
+      - name: Restore repository SDK
+        working-directory: ${{ env.TRUSTED_ROOT }}
+        shell: bash
+        run: |
+          ./restore.sh
+          . ./activate.sh
+          echo "DOTNET_ROOT=$PWD/.dotnet" >> "$GITHUB_ENV"
+          echo "$PWD/.dotnet" >> "$GITHUB_PATH"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22.12
+          cache: npm
+          cache-dependency-path: ${{ env.TRUSTED_ROOT }}/eng/harness-evaluation/package-lock.json
+
+      - name: Install evaluation tools
+        working-directory: ${{ env.TRUSTED_ROOT }}/eng/harness-evaluation
+        run: npm ci
+
+      - name: Run treatment, unskilled control, and comparison
+        id: run
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          timeout --signal=TERM --kill-after=30s "${{ matrix.watchdog_minutes }}m" \
+            node "$TRUSTED_ROOT/eng/harness-evaluation/src/cli.mjs" eval "$COMPONENT" \
+              --repo-root "$GITHUB_WORKSPACE/$CANDIDATE_ROOT" \
+              --workers 1 \
+              --require-pass \
+              --output "$GITHUB_WORKSPACE/$RESULT_ROOT"
+
+      - name: Upload component results
+        id: upload
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: harness-eval-result-${{ matrix.id }}
+          path: ${{ env.RESULT_ROOT }}/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify Vally reports
+        id: verify
+        if: steps.run.outcome == 'success'
+        shell: bash
+        run: |
+          node --input-type=module <<'EOF'
+          import fs from 'node:fs';
+          import path from 'node:path';
+
+          const resultFiles = [];
+          const planFiles = [];
+          const visit = directory => {
+            for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+              const fullPath = path.join(directory, entry.name);
+              if (entry.isDirectory()) visit(fullPath);
+              else if (entry.name === 'results.jsonl') resultFiles.push(fullPath);
+              else if (entry.name === 'plan-snapshot.json') planFiles.push(fullPath);
+            }
+          };
+          visit(process.env.RESULT_ROOT);
+          const controlFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'control');
+          const treatmentFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'treatment');
+          if (!controlFile || !treatmentFile || resultFiles.length !== 2) {
+            throw new Error(`Expected control and treatment results.jsonl files, found ${resultFiles.length}.`);
+          }
+          if (planFiles.length !== 1) {
+            throw new Error(`Expected one plan-snapshot.json file, found ${planFiles.length}.`);
+          }
+
+          const readRecords = file => fs.readFileSync(file, 'utf8').trim().split(/\r?\n/).map(JSON.parse);
+          const plan = JSON.parse(fs.readFileSync(planFiles[0], 'utf8'));
+          if (plan.type !== 'experiment-plan-snapshot' || !Array.isArray(plan.evals)) {
+            throw new Error('Vally did not produce a valid experiment plan snapshot.');
+          }
+          const control = readRecords(controlFile);
+          const treatment = readRecords(treatmentFile);
+          const controlTrials = control.filter(record => record.type === 'trial-result');
+          const treatmentTrials = treatment.filter(record => record.type === 'trial-result');
+          const incomplete = trial => trial.status !== 'success' || !trial.gradeResult;
+          const trialKeys = trials => trials
+            .map(trial => `${trial.evalName}\0${trial.model ?? ''}\0${trial.stimulus}\0${trial.trialIndex ?? 0}`)
+            .sort();
+          const plannedTrialKeys = variant => plan.evals
+            .filter(evalPlan => evalPlan.variant === variant && !evalPlan.failure)
+            .flatMap(evalPlan => {
+              if (!Number.isSafeInteger(evalPlan.runs) || evalPlan.runs <= 0 ||
+                  !Array.isArray(evalPlan.plannedStimulusNames)) {
+                throw new Error(`Invalid trial plan for ${variant}/${evalPlan.evalName}.`);
+              }
+              return evalPlan.plannedStimulusNames.flatMap(stimulus =>
+                Array.from({ length: evalPlan.runs }, (_, trialIndex) =>
+                  `${evalPlan.evalName}\0${evalPlan.model ?? ''}\0${stimulus}\0${trialIndex}`));
+            })
+            .sort();
+          const controlKeys = trialKeys(controlTrials);
+          const treatmentKeys = trialKeys(treatmentTrials);
+          if (controlTrials.length === 0 ||
+              controlTrials.length !== treatmentTrials.length ||
+              controlTrials.some(incomplete) || treatmentTrials.some(incomplete) ||
+              JSON.stringify(controlKeys) !== JSON.stringify(plannedTrialKeys('control')) ||
+              JSON.stringify(treatmentKeys) !== JSON.stringify(plannedTrialKeys('treatment')) ||
+              JSON.stringify(controlKeys) !== JSON.stringify(treatmentKeys)) {
+            throw new Error('Vally did not produce complete control and passing treatment results.');
+          }
+
+          const comparisons = readRecords(path.join(process.env.RESULT_ROOT, 'comparison.jsonl'));
+          if (comparisons.length !== 1 || comparisons[0].type !== 'comparison' ||
+              comparisons[0].summary.erroredCount !== 0 ||
+              comparisons[0].summary.trialCount !== treatmentTrials.length ||
+              !comparisons[0].summary.metricDeltas.some(metric =>
+                metric.metric === 'totalTokens' && Number.isFinite(metric.mean))) {
+            throw new Error('Vally did not produce a complete comparison with token metrics.');
+          }
+          EOF
+
+      - name: Report component result
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        env:
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          BASE_SHA: ${{ needs.discover.outputs.base_sha }}
+          COMPONENT: ${{ matrix.id }}
+          EVAL_PATH: ${{ matrix.eval_path }}
+          EVAL_OUTCOME: ${{ steps.verify.outcome }}
+          HEAD_SHA: ${{ needs.discover.outputs.head_sha }}
+          PULL_REQUEST: ${{ needs.discover.outputs.pull_request }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const issueNumber = Number(process.env.PULL_REQUEST);
+            const marker = `<!-- agent-harness-eval:${process.env.COMPONENT} -->`;
+            const passed = process.env.EVAL_OUTCOME === 'success';
+            let details = '_No complete Vally comparison was produced._';
+            let gradeBreakdown = '';
+            let reportGenerationFailed = false;
+
+            const readRecords = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
+            const findFiles = (directory, name, matches = []) => {
+              for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                const fullPath = path.join(directory, entry.name);
+                if (entry.isDirectory()) findFiles(fullPath, name, matches);
+                else if (entry.name === name) matches.push(fullPath);
+              }
+              return matches;
+            };
+            const escapeCell = value => String(value).replaceAll('|', '\\|').replaceAll(/\r?\n/g, ' ');
+
+            try {
+              const comparisonPath = path.join(process.env.RESULT_ROOT, 'comparison.jsonl');
+              if (fs.existsSync(comparisonPath)) {
+                const comparisons = readRecords(comparisonPath);
+                if (comparisons.length !== 1) {
+                  throw new Error(`expected one comparison record, found ${comparisons.length}`);
+                }
+                const comparison = comparisons[0];
+                const summary = comparison?.summary;
+                const tokens = summary?.metricDeltas?.find(metric => metric.metric === 'totalTokens');
+                if (comparison?.type !== 'comparison' ||
+                    !Number.isFinite(summary?.meanScore) ||
+                    !Number.isFinite(summary?.wins) ||
+                    !Number.isFinite(summary?.ties) ||
+                    !Number.isFinite(summary?.losses) ||
+                    !Number.isFinite(tokens?.mean)) {
+                  throw new Error('comparison summary or token metrics are incomplete');
+                }
+                const tokenDelta = `${tokens.mean >= 0 ? '+' : ''}${Math.round(tokens.mean).toLocaleString()}`;
+                details = `Quality score (treatment relative to control): **${summary.meanScore.toFixed(2)}** ` +
+                  `(${summary.wins} wins, ${summary.ties} ties, ${summary.losses} losses)\n\n` +
+                  `Mean token delta: **${tokenDelta} tokens** per paired trial.`;
+              }
+            } catch (error) {
+              reportGenerationFailed = true;
+              core.warning(`Could not parse comparison report: ${error.message}`);
+            }
+
+            try {
+              const treatmentFiles = findFiles(process.env.RESULT_ROOT, 'results.jsonl')
+                .filter(file => path.basename(path.dirname(file)) === 'treatment');
+              if (treatmentFiles.length !== 1) {
+                throw new Error(`expected one treatment results file, found ${treatmentFiles.length}`);
+              }
+
+              const byStimulus = new Map();
+              for (const trial of readRecords(treatmentFiles[0]).filter(record => record.type === 'trial-result')) {
+                const stimulus = trial.stimulus ?? trial.gradeResult?.stimulusName ?? 'unknown';
+                const summary = byStimulus.get(stimulus) ?? {
+                  trials: 0,
+                  successful: 0,
+                  scores: [],
+                  graders: new Map(),
+                };
+                summary.trials++;
+                if (trial.status === 'success') summary.successful++;
+                if (Number.isFinite(trial.gradeResult?.score)) summary.scores.push(trial.gradeResult.score);
+                for (const grade of trial.gradeResult?.details ?? []) {
+                  const grader = grade.name ?? grade.graderType ?? 'unknown';
+                  const count = summary.graders.get(grader) ?? { passed: 0, total: 0 };
+                  count.total++;
+                  if (grade.passed === true) count.passed++;
+                  summary.graders.set(grader, count);
+                }
+                byStimulus.set(stimulus, summary);
+              }
+
+              if (byStimulus.size > 0) {
+                const rows = [...byStimulus.entries()].map(([stimulus, summary]) => {
+                  const meanScore = summary.scores.length > 0
+                    ? (summary.scores.reduce((sum, score) => sum + score, 0) / summary.scores.length).toFixed(2)
+                    : 'N/A';
+                  const graders = [...summary.graders.entries()]
+                    .map(([grader, count]) => `${escapeCell(grader)}: ${count.passed}/${count.total}`)
+                    .join('<br>');
+                  return `| ${escapeCell(stimulus)} | ${summary.successful}/${summary.trials} | ${meanScore} | ${graders} |`;
+                });
+                gradeBreakdown = '\n\n#### Treatment grades by stimulus\n\n' +
+                  '| Stimulus | Successful trials | Mean score | Grader passes |\n' +
+                  '| --- | ---: | ---: | --- |\n' + rows.join('\n');
+              }
+            } catch (error) {
+              reportGenerationFailed = true;
+              core.warning(`Could not parse treatment grades: ${error.message}`);
+            }
+
+            let baseline = '';
+            try {
+              let existedAtBase = true;
+              try {
+                await github.rest.repos.getContent({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  path: process.env.EVAL_PATH,
+                  ref: process.env.BASE_SHA
+                });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                existedAtBase = false;
+              }
+
+              if (existedAtBase) {
+               const query = `repo:${context.repo.owner}/${context.repo.repo} is:pr is:merged label:area-harness ` +
+                 `in:comments "agent-harness-eval:${process.env.COMPONENT}"`;
+                const { data } = await github.rest.search.issuesAndPullRequests({
+                  q: query, sort: 'updated', order: 'desc', per_page: 100
+                });
+                let previous;
+                for (const pull of data.items) {
+                  if (pull.number === issueNumber) continue;
+                  const comments = await github.paginate(github.rest.issues.listComments, {
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: pull.number,
+                    per_page: 100
+                  });
+                  for (const comment of comments) {
+                    if (comment.user?.login !== 'github-actions[bot]' ||
+                        !comment.body?.startsWith(marker) ||
+                        !/Status: \*\*(passed|failed)\*\*/.test(comment.body)) continue;
+                    if (!previous || Date.parse(comment.updated_at) > Date.parse(previous.comment.updated_at)) {
+                      previous = { comment, pullNumber: pull.number };
+                    }
+                  }
+                }
+                if (previous) {
+                  baseline = `\n\n[Previous result from PR #${previous.pullNumber}]` +
+                    `(${previous.comment.html_url}) provides the baseline.`;
+                }
+              }
+            } catch (error) {
+              reportGenerationFailed = true;
+              core.warning(`Could not locate a previous baseline: ${error.message}`);
+            }
+
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const manualUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
+              '/actions/workflows/agent-harness-evaluation.yml';
+            const artifactLink = process.env.ARTIFACT_URL
+              ? `[Download Vally reports](${process.env.ARTIFACT_URL}) · `
+              : '';
+            const status = reportGenerationFailed ? 'error' : passed ? 'passed' : 'failed';
+            const report = reportGenerationFailed
+              ? 'An error occurred while generating the evaluation report.'
+              : `${details}${gradeBreakdown}${baseline}`;
+            const body = `${marker}\n### Agent evaluation: \`${process.env.COMPONENT}\`\n\n` +
+              `Status: **${status}** for \`${process.env.HEAD_SHA}\`\n\n` +
+              `${report}\n\nPR updates do not rerun evaluations automatically. ` +
+              `[Run again manually](${manualUrl}) after later commits.\n\n` +
+              `${artifactLink}[View workflow run](${runUrl})`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, per_page: 100
+            });
+            const existing = comments.find(comment =>
+              comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body
+              });
+            }
+
+  evaluation:
+    needs: [discover, evaluate]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fail when discovery did not complete
+        if: needs.discover.result != 'success'
+        run: |
+          echo "::error::Agent harness component discovery failed."
+          exit 1
+
+      - name: No affected components
+        if: needs.discover.result == 'success' && needs.discover.outputs.has_entries != 'true'
+        run: echo "No repository-owned harness evaluations are affected."
+
+      - name: Report deferred evaluation
+        if: >-
+          needs.discover.outputs.has_entries == 'true' &&
+          needs.discover.outputs.can_use_secrets != 'true'
+        run: echo "Evaluation requires a contributor-triggered manual run."
+
+      - name: Fail when a component comparison failed
+        if: >-
+          needs.discover.outputs.has_entries == 'true' &&
+          needs.discover.outputs.can_use_secrets == 'true' &&
+          needs.evaluate.result != 'success'
+        run: |
+          echo "::error::At least one agent harness component comparison failed."
+          exit 1
+
+      - name: Report successful evaluation
+        if: >-
+          needs.discover.outputs.has_entries == 'true' &&
+          needs.discover.outputs.can_use_secrets == 'true' &&
+          needs.evaluate.result == 'success'
+        env:
+          COMPONENTS: ${{ needs.discover.outputs.components }}
+        run: |
+          echo "All selected components passed treatment and control comparison: $COMPONENTS."

@@ -2,9 +2,7 @@
 
 This document provides guidance for working with code in the Entity Framework Core project.
 
-If you are not sure, do not guess, just tell that you don't know or ask clarifying questions.
-Don't just copy code that follows the same pattern in a different context.
-Don't rely just on names to guess its function, evaluate the code based on the implementation and usage.
+If you are not sure, do not guess, just tell that you don't know or ask clarifying questions. Don't just copy code that follows the same pattern in a different context. Don't rely just on names to guess its function, evaluate the code based on the implementation and usage.
 
 ## Code Style
 
@@ -22,6 +20,14 @@ Don't rely just on names to guess its function, evaluate the code based on the i
 
 - **NEVER** hardcode package versions in `.csproj` files
 - Use `eng/Versions.props` and `Directory.Packages.props` for NuGet package version management
+
+## Testing
+
+- Put provider-independent behavior in specification tests. Override those tests when a provider needs to add specific assertions such as `AssertSql` for providers that produce SQL.
+- `NonSharedModelTestBase` supports both the tests that share a model as well as those that do not.
+- Set `EF_TEST_REWRITE_BASELINES=1` to rewrite SQL and compiled-model baselines.
+- Tests execute using MTP, call `dotnet exec <test-dll> --filter-method '<pattern>' --filter-not-trait category=failing --ignore-exit-code 8` for focused runs.
+- Do not add `--no-build` unless the test assembly was built in the immediately preceding step.
 
 ## Implementation Guidelines
 

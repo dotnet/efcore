@@ -10,16 +10,12 @@ Converts tracked entity changes into database INSERT/UPDATE/DELETE commands duri
 
 ## Flow
 
-`SaveChanges()` → `DetectChanges()` → `IDatabase.SaveChanges()`
-  → `UpdateAdapter` creates `IUpdateEntry` list
-  → `CommandBatchPreparer.BatchCommands()`
+`SaveChanges()` → `DetectChanges()` → `IDatabase.SaveChanges()` → `UpdateAdapter` creates `IUpdateEntry` list → `CommandBatchPreparer.BatchCommands()`
     → `ModificationCommand` per table row, composed of `ColumnModification` per column
-      → `SharedTableEntryMap` is used to track entries mapped to the same row
+    → `SharedTableEntryMap` is used to track entries mapped to the same row
     → Topological sort via Multigraph (FK dependency ordering)
     → Groups into `ModificationCommandBatch` (respects max batch size)
-  → `UpdateSqlGenerator` generates SQL per batch
-  → `BatchExecutor` executes all batches in a transaction
-  → `StateManager.AcceptAllChanges()`
+    → `UpdateSqlGenerator` generates SQL per batch → `BatchExecutor` executes all batches in a transaction → `StateManager.AcceptAllChanges()`
 
 ## Concurrency
 

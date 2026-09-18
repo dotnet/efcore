@@ -1,0 +1,58 @@
+name: sqlite-adonet
+description: Evaluates Microsoft.Data.Sqlite guidance against its command and connection implementation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: claude-sonnet-5
+  judge_model: gpt-5.6-terra
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/sqlite-adonet
+stimuli:
+  - name: diagnose-reused-command-state
+    prompt: |-
+      Before analyzing files, use the available repository skill that applies to this task. Inspect src/Microsoft.Data.Sqlite.Core/SqliteConnection.cs, src/Microsoft.Data.Sqlite.Core/SqliteCommand.cs, test/Microsoft.Data.Sqlite.Tests/SqliteConnectionTest.cs, and test/Microsoft.Data.Sqlite.Tests/SqliteCommandTest.cs. Write analysis.md assessing a report that state from a reused command survives after its connection is closed and reopened. Identify the ADO.NET ownership boundary and whether the reported lifecycle is possible. Keep the analysis independent of EF Core provider abstractions, preserve SQLitePCL initialization behavior, and identify the T4 owner before changing any generated API. Explicitly explain what `SqliteConnection.Close()` does to tracked commands and whether a disposed command can be reused after reopening the same connection. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../src/Microsoft.Data.Sqlite.Core/SqliteConnection.cs
+          dest: src/Microsoft.Data.Sqlite.Core/SqliteConnection.cs
+        - src: ../../../../src/Microsoft.Data.Sqlite.Core/SqliteCommand.cs
+          dest: src/Microsoft.Data.Sqlite.Core/SqliteCommand.cs
+        - src: ../../../../test/Microsoft.Data.Sqlite.Tests/SqliteConnectionTest.cs
+          dest: test/Microsoft.Data.Sqlite.Tests/SqliteConnectionTest.cs
+        - src: ../../../../test/Microsoft.Data.Sqlite.Tests/SqliteCommandTest.cs
+          dest: test/Microsoft.Data.Sqlite.Tests/SqliteCommandTest.cs
+    rubric:
+      - The analysis is grounded in the staged SqliteConnection/SqliteCommand lifecycle and System.Data.Common contracts.
+      - It keeps the fix independent of EF Core provider abstractions and preserves SQLitePCL initialization behavior.
+      - It proposes focused tests only if a reachable defect remains and notes T4 ownership if generated APIs are touched.
+    graders:
+      - type: skill-invocation
+        config:
+          required: [ sqlite-adonet ]
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: Sqlite(Connection|Command)[\s\S]*(close|reopen|reuse)
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    skill-invocation: 0.27
+    file-matches: 0.27
+    prompt: 0.36
+    token-budget: 0.1
+  threshold: 0.75
