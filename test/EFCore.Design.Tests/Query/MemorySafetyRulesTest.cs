@@ -45,8 +45,8 @@ public class MemorySafetyRulesTest
         => Assert.Equal(MemorySafetyRules.SafeKeyword, MemorySafetyRules.SafeKeyword);
 
     [Fact]
-    public void UseSafeKeyword_defaults_to_false_when_language_version_is_not_set()
-        => Assert.False(MemorySafetyRules.UseSafeKeyword(null));
+    public void UseSafeKeyword_defaults_to_true_when_language_version_is_not_set()
+        => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(null));
 
     [Fact]
     public void UseSafeKeyword_respects_lower_language_versions()
@@ -54,7 +54,7 @@ public class MemorySafetyRulesTest
         Assert.False(MemorySafetyRules.UseSafeKeyword("14.0"));
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("14.1"));
         Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latest"));
-        Assert.False(MemorySafetyRules.UseSafeKeyword("default"));
+        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("default"));
     }
 
     [Fact]
