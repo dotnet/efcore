@@ -371,6 +371,7 @@ var books = await context.Entities.ToListAsync();
                 b.ToJson();
                 b.Property(x => x.Name).HasJsonPropertyName("1!NOT VALID;");
                 b.Property(x => x.Name2).HasJsonPropertyName("1-NOT VALID!");
+                b.ComplexCollection(x => x.Items, cb => cb.HasJsonPropertyName("1!NOT VALID COLLECTION;"));
             });
     }
 
@@ -385,6 +386,12 @@ var books = await context.Entities.ToListAsync();
     {
         public string Name { get; set; } = "";
         public string Name2 { get; set; } = "";
+        public List<InvalidNameNestedItem> Items { get; set; } = [];
+    }
+
+    public class InvalidNameNestedItem
+    {
+        public string Value { get; set; } = "";
     }
 
     [Fact]

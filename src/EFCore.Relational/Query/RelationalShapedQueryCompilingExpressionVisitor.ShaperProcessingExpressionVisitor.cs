@@ -58,6 +58,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo CollectionAccessorAddMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
 
+        private static readonly MethodInfo CollectionAccessorCreateMethodInfo
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Create))!;
+
         private static readonly PropertyInfo ObjectArrayIndexerPropertyInfo
             = typeof(object[]).GetProperty("Item")!;
 
@@ -1609,6 +1612,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var innerShapersMap = new Dictionary<string, Expression>();
             var innerFixupMap = new Dictionary<string, LambdaExpression>();
             var trackingInnerFixupMap = new Dictionary<string, LambdaExpression>();
+            var innerAbsentPropertyFixupMap = new Dictionary<string, LambdaExpression>();
 
             // Go over all structural properties (complex properties and navigations - if we're an (owned) entity), which represent JSON
             // nested types; generate shapers and fixup to wire the materialized related instance into the parent's property.
@@ -1716,6 +1720,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     innerFixupMap[navigationJsonPropertyName] = fixup;
 
+                    // A required complex collection absent from the document (e.g. added to the type after the row was persisted) must
+                    // materialize as empty rather than null; an explicit JSON null is still materialized as null. See #38625.
+                    if (nestedStructuralProperty is IComplexProperty { IsNullable: false }
+                        && !nestedStructuralProperty.IsShadowProperty())
+                    {
+                        innerAbsentPropertyFixupMap[navigationJsonPropertyName] =
+                            GenerateAbsentCollectionFixupForJson(structuralType.ClrType, nestedStructuralProperty);
+                    }
+
                     var trackedFixup = Lambda(
                         Block(typeof(void), expressionsForTracking),
                         shaperEntityParameter,
@@ -1750,7 +1763,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 jsonReaderDataShaperLambdaParameter,
                 innerShapersMap,
                 innerFixupMap,
-                trackingInnerFixupMap).Rewrite(structuralTypeShaperMaterializer);
+                trackingInnerFixupMap,
+                innerAbsentPropertyFixupMap).Rewrite(structuralTypeShaperMaterializer);
 
             var entityShaperMaterializerVariable = Variable(
                 structuralTypeShaperMaterializer.Type,
@@ -1899,7 +1913,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ParameterExpression jsonReaderDataParameter,
             IDictionary<string, Expression> innerShapersMap,
             IDictionary<string, LambdaExpression> innerFixupMap,
-            IDictionary<string, LambdaExpression> trackingInnerFixupMap)
+            IDictionary<string, LambdaExpression> trackingInnerFixupMap,
+            IDictionary<string, LambdaExpression> innerAbsentPropertyFixupMap)
             : ExpressionVisitor
         {
             private static readonly PropertyInfo JsonEncodedTextEncodedUtf8BytesProperty
@@ -1911,6 +1926,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             // keep track which variable corresponds to which navigation - we need that info for fixup
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity
             private readonly Dictionary<string, ParameterExpression> _navigationVariableMap = [];
+
+            // tracks whether a navigation appeared in the JSON document at all, to distinguish absent from explicitly null
+            private readonly Dictionary<string, ParameterExpression> _navigationReadVariableMap = [];
 
             public BlockExpression Rewrite(BlockExpression jsonEntityShaperMaterializer)
                 => (BlockExpression)VisitBlock(jsonEntityShaperMaterializer);
@@ -2090,7 +2108,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         foreach (var fixup in fixupMap)
                         {
-                            var navigationEntityParameter = _navigationVariableMap[fixup.Key];
+                            var navigationVariable = _navigationVariableMap[fixup.Key];
 
                             // Inject the fixup code for each property; we have this as a set of lambdas in the fixup map.
                             // In the normal case, simply Invoke the lambda, passing it the structural type to be fixed up as a parameter.
@@ -2098,30 +2116,49 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             // we unwrap the lambda and integrate its body directly.
                             // We should ideally do this for all cases (no need for the extra lambda Invoke), but there are some issues around us writing
                             // to readonly fields.
-                            if (jsonStructuralTypeVariable.Type
-                                .IsValueType /*&& Nullable.GetUnderlyingType(jsonStructuralTypeVariable.Type) is null*/)
-                            {
-                                var fixupBody = ReplacingExpressionVisitor.Replace(
-                                    originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
-                                    replacements: [jsonStructuralTypeVariable, _navigationVariableMap[fixup.Key]],
-                                    fixup.Value.Body);
+                            var isValueType = jsonStructuralTypeVariable.Type
+                                .IsValueType /*&& Nullable.GetUnderlyingType(jsonStructuralTypeVariable.Type) is null*/;
 
-                                finalBlockExpressions.Add(fixupBody);
+                            var fixupExpression = isValueType
+                                ? ReplacingExpressionVisitor.Replace(
+                                    originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
+                                    replacements: [jsonStructuralTypeVariable, navigationVariable],
+                                    fixup.Value.Body)
+                                : Invoke(fixup.Value, jsonStructuralTypeVariable, navigationVariable);
+
+                            if (innerAbsentPropertyFixupMap.TryGetValue(fixup.Key, out var absentPropertyFixup))
+                            {
+                                Check.DebugAssert(
+                                    absentPropertyFixup.Parameters is [{ } absentFixupParameter]
+                                    && absentFixupParameter.Type == jsonStructuralTypeVariable.Type,
+                                    "The absent-property fixup must take only the instance being materialized");
+                                Check.DebugAssert(
+                                    _navigationReadVariableMap.ContainsKey(fixup.Key),
+                                    "No read flag was generated for a property with an absent-property fixup");
+
+                                var absentPropertyFixupExpression = isValueType
+                                    ? ReplacingExpressionVisitor.Replace(
+                                        absentPropertyFixup.Parameters[0], jsonStructuralTypeVariable, absentPropertyFixup.Body)
+                                    : Invoke(absentPropertyFixup, jsonStructuralTypeVariable);
+
+                                fixupExpression = IfThenElse(
+                                    _navigationReadVariableMap[fixup.Key],
+                                    fixupExpression,
+                                    absentPropertyFixupExpression);
                             }
-                            else
+
+                            if (!isValueType)
                             {
                                 // If the structural type being fixed up is nullable, then we need to add null checks before we run fixup logic.
                                 // For regular entities, whose fixup is done as part of the "Materialize*" method, the checks are done there
                                 // (the same will be done for the "optimized" scenario, where we populate properties directly rather than store in variables).
                                 // But in this case fixups are standalone, so the null safety must be added here.
-                                finalBlockExpressions.Add(
-                                    IfThen(
-                                        NotEqual(jsonStructuralTypeVariable, Constant(null, jsonStructuralTypeVariable.Type)),
-                                        Invoke(
-                                            fixup.Value,
-                                            jsonStructuralTypeVariable,
-                                            _navigationVariableMap[fixup.Key])));
+                                fixupExpression = IfThen(
+                                    NotEqual(jsonStructuralTypeVariable, Constant(null, jsonStructuralTypeVariable.Type)),
+                                    fixupExpression);
                             }
+
+                            finalBlockExpressions.Add(fixupExpression);
                         }
                     }
                 }
@@ -2211,6 +2248,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _navigationVariableMap[innerShaperMapElementKey] = propertyVariable;
 
+                        Expression markAsRead = Empty();
+                        if (innerAbsentPropertyFixupMap.ContainsKey(innerShaperMapElementKey))
+                        {
+                            var propertyReadVariable = Variable(typeof(bool));
+                            finalBlockVariables.Add(propertyReadVariable);
+                            _navigationReadVariableMap[innerShaperMapElementKey] = propertyReadVariable;
+                            markAsRead = Assign(propertyReadVariable, Constant(true));
+                        }
+
                         var moveNext = Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod);
                         var captureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
                         var assignment = Assign(propertyVariable, innerShaperMapElement.Value);
@@ -2227,6 +2273,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 captureState,
                                 assignment,
                                 managerRecreation,
+                                markAsRead,
                                 Empty()));
                     }
 
@@ -2905,6 +2952,28 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         prm,
                         Constant(true))),
                 prm);
+        }
+
+        private LambdaExpression GenerateAbsentCollectionFixupForJson(Type clrType, IPropertyBase structuralProperty)
+        {
+            var entityParameter = Parameter(clrType);
+            var setter = structuralProperty.GetMemberInfo(forMaterialization: true, forSet: true);
+
+            return Lambda(
+                Block(
+                    typeof(void),
+                    entityParameter.MakeMemberAccess(setter)
+                        .Assign(
+                            Convert(
+                                Call(
+                                    _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                        structuralProperty.GetCollectionAccessor(),
+                                        LiftableConstantExpressionHelpers.BuildClrCollectionAccessorLambda(structuralProperty),
+                                        structuralProperty.Name + "StructuralPropertyCollectionAccessor",
+                                        typeof(IClrCollectionAccessor)),
+                                    CollectionAccessorCreateMethodInfo),
+                                setter.GetMemberType()))),
+                entityParameter);
         }
 
         private Expression AddToCollectionStructuralProperty(
