@@ -27,21 +27,21 @@
   </PropertyGroup>
 
   <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(ShouldUseLiveRoslyn)' != 'true'">
-    <MicrosoftBuildFrameworkVersion>18.4.0</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>18.4.0</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>18.4.0</MicrosoftBuildTasksCoreVersion>
-    <MicrosoftCodeAnalysisCSharpVersion>5.3.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.3.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.3.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
+    <MicrosoftBuildFrameworkVersion>18.10.1</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.10.1</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.10.1</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.9.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.9.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.9.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="MSBuild and Roslyn servicing" Condition="'$(ShouldUseLiveRoslyn)' == 'true'">
-    <MicrosoftBuildFrameworkVersion>18.5.0</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>18.5.0</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>18.5.0</MicrosoftBuildTasksCoreVersion>
-    <MicrosoftCodeAnalysisCSharpVersion>5.5.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.5.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.5.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
+    <MicrosoftBuildFrameworkVersion>18.10.1</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.10.1</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.10.1</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.9.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.9.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.9.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Test dependencies">
