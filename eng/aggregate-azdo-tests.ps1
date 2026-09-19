@@ -20,6 +20,21 @@ $jobDisplayNames = @{
     Helix_Ubuntu_SqlServer = 'Helix Ubuntu SQL Server'
     Helix_Ubuntu_Cosmos = 'Helix Ubuntu Cosmos'
     Helix_Ubuntu = 'Helix Ubuntu'
+    HelixJobMonitor = 'Monitor Helix Jobs'
+}
+
+# Test runs uploaded by the Helix Job Monitor are named after their target queue.
+# Public queue names add ".Open"; normalize that suffix so the same map works for internal builds.
+$helixQueueNames = @{
+    Helix_Windows = 'Windows.10.Amd64'
+    Helix_Windows_SqlServer = 'Windows.11.Amd64.Client'
+    Helix_Windows_Arm64 = 'Windows.11.Arm64'
+    Helix_Windows_Cosmos = 'Windows.Server2025.Amd64'
+    Helix_macOS_x64 = 'OSX.15.Amd64'
+    Helix_macOS_ARM64 = 'OSX.15.ARM64'
+    Helix_Ubuntu_SqlServer = 'Ubuntu.2204.Amd64.XL@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64'
+    Helix_Ubuntu_Cosmos = 'Ubuntu.2204.Amd64.XL'
+    Helix_Ubuntu = 'Ubuntu.2204.Amd64'
 }
 
 # A group succeeds when at least one of its jobs succeeds. Jobs may participate in multiple groups.
@@ -71,10 +86,173 @@ function Get-FailedGroups([hashtable]$resultsByJob)
     return $failed
 }
 
+function Get-AzureDevOpsApiContext
+{
+    if ([string]::IsNullOrEmpty($env:SYSTEM_ACCESSTOKEN))
+    {
+        throw 'SYSTEM_ACCESSTOKEN is required to get Helix test results.'
+    }
+
+    if ([string]::IsNullOrEmpty($env:SYSTEM_COLLECTIONURI) -or
+        [string]::IsNullOrEmpty($env:SYSTEM_TEAMPROJECT))
+    {
+        throw 'SYSTEM_COLLECTIONURI and SYSTEM_TEAMPROJECT are required to get Helix test results.'
+    }
+
+    $project = [Uri]::EscapeDataString($env:SYSTEM_TEAMPROJECT)
+    @{
+        ApiBaseUri = "$($env:SYSTEM_COLLECTIONURI.TrimEnd('/'))/$project/_apis"
+        Headers = @{ Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN" }
+    }
+}
+
+function Get-NormalizedHelixQueueName([string]$queueName)
+{
+    return $queueName -replace '\.Open(?=@|$)', ''
+}
+
+function Invoke-AzureDevOpsRestMethod([string]$uri, [hashtable]$headers)
+{
+    $maxAttempts = 3
+
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++)
+    {
+        try
+        {
+            return Invoke-RestMethod `
+                -Uri $uri `
+                -Headers $headers `
+                -ErrorAction Stop
+        }
+        catch
+        {
+            $statusCode = 0
+            if ($null -ne $_.Exception.Response)
+            {
+                $statusCode = [int]$_.Exception.Response.StatusCode
+            }
+
+            if ($attempt -eq $maxAttempts -or $statusCode -notin @(408, 429, 500, 502, 503, 504))
+            {
+                throw
+            }
+
+            $delay = [Math]::Pow(2, $attempt)
+            Write-Warning "Azure DevOps request failed with HTTP $statusCode. Retrying in $delay seconds."
+            Start-Sleep -Seconds $delay
+        }
+    }
+}
+
+function Get-AzureDevOpsTestRuns([int]$buildId, [hashtable]$apiContext)
+{
+    $buildUri = [Uri]::EscapeDataString("vstfs:///Build/Build/$buildId")
+    $pageSize = 1000
+    $skip = 0
+    $testRuns = @()
+
+    do
+    {
+        $uri = "$($apiContext.ApiBaseUri)/test/runs?buildUri=$buildUri&%24top=$pageSize&%24skip=$skip&api-version=7.1"
+        $response = Invoke-AzureDevOpsRestMethod $uri $apiContext.Headers
+        $page = @($response.value)
+        $testRuns += $page
+        $skip += $page.Count
+    }
+    while ($page.Count -eq $pageSize)
+
+    return $testRuns
+}
+
+function Set-HelixJobResults(
+    [hashtable]$resultsByJob,
+    [string[]]$jobNames,
+    [int]$buildId)
+{
+    $helixJobNames = @($jobNames | Where-Object { $_ -like 'Helix_*' })
+    if ($helixJobNames.Count -eq 0)
+    {
+        return
+    }
+
+    foreach ($jobName in $helixJobNames)
+    {
+        if (-not $resultsByJob.ContainsKey($jobName))
+        {
+            throw "Missing result for Helix job '$jobName'."
+        }
+
+        if (-not $helixQueueNames.ContainsKey($jobName))
+        {
+            throw "Missing Helix queue mapping for job '$jobName'."
+        }
+    }
+
+    $apiContext = Get-AzureDevOpsApiContext
+    $testRuns = @(Get-AzureDevOpsTestRuns $buildId $apiContext)
+
+    foreach ($jobName in $helixJobNames)
+    {
+        if ($resultsByJob[$jobName] -eq 'Skipped')
+        {
+            continue
+        }
+
+        if ($resultsByJob[$jobName] -notin @('Succeeded', 'SucceededWithIssues'))
+        {
+            Write-Warning "Helix submission job '$jobName' did not succeed: $($resultsByJob[$jobName])."
+            $resultsByJob[$jobName] = 'Failed'
+            continue
+        }
+
+        $queueName = $helixQueueNames[$jobName]
+        # Job Monitor retries create a new run with the same queue name containing only the retried work items.
+        $run = @($testRuns
+            | Where-Object { (Get-NormalizedHelixQueueName $_.name) -eq $queueName }
+            | Sort-Object id -Descending)[0]
+
+        if ($null -eq $run)
+        {
+            Write-Warning "No completed Helix test run was found for job '$jobName' and queue '$queueName'."
+            $resultsByJob[$jobName] = 'Failed'
+            continue
+        }
+
+        if ($run.state -ne 'Completed')
+        {
+            throw "Helix test run $($run.id) for job '$jobName' did not complete; its state is '$($run.state)'."
+        }
+
+        $attachmentsResponse = Invoke-AzureDevOpsRestMethod `
+            "$($apiContext.ApiBaseUri)/test/runs/$($run.id)/attachments?api-version=7.1" `
+            $apiContext.Headers
+        $failedWorkItemsAttachment = @($attachmentsResponse.value
+            | Where-Object { $_.fileName -eq 'helix-failed-workitems.json' })
+
+        if ($failedWorkItemsAttachment.Count -gt 0)
+        {
+            $resultsByJob[$jobName] = 'Failed'
+        }
+        else
+        {
+            $resultsByJob[$jobName] = 'Succeeded'
+        }
+
+        Write-Host "  $jobName ($($run.name)): $($resultsByJob[$jobName])"
+    }
+}
+
 $jobAttempt = 1
 [void][int]::TryParse($env:SYSTEM_JOBATTEMPT, [ref]$jobAttempt)
 $stageAttempt = 1
 [void][int]::TryParse($env:SYSTEM_STAGEATTEMPT, [ref]$stageAttempt)
+$buildId = 0
+if (-not [int]::TryParse($env:BUILD_BUILDID, [ref]$buildId) -or $buildId -le 0)
+{
+    throw "BUILD_BUILDID must contain a valid build ID; received '$env:BUILD_BUILDID'."
+}
+
+Set-HelixJobResults $JobResults @($helixQueueNames.Keys) $buildId
 $failedGroups = @(Get-FailedGroups $JobResults)
 
 # Retrying validation queues a child build containing the distinct jobs needed by all failed groups.
@@ -144,6 +322,18 @@ if (($jobAttempt -gt 1 -or $stageAttempt -gt 1) -and $failedGroups.Count -gt 0)
         }
 
         $JobResults[$jobName] = $record.result
+    }
+
+    $helixJobsToRetry = @($jobsToRetry | Where-Object { $_ -like 'Helix_*' })
+    if ($helixJobsToRetry.Count -gt 0)
+    {
+        $monitorRecord = Get-JobRecord $timeline 'HelixJobMonitor'
+        if ($null -eq $monitorRecord)
+        {
+            throw 'Could not find the Helix Job Monitor timeline record for the retry build.'
+        }
+
+        Set-HelixJobResults $JobResults $helixJobsToRetry $retryBuild.id
     }
 
     $failedGroups = @(Get-FailedGroups $JobResults)

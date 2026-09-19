@@ -527,6 +527,10 @@ stages:
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    - ${{ if or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_')) }}:
+      - template: /eng/common/core-templates/job/helix-job-monitor.yml
+        parameters:
+          continueOnError: true
 - stage: validate
   displayName: Validate
   dependsOn: build
