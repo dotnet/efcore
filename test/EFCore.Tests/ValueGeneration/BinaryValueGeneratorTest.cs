@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class BinaryValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Creates_GUID_arrays()
     {
         var generator = new BinaryValueGenerator();
@@ -13,7 +13,7 @@ public class BinaryValueGeneratorTest
         var values = new HashSet<Guid>();
         for (var i = 0; i < 100; i++)
         {
-            var generatedValue = generator.Next(null);
+            var generatedValue = generator.Next(null!);
 
             values.Add(new Guid(generatedValue));
         }
@@ -21,7 +21,7 @@ public class BinaryValueGeneratorTest
         Assert.Equal(100, values.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Generates_non_temp_values()
         => Assert.False(new BinaryValueGenerator().GeneratesTemporaryValues);
 }

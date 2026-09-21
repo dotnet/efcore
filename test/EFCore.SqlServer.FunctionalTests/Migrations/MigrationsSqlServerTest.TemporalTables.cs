@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public partial class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTest.MigrationsSqlServerFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_default_column_mappings_and_default_history_table()
     {
         await Test(
@@ -60,7 +60,107 @@ EXEC(N'CREATE TABLE [Customer] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual async Task Create_temporal_table_with_period_columns_not_hidden()
+    {
+        await Test(
+            builder => { },
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+
+                    e.ToTable(tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.HasPeriodStart("SystemTimeStart").IsHidden(false);
+                        ttb.HasPeriodEnd("SystemTimeEnd").IsHidden(false);
+                    }));
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customer", table.Name);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name));
+            });
+
+        AssertSql(
+            """
+DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'CREATE TABLE [Customer] (
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
+    PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
+""");
+    }
+
+    [Fact]
+    public virtual async Task Convert_normal_table_to_temporal_with_visible_period_columns()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.HasPeriodStart("PeriodStart").IsHidden(false);
+                        ttb.HasPeriodEnd("PeriodEnd").IsHidden(false);
+                    }));
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+            });
+
+        // The convert-to-temporal path should NOT emit `ALTER COLUMN ... ADD HIDDEN` operations
+        // when the user has configured the period columns visible.
+        AssertSql(
+            """
+ALTER TABLE [Customer] ADD [PeriodEnd] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
+""",
+            //
+            """
+ALTER TABLE [Customer] ADD [PeriodStart] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
+""",
+            //
+            """
+ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])
+""",
+            //
+            """
+DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomerHistory]))')
+""");
+    }
+
+    [Fact]
     public virtual async Task Create_temporal_table_custom_column_mappings_and_default_history_table()
     {
         await Test(
@@ -112,7 +212,7 @@ EXEC(N'CREATE TABLE [Customer] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_default_column_mappings_and_custom_history_table()
     {
         await Test(
@@ -165,7 +265,7 @@ EXEC(N'CREATE TABLE [Customer] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_explicitly_defined_schema()
     {
         await Test(
@@ -222,7 +322,7 @@ CREATE TABLE [mySchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_schema_for_model_changed_and_no_explicit_table_schema_provided()
     {
         await Test(
@@ -283,7 +383,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_schema_for_model_changed_and_explicit_table_schema_provided()
     {
         await Test(
@@ -344,7 +444,7 @@ CREATE TABLE [mySchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_model_schema()
     {
         await Test(
@@ -406,7 +506,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_model_schema_specified_after_entity_definition()
     {
         await Test(
@@ -471,7 +571,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Create_temporal_table_with_default_model_schema_specified_after_entity_definition_and_history_table_schema_specified_explicitly()
     {
@@ -542,7 +642,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_model_schema_changed_after_entity_definition()
     {
         await Test(
@@ -606,7 +706,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Create_temporal_table_with_default_schema_for_model_changed_and_explicit_history_table_schema_not_provided()
     {
@@ -669,7 +769,7 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_schema_for_model_changed_and_explicit_history_table_schema_provided()
     {
         await Test(
@@ -735,31 +835,28 @@ CREATE TABLE [myDefaultSchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_default_schema_for_table_and_explicit_history_table_schema_provided()
     {
         await Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
-                        e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
-                        e.HasKey("Id");
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
 
-                        e.ToTable(
-                            "Customers", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.UseHistoryTable("HistoryTable", "historySchema");
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
-                    });
-            },
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable", "historySchema");
+                            ttb.HasPeriodStart("SystemTimeStart");
+                            ttb.HasPeriodEnd("SystemTimeEnd");
+                        }));
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -796,7 +893,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Drop_temporal_table_default_history_table()
     {
         await Test(
@@ -816,10 +913,7 @@ CREATE TABLE [Customers] (
                     }));
                 }),
             builder => { },
-            model =>
-            {
-                Assert.Empty(model.Tables);
-            });
+            model => Assert.Empty(model.Tables));
 
         AssertSql(
             """
@@ -835,7 +929,7 @@ DROP TABLE [CustomerHistory];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Drop_temporal_table_custom_history_table()
     {
         await Test(
@@ -856,10 +950,7 @@ DROP TABLE [CustomerHistory];
                     }));
                 }),
             builder => { },
-            model =>
-            {
-                Assert.Empty(model.Tables);
-            });
+            model => Assert.Empty(model.Tables));
 
         AssertSql(
             """
@@ -875,7 +966,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Drop_temporal_table_custom_history_table_and_history_table_schema()
     {
         await Test(
@@ -896,10 +987,7 @@ DROP TABLE [HistoryTable];
                     }));
                 }),
             builder => { },
-            model =>
-            {
-                Assert.Empty(model.Tables);
-            });
+            model => Assert.Empty(model.Tables));
 
         AssertSql(
             """
@@ -915,7 +1003,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table()
     {
         await Test(
@@ -936,15 +1024,9 @@ DROP TABLE [historySchema].[HistoryTable];
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers");
-                }),
+                "Customer", e => e.ToTable("Customers")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("RenamedCustomers");
-                }),
+                "Customer", e => e.ToTable("RenamedCustomers")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -986,7 +1068,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_rename_and_modify_column_in_same_migration()
     {
         await Test(
@@ -1086,7 +1168,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_with_custom_history_table_schema()
     {
         await Test(
@@ -1107,15 +1189,9 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers");
-                }),
+                "Customer", e => e.ToTable("Customers")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("RenamedCustomers");
-                }),
+                "Customer", e => e.ToTable("RenamedCustomers")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1178,10 +1254,7 @@ ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [his
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers", "mySchema2");
-                }),
+                "Customer", e => e.ToTable("Customers", "mySchema2")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1224,7 +1297,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_schema_when_history_table_has_its_schema_specified()
     {
         await Test(
@@ -1247,10 +1320,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers", "mySchema2");
-                }),
+                "Customer", e => e.ToTable("Customers", "mySchema2")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1289,7 +1359,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_schema_and_history_table_name_when_history_table_doesnt_have_its_schema_specified()
     {
         await Test(
@@ -1303,27 +1373,21 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     e.HasKey("Id");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable2");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable2");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1367,7 +1431,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Rename_temporal_table_schema_and_history_table_name_when_history_table_doesnt_have_its_schema_specified_convention_with_default_global_schema22()
     {
@@ -1384,27 +1448,21 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     });
             },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable2");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable2");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1448,7 +1506,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Rename_temporal_table_schema_and_history_table_name_when_history_table_doesnt_have_its_schema_specified_convention_with_default_global_schema_and_table_schema_corrected()
     {
@@ -1478,16 +1536,13 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     e.ToTable("Customers", "modifiedSchema");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable2");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable2");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1531,7 +1586,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Rename_temporal_table_schema_when_history_table_doesnt_have_its_schema_specified_convention_with_default_global_schema_and_table_name_corrected()
     {
@@ -1560,15 +1615,12 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     e.ToTable("Customers", "mySchema");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1611,7 +1663,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_history_table()
     {
         await Test(
@@ -1625,27 +1677,21 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     e.HasKey("Id");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("RenamedHistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("RenamedHistoryTable");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1670,7 +1716,7 @@ EXEC sp_rename N'[HistoryTable]', N'RenamedHistoryTable', 'OBJECT';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Change_history_table_schema()
     {
         await Test(
@@ -1684,27 +1730,21 @@ EXEC sp_rename N'[HistoryTable]', N'RenamedHistoryTable', 'OBJECT';
                     e.HasKey("Id");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "historySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable", "historySchema");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "modifiedHistorySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable", "modifiedHistorySchema");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1734,7 +1774,7 @@ ALTER SCHEMA [modifiedHistorySchema] TRANSFER [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_temporal_table_history_table_and_their_schemas()
     {
         await Test(
@@ -1761,16 +1801,13 @@ ALTER SCHEMA [modifiedHistorySchema] TRANSFER [historySchema].[HistoryTable];
                     e.ToTable("Customers");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "RenamedCustomers", "newSchema", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("RenamedHistoryTable", "newHistorySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "RenamedCustomers", "newSchema", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("RenamedHistoryTable", "newHistorySchema");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1827,7 +1864,7 @@ ALTER TABLE [newSchema].[RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table()
     {
         await Test(
@@ -1880,40 +1917,36 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Name');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Name';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var4 nvarchar(max);
-SELECT @var4 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var4 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var4 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var5 nvarchar(max);
-SELECT @var5 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var5 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number';
 IF @var5 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var5 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
@@ -1924,7 +1957,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table_with_history_table_schema()
     {
         await Test(
@@ -1977,40 +2010,36 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Number];
 """,
@@ -2020,7 +2049,7 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myHistoryS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table_with_table_schema()
     {
         await Test(
@@ -2073,40 +2102,36 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Number];
 """,
@@ -2116,7 +2141,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table_with_default_schema()
     {
         await Test(
@@ -2173,40 +2198,36 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Number];
 """,
@@ -2216,7 +2237,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_columns_from_temporal_table_with_different_schemas_on_each_level()
     {
         await Test(
@@ -2273,40 +2294,36 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[mySchema].[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[myHistorySchema].[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Number];
 """,
@@ -2316,7 +2333,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_columns_to_temporal_table()
     {
         await Test(
@@ -2372,7 +2389,7 @@ ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_temporal_table_with_default_column_mappings_and_custom_history_table_to_normal_table_keep_period_columns()
     {
@@ -2434,7 +2451,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_with_default_column_mappings_and_default_history_table_to_normal_table()
     {
         await Test(
@@ -2487,20 +2504,18 @@ ALTER TABLE [Customer] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodEnd');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodEnd';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] DROP COLUMN [PeriodEnd];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodStart');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodStart';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] DROP COLUMN [PeriodStart];
 """,
@@ -2510,7 +2525,7 @@ DROP TABLE [CustomerHistory];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_temporal_table_with_default_column_mappings_and_custom_history_table_to_normal_table_remove_period_columns()
     {
@@ -2564,20 +2579,18 @@ ALTER TABLE [Customer] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodEnd');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodEnd';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] DROP COLUMN [PeriodEnd];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodStart');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'PeriodStart';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] DROP COLUMN [PeriodStart];
 """,
@@ -2587,7 +2600,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_with_explicit_history_table_schema_to_normal_table()
     {
         await Test(
@@ -2648,7 +2661,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_with_explicit_schemas_same_schema_for_table_and_history_to_normal_table()
     {
         await Test(
@@ -2711,7 +2724,7 @@ DROP TABLE [mySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_using_custom_default_schema_to_normal_table()
     {
         await Test(
@@ -2775,7 +2788,7 @@ DROP TABLE [myDefaultSchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_temporal_table_using_custom_default_schema_and_explicit_history_schema_to_normal_table()
     {
         await Test(
@@ -2839,7 +2852,7 @@ DROP TABLE [mySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_normal_table_to_temporal_table_with_minimal_configuration()
     {
         await Test(
@@ -2906,7 +2919,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_normal_table_to_temporal_generates_exec_when_idempotent()
     {
         await Test(
@@ -2974,7 +2987,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_normal_table_with_period_columns_to_temporal_table_default_column_mappings_and_default_history_table()
     {
@@ -3038,7 +3051,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_normal_table_with_period_columns_to_temporal_table_default_column_mappings_and_specified_history_table()
     {
@@ -3105,7 +3118,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_normal_table_to_temporal_table_default_column_mappings_and_default_history_table()
     {
         await Test(
@@ -3176,7 +3189,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task
         Convert_normal_table_without_period_columns_to_temporal_table_default_column_mappings_and_specified_history_table()
     {
@@ -3249,7 +3262,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_period_properties_of_temporal_table()
     {
         await Test(
@@ -3313,7 +3326,7 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_period_columns_of_temporal_table()
     {
         await Test(
@@ -3327,25 +3340,19 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', 'COLUMN';
                     e.HasKey("Id");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
+                "Customer", e => e.ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
-                }),
+                    ttb.UseHistoryTable("HistoryTable");
+                    ttb.HasPeriodStart("Start");
+                    ttb.HasPeriodEnd("End");
+                }))),
             builder => builder.Entity(
-                "Customer", e =>
+                "Customer", e => e.ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
-                        ttb.HasPeriodEnd("End").HasColumnName("ModifiedEnd");
-                    }));
-                }),
+                    ttb.UseHistoryTable("HistoryTable");
+                    ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
+                    ttb.HasPeriodEnd("End").HasColumnName("ModifiedEnd");
+                }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3374,7 +3381,7 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_period_column_of_temporal_table()
     {
         await Test(
@@ -3424,7 +3431,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_regular_columns_of_temporal_table()
     {
         await Test(
@@ -3444,15 +3451,9 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name");
-                }),
+                "Customer", e => e.Property<string>("Name")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("FullName");
-                }),
+                "Customer", e => e.Property<string>("FullName")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3477,7 +3478,7 @@ EXEC sp_rename N'[Customer].[Name]', N'FullName', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_column_of_temporal_table_from_nullable_to_non_nullable()
     {
         await Test(
@@ -3503,15 +3504,9 @@ EXEC sp_rename N'[Customer].[Name]', N'FullName', 'COLUMN';
                         new { Id = 3, IsVip = (bool?)null });
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<bool?>("IsVip");
-                }),
+                "Customer", e => e.Property<bool?>("IsVip")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<bool>("IsVip");
-                }),
+                "Customer", e => e.Property<bool>("IsVip")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3537,10 +3532,9 @@ ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'IsVip');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'IsVip';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 UPDATE [Customer] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [Customer] ALTER COLUMN [IsVip] bit NOT NULL;
@@ -3549,10 +3543,9 @@ ALTER TABLE [Customer] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'IsVip');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'IsVip';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 UPDATE [HistoryTable] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [HistoryTable] ALTER COLUMN [IsVip] bit NOT NULL;
@@ -3565,7 +3558,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_table_to_temporal_and_regular_column_from_nullable_to_non_nullable()
     {
         await Test(
@@ -3627,10 +3620,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'IsVip');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'IsVip';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 UPDATE [Customers] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [Customers] ALTER COLUMN [IsVip] bit NOT NULL;
@@ -3663,7 +3655,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_table_to_temporal_and_regular_column_to_sparse()
     {
         await Test(
@@ -3720,10 +3712,9 @@ EXEC(N'ALTER TABLE [HistoryTable] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [MyColumn] int SPARSE NULL;
 """,
@@ -3754,7 +3745,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_computed_column()
     {
         await Test(
@@ -3810,7 +3801,7 @@ EXEC(N'CREATE TABLE [Customer] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_nullable_computed_column_to_temporal_table()
     {
         await Test(
@@ -3831,10 +3822,7 @@ EXEC(N'CREATE TABLE [Customer] (
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED");
-                }),
+                "Customer", e => e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3872,7 +3860,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_non_nullable_computed_column_to_temporal_table()
     {
         await Test(
@@ -3893,10 +3881,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Five").HasComputedColumnSql("5 PERSISTED");
-                }),
+                "Customer", e => e.Property<int>("Five").HasComputedColumnSql("5 PERSISTED")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3934,7 +3919,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_computed_column_from_temporal_table()
     {
         await Test(
@@ -3954,10 +3939,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED");
-                }),
+                "Customer", e => e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED")),
             builder => { },
             model =>
             {
@@ -3983,20 +3965,18 @@ ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'IdPlusFive');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'IdPlusFive';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] DROP COLUMN [IdPlusFive];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'IdPlusFive');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'IdPlusFive';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [IdPlusFive];
 """,
@@ -4007,7 +3987,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_computed_column_sql_on_temporal_table()
     {
         var message = (await Assert.ThrowsAsync<NotSupportedException>(() => Test(
@@ -4027,15 +4007,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED");
-                }),
+                "Customer", e => e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 10 PERSISTED");
-                }),
+                "Customer", e => e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 10 PERSISTED")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4059,7 +4033,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
             message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_on_temporal_table_with_computed_column()
     {
         await Test(
@@ -4084,10 +4058,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                 {
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Number");
-                }),
+                "Customer", e => e.Property<int>("Number")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4113,7 +4084,7 @@ ALTER TABLE [Customer] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Remove_column_on_temporal_table_with_computed_column()
     {
         await Test(
@@ -4134,10 +4105,7 @@ ALTER TABLE [Customer] ADD [Number] int NOT NULL DEFAULT 0;
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Number");
-                }),
+                "Customer", e => e.Property<int>("Number")),
             builder => builder.Entity(
                 "Customer", e =>
                 {
@@ -4167,20 +4135,18 @@ ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
@@ -4191,7 +4157,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Rename_column_on_temporal_table_with_computed_column()
     {
         await Test(
@@ -4212,15 +4178,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Number");
-                }),
+                "Customer", e => e.Property<int>("Number")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("RenamedNumber");
-                }),
+                "Customer", e => e.Property<int>("RenamedNumber")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4246,7 +4206,7 @@ EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_sparse_column_to_temporal_table()
     {
         await Test(
@@ -4267,10 +4227,7 @@ EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', 'COLUMN';
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn").IsSparse();
-                }),
+                "Customer", e => e.Property<int?>("MyColumn").IsSparse()),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4313,7 +4270,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_sparse_column_to_temporal_table_with_custom_schemas()
     {
         await Test(
@@ -4336,10 +4293,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn").IsSparse();
-                }),
+                "Customer", e => e.Property<int?>("MyColumn").IsSparse()),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4383,7 +4337,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_column_of_temporal_table_to_sparse()
     {
         await Test(
@@ -4408,15 +4362,9 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
                         new { MyColumn = (int?)null });
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn");
-                }),
+                "Customer", e => e.Property<int?>("MyColumn")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn").IsSparse();
-                }),
+                "Customer", e => e.Property<int?>("MyColumn").IsSparse()),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4447,20 +4395,18 @@ EXEC(N'ALTER TABLE [HistoryTable] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyColumn');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyColumn';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int SPARSE NULL;
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'MyColumn');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'MyColumn';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] ALTER COLUMN [MyColumn] int SPARSE NULL;
 """,
@@ -4471,7 +4417,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_sparse_column_of_temporal_table_to_regular()
     {
         await Test(
@@ -4496,15 +4442,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                         new { MyColumn = (int?)null });
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn").IsSparse();
-                }),
+                "Customer", e => e.Property<int?>("MyColumn").IsSparse()),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn");
-                }),
+                "Customer", e => e.Property<int?>("MyColumn")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4526,16 +4466,15 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyColumn');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyColumn';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_regular_table_with_sparse_column_to_temporal()
     {
         await Test(
@@ -4552,10 +4491,7 @@ ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int NULL;
                         new { MyColumn = (int?)null });
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers");
-                }),
+                "Customer", e => e.ToTable("Customers")),
             builder => builder.Entity(
                 "Customer", e =>
                 {
@@ -4615,7 +4551,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_temporal_table_with_comments()
     {
         await Test(
@@ -4675,7 +4611,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_normal_table_to_temporal_while_also_adding_comments_and_index()
     {
         await Test(
@@ -4724,10 +4660,9 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] ALTER COLUMN [Name] nvarchar(450) NULL;
 DECLARE @defaultSchema2 AS sysname;
@@ -4767,7 +4702,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Alter_comments_for_temporal_table()
     {
         await Test(
@@ -4836,7 +4771,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description3, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_index_to_temporal_table()
     {
         await Test(
@@ -4888,10 +4823,9 @@ EXEC sp_addextendedproperty 'MS_Description', @description3, 'SCHEMA', @defaultS
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -4905,7 +4839,7 @@ CREATE UNIQUE INDEX [IX_Customers_Number] ON [Customers] ([Number]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_index_on_period_column_to_temporal_table()
     {
         await Test(
@@ -4959,10 +4893,9 @@ CREATE UNIQUE INDEX [IX_Customers_Number] ON [Customers] ([Number]);
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -4976,31 +4909,28 @@ CREATE INDEX [IX_Customers_Start] ON [Customers] ([Start]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task History_table_schema_created_when_necessary()
     {
         await Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
-                        e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
-                        e.HasKey("Id");
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
 
-                        e.ToTable(
-                            "Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("MyHistoryTable", "mySchema2");
-                            }));
-                    });
-            },
+                    e.ToTable(
+                        "Customers", "mySchema", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("SystemTimeStart");
+                            ttb.HasPeriodEnd("SystemTimeEnd");
+                            ttb.UseHistoryTable("MyHistoryTable", "mySchema2");
+                        }));
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -5029,7 +4959,7 @@ CREATE TABLE [mySchema].[Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task History_table_schema_not_created_if_we_know_it_already_exists1()
     {
         await Test(
@@ -5074,7 +5004,7 @@ CREATE TABLE [mySchema].[Customers] (
             {
                 Assert.Equal(2, model.Tables.Count);
                 Assert.True(model.Tables.All(x => x.Schema == "mySchema"));
-                Assert.True(model.Tables.All(x => x[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string == "mySchema"));
+                Assert.True(model.Tables.All(x => (x[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string) == "mySchema"));
             });
 
         AssertSql(
@@ -5105,7 +5035,7 @@ CREATE TABLE [mySchema].[Orders] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task History_table_schema_not_created_if_we_know_it_already_exists2()
     {
         await Test(
@@ -5152,7 +5082,7 @@ CREATE TABLE [mySchema].[Orders] (
             {
                 Assert.Equal(2, model.Tables.Count);
                 Assert.True(model.Tables.All(x => x.Schema == "mySchema"));
-                Assert.True(model.Tables.All(x => x[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string == "mySchema2"));
+                Assert.True(model.Tables.All(x => (x[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string) == "mySchema2"));
             });
 
         AssertSql(
@@ -5187,7 +5117,7 @@ CREATE TABLE [mySchema].[Orders] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task History_table_schema_renamed_to_one_exisiting_in_the_model()
     {
         await Test(
@@ -5290,7 +5220,7 @@ ALTER SCHEMA [mySchema] TRANSFER [mySchema2].[OrdersHistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_with_default_global_schema_noop_migtation_doesnt_generate_unnecessary_steps()
     {
         await Test(
@@ -5324,30 +5254,21 @@ ALTER SCHEMA [mySchema] TRANSFER [mySchema2].[OrdersHistoryTable];
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_with_default_global_schema_changing_global_schema()
     {
         await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.Property<string>("Name");
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
 
-                        e.ToTable(
-                            "Customers", tb => tb.IsTemporal());
-                    });
-            },
-            builder =>
-            {
-                builder.HasDefaultSchema("myDefaultSchema");
-            },
-            builder =>
-            {
-                builder.HasDefaultSchema("myModifiedDefaultSchema");
-            },
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal());
+                }),
+            builder => builder.HasDefaultSchema("myDefaultSchema"),
+            builder => builder.HasDefaultSchema("myModifiedDefaultSchema"),
             model =>
             {
                 Assert.Equal(1, model.Tables.Count);
@@ -5378,7 +5299,7 @@ ALTER TABLE [myModifiedDefaultSchema].[Customers] SET (SYSTEM_VERSIONING = ON (H
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_rename_and_delete_columns_in_one_migration()
     {
         await Test(
@@ -5437,20 +5358,18 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
@@ -5477,7 +5396,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_rename_and_delete_columns_and_also_rename_table_in_one_migration()
     {
         await Test(
@@ -5547,20 +5466,18 @@ ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
@@ -5587,7 +5504,7 @@ EXEC(N'ALTER TABLE [ModifiedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABL
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_rename_and_delete_columns_and_also_rename_history_table_in_one_migration()
     {
         await Test(
@@ -5653,20 +5570,18 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
@@ -5689,7 +5604,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_delete_column_and_add_another_column_in_one_migration()
     {
         await Test(
@@ -5747,20 +5662,18 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
@@ -5779,7 +5692,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_delete_column_and_alter_another_column_in_one_migration()
     {
         await Test(
@@ -5838,20 +5751,18 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
@@ -5878,7 +5789,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_rename_and_alter_period_column_in_one_migration()
     {
         await Test(
@@ -5946,7 +5857,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_delete_column_rename_and_alter_period_column_in_one_migration()
     {
         await Test(
@@ -6008,20 +5919,18 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'DateOfBirth');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'DateOfBirth';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [DateOfBirth];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'DateOfBirth');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'DateOfBirth';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [DateOfBirth];
 """,
@@ -6056,7 +5965,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_from_temporal_table_with_minimal_configuration_to_explicit_one_noop()
     {
         await Test(
@@ -6107,7 +6016,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_from_temporal_table_with_explicit_configuration_to_minimal_one_noop()
     {
         await Test(
@@ -6158,7 +6067,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_from_temporal_table_with_minimal_configuration_to_explicit_one()
     {
         await Test(
@@ -6220,7 +6129,7 @@ EXEC sp_rename N'[CustomersHistory]', N'HistoryTable', 'OBJECT';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Change_names_of_period_columns_in_temporal_table()
     {
         await Test(
@@ -6284,7 +6193,7 @@ EXEC sp_rename N'[Customers].[PeriodEnd]', N'ValidTo', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_and_add_new_column()
     {
         await Test(
@@ -6363,7 +6272,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_and_remove_existing_column()
     {
         await Test(
@@ -6413,10 +6322,9 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
@@ -6447,7 +6355,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_and_rename_column()
     {
         await Test(
@@ -6527,7 +6435,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_and_add_new_column()
     {
         await Test(
@@ -6582,20 +6490,18 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
@@ -6609,7 +6515,7 @@ ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_and_remove_existing_column()
     {
         await Test(
@@ -6663,40 +6569,36 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Number';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
             """
 DECLARE @var4 nvarchar(max);
-SELECT @var4 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
+SELECT @var4 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start';
 IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var4 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
@@ -6706,7 +6608,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_and_rename_column()
     {
         await Test(
@@ -6762,20 +6664,18 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
@@ -6789,7 +6689,7 @@ DROP TABLE [HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_rename_table_and_add_new_column()
     {
         await Test(
@@ -6880,7 +6780,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = '
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_rename_table_and_remove_existing_column()
     {
         await Test(
@@ -6934,10 +6834,9 @@ ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
@@ -6976,7 +6875,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = '
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_to_temporal_rename_table_and_rename_column()
     {
         await Test(
@@ -7068,7 +6967,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = '
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_rename_table_and_add_new_column()
     {
         await Test(
@@ -7127,20 +7026,18 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
@@ -7162,7 +7059,7 @@ ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_table_rename_history_table_and_add_new_column()
     {
         await Test(
@@ -7251,7 +7148,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = '
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_from_temporal_create_another_table_with_same_name_as_history_table()
     {
         await Test(
@@ -7329,20 +7226,18 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Start';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
@@ -7361,7 +7256,7 @@ CREATE TABLE [HistoryTable] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_convert_regular_table_to_temporal_and_add_rowversion_column()
     {
         await Test(
@@ -7443,7 +7338,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_create_temporal_table_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -7478,10 +7373,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
                         .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
                         .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart")
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Customers", x => x.Id);
-                })
+                constraints: table => table.PrimaryKey("PK_Customers", x => x.Id))
             .Annotation("SqlServer:IsTemporal", true)
             .Annotation("SqlServer:TemporalHistoryTableName", "CustomersHistory")
             .Annotation("SqlServer:TemporalHistoryTableSchema", null)
@@ -7523,7 +7415,7 @@ EXEC(N'CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_convert_regular_table_to_temporal_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -7645,7 +7537,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_convert_regular_table_with_rowversion_to_temporal_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -7782,7 +7674,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_rename_temporal_table_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -7958,7 +7850,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_convert_temporal_table_to_regular_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8060,20 +7952,18 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'PeriodEnd');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'PeriodEnd';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [PeriodEnd];
 """,
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'PeriodStart');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'PeriodStart';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [PeriodStart];
 """,
@@ -8084,26 +7974,24 @@ DROP TABLE [CustomersHistory];
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
 """,
             //
             """
 DECLARE @var4 nvarchar(max);
-SELECT @var4 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Id');
+SELECT @var4 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Id';
 IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var4 + ';');
 ALTER TABLE [Customers] ALTER COLUMN [Id] int NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_add_column_to_temporal_table_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8160,7 +8048,7 @@ ALTER TABLE [Customers] ADD [MyRowVersion] rowversion NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_remove_temporal_table_column_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8210,16 +8098,15 @@ ALTER TABLE [Customers] ADD [MyRowVersion] rowversion NOT NULL;
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'IsVip');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'IsVip';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [IsVip];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_rename_temporal_table_column_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8272,7 +8159,7 @@ EXEC sp_rename N'[Customers].[Name]', N'FullName', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_rename_temporal_table_period_columns_using_EF8_migration_code()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -8426,7 +8313,7 @@ EXEC sp_rename N'[Customers].[PeriodEnd]', N'NewPeriodEnd', 'COLUMN';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_drop_temporal_table_and_add_the_same_table_in_one_migration()
     {
         await TestComposite(
@@ -8497,7 +8384,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_period_column_twice()
     {
         await TestComposite(
@@ -8569,7 +8456,7 @@ EXEC sp_rename N'[Customers].[NewSystemTimeStart]', N'FinalSystemTimeStart', 'CO
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task Temporal_multiop_create_regular_convert_to_temporal_rename_table_drop_column()
     {
         await TestComposite(
@@ -8665,10 +8552,9 @@ ALTER TABLE [RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY 
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[RenamedCustomers]') AND [c].[name] = N'Number');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[RenamedCustomers]') AND [c].[name] = N'Number';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [RenamedCustomers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [RenamedCustomers] DROP COLUMN [Number];
 """,
@@ -8694,7 +8580,7 @@ ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [his
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_drop_temporal_table_and_add_slightly_different_table_with_the_same_name_in_one_migration()
     {
         await TestComposite(
@@ -8810,7 +8696,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task
         Temporal_multiop_drop_temporal_create_normal_add_column_rename_convert_to_temporal_drop_create_again_as_temporal_convert_to_normal_edit_drop()
     {
@@ -9012,20 +8898,18 @@ ALTER TABLE [BrandNewCustomers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'SystemTimeEnd');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'SystemTimeEnd';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [BrandNewCustomers] DROP COLUMN [SystemTimeEnd];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'SystemTimeStart');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'SystemTimeStart';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [BrandNewCustomers] DROP COLUMN [SystemTimeStart];
 """,
@@ -9036,10 +8920,9 @@ DROP TABLE [historySchema].[HistoryTable];
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'Extra');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[BrandNewCustomers]') AND [c].[name] = N'Extra';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [BrandNewCustomers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [BrandNewCustomers] DROP COLUMN [Extra];
 """,
@@ -9049,7 +8932,7 @@ DROP TABLE [BrandNewCustomers];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_many_renames()
     {
         await TestComposite(
@@ -9173,20 +9056,18 @@ ALTER TABLE [CustomersThree] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[CustomersThree]') AND [c].[name] = N'SystemTimeEnd');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[CustomersThree]') AND [c].[name] = N'SystemTimeEnd';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [CustomersThree] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [CustomersThree] DROP COLUMN [SystemTimeEnd];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[CustomersThree]') AND [c].[name] = N'SystemTimeStart');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[CustomersThree]') AND [c].[name] = N'SystemTimeStart';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [CustomersThree] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [CustomersThree] DROP COLUMN [SystemTimeStart];
 """,
@@ -9228,7 +9109,7 @@ ALTER TABLE [CustomersSix] ADD CONSTRAINT [PK_CustomersSix] PRIMARY KEY ([Id]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_convert_temporal_to_regular_and_back()
     {
         await TestComposite(
@@ -9289,20 +9170,18 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeEnd];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeStart];
 """,
@@ -9336,7 +9215,7 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [historySch
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task Temporal_multiop_convert_regular_to_temporal_and_back()
     {
         await TestComposite(
@@ -9389,26 +9268,24 @@ ALTER TABLE [Customers] ADD [SystemTimeStart] datetime2 NOT NULL DEFAULT '0001-0
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeEnd];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeStart];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_add_sparse_column_to_temporal_table_then_remove_it()
     {
         await TestComposite(
@@ -9487,20 +9364,18 @@ ALTER TABLE [historySchema].[HistoryTable] ADD [MyColumn] int SPARSE NULL;
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [MyColumn];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [historySchema].[HistoryTable] DROP COLUMN [MyColumn];
 """,
@@ -9510,7 +9385,7 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [historySch
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_change_column_nullability_rename_table_drop_table()
     {
         await TestComposite(
@@ -9579,10 +9454,9 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 UPDATE [Customers] SET [MyColumn] = 0 WHERE [MyColumn] IS NULL;
 ALTER TABLE [Customers] ALTER COLUMN [MyColumn] int NOT NULL;
@@ -9591,10 +9465,9 @@ ALTER TABLE [Customers] ADD DEFAULT 0 FOR [MyColumn];
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 UPDATE [historySchema].[HistoryTable] SET [MyColumn] = 0 WHERE [MyColumn] IS NULL;
 ALTER TABLE [historySchema].[HistoryTable] ALTER COLUMN [MyColumn] int NOT NULL;
@@ -9622,7 +9495,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_add_sparse_column_to_temporal_then_convert_to_regular()
     {
         await TestComposite(
@@ -9693,20 +9566,18 @@ ALTER TABLE [historySchema].[HistoryTable] ADD [MyColumn] int SPARSE NULL;
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Customers] DROP COLUMN [MyColumn];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[historySchema].[HistoryTable]') AND [c].[name] = N'MyColumn';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [historySchema].[HistoryTable] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [historySchema].[HistoryTable] DROP COLUMN [MyColumn];
 """,
@@ -9717,20 +9588,18 @@ ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeEnd';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeEnd];
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'SystemTimeStart';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [Customers] DROP COLUMN [SystemTimeStart];
 """,
@@ -9740,7 +9609,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task Temporal_multiop_add_column_to_temporal_table_with_default_schemas_change_default_schema_add_another_column()
     {
         await TestComposite(
@@ -9812,7 +9681,7 @@ DROP TABLE [historySchema].[HistoryTable];
         AssertSql("");
     }
 
-    [ConditionalFact(Skip = "Issue #36161")]
+    [Fact(Skip = "Issue #36161")]
     public virtual async Task Temporal_multiop_convert_regular_table_to_temporal_change_default_schema_convert_back_to_regular()
     {
         await TestComposite(
@@ -9881,26 +9750,24 @@ ALTER TABLE [modifiedDefaultSchema].[Customers] ADD [SystemTimeStart] datetime2 
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[modifiedDefaultSchema].[Customers]') AND [c].[name] = N'SystemTimeEnd');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[modifiedDefaultSchema].[Customers]') AND [c].[name] = N'SystemTimeEnd';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [modifiedDefaultSchema].[Customers] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [modifiedDefaultSchema].[Customers] DROP COLUMN [SystemTimeEnd];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[modifiedDefaultSchema].[Customers]') AND [c].[name] = N'SystemTimeStart');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[modifiedDefaultSchema].[Customers]') AND [c].[name] = N'SystemTimeStart';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [modifiedDefaultSchema].[Customers] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [modifiedDefaultSchema].[Customers] DROP COLUMN [SystemTimeStart];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_create_temporal_and_drop()
     {
         await TestComposite(
@@ -9955,7 +9822,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_temporal_and_drop()
     {
         await TestComposite(
@@ -10023,7 +9890,7 @@ DROP TABLE [historySchema].[HistoryTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_period_drop_table_create_as_regular()
     {
         await TestComposite(
@@ -10100,7 +9967,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_multiop_rename_column_drop_table_create_as_regular()
     {
         await TestComposite(
@@ -10177,7 +10044,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_with_default_constraint_can_alter_column()
     {
         await Test(
@@ -10196,15 +10063,9 @@ CREATE TABLE [Customers] (
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName");
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(100); // Remove default value
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(100)),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -10230,20 +10091,18 @@ ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [Customer] ALTER COLUMN [Name] nvarchar(100) NULL;
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[CustomerHistory]') AND [c].[name] = N'Name');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[CustomerHistory]') AND [c].[name] = N'Name';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [CustomerHistory] DROP CONSTRAINT ' + @var3 + ';');
 ALTER TABLE [CustomerHistory] ALTER COLUMN [Name] nvarchar(100) NULL;
 """,
@@ -10254,7 +10113,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_add_default_constraint_to_column()
     {
         await Test(
@@ -10273,15 +10132,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50);
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50)),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName"); // Add default value
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -10303,16 +10156,15 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] ADD DEFAULT N'DefaultName' FOR [Name];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_change_default_constraint_value()
     {
         await Test(
@@ -10331,15 +10183,9 @@ ALTER TABLE [Customer] ADD DEFAULT N'DefaultName' FOR [Name];
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("OldDefault");
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("OldDefault")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("NewDefault"); // Change default value
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("NewDefault")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -10361,16 +10207,15 @@ ALTER TABLE [Customer] ADD DEFAULT N'DefaultName' FOR [Name];
         AssertSql(
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'Name';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Customer] ADD DEFAULT N'NewDefault' FOR [Name];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Temporal_table_remove_default_value_sql_from_column()
     {
         await Test(
@@ -10389,15 +10234,9 @@ ALTER TABLE [Customer] ADD DEFAULT N'NewDefault' FOR [Name];
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<DateTime>("CreatedDate").HasDefaultValueSql("GETDATE()");
-                }),
+                "Customer", e => e.Property<DateTime>("CreatedDate").HasDefaultValueSql("GETDATE()")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<DateTime>("CreatedDate"); // Remove default value SQL
-                }),
+                "Customer", e => e.Property<DateTime>("CreatedDate")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -10423,25 +10262,102 @@ ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
             //
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'CreatedDate');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'CreatedDate';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
 """,
             //
             """
 DECLARE @var3 nvarchar(max);
-SELECT @var3 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[CustomerHistory]') AND [c].[name] = N'CreatedDate');
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[CustomerHistory]') AND [c].[name] = N'CreatedDate';
 IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [CustomerHistory] DROP CONSTRAINT ' + @var3 + ';');
 """,
             //
             """
 DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[CustomerHistory]))')
+""");
+    }
+
+    [Fact]
+    public virtual async Task Add_identity_column_to_temporal_table_when_versioning_is_disabled()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedNever();
+                    e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable");
+                            ttb.HasPeriodStart("Start");
+                            ttb.HasPeriodEnd("End");
+                        }));
+                }),
+            builder => builder.Entity(
+                "Customer", e => e.Property<string>("Name")),
+            builder => builder.Entity(
+                "Customer", e => e.Property<int>("Number").UseIdentityColumn()),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customers", table.Name);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+                Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Number", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
+""",
+            //
+            """
+DECLARE @var2 nvarchar(max);
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name';
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
+ALTER TABLE [Customers] DROP COLUMN [Name];
+""",
+            //
+            """
+DECLARE @var3 nvarchar(max);
+SELECT @var3 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Name';
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
+ALTER TABLE [HistoryTable] DROP COLUMN [Name];
+""",
+            //
+            """
+ALTER TABLE [Customers] ADD [Number] int NOT NULL IDENTITY;
+""",
+            //
+            """
+ALTER TABLE [HistoryTable] ADD [Number] int NOT NULL DEFAULT 0;
+""",
+            //
+            """
+DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
 """);
     }
 }

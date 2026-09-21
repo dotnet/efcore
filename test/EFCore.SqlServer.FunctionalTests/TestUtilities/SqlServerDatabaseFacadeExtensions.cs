@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public static class SqlServerDatabaseFacadeExtensions
 {
-    public static void EnsureClean(this DatabaseFacade databaseFacade)
+    public static void EnsureClean(this DatabaseFacade databaseFacade, bool createTables = true)
         => databaseFacade.CreateExecutionStrategy()
-            .Execute(databaseFacade, database => new SqlServerDatabaseCleaner().Clean(database));
+            .Execute(databaseFacade, database => new SqlServerDatabaseCleaner().Clean(database, createTables));
 }

@@ -1,176 +1,190 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using Microsoft.EntityFrameworkCore.Storage.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 public class CosmosTypeMappingSourceTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_map_sbyte()
-        => Can_map_scalar_by_clr_type<sbyte, JsonSByteReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<sbyte, JsonSByteReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_short()
-        => Can_map_scalar_by_clr_type<short, JsonInt16ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<short, JsonInt16ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_int()
-        => Can_map_scalar_by_clr_type<int, JsonInt32ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<int, JsonInt32ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_long()
-        => Can_map_scalar_by_clr_type<long, JsonInt64ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<long, JsonInt64ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_byte()
-        => Can_map_scalar_by_clr_type<byte, JsonByteReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<byte, JsonByteReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_ushort()
-        => Can_map_scalar_by_clr_type<ushort, JsonUInt16ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<ushort, JsonUInt16ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_uint()
-        => Can_map_scalar_by_clr_type<uint, JsonUInt32ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<uint, JsonUInt32ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_ulong()
-        => Can_map_scalar_by_clr_type<ulong, JsonUInt64ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<ulong, JsonUInt64ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_char()
-        => Can_map_scalar_by_clr_type<char, JsonCharReaderWriter>('A', JTokenType.String, "\"A\"");
+        => Can_map_scalar_by_clr_type<char, JsonCharReaderWriter>('A', "\"A\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_decimal()
-        => Can_map_scalar_by_clr_type<decimal, JsonDecimalReaderWriter>(1.33m, JTokenType.Float, "1.33");
+        => Can_map_scalar_by_clr_type<decimal, CosmosJsonDecimalReaderWriter>(1.33m, "1.33");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_float()
-        => Can_map_scalar_by_clr_type<float, JsonFloatReaderWriter>(1.33f, JTokenType.Float, "1.33", "DefaultFloatValueComparer");
+        => Can_map_scalar_by_clr_type<float, JsonFloatReaderWriter>(1.33f, "1.33", "DefaultFloatValueComparer");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_double()
-        => Can_map_scalar_by_clr_type<double, JsonDoubleReaderWriter>(1.33, JTokenType.Float, "1.33", "DefaultDoubleValueComparer");
+        => Can_map_scalar_by_clr_type<double, JsonDoubleReaderWriter>(1.33, "1.33", "DefaultDoubleValueComparer");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_bool()
-        => Can_map_scalar_by_clr_type<bool, JsonBoolReaderWriter>(true, JTokenType.Boolean, "true");
+        => Can_map_scalar_by_clr_type<bool, JsonBoolReaderWriter>(true, "true");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_DateOnly()
-        => Can_map_scalar_by_clr_type<DateOnly, JsonDateOnlyReaderWriter>(new DateOnly(2003, 12, 25), JTokenType.String, "\"2003-12-25\"");
+        => Can_map_scalar_by_clr_type<DateOnly, JsonDateOnlyReaderWriter>(new DateOnly(2003, 12, 25), "\"2003-12-25\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_TimeOnly()
-        => Can_map_scalar_by_clr_type<TimeOnly, JsonTimeOnlyReaderWriter>(
-            new TimeOnly(20, 19, 12, 254), JTokenType.String, "\"20:19:12.254\"");
+        => Can_map_scalar_by_clr_type<TimeOnly, CosmosJsonTimeOnlyReaderWriter>(
+            new TimeOnly(20, 19, 12, 254), "\"20:19:12.254\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_DateTime()
         => Can_map_scalar_by_clr_type<DateTime, JsonDateTimeReaderWriter>(
-            new DateTime(2003, 12, 25, 20, 19, 12, 254), JTokenType.Date, "\"2003-12-25T20:19:12.254\"");
+            new DateTime(2003, 12, 25, 20, 19, 12, 254), "\"2003-12-25T20:19:12.254\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_DateTimeOffset()
         => Can_map_scalar_by_clr_type<DateTimeOffset, JsonDateTimeOffsetReaderWriter>(
-            new DateTimeOffset(2003, 12, 25, 20, 19, 12, 254, new TimeSpan(4, 30, 0)), JTokenType.Date, "\"2003-12-25T20:19:12.254+04:30\"",
+            new DateTimeOffset(2003, 12, 25, 20, 19, 12, 254, new TimeSpan(4, 30, 0)), "\"2003-12-25T20:19:12.254+04:30\"",
             "DefaultDateTimeOffsetValueComparer");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_TimeSpan()
-        => Can_map_scalar_by_clr_type<TimeSpan, JsonTimeSpanReaderWriter>(new TimeSpan(2, 3, 4, 5), JTokenType.TimeSpan, "\"2.03:04:05\"");
+        => Can_map_scalar_by_clr_type<TimeSpan, CosmosJsonTimeSpanReaderWriter>(new TimeSpan(2, 3, 4, 5), "\"2.03:04:05\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_string()
-        => Can_map_scalar_by_clr_type<string, JsonStringReaderWriter>("Hello", JTokenType.String, "\"Hello\"");
+        => Can_map_scalar_by_clr_type<string, JsonStringReaderWriter>("Hello", "\"Hello\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_sbyte()
-        => Can_map_scalar_by_clr_type<sbyte?, JsonSByteReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<sbyte?, JsonSByteReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_short()
-        => Can_map_scalar_by_clr_type<short?, JsonInt16ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<short?, JsonInt16ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_int()
-        => Can_map_scalar_by_clr_type<int?, JsonInt32ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<int?, JsonInt32ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_long()
-        => Can_map_scalar_by_clr_type<long?, JsonInt64ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<long?, JsonInt64ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_byte()
-        => Can_map_scalar_by_clr_type<byte?, JsonByteReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<byte?, JsonByteReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_ushort()
-        => Can_map_scalar_by_clr_type<ushort?, JsonUInt16ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<ushort?, JsonUInt16ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_uint()
-        => Can_map_scalar_by_clr_type<uint?, JsonUInt32ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<uint?, JsonUInt32ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_ulong()
-        => Can_map_scalar_by_clr_type<ulong?, JsonUInt64ReaderWriter>(1, JTokenType.Integer, "1");
+        => Can_map_scalar_by_clr_type<ulong?, JsonUInt64ReaderWriter>(1, "1");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_char()
-        => Can_map_scalar_by_clr_type<char?, JsonCharReaderWriter>('A', JTokenType.String, "\"A\"");
+        => Can_map_scalar_by_clr_type<char?, JsonCharReaderWriter>('A', "\"A\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_decimal()
-        => Can_map_scalar_by_clr_type<decimal?, JsonDecimalReaderWriter>(1.33m, JTokenType.Float, "1.33");
+        => Can_map_scalar_by_clr_type<decimal?, CosmosJsonDecimalReaderWriter>(1.33m, "1.33");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_float()
-        => Can_map_scalar_by_clr_type<float?, JsonFloatReaderWriter>(1.33f, JTokenType.Float, "1.33", "DefaultFloatValueComparer");
+        => Can_map_scalar_by_clr_type<float?, JsonFloatReaderWriter>(1.33f, "1.33", "DefaultFloatValueComparer");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_double()
-        => Can_map_scalar_by_clr_type<double?, JsonDoubleReaderWriter>(1.33, JTokenType.Float, "1.33", "DefaultDoubleValueComparer");
+        => Can_map_scalar_by_clr_type<double?, JsonDoubleReaderWriter>(1.33, "1.33", "DefaultDoubleValueComparer");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_bool()
-        => Can_map_scalar_by_clr_type<bool?, JsonBoolReaderWriter>(true, JTokenType.Boolean, "true");
+        => Can_map_scalar_by_clr_type<bool?, JsonBoolReaderWriter>(true, "true");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_DateOnly()
-        => Can_map_scalar_by_clr_type<DateOnly?, JsonDateOnlyReaderWriter>(new DateOnly(2003, 12, 25), JTokenType.String, "\"2003-12-25\"");
+        => Can_map_scalar_by_clr_type<DateOnly?, JsonDateOnlyReaderWriter>(new DateOnly(2003, 12, 25), "\"2003-12-25\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_TimeOnly()
-        => Can_map_scalar_by_clr_type<TimeOnly?, JsonTimeOnlyReaderWriter>(
-            new TimeOnly(20, 19, 12, 254), JTokenType.String, "\"20:19:12.254\"");
+        => Can_map_scalar_by_clr_type<TimeOnly?, CosmosJsonTimeOnlyReaderWriter>(
+            new TimeOnly(20, 19, 12, 254), "\"20:19:12.254\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_DateTime()
         => Can_map_scalar_by_clr_type<DateTime?, JsonDateTimeReaderWriter>(
-            new DateTime(2003, 12, 25, 20, 19, 12, 254), JTokenType.Date, "\"2003-12-25T20:19:12.254\"");
+            new DateTime(2003, 12, 25, 20, 19, 12, 254), "\"2003-12-25T20:19:12.254\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_DateTimeOffset()
         => Can_map_scalar_by_clr_type<DateTimeOffset?, JsonDateTimeOffsetReaderWriter>(
-            new DateTimeOffset(2003, 12, 25, 20, 19, 12, 254, new TimeSpan(4, 30, 0)), JTokenType.Date, "\"2003-12-25T20:19:12.254+04:30\"",
+            new DateTimeOffset(2003, 12, 25, 20, 19, 12, 254, new TimeSpan(4, 30, 0)), "\"2003-12-25T20:19:12.254+04:30\"",
             "DefaultDateTimeOffsetValueComparer");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_TimeSpan()
-        => Can_map_scalar_by_clr_type<TimeSpan?, JsonTimeSpanReaderWriter>(new TimeSpan(2, 3, 4, 5), JTokenType.TimeSpan, "\"2.03:04:05\"");
+        => Can_map_scalar_by_clr_type<TimeSpan?, CosmosJsonTimeSpanReaderWriter>(new TimeSpan(2, 3, 4, 5), "\"2.03:04:05\"");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_nullable_string()
-        => Can_map_scalar_by_clr_type<string?, JsonStringReaderWriter>("Hello", JTokenType.String, "\"Hello\"");
+        => Can_map_scalar_by_clr_type<string?, JsonStringReaderWriter>("Hello", "\"Hello\"");
 
-    private void Can_map_scalar_by_clr_type<T, TReader>(T value, JTokenType tokenType, string jsonValue, string? comparerType = null)
+    [Fact]
+    public void Can_roundtrip_dictionary_with_null_reference_collection_value()
+    {
+        var mapping = (CosmosTypeMapping)GetTypeMapping(typeof(Dictionary<string, string[]>));
+        var readerWriter =
+            Assert.IsType<CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReferenceCollectionValueReaderWriter<string[], string>>(
+                mapping.JsonValueReaderWriter);
+
+        var value = new Dictionary<string, string[]> { { "1", ["1"] }, { "2", null! } };
+
+        var json = readerWriter.ToJsonString(value);
+        var result = Assert.IsType<Dictionary<string, string[]>>(readerWriter.FromJsonString(json));
+
+        Assert.Equal(["1"], result["1"]);
+        Assert.Null(result["2"]);
+    }
+
+    private void Can_map_scalar_by_clr_type<T, TReader>(T value, string jsonValue, string? comparerType = null)
     {
         var unwrappedType = UnwrapNullableType(typeof(T));
         comparerType ??= $"DefaultValueComparer<{unwrappedType.ShortDisplayName()}>";
@@ -184,17 +198,14 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal(comparerType, mapping.KeyComparer.GetType().ShortDisplayName());
         //Assert.Equal(comparerType, mapping.ProviderValueComparer.GetType().ShortDisplayName());
         Assert.IsType<TReader>(mapping.JsonValueReaderWriter);
-        Assert.Equal(jsonValue, mapping.GenerateConstant(value));
-        var token = mapping.GenerateJToken(value)!;
-        Assert.Equal(tokenType, token.Type);
+        Assert.Equal(jsonValue, mapping.JsonValueReaderWriter.ToJsonString(value!));
 
-        if (token.Type != JTokenType.String)
-        {
-            Assert.Equal(value, token.Value<T>());
-        }
+        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(jsonValue)), null);
+        readerManager.MoveNext();
+        Assert.Equal(value, (T)mapping.JsonValueReaderWriter.FromJson(ref readerManager));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_byte_array()
     {
         var value = new byte[] { 1, 2, 3, 4, 5 };
@@ -208,93 +219,94 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal("ValueComparer<byte[]>", mapping.KeyComparer.GetType().ShortDisplayName());
         Assert.Equal("DefaultValueComparer<string>", mapping.ProviderValueComparer.GetType().ShortDisplayName());
         Assert.IsType<JsonConvertedValueReaderWriter<byte[], string>>(mapping.JsonValueReaderWriter);
-        Assert.Equal("\"AQIDBAU=\"", mapping.GenerateConstant(value));
-        var token = mapping.GenerateJToken(value)!;
-        Assert.Equal(JTokenType.String, token.Type);
-        Assert.Equal("AQIDBAU=", token.Value<string>());
+        Assert.Equal("\"AQIDBAU=\"", mapping.JsonValueReaderWriter.ToJsonString(value!));
+
+        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes("\"AQIDBAU=\"")), null);
+        readerManager.MoveNext();
+        Assert.Equal(value, ((JsonValueReaderWriter<byte[]>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_sbyte_array()
         => Can_map_collection_by_clr_type<sbyte[], sbyte, JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>>(
             [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<sbyte[], sbyte>", "ValueComparer<sbyte[]>",
             "ValueComparer<sbyte[]>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_short_array()
         => Can_map_collection_by_clr_type<short[], short, JsonCollectionOfStructsReaderWriter<short[], short>>(
             [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<short[], short>", "ValueComparer<short[]>",
             "ValueComparer<short[]>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_int_array()
         => Can_map_collection_by_clr_type<int[], int, JsonCollectionOfStructsReaderWriter<int[], int>>(
             [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<int[], int>", "ValueComparer<int[]>", "ValueComparer<int[]>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_long_array()
         => Can_map_collection_by_clr_type<long[], long, JsonCollectionOfStructsReaderWriter<long[], long>>(
             [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<long[], long>", "ValueComparer<long[]>", "ValueComparer<long[]>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_ushort_array()
         => Can_map_collection_by_clr_type<ushort[], ushort, JsonCollectionOfStructsReaderWriter<ushort[], ushort>>(
             [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<ushort[], ushort>", "ValueComparer<ushort[]>",
             "ValueComparer<ushort[]>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_uint_array()
         => Can_map_collection_by_clr_type<uint[], uint, JsonCollectionOfStructsReaderWriter<uint[], uint>>(
             [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<uint[], uint>", "ValueComparer<uint[]>", "ValueComparer<uint[]>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_ulong_array()
         => Can_map_collection_by_clr_type<ulong[], ulong, JsonCollectionOfStructsReaderWriter<ulong[], ulong>>(
             [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<ulong[], ulong>", "ValueComparer<ulong[]>", "ValueComparer<ulong[]>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_sbyte_list()
         => Can_map_collection_by_clr_type<List<sbyte>, sbyte, JsonCollectionOfStructsReaderWriter<List<sbyte>, sbyte>>(
             [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<sbyte>, sbyte>", "ValueComparer<List<sbyte>>",
             "ValueComparer<List<sbyte>>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_short_list()
         => Can_map_collection_by_clr_type<List<short>, short, JsonCollectionOfStructsReaderWriter<List<short>, short>>(
             [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<short>, short>", "ValueComparer<List<short>>",
             "ValueComparer<List<short>>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_int_list()
         => Can_map_collection_by_clr_type<List<int>, int, JsonCollectionOfStructsReaderWriter<List<int>, int>>(
             [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<int>, int>", "ValueComparer<List<int>>",
             "ValueComparer<List<int>>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_long_list()
         => Can_map_collection_by_clr_type<List<long>, long, JsonCollectionOfStructsReaderWriter<List<long>, long>>(
             [1, -2, 3, -4, 5], "[1,-2,3,-4,5]", "ListOfValueTypesComparer<List<long>, long>", "ValueComparer<List<long>>",
             "ValueComparer<List<long>>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_byte_list()
         => Can_map_collection_by_clr_type<List<byte>, byte, JsonCollectionOfStructsReaderWriter<List<byte>, byte>>(
             [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<byte>, byte>", "ValueComparer<List<byte>>",
             "ValueComparer<List<byte>>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_ushort_list()
         => Can_map_collection_by_clr_type<List<ushort>, ushort, JsonCollectionOfStructsReaderWriter<List<ushort>, ushort>>(
             [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<ushort>, ushort>", "ValueComparer<List<ushort>>",
             "ValueComparer<List<ushort>>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_uint_list()
         => Can_map_collection_by_clr_type<List<uint>, uint, JsonCollectionOfStructsReaderWriter<List<uint>, uint>>(
             [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<uint>, uint>", "ValueComparer<List<uint>>",
             "ValueComparer<List<uint>>");
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_ulong_list()
         => Can_map_collection_by_clr_type<List<ulong>, ulong, JsonCollectionOfStructsReaderWriter<List<ulong>, ulong>>(
             [1, 2, 3, 4, 5], "[1,2,3,4,5]", "ListOfValueTypesComparer<List<ulong>, ulong>", "ValueComparer<List<ulong>>",
@@ -306,6 +318,7 @@ public class CosmosTypeMappingSourceTest
         string comparerType,
         string keyComparerType,
         string providerComparerType)
+        where TElement : struct
     {
         var unwrappedType = UnwrapNullableType(typeof(TCollection));
         var mapping = (CosmosTypeMapping)GetTypeMapping(typeof(TCollection));
@@ -318,13 +331,16 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal(keyComparerType, mapping.KeyComparer.GetType().ShortDisplayName());
         Assert.Equal(providerComparerType, mapping.ProviderValueComparer.GetType().ShortDisplayName());
         Assert.IsType<TReader>(mapping.JsonValueReaderWriter);
-        Assert.Equal(jsonValue, mapping.GenerateConstant(value));
-        var token = mapping.GenerateJToken(value)!;
-        Assert.Equal(JTokenType.Array, token.Type);
-        Assert.Equal((IEnumerable<TElement?>)value!, ((JArray)token).Values<TElement?>().ToList());
+        Assert.Equal(jsonValue, mapping.JsonValueReaderWriter.ToJsonString(value!));
+        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(jsonValue)), null);
+        readerManager.MoveNext();
+        Assert.Equal(
+            (IEnumerable<TElement>)value!,
+            ((JsonCollectionOfStructsReaderWriter<TCollection, TElement>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager)!
+            .ToList()!);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_map_GUIDs()
     {
         var value = new Guid("39E5DEBB-8826-4996-B68D-F9C05E687A86");
@@ -339,13 +355,15 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal("DefaultValueComparer<string>", mapping.ProviderValueComparer.GetType().ShortDisplayName());
         Assert.IsType<JsonConvertedValueReaderWriter<Guid, string>>(mapping.JsonValueReaderWriter);
 
-        Assert.Equal("\"39e5debb-8826-4996-b68d-f9c05e687a86\"", mapping.GenerateConstant(value));
-        var token = mapping.GenerateJToken(value)!;
-        Assert.Equal(JTokenType.String, token.Type);
-        Assert.Equal("39e5debb-8826-4996-b68d-f9c05e687a86", token.Value<string>());
+        Assert.Equal("\"39e5debb-8826-4996-b68d-f9c05e687a86\"", mapping.JsonValueReaderWriter.ToJsonString(value!));
+
+        var readerManager = new Utf8JsonReaderManager(
+            new JsonReaderData(Encoding.UTF8.GetBytes("\"39e5debb-8826-4996-b68d-f9c05e687a86\"")), null);
+        readerManager.MoveNext();
+        Assert.Equal(value, ((JsonValueReaderWriter<Guid>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_map_Memory_types_without_converter()
     {
         Assert.Null(GetTypeMapping(typeof(Memory<float>)));
@@ -355,14 +373,11 @@ public class CosmosTypeMappingSourceTest
     private static Type UnwrapNullableType(Type type)
         => Nullable.GetUnderlyingType(type) ?? type;
 
-    [ConditionalFact]
+    [Fact]
     public void Plugins_can_override_builtin_mappings()
     {
         var typeMappingSource = new CosmosTypeMappingSource(
-            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>() with
-            {
-                Plugins = [new FakeTypeMappingSourcePlugin()]
-            });
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>() with { Plugins = [new FakeTypeMappingSourcePlugin()] });
 
         Assert.Same(typeof(Random), typeMappingSource.FindMapping(typeof(int))!.ClrType);
     }

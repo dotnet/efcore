@@ -6,12 +6,10 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture)
     : OptimisticConcurrencySqlServerTestBase<F1ULongSqlServerFixture, ulong>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public async Task ULong_row_version_can_handle_empty_array_from_the_database()
     {
         await using var context = CreateF1Context();
@@ -19,38 +17,38 @@ public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fix
         await context
             .Set<F1ULongSqlServerFixture.OptimisticParent>()
             .Select(x => new
+            {
+                x.Id,
+                Child = new
                 {
-                    x.Id,
-                    Child = new
-                    {
-                        Id = x.OptionalChild == null ? Guid.Empty : x.OptionalChild.Id,
-                        Version = x.OptionalChild == null ? 0 : x.OptionalChild.Version
-                    }
+                    Id = x.OptionalChild == null ? Guid.Empty : x.OptionalChild.Id,
+                    Version = x.OptionalChild == null ? 0 : x.OptionalChild.Version
                 }
+            }
             ).ToArrayAsync();
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPH_and_owned_types(bool updateOwnedFirst)
         => Row_version_with_owned_types<SuperFan, ulong>(updateOwnedFirst, Mapping.Tph, "ULongVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPT_and_owned_types(bool updateOwnedFirst)
         => Row_version_with_owned_types<SuperFanTpt, ulong>(updateOwnedFirst, Mapping.Tpt, "ULongVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPC_and_owned_types(bool updateOwnedFirst)
         => Row_version_with_owned_types<SuperFanTpc, ulong>(updateOwnedFirst, Mapping.Tpc, "ULongVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPH_and_table_splitting(bool updateDependentFirst)
         => Row_version_with_table_splitting<StreetCircuit, City, ulong>(updateDependentFirst, Mapping.Tph, "ULongVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPT_and_table_splitting(bool updateDependentFirst)
         => Row_version_with_table_splitting<StreetCircuitTpt, CityTpt, ulong>(updateDependentFirst, Mapping.Tpt, "ULongVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPC_and_table_splitting(bool updateDependentFirst)
         => Row_version_with_table_splitting<StreetCircuitTpc, CityTpc, ulong>(updateDependentFirst, Mapping.Tpc, "ULongVersion");
 }
@@ -58,27 +56,27 @@ public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fix
 public class OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture)
     : OptimisticConcurrencySqlServerTestBase<F1SqlServerFixture, byte[]>(fixture)
 {
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Row_version_with_TPH_and_owned_types(bool updateOwnedFirst)
         => Row_version_with_owned_types<SuperFan, List<byte>>(updateOwnedFirst, Mapping.Tph, "BinaryVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Row_version_with_TPT_and_owned_types(bool updateOwnedFirst)
         => Row_version_with_owned_types<SuperFanTpt, List<byte>>(updateOwnedFirst, Mapping.Tpt, "BinaryVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Row_version_with_TPC_and_owned_types(bool updateOwnedFirst)
         => Row_version_with_owned_types<SuperFanTpc, List<byte>>(updateOwnedFirst, Mapping.Tpc, "BinaryVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPH_and_table_splitting(bool updateDependentFirst)
         => Row_version_with_table_splitting<StreetCircuit, City, List<byte>>(updateDependentFirst, Mapping.Tph, "BinaryVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPT_and_table_splitting(bool updateDependentFirst)
         => Row_version_with_table_splitting<StreetCircuitTpt, CityTpt, List<byte>>(updateDependentFirst, Mapping.Tpt, "BinaryVersion");
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task Ulong_row_version_with_TPC_and_table_splitting(bool updateDependentFirst)
         => Row_version_with_table_splitting<StreetCircuitTpc, CityTpc, List<byte>>(updateDependentFirst, Mapping.Tpc, "BinaryVersion");
 }
@@ -314,7 +312,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Modifying_concurrency_token_only_is_noop()
     {
         using var c = CreateF1Context();
@@ -344,7 +342,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Database_concurrency_token_value_is_updated_for_all_sharing_entities()
     {
         using var c = CreateF1Context();
@@ -354,7 +352,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                 using var transaction = context.Database.BeginTransaction();
                 var sponsor = context.Set<TitleSponsor>().Single();
                 var sponsorEntry = c.Entry(sponsor);
-                var detailsEntry = sponsorEntry.Reference(s => s.Details).TargetEntry;
+                var detailsEntry = sponsorEntry.Reference(s => s.Details).TargetEntry!;
                 var sponsorVersion = sponsorEntry.Property<TRowVersion>("Version").CurrentValue;
                 var detailsVersion = detailsEntry.Property<TRowVersion>("Version").CurrentValue;
 
@@ -378,7 +376,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Original_concurrency_token_value_is_used_when_replacing_owned_instance()
     {
         using var c = CreateF1Context();
@@ -397,7 +395,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
 
                 context.ChangeTracker.DetectChanges();
 
-                var detailsEntry = sponsorEntry.Reference(s => s.Details).TargetEntry;
+                var detailsEntry = sponsorEntry.Reference(s => s.Details).TargetEntry!;
                 detailsEntry.Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue = 1;
 
                 await context.SaveChangesAsync();

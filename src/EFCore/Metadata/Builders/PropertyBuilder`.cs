@@ -575,9 +575,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer>()
+    TComparer>()
         where TComparer : ValueComparer
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer>();
 
@@ -591,11 +591,11 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer,
+    TComparer,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TProviderComparer>()
+    TProviderComparer>()
         where TComparer : ValueComparer
         where TProviderComparer : ValueComparer
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer, TProviderComparer>();

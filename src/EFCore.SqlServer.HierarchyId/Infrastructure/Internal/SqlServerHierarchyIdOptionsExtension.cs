@@ -47,17 +47,15 @@ public class SqlServerHierarchyIdOptionsExtension : IDbContextOptionsExtension
         var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
         if (internalServiceProvider != null)
         {
-            using (var scope = internalServiceProvider.CreateScope())
+            using var scope = internalServiceProvider.CreateScope();
+            if (scope.ServiceProvider.GetService<IEnumerable<IMethodCallTranslatorPlugin>>()
+                    ?.Any(s => s is SqlServerHierarchyIdMethodCallTranslatorPlugin)
+                != true
+                || scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>()
+                    ?.Any(s => s is SqlServerHierarchyIdTypeMappingSourcePlugin)
+                != true)
             {
-                if (scope.ServiceProvider.GetService<IEnumerable<IMethodCallTranslatorPlugin>>()
-                        ?.Any(s => s is SqlServerHierarchyIdMethodCallTranslatorPlugin)
-                    != true
-                    || scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>()
-                        ?.Any(s => s is SqlServerHierarchyIdTypeMappingSourcePlugin)
-                    != true)
-                {
-                    throw new InvalidOperationException(SqlServerHierarchyIdStrings.ServicesMissing);
-                }
+                throw new InvalidOperationException(SqlServerHierarchyIdStrings.ServicesMissing);
             }
         }
     }

@@ -5,11 +5,9 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class NavigationTest(NavigationTestFixture fixture) : IClassFixture<NavigationTestFixture>
 {
-    [ConditionalFact]
+    [Fact]
     public void Duplicate_entries_are_not_created_for_navigations_to_principal()
     {
         using var context = _fixture.CreateContext();
@@ -32,7 +30,7 @@ public class NavigationTest(NavigationTestFixture fixture) : IClassFixture<Navig
             entityType.GetForeignKeys().Skip(1).First().ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Duplicate_entries_are_not_created_for_navigations_to_dependent()
     {
         using var context = _fixture.CreateContext();
@@ -61,18 +59,18 @@ public class NavigationTest(NavigationTestFixture fixture) : IClassFixture<Navig
 public class GoTPerson
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public List<GoTPerson> Siblings { get; set; }
-    public GoTPerson Lover { get; set; }
-    public GoTPerson LoverReverse { get; set; }
-    public GoTPerson SiblingReverse { get; set; }
+    public List<GoTPerson> Siblings { get; set; } = null!;
+    public GoTPerson? Lover { get; set; }
+    public GoTPerson? LoverReverse { get; set; }
+    public GoTPerson? SiblingReverse { get; set; }
 }
 
 public class GoTContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<GoTPerson> People { get; set; }
-    public Func<ModelBuilder, int> ConfigAction { get; set; }
+    public DbSet<GoTPerson> People { get; set; } = null!;
+    public Func<ModelBuilder, int> ConfigAction { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         => ConfigAction.Invoke(modelBuilder);
@@ -88,7 +86,7 @@ public class NavigationTestFixture
             .AddEntityFrameworkSqlServer()
             .BuildServiceProvider(validateScopes: true);
 
-        var connStrBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
+        var connStrBuilder = new SqlConnectionStringBuilder(SqlServerTestEnvironment.DefaultConnection)
         {
             InitialCatalog = "StateManagerBug",
             MultipleActiveResultSets = true,

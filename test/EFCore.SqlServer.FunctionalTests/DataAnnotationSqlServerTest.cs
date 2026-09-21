@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<DataAnnotationSqlServerTest.DataAnnotationSqlServerFixture>
 {
     public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -24,7 +22,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_key_string_column_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -41,7 +39,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_key_which_is_also_an_fk_column_does_not_throw()
     {
         var modelBuilder = CreateModelBuilder();
@@ -56,7 +54,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_part_of_composite_key_does_not_throw()
     {
         var modelBuilder = CreateModelBuilder();
@@ -70,7 +68,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Default_for_all_parts_of_composite_key_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -154,7 +152,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
     {
         var model = base.TableNameAttribute_affects_table_name_in_TPH();
 
-        Assert.Equal("A", model.FindEntityType(typeof(TNAttrBase)).GetTableName());
+        Assert.Equal("A", model.FindEntityType(typeof(TNAttrBase))!.GetTableName());
 
         return model;
     }
@@ -163,13 +161,13 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
     {
         var model = base.DatabaseGeneratedOption_configures_the_property_correctly();
 
-        var identity = model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
-        Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.GetValueGenerationStrategy());
+        var identity = model.FindEntityType(typeof(GeneratedEntity))!.FindProperty(nameof(GeneratedEntity.Identity));
+        Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity!.GetValueGenerationStrategy());
 
         return model;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ColumnAttribute_configures_the_property_correctly()
     {
         var modelBuilder = CreateModelBuilder();
@@ -179,23 +177,23 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
 
         Assert.Equal(
             "Unique_No",
-            model.FindEntityType(typeof(One)).FindProperty(nameof(One.UniqueNo)).GetColumnName());
+            model.FindEntityType(typeof(One))!.FindProperty(nameof(One.UniqueNo))!.GetColumnName());
     }
 
     public override IModel DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
     {
         var model = base.DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties();
 
-        var entity = model.FindEntityType(typeof(GeneratedEntityNonInteger));
+        var entity = model.FindEntityType(typeof(GeneratedEntityNonInteger))!;
 
         var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
-        Assert.Equal(SqlServerValueGenerationStrategy.None, stringProperty.GetValueGenerationStrategy());
+        Assert.Equal(SqlServerValueGenerationStrategy.None, stringProperty!.GetValueGenerationStrategy());
 
         var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
-        Assert.Equal(SqlServerValueGenerationStrategy.None, dateTimeProperty.GetValueGenerationStrategy());
+        Assert.Equal(SqlServerValueGenerationStrategy.None, dateTimeProperty!.GetValueGenerationStrategy());
 
         var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
-        Assert.Equal(SqlServerValueGenerationStrategy.None, guidProperty.GetValueGenerationStrategy());
+        Assert.Equal(SqlServerValueGenerationStrategy.None, guidProperty!.GetValueGenerationStrategy());
 
         return model;
     }

@@ -15,15 +15,15 @@ public class Vendor
     }
 
     public int BusinessEntityID { get; set; }
-    public string AccountNumber { get; set; }
+    public string AccountNumber { get; set; } = null!;
     public bool ActiveFlag { get; set; }
     public byte CreditRating { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public bool PreferredVendorStatus { get; set; }
-    public string PurchasingWebServiceURL { get; set; }
+    public string? PurchasingWebServiceURL { get; set; }
 
     public virtual ICollection<ProductVendor> ProductVendor { get; set; }
     public virtual ICollection<PurchaseOrderHeader> PurchaseOrderHeader { get; set; }
-    public virtual BusinessEntity BusinessEntity { get; set; }
+    public virtual BusinessEntity BusinessEntity { get; set; } = null!;
 }

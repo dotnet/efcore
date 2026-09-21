@@ -186,7 +186,7 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
     /// </summary>
     public virtual void SetScale(int? scale)
     {
-        if (scale != null && scale < 0)
+        if (scale is not null and < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(scale));
         }

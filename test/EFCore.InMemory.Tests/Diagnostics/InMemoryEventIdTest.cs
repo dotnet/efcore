@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 public class InMemoryEventIdTest : EventIdTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
         var fakeFactories = new Dictionary<Type, Func<object>> { { typeof(IEnumerable<IUpdateEntry>), () => new List<IUpdateEntry>() } };

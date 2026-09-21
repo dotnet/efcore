@@ -8,59 +8,59 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task Abs_decimal()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(od => Math.Abs(od.Decimal) == 9.5m));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Abs_int()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Abs(b.Int) == 9));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Abs_double()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Abs(b.Double) == 9.5));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Abs_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Abs(b.Float) == 9.5));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Ceiling()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Ceiling(b.Double) == 9));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Ceiling_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Ceiling(b.Float) == 9));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Floor_decimal()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Floor(b.Decimal) == 8));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Floor_double()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Floor(b.Double) == 8));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Floor_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Floor(b.Float) == 8));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Exp()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Exp(b.Double) > 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Exp_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Exp(b.Float) > 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Power()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Pow(b.Int, 2) == 64));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Power_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Pow(b.Float, 2) > 73 && MathF.Pow(b.Float, 2) < 74));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Round_decimal()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Decimal) == 9));
@@ -68,7 +68,7 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Round(b.Decimal)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Round_double()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Double) == 9));
@@ -76,7 +76,7 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Round(b.Double)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Round_float()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Round(b.Float) == 9));
@@ -84,19 +84,19 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => MathF.Round(b.Float)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Round_with_digits_decimal()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Decimal, 1) == 255.1m));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Round_with_digits_double()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Double, 1) == 255.1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Round_with_digits_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Round(b.Float, 1) == 255.1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Truncate_decimal()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Truncate(b.Decimal) == 8));
@@ -104,7 +104,7 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Truncate(b.Decimal)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Truncate_double()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Truncate(b.Double) == 8));
@@ -112,7 +112,7 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Truncate(b.Double)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Truncate_float()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Truncate(b.Float) == 8));
@@ -120,7 +120,7 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => MathF.Truncate(b.Float)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Truncate_project_and_order_by_it_twice()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>()
@@ -130,7 +130,7 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
                 .OrderBy(r => r.A),
             assertOrder: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Truncate_project_and_order_by_it_twice2()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>()
@@ -140,7 +140,7 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
                 .OrderByDescending(r => r.A),
             assertOrder: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Truncate_project_and_order_by_it_twice3()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>()
@@ -149,175 +149,199 @@ public abstract class MathTranslationsTestBase<TFixture>(TFixture fixture) : Que
                 .ThenBy(r => r.A),
             assertOrder: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Log()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Log(b.Double) != 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Log_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Log(b.Float) != 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Log_with_newBase()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Log(b.Double, 7) != 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Log_with_newBase_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Log(b.Float, 7) != 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Log10()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Log10(b.Double) != 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Log10_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Log10(b.Float) != 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Log2()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Log2(b.Double) != 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sqrt()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Double > 0 && Math.Sqrt(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sqrt_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Float > 0 && MathF.Sqrt(b.Float) > 0));
 
-    [ConditionalFact]
-    public virtual Task Sign()
-        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Double) > 0));
+    [Fact]
+    public virtual async Task Sign()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Double) > 0));
 
-    [ConditionalFact]
-    public virtual Task Sign_float()
-        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Sign(b.Float) > 0));
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Sign(b.Double)));
+    }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual async Task Sign_decimal()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Decimal) > 0));
+
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Sign(b.Decimal)));
+    }
+
+    [Fact]
+    public virtual async Task Sign_int()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sign(b.Int) > 0));
+
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => Math.Sign(b.Int)));
+    }
+
+    [Fact]
+    public virtual async Task Sign_float()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Sign(b.Float) > 0));
+
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => MathF.Sign(b.Float)));
+    }
+
+    [Fact]
     public virtual Task Max()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Max(b.Int, b.Short - 3) == b.Int));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Max_nested()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>()
             .Where(b => Math.Max(b.Short - 3, Math.Max(b.Int, 1)) == b.Int));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Max_nested_twice()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>()
             .Where(b => Math.Max(Math.Max(1, Math.Max(b.Int, 2)), b.Short - 3) == b.Int));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Min()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>()
             .Where(b => Math.Min(b.Int, b.Short + 3) == b.Int));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Min_nested()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>()
             .Where(b => Math.Min(b.Short + 3, Math.Min(b.Int, 99999)) == b.Int));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Min_nested_twice()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>()
             .Where(b => Math.Min(Math.Min(99999, Math.Min(b.Int, 99998)), b.Short + 3) == b.Int));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Degrees()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => double.RadiansToDegrees(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Degrees_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => float.RadiansToDegrees(b.Float) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Radians()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => double.DegreesToRadians(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Radians_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => float.DegreesToRadians(b.Float) > 0));
 
     #region Trigonometry
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Acos()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Double >= -1 && b.Double <= 1 && Math.Acos(b.Double) > 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Acos_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Float >= -1 && b.Float <= 1 && MathF.Acos(b.Float) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Acosh()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Acosh(b.Double + 1) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Asin()
         => AssertQuery(ss
             => ss.Set<BasicTypesEntity>().Where(b => b.Double >= -1 && b.Double <= 1 && Math.Asin(b.Double) > double.MinValue));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Asin_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Float >= -1 && b.Float <= 1 && MathF.Asin(b.Float) > double.MinValue));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Asinh()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Asinh(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Atan()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Atan(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Atan_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Atan(b.Float) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Atanh()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Atanh(b.Double) > double.MinValue));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Atan2()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Atan2(b.Double, 1) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Atan2_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Atan2(b.Float, 1) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Cos()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Cos(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Cos_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Cos(b.Float) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Cosh()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Cosh(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sin()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sin(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sin_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Sin(b.Float) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sinh()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Sinh(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Tan()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Tan(b.Double) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Tan_float()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => MathF.Tan(b.Float) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Tanh()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => Math.Tanh(b.Double) > 0));
 

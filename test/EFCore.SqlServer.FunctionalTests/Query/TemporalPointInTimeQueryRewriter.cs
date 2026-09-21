@@ -5,15 +5,13 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> temporalEntityTypes) : ExpressionVisitor
 {
     private static readonly MethodInfo _setMethodInfo
-        = typeof(ISetSource).GetMethod(nameof(ISetSource.Set));
+        = typeof(ISetSource).GetMethod(nameof(ISetSource.Set))!;
 
     private static readonly MethodInfo _asOfMethodInfo
-        = typeof(SqlServerDbSetExtensions).GetMethod(nameof(SqlServerDbSetExtensions.TemporalAsOf));
+        = typeof(SqlServerDbSetExtensions).GetMethod(nameof(SqlServerDbSetExtensions.TemporalAsOf))!;
 
     private readonly DateTime _pointInTime = pointInTime;
 
@@ -21,18 +19,13 @@ public class TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> t
     private readonly List<Type> _temporalEntityTypes = temporalEntityTypes;
 
     protected override Expression VisitExtension(Expression extensionExpression)
-    {
-        if (extensionExpression is EntityQueryRootExpression queryRootExpression
-            && queryRootExpression.EntityType.GetRootType().IsTemporal())
-        {
-            return new TemporalAsOfQueryRootExpression(
-                queryRootExpression.QueryProvider,
-                queryRootExpression.EntityType,
-                _pointInTime);
-        }
-
-        return base.VisitExtension(extensionExpression);
-    }
+        => extensionExpression is EntityQueryRootExpression queryRootExpression
+            && queryRootExpression.EntityType.GetRootType().IsTemporal()
+                ? new TemporalAsOfQueryRootExpression(
+                    queryRootExpression.QueryProvider!,
+                    queryRootExpression.EntityType,
+                    _pointInTime)
+                : base.VisitExtension(extensionExpression);
 
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {

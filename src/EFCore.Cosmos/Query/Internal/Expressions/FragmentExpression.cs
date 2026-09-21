@@ -52,8 +52,8 @@ public class FragmentExpression(string fragment) : Expression, IPrintableExpress
     public override bool Equals(object? obj)
         => !ReferenceEquals(null, obj)
             && (ReferenceEquals(this, obj)
-                || obj.GetType() == GetType()
-                && Equals((FragmentExpression)obj));
+                || (obj.GetType() == GetType()
+                    && Equals((FragmentExpression)obj)));
 
     /// <inheritdoc />
     public override int GetHashCode()

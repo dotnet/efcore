@@ -76,7 +76,7 @@ public static class InMemoryEntityTypeBuilderExtensions
         LambdaExpression? query,
         bool fromDataAnnotation = false)
     {
-        if (CanSetInMemoryQuery(entityTypeBuilder, query, fromDataAnnotation))
+        if (entityTypeBuilder.CanSetInMemoryQuery(query, fromDataAnnotation))
         {
             entityTypeBuilder.Metadata.SetInMemoryQuery(query, fromDataAnnotation);
 

@@ -337,17 +337,8 @@ public class InternalElementTypeBuilder : AnnotatableBuilder<ElementType, Intern
         if (configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource()))
         {
             var errorString = Metadata.CheckValueComparer(comparer);
-            if (errorString != null)
-            {
-                if (configurationSource == ConfigurationSource.Explicit)
-                {
-                    throw new InvalidOperationException(errorString);
-                }
-
-                return false;
-            }
-
-            return true;
+            return errorString == null
+                || (configurationSource == ConfigurationSource.Explicit ? throw new InvalidOperationException(errorString) : false);
         }
 
         return Metadata[CoreAnnotationNames.ValueComparerType] == null

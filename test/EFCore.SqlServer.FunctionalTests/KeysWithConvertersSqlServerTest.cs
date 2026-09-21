@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class KeysWithConvertersSqlServerTest(KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture fixture)
     : KeysWithConvertersTestBase<
         KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture>(fixture)
@@ -15,6 +13,6 @@ public class KeysWithConvertersSqlServerTest(KeysWithConvertersSqlServerTest.Key
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder.UseSqlServer(b => b.MinBatchSize(1));
+            => base.AddOptions(builder).UseSqlServer(b => b.MinBatchSize(1));
     }
 }

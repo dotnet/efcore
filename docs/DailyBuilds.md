@@ -8,7 +8,7 @@ Create a file called "NuGet.config" with the following contents and put it next 
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json" />
+        <add key="dotnet11" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -30,13 +30,13 @@ A disadvantage of using daily builds is that there can be significant API churn 
 
 The daily builds are not published to NuGet.org because the .NET build infrastructure is not set up for this. Instead they can be pulled from a custom NuGet package source. To access this custom source, create a `NuGet.config` file in the same directory as your .NET solution or projects.
 
-For EF8 daily builds, `NuGet.config` should contain:
+For EF 11 daily builds, `NuGet.config` should contain:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json" />
+        <add key="dotnet11" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -47,7 +47,7 @@ For EF8 daily builds, `NuGet.config` should contain:
 `dotnet ef` is the [the EF command-line tool](https://learn.microsoft.com/ef/core/cli/dotnet), used to perform various design-time tasks such as creating and applying migrations. Stable versions of `dotnet ef` usually work fine with daily build versions of EF; but in some situations you must also update to daily builds of the CLI tool. To use a daily build version of `dotnet ef`, do the following:
 
 ```sh
-dotnet tool install -g dotnet-ef --version 10.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json
+dotnet tool install -g dotnet-ef --version 11.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json
 ```
 
 ### EF reverse engineering templates
@@ -55,21 +55,21 @@ dotnet tool install -g dotnet-ef --version 10.0.0-* --add-source https://pkgs.de
 EF features code templates for [reverse engineering (or "scaffolding") existing databases](https://learn.microsoft.com/ef/core/managing-schemas/scaffolding/templates); installing daily versions of these templates typically isn't necessary, but you may want to do so to experiment with new features or test bug fixes in the templates:
 
 ```sh
-dotnet new install Microsoft.EntityFrameworkCore.Templates::10.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json
+dotnet new install Microsoft.EntityFrameworkCore.Templates::11.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json
 ```
 
 ## Package versions to use
 
 ### Using wildcards
 
-The easiest way to use daily builds is with wildcards in project references. For example, for EF Core 8.0 daily builds:
+The easiest way to use daily builds is with wildcards in project references. For example, for EF 11 daily builds:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="10.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="11.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="11.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="11.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="11.0.0-*" />
   </ItemGroup>
 ```
 
@@ -87,11 +87,11 @@ Alternately, your IDE might provide auto-completion directly in the .csproj file
 
 ## What about Visual Studio and the SDK?
 
-EF8 targets .NET 8. This means that:
+EF 11 targets .NET 10. This means that:
 
-* Your application must target .NET 8 or later; .NET Framework and .NET 6 and earlier are no longer supported targets.
-* The daily builds should work with any IDE that supports .NET 8.
-* The daily builds require that the .NET 8 SDK is installed.
+* Your application must target .NET 10 or later; .NET Framework and .NET 9 and earlier are no longer supported targets.
+* The daily builds should work with any IDE that supports .NET 10.
+* The daily builds require that the .NET 10 SDK is installed.
 
 ## Troubleshooting
 
@@ -112,7 +112,7 @@ In addition, packages may be missing if the standard `nuget.org` package source 
         <clear />
     </disabledPackageSources>
     <packageSources>
-        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json" />
+        <add key="dotnet11" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -128,7 +128,7 @@ A good way to ensure you're dealing with a completely clean NuGet configuration 
     </disabledPackageSources>
     <packageSources>
         <clear />
-        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json" />
+        <add key="dotnet11" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>

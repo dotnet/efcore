@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ConferencePlannerSqlServerTest(ConferencePlannerSqlServerTest.ConferencePlannerSqlServerFixture fixture)
     : ConferencePlannerTestBase<ConferencePlannerSqlServerTest.ConferencePlannerSqlServerFixture
     >(fixture)

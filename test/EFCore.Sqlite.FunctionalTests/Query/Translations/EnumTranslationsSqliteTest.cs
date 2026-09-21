@@ -138,13 +138,13 @@ WHERE "b"."FlagsEnum" & 8 = 8
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST("b"."FlagsEnum" AS INTEGER) & 8 = 8
+WHERE "b"."FlagsEnum" & 8 = 8
 """,
             //
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST("b"."FlagsEnum" AS INTEGER) & 8 = 8
+WHERE "b"."FlagsEnum" & 8 = 8
 """);
     }
 
@@ -302,7 +302,7 @@ WHERE "b"."FlagsEnum" & @flagsEnum = @flagsEnum
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

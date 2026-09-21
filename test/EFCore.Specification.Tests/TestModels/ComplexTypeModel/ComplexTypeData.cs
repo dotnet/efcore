@@ -31,17 +31,11 @@ public class ComplexTypeData : ISetSource
             return (IQueryable<TEntity>)_customerGroups.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(ValuedCustomer))
-        {
-            return (IQueryable<TEntity>)_valuedCustomers.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(ValuedCustomerGroup))
-        {
-            return (IQueryable<TEntity>)_valuedCustomerGroups.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(ValuedCustomer)
+            ? (IQueryable<TEntity>)_valuedCustomers.AsQueryable()
+            : typeof(TEntity) == typeof(ValuedCustomerGroup)
+                ? (IQueryable<TEntity>)_valuedCustomerGroups.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     private static IReadOnlyList<Customer> CreateCustomers()

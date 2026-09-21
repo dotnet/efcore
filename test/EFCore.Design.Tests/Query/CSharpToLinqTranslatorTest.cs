@@ -12,8 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable RedundantCast
-#nullable enable
-
 public class CSharpToLinqTranslatorTest
 {
     [Fact]
@@ -120,7 +118,7 @@ public class CSharpToLinqTranslatorTest
     [Fact]
     public void Interpolated_string_formattable()
         => AssertExpression(
-            () => FormattableStringMethod(FormattableStringFactory.Create("Foo: {0}, {1}", (object)8, (object)9)),
+            () => FormattableStringMethod(FormattableStringFactory.Create("Foo: {0}, {1}", 8, 9)),
             """CSharpToLinqTranslatorTest.FormattableStringMethod($"Foo: {8}, {9}")""");
 
     [Fact]
@@ -366,13 +364,13 @@ public class CSharpToLinqTranslatorTest
             """ "foo"! """);
     // ReSharper restore RedundantSuppressNullableWarningExpression
 
-    [ConditionalFact]
+    [Fact]
     public void Typeof()
         => AssertExpression(
             () => typeof(string),
             "typeof(string)");
 
-    [ConditionalFact]
+    [Fact]
     public void Array_type()
         => AssertExpression(
             () => typeof(ParameterExpression[]),

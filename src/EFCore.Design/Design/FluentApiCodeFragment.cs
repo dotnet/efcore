@@ -39,7 +39,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     ///     Gets the method call's generic type arguments.
     /// </summary>
     /// <value>The type arguments.</value>
-    public virtual IList<string> TypeArguments { get; set; } = new List<string>();
+    public virtual IList<string> TypeArguments { get; set; } = [];
 
     IEnumerable<string> IMethodCallCodeFragment.TypeArguments
         => TypeArguments;
@@ -48,7 +48,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     ///     Gets the method call's arguments.
     /// </summary>
     /// <value>The method call's arguments.</value>
-    public virtual IList<object?> Arguments { get; set; } = new List<object?>();
+    public virtual IList<object?> Arguments { get; set; } = [];
 
     IEnumerable<object?> IMethodCallCodeFragment.Arguments
         => Arguments;

@@ -3,20 +3,18 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
-#nullable disable
-
 public class EntityCompositeKey
 {
     public int Key1;
-    public string Key2;
+    public string Key2 = null!;
     public DateTime Key3;
 
-    public string Name;
+    public string? Name;
 
-    public ICollection<EntityTwo> TwoSkipShared;
-    public ICollection<EntityThree> ThreeSkipFull;
-    public ICollection<JoinThreeToCompositeKeyFull> JoinThreeFull;
-    public ICollection<EntityRoot> RootSkipShared;
-    public ICollection<EntityLeaf> LeafSkipFull;
-    public ICollection<JoinCompositeKeyToLeaf> JoinLeafFull;
+    public ICollection<EntityTwo> TwoSkipShared = null!;
+    public ICollection<EntityThree> ThreeSkipFull = null!;
+    public ICollection<JoinThreeToCompositeKeyFull> JoinThreeFull = null!;
+    public ICollection<EntityRoot> RootSkipShared = null!;
+    public ICollection<EntityLeaf> LeafSkipFull = null!;
+    public ICollection<JoinCompositeKeyToLeaf> JoinLeafFull = null!;
 }

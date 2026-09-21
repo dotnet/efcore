@@ -73,6 +73,14 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public abstract bool IsInModel { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public abstract TypeBase DeclaringType { get; }
 
     /// <summary>
@@ -104,6 +112,32 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public abstract bool IsCollection { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual List<Index>? Indexes { get; set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsIndex()
+        => Indexes != null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<Index> GetContainingIndexes()
+        => Indexes?.OrderBy(i => i.Properties, PropertyListComparer.Instance) ?? Enumerable.Empty<Index>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -167,16 +201,11 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
         TypeBase type,
         string propertyName,
         bool shouldThrow)
-    {
-        if (!type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
-            && shouldThrow)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.MissingBackingField(fieldName, propertyName, type.DisplayName()));
-        }
-
-        return fieldInfo;
-    }
+        => !type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
+            && shouldThrow
+                ? throw new InvalidOperationException(
+                    CoreStrings.MissingBackingField(fieldName, propertyName, type.DisplayName()))
+                : fieldInfo;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -299,34 +328,24 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
         if (entityType == null
             || !fieldInfo.DeclaringType!.IsAssignableFrom(entityType))
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityType?.ShortDisplayName()));
-            }
-
-            return false;
+            return shouldThrow
+                ? throw new InvalidOperationException(
+                    CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityType?.ShortDisplayName()))
+                : false;
         }
 
         var fieldType = fieldInfo.FieldType;
-        if (propertyType != null
-            && !propertyType.IsCompatibleWith(fieldType))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+        return propertyType == null
+            || propertyType.IsCompatibleWith(fieldType)
+            || (shouldThrow
+                ? throw new InvalidOperationException(
                     CoreStrings.BadBackingFieldType(
                         fieldInfo.Name,
                         fieldInfo.FieldType.ShortDisplayName(),
                         entityType.ShortDisplayName(),
                         propertyName,
-                        propertyType.ShortDisplayName()));
-            }
-
-            return false;
-        }
-
-        return true;
+                        propertyType.ShortDisplayName()))
+                : false);
     }
 
     /// <summary>
@@ -343,7 +362,7 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
             static property =>
             {
                 property.EnsureReadOnly();
-                ((IRuntimeEntityType)(((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType)).CalculateCounts();
+                ((IRuntimeEntityType)((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType).CalculateCounts();
             });
 
         set => NonCapturingLazyInitializer.EnsureInitialized(ref field, value);

@@ -5,12 +5,12 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
-public abstract class OrdersContextBase(IServiceProvider serviceProvider) : DbContext
+public abstract class OrdersContextBase(IServiceProvider? serviceProvider) : DbContext
 {
-    public DbSet<Customer> Customers { get; set; }
-    public DbSet<Order> Orders { get; set; }
-    public DbSet<OrderLine> OrderLines { get; set; }
-    public DbSet<Product> Products { get; set; }
+    public DbSet<Customer> Customers { get; set; } = null!;
+    public DbSet<Order> Orders { get; set; } = null!;
+    public DbSet<OrderLine> OrderLines { get; set; } = null!;
+    public DbSet<Product> Products { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => ConfigureProvider(optionsBuilder.UseInternalServiceProvider(serviceProvider));

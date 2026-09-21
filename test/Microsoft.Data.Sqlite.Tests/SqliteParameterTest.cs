@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
-using Microsoft.Data.Sqlite.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite;
@@ -146,47 +146,41 @@ public class SqliteParameterTest
     [Fact]
     public void Bind_requires_set_name()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Parameter;";
-            command.Parameters.Add(new SqliteParameter { Value = 1 });
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter;";
+        command.Parameters.Add(new SqliteParameter { Value = 1 });
+        connection.Open();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-            Assert.Equal(Resources.RequiresSet("ParameterName"), ex.Message);
-        }
+        Assert.Equal(Resources.RequiresSet("ParameterName"), ex.Message);
     }
 
     [Fact]
     public void Bind_requires_set_value()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Parameter;";
-            command.Parameters.Add(new SqliteParameter { ParameterName = "@Parameter" });
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter;";
+        command.Parameters.Add(new SqliteParameter { ParameterName = "@Parameter" });
+        connection.Open();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
+        var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteNonQuery());
 
-            Assert.Equal(Resources.RequiresSet("Value"), ex.Message);
-        }
+        Assert.Equal(Resources.RequiresSet("Value"), ex.Message);
     }
 
     [Fact]
     public void Bind_is_noop_on_unknown_parameter()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT 1;";
-            command.Parameters.AddWithValue("@Unknown", 1);
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1;";
+        command.Parameters.AddWithValue("@Unknown", 1);
+        connection.Open();
 
-            command.ExecuteNonQuery();
-        }
+        command.ExecuteNonQuery();
     }
 
     [Theory,
@@ -211,22 +205,20 @@ public class SqliteParameterTest
      InlineData(float.PositiveInfinity, double.PositiveInfinity)]
     public void Bind_works(object value, object coercedValue, SqliteType? sqliteType = null)
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter;";
+        var sqliteParameter = command.Parameters.AddWithValue("@Parameter", value);
+        if (sqliteType.HasValue)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Parameter;";
-            var sqliteParameter = command.Parameters.AddWithValue("@Parameter", value);
-            if (sqliteType.HasValue)
-            {
-                sqliteParameter.SqliteType = sqliteType.Value;
-            }
-
-            connection.Open();
-
-            var result = command.ExecuteScalar();
-
-            Assert.Equal(coercedValue, result);
+            sqliteParameter.SqliteType = sqliteType.Value;
         }
+
+        connection.Open();
+
+        var result = command.ExecuteScalar();
+
+        Assert.Equal(coercedValue, result);
     }
 
     [Theory,
@@ -234,16 +226,14 @@ public class SqliteParameterTest
      InlineData(float.NaN)]
     public void Bind_throws_for_nan(object value)
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Parameter;";
-            command.Parameters.AddWithValue("@Parameter", value);
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter;";
+        command.Parameters.AddWithValue("@Parameter", value);
+        connection.Open();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
-            Assert.Equal(Resources.CannotStoreNaN, ex.Message);
-        }
+        var ex = Assert.Throws<InvalidOperationException>(command.ExecuteScalar);
+        Assert.Equal(Resources.CannotStoreNaN, ex.Message);
     }
 
     [Fact]
@@ -251,6 +241,24 @@ public class SqliteParameterTest
     {
         var bytes = new byte[] { 0x7E, 0x57 };
         Bind_works(bytes, bytes);
+    }
+
+    [Fact]
+    public void Bind_works_when_read_only_memory_bytes()
+    {
+        var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
+        var input = ((ReadOnlyMemory<byte>)buffer).Slice(1, 2);
+        var expected = new byte[] { 0x7E, 0x57 };
+        Bind_works(input, expected);
+    }
+
+    [Fact]
+    public void Bind_works_when_memory_bytes()
+    {
+        var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
+        var input = ((Memory<byte>)buffer).Slice(1, 2);
+        var expected = new byte[] { 0x7E, 0x57 };
+        Bind_works(input, expected);
     }
 
     [Fact]
@@ -272,7 +280,6 @@ public class SqliteParameterTest
             2456762.3013773146,
             SqliteType.Real);
 
-#if NET6_0_OR_GREATER
     [Fact]
     public void Bind_works_when_DateOnly()
         => Bind_works(new DateOnly(2014, 4, 14), "2014-04-14");
@@ -292,7 +299,6 @@ public class SqliteParameterTest
     [Fact]
     public void Bind_works_when_TimeOnly_with_SqliteType_Real()
         => Bind_works(new TimeOnly(13, 10, 15), 0.5487847222222222, SqliteType.Real);
-#endif
 
     [Fact]
     public void Bind_works_when_DBNull()
@@ -338,97 +344,85 @@ public class SqliteParameterTest
     [Fact]
     public void Bind_throws_when_unknown()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Parameter;";
-            command.Parameters.AddWithValue("@Parameter", new object());
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter;";
+        command.Parameters.AddWithValue("@Parameter", new object());
+        connection.Open();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+        var ex = Assert.Throws<InvalidOperationException>(command.ExecuteScalar);
 
-            Assert.Equal(Resources.UnknownDataType(typeof(object)), ex.Message);
-        }
+        Assert.Equal(Resources.UnknownDataType(typeof(object)), ex.Message);
     }
 
     [Fact]
     public void Bind_binds_string_values_without_embedded_nulls()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Text || 'ing';";
-            command.Parameters.AddWithValue("@Text", "test");
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Text || 'ing';";
+        command.Parameters.AddWithValue("@Text", "test");
+        connection.Open();
 
-            var result = command.ExecuteScalar();
+        var result = command.ExecuteScalar();
 
-            Assert.Equal("testing", result);
-        }
+        Assert.Equal("testing", result);
     }
 
     [Fact]
     public void Bind_with_restricted_size_works_on_string_values()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Text;";
-            command.Parameters.AddWithValue("@Text", "ABCDE").Size = 3;
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Text;";
+        command.Parameters.AddWithValue("@Text", "ABCDE").Size = 3;
+        connection.Open();
 
-            var result = command.ExecuteScalar();
+        var result = command.ExecuteScalar();
 
-            Assert.Equal("ABC", result);
-        }
+        Assert.Equal("ABC", result);
     }
 
     [Fact]
     public void Bind_with_sentinel_size_works_on_string_values()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT $value;";
-            command.Parameters.AddWithValue("$value", "TEST").Size = -1;
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.AddWithValue("$value", "TEST").Size = -1;
+        connection.Open();
 
-            var result = command.ExecuteScalar();
+        var result = command.ExecuteScalar();
 
-            Assert.Equal("TEST", result);
-        }
+        Assert.Equal("TEST", result);
     }
 
     [Fact]
     public void Bind_with_restricted_size_works_on_blob_values()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Blob;";
-            command.Parameters.AddWithValue("@Blob", new byte[] { 1, 2, 3, 4, 5 }).Size = 3;
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Blob;";
+        command.Parameters.AddWithValue("@Blob", new byte[] { 1, 2, 3, 4, 5 }).Size = 3;
+        connection.Open();
 
-            var result = command.ExecuteScalar();
+        var result = command.ExecuteScalar();
 
-            Assert.Equal(new byte[] { 1, 2, 3 }, result);
-        }
+        Assert.Equal(new byte[] { 1, 2, 3 }, result);
     }
 
     [Fact]
     public void Bind_with_sentinel_size_works_on_blob_values()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT $value;";
-            command.Parameters.AddWithValue("$value", new byte[] { 0x7E, 0x57 }).Size = -1;
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.AddWithValue("$value", new byte[] { 0x7E, 0x57 }).Size = -1;
+        connection.Open();
 
-            var result = command.ExecuteScalar();
+        var result = command.ExecuteScalar();
 
-            Assert.Equal(new byte[] { 0x7E, 0x57 }, result);
-        }
+        Assert.Equal(new byte[] { 0x7E, 0x57 }, result);
     }
 
     [Theory,
@@ -437,142 +431,192 @@ public class SqliteParameterTest
      InlineData(":Parameter")]
     public void Bind_does_not_require_prefix(string parameterName)
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT " + parameterName;
-            command.Parameters.AddWithValue("Parameter", "harvest");
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT " + parameterName;
+        command.Parameters.AddWithValue("Parameter", "harvest");
+        connection.Open();
 
-            var result = command.ExecuteScalar();
+        var result = command.ExecuteScalar();
 
-            Assert.Equal("harvest", result);
-        }
+        Assert.Equal("harvest", result);
     }
 
     [Fact]
     public void Bind_throws_for_ambiguous_parameters()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Param, $Param";
-            command.Parameters.AddWithValue("Param", 1);
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Param, $Param";
+        command.Parameters.AddWithValue("Param", 1);
+        connection.Open();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+        var ex = Assert.Throws<InvalidOperationException>(command.ExecuteScalar);
 
-            Assert.Equal(Resources.AmbiguousParameterName("Param"), ex.Message);
-        }
+        Assert.Equal(Resources.AmbiguousParameterName("Param"), ex.Message);
     }
 
     [Fact]
     public void Bind_with_prefixed_names()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT @Param, $Param, :Param";
-            command.Parameters.AddWithValue("@Param", 1);
-            command.Parameters.AddWithValue("$Param", 2);
-            command.Parameters.AddWithValue(":Param", 3);
-            connection.Open();
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Param, $Param, :Param";
+        command.Parameters.AddWithValue("@Param", 1);
+        command.Parameters.AddWithValue("$Param", 2);
+        command.Parameters.AddWithValue(":Param", 3);
+        connection.Open();
 
-            using (var reader = command.ExecuteReader())
-            {
-                Assert.True(reader.Read());
-                Assert.Equal(1, reader.GetFieldValue<int>(0));
-                Assert.Equal(2, reader.GetFieldValue<int>(1));
-                Assert.Equal(3, reader.GetFieldValue<int>(2));
-            }
-        }
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+        Assert.Equal(1, reader.GetFieldValue<int>(0));
+        Assert.Equal(2, reader.GetFieldValue<int>(1));
+        Assert.Equal(3, reader.GetFieldValue<int>(2));
     }
 
     [Fact, UseCulture("ar-SA")]
     public void Bind_DateTime_with_Arabic_Culture()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            connection.Open();
-            connection.ExecuteNonQuery("CREATE TABLE Person(DateOfBirth datetime);");
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Person(DateOfBirth datetime);");
 
-            var command = connection.CreateCommand();
-            command.CommandText = "INSERT INTO Person(DateOfBirth) VALUES (@DateOfBirth);";
-            var date = new DateTime(2018, 3, 25);
-            command.Parameters.AddWithValue("DateOfBirth", date);
-            Assert.Equal(1, command.ExecuteNonQuery());
+        var command = connection.CreateCommand();
+        command.CommandText = "INSERT INTO Person(DateOfBirth) VALUES (@DateOfBirth);";
+        var date = new DateTime(2018, 3, 25);
+        command.Parameters.AddWithValue("DateOfBirth", date);
+        Assert.Equal(1, command.ExecuteNonQuery());
 
-            command.CommandText = "SELECT DateOfBirth FROM Person;";
-            var result = command.ExecuteScalar()!;
-            Assert.Equal("2018-03-25 00:00:00", (string)result);
+        command.CommandText = "SELECT DateOfBirth FROM Person;";
+        var result = command.ExecuteScalar()!;
+        Assert.Equal("2018-03-25 00:00:00", (string)result);
 
-            using (var reader = command.ExecuteReader())
-            {
-                Assert.True(reader.Read());
-                Assert.Equal("2018-03-25 00:00:00", reader.GetString(0));
-                Assert.Equal(date, reader.GetDateTime(0));
-            }
-        }
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+        Assert.Equal("2018-03-25 00:00:00", reader.GetString(0));
+        Assert.Equal(date, reader.GetDateTime(0));
     }
 
     [Fact, UseCulture("ar-SA")]
     public void Bind_DateTimeOffset_with_Arabic_Culture()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            connection.Open();
-            connection.ExecuteNonQuery("CREATE TABLE Test(date TEXT);");
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Test(date TEXT);");
 
-            var command = connection.CreateCommand();
-            command.CommandText = "INSERT INTO Test(date) VALUES (@date);";
-            var date = new DateTimeOffset(new DateTime(2018, 3, 25), new TimeSpan());
-            command.Parameters.AddWithValue("date", date);
-            Assert.Equal(1, command.ExecuteNonQuery());
+        var command = connection.CreateCommand();
+        command.CommandText = "INSERT INTO Test(date) VALUES (@date);";
+        var date = new DateTimeOffset(new DateTime(2018, 3, 25), new TimeSpan());
+        command.Parameters.AddWithValue("date", date);
+        Assert.Equal(1, command.ExecuteNonQuery());
 
-            command.CommandText = "SELECT date FROM Test;";
-            var result = command.ExecuteScalar()!;
-            Assert.Equal("2018-03-25 00:00:00+00:00", (string)result);
+        command.CommandText = "SELECT date FROM Test;";
+        var result = command.ExecuteScalar()!;
+        Assert.Equal("2018-03-25 00:00:00+00:00", (string)result);
 
-            using (var reader = command.ExecuteReader())
-            {
-                Assert.True(reader.Read());
-                Assert.Equal("2018-03-25 00:00:00+00:00", reader.GetString(0));
-                Assert.Equal(date, reader.GetDateTimeOffset(0));
-            }
-        }
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+        Assert.Equal("2018-03-25 00:00:00+00:00", reader.GetString(0));
+        Assert.Equal(date, reader.GetDateTimeOffset(0));
     }
 
     [Fact]
     public void Add_range_of_parameters_using_DbCommand_base_class()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
-        {
-            var command = connection.CreateCommand() as DbCommand;
-            command.CommandText = "SELECT @Value1, @Value2;";
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand() as DbCommand;
+        command.CommandText = "SELECT @Value1, @Value2;";
 
-            var parameterValue1 = new SqliteParameter("@Value1", SqliteType.Text);
-            parameterValue1.Value = "ABCDE";
+        var parameterValue1 = new SqliteParameter("@Value1", SqliteType.Text) { Value = "ABCDE" };
 
-            var parameterValue2 = new SqliteParameter("@Value2", SqliteType.Text);
-            parameterValue2.Value = "FGHIJ";
+        var parameterValue2 = new SqliteParameter("@Value2", SqliteType.Text) { Value = "FGHIJ" };
 
-            var parameters = new[] { parameterValue1, parameterValue2 };
+        var parameters = new[] { parameterValue1, parameterValue2 };
 
-            command.Parameters.AddRange(parameters);
-            connection.Open();
+        command.Parameters.AddRange(parameters);
+        connection.Open();
 
-            using (var reader = command.ExecuteReader())
-            {
-                Assert.True(reader.Read());
-                Assert.Equal(parameterValue1.Value, reader.GetString(0));
-                Assert.Equal(parameterValue2.Value, reader.GetString(1));
-            }
-        }
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+        Assert.Equal(parameterValue1.Value, reader.GetString(0));
+        Assert.Equal(parameterValue2.Value, reader.GetString(1));
     }
 
-    public static IEnumerable<object[]> TypesData
-        => new List<object[]>
+#if NET7_0_OR_GREATER
+    [Fact]
+    public void Bind_UInt128_zero_as_text()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter;";
+        var value = (UInt128)0;
+        command.Parameters.AddWithValue("@Parameter", value);
+        connection.Open();
+        var result = (string)command.ExecuteScalar()!;
+        Assert.Equal("000000000000000000000000000000000000000", result);
+    }
+
+    [Fact]
+    public void Bind_UInt128_max_value_as_text()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter;";
+        var value = UInt128.MaxValue;
+        command.Parameters.AddWithValue("@Parameter", value);
+        connection.Open();
+        var result = (string)command.ExecuteScalar()!;
+        Assert.Equal("340282366920938463463374607431768211455", result);
+    }
+
+    [Fact]
+    public void Bind_UInt128_ordering_works()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                CREATE TABLE TestOrdering (Value TEXT);
+                INSERT INTO TestOrdering VALUES (@A);
+                INSERT INTO TestOrdering VALUES (@B);
+                INSERT INTO TestOrdering VALUES (@C);
+                SELECT Value FROM TestOrdering ORDER BY Value;
+                """;
+        command.Parameters.AddWithValue("@A", (UInt128)500);
+        command.Parameters.AddWithValue("@B", UInt128.MaxValue);
+        command.Parameters.AddWithValue("@C", (UInt128)1);
+
+        var results = new List<string>();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
         {
+            results.Add(reader.GetString(0));
+        }
+
+        Assert.Equal(3, results.Count);
+        Assert.Equal("000000000000000000000000000000000000001", results[0]);
+        Assert.Equal("000000000000000000000000000000000000500", results[1]);
+        Assert.Equal("340282366920938463463374607431768211455", results[2]);
+    }
+
+    [Fact]
+    public void Bind_UInt128_concatenation_works()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter || '_suffix';";
+        var value = (UInt128)42;
+        command.Parameters.AddWithValue("@Parameter", value);
+        connection.Open();
+        var result = (string)command.ExecuteScalar()!;
+        Assert.Equal("000000000000000000000000000000000000042_suffix", result);
+    }
+#endif
+
+    public static IEnumerable<object[]> TypesData
+        =>
+        [
             new object[] { default(DateTime), SqliteType.Text },
             new object[] { default(DateTimeOffset), SqliteType.Text },
             new object[] { DBNull.Value, SqliteType.Text },
@@ -580,10 +624,8 @@ public class SqliteParameterTest
             new object[] { default(Guid), SqliteType.Text },
             new object[] { default(TimeSpan), SqliteType.Text },
             new object[] { default(TimeSpan), SqliteType.Text },
-#if NET6_0_OR_GREATER
             new object[] { default(DateOnly), SqliteType.Text },
             new object[] { default(TimeOnly), SqliteType.Text },
-#endif
             new object[] { 'A', SqliteType.Text },
             new object[] { "", SqliteType.Text },
             new object[] { false, SqliteType.Integer },
@@ -598,7 +640,9 @@ public class SqliteParameterTest
             new object[] { 0.0, SqliteType.Real },
             new object[] { 0f, SqliteType.Real },
             new object[] { Array.Empty<byte>(), SqliteType.Blob },
-        };
+            new object[] { new Memory<byte>([]), SqliteType.Blob },
+            new object[] { new ReadOnlyMemory<byte>([]), SqliteType.Blob },
+        ];
 
     private enum MyEnum
     {

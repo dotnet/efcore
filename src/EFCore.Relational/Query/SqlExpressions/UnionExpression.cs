@@ -127,8 +127,8 @@ public class UnionExpression : SetOperationBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is UnionExpression unionExpression
-                && Equals(unionExpression));
+                || (obj is UnionExpression unionExpression
+                    && Equals(unionExpression)));
 
     private bool Equals(UnionExpression unionExpression)
         => base.Equals(unionExpression);

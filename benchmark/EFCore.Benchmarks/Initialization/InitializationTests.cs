@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization;
 [DisplayName("InitializationTests")]
 public abstract class InitializationTests
 {
-    private ServiceProvider _serviceProvider;
-    private ServiceProvider _pooledServiceProvider;
+    private ServiceProvider _serviceProvider = null!;
+    private ServiceProvider _pooledServiceProvider = null!;
 
     protected abstract AdventureWorksContextBase CreateContext();
     protected abstract ConventionSet CreateConventionSet();
@@ -51,7 +51,7 @@ public abstract class InitializationTests
     [Benchmark]
     public virtual void CreateAndDisposeUnusedContextFromDiFactory()
     {
-        var factory = _serviceProvider.GetService<IDbContextFactory<AdventureWorksContextBase>>();
+        var factory = _serviceProvider.GetService<IDbContextFactory<AdventureWorksContextBase>>()!;
         for (var i = 0; i < 10000; i++)
         {
             using var _ = factory.CreateDbContext();
@@ -64,7 +64,7 @@ public abstract class InitializationTests
         for (var i = 0; i < 10000; i++)
         {
             using var scope = _pooledServiceProvider.CreateScope();
-            var context = (AdventureWorksContextBase)scope.ServiceProvider.GetService(typeof(AdventureWorksContextBase));
+            var context = (AdventureWorksContextBase)scope.ServiceProvider.GetService(typeof(AdventureWorksContextBase))!;
             var _ = context.Model;
         }
     }
@@ -72,7 +72,7 @@ public abstract class InitializationTests
     [Benchmark]
     public virtual void CreateAndDisposePooledContextFromDiFactory()
     {
-        var factory = _pooledServiceProvider.GetService<IDbContextFactory<AdventureWorksContextBase>>();
+        var factory = _pooledServiceProvider.GetService<IDbContextFactory<AdventureWorksContextBase>>()!;
         for (var i = 0; i < 10000; i++)
         {
             using var context = factory.CreateDbContext();

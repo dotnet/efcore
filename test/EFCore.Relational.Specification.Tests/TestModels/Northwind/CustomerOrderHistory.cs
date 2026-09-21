@@ -3,11 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public class CustomerOrderHistory
 {
-    public string ProductName { get; set; }
+    public string? ProductName { get; set; }
 
     public int Total { get; set; }
 }

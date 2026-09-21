@@ -11,13 +11,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+/// <remarks>
+///     This represents a shaper that returns a collection. EG .Select(x => x.Collection)
+/// </remarks>
 public class CollectionShaperExpression(
     Expression projection,
     Expression innerShaper,
-    INavigationBase? navigation,
+    Type type,
+    Func<object>? collectionCreator,
     Type elementType)
     : Expression, IPrintableExpression
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public CollectionShaperExpression(
+        Expression projection,
+        Expression innerShaper,
+        IClrCollectionAccessor clrCollectionAccessor,
+        Type elementType)
+        : this(projection, innerShaper, clrCollectionAccessor.CollectionType, clrCollectionAccessor.Create, elementType)
+    {
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -40,7 +59,7 @@ public class CollectionShaperExpression(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual INavigationBase? Navigation { get; } = navigation;
+    public virtual Func<object>? CollectionCreator { get; } = collectionCreator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,7 +85,7 @@ public class CollectionShaperExpression(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type Type
-        => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
+        => type;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -92,7 +111,7 @@ public class CollectionShaperExpression(
         Expression projection,
         Expression innerShaper)
         => projection != Projection || innerShaper != InnerShaper
-            ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
+            ? new CollectionShaperExpression(projection, innerShaper, Type, CollectionCreator, ElementType)
             : this;
 
     /// <summary>
@@ -110,7 +129,7 @@ public class CollectionShaperExpression(
             expressionPrinter.Visit(Projection);
             expressionPrinter.Append(", ");
             expressionPrinter.Visit(InnerShaper);
-            expressionPrinter.AppendLine($", {Navigation?.Name})");
+            expressionPrinter.AppendLine(")");
         }
     }
 }

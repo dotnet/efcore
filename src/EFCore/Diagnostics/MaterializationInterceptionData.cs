@@ -81,12 +81,8 @@ public readonly struct MaterializationInterceptionData
         var property = (IPropertyBase?)EntityType.FindProperty(propertyName)
             ?? EntityType.FindServiceProperty(propertyName);
 
-        if (property == null)
-        {
-            throw new ArgumentException(CoreStrings.PropertyNotFound(propertyName, EntityType.DisplayName()), nameof(propertyName));
-        }
-
-        return property;
+        return property
+            ?? throw new ArgumentException(CoreStrings.PropertyNotFound(propertyName, EntityType.DisplayName()), nameof(propertyName));
     }
 
     /// <summary>

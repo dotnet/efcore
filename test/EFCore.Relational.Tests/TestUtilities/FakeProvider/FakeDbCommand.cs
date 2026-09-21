@@ -2,12 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 public class FakeDbCommand : DbCommand
 {
-    private readonly FakeCommandExecutor _commandExecutor;
+    private readonly FakeCommandExecutor _commandExecutor = null!;
 
     public FakeDbCommand()
     {
@@ -21,14 +22,15 @@ public class FakeDbCommand : DbCommand
         _commandExecutor = commandExecutor;
     }
 
-    protected override DbConnection DbConnection { get; set; }
+    protected override DbConnection? DbConnection { get; set; }
 
-    protected override DbTransaction DbTransaction { get; set; }
+    protected override DbTransaction? DbTransaction { get; set; }
 
     public override void Cancel()
         => throw new NotImplementedException();
 
-    public override string CommandText { get; set; }
+    [AllowNull]
+    public override string CommandText { get; set; } = null!;
 
     public static int DefaultCommandTimeout = 30;
 
@@ -52,7 +54,7 @@ public class FakeDbCommand : DbCommand
         return _commandExecutor.ExecuteNonQuery(this);
     }
 
-    public override object ExecuteScalar()
+    public override object? ExecuteScalar()
     {
         AssertTransaction();
 
@@ -73,7 +75,7 @@ public class FakeDbCommand : DbCommand
         return _commandExecutor.ExecuteNonQueryAsync(this, cancellationToken);
     }
 
-    public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
+    public override Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken)
     {
         AssertTransaction();
 
@@ -116,7 +118,7 @@ public class FakeDbCommand : DbCommand
         if (Transaction == null)
         {
             Check.DebugAssert(
-                ((FakeDbConnection)DbConnection).ActiveTransaction == null,
+                ((FakeDbConnection)DbConnection!).ActiveTransaction == null,
                 "((FakeDbConnection)DbConnection).ActiveTransaction is null");
         }
         else

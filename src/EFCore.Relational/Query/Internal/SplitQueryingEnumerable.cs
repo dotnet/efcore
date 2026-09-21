@@ -230,6 +230,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                 }
                 else
                 {
+                    _resultCoordinator!.VerifyNoOrphanedChildRows();
                     Current = default!;
                 }
 
@@ -379,6 +380,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                 }
                 else
                 {
+                    _resultCoordinator!.VerifyNoOrphanedChildRows();
                     Current = default!;
                 }
 

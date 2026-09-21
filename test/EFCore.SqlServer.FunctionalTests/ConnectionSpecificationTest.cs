@@ -10,11 +10,9 @@ using Microsoft.Extensions.Configuration;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ConnectionSpecificationTest
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_no_connection_string_in_OnConfiguring()
     {
         var serviceProvider
@@ -33,7 +31,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_no_connection_string_in_OnConfiguring_with_default_service_provider()
     {
         await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -46,7 +44,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Throws_if_context_used_with_no_connection_or_connection_string()
     {
         await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -65,7 +63,7 @@ public class ConnectionSpecificationTest
                 .UseSqlServer(b => b.ApplyConfiguration());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_connection_string_in_OnConfiguring()
     {
         var serviceProvider
@@ -81,7 +79,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_connection_string_in_OnConfiguring_with_default_service_provider()
     {
         await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -99,7 +97,7 @@ public class ConnectionSpecificationTest
                 .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Can_specify_no_connection_in_OnConfiguring(bool contextOwnsConnection)
     {
         var serviceProvider
@@ -132,7 +130,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Can_specify_no_connection_in_OnConfiguring_with_default_service_provider(bool contextOwnsConnection)
     {
         SqlConnection connection;
@@ -159,7 +157,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_connection_in_OnConfiguring()
     {
         var serviceProvider
@@ -175,7 +173,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_connection_in_OnConfiguring_with_default_service_provider()
     {
         await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -187,7 +185,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_owned_connection_in_OnConfiguring()
     {
         var serviceProvider
@@ -209,7 +207,7 @@ public class ConnectionSpecificationTest
         Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_owned_connection_in_OnConfiguring_with_default_service_provider()
     {
         SqlConnection connection;
@@ -225,7 +223,7 @@ public class ConnectionSpecificationTest
         Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_then_change_connection()
     {
         var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
@@ -251,7 +249,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Cannot_change_connection_when_open_and_owned()
     {
         var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
@@ -278,7 +276,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_change_connection_when_open_and_not_owned()
     {
         var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
@@ -331,7 +329,7 @@ public class ConnectionSpecificationTest
                 .UseSqlServer(_connection, contextOwnsConnection: true, b => b.ApplyConfiguration());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Throws_if_no_connection_found_in_config_without_UseSqlServer()
     {
         var serviceProvider
@@ -345,7 +343,7 @@ public class ConnectionSpecificationTest
             (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Customers.AnyAsync())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Throws_if_no_config_without_UseSqlServer()
     {
         var serviceProvider
@@ -365,7 +363,7 @@ public class ConnectionSpecificationTest
             => optionsBuilder.EnableServiceProviderCaching(false);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_depend_on_DbContextOptions()
     {
         var serviceProvider
@@ -382,7 +380,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_depend_on_DbContextOptions_with_default_service_provider()
     {
         await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -420,7 +418,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_depend_on_non_generic_options_when_only_one_context()
     {
         var serviceProvider
@@ -436,7 +434,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_depend_on_non_generic_options_when_only_one_context_with_default_service_provider()
     {
         await using (await SqlServerTestStore.GetNorthwindStoreAsync())
@@ -462,14 +460,14 @@ public class ConnectionSpecificationTest
         }
     }
 
-    [ConditionalTheory, InlineData("MyConnectionString", "name=MyConnectionString"),
+    [Theory, InlineData("MyConnectionString", "name=MyConnectionString"),
      InlineData("ConnectionStrings:DefaultConnection", "name=ConnectionStrings:DefaultConnection"),
      InlineData("ConnectionStrings:DefaultConnection", " NamE   =   ConnectionStrings:DefaultConnection  ")]
     public async Task Can_use_AddDbContext_and_get_connection_string_from_config(string key, string connectionString)
     {
         var configBuilder = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string> { { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString } });
+                new Dictionary<string, string?> { { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString } });
 
         var serviceProvider
             = new ServiceCollection()
@@ -498,7 +496,7 @@ public class ConnectionSpecificationTest
         {
         }
 
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>(b =>
@@ -510,16 +508,16 @@ public class ConnectionSpecificationTest
 
     private class Customer
     {
-        public string CustomerID { get; set; }
+        public string CustomerID { get; set; } = null!;
 
         // ReSharper disable UnusedMember.Local
-        public string CompanyName { get; set; }
+        public string? CompanyName { get; set; }
 
-        public string Fax { get; set; }
+        public string? Fax { get; set; }
         // ReSharper restore UnusedMember.Local
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Can_use_an_existing_closed_connection_test(bool openConnection)
     {
         var serviceProvider = new ServiceCollection()
@@ -580,7 +578,7 @@ public class ConnectionSpecificationTest
         private readonly SqlConnection _connection = connection;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

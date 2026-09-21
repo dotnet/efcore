@@ -41,5 +41,9 @@ public class
     public virtual
         LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly
         ?
-        Login { get; set; }
+        Login
+    {
+        get;
+        set;
+    }
 }

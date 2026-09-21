@@ -137,12 +137,9 @@ public class OwnedNavigationStoredProcedureBuilder :
     {
         var entityType = OwnedNavigationBuilder.OwnedEntityType;
         var property = entityType.FindProperty(propertyName);
-        if (property == null)
-        {
-            throw new InvalidOperationException(CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));
-        }
-
-        return OwnedNavigationBuilder.Property(property.ClrType, propertyName);
+        return property == null
+            ? throw new InvalidOperationException(CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()))
+            : OwnedNavigationBuilder.Property(property.ClrType, propertyName);
     }
 
     /// <summary>

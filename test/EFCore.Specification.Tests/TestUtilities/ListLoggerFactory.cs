@@ -125,11 +125,8 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
         {
             if (message != null)
             {
-                if (_cancellationTokenSource != null)
-                {
-                    _cancellationTokenSource.Cancel();
-                    _cancellationTokenSource = null;
-                }
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource = null;
 
                 if (WriteToTestOutputHelper)
                 {

@@ -245,9 +245,9 @@ public static class EntityTypeExtensions
         var indexes = new PropertyIndexes(
             index: complexProperty.IsCollection ? complexCollectionIndex++ : complexPropertyIndex++,
             originalValueIndex: complexProperty.IsCollection
-                || (complexProperty.IsNullable && !complexProperty.IsShadowProperty())
-                    ? originalValueIndex++
-                    : -1,
+            || (complexProperty.IsNullable && !complexProperty.IsShadowProperty())
+                ? originalValueIndex++
+                : -1,
             shadowIndex: complexProperty.IsShadowProperty() ? shadowIndex++ : -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);

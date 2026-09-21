@@ -19,17 +19,20 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     private InternalPropertyBuilder? _builder;
 
     private bool? _isConcurrencyToken;
+    private bool? _isAutoLoaded;
     private bool? _isNullable;
     private object? _sentinel;
     private ValueGenerated? _valueGenerated;
     private CoreTypeMapping? _typeMapping;
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
+    private readonly ElementType? _elementType;
 
     private ConfigurationSource? _typeConfigurationSource;
     private ConfigurationSource? _isNullableConfigurationSource;
     private ConfigurationSource? _sentinelConfigurationSource;
     private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
+    private ConfigurationSource? _isAutoLoadedConfigurationSource;
     private ConfigurationSource? _valueGeneratedConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
 
@@ -46,13 +49,31 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
         FieldInfo? fieldInfo,
         TypeBase declaringType,
         ConfigurationSource configurationSource,
-        ConfigurationSource? typeConfigurationSource)
+        ConfigurationSource? typeConfigurationSource,
+        Type? elementType = null)
         : base(name, propertyInfo, fieldInfo, configurationSource)
     {
         DeclaringType = declaringType;
         ClrType = clrType;
         _typeConfigurationSource = typeConfigurationSource;
         _builder = new InternalPropertyBuilder(this, declaringType.Model.Builder);
+
+        if (elementType != null)
+        {
+            if (clrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType()
+                    .IsAssignableFrom(elementType.UnwrapNullableType())
+                != true)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ElementTypeNotCompatible(
+                        elementType.ShortDisplayName(),
+                        clrType.ShortDisplayName(),
+                        declaringType.DisplayName(),
+                        name));
+            }
+
+            _elementType = new ElementType(elementType, this);
+        }
     }
 
     /// <summary>
@@ -73,7 +94,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsInModel
+    public override bool IsInModel
         => _builder is not null
             && DeclaringType.IsInModel;
 
@@ -345,15 +366,59 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual int? SetMaxLength(int? maxLength, ConfigurationSource configurationSource)
+    public virtual bool IsAutoLoaded
     {
-        if (maxLength is < -1)
+        get => _isAutoLoaded ?? DefaultIsAutoLoaded;
+        set => SetIsAutoLoaded(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool? SetIsAutoLoaded(bool? autoLoaded, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        var isChanging = IsAutoLoaded != (autoLoaded ?? DefaultIsAutoLoaded);
+        if (isChanging)
         {
-            throw new ArgumentOutOfRangeException(nameof(maxLength));
+            _isAutoLoaded = autoLoaded;
         }
 
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.MaxLength, maxLength, configurationSource)?.Value;
+        _isAutoLoadedConfigurationSource = autoLoaded == null
+            ? null
+            : configurationSource.Max(_isAutoLoadedConfigurationSource);
+
+        return isChanging
+            ? DeclaringType.Model.ConventionDispatcher.OnPropertyAutoLoadChanged(Builder)
+            : autoLoaded;
     }
+
+    private static bool DefaultIsAutoLoaded
+        => true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetIsAutoLoadedConfigurationSource()
+        => _isAutoLoadedConfigurationSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? SetMaxLength(int? maxLength, ConfigurationSource configurationSource)
+        => maxLength is < -1
+            ? throw new ArgumentOutOfRangeException(nameof(maxLength))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.MaxLength, maxLength, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -407,14 +472,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? SetPrecision(int? precision, ConfigurationSource configurationSource)
-    {
-        if (precision != null && precision < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(precision));
-        }
-
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Precision, precision, configurationSource)?.Value;
-    }
+        => precision is not null and < 0
+            ? throw new ArgumentOutOfRangeException(nameof(precision))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Precision, precision, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -441,14 +501,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? SetScale(int? scale, ConfigurationSource configurationSource)
-    {
-        if (scale != null && scale < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(scale));
-        }
-
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Scale, scale, configurationSource)?.Value;
-    }
+        => scale is not null and < 0
+            ? throw new ArgumentOutOfRangeException(nameof(scale))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Scale, scale, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -752,7 +807,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
             {
                 converter = (ValueConverter?)Activator.CreateInstance(converterType);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCritical())
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotCreateValueConverter(
@@ -872,53 +927,17 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
                     }
 
                     var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                    if (principalProperty == cycleBreakingProperty)
+                    if (principalProperty == cycleBreakingProperty
+                        || TryGetConversion(
+                            principalProperty, throwOnValueConverterConflict, throwOnProviderClrTypeConflict,
+                            ref valueConverter, ref valueConverterType, ref providerClrType))
                     {
                         break;
                     }
 
-                    var annotationFound = GetConversion(
-                        principalProperty,
-                        throwOnValueConverterConflict,
-                        throwOnProviderClrTypeConflict,
-                        ref valueConverter,
-                        ref valueConverterType,
-                        ref providerClrType);
-                    if (!annotationFound)
-                    {
-                        var useQueue = queue != null;
-                        if (currentNode != null)
-                        {
-                            useQueue = true;
-                            queue =
-                                new Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength
-                                    )>();
-                            queue.Enqueue(currentNode.Value);
-                            visitedProperties = [property];
-                        }
-
-                        if (visitedProperties?.Contains(principalProperty) == true)
-                        {
-                            break;
-                        }
-
-                        if (cyclePosition == maxCycleLength - 1)
-                        {
-                            // We need to use different primes to ensure a different cycleBreakingProperty is selected
-                            // each time when traversing properties that participate in multiple relationship cycles
-                            currentNode = (principalProperty, property, 0, HashHelpers.GetPrime(maxCycleLength << 1));
-                        }
-                        else
-                        {
-                            currentNode = (principalProperty, cycleBreakingProperty, cyclePosition + 1, maxCycleLength);
-                        }
-
-                        if (useQueue)
-                        {
-                            queue!.Enqueue(currentNode.Value);
-                            currentNode = null;
-                        }
-                    }
+                    EnqueueForTraversal(
+                        principalProperty, property, cycleBreakingProperty, cyclePosition, maxCycleLength,
+                        ref currentNode, ref queue, ref visitedProperties);
 
                     break;
                 }
@@ -927,7 +946,45 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
 
         return (valueConverter, valueConverterType, providerClrType);
 
-        bool GetConversion(
+        static void EnqueueForTraversal(
+            Property principalProperty,
+            Property property,
+            Property cycleBreakingProperty,
+            int cyclePosition,
+            int maxCycleLength,
+            ref (Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength)? currentNode,
+            ref Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength)>? queue,
+            ref HashSet<Property>? visitedProperties)
+        {
+            var useQueue = queue != null;
+            if (currentNode != null)
+            {
+                useQueue = true;
+                queue =
+                    new Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength)>();
+                queue.Enqueue(currentNode.Value);
+                visitedProperties = [property];
+            }
+
+            if (visitedProperties?.Contains(principalProperty) == true)
+            {
+                return;
+            }
+
+            // We need to use different primes to ensure a different cycleBreakingProperty is selected
+            // each time when traversing properties that participate in multiple relationship cycles
+            currentNode = cyclePosition == maxCycleLength - 1
+                ? (principalProperty, property, 0, HashHelpers.GetPrime(maxCycleLength << 1))
+                : (principalProperty, cycleBreakingProperty, cyclePosition + 1, maxCycleLength);
+
+            if (useQueue)
+            {
+                queue!.Enqueue(currentNode.Value);
+                currentNode = null;
+            }
+        }
+
+        bool TryGetConversion(
             Property principalProperty,
             bool throwOnValueConverterConflict,
             bool throwOnProviderClrTypeConflict,
@@ -935,126 +992,95 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
             ref Type? valueConverterType,
             ref Type? providerClrType)
         {
-            var annotationFound = false;
-            var valueConverterAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
-            if (valueConverterAnnotation != null)
+            var vcFound = TryFindAndValidateConversionAnnotation(
+                principalProperty, CoreAnnotationNames.ValueConverter,
+                valueConverter?.GetType(), valueConverterType,
+                throwOnProviderClrTypeConflict ? providerClrType : null, null,
+                out var vcValue);
+            if (vcFound && vcValue is ValueConverter vc)
             {
-                var annotationValue = (ValueConverter?)valueConverterAnnotation.Value;
-                if (annotationValue != null)
-                {
-                    if (valueConverter != null
-                        && annotationValue.GetType() != valueConverter.GetType())
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverter.GetType().ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
-                    }
-
-                    if (valueConverterType != null
-                        && annotationValue.GetType() != valueConverterType)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverterType.ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
-                    }
-
-                    if (providerClrType != null
-                        && throwOnProviderClrTypeConflict)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                providerClrType.ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
-                    }
-
-                    valueConverter = annotationValue;
-                }
-
-                annotationFound = true;
+                valueConverter = vc;
             }
 
-            var valueConverterTypeAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverterType);
-            if (valueConverterTypeAnnotation != null)
+            var vctFound = TryFindAndValidateConversionAnnotation(
+                principalProperty, CoreAnnotationNames.ValueConverterType,
+                valueConverter?.GetType(), valueConverterType,
+                throwOnProviderClrTypeConflict ? providerClrType : null, null,
+                out var vctValue);
+            if (vctFound && vctValue is Type vct)
             {
-                var annotationValue = (Type?)valueConverterTypeAnnotation.Value;
-                if (annotationValue != null)
-                {
-                    if (valueConverter != null
-                        && valueConverter.GetType() != annotationValue)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverter.GetType().ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    if (valueConverterType != null
-                        && valueConverterType != annotationValue)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverterType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    if (providerClrType != null
-                        && throwOnProviderClrTypeConflict)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                providerClrType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    valueConverterType = annotationValue;
-                }
-
-                annotationFound = true;
+                valueConverterType = vct;
             }
 
-            var providerClrTypeAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ProviderClrType);
-            if (providerClrTypeAnnotation != null)
+            var pctFound = TryFindAndValidateConversionAnnotation(
+                principalProperty, CoreAnnotationNames.ProviderClrType,
+                providerClrType, null,
+                throwOnValueConverterConflict ? valueConverter?.GetType() : null,
+                throwOnValueConverterConflict ? valueConverterType : null,
+                out var pctValue);
+            if (pctFound && pctValue is Type pct)
             {
-                var annotationValue = (Type?)providerClrTypeAnnotation.Value;
-                if (annotationValue != null)
-                {
-                    if (providerClrType != null
-                        && annotationValue != providerClrType)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                providerClrType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    if (valueConverter != null
-                        && throwOnValueConverterConflict)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverter.GetType().ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    if (valueConverterType != null
-                        && throwOnValueConverterConflict)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverterType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    providerClrType = annotationValue;
-                }
-
-                annotationFound = true;
+                providerClrType = pct;
             }
 
-            return annotationFound;
+            return vcFound || vctFound || pctFound;
         }
+
+        bool TryFindAndValidateConversionAnnotation(
+            Property principalProperty,
+            string annotationName,
+            Type? firstTypeToCheck,
+            Type? secondTypeToCheck,
+            Type? firstConflictingType,
+            Type? secondConflictingType,
+            out object? value)
+        {
+            var annotation = principalProperty.FindAnnotation(annotationName);
+            if (annotation == null)
+            {
+                value = null;
+                return false;
+            }
+
+            var type = annotation.Value switch
+            {
+                ValueConverter vc => vc.GetType(),
+                Type t => t,
+                _ => null
+            };
+
+            if (type != null)
+            {
+                ThrowIfIncompatible(type, firstTypeToCheck);
+                ThrowIfIncompatible(type, secondTypeToCheck);
+                ThrowIfConflicting(type, firstConflictingType);
+                ThrowIfConflicting(type, secondConflictingType);
+            }
+
+            value = annotation.Value;
+            return true;
+        }
+
+        void ThrowIfIncompatible(Type newType, Type? existingType)
+        {
+            if (existingType != null && newType != existingType)
+            {
+                ThrowConflictingConversions(existingType, newType);
+            }
+        }
+
+        void ThrowIfConflicting(Type newType, Type? existingType)
+        {
+            if (existingType != null)
+            {
+                ThrowConflictingConversions(existingType, newType);
+            }
+        }
+
+        void ThrowConflictingConversions(Type existingType, Type newType)
+            => throw new InvalidOperationException(
+                CoreStrings.ConflictingRelationshipConversions(
+                    DeclaringType.DisplayName(), Name, existingType.ShortDisplayName(), newType.ShortDisplayName()));
     }
 
     /// <summary>
@@ -1078,15 +1104,11 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     /// </summary>
     [DisallowNull]
     public virtual CoreTypeMapping? TypeMapping
-    {
-        get => IsReadOnly
+        => IsReadOnly
             ? NonCapturingLazyInitializer.EnsureInitialized(
                 ref _typeMapping, (IProperty)this, static property =>
                     property.DeclaringType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!)
             : _typeMapping;
-
-        set => SetTypeMapping(value, ConfigurationSource.Explicit);
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1156,7 +1178,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
             {
                 comparer = (ValueComparer?)Activator.CreateInstance(comparerType);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCritical())
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotCreateValueComparer(
@@ -1265,7 +1287,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
             {
                 comparer = (ValueComparer?)Activator.CreateInstance(comparerType);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCritical())
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotCreateValueComparer(
@@ -1389,7 +1411,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ElementType? GetElementType()
-        => (ElementType?)this[CoreAnnotationNames.ElementType];
+        => _elementType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1398,66 +1420,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsPrimitiveCollection
-    {
-        get
-        {
-            var elementType = GetElementType();
-            return elementType != null
-                && ClrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType()
-                    .IsAssignableFrom(elementType.ClrType.UnwrapNullableType())
-                == true;
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ElementType? SetElementType(
-        Type? elementType,
-        ConfigurationSource configurationSource)
-    {
-        var existingElementType = GetElementType();
-        if (elementType != null
-            && elementType != existingElementType?.ClrType)
-        {
-            var newElementType = new ElementType(elementType, this, configurationSource);
-            SetAnnotation(CoreAnnotationNames.ElementType, newElementType, configurationSource);
-            OnElementTypeSet(newElementType, null);
-            return newElementType;
-        }
-
-        if (elementType == null
-            && existingElementType != null)
-        {
-            existingElementType.SetRemovedFromModel();
-            RemoveAnnotation(CoreAnnotationNames.ElementType);
-            OnElementTypeSet(null, existingElementType);
-            return null;
-        }
-
-        return existingElementType;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual IElementType? OnElementTypeSet(IElementType? newElementType, IElementType? oldElementType)
-        => DeclaringType.Model.ConventionDispatcher.OnPropertyElementTypeChanged(Builder, newElementType, oldElementType);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource? GetElementTypeConfigurationSource()
-        => FindAnnotation(CoreAnnotationNames.ElementType)?.GetConfigurationSource();
+        => GetElementType() != null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1518,32 +1481,6 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     /// </summary>
     public virtual IEnumerable<ForeignKey> GetContainingForeignKeys()
         => ForeignKeys?.OrderBy(fk => fk, ForeignKeyComparer.Instance) ?? Enumerable.Empty<ForeignKey>();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual List<Index>? Indexes { get; set; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool IsIndex()
-        => Indexes != null;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IEnumerable<Index> GetContainingIndexes()
-        => Indexes?.OrderBy(i => i.Properties, PropertyListComparer.Instance) ?? Enumerable.Empty<Index>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1792,6 +1729,17 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     bool? IConventionProperty.SetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation)
         => SetIsConcurrencyToken(
             concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool? IConventionProperty.SetIsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation)
+        => SetIsAutoLoaded(
+            autoLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2206,28 +2154,6 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
         => SetJsonValueReaderWriterType(
             readerWriterType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    IConventionElementType? IConventionProperty.SetElementType(Type? elementType, bool fromDataAnnotation)
-        => SetElementType(
-            elementType,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    void IMutableProperty.SetElementType(Type? elementType)
-        => SetElementType(elementType, ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

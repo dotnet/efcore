@@ -208,18 +208,17 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
         // In VB.NET, comparison operators between strings (equality, greater-than, less-than) yield
         // calls to a VB-specific CompareString method. Normalize that to string.Compare.
-        if (visited is
-            {
-                Method:
-                {
-                    Name: "CompareString",
-                    DeclaringType: { Name: "Operators" or "EmbeddedOperators", Namespace: "Microsoft.VisualBasic.CompilerServices" }
-                },
-                Object: null,
-                Arguments: [_, _, ConstantExpression textCompareConstantExpression]
-            })
+        return visited is
         {
-            return textCompareConstantExpression.Value is true
+            Method:
+            {
+                Name: "CompareString",
+                DeclaringType: { Name: "Operators" or "EmbeddedOperators", Namespace: "Microsoft.VisualBasic.CompilerServices" }
+            },
+            Object: null,
+            Arguments: [_, _, ConstantExpression textCompareConstantExpression]
+        }
+            ? textCompareConstantExpression.Value is true
                 ? Expression.Call(
                     StringCompareWithComparisonMethod,
                     visited.Arguments[0],
@@ -228,10 +227,8 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                 : Expression.Call(
                     StringCompareWithoutComparisonMethod,
                     visited.Arguments[0],
-                    visited.Arguments[1]);
-        }
-
-        return visited;
+                    visited.Arguments[1])
+            : visited;
     }
 
     /// <summary>
@@ -375,14 +372,14 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                 && !(conditionalExpression.Type.IsNullableValueType()
                     && visitedMemberExpression.Member.Name is nameof(Nullable<>.HasValue) or nameof(Nullable<>.Value)))
             {
-                var isLeftNullConstant = IsNullConstant(binaryTest.Left);
-                var isRightNullConstant = IsNullConstant(binaryTest.Right);
+                var isLeftNullConstant = binaryTest.Left is ConstantExpression { Value: null };
+                var isRightNullConstant = binaryTest.Right is ConstantExpression { Value: null };
 
                 if (isLeftNullConstant != isRightNullConstant
                     && ((binaryTest.NodeType == ExpressionType.Equal
-                            && IsNullConstant(conditionalExpression.IfTrue))
+                            && conditionalExpression.IfTrue is ConstantExpression { Value: null })
                         || (binaryTest.NodeType == ExpressionType.NotEqual
-                            && IsNullConstant(conditionalExpression.IfFalse))))
+                            && conditionalExpression.IfFalse is ConstantExpression { Value: null })))
                 {
                     var nonNullExpression = binaryTest.NodeType == ExpressionType.Equal
                         ? conditionalExpression.IfFalse
@@ -418,7 +415,4 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
         return null;
     }
-
-    private static bool IsNullConstant(Expression expression)
-        => expression is ConstantExpression { Value: null };
 }

@@ -12,21 +12,21 @@ public class FakeDbDataReader : DbDataReader
     private readonly IList<IList<object[]>> _resultSets;
 
     private int _currentResultSet;
-    private object[] _currentRow;
+    private object[]? _currentRow;
     private int _rowIndex;
     private bool _closed;
 
-    public FakeDbDataReader(string[] columnNames = null, IList<object[]> results = null)
+    public FakeDbDataReader(string[]? columnNames = null, IList<object[]>? results = null)
     {
         _columnNames = columnNames ?? [];
-        _results = results ?? new List<object[]>();
-        _resultSets = new List<IList<object[]>> { _results };
+        _results = results ?? [];
+        _resultSets = [_results];
     }
 
-    public FakeDbDataReader(string[] columnNames, IList<IList<object[]>> resultSets)
+    public FakeDbDataReader(string[] columnNames, IList<IList<object[]>>? resultSets)
     {
         _columnNames = columnNames ?? [];
-        _resultSets = resultSets ?? new List<IList<object[]>> { new List<object[]>() };
+        _resultSets = resultSets ?? [[]];
         _results = _resultSets[0];
     }
 
@@ -81,10 +81,10 @@ public class FakeDbDataReader : DbDataReader
         => _columnNames[ordinal];
 
     public override bool IsDBNull(int ordinal)
-        => _currentRow[ordinal] == DBNull.Value;
+        => _currentRow![ordinal] == DBNull.Value;
 
     public override object GetValue(int ordinal)
-        => _currentRow[ordinal];
+        => _currentRow![ordinal];
 
     public int GetInt32Count { get; private set; }
 
@@ -92,7 +92,7 @@ public class FakeDbDataReader : DbDataReader
     {
         GetInt32Count++;
 
-        return (int)_currentRow[ordinal];
+        return (int)_currentRow![ordinal];
     }
 
     public override object this[string name]
@@ -114,31 +114,31 @@ public class FakeDbDataReader : DbDataReader
         => _resultSets.Aggregate(0, (a, r) => a + r.Count);
 
     public override bool GetBoolean(int ordinal)
-        => (bool)_currentRow[ordinal];
+        => (bool)_currentRow![ordinal];
 
     public override byte GetByte(int ordinal)
-        => (byte)_currentRow[ordinal];
+        => (byte)_currentRow![ordinal];
 
-    public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+    public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
         => throw new NotImplementedException();
 
     public override char GetChar(int ordinal)
-        => (char)_currentRow[ordinal];
+        => (char)_currentRow![ordinal];
 
-    public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+    public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
         => throw new NotImplementedException();
 
     public override string GetDataTypeName(int ordinal)
         => GetFieldType(ordinal).Name;
 
     public override DateTime GetDateTime(int ordinal)
-        => (DateTime)_currentRow[ordinal];
+        => (DateTime)_currentRow![ordinal];
 
     public override decimal GetDecimal(int ordinal)
-        => (decimal)_currentRow[ordinal];
+        => (decimal)_currentRow![ordinal];
 
     public override double GetDouble(int ordinal)
-        => (double)_currentRow[ordinal];
+        => (double)_currentRow![ordinal];
 
     public override IEnumerator GetEnumerator()
         => throw new NotImplementedException();
@@ -149,22 +149,22 @@ public class FakeDbDataReader : DbDataReader
             : typeof(object);
 
     public override float GetFloat(int ordinal)
-        => (float)_currentRow[ordinal];
+        => (float)_currentRow![ordinal];
 
     public override Guid GetGuid(int ordinal)
-        => (Guid)_currentRow[ordinal];
+        => (Guid)_currentRow![ordinal];
 
     public override short GetInt16(int ordinal)
-        => (short)_currentRow[ordinal];
+        => (short)_currentRow![ordinal];
 
     public override long GetInt64(int ordinal)
-        => (long)_currentRow[ordinal];
+        => (long)_currentRow![ordinal];
 
     public override int GetOrdinal(string name)
         => throw new NotImplementedException();
 
     public override string GetString(int ordinal)
-        => (string)_currentRow[ordinal];
+        => (string)_currentRow![ordinal];
 
     public override int GetValues(object[] values)
         => throw new NotImplementedException();

@@ -6,4 +6,4 @@ using TestNamespace;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-[assembly: DbContextModel(typeof(CompiledModelRelationalTestBase.DbFunctionContext), typeof(DbFunctionContextModel))]
+[assembly: DbContextModel(typeof(CompiledModelRelationalTestBase.DbFunctionContext), typeof(DbFunctionContextModel), ProviderName = "Microsoft.EntityFrameworkCore.SqlServer")]

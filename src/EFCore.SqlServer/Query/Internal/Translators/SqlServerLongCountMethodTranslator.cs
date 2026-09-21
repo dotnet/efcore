@@ -52,7 +52,7 @@ public class SqlServerLongCountMethodTranslator : IAggregateMethodCallTranslator
                 }
 
                 sqlExpression = _sqlExpressionFactory.Case(
-                    new List<CaseWhenClause> { new(source.Predicate, sqlExpression) },
+                    [new CaseWhenClause(source.Predicate, sqlExpression)],
                     elseResult: null);
             }
 

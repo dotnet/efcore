@@ -22,6 +22,15 @@ public abstract class JsonValueReaderWriter
     }
 
     /// <summary>
+    ///     If <see langword="true" />, then the nulls will be passed to the writer's <see cref="ToJson" /> method. Otherwise null
+    ///     values will always be written as <see langword="null" />.
+    /// </summary>
+    /// <remarks>
+    ///     The default is <see langword="false" />.
+    /// </remarks>
+    public virtual bool HandlesNullWrites { get; } = false;
+
+    /// <summary>
     ///     Reads the value from a UTF8 JSON stream or buffer.
     /// </summary>
     /// <remarks>
@@ -48,7 +57,7 @@ public abstract class JsonValueReaderWriter
     /// </summary>
     /// <param name="writer">The <see cref="Utf8JsonWriter" /> into which the value should be written.</param>
     /// <param name="value">The value to write.</param>
-    public abstract void ToJson(Utf8JsonWriter writer, object value);
+    public abstract void ToJson(Utf8JsonWriter writer, object? value);
 
     /// <summary>
     ///     The type of the value being read/written.
@@ -78,7 +87,7 @@ public abstract class JsonValueReaderWriter
     /// </summary>
     /// <param name="value">The value to write.</param>
     /// <returns>The JSON representation of the given value.</returns>
-    public string ToJsonString(object value)
+    public string ToJsonString(object? value)
     {
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);

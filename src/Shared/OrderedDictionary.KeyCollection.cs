@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore.Utilities;
@@ -115,24 +113,22 @@ internal partial class OrderedDictionary<TKey, TValue>
             private readonly OrderedDictionary<TKey, TValue> _orderedDictionary;
             private readonly int _version;
             private int _index;
-            private TKey _current;
 
             /// <summary>
             ///     Gets the element at the current position of the enumerator.
             /// </summary>
             /// <returns>The element in the <see cref="OrderedDictionary{TKey, TValue}.KeyCollection" /> at the current position of the enumerator.</returns>
-            public readonly TKey Current
-                => _current;
+            public TKey Current { get; private set; }
 
             readonly object? IEnumerator.Current
-                => _current;
+                => Current;
 
             internal Enumerator(OrderedDictionary<TKey, TValue> orderedDictionary)
             {
                 _orderedDictionary = orderedDictionary;
                 _version = orderedDictionary._version;
                 _index = 0;
-                _current = default!;
+                Current = default!;
             }
 
             /// <summary>
@@ -159,12 +155,12 @@ internal partial class OrderedDictionary<TKey, TValue>
 
                 if (_index < _orderedDictionary.Count)
                 {
-                    _current = _orderedDictionary._entries[_index].Key;
+                    Current = _orderedDictionary._entries[_index].Key;
                     ++_index;
                     return true;
                 }
 
-                _current = default!;
+                Current = default!;
                 return false;
             }
 
@@ -176,7 +172,7 @@ internal partial class OrderedDictionary<TKey, TValue>
                 }
 
                 _index = 0;
-                _current = default!;
+                Current = default!;
             }
         }
     }

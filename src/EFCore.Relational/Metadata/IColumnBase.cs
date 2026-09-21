@@ -49,6 +49,11 @@ public interface IColumnBase : IAnnotatable
     IReadOnlyList<IColumnMappingBase> PropertyMappings { get; }
 
     /// <summary>
+    ///     Gets the root JSON element for this column, or <see langword="null" /> if the column is not a JSON column.
+    /// </summary>
+    IRelationalJsonElement? JsonElement => null;
+
+    /// <summary>
     ///     Gets the <see cref="ValueComparer" /> for this column.
     /// </summary>
     /// <returns>The comparer.</returns>
@@ -65,7 +70,7 @@ public interface IColumnBase : IAnnotatable
         for (var i = 0; i < PropertyMappings.Count; i++)
         {
             var mapping = PropertyMappings[i];
-            if (mapping.Property.DeclaringType.IsAssignableFrom(entityType))
+            if (mapping.Property.DeclaringType.ContainingEntityType.IsAssignableFrom(entityType))
             {
                 return mapping;
             }

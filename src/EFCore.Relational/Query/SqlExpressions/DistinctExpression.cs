@@ -76,8 +76,8 @@ public class DistinctExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is DistinctExpression distinctExpression
-                && Equals(distinctExpression));
+                || (obj is DistinctExpression distinctExpression
+                    && Equals(distinctExpression)));
 
     private bool Equals(DistinctExpression distinctExpression)
         => base.Equals(distinctExpression)

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class ModelValidatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_added_property_is_not_of_primitive_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -24,7 +24,7 @@ public partial class ModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_added_shadow_property_by_convention_is_not_of_primitive_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -35,7 +35,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_primitive_type_property_is_not_added_or_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -47,7 +47,7 @@ public partial class ModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_nonprimitive_value_type_property_is_not_added_or_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -59,7 +59,7 @@ public partial class ModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_nonprimitive_value_type_property_type_is_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder(configurationBuilder => configurationBuilder.IgnoreAny<CancellationToken>());
@@ -68,7 +68,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_keyless_type_property_is_not_added_or_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -82,7 +82,7 @@ public partial class ModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_primitive_type_property_is_added()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -92,7 +92,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_primitive_type_property_is_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -102,7 +102,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_navigation_is_not_added_or_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -115,7 +115,7 @@ public partial class ModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_navigation_to_owned_type_is_not_added_or_ignored()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -129,7 +129,7 @@ public partial class ModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_navigation_is_added()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -146,7 +146,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_navigation_is_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -156,7 +156,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_navigation_type_is_ignored()
     {
         var modelBuilder =
@@ -166,7 +166,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_navigation_target_entity_is_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -176,7 +176,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_explicit_navigation_is_not_added()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -193,7 +193,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_when_interface_type_property_is_not_added_or_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -207,7 +207,7 @@ public partial class ModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_interface_collection_type_property_type_is_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder(configurationBuilder => configurationBuilder.IgnoreAny<INavigationEntity>());
@@ -216,7 +216,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_interface_generic_type_property_type_is_ignored()
     {
         var modelBuilder = CreateConventionlessModelBuilder(configurationBuilder => configurationBuilder.IgnoreAny(typeof(IList<>)));
@@ -225,7 +225,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_interface_base_type_property_type_is_ignored()
     {
         var modelBuilder =
@@ -235,7 +235,7 @@ public partial class ModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_throw_when_non_candidate_property_is_not_added()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -251,7 +251,7 @@ public partial class ModelValidatorTest
 
     protected class NonPrimitiveAsPropertyEntity
     {
-        public NavigationAsProperty Property { get; set; }
+        public NavigationAsProperty Property { get; set; } = null!;
     }
 
     protected class NavigationAsProperty;
@@ -268,12 +268,12 @@ public partial class ModelValidatorTest
 
     protected class NonPrimitiveReferenceTypePropertyEntity
     {
-        public ICollection<Uri> Property { get; set; }
+        public ICollection<Uri> Property { get; set; } = null!;
     }
 
     protected class NavigationEntity
     {
-        public PrimitivePropertyEntity Navigation { get; set; }
+        public PrimitivePropertyEntity Navigation { get; set; } = null!;
     }
 
     protected class NonCandidatePropertyEntity
@@ -290,48 +290,48 @@ public partial class ModelValidatorTest
 
     protected interface INavigationEntity
     {
-        PrimitivePropertyEntity Navigation { get; set; }
+        public PrimitivePropertyEntity Navigation { get; set; }
     }
 
     protected class ExplicitNavigationEntity : INavigationEntity
     {
-        PrimitivePropertyEntity INavigationEntity.Navigation { get; set; }
+        PrimitivePropertyEntity INavigationEntity.Navigation { get; set; } = null!;
 
-        public PrimitivePropertyEntity Navigation { get; set; }
+        public PrimitivePropertyEntity Navigation { get; set; } = null!;
     }
 
     protected class InterfaceNavigationEntity
     {
-        public IList<INavigationEntity> Navigation { get; set; }
+        public IList<INavigationEntity> Navigation { get; set; } = null!;
     }
 
     protected abstract class LivingBeing
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [NotMapped]
-        public OwnedEntity Details { get; set; }
+        public OwnedEntity Details { get; set; } = null!;
     }
 
     protected class Animal : LivingBeing
     {
-        public Person FavoritePerson { get; set; }
+        public Person FavoritePerson { get; set; } = null!;
     }
 
     protected class Cat : Animal
     {
-        public string Breed { get; set; }
+        public string Breed { get; set; } = null!;
 
         [NotMapped]
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
 
         public int Identity { get; set; }
     }
 
     protected class Dog : Animal
     {
-        public string Breed { get; set; }
+        public string Breed { get; set; } = null!;
 
         [NotMapped]
         public int Type { get; set; }
@@ -341,7 +341,7 @@ public partial class ModelValidatorTest
 
     protected class Person : LivingBeing
     {
-        public string FavoriteBreed { get; set; }
+        public string FavoriteBreed { get; set; } = null!;
     }
 
     protected class Employee : Person;
@@ -349,12 +349,12 @@ public partial class ModelValidatorTest
     protected class Owner
     {
         public int Id { get; set; }
-        public OwnedEntity Owned { get; set; }
+        public OwnedEntity? Owned { get; set; }
     }
 
     protected class OwnedEntity
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     protected class CarbonComposite

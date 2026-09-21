@@ -54,7 +54,7 @@ public class RelationalScaffoldingModelFactoryTest
         _reporter.Clear();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Loads_HierarchyId_columns()
     {
         var info = new DatabaseModel
@@ -94,8 +94,8 @@ public class RelationalScaffoldingModelFactoryTest
             }
         };
 
-        var entityType =
-            (EntityType)_factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("Jobs");
+        var entityType = Assert.IsType<EntityType>(
+            _factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("Jobs"));
 
         Assert.Collection(
             entityType.GetProperties(),

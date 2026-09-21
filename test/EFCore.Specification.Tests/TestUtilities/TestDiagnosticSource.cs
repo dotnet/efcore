@@ -3,21 +3,19 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public class TestDiagnosticSource : DiagnosticSource
 {
-    public string EnableFor { get; set; }
-    public string LoggedEventName { get; set; }
-    public string LoggedMessage { get; set; }
+    public string EnableFor { get; set; } = null!;
+    public string LoggedEventName { get; set; } = null!;
+    public string LoggedMessage { get; set; } = null!;
 
-    public override void Write(string name, object value)
+    public override void Write(string name, object? value)
     {
         LoggedEventName = name;
 
         Assert.IsAssignableFrom<EventData>(value);
 
-        LoggedMessage = value.ToString();
+        LoggedMessage = value!.ToString()!;
 
         var exceptionProperty = value.GetType().GetTypeInfo().GetDeclaredProperty("Exception");
         if (exceptionProperty != null)

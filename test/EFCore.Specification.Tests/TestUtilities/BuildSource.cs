@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class BuildSource
 {
-    public ICollection<BuildReference> References { get; } = new List<BuildReference>
-    {
+    public ICollection<BuildReference> References { get; } =
+    [
         BuildReference.ByName("netstandard"),
         BuildReference.ByName("System.Collections"),
         BuildReference.ByName("System.ComponentModel.Annotations"),
@@ -19,10 +19,10 @@ public class BuildSource
         BuildReference.ByName("System.Runtime"),
         BuildReference.ByName("System.Runtime.Extensions"),
         BuildReference.ByName("System.Text.RegularExpressions")
-    };
+    ];
 
     public string? TargetDir { get; set; }
-    public Dictionary<string, string> Sources { get; set; } = new();
+    public Dictionary<string, string> Sources { get; set; } = [];
     public bool NullableReferenceTypes { get; set; }
     public bool EmitDocumentationDiagnostics { get; set; }
 

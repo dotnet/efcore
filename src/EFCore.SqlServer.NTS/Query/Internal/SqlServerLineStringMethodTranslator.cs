@@ -45,25 +45,20 @@ public class SqlServerLineStringMethodTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (Equals(method, GetPointN)
-            && instance != null)
-        {
-            return _sqlExpressionFactory.Function(
-                instance,
-                "STPointN",
-                [
-                    _sqlExpressionFactory.Add(
-                        arguments[0],
-                        _sqlExpressionFactory.Constant(1))
-                ],
-                nullable: true,
-                instancePropagatesNullability: true,
-                argumentsPropagateNullability: Statics.TrueArrays[1],
-                method.ReturnType,
-                _typeMappingSource.FindMapping(method.ReturnType, instance.TypeMapping!.StoreType));
-        }
-
-        return null;
-    }
+        => Equals(method, GetPointN)
+            && instance != null
+                ? _sqlExpressionFactory.Function(
+                    instance,
+                    "STPointN",
+                    [
+                        _sqlExpressionFactory.Add(
+                            arguments[0],
+                            _sqlExpressionFactory.Constant(1))
+                    ],
+                    nullable: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    method.ReturnType,
+                    _typeMappingSource.FindMapping(method.ReturnType, instance.TypeMapping!.StoreType))
+                : null;
 }
