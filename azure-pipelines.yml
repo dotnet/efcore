@@ -140,7 +140,7 @@ extends:
                 displayName: Upload TestResults
                 condition: always()
                 path: artifacts/TestResults/$(_BuildConfig)/
-                artifact: $(Agent.Os)_$(Agent.JobName) TestResults
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: macOS
             pool:
               name: Azure Pipelines
@@ -167,7 +167,7 @@ extends:
                 displayName: Upload TestResults
                 condition: always()
                 path: artifacts/TestResults/$(_BuildConfig)/
-                artifact: $(Agent.Os)_$(Agent.JobName) TestResults
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: Linux
             timeoutInMinutes: 180
             pool:
@@ -192,7 +192,7 @@ extends:
                 displayName: Upload TestResults
                 condition: always()
                 path: artifacts/TestResults/$(_BuildConfig)/
-                artifact: $(Agent.Os)_$(Agent.JobName) TestResults
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: Helix
             timeoutInMinutes: 180
             pool:

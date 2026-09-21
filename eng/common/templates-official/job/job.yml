@@ -46,7 +46,7 @@ jobs:
           displayName: Publish Logs
           PathtoPublish: '$(Build.ArtifactStagingDirectory)/artifacts/log/$(_BuildConfig)'
           publishLocation: Container
-          ArtifactName: ${{ coalesce(parameters.enablePublishBuildArtifacts.artifactName, '$(Agent.Os)_$(Agent.JobName)' ) }}
+          ArtifactName: ${{ coalesce(parameters.enablePublishBuildArtifacts.artifactName, '$(Agent.Os)_$(Agent.JobName)_Attempt_$(System.JobAttempt)' ) }}
           continueOnError: true
           condition: always()
           sbomEnabled: false  # we don't need SBOM for logs
