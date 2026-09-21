@@ -14,6 +14,6 @@
   "devDependencies": {
     "@microsoft/vally": "0.16.0",
     "@microsoft/vally-cli": "0.16.0",
-    "yaml": "2.9.0"
+    "yaml": "2.9.1"
   }
 }

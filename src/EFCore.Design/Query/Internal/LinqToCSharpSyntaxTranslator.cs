@@ -24,8 +24,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : ExpressionVisitor
+public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
+        : this(syntaxGenerator, useUpdatedMemorySafetyRules: false)
+    {
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator, bool useUpdatedMemorySafetyRules)
+    {
+        _g = syntaxGenerator;
+        _useUpdatedMemorySafetyRules = useUpdatedMemorySafetyRules;
+    }
+
     private sealed record StackFrame(
         Dictionary<ParameterExpression, string> Variables,
         HashSet<string> VariableNames,
@@ -74,7 +97,8 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
 
     private readonly SideEffectDetectionSyntaxWalker _sideEffectDetector = new();
     private readonly ConstantDetectionSyntaxWalker _constantDetector = new();
-    private readonly SyntaxGenerator _g = syntaxGenerator;
+    private readonly SyntaxGenerator _g;
+    private readonly bool _useUpdatedMemorySafetyRules;
     private readonly StringBuilder _stringBuilder = new();
 
     /// <summary>
@@ -1885,6 +1909,15 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         unsafeAccessorDeclaration = unsafeAccessorDeclaration
             .WithBody(null)
             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+        // DeclarationModifiers has no representation for the "safe" contextual keyword, so it's added here by
+        // hand. This is only emitted when the compilation uses C#'s updated memory safety rules and the "safe"
+        // keyword is actually recognized by the referenced Roslyn version (see MemorySafetyRules.SafeKeyword).
+        if (_useUpdatedMemorySafetyRules && MemorySafetyRules.SafeKeyword != SyntaxKind.None)
+        {
+            unsafeAccessorDeclaration = unsafeAccessorDeclaration.WithModifiers(
+                unsafeAccessorDeclaration.Modifiers.Add(Token(MemorySafetyRules.SafeKeyword)));
+        }
 
         switch (member)
         {

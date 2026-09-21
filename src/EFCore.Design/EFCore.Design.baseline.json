@@ -22,6 +22,9 @@
           "Member": "virtual string? Language { get; set; }"
         },
         {
+          "Member": "virtual string? LangVersion { get; set; }"
+        },
+        {
           "Member": "virtual string ModelNamespace { get; set; }"
         },
         {
