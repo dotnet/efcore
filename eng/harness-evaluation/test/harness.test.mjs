@@ -94,6 +94,27 @@ test('eval scopes component resolution and output validation to the selected rep
   }
 });
 
+test('eval rejects missing model and runs option values', async () => {
+  const root = await makeRepo();
+  try {
+    const cliPath = fileURLToPath(new URL('../src/cli.mjs', import.meta.url));
+    for (const option of ['--model', '--runs']) {
+      const result = spawnSync(process.execPath, [
+        cliPath,
+        'eval',
+        'example',
+        '--repo-root', root,
+        option,
+      ], { encoding: 'utf8' });
+
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, new RegExp(`${option} requires a value\\.`));
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('eval output is constrained to an artifacts descendant', async () => {
   const repoRoot = await mkdtemp(join(tmpdir(), 'efcore-agent-output-'));
   const outside = await mkdtemp(join(tmpdir(), 'efcore-agent-output-outside-'));

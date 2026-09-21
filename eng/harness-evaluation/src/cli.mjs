@@ -16,13 +16,22 @@ import {
 
 function valueAfter(args, name, fallback) {
   const index = args.indexOf(name);
-  return index === -1 ? fallback : args[index + 1];
+  if (index === -1) {
+    return fallback;
+  }
+
+  const value = args[index + 1];
+  if (value === undefined || value.startsWith('--')) {
+    throw new Error(`${name} requires a value.`);
+  }
+
+  return value;
 }
 
 function printUsage() {
   console.error(`Usage:
   node src/cli.mjs lint
-  node src/cli.mjs eval <component> [--repo-root <directory>] [--runs <n>] [--workers <n>] [--require-pass] [--output <directory>]`);
+  node src/cli.mjs eval <component> [--repo-root <directory>] [--model <model>] [--runs <n>] [--workers <n>] [--require-pass] [--output <directory>]`);
 }
 
 async function lint() {
@@ -54,6 +63,10 @@ async function evaluate(args) {
   validateComponentId(componentId);
   const repoRoot = resolve(valueAfter(args, '--repo-root', defaultRepoRoot));
   const component = await resolveComponent(componentId, repoRoot);
+  const model = valueAfter(args, '--model');
+  if (model !== undefined && (!model.trim() || model.includes('::'))) {
+    throw new Error(`--model must be a non-empty model name without '::': ${model}`);
+  }
   const runsValue = valueAfter(args, '--runs');
   const runs = runsValue === undefined ? undefined : Number(runsValue);
   if (runs !== undefined && (!Number.isSafeInteger(runs) || runs <= 0)) {
@@ -79,6 +92,9 @@ async function evaluate(args) {
   ];
   if (runs !== undefined) {
     experimentArguments.push('--param', `RUNS=${runs}`);
+  }
+  if (model !== undefined) {
+    experimentArguments.push('--param', `MODEL=${model}`);
   }
   const experimentResult = runVally(experimentArguments, { cwd: repoRoot, inherit: true });
   if (experimentResult.status !== 0) {
