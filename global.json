@@ -1,6 +1,6 @@
 {
   "sdk": {
-    "version": "11.0.100-rc.1.26420.103",
+    "version": "11.0.100-rc.1.26425.128",
     "allowPrerelease": true,
     "rollForward": "latestMajor",
     "paths": [
@@ -13,7 +13,7 @@
     "runner": "Microsoft.Testing.Platform"
   },
   "tools": {
-    "dotnet": "11.0.100-rc.1.26420.103",
+    "dotnet": "11.0.100-rc.1.26425.128",
     "runtimes": {
       "dotnet": [
         "$(MicrosoftNETCorePlatformsVersion)"
