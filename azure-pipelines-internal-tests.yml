@@ -135,6 +135,14 @@ extends:
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 displayName: Build
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                continueOnError: true
+                targetPath: artifacts/TestResults/$(_BuildConfig)/
+                artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: macOS
             pool:
               name: Azure Pipelines
@@ -152,6 +160,14 @@ extends:
                   # Work-around for https://github.com/dotnet/runtime/issues/70758
                   COMPlus_EnableWriteXorExecute: 0
                 displayName: Build
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                continueOnError: true
+                targetPath: artifacts/TestResults/$(_BuildConfig)/
+                artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: Linux
             timeoutInMinutes: 180
             pool:
@@ -173,6 +189,13 @@ extends:
               sdl:
                 binskim:
                   preReleaseVersion: ''
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                continueOnError: true
+                targetPath: artifacts/TestResults/$(_BuildConfig)/
+                artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: Helix
             timeoutInMinutes: 180
             pool:
