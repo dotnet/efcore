@@ -130,6 +130,7 @@ extends:
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
+                continueOnError: true
                 path: artifacts/TestResults/$(_BuildConfig)/
                 artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: macOS
@@ -163,6 +164,7 @@ extends:
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
+                continueOnError: true
                 path: artifacts/TestResults/$(_BuildConfig)/
                 artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: Linux
@@ -204,6 +206,7 @@ extends:
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
+                continueOnError: true
                 path: artifacts/TestResults/$(_BuildConfig)/
                 artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: Helix
