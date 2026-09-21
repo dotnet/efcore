@@ -16,7 +16,7 @@ public class SqlAliasManager
     /// <summary>
     ///     Maps alias prefixes to the highest number postfix currently in use.
     /// </summary>
-    private readonly Dictionary<char, MutableInt> _aliases = new();
+    private readonly Dictionary<char, MutableInt> _aliases = [];
 
     /// <summary>
     ///     Generates an alias based on the given <paramref name="name" />.
@@ -97,7 +97,7 @@ public class SqlAliasManager
         // We process the collected aliases above into a bitmap that represents, for each alias char, which numbers have been seen.
         // Note that since a0 is the 2nd uniquified alias (a is the first), the bits are off-by-one, with position 0 representing
         // a, position 1 representing a0, and so on.
-        Dictionary<char, BitArray> aliasBitmaps = new();
+        Dictionary<char, BitArray> aliasBitmaps = [];
 
         foreach (var alias in usedAliases)
         {
@@ -141,7 +141,7 @@ public class SqlAliasManager
                     var j = i - numHoles;
                     var newAlias = aliasBase + (j == 0 ? "" : (j - 1).ToString());
 
-                    aliasRewritingMap ??= new Dictionary<string, string>();
+                    aliasRewritingMap ??= [];
                     aliasRewritingMap[oldAlias] = newAlias;
                 }
             }

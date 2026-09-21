@@ -60,11 +60,8 @@ public abstract class LanguageBasedSelector<T>
         }
 
         var matches = services.Where(s => string.Equals(s.Language, language, StringComparison.OrdinalIgnoreCase)).ToList();
-        if (matches.Count == 0)
-        {
-            throw new OperationException(DesignStrings.NoLanguageService(language, typeof(T).ShortDisplayName()));
-        }
-
-        return matches.Last();
+        return matches.Count == 0
+            ? throw new OperationException(DesignStrings.NoLanguageService(language, typeof(T).ShortDisplayName()))
+            : matches.Last();
     }
 }

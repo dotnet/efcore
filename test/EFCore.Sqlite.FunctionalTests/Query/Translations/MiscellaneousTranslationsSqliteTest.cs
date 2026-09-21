@@ -73,30 +73,52 @@ WHERE abs(random() / 9.2233720368547799E+18) >= 0.0 AND abs(random() / 9.2233720
     #region Convert
 
     public override Task Convert_ToBoolean()
-        => AssertTranslationFailed(() => base.Convert_ToBoolean());
+        => AssertTranslationFailed(base.Convert_ToBoolean);
 
     public override Task Convert_ToByte()
-        => AssertTranslationFailed(() => base.Convert_ToByte());
+        => AssertTranslationFailed(base.Convert_ToByte);
 
     public override Task Convert_ToDecimal()
-        => AssertTranslationFailed(() => base.Convert_ToDecimal());
+        => AssertTranslationFailed(base.Convert_ToDecimal);
 
     public override Task Convert_ToDouble()
-        => AssertTranslationFailed(() => base.Convert_ToDouble());
+        => AssertTranslationFailed(base.Convert_ToDouble);
 
     public override Task Convert_ToInt16()
-        => AssertTranslationFailed(() => base.Convert_ToInt16());
+        => AssertTranslationFailed(base.Convert_ToInt16);
 
     public override Task Convert_ToInt32()
-        => AssertTranslationFailed(() => base.Convert_ToInt32());
+        => AssertTranslationFailed(base.Convert_ToInt32);
 
     public override Task Convert_ToInt64()
-        => AssertTranslationFailed(() => base.Convert_ToInt64());
+        => AssertTranslationFailed(base.Convert_ToInt64);
 
     public override Task Convert_ToString()
-        => AssertTranslationFailed(() => base.Convert_ToString());
+        => AssertTranslationFailed(base.Convert_ToString);
 
     #endregion Convert
+
+    #region Parse
+
+    public override Task Byte_Parse()
+        => AssertTranslationFailed(base.Byte_Parse);
+
+    public override Task Decimal_Parse()
+        => AssertTranslationFailed(base.Decimal_Parse);
+
+    public override Task Double_Parse()
+        => AssertTranslationFailed(base.Double_Parse);
+
+    public override Task Short_Parse()
+        => AssertTranslationFailed(base.Short_Parse);
+
+    public override Task Int_Parse()
+        => AssertTranslationFailed(base.Int_Parse);
+
+    public override Task Long_Parse()
+        => AssertTranslationFailed(base.Long_Parse);
+
+    #endregion
 
     #region Compare
 
@@ -264,7 +286,7 @@ WHERE "b"."TimeSpan" <= @timeSpan
 
     #endregion Compare
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

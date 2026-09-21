@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
-public class OrdersSqlServerContext(string connectionString, IServiceProvider serviceProvider = null, bool disableBatching = false)
+public class OrdersSqlServerContext(string connectionString, IServiceProvider? serviceProvider = null, bool disableBatching = false)
     : OrdersContextBase(serviceProvider)
 {
     private readonly string _connectionString = connectionString;

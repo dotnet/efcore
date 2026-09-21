@@ -21,7 +21,7 @@ public class SqlConstantExpression : SqlExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
     /// </summary>
-    /// <param name="value">An <see cref="Object" /> to set the <see cref="Value" /> property equal to.</param>
+    /// <param name="value">An <see cref="object" /> to set the <see cref="Value" /> property equal to.</param>
     /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public SqlConstantExpression(object? value, Type type, RelationalTypeMapping? typeMapping)
@@ -32,7 +32,7 @@ public class SqlConstantExpression : SqlExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
     /// </summary>
-    /// <param name="value">An <see cref="Object" /> to set the <see cref="Value" /> property equal to.</param>
+    /// <param name="value">An <see cref="object" /> to set the <see cref="Value" /> property equal to.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public SqlConstantExpression(object value, RelationalTypeMapping? typeMapping)
         : this(value, false, typeMapping)
@@ -42,7 +42,7 @@ public class SqlConstantExpression : SqlExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
     /// </summary>
-    /// <param name="value">An <see cref="Object" /> to set the <see cref="Value" /> property equal to.</param>
+    /// <param name="value">An <see cref="object" /> to set the <see cref="Value" /> property equal to.</param>
     /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
     /// <param name="sensitive"><see langword="true" /> if the expression contains sensitive values; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
@@ -56,22 +56,11 @@ public class SqlConstantExpression : SqlExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
     /// </summary>
-    /// <param name="value">An <see cref="Object" /> to set the <see cref="Value" /> property equal to.</param>
+    /// <param name="value">An <see cref="object" /> to set the <see cref="Value" /> property equal to.</param>
     /// <param name="sensitive"><see langword="true" /> if the expression contains sensitive values; otherwise, <see langword="false" />.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public SqlConstantExpression(object value, bool sensitive, RelationalTypeMapping? typeMapping)
         : this(value, value.GetType(), sensitive, typeMapping)
-    {
-    }
-
-    /// <summary>
-    ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
-    /// </summary>
-    /// <param name="constantExpression">A <see cref="ConstantExpression" />.</param>
-    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
-    [Obsolete("Call the constructor accepting a value (and possibly a Type) instead")]
-    public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping? typeMapping)
-        : this(constantExpression.Value, constantExpression.Type, sensitive: false, typeMapping)
     {
     }
 
@@ -121,8 +110,8 @@ public class SqlConstantExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlConstantExpression sqlConstantExpression
-                && Equals(sqlConstantExpression));
+                || (obj is SqlConstantExpression sqlConstantExpression
+                    && Equals(sqlConstantExpression)));
 
     private bool Equals(SqlConstantExpression sqlConstantExpression)
         => base.Equals(sqlConstantExpression)

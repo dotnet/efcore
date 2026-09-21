@@ -3,11 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class EntityTableSharing2
 {
     public virtual int Id { get; set; }
     public virtual long Cucumber { get; set; }
-    public virtual ICollection<EntityTableSharing1> TableSharing1Shared { get; set; }
+    public virtual ICollection<EntityTableSharing1> TableSharing1Shared { get; set; } = null!;
 }

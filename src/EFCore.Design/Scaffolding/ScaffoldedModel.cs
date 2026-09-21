@@ -18,5 +18,5 @@ public class ScaffoldedModel
     ///     Gets any additional generated files for the model.
     /// </summary>
     /// <value> Any additional generated files for the model. </value>
-    public virtual IList<ScaffoldedFile> AdditionalFiles { get; } = new List<ScaffoldedFile>();
+    public virtual IList<ScaffoldedFile> AdditionalFiles { get; } = [];
 }

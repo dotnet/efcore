@@ -30,10 +30,10 @@ public class DatabaseModel : Annotatable
     /// <summary>
     ///     The list of tables in the database.
     /// </summary>
-    public virtual IList<DatabaseTable> Tables { get; } = new List<DatabaseTable>();
+    public virtual IList<DatabaseTable> Tables { get; } = [];
 
     /// <summary>
     ///     The list of sequences in the database.
     /// </summary>
-    public virtual IList<DatabaseSequence> Sequences { get; } = new List<DatabaseSequence>();
+    public virtual IList<DatabaseSequence> Sequences { get; } = [];
 }

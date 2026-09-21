@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design;
 
@@ -42,7 +43,8 @@ public class EntityFrameworkRelationalDesignServicesBuilder : EntityFrameworkDes
         {
             { typeof(IAnnotationCodeGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IProviderConfigurationCodeGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-            { typeof(IDatabaseModelFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) }
+            { typeof(IDatabaseModelFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+            { typeof(IScaffoldingTypeMapper), new ServiceCharacteristics(ServiceLifetime.Singleton) }
         };
 
     /// <summary>
@@ -76,6 +78,7 @@ public class EntityFrameworkRelationalDesignServicesBuilder : EntityFrameworkDes
         TryAdd<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
 #pragma warning disable EF1001 // Internal EF Core API usage.
         TryAdd<ICSharpRuntimeAnnotationCodeGenerator, RelationalCSharpRuntimeAnnotationCodeGenerator>();
+        TryAdd<IScaffoldingTypeMapper, ScaffoldingTypeMapper>();
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         ServiceCollectionMap.GetInfrastructure()

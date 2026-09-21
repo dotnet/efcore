@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 [Owned]
 public class SwagBag
 {
@@ -18,5 +16,5 @@ public class SwagBag
     }
 
     [Required]
-    public string Stuff { get; set; }
+    public string Stuff { get; set; } = null!;
 }

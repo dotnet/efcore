@@ -232,6 +232,9 @@ public abstract partial class ModelBuilderTest
         public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
             => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames));
 
+        public override TestIndexBuilder<TEntity> HasIndex(string[] propertyNames, string name)
+            => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames, name));
+
         public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
             => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                 EntityTypeBuilder.OwnsOne<TRelatedEntity>(navigationName));
@@ -1524,6 +1527,9 @@ public abstract partial class ModelBuilderTest
 
         public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
             => Wrap(ReferenceCollectionBuilder.IsRequired(isRequired));
+
+        public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsConstrained(bool constrained = true)
+            => Wrap(ReferenceCollectionBuilder.IsConstrained(constrained));
 
         public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
             => Wrap(ReferenceCollectionBuilder.OnDelete(deleteBehavior));

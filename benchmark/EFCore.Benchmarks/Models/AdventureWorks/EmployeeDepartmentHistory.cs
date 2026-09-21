@@ -14,7 +14,7 @@ public class EmployeeDepartmentHistory
     public DateTime? EndDate { get; set; }
     public DateTime ModifiedDate { get; set; }
 
-    public virtual Employee BusinessEntity { get; set; }
-    public virtual Department Department { get; set; }
-    public virtual Shift Shift { get; set; }
+    public virtual Employee BusinessEntity { get; set; } = null!;
+    public virtual Department Department { get; set; } = null!;
+    public virtual Shift Shift { get; set; } = null!;
 }

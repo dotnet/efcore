@@ -68,14 +68,9 @@ public class SqliteAnnotationCodeGenerator : AnnotationCodeGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override bool IsHandledByConvention(IProperty property, IAnnotation annotation)
-    {
-        if (annotation.Name == SqliteAnnotationNames.ValueGenerationStrategy)
-        {
-            return (SqliteValueGenerationStrategy)annotation.Value! == property.GetDefaultValueGenerationStrategy();
-        }
-
-        return base.IsHandledByConvention(property, annotation);
-    }
+        => annotation.Name == SqliteAnnotationNames.ValueGenerationStrategy
+            ? (SqliteValueGenerationStrategy)annotation.Value! == property.GetDefaultValueGenerationStrategy()
+            : base.IsHandledByConvention(property, annotation);
 
     private static bool TryGetAndRemove<T>(
         IDictionary<string, IAnnotation> annotations,

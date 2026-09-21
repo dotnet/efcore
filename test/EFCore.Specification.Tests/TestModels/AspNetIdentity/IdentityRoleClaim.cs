@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
-#nullable disable
-
 public class IdentityRoleClaim<TKey>
     where TKey : IEquatable<TKey>
 {
     public virtual int Id { get; set; }
-    public virtual TKey RoleId { get; set; }
-    public virtual string ClaimType { get; set; }
-    public virtual string ClaimValue { get; set; }
+    public virtual TKey RoleId { get; set; } = default!;
+    public virtual string? ClaimType { get; set; }
+    public virtual string? ClaimValue { get; set; }
 }

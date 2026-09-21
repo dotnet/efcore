@@ -33,7 +33,7 @@ public class IdentityMap<TKey> : IIdentityMap<TKey>
         _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         Key = key;
         PrincipalKeyValueFactory = principalKeyValueFactory;
-        _identityMap = new Dictionary<TKey, InternalEntityEntry>(principalKeyValueFactory.EqualityComparer);
+        _identityMap = [with(principalKeyValueFactory.EqualityComparer)];
 
         if (key.IsPrimaryKey())
         {
@@ -266,7 +266,7 @@ public class IdentityMap<TKey> : IIdentityMap<TKey>
     {
         if (_identityMap.TryGetValue(key, out var existingEntry))
         {
-            var bothStatesEquivalent = (entry.EntityState == EntityState.Deleted) == (existingEntry.EntityState == EntityState.Deleted);
+            var bothStatesEquivalent = entry.EntityState == EntityState.Deleted == (existingEntry.EntityState == EntityState.Deleted);
             if (!updateDuplicate)
             {
                 if (existingEntry == entry)
@@ -330,7 +330,7 @@ public class IdentityMap<TKey> : IIdentityMap<TKey>
     /// </summary>
     public virtual IDependentsMap GetDependentsMap(IForeignKey foreignKey)
     {
-        _dependentMaps ??= new Dictionary<IForeignKey, IDependentsMap>(ReferenceEqualityComparer.Instance);
+        _dependentMaps ??= [with(ReferenceEqualityComparer.Instance)];
 
         if (!_dependentMaps.TryGetValue(foreignKey, out var map))
         {

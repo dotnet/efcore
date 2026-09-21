@@ -8,7 +8,7 @@ public class EnumToStringConverterTest
     private static readonly ValueConverter<Beatles, string> _enumToString
         = new EnumToStringConverter<Beatles>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_strings()
     {
         var converter = _enumToString.ConvertToProviderExpression.Compile();
@@ -21,7 +21,7 @@ public class EnumToStringConverterTest
         Assert.Equal("0", converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_strings_object()
     {
         var converter = _enumToString.ConvertToProvider;
@@ -35,7 +35,7 @@ public class EnumToStringConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_enums()
     {
         var converter = _enumToString.ConvertFromProviderExpression.Compile();
@@ -51,14 +51,14 @@ public class EnumToStringConverterTest
         Assert.Equal(default, converter("0"));
         Assert.Equal(default, converter(""));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
 
         Assert.Equal(
             CoreStrings.CannotConvertEnumValue("Jon", "Beatles"),
             Assert.Throws<InvalidOperationException>(() => converter("Jon")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_enums_object()
     {
         var converter = _enumToString.ConvertFromProvider;

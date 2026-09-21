@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class KeyDiscoveryConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Primary_key_is_not_set_when_zero_key_properties()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
@@ -25,11 +25,11 @@ public class KeyDiscoveryConventionTest
         Assert.Null(key);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Primary_key_is_set_when_shadow_property_not_defined_by_convention_matches()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-        var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.DataAnnotation);
+        var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.DataAnnotation)!;
 
         RunConvention(propertyBuilder);
 
@@ -38,11 +38,11 @@ public class KeyDiscoveryConventionTest
         Assert.Equal(["Id"], key.Properties.Select(p => p.Name));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Primary_key_is_not_set_when_shadow_property_defined_by_convention_matches()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
-        var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+        var propertyBuilder = entityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention)!;
 
         RunConvention(propertyBuilder);
 
@@ -55,7 +55,7 @@ public class KeyDiscoveryConventionTest
         public int Id { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscoverKeyProperties_discovers_id()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithId>();
@@ -72,7 +72,7 @@ public class KeyDiscoveryConventionTest
         public int EntityWithTypeIdId { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscoverKeyProperties_discovers_type_id()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithTypeId>();
@@ -90,7 +90,7 @@ public class KeyDiscoveryConventionTest
         public int EntityWithIdAndTypeIdId { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscoverKeyProperties_prefers_id_over_type_id()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithIdAndTypeId>();
@@ -108,7 +108,7 @@ public class KeyDiscoveryConventionTest
         public int Id { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DiscoverKeyProperties_does_not_discover_key_when_multiple_ids()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithMultipleIds>();
@@ -131,7 +131,7 @@ public class KeyDiscoveryConventionTest
 
         CreateKeyDiscoveryConvention().ProcessEntityTypeMemberIgnored(entityBuilder, "ID", context);
 
-        Assert.Equal("Id", entityBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
+        Assert.Equal("Id", entityBuilder.Metadata.FindPrimaryKey()!.Properties.Single().Name);
     }
 
     public ListLoggerFactory ListLoggerFactory { get; }
@@ -180,7 +180,7 @@ public class KeyDiscoveryConventionTest
     private InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
-        var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
+        var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention)!;
 
         var context = new ConventionContext<IConventionEntityTypeBuilder>(modelBuilder.Metadata.ConventionDispatcher);
         new PropertyDiscoveryConvention(CreateDependencies())
@@ -191,7 +191,7 @@ public class KeyDiscoveryConventionTest
 
     private class EntityWithNoId
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime ModifiedDate { get; set; }
     }
 }

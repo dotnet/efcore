@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -8,25 +8,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class RelationalForeignKeyIndexConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Removing_relationship_removes_unused_conventional_index()
     {
         var modelBuilder = CreateConventionalModelBuilder();
         modelBuilder.Ignore(typeof(SpecialOrder), ConfigurationSource.Explicit);
-        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-        var derivedPrincipalEntityBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit);
-        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!;
+        var derivedPrincipalEntityBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit)!;
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
 
         var relationshipBuilder = dependentEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
-            ConfigurationSource.DataAnnotation);
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention)!.Metadata],
+            ConfigurationSource.DataAnnotation)!;
         Assert.NotNull(relationshipBuilder);
 
         var relationshipBuilder2 = dependentEntityBuilder.HasRelationship(
             derivedPrincipalEntityBuilder.Metadata,
-            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
-            ConfigurationSource.DataAnnotation);
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention)!.Metadata],
+            ConfigurationSource.DataAnnotation)!;
         Assert.NotNull(relationshipBuilder2);
         Assert.NotSame(relationshipBuilder, relationshipBuilder2);
         Assert.Single(dependentEntityBuilder.Metadata.GetIndexes());
@@ -44,17 +44,17 @@ public class RelationalForeignKeyIndexConventionTest
         Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_relationship_does_not_remove_conventional_index_if_in_use()
     {
         var modelBuilder = CreateConventionalModelBuilder();
-        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+        var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!;
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
 
         var relationshipBuilder = dependentEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
-            ConfigurationSource.Convention);
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention)!.Metadata],
+            ConfigurationSource.Convention)!;
         Assert.NotNull(relationshipBuilder);
         dependentEntityBuilder.HasIndex([Order.CustomerIdProperty], ConfigurationSource.Explicit);
 
@@ -68,7 +68,7 @@ public class RelationalForeignKeyIndexConventionTest
     private static TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions> CreateTestLogger()
         => new() { EnabledFor = LogLevel.Warning };
 
-    private InternalModelBuilder CreateModelBuilder(Model model = null)
+    private InternalModelBuilder CreateModelBuilder(Model? model = null)
         => new(model ?? new Model());
 
     private InternalModelBuilder CreateConventionalModelBuilder()
@@ -85,24 +85,24 @@ public class RelationalForeignKeyIndexConventionTest
 
     private class Order
     {
-        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty(nameof(Id));
-        public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty(nameof(CustomerId));
-        public static readonly PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty(nameof(CustomerUnique));
-        public static readonly PropertyInfo CustomerProperty = typeof(Order).GetProperty(nameof(Customer));
-        public static readonly PropertyInfo ContextProperty = typeof(Order).GetProperty(nameof(Context));
-        public static readonly PropertyInfo ProductsProperty = typeof(Order).GetProperty(nameof(Products));
+        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty(nameof(Id))!;
+        public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty(nameof(CustomerId))!;
+        public static readonly PropertyInfo CustomerUniqueProperty = typeof(Order).GetProperty(nameof(CustomerUnique))!;
+        public static readonly PropertyInfo CustomerProperty = typeof(Order).GetProperty(nameof(Customer))!;
+        public static readonly PropertyInfo ContextProperty = typeof(Order).GetProperty(nameof(Context))!;
+        public static readonly PropertyInfo ProductsProperty = typeof(Order).GetProperty(nameof(Products))!;
 
         public int Id { get; set; }
         public int CustomerId { get; set; }
         public Guid? CustomerUnique { get; set; }
-        public Customer Customer { get; set; }
-        public DbContext Context { get; set; }
-        public ICollection<Product> Products { get; set; }
+        public Customer Customer { get; set; } = null!;
+        public DbContext Context { get; set; } = null!;
+        public ICollection<Product> Products { get; set; } = null!;
     }
 
     private class SpecialOrder : Order, IEnumerable<Order>
     {
-        public static readonly PropertyInfo SpecialtyProperty = typeof(SpecialOrder).GetProperty("Specialty");
+        public static readonly PropertyInfo SpecialtyProperty = typeof(SpecialOrder).GetProperty("Specialty")!;
 
         public IEnumerator<Order> GetEnumerator()
         {
@@ -112,7 +112,7 @@ public class RelationalForeignKeyIndexConventionTest
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 
-        public string Specialty { get; set; }
+        public string Specialty { get; set; } = null!;
     }
 
     private class ExtraSpecialOrder : SpecialOrder;
@@ -121,43 +121,43 @@ public class RelationalForeignKeyIndexConventionTest
 
     private class Customer
     {
-        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id));
-        public static readonly PropertyInfo UniqueProperty = typeof(Customer).GetProperty(nameof(Unique));
-        public static readonly PropertyInfo OrdersProperty = typeof(Customer).GetProperty(nameof(Orders));
-        public static readonly PropertyInfo NotCollectionOrdersProperty = typeof(Customer).GetProperty(nameof(NotCollectionOrders));
-        public static readonly PropertyInfo SpecialOrdersProperty = typeof(Customer).GetProperty(nameof(SpecialOrders));
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id))!;
+        public static readonly PropertyInfo UniqueProperty = typeof(Customer).GetProperty(nameof(Unique))!;
+        public static readonly PropertyInfo OrdersProperty = typeof(Customer).GetProperty(nameof(Orders))!;
+        public static readonly PropertyInfo NotCollectionOrdersProperty = typeof(Customer).GetProperty(nameof(NotCollectionOrders))!;
+        public static readonly PropertyInfo SpecialOrdersProperty = typeof(Customer).GetProperty(nameof(SpecialOrders))!;
 
         public int Id { get; set; }
         public Guid Unique { get; set; }
-        public ICollection<Order> Orders { get; set; }
-        public Order NotCollectionOrders { get; set; }
-        public ICollection<SpecialOrder> SpecialOrders { get; set; }
-        internal SpecialCustomer SpecialCustomer { get; set; }
+        public ICollection<Order> Orders { get; set; } = null!;
+        public Order NotCollectionOrders { get; set; } = null!;
+        public ICollection<SpecialOrder> SpecialOrders { get; set; } = null!;
+        internal SpecialCustomer SpecialCustomer { get; set; } = null!;
     }
 
     private class SpecialCustomer : Customer
     {
-        internal Customer Customer { get; set; }
+        internal Customer Customer { get; set; } = null!;
     }
 
     private class OrderProduct
     {
-        public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
-        public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+        public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId))!;
+        public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId))!;
 
         public int OrderId { get; set; }
         public int ProductId { get; set; }
-        public virtual Order Order { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual Order Order { get; set; } = null!;
+        public virtual Product Product { get; set; } = null!;
     }
 
     private class Product
     {
-        public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty(nameof(Id));
+        public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty(nameof(Id))!;
 
         public int Id { get; set; }
 
-        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; } = null!;
     }
 
     private class SpecialProduct : Product;
@@ -166,7 +166,7 @@ public class RelationalForeignKeyIndexConventionTest
 
     private class Splot
     {
-        public static readonly PropertyInfo SplowedProperty = typeof(Splot).GetProperty("Splowed");
+        public static readonly PropertyInfo SplowedProperty = typeof(Splot).GetProperty("Splowed")!;
 
         public int? Splowed { get; set; }
     }
@@ -179,7 +179,7 @@ public class RelationalForeignKeyIndexConventionTest
     {
         public static readonly string IndexerPropertyName = "Indexer";
 
-        public object this[string name]
+        public object? this[string name]
         {
             get => null;
             set { }

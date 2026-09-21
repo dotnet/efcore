@@ -154,11 +154,6 @@ public class F1MaterializationInterceptor : IMaterializationInterceptor
 
         ((IF1Proxy)entity).InitializedCalled = true;
 
-        if (entity is Sponsor.SponsorProxy sponsor)
-        {
-            return new Sponsor.SponsorDoubleProxy(sponsor);
-        }
-
-        return entity;
+        return entity is Sponsor.SponsorProxy sponsor ? new Sponsor.SponsorDoubleProxy(sponsor) : entity;
     }
 }

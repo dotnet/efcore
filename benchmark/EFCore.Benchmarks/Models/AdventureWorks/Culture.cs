@@ -11,9 +11,9 @@ public class Culture
     public Culture()
         => ProductModelProductDescriptionCulture = new HashSet<ProductModelProductDescriptionCulture>();
 
-    public string CultureID { get; set; }
+    public string CultureID { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<ProductModelProductDescriptionCulture> ProductModelProductDescriptionCulture { get; set; }
 }

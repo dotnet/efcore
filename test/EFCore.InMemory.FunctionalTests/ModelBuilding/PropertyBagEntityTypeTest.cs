@@ -1,13 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class PropertyBagEntityTypeTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_create_two_shadow_owned_types()
     {
         var modelBuilder = CreateModelBuilder();
@@ -59,7 +57,7 @@ public class PropertyBagEntityTypeTest
         Assert.Equal(2, model.GetEntityTypes().Count(e => e.ShortName() == "CustomerDetails"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_create_one_to_one_shadow_navigations_between_shadow_entity_types()
     {
         var modelBuilder = CreateModelBuilder();
@@ -78,7 +76,7 @@ public class PropertyBagEntityTypeTest
             Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_create_one_to_many_shadow_navigations_between_shadow_entity_types()
     {
         var modelBuilder = CreateModelBuilder();
@@ -96,7 +94,7 @@ public class PropertyBagEntityTypeTest
             Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Cannot_create_navigation_on_non_shadow_entity_targeting_shadow_entity()
     {
         var modelBuilder = CreateModelBuilder();
@@ -108,7 +106,7 @@ public class PropertyBagEntityTypeTest
             Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne("Customer", "Customer")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Cannot_create_shadow_navigation_between_non_shadow_entity_types()
     {
         var modelBuilder = CreateModelBuilder();

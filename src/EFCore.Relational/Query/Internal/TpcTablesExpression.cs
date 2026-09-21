@@ -172,19 +172,13 @@ public sealed class TpcTablesExpression : TableExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TpcTablesExpression tpcTablesExpression
-                && Equals(tpcTablesExpression));
+                || (obj is TpcTablesExpression tpcTablesExpression
+                    && Equals(tpcTablesExpression)));
 
     private bool Equals(TpcTablesExpression tpcTablesExpression)
-    {
-        if (!base.Equals(tpcTablesExpression)
-            || EntityType != tpcTablesExpression.EntityType)
-        {
-            return false;
-        }
-
-        return SelectExpressions.SequenceEqual(tpcTablesExpression.SelectExpressions);
-    }
+        => base.Equals(tpcTablesExpression)
+            && EntityType == tpcTablesExpression.EntityType
+            && SelectExpressions.SequenceEqual(tpcTablesExpression.SelectExpressions);
 
     /// <inheritdoc />
     public override int GetHashCode()

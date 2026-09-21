@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 
-#nullable disable
-
 public class Album
 {
     [ScaffoldColumn(false)]
@@ -18,17 +16,17 @@ public class Album
     public int ArtistId { get; set; }
 
     [Required, StringLength(160, MinimumLength = 2)]
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
     [Required, Range(0.01, 100.00), DataType(DataType.Currency), Column(TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }
 
     [Display(Name = "Album Art URL"), StringLength(1024)]
-    public string AlbumArtUrl { get; set; }
+    public string? AlbumArtUrl { get; set; }
 
-    public virtual Genre Genre { get; set; }
-    public virtual Artist Artist { get; set; }
-    public virtual List<OrderDetail> OrderDetails { get; set; }
+    public virtual Genre Genre { get; set; } = null!;
+    public virtual Artist Artist { get; set; } = null!;
+    public virtual List<OrderDetail> OrderDetails { get; set; } = null!;
 
     [ScaffoldColumn(false), Required]
     public DateTime Created { get; set; } = DateTime.UtcNow;

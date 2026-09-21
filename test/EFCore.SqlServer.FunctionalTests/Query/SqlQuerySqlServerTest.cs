@@ -5,8 +5,6 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class SqlQuerySqlServerTest : SqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
     public SqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -372,7 +370,7 @@ FROM (
 WHERE [m].[ContactTitle] = @contactTitle
 """);
 
-        return null;
+        return null!;
     }
 
     public override async Task SqlQueryRaw_queryable_simple_cache_key_includes_query_string(bool async)

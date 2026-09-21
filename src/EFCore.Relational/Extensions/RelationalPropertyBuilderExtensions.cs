@@ -47,7 +47,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> HasColumnName<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? name)
-        => (PropertyBuilder<TProperty>)HasColumnName((PropertyBuilder)propertyBuilder, name);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasColumnName(name);
 
     /// <summary>
     ///     Configures the column that the property maps to when targeting a relational database.
@@ -166,7 +166,7 @@ public static class RelationalPropertyBuilderExtensions
     /// <param name="order">The column order.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder<TProperty> HasColumnOrder<TProperty>(this PropertyBuilder<TProperty> propertyBuilder, int? order)
-        => (PropertyBuilder<TProperty>)HasColumnOrder((PropertyBuilder)propertyBuilder, order);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasColumnOrder(order);
 
     /// <summary>
     ///     Configures the order of the column the property is mapped to.
@@ -235,7 +235,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> HasColumnType<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? typeName)
-        => (PropertyBuilder<TProperty>)HasColumnType((PropertyBuilder)propertyBuilder, typeName);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasColumnType(typeName);
 
     /// <summary>
     ///     Configures the data type of the column that the property maps to when targeting a relational database.
@@ -312,7 +312,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> IsFixedLength<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         bool fixedLength = true)
-        => (PropertyBuilder<TProperty>)IsFixedLength((PropertyBuilder)propertyBuilder, fixedLength);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).IsFixedLength(fixedLength);
 
     /// <summary>
     ///     Configures the property as capable of storing only fixed-length data, such as strings.
@@ -419,7 +419,7 @@ public static class RelationalPropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder)
-        => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasDefaultValueSql();
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -434,7 +434,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? sql)
-        => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasDefaultValueSql(sql);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -516,7 +516,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder HasComputedColumnSql(
         this PropertyBuilder propertyBuilder,
         string? sql)
-        => HasComputedColumnSql(propertyBuilder, sql, null);
+        => propertyBuilder.HasComputedColumnSql(sql, null);
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -567,7 +567,7 @@ public static class RelationalPropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder)
-        => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasComputedColumnSql();
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -582,7 +582,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? sql)
-        => HasComputedColumnSql(propertyBuilder, sql, null);
+        => propertyBuilder.HasComputedColumnSql(sql, null);
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -603,7 +603,7 @@ public static class RelationalPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         string? sql,
         bool? stored)
-        => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder, sql, stored);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasComputedColumnSql(sql, stored);
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -765,7 +765,7 @@ public static class RelationalPropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder)
-        => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasDefaultValue();
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -781,7 +781,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         object? value)
-        => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasDefaultValue(value);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps to when targeting a relational database.
@@ -860,7 +860,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> HasComment<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? comment)
-        => (PropertyBuilder<TProperty>)HasComment((PropertyBuilder)propertyBuilder, comment);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasComment(comment);
 
     /// <summary>
     ///     Configures a comment to be applied to the column
@@ -940,7 +940,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> UseCollation<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? collation)
-        => (PropertyBuilder<TProperty>)UseCollation((PropertyBuilder)propertyBuilder, collation);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseCollation(collation);
 
     /// <summary>
     ///     Configures the property to use the given collation. The database column will be created with the given
@@ -1015,7 +1015,7 @@ public static class RelationalPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? name)
-        => (PropertyBuilder<TProperty>)HasJsonPropertyName((PropertyBuilder)propertyBuilder, name);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasJsonPropertyName(name);
 
     /// <summary>
     ///     Configures the property of an entity mapped to a JSON column, mapping the entity property to a specific JSON property,

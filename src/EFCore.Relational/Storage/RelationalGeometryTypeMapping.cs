@@ -136,7 +136,7 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
     }
 
     /// <summary>
-    ///     Creates a an expression tree that can be used to generate code for the literal value.
+    ///     Creates an expression tree that can be used to generate code for the literal value.
     ///     Currently, only very basic expressions such as constructor calls and factory methods taking
     ///     simple constants are supported.
     /// </summary>

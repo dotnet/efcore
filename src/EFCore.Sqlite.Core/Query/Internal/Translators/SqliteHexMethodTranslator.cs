@@ -12,28 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteHexMethodTranslator : IMethodCallTranslator
+public class SqliteHexMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly MethodInfo HexMethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetMethod(nameof(SqliteDbFunctionsExtensions.Hex), [typeof(DbFunctions), typeof(byte[])])!;
-
-    private static readonly MethodInfo UnhexMethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), [typeof(DbFunctions), typeof(string)])!;
-
-    private static readonly MethodInfo UnhexWithIgnoreCharsMethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), [typeof(DbFunctions), typeof(string), typeof(string)])!;
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteHexMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -45,30 +25,36 @@ public class SqliteHexMethodTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.Equals(HexMethodInfo))
-        {
-            return _sqlExpressionFactory.Function(
-                "hex",
-                [arguments[1]],
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueArrays[1],
-                typeof(string));
-        }
+        => method.DeclaringType != typeof(SqliteDbFunctionsExtensions)
+            ? null
+            : method.Name switch
+            {
+                nameof(SqliteDbFunctionsExtensions.Hex) when arguments is [_, var arg]
+                    => sqlExpressionFactory.Function(
+                        "hex",
+                        [arg],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                        typeof(string)),
 
-        if (method.Equals(UnhexMethodInfo)
-            || method.Equals(UnhexWithIgnoreCharsMethodInfo))
-        {
-            // unhex returns NULL whenever the decoding fails, hence mark as
-            // nullable and use an all-false argumentsPropagateNullability
-            return _sqlExpressionFactory.Function(
-                "unhex",
-                arguments.Skip(1),
-                nullable: true,
-                argumentsPropagateNullability: arguments.Skip(1).Select(_ => false).ToArray(),
-                typeof(byte[]));
-        }
+                // unhex returns NULL whenever the decoding fails, hence mark as
+                // nullable and use an all-false argumentsPropagateNullability
+                nameof(SqliteDbFunctionsExtensions.Unhex) when arguments is [_, var arg]
+                    => sqlExpressionFactory.Function(
+                        "unhex",
+                        [arg],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
+                        typeof(byte[])),
 
-        return null;
-    }
+                nameof(SqliteDbFunctionsExtensions.Unhex) when arguments is [_, var arg, var ignoreChars]
+                    => sqlExpressionFactory.Function(
+                        "unhex",
+                        [arg, ignoreChars],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseArrays[2],
+                        typeof(byte[])),
+
+                _ => null
+            };
 }

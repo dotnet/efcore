@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
+using static Microsoft.Data.Sqlite.Utilities.IsBusyHelper;
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite;
@@ -27,7 +28,7 @@ public class SqliteCommand : DbCommand
 {
     private SqliteParameterCollection? _parameters;
 
-    private readonly List<(sqlite3_stmt Statement, int ParamCount)> _preparedStatements = new(1);
+    private readonly List<(sqlite3_stmt Statement, int ParamCount)> _preparedStatements = [with(1)];
     private SqliteConnection? _connection;
     private string _commandText = string.Empty;
     private bool _prepared;
@@ -538,7 +539,4 @@ public class SqliteCommand : DbCommand
 
         _prepared = false;
     }
-
-    private static bool IsBusy(int rc)
-        => rc is SQLITE_LOCKED or SQLITE_BUSY or SQLITE_LOCKED_SHAREDCACHE;
 }

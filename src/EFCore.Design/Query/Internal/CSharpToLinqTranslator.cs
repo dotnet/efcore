@@ -71,7 +71,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     private readonly Stack<ImmutableDictionary<string, ParameterExpression>> _parameterStack
         = new([ImmutableDictionary<string, ParameterExpression>.Empty]);
 
-    private readonly Dictionary<ISymbol, MemberExpression?> _dataFlowsIn = new(SymbolEqualityComparer.Default);
+    private readonly Dictionary<ISymbol, MemberExpression?> _dataFlowsIn = [with(SymbolEqualityComparer.Default)];
 
     /// <summary>
     ///     Translates a Roslyn syntax tree into a LINQ expression tree.
@@ -214,14 +214,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         => VisitArgument(argument, expectedType: null);
 
     private Expression VisitArgument(ArgumentSyntax argument, Type? expectedType)
-    {
-        if (!argument.RefKindKeyword.IsKind(SyntaxKind.None))
-        {
-            throw new InvalidOperationException($"Argument with ref/out: {argument}");
-        }
-
-        return Visit(argument.Expression, expectedType);
-    }
+        => !argument.RefKindKeyword.IsKind(SyntaxKind.None)
+            ? throw new InvalidOperationException($"Argument with ref/out: {argument}")
+            : Visit(argument.Expression, expectedType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -315,12 +310,12 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             SyntaxKind.GreaterThanExpression => GreaterThan(left, right),
             SyntaxKind.GreaterThanOrEqualExpression => GreaterThanOrEqual(left, right),
             SyntaxKind.IsExpression => TypeIs(
-                left, right is ConstantExpression { Value : Type type }
+                left, right is ConstantExpression { Value: Type type }
                     ? type
                     : throw new InvalidOperationException(
                         $"Encountered {SyntaxKind.IsExpression} with non-constant type right argument: {right}")),
             SyntaxKind.AsExpression => TypeAs(
-                left, right is ConstantExpression { Value : Type type }
+                left, right is ConstantExpression { Value: Type type }
                     ? type
                     : throw new InvalidOperationException(
                         $"Encountered {SyntaxKind.AsExpression} with non-constant type right argument: {right}")),
@@ -804,19 +799,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         }
 
         // array.Length
-        if (expression.Type.IsArray && memberInfo.Name == "Length")
-        {
-            if (expression.Type.GetArrayRank() != 1)
-            {
-                throw new NotImplementedException("MemberAccess on multi-dimensional array");
-            }
-
-            return ArrayLength(expression);
-        }
-
-        return MakeMemberAccess(
-            expression is ConstantExpression { Value: Type } ? null : expression,
-            memberInfo);
+        return expression.Type.IsArray && memberInfo.Name == "Length"
+            ? expression.Type.GetArrayRank() != 1
+                ? throw new NotImplementedException("MemberAccess on multi-dimensional array")
+                : (Expression)ArrayLength(expression)
+            : MakeMemberAccess(
+                expression is ConstantExpression { Value: Type } ? null : expression,
+                memberInfo);
     }
 
     /// <summary>
@@ -876,13 +865,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                                 $"ObjectCreation: unsupported initializer for member of type '{lValueSymbol?.GetType().Name}': {e}")
                         };
 
-                        if (memberInfo is null)
-                        {
-                            throw new InvalidOperationException(
-                                $"ObjectCreation: couldn't find initialized member '{lValueSymbol.Name}': {e}");
-                        }
-
-                        return Bind(memberInfo, Visit(value));
+                        return memberInfo is null
+                            ? throw new InvalidOperationException(
+                                $"ObjectCreation: couldn't find initialized member '{lValueSymbol.Name}': {e}")
+                            : Bind(memberInfo, Visit(value));
                     }));
 
             // Non-assignment initializer => list initializer (new List<int> { 1, 2, 3 })

@@ -367,6 +367,30 @@ public interface IConventionForeignKeyBuilder : IConventionAnnotatableBuilder
     bool CanSetIsRequired(bool? required, bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Configures whether the relationship is constrained (backed by a guarantee that a matching principal
+    ///     key exists for every set foreign key value).
+    /// </summary>
+    /// <param name="constrained">
+    ///     A value indicating whether the relationship is constrained. <see langword="null" /> to reset to default.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the constrainedness was configured, <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionForeignKeyBuilder? IsConstrained(bool? constrained, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the relationship constrainedness can be configured
+    ///     from the current configuration source.
+    /// </summary>
+    /// <param name="constrained">
+    ///     A value indicating whether the relationship is constrained. <see langword="null" /> to reset to default.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the relationship constrainedness can be configured.</returns>
+    bool CanSetIsConstrained(bool? constrained, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Configures whether the dependent end is required (i.e. whether the principal to dependent navigation can
     ///     be assigned <see langword="null" />).
     /// </summary>

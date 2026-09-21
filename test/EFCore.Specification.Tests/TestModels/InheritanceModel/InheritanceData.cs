@@ -134,22 +134,16 @@ public class InheritanceData : ISetSource
             return (IQueryable<TEntity>)Plants.OfType<Flower>().AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(Daisy))
-        {
-            return (IQueryable<TEntity>)Plants.OfType<Daisy>().AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(Rose))
-        {
-            return (IQueryable<TEntity>)Plants.OfType<Rose>().AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(Daisy)
+            ? (IQueryable<TEntity>)Plants.OfType<Daisy>().AsQueryable()
+            : typeof(TEntity) == typeof(Rose)
+                ? (IQueryable<TEntity>)Plants.OfType<Rose>().AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     public static IReadOnlyList<Animal> CreateAnimals(bool useGeneratedKeys)
-        => new List<Animal>
-        {
+        =>
+        [
             new Kiwi
             {
                 Id = useGeneratedKeys ? 0 : 1,
@@ -165,23 +159,40 @@ public class InheritanceData : ISetSource
                 Name = "American golden eagle",
                 Group = EagleGroup.Booted
             },
-        };
+        ];
 
     public static IReadOnlyList<Country> CreateCountries()
-        => new List<Country>
-        {
+        =>
+        [
             new() { Id = 1, Name = "New Zealand" }, new() { Id = 2, Name = "USA" },
-        };
+        ];
 
     public static IReadOnlyList<Drink> CreateDrinks(bool useGeneratedKeys)
-        => new List<Drink>
-        {
+        =>
+        [
             new Tea
             {
                 Id = useGeneratedKeys ? 0 : 1,
                 SortIndex = 1,
                 HasMilk = true,
-                CaffeineGrams = 1
+                CaffeineGrams = 1,
+                ParentComplexType = new ComplexType
+                {
+                    UniqueInt = 1,
+                    Int = 8,
+                    Nested = new NestedComplexType { UniqueInt = 2, NestedInt = 50 }
+                },
+                ChildComplexType = new ComplexType
+                {
+                    UniqueInt = 3,
+                    Int = 9,
+                    Nested = new NestedComplexType { UniqueInt = 4, NestedInt = 51 }
+                },
+                ComplexTypeCollection =
+                [
+                    new ComplexType { UniqueInt = 5, Int = 52 },
+                    new ComplexType { UniqueInt = 6, Int = 53 }
+                ]
             },
             new Lilt
             {
@@ -196,13 +207,26 @@ public class InheritanceData : ISetSource
                 SortIndex = 3,
                 SugarGrams = 6,
                 CaffeineGrams = 4,
-                Carbonation = 5
-            },
-        };
+                Carbonation = 5,
+                Ints = [8, 9],
+                ChildComplexType = new ComplexType
+                {
+                    UniqueInt = 100,
+                    Int = 10,
+                    Nested = new NestedComplexType { UniqueInt = 101, NestedInt = 58 }
+                },
+                ComplexTypeCollection =
+                [
+                    new ComplexType { UniqueInt = 102, Int = 59 },
+                    new ComplexType { UniqueInt = 103, Int = 60 },
+                    new ComplexType { UniqueInt = 104, Int = 61 }
+                ]
+            }
+        ];
 
     public static IReadOnlyList<Plant> CreatePlants()
-        => new List<Plant>
-        {
+        =>
+        [
             new Rose
             {
                 Genus = PlantGenus.Rose,
@@ -214,24 +238,15 @@ public class InheritanceData : ISetSource
             {
                 Genus = PlantGenus.Daisy,
                 Species = "Bellis perennis",
-                Name = "Common daisy",
-                AdditionalInfo =
-                    new AdditionalDaisyInfo
-                    {
-                        Nickname = "Lawn daisy", LeafStructure = new DaisyLeafStructure { NumLeaves = 5, AreLeavesBig = true }
-                    }
+                Name = "Common daisy"
             },
             new Daisy
             {
                 Genus = PlantGenus.Daisy,
                 Species = "Bellis annua",
-                Name = "Annual daisy",
-                AdditionalInfo = new AdditionalDaisyInfo
-                {
-                    Nickname = "European daisy", LeafStructure = new DaisyLeafStructure { NumLeaves = 8, AreLeavesBig = false }
-                }
+                Name = "Annual daisy"
             }
-        };
+        ];
 
     public static void WireUp(
         IReadOnlyList<Animal> animals,

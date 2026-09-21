@@ -43,7 +43,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         _keyValueFactory = entityType.FindPrimaryKey()!.GetPrincipalKeyValueFactory<TKey>();
         _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         _nullabilityCheckEnabled = nullabilityCheckEnabled;
-        _rows = new Dictionary<TKey, object?[]>(_keyValueFactory.EqualityComparer);
+        _rows = [with(_keyValueFactory.EqualityComparer)];
         var properties = entityType.GetFlattenedProperties().AsList();
         _propertyCount = properties.Count;
 
@@ -54,14 +54,14 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
             if (converter != null)
             {
-                _valueConverters ??= new List<(int, ValueConverter)>();
+                _valueConverters ??= [];
                 _valueConverters.Add((property.GetIndex(), converter));
             }
 
             var comparer = property.GetKeyValueComparer();
             if (!comparer.IsDefault())
             {
-                _valueComparers ??= new List<(int, ValueComparer)>();
+                _valueComparers ??= [];
                 _valueComparers.Add((property.GetIndex(), comparer));
             }
         }
@@ -85,7 +85,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         IProperty property,
         IReadOnlyList<IInMemoryTable> tables)
     {
-        _integerGenerators ??= new Dictionary<int, IInMemoryIntegerValueGenerator>();
+        _integerGenerators ??= [];
 
         var propertyIndex = property.GetIndex();
         if (!_integerGenerators.TryGetValue(propertyIndex, out var generator))

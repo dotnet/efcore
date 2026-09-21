@@ -5,14 +5,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class CommandConfigurationTest(CommandConfigurationTest.CommandConfigurationTestFixture fixture)
     : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
 {
     protected CommandConfigurationTestFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
     {
         using var context = CreateContext();

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqlServerDbContextOptionsExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_max_batch_size()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -20,7 +20,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Equal(123, extension.MaxBatchSize);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_command_timeout()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -31,7 +31,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Equal(30, extension.CommandTimeout);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_connection_string()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -43,7 +43,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.Connection);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Can_add_extension_with_connection_string_using_generic_options(bool nullConnectionString)
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -55,7 +55,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.Connection);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_connection()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -70,7 +70,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_owned_connection()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -85,7 +85,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Connection_overrides_connection_string()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -101,7 +101,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Connection_string_overrides_connection()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -117,7 +117,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Equal("Database=Whisper", extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_connection_using_generic_options()
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -132,7 +132,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_extension_with_owned_connection_using_generic_options()
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -147,7 +147,7 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Service_collection_extension_method_can_configure_sqlserver_options(bool nullConnectionString)
     {
         var serviceCollection = new ServiceCollection();
@@ -158,29 +158,24 @@ public class SqlServerDbContextOptionsExtensionsTest
                 sqlServerOption.MaxBatchSize(123);
                 sqlServerOption.CommandTimeout(30);
             },
-            dbContextOption =>
-            {
-                dbContextOption.EnableDetailedErrors();
-            });
+            dbContextOption => dbContextOption.EnableDetailedErrors());
 
         var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
-        using (var serviceScope = services
-                   .GetRequiredService<IServiceScopeFactory>()
-                   .CreateScope())
-        {
-            var coreOptions = serviceScope.ServiceProvider
-                .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
+        using var serviceScope = services
+            .GetRequiredService<IServiceScopeFactory>()
+            .CreateScope();
+        var coreOptions = serviceScope.ServiceProvider
+            .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
 
-            Assert.True(coreOptions.DetailedErrorsEnabled);
+        Assert.True(coreOptions.DetailedErrorsEnabled);
 
-            var sqlServerOptions = serviceScope.ServiceProvider
-                .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<SqlServerOptionsExtension>();
+        var sqlServerOptions = serviceScope.ServiceProvider
+            .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<SqlServerOptionsExtension>();
 
-            Assert.Equal(123, sqlServerOptions.MaxBatchSize);
-            Assert.Equal(30, sqlServerOptions.CommandTimeout);
-            Assert.Equal(nullConnectionString ? null : "Database=Crunchie", sqlServerOptions.ConnectionString);
-        }
+        Assert.Equal(123, sqlServerOptions.MaxBatchSize);
+        Assert.Equal(30, sqlServerOptions.CommandTimeout);
+        Assert.Equal(nullConnectionString ? null : "Database=Crunchie", sqlServerOptions.ConnectionString);
     }
 
     private class ApplicationDbContext(DbContextOptions options) : DbContext(options);

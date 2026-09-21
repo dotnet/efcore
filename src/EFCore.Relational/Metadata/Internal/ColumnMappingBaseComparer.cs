@@ -59,12 +59,7 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
         }
 
         result = StringComparer.Ordinal.Compare(x.Property.Name, y.Property.Name);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        return StringComparer.Ordinal.Compare(x.Column.Name, y.Column.Name);
+        return result != 0 ? result : StringComparer.Ordinal.Compare(x.Column.Name, y.Column.Name);
     }
 
     /// <summary>

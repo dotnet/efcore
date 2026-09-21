@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
@@ -9,7 +9,7 @@ public class StringToNumberConverterTest
 {
     private static readonly StringToNumberConverter<ulong> _naturalStringToUlong = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_ulongs()
     {
         var converter = _naturalStringToUlong.ConvertToProviderExpression.Compile();
@@ -20,10 +20,10 @@ public class StringToNumberConverterTest
 
         Assert.Throws<OverflowException>(() => converter("-1"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_ulongs_object()
     {
         var converter = _naturalStringToUlong.ConvertToProvider;
@@ -37,7 +37,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ulongs_to_natural_strings()
     {
         var converter = _naturalStringToUlong.ConvertFromProviderExpression.Compile();
@@ -47,7 +47,7 @@ public class StringToNumberConverterTest
         Assert.Equal("0", converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ulongs_to_natural_strings_object()
     {
         var converter = _naturalStringToUlong.ConvertFromProvider;
@@ -61,7 +61,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<long> _naturalStringToLong = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_longs()
     {
         var converter = _naturalStringToLong.ConvertToProviderExpression.Compile();
@@ -75,10 +75,10 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-9223372036854775809"));
         Assert.Throws<OverflowException>(() => converter("9223372036854775808"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_longs_object()
     {
         var converter = _naturalStringToLong.ConvertToProvider;
@@ -95,7 +95,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_longs_to_natural_strings()
     {
         var converter = _naturalStringToLong.ConvertFromProviderExpression.Compile();
@@ -107,7 +107,7 @@ public class StringToNumberConverterTest
         Assert.Equal("0", converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_longs_to_natural_strings_object()
     {
         var converter = _naturalStringToLong.ConvertFromProvider;
@@ -123,7 +123,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<uint> _naturalStringToUint = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_uints()
     {
         var converter = _naturalStringToUint.ConvertToProviderExpression.Compile();
@@ -135,10 +135,10 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-1"));
         Assert.Throws<OverflowException>(() => converter("4294967296"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_uints_object()
     {
         var converter = _naturalStringToUint.ConvertToProvider;
@@ -153,7 +153,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_uints_to_natural_strings()
     {
         var converter = _naturalStringToUint.ConvertFromProviderExpression.Compile();
@@ -163,7 +163,7 @@ public class StringToNumberConverterTest
         Assert.Equal("0", converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_uints_to_natural_strings_object()
     {
         var converter = _naturalStringToUint.ConvertFromProvider;
@@ -177,7 +177,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<int> _naturalStringToInt = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_ints()
     {
         var converter = _naturalStringToInt.ConvertToProviderExpression.Compile();
@@ -191,10 +191,10 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-2147483649"));
         Assert.Throws<OverflowException>(() => converter("2147483648"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_ints_object()
     {
         var converter = _naturalStringToInt.ConvertToProvider;
@@ -210,7 +210,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ints_to_natural_strings()
     {
         var converter = _naturalStringToInt.ConvertFromProviderExpression.Compile();
@@ -222,7 +222,7 @@ public class StringToNumberConverterTest
         Assert.Equal("0", converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ints_to_natural_strings_object()
     {
         var converter = _naturalStringToInt.ConvertFromProvider;
@@ -238,7 +238,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<ushort> _naturalStringToUshort = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_ushorts()
     {
         var converter = _naturalStringToUshort.ConvertToProviderExpression.Compile();
@@ -250,10 +250,10 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-1"));
         Assert.Throws<OverflowException>(() => converter("65536"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_ushorts_object()
     {
         var converter = _naturalStringToUshort.ConvertToProvider;
@@ -268,7 +268,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ushorts_to_natural_strings()
     {
         var converter = _naturalStringToUshort.ConvertFromProviderExpression.Compile();
@@ -278,7 +278,7 @@ public class StringToNumberConverterTest
         Assert.Equal("0", converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ushorts_to_natural_strings_object()
     {
         var converter = _naturalStringToUshort.ConvertFromProvider;
@@ -292,7 +292,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<short> _naturalStringToShort = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_shorts()
     {
         var converter = _naturalStringToShort.ConvertToProviderExpression.Compile();
@@ -306,10 +306,10 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-32769"));
         Assert.Throws<OverflowException>(() => converter("32768"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_shorts_object()
     {
         var converter = _naturalStringToShort.ConvertToProvider;
@@ -326,7 +326,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_shorts_to_natural_strings()
     {
         var converter = _naturalStringToShort.ConvertFromProviderExpression.Compile();
@@ -338,7 +338,7 @@ public class StringToNumberConverterTest
         Assert.Equal("0", converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_shorts_to_natural_strings_object()
     {
         var converter = _naturalStringToShort.ConvertFromProvider;
@@ -354,7 +354,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<byte> _naturalStringToByte = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_bytes()
     {
         var converter = _naturalStringToByte.ConvertToProviderExpression.Compile();
@@ -365,10 +365,10 @@ public class StringToNumberConverterTest
 
         Assert.Throws<OverflowException>(() => converter("-1"));
         Assert.Throws<OverflowException>(() => converter("256"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_bytes_object()
     {
         var converter = _naturalStringToByte.ConvertToProvider;
@@ -382,7 +382,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_natural_strings()
     {
         var converter = _naturalStringToByte.ConvertFromProviderExpression.Compile();
@@ -392,7 +392,7 @@ public class StringToNumberConverterTest
         Assert.Equal("0", converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_natural_strings_object()
     {
         var converter = _naturalStringToByte.ConvertFromProvider;
@@ -406,7 +406,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<sbyte> _naturalStringToSbyte = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_sbytes()
     {
         var converter = _naturalStringToSbyte.ConvertToProviderExpression.Compile();
@@ -420,10 +420,10 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-129"));
         Assert.Throws<OverflowException>(() => converter("128"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_sbytes_object()
     {
         var converter = _naturalStringToSbyte.ConvertToProvider;
@@ -440,7 +440,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_sbytes_to_natural_strings()
     {
         var converter = _naturalStringToSbyte.ConvertFromProviderExpression.Compile();
@@ -452,7 +452,7 @@ public class StringToNumberConverterTest
         Assert.Equal("0", converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_sbytes_to_natural_strings_object()
     {
         var converter = _naturalStringToSbyte.ConvertFromProvider;
@@ -468,40 +468,40 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<decimal> _naturalStringToDecimal = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_decimals()
     {
         var converter = _naturalStringToDecimal.ConvertToProviderExpression.Compile();
 
         Assert.Equal(decimal.MaxValue, converter("79228162514264337593543950335"));
         Assert.Equal(decimal.MinValue, converter("-79228162514264337593543950335"));
-        Assert.Equal((decimal)-792264.3375935, converter("-792264.3375935"));
-        Assert.Equal((decimal)0.000000001, converter("0.000000001"));
-        Assert.Equal((decimal)0.00000000000000000001, converter("0.00000000000000000001"));
-        Assert.Equal((decimal)-0.00000000000000000001, converter("-0.00000000000000000001"));
+        Assert.Equal(-792264.3375935m, converter("-792264.3375935"));
+        Assert.Equal(0.000000001m, converter("0.000000001"));
+        Assert.Equal(0.00000000000000000001m, converter("0.00000000000000000001"));
+        Assert.Equal(-0.00000000000000000001m, converter("-0.00000000000000000001"));
 
         Assert.Throws<OverflowException>(() => converter("-79228162514264337593543950336"));
         Assert.Throws<OverflowException>(() => converter("79228162514264337593543950336"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_decimals_to_natural_strings()
     {
         var converter = _naturalStringToDecimal.ConvertFromProviderExpression.Compile();
 
         Assert.Equal("79228162514264337593543950335", converter(decimal.MaxValue));
         Assert.Equal("-79228162514264337593543950335", converter(decimal.MinValue));
-        Assert.Equal("-792264.3375935", converter((decimal)-792264.3375935));
-        Assert.Equal("0.000000001", converter((decimal)0.000000001));
-        Assert.Equal("0.00000000000000000001", converter((decimal)0.00000000000000000001));
-        Assert.Equal("-0.00000000000000000001", converter((decimal)-0.00000000000000000001));
+        Assert.Equal("-792264.3375935", converter(-792264.3375935m));
+        Assert.Equal("0.000000001", converter(0.000000001m));
+        Assert.Equal("0.00000000000000000001", converter(0.00000000000000000001m));
+        Assert.Equal("-0.00000000000000000001", converter(-0.00000000000000000001m));
     }
 
     private static readonly StringToNumberConverter<double> _naturalStringToDouble = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_doubles()
     {
         var converter = _naturalStringToDouble.ConvertToProviderExpression.Compile();
@@ -516,10 +516,10 @@ public class StringToNumberConverterTest
         Assert.Equal(double.PositiveInfinity, converter("1.7976931348623157E+309"));
         Assert.Equal(double.NegativeInfinity, converter("-1.7976931348623157E+309"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_doubles_to_natural_strings()
     {
         var converter = _naturalStringToDouble.ConvertFromProviderExpression.Compile();
@@ -534,7 +534,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<float> _naturalStringToFloat = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_floats()
     {
         var converter = _naturalStringToFloat.ConvertToProviderExpression.Compile();
@@ -549,10 +549,10 @@ public class StringToNumberConverterTest
         Assert.Equal(float.PositiveInfinity, converter("3.40282347E+39"));
         Assert.Equal(float.NegativeInfinity, converter("-3.40282347E+39"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_floats_to_natural_strings()
     {
         var converter = _naturalStringToFloat.ConvertFromProviderExpression.Compile();
@@ -567,7 +567,7 @@ public class StringToNumberConverterTest
 
     private static readonly StringToNumberConverter<sbyte?> _naturalStringToNullableSbyte = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_nullable_sbytes()
     {
         var converter = _naturalStringToNullableSbyte.ConvertToProviderExpression.Compile();
@@ -581,10 +581,10 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-129"));
         Assert.Throws<OverflowException>(() => converter("128"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Null(converter(null));
+        Assert.Null(converter(null!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_natural_strings_to_nullable_sbytes_object()
     {
         var converter = _naturalStringToNullableSbyte.ConvertToProvider;
@@ -601,7 +601,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_nullable_sbytes_to_natural_strings()
     {
         var converter = _naturalStringToNullableSbyte.ConvertFromProviderExpression.Compile();
@@ -614,7 +614,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_nullable_sbytes_to_natural_strings_object()
     {
         var converter = _naturalStringToNullableSbyte.ConvertFromProvider;
@@ -627,7 +627,7 @@ public class StringToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void String_to_integer_converter_throws_for_bad_type()
         => Assert.Equal(
             CoreStrings.ConverterBadType(

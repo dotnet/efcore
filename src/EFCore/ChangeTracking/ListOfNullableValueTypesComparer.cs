@@ -196,7 +196,7 @@ public sealed class ListOfNullableValueTypesComparer<TConcreteList, TElement> : 
         }
         else
         {
-            var snapshot = IsReadOnly ? new List<TElement?>() : (IList<TElement?>)Activator.CreateInstance<TConcreteList>()!;
+            var snapshot = IsReadOnly ? [] : (IList<TElement?>)Activator.CreateInstance<TConcreteList>()!;
             foreach (var e in sourceList)
             {
                 snapshot.Add(e == null ? null : elementSnapshot(e));

@@ -1,13 +1,15 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
 public class JsonQueryJsonTypeSqlServerTest : JsonQueryRelationalTestBase<JsonQueryJsonTypeSqlServerFixture>
 {
     public JsonQueryJsonTypeSqlServerTest(JsonQueryJsonTypeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -28,27 +30,27 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-//    public override async Task Basic_json_projection_owner_entity_duplicated(bool async)
-//    {
-//        await base.Basic_json_projection_owner_entity_duplicated(async);
+    //    public override async Task Basic_json_projection_owner_entity_duplicated(bool async)
+    //    {
+    //        await base.Basic_json_projection_owner_entity_duplicated(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-//FROM [JsonEntitiesBasic] AS [j]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //""");
+    //    }
 
-//    public override async Task Basic_json_projection_owner_entity_duplicated_NoTracking(bool async)
-//    {
-//        await base.Basic_json_projection_owner_entity_duplicated_NoTracking(async);
+    //    public override async Task Basic_json_projection_owner_entity_duplicated_NoTracking(bool async)
+    //    {
+    //        await base.Basic_json_projection_owner_entity_duplicated_NoTracking(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[Id], [j].[Name], [j].[OwnedCollection], [j].[OwnedCollection]
-//FROM [JsonEntitiesSingleOwned] AS [j]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[Id], [j].[Name], [j].[OwnedCollection], [j].[OwnedCollection]
+    //FROM [JsonEntitiesSingleOwned] AS [j]
+    //""");
+    //    }
 
     public override async Task Basic_json_projection_owner_entity_duplicated_NoTrackingWithIdentityResolution(bool async)
     {
@@ -61,27 +63,27 @@ FROM [JsonEntitiesSingleOwned] AS [j]
 """);
     }
 
-//    public override async Task Basic_json_projection_owner_entity_twice(bool async)
-//    {
-//        await base.Basic_json_projection_owner_entity_twice(async);
+    //    public override async Task Basic_json_projection_owner_entity_twice(bool async)
+    //    {
+    //        await base.Basic_json_projection_owner_entity_twice(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-//FROM [JsonEntitiesBasic] AS [j]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //""");
+    //    }
 
-//    public override async Task Basic_json_projection_owner_entity_twice_NoTracking(bool async)
-//    {
-//        await base.Basic_json_projection_owner_entity_twice_NoTracking(async);
+    //    public override async Task Basic_json_projection_owner_entity_twice_NoTracking(bool async)
+    //    {
+    //        await base.Basic_json_projection_owner_entity_twice_NoTracking(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-//FROM [JsonEntitiesBasic] AS [j]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //""");
+    //    }
 
     public override async Task Basic_json_projection_owner_entity_twice_NoTrackingWithIdentityResolution(bool async)
     {
@@ -105,17 +107,17 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-//    public override async Task Basic_json_projection_owned_reference_duplicated(bool async)
-//    {
-//        await base.Basic_json_projection_owned_reference_duplicated(async);
+    //    public override async Task Basic_json_projection_owned_reference_duplicated(bool async)
+    //    {
+    //        await base.Basic_json_projection_owned_reference_duplicated(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch')
-//FROM [JsonEntitiesBasic] AS [j]
-//ORDER BY [j].[Id]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch')
+    //FROM [JsonEntitiesBasic] AS [j]
+    //ORDER BY [j].[Id]
+    //""");
+    //    }
 
     public override async Task Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(bool async)
     {
@@ -129,17 +131,17 @@ ORDER BY [j].[Id]
 """);
     }
 
-//    public override async Task Basic_json_projection_owned_reference_duplicated2(bool async)
-//    {
-//        await base.Basic_json_projection_owned_reference_duplicated2(async);
+    //    public override async Task Basic_json_projection_owned_reference_duplicated2(bool async)
+    //    {
+    //        await base.Basic_json_projection_owned_reference_duplicated2(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf')
-//FROM [JsonEntitiesBasic] AS [j]
-//ORDER BY [j].[Id]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf')
+    //FROM [JsonEntitiesBasic] AS [j]
+    //ORDER BY [j].[Id]
+    //""");
+    //    }
 
     public override async Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
     {
@@ -253,27 +255,27 @@ FROM [JsonEntitiesCustomNaming] AS [j]
 """);
     }
 
-//    public override async Task Json_projection_with_deduplication(bool async)
-//    {
-//        await base.Json_projection_with_deduplication(async);
+    //    public override async Task Json_projection_with_deduplication(bool async)
+    //    {
+    //        await base.Json_projection_with_deduplication(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething')
-//FROM [JsonEntitiesBasic] AS [j]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething')
+    //FROM [JsonEntitiesBasic] AS [j]
+    //""");
+    //    }
 
-//    public override async Task Json_projection_with_deduplication_reverse_order(bool async)
-//    {
-//        await base.Json_projection_with_deduplication_reverse_order(async);
+    //    public override async Task Json_projection_with_deduplication_reverse_order(bool async)
+    //    {
+    //        await base.Json_projection_with_deduplication_reverse_order(async);
 
-//        AssertSql(
-//            """
-//SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[Id], [j].[OwnedReferenceRoot], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-//FROM [JsonEntitiesBasic] AS [j]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[Id], [j].[OwnedReferenceRoot], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //""");
+    //    }
 
     public override async Task Json_property_in_predicate(bool async)
     {
@@ -592,22 +594,22 @@ LEFT JOIN [JsonEntitiesSingleOwned] AS [j0] ON [j].[Id] = [j0].[Id]
 """);
     }
 
-//    public override async Task Project_json_entity_FirstOrDefault_subquery(bool async)
-//    {
-//        await base.Project_json_entity_FirstOrDefault_subquery(async);
+    //    public override async Task Project_json_entity_FirstOrDefault_subquery(bool async)
+    //    {
+    //        await base.Project_json_entity_FirstOrDefault_subquery(async);
 
-//        AssertSql(
-//            """
-//SELECT [j1].[c], [j1].[Id]
-//FROM [JsonEntitiesBasic] AS [j]
-//OUTER APPLY (
-//    SELECT TOP(1) JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch') AS [c], [j0].[Id]
-//    FROM [JsonEntitiesBasic] AS [j0]
-//    ORDER BY [j0].[Id]
-//) AS [j1]
-//ORDER BY [j].[Id]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j1].[c], [j1].[Id]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //OUTER APPLY (
+    //    SELECT TOP(1) JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch') AS [c], [j0].[Id]
+    //    FROM [JsonEntitiesBasic] AS [j0]
+    //    ORDER BY [j0].[Id]
+    //) AS [j1]
+    //ORDER BY [j].[Id]
+    //""");
+    //    }
 
     public override async Task Project_json_entity_FirstOrDefault_subquery_with_binding_on_top(bool async)
     {
@@ -632,56 +634,56 @@ ORDER BY [j].[Id]
             @"");
     }
 
-//    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication(bool async)
-//    {
-//        await base.Project_json_entity_FirstOrDefault_subquery_deduplication(async);
+    //    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication(bool async)
+    //    {
+    //        await base.Project_json_entity_FirstOrDefault_subquery_deduplication(async);
 
-//        AssertSql(
-//            """
-//SELECT [j1].[c], [j1].[Id], [j1].[c0], [j1].[Id0], [j1].[c1], [j1].[c2], [j1].[c3], [j1].[c4]
-//FROM [JsonEntitiesBasic] AS [j]
-//OUTER APPLY (
-//    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [c], [j].[Id], [j0].[OwnedReferenceRoot] AS [c0], [j0].[Id] AS [Id0], JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch') AS [c1], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [c2], CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.Enum') AS int) AS [c3], 1 AS [c4]
-//    FROM [JsonEntitiesBasic] AS [j0]
-//    ORDER BY [j0].[Id]
-//) AS [j1]
-//ORDER BY [j].[Id]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j1].[c], [j1].[Id], [j1].[c0], [j1].[Id0], [j1].[c1], [j1].[c2], [j1].[c3], [j1].[c4]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //OUTER APPLY (
+    //    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [c], [j].[Id], [j0].[OwnedReferenceRoot] AS [c0], [j0].[Id] AS [Id0], JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch') AS [c1], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [c2], CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.Enum') AS int) AS [c3], 1 AS [c4]
+    //    FROM [JsonEntitiesBasic] AS [j0]
+    //    ORDER BY [j0].[Id]
+    //) AS [j1]
+    //ORDER BY [j].[Id]
+    //""");
+    //    }
 
-//    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(bool async)
-//    {
-//        await base.Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(async);
+    //    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(bool async)
+    //    {
+    //        await base.Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(async);
 
-//        AssertSql(
-//            """
-//SELECT [j1].[c], [j1].[Id], [j1].[c0], [j1].[Id0], [j1].[c1], [j1].[c2], [j1].[c3], [j1].[c4]
-//FROM [JsonEntitiesBasic] AS [j]
-//OUTER APPLY (
-//    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [c], [j].[Id], [j0].[OwnedReferenceRoot] AS [c0], [j0].[Id] AS [Id0], JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch') AS [c1], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [c2], CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.Enum') AS int) AS [c3], 1 AS [c4]
-//    FROM [JsonEntitiesBasic] AS [j0]
-//    ORDER BY [j0].[Id]
-//) AS [j1]
-//ORDER BY [j].[Id]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j1].[c], [j1].[Id], [j1].[c0], [j1].[Id0], [j1].[c1], [j1].[c2], [j1].[c3], [j1].[c4]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //OUTER APPLY (
+    //    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [c], [j].[Id], [j0].[OwnedReferenceRoot] AS [c0], [j0].[Id] AS [Id0], JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch') AS [c1], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [c2], CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.Enum') AS int) AS [c3], 1 AS [c4]
+    //    FROM [JsonEntitiesBasic] AS [j0]
+    //    ORDER BY [j0].[Id]
+    //) AS [j1]
+    //ORDER BY [j].[Id]
+    //""");
+    //    }
 
-//    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(bool async)
-//    {
-//        await base.Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(async);
+    //    public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(bool async)
+    //    {
+    //        await base.Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(async);
 
-//        AssertSql(
-//            """
-//SELECT [j1].[c], [j1].[Id], [j1].[c0]
-//FROM [JsonEntitiesBasic] AS [j]
-//OUTER APPLY (
-//    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [c], [j].[Id], 1 AS [c0]
-//    FROM [JsonEntitiesBasic] AS [j0]
-//    ORDER BY [j0].[Id]
-//) AS [j1]
-//ORDER BY [j].[Id]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j1].[c], [j1].[Id], [j1].[c0]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //OUTER APPLY (
+    //    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [c], [j].[Id], 1 AS [c0]
+    //    FROM [JsonEntitiesBasic] AS [j0]
+    //    ORDER BY [j0].[Id]
+    //) AS [j1]
+    //ORDER BY [j].[Id]
+    //""");
+    //    }
 
     public override async Task Json_entity_with_inheritance_basic_projection(bool async)
     {
@@ -803,9 +805,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_using_parameter(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_using_parameter(async);
 
         AssertSql(
@@ -817,9 +824,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_using_column(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_using_column(async);
 
         AssertSql(
@@ -887,9 +899,14 @@ ORDER BY [j].[Id]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_nested(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_nested(async);
 
         AssertSql(
@@ -901,9 +918,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_nested_project_scalar(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_nested_project_scalar(async);
 
         AssertSql(
@@ -915,9 +937,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_nested_project_reference(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_nested_project_reference(async);
 
         AssertSql(
@@ -929,9 +956,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_nested_project_collection(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_nested_project_collection(async);
 
         AssertSql(
@@ -944,9 +976,14 @@ ORDER BY [j].[Id]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_nested_project_collection_anonymous_projection(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_nested_project_collection_anonymous_projection(async);
 
         AssertSql(
@@ -970,9 +1007,14 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[0].Name' RETURNING nvarchar(max))
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_predicate_using_variable(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_predicate_using_variable(async);
 
         AssertSql(
@@ -985,9 +1027,14 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[' + CAST(@prm AS nvarchar(max)) +
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_predicate_using_column(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_predicate_using_column(async);
 
         AssertSql(
@@ -998,9 +1045,14 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[' + CAST([j].[Id] AS nvarchar(max
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_predicate_using_complex_expression1(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_predicate_using_complex_expression1(async);
 
         AssertSql(
@@ -1014,9 +1066,14 @@ END AS nvarchar(max)) + '].Name' RETURNING nvarchar(max)) = N'e1_c1'
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_predicate_using_complex_expression2(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_predicate_using_complex_expression2(async);
 
         AssertSql(
@@ -1041,9 +1098,14 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[1].Name' RETURNING nvarchar(max))
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_predicate_nested_mix(async);
 
         AssertSql(
@@ -1071,8 +1133,23 @@ FROM [JsonEntitiesBasic] AS [j]
     {
         await base.Json_collection_Any_with_predicate(async);
 
-        AssertSql(
-            """
+        // On Azure SQL, the json data type is not supported in the OPENJSON WITH clause, so nvarchar(max) is used instead.
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            AssertSql(
+                """
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON) AS [o]
+    WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
@@ -1080,6 +1157,7 @@ WHERE EXISTS (
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] json '$.OwnedReferenceLeaf' AS JSON) AS [o]
     WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
 """);
+        }
     }
 
     public override async Task Json_collection_Where_ElementAt(bool async)
@@ -1124,38 +1202,61 @@ WHERE (
     {
         await base.Json_collection_OrderByDescending_Skip_ElementAt(async);
 
-        AssertSql(
-            """
+        // On Azure SQL, the json data type is not supported in the OPENJSON WITH clause, so nvarchar(max) is used instead.
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            AssertSql(
+                """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT [o0].[c]
     FROM (
-        SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) AS [c], [o].[Date] AS [c0]
+        SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) AS [c], [o].[Date]
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
             [Date] datetime2 '$.Date',
-            [Enum] int '$.Enum',
-            [Fraction] decimal(18,2) '$.Fraction',
-            [Id] int '$.Id',
-            [OwnedReferenceLeaf] json '$.OwnedReferenceLeaf' AS JSON
+            [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
         ) AS [o]
         ORDER BY [o].[Date] DESC
         OFFSET 1 ROWS
     ) AS [o0]
-    ORDER BY [o0].[c0] DESC
+    ORDER BY [o0].[Date] DESC
     OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = N'e1_r_c1_r'
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+ SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+ FROM [JsonEntitiesBasic] AS [j]
+ WHERE (
+     SELECT [o0].[c]
+     FROM (
+         SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) AS [c], [o].[Date]
+         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
+             [Date] datetime2 '$.Date',
+             [OwnedReferenceLeaf] json '$.OwnedReferenceLeaf' AS JSON
+         ) AS [o]
+         ORDER BY [o].[Date] DESC
+         OFFSET 1 ROWS
+     ) AS [o0]
+     ORDER BY [o0].[Date] DESC
+     OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = N'e1_r_c1_r'
+ """);
+        }
     }
 
     public override async Task Json_collection_Distinct_Count_with_predicate(bool async)
     {
-        // TODO:SQLJSON Json type is not comparable
-        Assert.Equal(
-            "The json data type cannot be selected as DISTINCT because it is not comparable.\nThe json data type cannot be selected as DISTINCT because it is not comparable.",
-            (await Assert.ThrowsAsync<SqlException>(() => base.Json_collection_Distinct_Count_with_predicate(async))).Message);
+        // On Azure SQL, the json data type is not supported in the OPENJSON WITH clause, so nvarchar(max) is used instead.
+        // Since nvarchar(max) is comparable (unlike the json type), DISTINCT succeeds instead of failing.
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            await base.Json_collection_Distinct_Count_with_predicate(async);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE (
@@ -1170,20 +1271,66 @@ WHERE (
             [Id] int '$.Id',
             [NullableEnum] int '$.NullableEnum',
             [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
+            [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
+            [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
+        ) AS [o]
+        WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c2_r'
+    ) AS [o0]) = 1
+""");
+        }
+        else
+        {
+            // The json data type cannot be selected as DISTINCT because it is not comparable.
+            await Assert.ThrowsAsync<SqlException>(() => base.Json_collection_Distinct_Count_with_predicate(async));
+
+            AssertSql(
+                """
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[Id] AS [Id0], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf] AS [c], [o].[OwnedReferenceLeaf] AS [c0]
+        FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
+            [Date] datetime2 '$.Date',
+            [Enum] int '$.Enum',
+            [Enums] json '$.Enums' AS JSON,
+            [Fraction] decimal(18,2) '$.Fraction',
+            [Id] int '$.Id',
+            [NullableEnum] int '$.NullableEnum',
+            [NullableEnums] json '$.NullableEnums' AS JSON,
             [OwnedCollectionLeaf] json '$.OwnedCollectionLeaf' AS JSON,
             [OwnedReferenceLeaf] json '$.OwnedReferenceLeaf' AS JSON
         ) AS [o]
         WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c2_r'
     ) AS [o0]) = 1
 """);
+        }
     }
 
     public override async Task Json_collection_within_collection_Count(bool async)
     {
         await base.Json_collection_within_collection_Count(async);
 
-        AssertSql(
-            """
+        // On Azure SQL, the json data type is not supported in the OPENJSON WITH clause, so nvarchar(max) is used instead.
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            AssertSql(
+                """
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH ([OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON) AS [o]
+    WHERE (
+        SELECT COUNT(*)
+        FROM OPENJSON([o].[OwnedCollectionBranch], '$') AS [o0]) = 2)
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
@@ -1193,6 +1340,7 @@ WHERE EXISTS (
         SELECT COUNT(*)
         FROM OPENJSON([o].[OwnedCollectionBranch], '$') AS [o0]) = 2)
 """);
+        }
     }
 
     public override async Task Json_collection_in_projection_with_composition_count(bool async)
@@ -1215,11 +1363,11 @@ ORDER BY [j].[Id]
 
         AssertSql(
             """
-SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name'), CAST(JSON_VALUE([o].[value], '$.Number') AS int), [o].[key]
-FROM [JsonEntitiesBasic] AS [j]
-OUTER APPLY OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-ORDER BY [j].[Id], CAST([o].[key] AS int)
-""");
+ SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name') AS [Name], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], [o].[key]
+ FROM [JsonEntitiesBasic] AS [j]
+ OUTER APPLY OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+ ORDER BY [j].[Id], CAST([o].[key] AS int)
+ """);
     }
 
     public override async Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(bool async)
@@ -1300,15 +1448,15 @@ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c10]
 
         AssertSql(
             """
-SELECT [j].[Id], [s].[key], [s].[c], [s].[c0], [s].[c1], [s].[c2], [s].[c3], [s].[Id], [s].[c4], [s].[key0]
-FROM [JsonEntitiesBasic] AS [j]
-OUTER APPLY (
-    SELECT [o].[key], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [c], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [c0], JSON_QUERY([o0].[value], '$.Enums') AS [c1], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [c2], JSON_QUERY([o0].[value], '$.OwnedReferenceLeaf') AS [c3], [j].[Id], JSON_QUERY([o0].[value], '$.OwnedCollectionLeaf') AS [c4], [o0].[key] AS [key0], CAST([o].[key] AS int) AS [c5], CAST([o0].[key] AS int) AS [c6]
-    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-    OUTER APPLY OPENJSON(JSON_QUERY([o].[value], '$.OwnedCollectionBranch'), '$') AS [o0]
-) AS [s]
-ORDER BY [j].[Id], [s].[c5], [s].[key], [s].[c6]
-""");
+ SELECT [j].[Id], [s].[key], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[c], [s].[Id], [s].[c0], [s].[key0]
+ FROM [JsonEntitiesBasic] AS [j]
+ OUTER APPLY (
+     SELECT [o].[key], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o0].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], JSON_QUERY([o0].[value], '$.OwnedReferenceLeaf') AS [c], [j].[Id], JSON_QUERY([o0].[value], '$.OwnedCollectionLeaf') AS [c0], [o0].[key] AS [key0], CAST([o].[key] AS int) AS [c1], CAST([o0].[key] AS int) AS [c2]
+     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+     OUTER APPLY OPENJSON(JSON_QUERY([o].[value], '$.OwnedCollectionBranch'), '$') AS [o0]
+ ) AS [s]
+ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c2]
+ """);
     }
 
     public override async Task Json_collection_skip_take_in_projection(bool async)
@@ -1317,16 +1465,16 @@ ORDER BY [j].[Id], [s].[c5], [s].[key], [s].[c6]
 
         AssertSql(
             """
-SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
-FROM [JsonEntitiesBasic] AS [j]
-OUTER APPLY (
-    SELECT [j].[Id], CAST(JSON_VALUE([o].[value], '$.Id') AS int) AS [Id0], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], JSON_VALUE([o].[value], '$.Name') AS [c1]
-    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-    ORDER BY JSON_VALUE([o].[value], '$.Name')
-    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
-) AS [o0]
-ORDER BY [j].[Id], [o0].[c1]
-""");
+ SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
+ FROM [JsonEntitiesBasic] AS [j]
+ OUTER APPLY (
+     SELECT [j].[Id], CAST(JSON_VALUE([o].[value], '$.Id') AS int) AS [Id0], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key]
+     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+     ORDER BY JSON_VALUE([o].[value], '$.Name')
+     OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+ ) AS [o0]
+ ORDER BY [j].[Id], [o0].[Name]
+ """);
     }
 
     public override async Task Json_collection_skip_take_in_projection_project_into_anonymous_type(bool async)
@@ -1335,16 +1483,16 @@ ORDER BY [j].[Id], [o0].[c1]
 
         AssertSql(
             """
-SELECT [j].[Id], [o0].[c], [o0].[c0], [o0].[c1], [o0].[c2], [o0].[c3], [o0].[Id], [o0].[c4], [o0].[key]
-FROM [JsonEntitiesBasic] AS [j]
-OUTER APPLY (
-    SELECT JSON_VALUE([o].[value], '$.Name') AS [c], JSON_QUERY([o].[value], '$.Names') AS [c0], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [c1], JSON_QUERY([o].[value], '$.Numbers') AS [c2], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c3], [j].[Id], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c4], [o].[key]
-    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-    ORDER BY JSON_VALUE([o].[value], '$.Name')
-    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
-) AS [o0]
-ORDER BY [j].[Id], [o0].[c]
-""");
+ SELECT [j].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[Id], [o0].[c0], [o0].[key]
+ FROM [JsonEntitiesBasic] AS [j]
+ OUTER APPLY (
+     SELECT JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], [j].[Id], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key]
+     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+     ORDER BY JSON_VALUE([o].[value], '$.Name')
+     OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+ ) AS [o0]
+ ORDER BY [j].[Id], [o0].[Name]
+ """);
     }
 
     public override async Task Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(bool async)
@@ -1353,27 +1501,28 @@ ORDER BY [j].[Id], [o0].[c]
 
         AssertSql(
             """
-SELECT [j].[Id], [o0].[c], [o0].[Id], [o0].[key]
-FROM [JsonEntitiesBasic] AS [j]
-OUTER APPLY (
-    SELECT JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c], [j].[Id], [o].[key], JSON_VALUE([o].[value], '$.Name') AS [c0]
-    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-    ORDER BY JSON_VALUE([o].[value], '$.Name')
-    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
-) AS [o0]
-ORDER BY [j].[Id], [o0].[c0]
-""");
+ SELECT [j].[Id], [o0].[c], [o0].[Id], [o0].[key]
+ FROM [JsonEntitiesBasic] AS [j]
+ OUTER APPLY (
+     SELECT JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c], [j].[Id], [o].[key], JSON_VALUE([o].[value], '$.Name') AS [Name]
+     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+     ORDER BY JSON_VALUE([o].[value], '$.Name')
+     OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+ ) AS [o0]
+ ORDER BY [j].[Id], [o0].[Name]
+ """);
     }
 
     public override async Task Json_collection_distinct_in_projection(bool async)
     {
-        // TODO:SQLJSON Json type is not comparable
-        Assert.Equal(
-            "The json data type cannot be selected as DISTINCT because it is not comparable.\nThe json data type cannot be selected as DISTINCT because it is not comparable.",
-            (await Assert.ThrowsAsync<SqlException>(() => base.Json_collection_distinct_in_projection(async))).Message);
+        // On Azure SQL, the json data type is not supported in the OPENJSON WITH clause, so nvarchar(max) is used instead.
+        // Since nvarchar(max) is comparable (unlike the json type), DISTINCT succeeds instead of failing.
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            await base.Json_collection_distinct_in_projection(async);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
 SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
@@ -1384,12 +1533,37 @@ OUTER APPLY (
         [Names] nvarchar(max) '$.Names' AS JSON,
         [Number] int '$.Number',
         [Numbers] nvarchar(max) '$.Numbers' AS JSON,
+        [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
+        [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
+    ) AS [o]
+) AS [o0]
+ORDER BY [j].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number]
+""");
+        }
+        else
+        {
+            // The json data type cannot be selected as DISTINCT because it is not comparable.
+            await Assert.ThrowsAsync<SqlException>(() => base.Json_collection_distinct_in_projection(async));
+
+            AssertSql(
+                """
+SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT DISTINCT [j].[Id], [o].[Id] AS [Id0], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch] AS [c], [o].[OwnedReferenceBranch] AS [c0]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+        [Id] int '$.Id',
+        [Name] nvarchar(max) '$.Name',
+        [Names] json '$.Names' AS JSON,
+        [Number] int '$.Number',
+        [Numbers] json '$.Numbers' AS JSON,
         [OwnedCollectionBranch] json '$.OwnedCollectionBranch' AS JSON,
         [OwnedReferenceBranch] json '$.OwnedReferenceBranch' AS JSON
     ) AS [o]
 ) AS [o0]
 ORDER BY [j].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number]
 """);
+        }
     }
 
     public override async Task Json_collection_anonymous_projection_distinct_in_projection(bool async)
@@ -1418,13 +1592,14 @@ ORDER BY [j].[Id], [o0].[c]
 
     public override async Task Json_multiple_collection_projections(bool async)
     {
-        // TODO:SQLJSON Json type is not comparable
-        Assert.Equal(
-            "The json data type cannot be selected as DISTINCT because it is not comparable.\nThe json data type cannot be selected as DISTINCT because it is not comparable.",
-            (await Assert.ThrowsAsync<SqlException>(() => base.Json_multiple_collection_projections(async))).Message);
+        // On Azure SQL, the json data type is not supported in the OPENJSON WITH clause, so nvarchar(max) is used instead.
+        // Since nvarchar(max) is comparable (unlike the json type), DISTINCT succeeds instead of failing.
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            await base.Json_multiple_collection_projections(async);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
 SELECT [j].[Id], [o4].[Id], [o4].[SomethingSomething], [o4].[key], [o1].[Id], [o1].[Id0], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [o1].[c], [o1].[c0], [s].[key], [s].[Id], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[Id0], [s].[NullableEnum], [s].[NullableEnums], [s].[c], [s].[c0], [s].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
@@ -1440,6 +1615,45 @@ OUTER APPLY (
         [Names] nvarchar(max) '$.Names' AS JSON,
         [Number] int '$.Number',
         [Numbers] nvarchar(max) '$.Numbers' AS JSON,
+        [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
+        [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
+    ) AS [o0]
+) AS [o1]
+OUTER APPLY (
+    SELECT [o2].[key], [o5].[Id], [o5].[Date], [o5].[Enum], [o5].[Enums], [o5].[Fraction], [o5].[Id0], [o5].[NullableEnum], [o5].[NullableEnums], [o5].[c], [o5].[c0], [o5].[key] AS [key0], CAST([o2].[key] AS int) AS [c1], [o5].[c1] AS [c10]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o2]
+    OUTER APPLY (
+        SELECT [j].[Id], CAST(JSON_VALUE([o3].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o3].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o3].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o3].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], CAST(JSON_VALUE([o3].[value], '$.Id') AS int) AS [Id0], CAST(JSON_VALUE([o3].[value], '$.NullableEnum') AS int) AS [NullableEnum], JSON_QUERY([o3].[value], '$.NullableEnums') AS [NullableEnums], JSON_QUERY([o3].[value], '$.OwnedCollectionLeaf') AS [c], JSON_QUERY([o3].[value], '$.OwnedReferenceLeaf') AS [c0], [o3].[key], CAST([o3].[key] AS int) AS [c1]
+        FROM OPENJSON(JSON_QUERY([o2].[value], '$.OwnedCollectionBranch'), '$') AS [o3]
+        WHERE CAST(JSON_VALUE([o3].[value], '$.Date') AS datetime2) <> '2000-01-01T00:00:00.0000000'
+    ) AS [o5]
+) AS [s]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
+ORDER BY [j].[Id], [o4].[c], [o4].[key], [o1].[Id0], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [s].[c1], [s].[key], [s].[c10], [s].[key0]
+""");
+        }
+        else
+        {
+            // The json data type cannot be selected as DISTINCT because it is not comparable.
+            await Assert.ThrowsAsync<SqlException>(() => base.Json_multiple_collection_projections(async));
+
+            AssertSql(
+                """
+SELECT [j].[Id], [o4].[Id], [o4].[SomethingSomething], [o4].[key], [o1].[Id], [o1].[Id0], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [o1].[c], [o1].[c0], [s].[key], [s].[Id], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[Id0], [s].[NullableEnum], [s].[NullableEnums], [s].[c], [s].[c0], [s].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [j].[Id], JSON_VALUE([o].[value], '$.SomethingSomething') AS [SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf') AS [o]
+    WHERE JSON_VALUE([o].[value], '$.SomethingSomething') <> N'Baz' OR JSON_VALUE([o].[value], '$.SomethingSomething') IS NULL
+) AS [o4]
+OUTER APPLY (
+    SELECT DISTINCT [j].[Id], [o0].[Id] AS [Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[OwnedCollectionBranch] AS [c], [o0].[OwnedReferenceBranch] AS [c0]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+        [Id] int '$.Id',
+        [Name] nvarchar(max) '$.Name',
+        [Names] json '$.Names' AS JSON,
+        [Number] int '$.Number',
+        [Numbers] json '$.Numbers' AS JSON,
         [OwnedCollectionBranch] json '$.OwnedCollectionBranch' AS JSON,
         [OwnedReferenceBranch] json '$.OwnedReferenceBranch' AS JSON
     ) AS [o0]
@@ -1456,17 +1670,19 @@ OUTER APPLY (
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
 ORDER BY [j].[Id], [o4].[c], [o4].[key], [o1].[Id0], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [s].[c1], [s].[key], [s].[c10], [s].[key0]
 """);
+        }
     }
 
     public override async Task Json_branch_collection_distinct_and_other_collection(bool async)
     {
-        // TODO:SQLJSON Json type is not comparable
-        Assert.Equal(
-            "The json data type cannot be selected as DISTINCT because it is not comparable.\nThe json data type cannot be selected as DISTINCT because it is not comparable.",
-            (await Assert.ThrowsAsync<SqlException>(() => base.Json_branch_collection_distinct_and_other_collection(async))).Message);
+        // On Azure SQL, the json data type is not supported in the OPENJSON WITH clause, so nvarchar(max) is used instead.
+        // Since nvarchar(max) is comparable (unlike the json type), DISTINCT succeeds instead of failing.
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            await base.Json_branch_collection_distinct_and_other_collection(async);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
 SELECT [j].[Id], [o0].[Id], [o0].[Date], [o0].[Enum], [o0].[Enums], [o0].[Fraction], [o0].[Id0], [o0].[NullableEnum], [o0].[NullableEnums], [o0].[c], [o0].[c0], [j0].[Id], [j0].[Name], [j0].[ParentId]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
@@ -1479,6 +1695,33 @@ OUTER APPLY (
         [Id] int '$.Id',
         [NullableEnum] int '$.NullableEnum',
         [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
+        [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
+        [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
+    ) AS [o]
+) AS [o0]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
+ORDER BY [j].[Id], [o0].[Date], [o0].[Enum], [o0].[Enums], [o0].[Fraction], [o0].[Id0], [o0].[NullableEnum], [o0].[NullableEnums]
+""");
+        }
+        else
+        {
+            // The json data type cannot be selected as DISTINCT because it is not comparable.
+            await Assert.ThrowsAsync<SqlException>(() => base.Json_branch_collection_distinct_and_other_collection(async));
+
+            AssertSql(
+                """
+SELECT [j].[Id], [o0].[Id], [o0].[Date], [o0].[Enum], [o0].[Enums], [o0].[Fraction], [o0].[Id0], [o0].[NullableEnum], [o0].[NullableEnums], [o0].[c], [o0].[c0], [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT DISTINCT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[Id] AS [Id0], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf] AS [c], [o].[OwnedReferenceLeaf] AS [c0]
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
+        [Date] datetime2 '$.Date',
+        [Enum] int '$.Enum',
+        [Enums] json '$.Enums' AS JSON,
+        [Fraction] decimal(18,2) '$.Fraction',
+        [Id] int '$.Id',
+        [NullableEnum] int '$.NullableEnum',
+        [NullableEnums] json '$.NullableEnums' AS JSON,
         [OwnedCollectionLeaf] json '$.OwnedCollectionLeaf' AS JSON,
         [OwnedReferenceLeaf] json '$.OwnedReferenceLeaf' AS JSON
     ) AS [o]
@@ -1486,6 +1729,7 @@ OUTER APPLY (
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
 ORDER BY [j].[Id], [o0].[Date], [o0].[Enum], [o0].[Enums], [o0].[Fraction], [o0].[Id0], [o0].[NullableEnum], [o0].[NullableEnums]
 """);
+        }
     }
 
     public override async Task Json_leaf_collection_distinct_and_other_collection(bool async)
@@ -1505,45 +1749,45 @@ ORDER BY [j].[Id], [o0].[SomethingSomething]
 """);
     }
 
-//    public override async Task Json_collection_SelectMany(bool async)
-//    {
-//        await base.Json_collection_SelectMany(async);
+    //    public override async Task Json_collection_SelectMany(bool async)
+    //    {
+    //        await base.Json_collection_SelectMany(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[Id], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch], [o].[OwnedReferenceBranch]
-//FROM [JsonEntitiesBasic] AS [j]
-//CROSS APPLY OPENJSON(CAST([j].[OwnedCollectionRoot] AS nvarchar(max)), '$') WITH (
-//    [Name] nvarchar(max) '$.Name',
-//    [Names] nvarchar(max) '$.Names' AS JSON,
-//    [Number] int '$.Number',
-//    [Numbers] nvarchar(max) '$.Numbers' AS JSON,
-//    [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
-//    [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
-//) AS [o]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[Id], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch], [o].[OwnedReferenceBranch]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //CROSS APPLY OPENJSON(CAST([j].[OwnedCollectionRoot] AS nvarchar(max)), '$') WITH (
+    //    [Name] nvarchar(max) '$.Name',
+    //    [Names] nvarchar(max) '$.Names' AS JSON,
+    //    [Number] int '$.Number',
+    //    [Numbers] nvarchar(max) '$.Numbers' AS JSON,
+    //    [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
+    //    [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
+    //) AS [o]
+    //""");
+    //    }
 
-//    public override async Task Json_nested_collection_SelectMany(bool async)
-//    {
-//        await base.Json_nested_collection_SelectMany(async);
+    //    public override async Task Json_nested_collection_SelectMany(bool async)
+    //    {
+    //        await base.Json_nested_collection_SelectMany(async);
 
-//        AssertSql(
-//            """
-//SELECT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf], [o].[OwnedReferenceLeaf]
-//FROM [JsonEntitiesBasic] AS [j]
-//CROSS APPLY OPENJSON(CAST([j].[OwnedReferenceRoot] AS nvarchar(max)), '$.OwnedCollectionBranch') WITH (
-//    [Date] datetime2 '$.Date',
-//    [Enum] int '$.Enum',
-//    [Enums] nvarchar(max) '$.Enums' AS JSON,
-//    [Fraction] decimal(18,2) '$.Fraction',
-//    [NullableEnum] int '$.NullableEnum',
-//    [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
-//    [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
-//    [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
-//) AS [o]
-//""");
-//    }
+    //        AssertSql(
+    //            """
+    //SELECT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf], [o].[OwnedReferenceLeaf]
+    //FROM [JsonEntitiesBasic] AS [j]
+    //CROSS APPLY OPENJSON(CAST([j].[OwnedReferenceRoot] AS nvarchar(max)), '$.OwnedCollectionBranch') WITH (
+    //    [Date] datetime2 '$.Date',
+    //    [Enum] int '$.Enum',
+    //    [Enums] nvarchar(max) '$.Enums' AS JSON,
+    //    [Fraction] decimal(18,2) '$.Fraction',
+    //    [NullableEnum] int '$.NullableEnum',
+    //    [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
+    //    [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
+    //    [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
+    //) AS [o]
+    //""");
+    //    }
 
     public override async Task Json_collection_of_primitives_SelectMany(bool async)
     {
@@ -1601,16 +1845,18 @@ ORDER BY JSON_VALUE([j].[OwnedReferenceRoot], '$.Numbers[0]' RETURNING int)
             """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
-WHERE N'e1_r1' IN (
-    SELECT [n].[value]
-    FROM OPENJSON(JSON_QUERY([j].[OwnedReferenceRoot], '$.Names')) WITH ([value] nvarchar(max) '$') AS [n]
-)
+WHERE JSON_CONTAINS(JSON_QUERY([j].[OwnedReferenceRoot], '$.Names'), N'e1_r1') = 1
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_with_parameter_Select_ElementAt(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_with_parameter_Select_ElementAt(async);
 
         AssertSql(
@@ -1626,9 +1872,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_with_expression_Select_ElementAt(async);
 
         AssertSql(
@@ -1708,9 +1959,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_projection_deduplication_with_collection_indexer_in_target(async);
 
         AssertSql(
@@ -1722,9 +1978,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(async);
 
         AssertSql(
@@ -1758,9 +2019,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_using_parameter_when_owner_is_present(async);
 
         AssertSql(
@@ -1772,9 +2038,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(async);
 
         AssertSql(
@@ -1808,9 +2079,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(async);
 
         AssertSql(
@@ -1822,9 +2098,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(async);
 
         AssertSql(
@@ -1836,9 +2117,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_when_owner_is_present_misc1(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_when_owner_is_present_misc1(async);
 
         AssertSql(
@@ -1850,9 +2136,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_when_owner_is_not_present_misc1(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_when_owner_is_not_present_misc1(async);
 
         AssertSql(
@@ -1886,9 +2177,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_when_owner_is_present_multiple(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_when_owner_is_present_multiple(async);
 
         AssertSql(
@@ -1900,9 +2196,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_in_projection_when_owner_is_not_present_multiple(bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base.Json_collection_index_in_projection_when_owner_is_not_present_multiple(async);
 
         AssertSql(
@@ -2134,6 +2435,19 @@ ORDER BY [e].[Id]
 """);
     }
 
+    public override async Task Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Name], [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [EntitiesBasic] AS [e]
+LEFT JOIN [JsonEntitiesBasic] AS [j] ON [e].[Id] = [j].[EntityBasicId]
+ORDER BY [e].[Id]
+""");
+    }
+
     public override async Task Json_with_include_on_entity_collection_and_reference(bool async)
     {
         await base.Json_with_include_on_entity_collection_and_reference(async);
@@ -2144,7 +2458,7 @@ SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j]
 FROM [JsonEntitiesBasic] AS [j]
 LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
-ORDER BY [j].[Id], [j0].[Id]
+ORDER BY [j].[Id]
 """);
     }
 
@@ -2223,7 +2537,7 @@ SELECT JSON_QUERY([j].[OwnedCollectionRoot], '$[0]'), [j].[Id], [j0].[Id], [j0].
 FROM [JsonEntitiesBasic] AS [j]
 LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
-ORDER BY [j].[Id], [j0].[Id]
+ORDER BY [j].[Id]
 """);
     }
 
@@ -2237,17 +2551,17 @@ SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollect
 FROM [JsonEntitiesBasic] AS [j]
 LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
-ORDER BY [j].[Id], [j0].[Id]
+ORDER BY [j].[Id]
 """);
 
-//        AssertSql(
-//"""
-//SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j1].[Id], [j1].[Name], [j1].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[OwnedCollectionRoot]
-//FROM [JsonEntitiesBasic] AS [j]
-//LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
-//LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
-//ORDER BY [j].[Id], [j0].[Id]
-//""");
+        //        AssertSql(
+        //"""
+        //SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j1].[Id], [j1].[Name], [j1].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[OwnedCollectionRoot]
+        //FROM [JsonEntitiesBasic] AS [j]
+        //LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
+        //LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
+        //ORDER BY [j].[Id], [j0].[Id]
+        //""");
     }
 
     public override async Task Json_all_types_entity_projection(bool async)
@@ -2277,7 +2591,7 @@ FROM [JsonEntitiesAllTypes] AS [j]
         await base.Json_all_types_projection_individual_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT JSON_VALUE([j].[Reference], '$.TestDefaultString' RETURNING nvarchar(max)) AS [TestDefaultString], JSON_VALUE([j].[Reference], '$.TestMaxLengthString' RETURNING nvarchar(5)) AS [TestMaxLengthString], JSON_VALUE([j].[Reference], '$.TestBoolean' RETURNING bit) AS [TestBoolean], JSON_VALUE([j].[Reference], '$.TestByte' RETURNING tinyint) AS [TestByte], JSON_VALUE([j].[Reference], '$.TestCharacter' RETURNING nvarchar(1)) AS [TestCharacter], JSON_VALUE([j].[Reference], '$.TestDateTime' RETURNING datetime2) AS [TestDateTime], JSON_VALUE([j].[Reference], '$.TestDateTimeOffset' RETURNING datetimeoffset) AS [TestDateTimeOffset], JSON_VALUE([j].[Reference], '$.TestDecimal' RETURNING decimal(18,3)) AS [TestDecimal], JSON_VALUE([j].[Reference], '$.TestDouble' RETURNING float) AS [TestDouble], CAST(JSON_VALUE([j].[Reference], '$.TestGuid') AS uniqueidentifier) AS [TestGuid], JSON_VALUE([j].[Reference], '$.TestInt16' RETURNING smallint) AS [TestInt16], JSON_VALUE([j].[Reference], '$.TestInt32' RETURNING int) AS [TestInt32], JSON_VALUE([j].[Reference], '$.TestInt64' RETURNING bigint) AS [TestInt64], JSON_VALUE([j].[Reference], '$.TestSignedByte' RETURNING smallint) AS [TestSignedByte], JSON_VALUE([j].[Reference], '$.TestSingle' RETURNING real) AS [TestSingle], JSON_VALUE([j].[Reference], '$.TestTimeSpan' RETURNING time) AS [TestTimeSpan], JSON_VALUE([j].[Reference], '$.TestDateOnly' RETURNING date) AS [TestDateOnly], JSON_VALUE([j].[Reference], '$.TestTimeOnly' RETURNING time) AS [TestTimeOnly], JSON_VALUE([j].[Reference], '$.TestUnsignedInt16' RETURNING int) AS [TestUnsignedInt16], JSON_VALUE([j].[Reference], '$.TestUnsignedInt32' RETURNING bigint) AS [TestUnsignedInt32], JSON_VALUE([j].[Reference], '$.TestUnsignedInt64' RETURNING decimal(20,0)) AS [TestUnsignedInt64], JSON_VALUE([j].[Reference], '$.TestEnum' RETURNING int) AS [TestEnum], JSON_VALUE([j].[Reference], '$.TestEnumWithIntConverter' RETURNING int) AS [TestEnumWithIntConverter], JSON_VALUE([j].[Reference], '$.TestNullableEnum' RETURNING int) AS [TestNullableEnum], JSON_VALUE([j].[Reference], '$.TestNullableEnumWithIntConverter' RETURNING int) AS [TestNullableEnumWithIntConverter], JSON_VALUE([j].[Reference], '$.TestNullableEnumWithConverterThatHandlesNulls' RETURNING nvarchar(max)) AS [TestNullableEnumWithConverterThatHandlesNulls]
 FROM [JsonEntitiesAllTypes] AS [j]
 """);
@@ -2975,15 +3289,15 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-SELECT [j].[Id], [s].[key], [s].[c], [s].[c0], [s].[c1], [s].[c2], [s].[key0]
-FROM [JsonEntitiesBasic] AS [j]
-OUTER APPLY (
-    SELECT [o].[key], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [c], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [c0], JSON_QUERY([o0].[value], '$.Enums') AS [c1], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [c2], [o0].[key] AS [key0], CAST([o].[key] AS int) AS [c3], CAST([o0].[key] AS int) AS [c4]
-    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-    OUTER APPLY OPENJSON(JSON_QUERY([o].[value], '$.OwnedCollectionBranch'), '$') AS [o0]
-) AS [s]
-ORDER BY [j].[Id], [s].[c3], [s].[key], [s].[c4]
-""");
+ SELECT [j].[Id], [s].[key], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[key0]
+ FROM [JsonEntitiesBasic] AS [j]
+ OUTER APPLY (
+     SELECT [o].[key], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o0].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], [o0].[key] AS [key0], CAST([o].[key] AS int) AS [c], CAST([o0].[key] AS int) AS [c0]
+     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+     OUTER APPLY OPENJSON(JSON_QUERY([o].[value], '$.OwnedCollectionBranch'), '$') AS [o0]
+ ) AS [s]
+ ORDER BY [j].[Id], [s].[c], [s].[key], [s].[c0]
+ """);
     }
 
     public override async Task
@@ -3013,11 +3327,16 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task
         Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
             bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base
             .Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
                 async);
@@ -3046,11 +3365,16 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task
         Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
             bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base
             .Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
                 async);
@@ -3091,11 +3415,16 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task
         Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
             bool async)
     {
+        if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
+
+        {
+            throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
+        }
+
         await base
             .Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
                 async);
@@ -3135,4 +3464,1128 @@ FROM [JsonEntitiesBasic] AS [j]
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    #region Non-shared test resources
+
+    protected override void ConfigureWarnings(WarningsConfigurationBuilder builder)
+    {
+        base.ConfigureWarnings(builder);
+
+        builder.Log(CoreEventId.StringEnumValueInJson);
+    }
+
+    public override async Task Project_root_with_missing_scalars(bool async)
+    {
+        await base.Project_root_with_missing_scalars(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Name], [e].[Collection], [e].[OptionalReference], [e].[RequiredReference]
+FROM [Entities] AS [e]
+WHERE [e].[Id] < 4
+""");
+    }
+
+    public override async Task Project_top_level_json_entity_with_missing_scalars(bool async)
+    {
+        await base.Project_top_level_json_entity_with_missing_scalars(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[OptionalReference], [e].[RequiredReference], [e].[Collection]
+FROM [Entities] AS [e]
+WHERE [e].[Id] < 4
+""");
+    }
+
+    public override async Task Project_nested_json_entity_with_missing_scalars(bool async)
+    {
+        await base.Project_nested_json_entity_with_missing_scalars(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], JSON_QUERY([e].[OptionalReference], '$.NestedOptionalReference'), JSON_QUERY([e].[RequiredReference], '$.NestedRequiredReference'), JSON_QUERY([e].[Collection], '$[0].NestedCollection')
+FROM [Entities] AS [e]
+WHERE [e].[Id] < 4
+""");
+    }
+
+    public override async Task Project_root_entity_with_missing_required_navigation(bool async)
+    {
+        await base.Project_root_entity_with_missing_required_navigation(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Name], [e].[Collection], [e].[OptionalReference], [e].[RequiredReference]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 5
+""");
+    }
+
+    public override async Task Project_missing_required_navigation(bool async)
+    {
+        await base.Project_missing_required_navigation(async);
+
+        AssertSql(
+            """
+SELECT JSON_QUERY([e].[RequiredReference], '$.NestedRequiredReference'), [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 5
+""");
+    }
+
+    public override async Task Project_root_entity_with_null_required_navigation(bool async)
+    {
+        await base.Project_root_entity_with_null_required_navigation(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Name], [e].[Collection], [e].[OptionalReference], [e].[RequiredReference]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 6
+""");
+    }
+
+    public override async Task Project_null_required_navigation(bool async)
+    {
+        await base.Project_null_required_navigation(async);
+
+        AssertSql(
+            """
+SELECT [e].[RequiredReference], [e].[Id]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 6
+""");
+    }
+
+    public override async Task Project_missing_required_scalar(bool async)
+    {
+        await base.Project_missing_required_scalar(async);
+
+        switch (JsonColumnType)
+        {
+            case "json":
+                AssertSql(
+                    """
+SELECT [e].[Id], JSON_VALUE([e].[RequiredReference], '$.Number' RETURNING float) AS [Number]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 2
+""");
+                break;
+            case "nvarchar(max)":
+                AssertSql(
+                    """
+SELECT [e].[Id], CAST(JSON_VALUE([e].[RequiredReference], '$.Number') AS float) AS [Number]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 2
+""");
+                break;
+            default:
+                throw new UnreachableException();
+        }
+    }
+
+    public override async Task Project_null_required_scalar(bool async)
+    {
+        await base.Project_null_required_scalar(async);
+
+        switch (JsonColumnType)
+        {
+            case "json":
+                AssertSql(
+                    """
+SELECT [e].[Id], JSON_VALUE([e].[RequiredReference], '$.Number' RETURNING float) AS [Number]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 4
+""");
+                break;
+            case "nvarchar(max)":
+                AssertSql(
+                    """
+SELECT [e].[Id], CAST(JSON_VALUE([e].[RequiredReference], '$.Number') AS float) AS [Number]
+FROM [Entities] AS [e]
+WHERE [e].[Id] = 4
+""");
+                break;
+            default:
+                throw new UnreachableException();
+        }
+    }
+
+    protected override async Task Seed21006(Context21006 context)
+    {
+        await base.Seed21006(context);
+
+        // missing scalar on top level
+        await context.Database.ExecuteSqlAsync(
+            $$$"""
+INSERT INTO [Entities] ([Collection], [OptionalReference], [RequiredReference], [Id], [Name])
+VALUES (
+'[{"Text":"e2 c1","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e2 c1 c1"},{"DoB":"2000-01-01T00:00:00","Text":"e2 c1 c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e2 c1 nor"},"NestedRequiredReference":{"DoB":"2000-01-01T00:00:00","Text":"e2 c1 nrr"}},{"Text":"e2 c2","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e2 c2 c1"},{"DoB":"2000-01-01T00:00:00","Text":"e2 c2 c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e2 c2 nor"},"NestedRequiredReference":{"DoB":"2000-01-01T00:00:00","Text":"e2 c2 nrr"}}]',
+'{"Text":"e2 or","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e2 or c1"},{"DoB":"2000-01-01T00:00:00","Text":"e2 or c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e2 or nor"},"NestedRequiredReference":{"DoB":"2000-01-01T00:00:00","Text":"e2 or nrr"}}',
+'{"Text":"e2 rr","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e2 rr c1"},{"DoB":"2000-01-01T00:00:00","Text":"e2 rr c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e2 rr nor"},"NestedRequiredReference":{"DoB":"2000-01-01T00:00:00","Text":"e2 rr nrr"}}',
+2,
+'e2')
+""");
+
+        // missing scalar on nested level
+        await context.Database.ExecuteSqlAsync(
+            $$$"""
+INSERT INTO [Entities] ([Collection], [OptionalReference], [RequiredReference], [Id], [Name])
+VALUES (
+'[{"Number":7,"Text":"e3 c1","NestedCollection":[{"Text":"e3 c1 c1"},{"Text":"e3 c1 c2"}],"NestedOptionalReference":{"Text":"e3 c1 nor"},"NestedRequiredReference":{"Text":"e3 c1 nrr"}},{"Number":7,"Text":"e3 c2","NestedCollection":[{"Text":"e3 c2 c1"},{"Text":"e3 c2 c2"}],"NestedOptionalReference":{"Text":"e3 c2 nor"},"NestedRequiredReference":{"Text":"e3 c2 nrr"}}]',
+'{"Number":7,"Text":"e3 or","NestedCollection":[{"Text":"e3 or c1"},{"Text":"e3 or c2"}],"NestedOptionalReference":{"Text":"e3 or nor"},"NestedRequiredReference":{"Text":"e3 or nrr"}}',
+'{"Number":7,"Text":"e3 rr","NestedCollection":[{"Text":"e3 rr c1"},{"Text":"e3 rr c2"}],"NestedOptionalReference":{"Text":"e3 rr nor"},"NestedRequiredReference":{"Text":"e3 rr nrr"}}',
+3,
+'e3')
+""");
+
+        // null scalar on top level
+        await context.Database.ExecuteSqlAsync(
+            $$$"""
+INSERT INTO [Entities] ([Collection], [OptionalReference], [RequiredReference], [Id], [Name])
+VALUES (
+'[{"Number":null,"Text":"e4 c1","NestedCollection":[{"Text":"e4 c1 c1"},{"Text":"e4 c1 c2"}],"NestedOptionalReference":{"Text":"e4 c1 nor"},"NestedRequiredReference":{"Text":"e4 c1 nrr"}},{"Number":null,"Text":"e4 c2","NestedCollection":[{"Text":"e4 c2 c1"},{"Text":"e4 c2 c2"}],"NestedOptionalReference":{"Text":"e4 c2 nor"},"NestedRequiredReference":{"Text":"e4 c2 nrr"}}]',
+'{"Number":null,"Text":"e4 or","NestedCollection":[{"Text":"e4 or c1"},{"Text":"e4 or c2"}],"NestedOptionalReference":{"Text":"e4 or nor"},"NestedRequiredReference":{"Text":"e4 or nrr"}}',
+'{"Number":null,"Text":"e4 rr","NestedCollection":[{"Text":"e4 rr c1"},{"Text":"e4 rr c2"}],"NestedOptionalReference":{"Text":"e4 rr nor"},"NestedRequiredReference":{"Text":"e4 rr nrr"}}',
+4,
+'e4')
+""");
+
+        // missing required navigation
+        await context.Database.ExecuteSqlAsync(
+            $$$"""
+INSERT INTO [Entities] ([Collection], [OptionalReference], [RequiredReference], [Id], [Name])
+VALUES (
+'[{"Number":7,"Text":"e5 c1","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e5 c1 c1"},{"DoB":"2000-01-01T00:00:00","Text":"e5 c1 c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e5 c1 nor"}},{"Number":7,"Text":"e5 c2","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e5 c2 c1"},{"DoB":"2000-01-01T00:00:00","Text":"e5 c2 c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e5 c2 nor"}}]',
+'{"Number":7,"Text":"e5 or","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e5 or c1"},{"DoB":"2000-01-01T00:00:00","Text":"e5 or c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e5 or nor"}}',
+'{"Number":7,"Text":"e5 rr","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e5 rr c1"},{"DoB":"2000-01-01T00:00:00","Text":"e5 rr c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e5 rr nor"}}',
+5,
+'e5')
+""");
+
+        // null required navigation
+        await context.Database.ExecuteSqlAsync(
+            $$$"""
+INSERT INTO [Entities] ([Collection], [OptionalReference], [RequiredReference], [Id], [Name])
+VALUES (
+'[{"Number":7,"Text":"e6 c1","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e6 c1 c1"},{"DoB":"2000-01-01T00:00:00","Text":"e6 c1 c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e6 c1 nor"},"NestedRequiredReference":null},{"Number":7,"Text":"e6 c2","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e6 c2 c1"},{"DoB":"2000-01-01T00:00:00","Text":"e6 c2 c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e6 c2 nor"},"NestedRequiredReference":null}]',
+'{"Number":7,"Text":"e6 or","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e6 or c1"},{"DoB":"2000-01-01T00:00:00","Text":"e6 or c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e6 or nor"},"NestedRequiredReference":null}',
+'{"Number":7,"Text":"e6 rr","NestedCollection":[{"DoB":"2000-01-01T00:00:00","Text":"e6 rr c1"},{"DoB":"2000-01-01T00:00:00","Text":"e6 rr c2"}],"NestedOptionalReference":{"DoB":"2000-01-01T00:00:00","Text":"e6 rr nor"},"NestedRequiredReference":null}',
+6,
+'e6')
+""");
+    }
+
+    protected override async Task Seed29219(DbContext ctx)
+    {
+        await base.Seed29219(ctx);
+
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Reference], [Collection])
+VALUES(3, '{ "NonNullableScalar" : 30 }', '[{ "NonNullableScalar" : 10001 }]')
+""");
+    }
+
+    protected override async Task Seed30028(DbContext ctx)
+    {
+        // complete
+        await ctx.Database.ExecuteSqlAsync(
+            $$$$"""
+INSERT INTO [Entities] ([Id], [Json])
+VALUES(
+1,
+'{"RootName":"e1","Collection":[{"BranchName":"e1 c1","Nested":{"LeafName":"e1 c1 l"}},{"BranchName":"e1 c2","Nested":{"LeafName":"e1 c2 l"}}],"OptionalReference":{"BranchName":"e1 or","Nested":{"LeafName":"e1 or l"}},"RequiredReference":{"BranchName":"e1 rr","Nested":{"LeafName":"e1 rr l"}}}')
+""");
+
+        // missing collection
+        await ctx.Database.ExecuteSqlAsync(
+            $$$$"""
+INSERT INTO [Entities] ([Id], [Json])
+VALUES(
+2,
+'{"RootName":"e2","OptionalReference":{"BranchName":"e2 or","Nested":{"LeafName":"e2 or l"}},"RequiredReference":{"BranchName":"e2 rr","Nested":{"LeafName":"e2 rr l"}}}')
+""");
+
+        // missing optional reference
+        await ctx.Database.ExecuteSqlAsync(
+            $$$$"""
+INSERT INTO [Entities] ([Id], [Json])
+VALUES(
+3,
+'{"RootName":"e3","Collection":[{"BranchName":"e3 c1","Nested":{"LeafName":"e3 c1 l"}},{"BranchName":"e3 c2","Nested":{"LeafName":"e3 c2 l"}}],"RequiredReference":{"BranchName":"e3 rr","Nested":{"LeafName":"e3 rr l"}}}')
+""");
+
+        // missing required reference
+        await ctx.Database.ExecuteSqlAsync(
+            $$$$"""
+INSERT INTO [Entities] ([Id], [Json])
+VALUES(
+4,
+'{"RootName":"e4","Collection":[{"BranchName":"e4 c1","Nested":{"LeafName":"e4 c1 l"}},{"BranchName":"e4 c2","Nested":{"LeafName":"e4 c2 l"}}],"OptionalReference":{"BranchName":"e4 or","Nested":{"LeafName":"e4 or l"}}}')
+""");
+    }
+
+    protected override Task Seed33046(DbContext ctx)
+        => ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Reviews] ([Rounds], [Id])
+VALUES('[{"RoundNumber":11,"SubRounds":[{"SubRoundNumber":111},{"SubRoundNumber":112}]}]', 1)
+""");
+
+    protected override async Task Seed34960(Context34960 ctx)
+    {
+        await base.Seed34960(ctx);
+
+        // JSON nulls
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Collection], [Reference], [Id])
+VALUES(
+'null',
+'null',
+4)
+""");
+
+        // JSON object where collection should be
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Junk] ([Collection], [Reference], [Id])
+VALUES(
+'{ "DoB":"2000-01-01T00:00:00","Text":"junk" }',
+NULL,
+1)
+""");
+
+        // JSON array where entity should be
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Junk] ([Collection], [Reference], [Id])
+VALUES(
+NULL,
+'[{ "DoB":"2000-01-01T00:00:00","Text":"junk" }]',
+2)
+""");
+    }
+
+    protected override Task SeedJunkInJson(DbContext ctx)
+        => ctx.Database.ExecuteSqlAsync(
+            $$$$"""
+INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id])
+VALUES(
+'[{"JunkReference":{"Something":"SomeValue" },"Name":"c11","JunkProperty1":50,"Number":11.5,"JunkCollection1":[],"JunkCollection2":[{"Foo":"junk value"}],"NestedCollection":[{"DoB":"2002-04-01T00:00:00","DummyProp":"Dummy value"},{"DoB":"2002-04-02T00:00:00","DummyReference":{"Foo":5}}],"NestedReference":{"DoB":"2002-03-01T00:00:00"}},{"Name":"c12","Number":12.5,"NestedCollection":[{"DoB":"2002-06-01T00:00:00"},{"DoB":"2002-06-02T00:00:00"}],"NestedDummy":59,"NestedReference":{"DoB":"2002-05-01T00:00:00"}}]',
+'[{"MyBool":true,"Name":"c11 ctor","JunkReference":{"Something":"SomeValue","JunkCollection":[{"Foo":"junk value"}]},"NestedCollection":[{"DoB":"2002-08-01T00:00:00"},{"DoB":"2002-08-02T00:00:00"}],"NestedReference":{"DoB":"2002-07-01T00:00:00"}},{"MyBool":false,"Name":"c12 ctor","NestedCollection":[{"DoB":"2002-10-01T00:00:00"},{"DoB":"2002-10-02T00:00:00"}],"JunkCollection":[{"Foo":"junk value"}],"NestedReference":{"DoB":"2002-09-01T00:00:00"}}]',
+'{"Name":"r1","JunkCollection":[{"Foo":"junk value"}],"JunkReference":{"Something":"SomeValue" },"Number":1.5,"NestedCollection":[{"DoB":"2000-02-01T00:00:00","JunkReference":{"Something":"SomeValue"}},{"DoB":"2000-02-02T00:00:00"}],"NestedReference":{"DoB":"2000-01-01T00:00:00"}}',
+'{"MyBool":true,"JunkCollection":[{"Foo":"junk value"}],"Name":"r1 ctor","JunkReference":{"Something":"SomeValue" },"NestedCollection":[{"DoB":"2001-02-01T00:00:00"},{"DoB":"2001-02-02T00:00:00"}],"NestedReference":{"JunkCollection":[{"Foo":"junk value"}],"DoB":"2001-01-01T00:00:00"}}',
+1)
+""");
+
+    protected override Task SeedTrickyBuffering(DbContext ctx)
+        => ctx.Database.ExecuteSqlAsync(
+            $$$"""
+INSERT INTO [Entities] ([Reference], [Id])
+VALUES(
+'{"Name": "r1", "Number": 7, "JunkReference":{"Something": "SomeValue" }, "JunkCollection": [{"Foo": "junk value"}], "NestedReference": {"DoB": "2000-01-01T00:00:00"}, "NestedCollection": [{"DoB": "2000-02-01T00:00:00", "JunkReference": {"Something": "SomeValue"}}, {"DoB": "2000-02-02T00:00:00"}]}',1)
+""");
+
+    protected override Task SeedShadowProperties(DbContext ctx)
+        => ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id], [Name])
+VALUES(
+'[{"Name":"e1_c1","ShadowDouble":5.5},{"ShadowDouble":20.5,"Name":"e1_c2"}]',
+'[{"Name":"e1_c1 ctor","ShadowNullableByte":6},{"ShadowNullableByte":null,"Name":"e1_c2 ctor"}]',
+'{"Name":"e1_r", "ShadowString":"Foo"}',
+'{"ShadowInt":143,"Name":"e1_r ctor"}',
+1,
+'e1')
+""");
+
+    protected override async Task SeedNotICollection(DbContext ctx)
+    {
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Json], [Id])
+VALUES(
+'{"Collection":[{"Bar":11,"Foo":"c11"},{"Bar":12,"Foo":"c12"},{"Bar":13,"Foo":"c13"}]}',
+1)
+""");
+
+        await ctx.Database.ExecuteSqlAsync(
+            $$$"""
+INSERT INTO [Entities] ([Json], [Id])
+VALUES(
+'{"Collection":[{"Bar":21,"Foo":"c21"},{"Bar":22,"Foo":"c22"}]}',
+2)
+""");
+    }
+
+    protected override async Task SeedBadJsonProperties(ContextBadJsonProperties ctx)
+    {
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Scenario], [OptionalReference], [RequiredReference], [Collection])
+VALUES(
+1,
+'baseline',
+'{"NestedOptional": { "Text":"or no" }, "NestedRequired": { "Text":"or nr" }, "NestedCollection": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] }',
+'{"NestedOptional": { "Text":"rr no" }, "NestedRequired": { "Text":"rr nr" }, "NestedCollection": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] }',
+'[
+{"NestedOptional": { "Text":"c 1 no" }, "NestedRequired": { "Text":"c 1 nr" }, "NestedCollection": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
+{"NestedOptional": { "Text":"c 2 no" }, "NestedRequired": { "Text":"c 2 nr" }, "NestedCollection": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
+]')
+""");
+
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Scenario], [OptionalReference], [RequiredReference], [Collection])
+VALUES(
+2,
+'duplicated navigations',
+'{"NestedOptional": { "Text":"or no" }, "NestedOptional": { "Text":"or no dupnav" }, "NestedRequired": { "Text":"or nr" }, "NestedCollection": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ], "NestedCollection": [ { "Text":"or nc 1 dupnav" }, { "Text":"or nc 2 dupnav" } ], "NestedRequired": { "Text":"or nr dupnav" } }',
+'{"NestedOptional": { "Text":"rr no" }, "NestedOptional": { "Text":"rr no dupnav" }, "NestedRequired": { "Text":"rr nr" }, "NestedCollection": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ], "NestedCollection": [ { "Text":"rr nc 1 dupnav" }, { "Text":"rr nc 2 dupnav" } ], "NestedRequired": { "Text":"rr nr dupnav" } }',
+'[
+{"NestedOptional": { "Text":"c 1 no" }, "NestedOptional": { "Text":"c 1 no dupnav" }, "NestedRequired": { "Text":"c 1 nr" }, "NestedCollection": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ], "NestedCollection": [ { "Text":"c 1 nc 1 dupnav" }, { "Text":"c 1 nc 2 dupnav" } ], "NestedRequired": { "Text":"c 1 nr dupnav" } },
+{"NestedOptional": { "Text":"c 2 no" }, "NestedOptional": { "Text":"c 2 no dupnav" }, "NestedRequired": { "Text":"c 2 nr" }, "NestedCollection": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ], "NestedCollection": [ { "Text":"c 2 nc 1 dupnav" }, { "Text":"c 2 nc 2 dupnav" } ], "NestedRequired": { "Text":"c 2 nr dupnav" } }
+]')
+""");
+
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Scenario], [OptionalReference], [RequiredReference], [Collection])
+VALUES(
+3,
+'duplicated scalars',
+'{"NestedOptional": { "Text":"or no", "Text":"or no dupprop" }, "NestedRequired": { "Text":"or nr", "Text":"or nr dupprop" }, "NestedCollection": [ { "Text":"or nc 1", "Text":"or nc 1 dupprop" }, { "Text":"or nc 2", "Text":"or nc 2 dupprop" } ] }',
+'{"NestedOptional": { "Text":"rr no", "Text":"rr no dupprop" }, "NestedRequired": { "Text":"rr nr", "Text":"rr nr dupprop" }, "NestedCollection": [ { "Text":"rr nc 1", "Text":"rr nc 1 dupprop" }, { "Text":"rr nc 2", "Text":"rr nc 2 dupprop" } ] }',
+'[
+{"NestedOptional": { "Text":"c 1 no", "Text":"c 1 no dupprop" }, "NestedRequired": { "Text":"c 1 nr", "Text":"c 1 nr dupprop" }, "NestedCollection": [ { "Text":"c 1 nc 1", "Text":"c 1 nc 1 dupprop" }, { "Text":"c 1 nc 2", "Text":"c 1 nc 2 dupprop" } ] },
+{"NestedOptional": { "Text":"c 2 no", "Text":"c 2 no dupprop" }, "NestedRequired": { "Text":"c 2 nr", "Text":"c 2 nr dupprop" }, "NestedCollection": [ { "Text":"c 2 nc 1", "Text":"c 2 nc 1 dupprop" }, { "Text":"c 2 nc 2", "Text":"c 2 nc 2 dupprop" } ] }
+]')
+""");
+
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Scenario], [OptionalReference], [RequiredReference], [Collection])
+VALUES(
+4,
+'empty navigation property names',
+'{"": { "Text":"or no" }, "": { "Text":"or nr" }, "": [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] }',
+'{"": { "Text":"rr no" }, "": { "Text":"rr nr" }, "": [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] }',
+'[
+{"": { "Text":"c 1 no" }, "": { "Text":"c 1 nr" }, "": [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
+{"": { "Text":"c 2 no" }, "": { "Text":"c 2 nr" }, "": [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
+]')
+""");
+
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Scenario], [OptionalReference], [RequiredReference], [Collection])
+VALUES(
+5,
+'empty scalar property names',
+'{"NestedOptional": { "":"or no" }, "NestedRequired": { "":"or nr" }, "NestedCollection": [ { "":"or nc 1" }, { "":"or nc 2" } ] }',
+'{"NestedOptional": { "":"rr no" }, "NestedRequired": { "":"rr nr" }, "NestedCollection": [ { "":"rr nc 1" }, { "":"rr nc 2" } ] }',
+'[
+{"NestedOptional": { "":"c 1 no" }, "NestedRequired": { "":"c 1 nr" }, "NestedCollection": [ { "":"c 1 nc 1" }, { "":"c 1 nc 2" } ] },
+{"NestedOptional": { "":"c 2 no" }, "NestedRequired": { "":"c 2 nr" }, "NestedCollection": [ { "":"c 2 nc 1" }, { "":"c 2 nc 2" } ] }
+]')
+""");
+
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Scenario], [OptionalReference], [RequiredReference], [Collection])
+VALUES(
+10,
+'null navigation property names',
+'{null: { "Text":"or no" }, null: { "Text":"or nr" }, null: [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] }',
+'{null: { "Text":"rr no" }, null: { "Text":"rr nr" }, null: [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] }',
+'[
+{null: { "Text":"c 1 no" }, null: { "Text":"c 1 nr" }, null: [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
+{null: { "Text":"c 2 no" }, null: { "Text":"c 2 nr" }, null: [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
+]')
+""");
+
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Scenario], [OptionalReference], [RequiredReference], [Collection])
+VALUES(
+11,
+'null scalar property names',
+'{"NestedOptional": { null:"or no", "Text":"or no nonnull" }, "NestedRequired": { null:"or nr", "Text":"or nr nonnull" }, "NestedCollection": [ { null:"or nc 1", "Text":"or nc 1 nonnull" }, { null:"or nc 2", "Text":"or nc 2 nonnull" } ] }',
+'{"NestedOptional": { null:"rr no", "Text":"rr no nonnull" }, "NestedRequired": { null:"rr nr", "Text":"rr nr nonnull" }, "NestedCollection": [ { null:"rr nc 1", "Text":"rr nc 1 nonnull" }, { null:"rr nc 2", "Text":"rr nc 2 nonnull" } ] }',
+'[
+{"NestedOptional": { null:"c 1 no", "Text":"c 1 no nonnull" }, "NestedRequired": { null:"c 1 nr", "Text":"c 1 nr nonnull" }, "NestedCollection": [ { null:"c 1 nc 1", "Text":"c 1 nc 1 nonnull" }, { null:"c 1 nc 2", "Text":"c 1 nc 2 nonnull" } ] },
+{"NestedOptional": { null:"c 2 no", "Text":"c 2 no nonnull" }, "NestedRequired": { null:"c 2 nr", "Text":"c 2 nr nonnull" }, "NestedCollection": [ { null:"c 2 nc 1", "Text":"c 2 nc 1 nonnull" }, { null:"c 2 nc 2", "Text":"c 2 nc 2 nonnull" } ] }
+]')
+""");
+    }
+
+    #region PrimitiveCollectionInColumn
+
+    [Fact]
+    public virtual async Task Materialize_json_null_primitive_collection_mapped_to_column_is_null()
+    {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // The primitive collection is mapped to its own column via CollectionToJsonStringConverter (which does NOT
+        // handle the JSON 'null' token). Legacy/external data may store the JSON 'null' token (the literal string
+        // "null", which Utf8JsonReader tokenizes as JsonTokenType.Null) rather than a SQL NULL. The materializer peeks
+        // the first token and short-circuits to null instead of letting JsonCollectionOfReferencesReaderWriter throw
+        // "Invalid token type: 'Null'". See issues #34881 and #38454.
+        var result = await context.Set<ContextPrimitiveCollectionInColumn.MyEntity>()
+            .Where(x => x.Id < 4).OrderBy(x => x.Id).ToListAsync();
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(["a", "b"], result[0].Tags);
+        Assert.Null(result[1].Tags); // JSON 'null' token
+        Assert.Null(result[2].Tags); // SQL NULL
+    }
+
+    [Fact]
+    public virtual async Task Materialize_empty_json_primitive_collection_mapped_to_column_throws()
+    {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // An empty/whitespace JSON string in the column isn't valid JSON; the diagnostics here match the converter
+        // path (JsonValueReaderWriter.FromJsonString), which rejects it with CoreStrings.EmptyJsonString.
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 4).ToListAsync());
+
+        Assert.Equal(CoreStrings.EmptyJsonString, exception.Message);
+    }
+
+    [Fact]
+    public virtual async Task Materialize_json_null_required_primitive_collection_mapped_to_column_throws()
+    {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // The required primitive collection column holds the JSON 'null' token. Since the property is required, the
+        // materializer throws a clear, property-named error rather than silently materializing null. See #34881.
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 5).ToListAsync());
+
+        Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredTags"), exception.Message);
+    }
+
+    [Fact]
+    public virtual async Task Project_json_null_primitive_collection_mapped_to_column_is_null()
+    {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // Projecting the collection column directly reaches the materializer without an IProperty. The JSON 'null'
+        // token (and SQL NULL) must still be materialized as null rather than throwing "Invalid token type: 'Null'".
+        var tags = await context.Set<ContextPrimitiveCollectionInColumn.MyEntity>()
+            .Where(x => x.Id < 4).OrderBy(x => x.Id).Select(x => x.Tags).ToListAsync();
+
+        Assert.Equal(3, tags.Count);
+        Assert.Equal(["a", "b"], tags[0]);
+        Assert.Null(tags[1]); // JSON 'null' token
+        Assert.Null(tags[2]); // SQL NULL
+    }
+
+    protected virtual async Task SeedPrimitiveCollectionInColumn(DbContext ctx)
+    {
+        // primitive collection column contains a JSON array
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(1, N'["a","b"]', N'[]')
+""");
+
+        // primitive collection column contains a JSON null token (the literal string "null", not a SQL NULL)
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(2, N'null', N'[]')
+""");
+
+        // primitive collection column is SQL NULL
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(3, NULL, N'[]')
+""");
+
+        // primitive collection column contains an empty (invalid) JSON string
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(4, N'', N'[]')
+""");
+
+        // required primitive collection column contains a JSON null token
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(5, N'["a","b"]', N'null')
+""");
+    }
+
+    protected virtual void OnModelCreatingPrimitiveCollectionInColumn(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<ContextPrimitiveCollectionInColumn.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.PrimitiveCollection(x => x.Tags);
+            b.PrimitiveCollection(x => x.RequiredTags).IsRequired();
+        });
+
+    protected class ContextPrimitiveCollectionInColumn(DbContextOptions options) : DbContext(options)
+    {
+        public class MyEntity
+        {
+            public int Id { get; set; }
+
+            // IList<string> matches the legacy mapping reported in #34881.
+            public IList<string>? Tags { get; set; }
+
+            public IList<string> RequiredTags { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
+    #region JsonPropertyWithConverters
+
+    [Fact]
+    public virtual async Task Materialize_json_null_property_with_converters()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextJsonPropertyWithConverters>(
+            onModelCreating: OnModelCreatingJsonPropertyWithConverters,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedJsonPropertyWithConverters);
+
+        using var context = contextFactory.CreateDbContext();
+        var result = await context.Set<ContextJsonPropertyWithConverters.MyEntity>().SingleAsync(x => x.Id == 1);
+
+        Assert.Equal("e1", result.Reference!.Name);
+
+        // Both properties have a JSON 'null' token value. The streaming JSON shaper's null guard
+        // (CreateReadJsonPropertyValueExpression) routes the null based on the converter's ConvertsNulls flag:
+        //  - ConvertsNulls == true  -> ConvertFromProvider(default) maps DB null to the "FROM_DB_NULL" sentinel.
+        //  - ConvertsNulls == false -> returns default(string) (null) without invoking the converter.
+        Assert.Equal("FROM_DB_NULL", result.Reference.ConvertedHandlingNulls);
+        Assert.Null(result.Reference.ConvertedNotHandlingNulls);
+    }
+
+    protected virtual async Task SeedJsonPropertyWithConverters(DbContext ctx)
+        => await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Reference])
+VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls":null}')
+""");
+
+    protected virtual void OnModelCreatingJsonPropertyWithConverters(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<ContextJsonPropertyWithConverters.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.Property(x => x.ConvertedHandlingNulls).HasConversion(
+                        new ValueConverter<string?, string?>(
+                            v => v,
+                            v => v ?? "FROM_DB_NULL",
+                            convertsNulls: true));
+                    b.Property(x => x.ConvertedNotHandlingNulls).HasConversion(
+                        new ValueConverter<string?, string?>(
+                            v => v,
+                            v => "FROM_CONVERTER:" + v,
+                            convertsNulls: false));
+                });
+        });
+
+    protected class ContextJsonPropertyWithConverters(DbContextOptions options) : DbContext(options)
+    {
+        public class MyEntity
+        {
+            public int Id { get; set; }
+            public MyJsonEntity? Reference { get; set; }
+        }
+
+        public class MyJsonEntity
+        {
+            public string? Name { get; set; }
+            public string? ConvertedHandlingNulls { get; set; }
+            public string? ConvertedNotHandlingNulls { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region PrimitiveCollectionInJson
+
+    [Fact]
+    public virtual async Task Materialize_json_null_optional_primitive_collection_in_json_is_null()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInJson>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInJson,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInJson);
+
+        using var context = contextFactory.CreateDbContext();
+        var result = await context.Set<ContextPrimitiveCollectionInJson.MyEntity>()
+            .Where(x => x.Id < 3).OrderBy(x => x.Id).ToListAsync();
+
+        Assert.Equal(2, result.Count);
+
+        // Id == 1: JSON has "NullableStrings": null -> materialized as null.
+        Assert.Null(result[0].Reference!.NullableStrings);
+        Assert.Equal(["a", "b"], result[0].Reference!.RequiredStrings);
+
+        // Id == 2: JSON has "NullableStrings": ["x", "y"].
+        Assert.Equal(["x", "y"], result[1].Reference!.NullableStrings);
+        Assert.Equal(["c", "d"], result[1].Reference!.RequiredStrings);
+    }
+
+    [Fact]
+    public virtual async Task Materialize_json_null_required_primitive_collection_in_json_throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInJson>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInJson,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInJson);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // A required primitive collection nested in a JSON document whose value is a 'null' token yields a clear,
+        // property-named error rather than the cryptic reader/writer "Invalid token type: 'Null'".
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
+
+        Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredStrings"), exception.Message);
+    }
+
+    protected virtual async Task SeedPrimitiveCollectionInJson(DbContext ctx)
+    {
+        // optional collection is JSON null
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Reference])
+VALUES(1, '{"NullableStrings":null,"RequiredStrings":["a","b"]}')
+""");
+
+        // optional collection has a value
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Reference])
+VALUES(2, '{"NullableStrings":["x","y"],"RequiredStrings":["c","d"]}')
+""");
+
+        // required collection is JSON null (materialization throws)
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Reference])
+VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
+""");
+    }
+
+    protected virtual void OnModelCreatingPrimitiveCollectionInJson(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<ContextPrimitiveCollectionInJson.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.PrimitiveCollection(x => x.NullableStrings).IsRequired(false);
+                    b.PrimitiveCollection(x => x.RequiredStrings).IsRequired();
+                });
+        });
+
+    protected class ContextPrimitiveCollectionInJson(DbContextOptions options) : DbContext(options)
+    {
+        public class MyEntity
+        {
+            public int Id { get; set; }
+            public MyJsonEntity? Reference { get; set; }
+        }
+
+        public class MyJsonEntity
+        {
+            public List<string>? NullableStrings { get; set; }
+            public List<string> RequiredStrings { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
+    #region EnumLegacyValues
+
+    protected virtual async Task Read_enum_property_with_legacy_values_core(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: BuildModelEnumLegacyValues,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedEnumLegacyValues);
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<MyEntityEnumLegacyValues>().Select(x => new
+        {
+            x.Reference!.IntEnum,
+            x.Reference.ByteEnum,
+            x.Reference.LongEnum,
+            x.Reference.NullableEnum
+        });
+
+        if (async)
+        {
+            await query.ToListAsync();
+        }
+        else
+        {
+            query.ToList();
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Read_json_entity_with_enum_properties_with_legacy_values(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: BuildModelEnumLegacyValues,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedEnumLegacyValues,
+            shouldLogCategory: c => c == DbLoggerCategory.Query.Name);
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var query = context.Set<MyEntityEnumLegacyValues>().Select(x => x.Reference!).AsNoTracking();
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(1, result.Count);
+            Assert.Equal(ByteEnumLegacyValues.Redmond, result[0]!.ByteEnum);
+            Assert.Equal(IntEnumLegacyValues.Foo, result[0]!.IntEnum);
+            Assert.Equal(LongEnumLegacyValues.Three, result[0]!.LongEnum);
+            Assert.Equal(ULongEnumLegacyValues.Three, result[0]!.ULongEnum);
+            Assert.Equal(IntEnumLegacyValues.Bar, result[0]!.NullableEnum);
+        }
+
+        var testLogger = new TestLogger<SqlServerLoggingDefinitions>();
+        Assert.Single(
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ByteEnumLegacyValues)));
+        Assert.Single(
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(IntEnumLegacyValues)));
+        Assert.Single(
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(LongEnumLegacyValues)));
+        Assert.Single(
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues)));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Read_json_entity_collection_with_enum_properties_with_legacy_values(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: BuildModelEnumLegacyValues,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedEnumLegacyValues,
+            shouldLogCategory: c => c == DbLoggerCategory.Query.Name);
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var query = context.Set<MyEntityEnumLegacyValues>().Select(x => x.Collection).AsNoTracking();
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(1, result.Count);
+            Assert.Equal(2, result[0].Count);
+            Assert.Equal(ByteEnumLegacyValues.Bellevue, result[0][0].ByteEnum);
+            Assert.Equal(IntEnumLegacyValues.Foo, result[0][0].IntEnum);
+            Assert.Equal(LongEnumLegacyValues.One, result[0][0].LongEnum);
+            Assert.Equal(ULongEnumLegacyValues.One, result[0][0].ULongEnum);
+            Assert.Equal(IntEnumLegacyValues.Bar, result[0][0].NullableEnum);
+            Assert.Equal(ByteEnumLegacyValues.Seattle, result[0][1].ByteEnum);
+            Assert.Equal(IntEnumLegacyValues.Baz, result[0][1].IntEnum);
+            Assert.Equal(LongEnumLegacyValues.Two, result[0][1].LongEnum);
+            Assert.Equal(ULongEnumLegacyValues.Two, result[0][1].ULongEnum);
+            Assert.Null(result[0][1].NullableEnum);
+        }
+
+        var testLogger = new TestLogger<SqlServerLoggingDefinitions>();
+        Assert.Single(
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ByteEnumLegacyValues)));
+        Assert.Single(
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(IntEnumLegacyValues)));
+        Assert.Single(
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(LongEnumLegacyValues)));
+        Assert.Single(
+            ListLoggerFactory.Log,
+            l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues)));
+    }
+
+    private Task SeedEnumLegacyValues(DbContext ctx)
+        => ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Collection], [Reference], [Id], [Name])
+VALUES(
+N'[{"ByteEnum":"Bellevue","IntEnum":"Foo","LongEnum":"One","ULongEnum":"One","Name":"e1_c1","NullableEnum":"Bar"},{"ByteEnum":"Seattle","IntEnum":"Baz","LongEnum":"Two","ULongEnum":"Two","Name":"e1_c2","NullableEnum":null}]',
+N'{"ByteEnum":"Redmond","IntEnum":"Foo","LongEnum":"Three","ULongEnum":"Three","Name":"e1_r","NullableEnum":"Bar"}',
+1,
+N'e1')
+""");
+
+    protected virtual void BuildModelEnumLegacyValues(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<MyEntityEnumLegacyValues>(b =>
+        {
+            b.ToTable("Entities");
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+            b.OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
+
+    private class MyEntityEnumLegacyValues
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+
+        public MyJsonEntityEnumLegacyValues? Reference { get; set; }
+        public List<MyJsonEntityEnumLegacyValues> Collection { get; set; } = null!;
+    }
+
+    private class MyJsonEntityEnumLegacyValues
+    {
+        public string? Name { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public IntEnumLegacyValues IntEnum { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public ByteEnumLegacyValues ByteEnum { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public LongEnumLegacyValues LongEnum { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public ULongEnumLegacyValues ULongEnum { get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public IntEnumLegacyValues? NullableEnum { get; set; }
+    }
+
+    private enum IntEnumLegacyValues
+    {
+        Foo = int.MinValue,
+        Bar,
+        Baz = int.MaxValue,
+    }
+
+    private enum ByteEnumLegacyValues : byte
+    {
+        Seattle,
+        Redmond,
+        Bellevue = 255,
+    }
+
+    private enum LongEnumLegacyValues : long
+    {
+        One = long.MinValue,
+        Two = 1,
+        Three = long.MaxValue,
+    }
+
+    private enum ULongEnumLegacyValues : ulong
+    {
+        One = ulong.MinValue,
+        Two = 1,
+        Three = ulong.MaxValue,
+    }
+
+    #endregion
+
+    public override async Task Entity_splitting_with_owned_json()
+    {
+        await base.Entity_splitting_with_owned_json();
+
+        AssertSql(
+            """
+SELECT TOP(2) [m].[Id], [m].[PropertyInMainTable], [o].[PropertyInOtherTable], [m].[Json]
+FROM [MyEntity] AS [m]
+INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
+""");
+    }
+
+    public override async Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
+    {
+        await base.SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column();
+
+        switch (JsonColumnType)
+        {
+            case "json":
+                AssertSql(
+                    """
+SELECT [p].[value]
+FROM [Cars] AS [c]
+CROSS APPLY OPENJSON([c].[CarConfiguration], '$.optionPackages') WITH (
+    [packageId] nvarchar(max) '$.packageId',
+    [partNumbers] json '$.partNumbers' AS JSON
+) AS [o]
+CROSS APPLY OPENJSON([o].[partNumbers]) WITH ([value] varchar(32) '$') AS [p]
+WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].[packageId] = N'PKG-SPORT'
+""");
+                break;
+            case "nvarchar(max)":
+                AssertSql(
+                    """
+SELECT [p].[value]
+FROM [Cars] AS [c]
+CROSS APPLY OPENJSON([c].[CarConfiguration], '$.optionPackages') WITH (
+    [packageId] nvarchar(max) '$.packageId',
+    [partNumbers] nvarchar(max) '$.partNumbers' AS JSON
+) AS [o]
+CROSS APPLY OPENJSON([o].[partNumbers]) WITH ([value] varchar(32) '$') AS [p]
+WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].[packageId] = N'PKG-SPORT'
+""");
+                break;
+
+            default:
+                throw new UnreachableException();
+        }
+    }
+
+    public override async Task Value_converter_equality_null_scalar()
+    {
+        await base.Value_converter_equality_null_scalar();
+
+        AssertSql(
+            """
+@entity_equality_complexType='{"IntToString":"\u003Cnull\u003E"}' (Size = 34)
+
+SELECT COUNT(*)
+FROM [Entities] AS [e]
+WHERE CAST([e].[Json] AS nvarchar(max)) = CAST(@entity_equality_complexType AS nvarchar(max))
+""");
+    }
+
+    #region BadJsonProperties
+
+    // When using the SQL Server JSON data type, insertion of the bad data fails thanks to SQL Server validation,
+    // unlike with tests mapping to nvarchar(max) where the bad JSON data is inserted correctly and then read.
+
+    public override Task Bad_json_properties_duplicated_navigations(bool noTracking)
+        => Task.CompletedTask;
+
+    public override Task Bad_json_properties_duplicated_scalars(bool noTracking)
+        => Task.CompletedTask;
+
+    public override Task Bad_json_properties_empty_navigations(bool noTracking)
+        => Task.CompletedTask;
+
+    public override Task Bad_json_properties_empty_scalars(bool noTracking)
+        => Task.CompletedTask;
+
+    public override Task Bad_json_properties_null_navigations(bool noTracking)
+        => Task.CompletedTask;
+
+    public override Task Bad_json_properties_null_scalars(bool noTracking)
+        => Task.CompletedTask;
+
+    #endregion BadJsonProperties
+
+    // SQL Server 2025 (CTP 2.1) does not support casting JSON scalar strings to json
+    // (CAST('8' AS json) and CAST('null' AS json) fail with "JSON text is not properly formatted").
+    public override Task Project_entity_with_json_null_values()
+        => Assert.ThrowsAsync<SqlException>(base.Project_entity_with_json_null_values);
+
+    // SQL Server 2025 (CTP 2.1) does not support casting JSON scalar strings to json
+    // (CAST('8' AS json) and CAST('null' AS json) fail with "JSON text is not properly formatted").
+    // The base implementation expects a different exception.
+    public override Task Try_project_collection_but_JSON_is_entity()
+        => Assert.ThrowsAsync<ThrowsException>(base.Try_project_collection_but_JSON_is_entity);
+
+    // SQL Server 2025 (CTP 2.1) does not support casting JSON scalar strings to json
+    // (CAST('8' AS json) and CAST('null' AS json) fail with "JSON text is not properly formatted").
+    // The base implementation expects a different exception.
+    public override Task Try_project_reference_but_JSON_is_collection()
+        => Assert.ThrowsAsync<ThrowsException>(base.Try_project_reference_but_JSON_is_collection);
+
+    // When using the SQL Server json type, we use JSON_VALUE() with the RETURNING clause to parse the JSON property value
+    // into the correct type (int in this case); since we (currently) use lax mode, if the format isn't correct as here
+    // (text instead of int), we get NULL out (strict mode would throw, see #36802 about possibly switching to that).
+    // And since the enum properties are required in the model, this causes "Nullable object must have a value" to be thrown.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Read_enum_property_with_legacy_values(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => Read_enum_property_with_legacy_values_core(async));
+
+    protected override string JsonColumnType
+        => "json";
+
+    #endregion
+
 }

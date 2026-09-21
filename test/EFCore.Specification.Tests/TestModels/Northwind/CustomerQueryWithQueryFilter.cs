@@ -3,11 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public class CustomerQueryWithQueryFilter
 {
-    public string CompanyName { get; set; }
+    public string CompanyName { get; set; } = null!;
     public int OrderCount { get; set; }
-    public string SearchTerm { get; set; }
+    public string SearchTerm { get; set; } = null!;
 }

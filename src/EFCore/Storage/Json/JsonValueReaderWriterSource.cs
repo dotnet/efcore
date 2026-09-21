@@ -33,124 +33,53 @@ public class JsonValueReaderWriterSource : IJsonValueReaderWriterSource
     /// </summary>
     protected virtual JsonValueReaderWriterSourceDependencies Dependencies { get; }
 
+    private static readonly MethodInfo FindReaderWriterMethod
+        = typeof(JsonValueReaderWriterSource).GetMethod(
+            nameof(FindReaderWriter), genericParameterCount: 1, BindingFlags.Public | BindingFlags.Static, Type.EmptyTypes)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static JsonValueReaderWriter? FindReaderWriter<T>()
+        => typeof(T) switch
+        {
+            var t when t == typeof(int) => JsonInt32ReaderWriter.Instance,
+            var t when t == typeof(string) => JsonStringReaderWriter.Instance,
+            var t when t == typeof(Guid) => JsonGuidReaderWriter.Instance,
+            var t when t == typeof(bool) => JsonBoolReaderWriter.Instance,
+            var t when t == typeof(DateTime) => JsonDateTimeReaderWriter.Instance,
+            var t when t == typeof(DateTimeOffset) => JsonDateTimeOffsetReaderWriter.Instance,
+            var t when t == typeof(decimal) => JsonDecimalReaderWriter.Instance,
+            var t when t == typeof(double) => JsonDoubleReaderWriter.Instance,
+            var t when t == typeof(long) => JsonInt64ReaderWriter.Instance,
+            var t when t == typeof(DateOnly) => JsonDateOnlyReaderWriter.Instance,
+            var t when t == typeof(TimeOnly) => JsonTimeOnlyReaderWriter.Instance,
+            var t when t == typeof(byte[]) => JsonByteArrayReaderWriter.Instance,
+            var t when t == typeof(ulong) => JsonUInt64ReaderWriter.Instance,
+            var t when t == typeof(uint) => JsonUInt32ReaderWriter.Instance,
+            var t when t == typeof(byte) => JsonByteReaderWriter.Instance,
+            var t when t == typeof(char) => JsonCharReaderWriter.Instance,
+            var t when t == typeof(float) => JsonFloatReaderWriter.Instance,
+            var t when t == typeof(short) => JsonInt16ReaderWriter.Instance,
+            var t when t == typeof(sbyte) => JsonSByteReaderWriter.Instance,
+            var t when t == typeof(ushort) => JsonUInt16ReaderWriter.Instance,
+            var t when t == typeof(TimeSpan) => JsonTimeSpanReaderWriter.Instance,
+            var t when t.IsEnum => typeof(T).GetEnumUnderlyingType().IsSignedInteger()
+                ? JsonSignedEnumReaderWriter<T>.Instance
+                : JsonUnsignedEnumReaderWriter<T>.Instance,
+            _ => null
+        };
+
     /// <inheritdoc />
+    [RequiresDynamicCode("This method uses reflection to invoke the generic FindReaderWriter<T> method.")]
     public virtual JsonValueReaderWriter? FindReaderWriter(Type type)
-    {
-        if (type == typeof(int))
-        {
-            return JsonInt32ReaderWriter.Instance;
-        }
-
-        if (type == typeof(string))
-        {
-            return JsonStringReaderWriter.Instance;
-        }
-
-        if (type == typeof(Guid))
-        {
-            return JsonGuidReaderWriter.Instance;
-        }
-
-        if (type == typeof(bool))
-        {
-            return JsonBoolReaderWriter.Instance;
-        }
-
-        if (type == typeof(DateTime))
-        {
-            return JsonDateTimeReaderWriter.Instance;
-        }
-
-        if (type == typeof(DateTimeOffset))
-        {
-            return JsonDateTimeOffsetReaderWriter.Instance;
-        }
-
-        if (type == typeof(decimal))
-        {
-            return JsonDecimalReaderWriter.Instance;
-        }
-
-        if (type == typeof(double))
-        {
-            return JsonDoubleReaderWriter.Instance;
-        }
-
-        if (type == typeof(long))
-        {
-            return JsonInt64ReaderWriter.Instance;
-        }
-
-        if (type == typeof(DateOnly))
-        {
-            return JsonDateOnlyReaderWriter.Instance;
-        }
-
-        if (type == typeof(TimeOnly))
-        {
-            return JsonTimeOnlyReaderWriter.Instance;
-        }
-
-        if (type == typeof(byte[]))
-        {
-            return JsonByteArrayReaderWriter.Instance;
-        }
-
-        if (type == typeof(ulong))
-        {
-            return JsonUInt64ReaderWriter.Instance;
-        }
-
-        if (type == typeof(uint))
-        {
-            return JsonUInt32ReaderWriter.Instance;
-        }
-
-        if (type == typeof(byte))
-        {
-            return JsonByteReaderWriter.Instance;
-        }
-
-        if (type == typeof(char))
-        {
-            return JsonCharReaderWriter.Instance;
-        }
-
-        if (type == typeof(float))
-        {
-            return JsonFloatReaderWriter.Instance;
-        }
-
-        if (type == typeof(short))
-        {
-            return JsonInt16ReaderWriter.Instance;
-        }
-
-        if (type == typeof(sbyte))
-        {
-            return JsonSByteReaderWriter.Instance;
-        }
-
-        if (type == typeof(ushort))
-        {
-            return JsonUInt16ReaderWriter.Instance;
-        }
-
-        if (type == typeof(TimeSpan))
-        {
-            return JsonTimeSpanReaderWriter.Instance;
-        }
-
-        if (type.IsEnum)
-        {
-            var readerWriterType =
-                (type.GetEnumUnderlyingType().IsSignedInteger()
-                    ? typeof(JsonSignedEnumReaderWriter<>)
-                    : typeof(JsonUnsignedEnumReaderWriter<>))
-                .MakeGenericType(type);
-            return (JsonValueReaderWriter?)readerWriterType.GetAnyProperty("Instance")!.GetValue(null);
-        }
-
-        return null;
-    }
+        => type.ContainsGenericParameters
+            ? null
+            : (JsonValueReaderWriter?)FindReaderWriterMethod
+                .MakeGenericMethod(type)
+                .Invoke(null, null);
 }

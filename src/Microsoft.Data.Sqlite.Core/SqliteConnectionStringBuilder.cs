@@ -18,7 +18,6 @@ namespace Microsoft.Data.Sqlite;
 ///     <see cref="SqliteConnection" />.
 /// </summary>
 /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
-#if NET5_0_OR_GREATER
 [UnconditionalSuppressMessage(
      "ReflectionAnalysis", "IL2112:ReflectionToRequiresUnreferencedCode",
      Justification =
@@ -27,7 +26,6 @@ namespace Microsoft.Data.Sqlite;
      "ReflectionAnalysis", "IL2113:ReflectionToRequiresUnreferencedCode",
      Justification =
          "Suppressing the same warnings as suppressed in the base DbConnectionStringBuilder. See https://github.com/dotnet/runtime/issues/97057")]
-#endif
 public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
 {
     private const string DataSourceKeyword = "Data Source";
@@ -314,29 +312,17 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
             return (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true);
         }
 
-        TEnum enumValue;
-        if (value is TEnum)
-        {
-            enumValue = (TEnum)value;
-        }
-        else if (value.GetType().IsEnum)
-        {
-            throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)));
-        }
-        else
-        {
-            enumValue = (TEnum)Enum.ToObject(typeof(TEnum), value);
-        }
-
-        if (!Enum.IsDefined(typeof(TEnum), enumValue))
-        {
-            throw new ArgumentOutOfRangeException(
+        var enumValue = value is TEnum
+            ? (TEnum)value
+            : value.GetType().IsEnum
+                ? throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)))
+                : (TEnum)Enum.ToObject(typeof(TEnum), value);
+        return !Enum.IsDefined(typeof(TEnum), enumValue)
+            ? throw new ArgumentOutOfRangeException(
                 nameof(value),
                 value,
-                Resources.InvalidEnumValue(typeof(TEnum), enumValue));
-        }
-
-        return enumValue;
+                Resources.InvalidEnumValue(typeof(TEnum), enumValue))
+            : enumValue;
     }
 
     private static bool? ConvertToNullableBoolean(object value)

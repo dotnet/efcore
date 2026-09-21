@@ -16,8 +16,13 @@
             "MergeToBranch": "release/9.0-staging",
             "ExtraSwitches": "-QuietComments"
         },
-        // Automate opening PRs to merge release/9.0 to main
+        // Automate opening PRs to merge release/9.0 to release/10.0
         "release/9.0":{
+            "MergeToBranch": "release/10.0",
+            "ExtraSwitches": "-QuietComments"
+        },
+        // Automate opening PRs to merge release/10.0 to main
+        "release/10.0":{
             "MergeToBranch": "main",
             "ExtraSwitches": "-QuietComments"
         }

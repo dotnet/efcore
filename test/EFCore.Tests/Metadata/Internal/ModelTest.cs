@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ModelTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Model_throws_when_readonly()
     {
         var model = CreateModel();
@@ -48,11 +48,11 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => ((Model)model).SkipDetectChanges = false).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Snapshot_change_tracking_is_used_by_default()
         => Assert.Equal(ChangeTrackingStrategy.Snapshot, CreateModel().GetChangeTrackingStrategy());
 
-    [ConditionalFact]
+    [Fact]
     public void Change_tracking_strategy_can_be_changed()
     {
         var model = CreateModel();
@@ -63,7 +63,7 @@ public class ModelTest
         Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, model.GetChangeTrackingStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_and_remove_entity_by_type()
     {
         var model = CreateModel();
@@ -88,33 +88,33 @@ public class ModelTest
         Assert.False(((EntityType)entityType).IsInModel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_and_remove_entity_by_name()
     {
         var model = CreateModel();
-        Assert.Null(model.FindEntityType(typeof(Customer).FullName));
-        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
+        Assert.Null(model.FindEntityType(typeof(Customer).FullName!));
+        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName!));
 
-        var entityType = model.AddEntityType(typeof(Customer).FullName);
+        var entityType = model.AddEntityType(typeof(Customer).FullName!);
 
         Assert.Equal(typeof(Dictionary<string, object>), entityType.ClrType);
         Assert.Equal(typeof(Customer).FullName, entityType.Name);
-        Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
+        Assert.NotNull(model.FindEntityType(typeof(Customer).FullName!));
         Assert.Same(model, entityType.Model);
         Assert.True(((EntityType)entityType).IsInModel);
 
-        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
+        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName!));
 
         Assert.Equal([entityType], model.GetEntityTypes().ToArray());
 
         Assert.Same(entityType, model.RemoveEntityType(entityType.Name));
 
         Assert.Null(model.RemoveEntityType(entityType.Name));
-        Assert.Null(model.FindEntityType(typeof(Customer).FullName));
+        Assert.Null(model.FindEntityType(typeof(Customer).FullName!));
         Assert.False(((EntityType)entityType).IsInModel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_and_remove_shared_entity()
     {
         var model = CreateModel();
@@ -142,7 +142,7 @@ public class ModelTest
         Assert.False(((EntityType)entityType).IsInModel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_a_shared_entity_with_same_name_throws()
     {
         var model = CreateModel();
@@ -153,7 +153,7 @@ public class ModelTest
                 => model.AddEntityType(typeof(Customer).DisplayName(), typeof(Customer))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_remove_entity_type_when_referenced_by_foreign_key()
     {
         var model = CreateModel();
@@ -173,7 +173,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType.Name)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_remove_entity_type_when_it_has_derived_types()
     {
         var model = CreateModel();
@@ -187,7 +187,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType.Name)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Using_invalid_entity_type_throws()
     {
         var model = CreateModel();
@@ -197,11 +197,11 @@ public class ModelTest
             Assert.Throws<ArgumentException>(() => model.AddEntityType(typeof(IReadOnlyList<int>))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_entity_by_type_throws()
     {
         var model = CreateModel();
-        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
+        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName!));
 
         model.AddEntityType(typeof(Customer));
 
@@ -210,7 +210,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer))).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_entity_by_name_throws()
     {
         var model = CreateModel();
@@ -220,14 +220,14 @@ public class ModelTest
 
         Assert.Equal(
             CoreStrings.DuplicateEntityType(typeof(Customer).FullName + " (Dictionary<string, object>)"),
-            Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
+            Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName!)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_duplicate_shared_type_throws()
     {
         var model = (Model)CreateModel();
-        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
+        Assert.Null(model.RemoveEntityType(typeof(Customer).FullName!));
 
         model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit);
 
@@ -236,7 +236,7 @@ public class ModelTest
             Assert.Throws<InvalidOperationException>(() => model.AddShared(typeof(Customer), ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_entity_by_type()
     {
         var model = CreateModel();
@@ -248,18 +248,18 @@ public class ModelTest
         Assert.Null(model.FindEntityType(typeof(IList<>).GetGenericArguments().Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_entity_by_name()
     {
         var model = CreateModel();
-        var entityType = model.AddEntityType(typeof(Customer).FullName);
+        var entityType = model.AddEntityType(typeof(Customer).FullName!);
 
-        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
-        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
+        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName!));
+        Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName!));
         Assert.Null(model.FindEntityType(typeof(string)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entities_are_ordered_by_name()
     {
         var model = CreateModel();
@@ -269,7 +269,7 @@ public class ModelTest
         Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.GetEntityTypes()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_referencing_foreign_keys()
     {
         var model = CreateModel();
@@ -290,21 +290,21 @@ public class ModelTest
 
     private class Customer
     {
-        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id));
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id))!;
 
         public int Id { get; set; }
-        public string Name { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public string Name { get; set; } = null!;
+        public ICollection<Order> Orders { get; set; } = null!;
     }
 
     private class SpecialCustomer : Customer;
 
     private class Order
     {
-        public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
+        public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId")!;
 
         public int Id { get; set; }
         public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 }

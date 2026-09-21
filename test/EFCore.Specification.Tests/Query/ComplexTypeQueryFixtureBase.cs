@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
+public abstract class ComplexTypeQueryFixtureBase : QueryFixtureBase<PoolableDbContext>
 {
     protected override string StoreName
         => "ComplexTypeQueryTest";
@@ -59,13 +59,10 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
         });
     }
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => _expectedData ??= new ComplexTypeData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, object>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, object>
     {
         { typeof(Customer), (Func<Customer, object>)(e => e.Id) },
         { typeof(CustomerGroup), (Func<CustomerGroup, object>)(e => e.Id) },
@@ -79,7 +76,7 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
         { typeof(CountryStruct), (Func<CountryStruct, object>)(e => e.Code) }
     }.ToDictionary(e => e.Key, e => e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, object>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, object>
     {
         {
             typeof(Customer), (Customer e, Customer a) =>
@@ -132,18 +129,8 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
                 }
             }
         },
-        {
-            typeof(AddressStruct), (AddressStruct e, AddressStruct a) =>
-            {
-                AssertAddressStruct(e, a);
-            }
-        },
-        {
-            typeof(CountryStruct), (CountryStruct e, CountryStruct a) =>
-            {
-                AssertCountryStruct(e, e);
-            }
-        },
+        { typeof(AddressStruct), (AddressStruct e, AddressStruct a) => AssertAddressStruct(e, a) },
+        { typeof(CountryStruct), (CountryStruct e, CountryStruct a) => AssertCountryStruct(e, e) },
         {
             typeof(ValuedCustomerGroup), (ValuedCustomerGroup e, ValuedCustomerGroup a) =>
             {

@@ -7,13 +7,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class AnnotationTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Members_check_arguments()
         => Assert.Equal(
             $"{AbstractionsStrings.ArgumentIsEmpty} (Parameter 'name')",
             Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_annotation()
     {
         var annotation = new Annotation("Foo", "Bar");
@@ -22,7 +22,7 @@ public class AnnotationTest
         Assert.Equal("Bar", annotation.Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void NegativeNumberArguments_PrecisionAttribute_Throws()
     {
         Assert.Equal(

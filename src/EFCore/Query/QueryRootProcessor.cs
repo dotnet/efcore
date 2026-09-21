@@ -83,18 +83,21 @@ public class QueryRootProcessor : ExpressionVisitor
 
     private Expression VisitQueryRootCandidate(Expression expression, Type elementClrType)
     {
-        var candidateExpression = expression;
-
+        // A:
         // In case the collection was value type, in order to call methods like AsQueryable,
         // we need to convert it to IEnumerable<T> which requires boxing.
         // We do that with Convert expression which we need to unwrap here.
+        //
+        // B:
+        // For collections that are abstract (i.e. FrozenSet<T>), some internal type is used
+        // and for readonly fields the compiler adds explicit cast. We need to unwrap here.
         if (expression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression
-            && convertExpression.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            && convertExpression.Type.IsAssignableTo(typeof(IEnumerable)))
         {
-            candidateExpression = convertExpression.Operand;
+            return VisitQueryRootCandidate(convertExpression.Operand, elementClrType);
         }
 
-        switch (candidateExpression)
+        switch (expression)
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
             // Convert that into a NewArrayExpression for use with InlineQueryRootExpression.

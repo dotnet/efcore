@@ -5,15 +5,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 
-#nullable disable
-
 public class CartItem
 {
     [Key]
     public int CartItemId { get; set; }
 
     [Required]
-    public string CartId { get; set; }
+    public string CartId { get; set; } = null!;
 
     public int AlbumId { get; set; }
     public int Count { get; set; }
@@ -21,5 +19,5 @@ public class CartItem
     [DataType(DataType.DateTime)]
     public DateTime DateCreated { get; set; }
 
-    public virtual Album Album { get; set; }
+    public virtual Album Album { get; set; } = null!;
 }

@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
-#nullable disable
-
 public class EntitySplittingContext(DbContextOptions options) : PoolableDbContext(options);
