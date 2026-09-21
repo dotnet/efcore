@@ -157,6 +157,13 @@ extends:
                   summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
                 condition: always()
                 continueOnError: true
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                path: artifacts/TestResults/$(_BuildConfig)/
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
 
           - job: Windows_SqlServer
             displayName: 'Windows SQL Server'
@@ -193,6 +200,13 @@ extends:
                   summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
                 condition: always()
                 continueOnError: true
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                path: artifacts/TestResults/$(_BuildConfig)/
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
 
           - job: macOS
             pool:
@@ -229,6 +243,13 @@ extends:
                   summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
                 condition: always()
                 continueOnError: true
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                path: artifacts/TestResults/$(_BuildConfig)/
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: Linux
             timeoutInMinutes: 180
             pool:
@@ -266,6 +287,12 @@ extends:
               sdl:
                 binskim:
                   preReleaseVersion: ''
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                path: artifacts/TestResults/$(_BuildConfig)/
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
 
           - job: Helix_Windows
             displayName: 'Helix Windows'
