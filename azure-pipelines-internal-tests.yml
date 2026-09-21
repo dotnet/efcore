@@ -162,6 +162,7 @@ extends:
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
+                continueOnError: true
                 targetPath: artifacts/TestResults/$(_BuildConfig)/
                 artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
 
@@ -205,6 +206,7 @@ extends:
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
+                continueOnError: true
                 targetPath: artifacts/TestResults/$(_BuildConfig)/
                 artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
 
@@ -248,6 +250,7 @@ extends:
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
+                continueOnError: true
                 targetPath: artifacts/TestResults/$(_BuildConfig)/
                 artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
           - job: Linux
@@ -291,6 +294,7 @@ extends:
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
+                continueOnError: true
                 targetPath: artifacts/TestResults/$(_BuildConfig)/
                 artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
 
