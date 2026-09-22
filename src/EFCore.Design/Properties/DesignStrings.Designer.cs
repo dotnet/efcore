@@ -104,6 +104,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("CannotGenerateTypeQualifiedMethodCall");
 
         /// <summary>
+        ///     The C# language version '{languageVersion}' is not supported. Specify a valid C# language version, such as 'latest' or '15.0'.
+        /// </summary>
+        public static string InvalidCSharpLanguageVersion(object? languageVersion)
+            => string.Format(
+                GetString("InvalidCSharpLanguageVersion", nameof(languageVersion)),
+                languageVersion);
+
+        /// <summary>
         ///     You cannot add a migration with the name 'Migration'.
         /// </summary>
         public static string CircularBaseClassDependency

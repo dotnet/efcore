@@ -95,6 +95,40 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     public virtual IColumnBase? RowsAffectedColumn { get; private set; }
 
     /// <summary>
+    ///     Gets a value indicating whether this command targets an optional entity-splitting fragment table, i.e. a table
+    ///     for which a row is only expected to exist when at least one non-key property mapped to it is non-<see langword="null" />.
+    /// </summary>
+    public virtual bool IsOptionalSplitFragment
+        => StoreStoredProcedure is null
+            && _entries.Count > 0
+            && GetTableMapping(_entries[0].EntityType) is { IsSplitFragmentOptional: true };
+
+    /// <summary>
+    ///     Gets a value indicating whether this command targets an optional entity-splitting fragment table whose row is
+    ///     assumed not to exist, because every non-key property mapped to it had a <see langword="null" /> original value
+    ///     when the entity was loaded or last saved.
+    /// </summary>
+    public virtual bool IsOptionalSplitFragmentRowAssumedAbsent
+        => StoreStoredProcedure is null
+            && _entries.Count > 0
+            && GetTableMapping(_entries[0].EntityType) is { IsSplitFragmentOptional: true } tableMapping
+            && tableMapping.ColumnMappings
+                .Where(m => !m.Property.IsPrimaryKey())
+                .All(m => _entries[0].GetOriginalValue(m.Property) is null);
+
+    /// <summary>
+    ///     Gets a value indicating whether this command targets an optional entity-splitting fragment table for which
+    ///     every non-key property mapped to it now has a <see langword="null" /> current value.
+    /// </summary>
+    public virtual bool IsOptionalSplitFragmentPayloadAllNull
+        => StoreStoredProcedure is null
+            && _entries.Count > 0
+            && GetTableMapping(_entries[0].EntityType) is { IsSplitFragmentOptional: true } tableMapping
+            && tableMapping.ColumnMappings
+                .Where(m => !m.Property.IsPrimaryKey())
+                .All(m => _entries[0].GetCurrentValue(m.Property) is null);
+
+    /// <summary>
     ///     The list of <see cref="IColumnModification" /> needed to perform the insert, update, or delete.
     /// </summary>
     public virtual IReadOnlyList<IColumnModification> ColumnModifications
@@ -163,6 +197,21 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     .Any(m => m.Table.Name == TableName && m.Table.Schema == Schema)
                     ? EntityState.Modified
                     : entry.EntityState;
+
+            // An optional entity-splitting fragment's row may not exist yet. If every non-key value mapped to it was
+            // null when the entity was loaded, assume the row is absent and insert it rather than updating it.
+            if (_entityState == EntityState.Modified
+                && IsOptionalSplitFragmentRowAssumedAbsent)
+            {
+                _entityState = EntityState.Added;
+            }
+            // Conversely, if the row exists but every non-key value mapped to it is now null, delete it rather than
+            // leaving behind an all-null row that a later save would misdetect as absent and try to re-insert.
+            else if (_entityState == EntityState.Modified
+                && IsOptionalSplitFragmentPayloadAllNull)
+            {
+                _entityState = EntityState.Deleted;
+            }
         }
         else
         {

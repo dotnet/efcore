@@ -414,6 +414,68 @@ public class SqliteDataReaderTest
     }
 
     [Fact]
+    public void GetStream_works_when_expression_and_a_literal_in_the_same_query()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            "CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB); INSERT INTO DataTable VALUES (5, X'01020304');");
+
+        var selectCommand = connection.CreateCommand();
+        selectCommand.CommandText = "SELECT 42, substr(Data, 1, 3) FROM DataTable WHERE Id = 5";
+        using var reader = selectCommand.ExecuteReader();
+        Assert.True(reader.Read());
+
+        using var sourceStream = reader.GetStream(1);
+        Assert.IsType<MemoryStream>(sourceStream);
+        var buffer = new byte[3];
+        var bytesRead = sourceStream.Read(buffer, 0, 3);
+        Assert.Equal(3, bytesRead);
+        Assert.Equal([0x01, 0x02, 0x03], buffer);
+    }
+
+    [Fact]
+    public void GetTextReader_works_when_expression_and_a_literal_in_the_same_query()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            "CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Value TEXT); INSERT INTO DataTable VALUES (5, 'abcdef');");
+
+        var selectCommand = connection.CreateCommand();
+        selectCommand.CommandText = "SELECT 42, substr(Value, 1, 3) FROM DataTable WHERE Id = 5";
+        using var reader = selectCommand.ExecuteReader();
+        Assert.True(reader.Read());
+
+        using var textReader = reader.GetTextReader(1);
+        Assert.Equal("abc", textReader.ReadToEnd());
+    }
+
+    [Fact]
+    public void GetStream_Blob_works_when_a_literal_is_in_the_same_query()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            "CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB); INSERT INTO DataTable VALUES (5, X'01020304');");
+
+        var selectCommand = connection.CreateCommand();
+        selectCommand.CommandText = "SELECT 42, Id, Data FROM DataTable WHERE Id = 5";
+        using var reader = selectCommand.ExecuteReader();
+        Assert.True(reader.Read());
+
+        using var sourceStream = reader.GetStream(2);
+        Assert.IsType<SqliteBlob>(sourceStream);
+        var buffer = new byte[4];
+        var bytesRead = sourceStream.Read(buffer, 0, 4);
+        Assert.Equal(4, bytesRead);
+        Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
+    }
+
+    [Fact]
     public void GetStream_Blob_works_when_long_pk()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");

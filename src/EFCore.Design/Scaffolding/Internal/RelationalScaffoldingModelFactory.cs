@@ -707,6 +707,10 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                         singularizePluralizer: null,
                         uniquifier: NavigationUniquifier);
 
+                // The skip navigation is only added to the model below, so make the name visible to the right-hand
+                // side, which otherwise generates the same name when the join table references a single entity type.
+                leftExistingIdentifiers.Add(leftNavigationPropertyName);
+
                 var rightExistingIdentifiers = ExistingIdentifiers(rightEntityType);
                 var rightNavigationPropertyCandidateName =
                     _candidateNamingService.GetDependentEndCandidateNavigationPropertyName(fks[0]);

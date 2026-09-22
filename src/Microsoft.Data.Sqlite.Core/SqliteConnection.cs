@@ -287,6 +287,12 @@ public partial class SqliteConnection : DbConnection
                     "PRAGMA foreign_keys = " + (ConnectionOptions.ForeignKeys.Value ? "1" : "0") + ";");
             }
 
+            if (ConnectionOptions.Synchronous.HasValue)
+            {
+                this.ExecuteNonQuery(
+                    "PRAGMA synchronous = " + (int)ConnectionOptions.Synchronous.Value + ";");
+            }
+
             if (ConnectionOptions.RecursiveTriggers)
             {
                 this.ExecuteNonQuery("PRAGMA recursive_triggers = 1;");
