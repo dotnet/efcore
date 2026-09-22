@@ -41,7 +41,7 @@ public sealed class SqliteJsonTimeOnlyReaderWriter : JsonValueReaderWriter<TimeO
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override TimeOnly FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-        => TimeOnly.Parse(manager.CurrentReader.GetString()!);
+        => TimeOnly.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +51,7 @@ public sealed class SqliteJsonTimeOnlyReaderWriter : JsonValueReaderWriter<TimeO
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, TimeOnly value)
         => writer.WriteStringValue(value.Ticks % TimeSpan.TicksPerSecond == 0 ? string.Format(CultureInfo.InvariantCulture, @"{0:HH\:mm\:ss}", value)
-            : value.ToString("o"));
+            : value.ToString("o", CultureInfo.InvariantCulture));
 
     /// <inheritdoc />
     public override Expression ConstructorExpression
