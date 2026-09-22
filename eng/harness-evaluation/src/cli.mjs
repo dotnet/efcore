@@ -128,7 +128,10 @@ async function evaluate(args) {
   const defaultJudgeModel = typeof configuredJudgeModel === 'string'
     ? configuredJudgeModel.match(/^\$\{JUDGE_MODEL=(.*)\}$/)?.[1] ?? configuredJudgeModel
     : configuredJudgeModel;
-  comparisonArguments.push('--judge-model', judgeModel ?? defaultJudgeModel);
+  const comparisonJudgeModel = judgeModel ?? defaultJudgeModel;
+  if (comparisonJudgeModel) {
+    comparisonArguments.push('--judge-model', comparisonJudgeModel);
+  }
   const comparisonResult = runVally(comparisonArguments, { cwd: repoRoot, inherit: true });
   if (!treatmentPass || comparisonResult.status !== 0) {
     process.exitCode = 1;
