@@ -235,15 +235,14 @@ public class ServicePropertyDiscoveryConventionTest
             => Set<PrivateWithDuplicatesSub>();
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<PrivateUnmappedBaseSuper>(
-                b =>
-                {
-                    // Because private properties on un-mapped base types are not found by convention
-                    b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("Context")!);
-                    b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("EntityType")!);
-                    b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("ALazyLoader")!);
-                    b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("LazyLoader")!);
-                });
+            => modelBuilder.Entity<PrivateUnmappedBaseSuper>(b =>
+            {
+                // Because private properties on un-mapped base types are not found by convention
+                b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("Context")!);
+                b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("EntityType")!);
+                b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("ALazyLoader")!);
+                b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("LazyLoader")!);
+            });
     }
 
     protected class PrivateUnmappedBase

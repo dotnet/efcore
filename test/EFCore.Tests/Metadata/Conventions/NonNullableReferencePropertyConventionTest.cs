@@ -49,27 +49,18 @@ public class NonNullableReferencePropertyConventionTest
         Assert.False(entityTypeBuilder.Property(e => e.NonNullable).Metadata.IsNullable);
     }
 
-    [ConditionalTheory]
-    [InlineData(typeof(A), nameof(A.NonNullable), false)]
-    [InlineData(typeof(A), nameof(A.Nullable), true)]
-    [InlineData(typeof(A), nameof(A.NonNullablePropertyMaybeNull), true)]
-    [InlineData(typeof(A), nameof(A.NonNullablePropertyAllowNull), false)]
-    [InlineData(typeof(A), nameof(A.NullablePropertyNotNull), true)]
-    [InlineData(typeof(A), nameof(A.NullablePropertyDisallowNull), true)]
-    [InlineData(typeof(A), nameof(A.NonNullableFieldMaybeNull), true)]
-    [InlineData(typeof(A), nameof(A.NonNullableFieldAllowNull), false)]
-    [InlineData(typeof(A), nameof(A.NullableFieldNotNull), true)]
-    [InlineData(typeof(A), nameof(A.NullableFieldDisallowNull), true)]
-    [InlineData(typeof(A), nameof(A.RequiredAndNullable), false)]
-    [InlineData(typeof(A), nameof(A.NullObliviousNonNullable), true)]
-    [InlineData(typeof(A), nameof(A.NullObliviousNullable), true)]
-    [InlineData(typeof(B), nameof(B.NonNullableValueType), false)]
-    [InlineData(typeof(B), nameof(B.NullableValueType), true)]
-    [InlineData(typeof(B), nameof(B.NonNullableRefType), false)]
-    [InlineData(typeof(B), nameof(B.NullableRefType), true)]
-    [InlineData(typeof(DerivedClass), nameof(DerivedClass.NonNullable), false)]
-    [InlineData(typeof(DerivedClass), nameof(DerivedClass.Nullable), true)]
-    [InlineData(typeof(BaseClass), nameof(DerivedClass.Nullable), true)]
+    [ConditionalTheory, InlineData(typeof(A), nameof(A.NonNullable), false), InlineData(typeof(A), nameof(A.Nullable), true),
+     InlineData(typeof(A), nameof(A.NonNullablePropertyMaybeNull), true),
+     InlineData(typeof(A), nameof(A.NonNullablePropertyAllowNull), false), InlineData(typeof(A), nameof(A.NullablePropertyNotNull), true),
+     InlineData(typeof(A), nameof(A.NullablePropertyDisallowNull), true), InlineData(typeof(A), nameof(A.NonNullableFieldMaybeNull), true),
+     InlineData(typeof(A), nameof(A.NonNullableFieldAllowNull), false), InlineData(typeof(A), nameof(A.NullableFieldNotNull), true),
+     InlineData(typeof(A), nameof(A.NullableFieldDisallowNull), true), InlineData(typeof(A), nameof(A.RequiredAndNullable), false),
+     InlineData(typeof(A), nameof(A.NullObliviousNonNullable), true), InlineData(typeof(A), nameof(A.NullObliviousNullable), true),
+     InlineData(typeof(B), nameof(B.NonNullableValueType), false), InlineData(typeof(B), nameof(B.NullableValueType), true),
+     InlineData(typeof(B), nameof(B.NonNullableRefType), false), InlineData(typeof(B), nameof(B.NullableRefType), true),
+     InlineData(typeof(DerivedClass), nameof(DerivedClass.NonNullable), false),
+     InlineData(typeof(DerivedClass), nameof(DerivedClass.Nullable), true),
+     InlineData(typeof(BaseClass), nameof(DerivedClass.Nullable), true)]
     public void Reference_nullability_sets_is_nullable_correctly(Type type, string propertyName, bool expectedNullable)
     {
         var modelBuilder = CreateModelBuilder();

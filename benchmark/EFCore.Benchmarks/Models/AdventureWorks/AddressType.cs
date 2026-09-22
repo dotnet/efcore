@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class AddressType
 {
     public AddressType()
-    {
-        BusinessEntityAddress = new HashSet<BusinessEntityAddress>();
-    }
+        => BusinessEntityAddress = new HashSet<BusinessEntityAddress>();
 
     public int AddressTypeID { get; set; }
     public DateTime ModifiedDate { get; set; }

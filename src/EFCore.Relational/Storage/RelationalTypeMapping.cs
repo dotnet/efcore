@@ -572,12 +572,6 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
 
         if (nullable.HasValue)
         {
-            Check.DebugAssert(
-                nullable.Value
-                || !direction.HasFlag(ParameterDirection.Input)
-                || value != null,
-                "Null value in a non-nullable input parameter");
-
             parameter.IsNullable = nullable.Value;
         }
 

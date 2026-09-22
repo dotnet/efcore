@@ -18,7 +18,6 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
     private ConfigurationSource _configurationSource;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    private Func<bool, IIdentityMap>? _identityMapFactory;
 
     private object? _principalKeyValueFactory;
 
@@ -152,9 +151,10 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual Func<bool, IIdentityMap> IdentityMapFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _identityMapFactory, this, static key =>
+            ref field, this, static key =>
             {
                 key.EnsureReadOnly();
                 return IdentityMapFactoryFactory.Create(key);

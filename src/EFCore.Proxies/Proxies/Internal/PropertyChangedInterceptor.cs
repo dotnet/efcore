@@ -48,7 +48,7 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
             if (methodName == $"add_{nameof(INotifyPropertyChanged.PropertyChanged)}")
             {
                 _handler = (PropertyChangedEventHandler)Delegate.Combine(
-                    _handler, (Delegate)invocation.Arguments[0]!);
+                    _handler, (Delegate)invocation.Arguments[0]!)!;
             }
             else if (methodName == $"remove_{nameof(INotifyPropertyChanged.PropertyChanged)}")
             {

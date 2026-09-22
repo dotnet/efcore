@@ -43,6 +43,10 @@ public static class TestEnvironment
 
     private static bool? _supportsJsonPathExpressions;
 
+    private static bool? _isJsonTypeSupported;
+
+    private static bool? _isVectorTypeSupported;
+
     private static bool? _supportsFunctions2017;
 
     private static bool? _supportsFunctions2019;
@@ -51,9 +55,11 @@ public static class TestEnvironment
 
     private static byte? _productMajorVersion;
 
+    private static int? _compatibilityLevel;
+
     private static int? _engineEdition;
 
-    public static bool IsSqlAzure
+    public static bool IsAzureSql
     {
         get
         {
@@ -132,7 +138,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsHiddenColumns = (GetProductMajorVersion() >= 13 && GetEngineEdition() != 6) || IsSqlAzure;
+                _supportsHiddenColumns = ((GetProductMajorVersion() >= 13 && GetEngineEdition() != 6) || IsAzureSql) && GetCompatibilityLevel() >= 130;
             }
             catch (PlatformNotSupportedException)
             {
@@ -186,7 +192,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsOnlineIndexing = GetEngineEdition() == 3 || IsSqlAzure;
+                _supportsOnlineIndexing = GetEngineEdition() == 3 || IsAzureSql;
             }
             catch (PlatformNotSupportedException)
             {
@@ -225,7 +231,7 @@ public static class TestEnvironment
                 using var command = new SqlCommand(
                     "SELECT SERVERPROPERTY('IsXTPSupported');", sqlConnection);
                 var result = command.ExecuteScalar();
-                _supportsMemoryOptimizedTables = (result != null ? Convert.ToInt32(result) : 0) == 1 && !IsSqlAzure && !IsLocalDb;
+                _supportsMemoryOptimizedTables = (result != null ? Convert.ToInt32(result) : 0) == 1 && !IsLocalDb;
             }
             catch (PlatformNotSupportedException)
             {
@@ -252,7 +258,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsTemporalTablesCascadeDelete = (GetProductMajorVersion() >= 14 /* && GetEngineEdition() != 6*/) || IsSqlAzure;
+                _supportsTemporalTablesCascadeDelete = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
             }
             catch (PlatformNotSupportedException)
             {
@@ -279,7 +285,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsUtf8 = GetProductMajorVersion() >= 15 || IsSqlAzure;
+                _supportsUtf8 = (GetProductMajorVersion() >= 15 || IsAzureSql) && GetCompatibilityLevel() >= 150;
             }
             catch (PlatformNotSupportedException)
             {
@@ -306,7 +312,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsJsonPathExpressions = GetProductMajorVersion() >= 14 || IsSqlAzure;
+                _supportsJsonPathExpressions = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
             }
             catch (PlatformNotSupportedException)
             {
@@ -333,7 +339,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsFunctions2017 = GetProductMajorVersion() >= 14 || IsSqlAzure;
+                _supportsFunctions2017 = (GetProductMajorVersion() >= 14 || IsAzureSql) && GetCompatibilityLevel() >= 140;
             }
             catch (PlatformNotSupportedException)
             {
@@ -360,7 +366,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsFunctions2019 = GetProductMajorVersion() >= 15 || IsSqlAzure;
+                _supportsFunctions2019 = (GetProductMajorVersion() >= 15 || IsAzureSql) && GetCompatibilityLevel() >= 150;
             }
             catch (PlatformNotSupportedException)
             {
@@ -387,7 +393,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsFunctions2022 = GetProductMajorVersion() >= 16 || IsSqlAzure;
+                _supportsFunctions2022 = (GetProductMajorVersion() >= 16 || IsAzureSql) && GetCompatibilityLevel() >= 160;
             }
             catch (PlatformNotSupportedException)
             {
@@ -398,12 +404,66 @@ public static class TestEnvironment
         }
     }
 
-    // TODO:SQLJSON Issue #34414
     public static bool IsJsonTypeSupported
-        => false;
+    {
+        get
+        {
+            if (!IsConfigured)
+            {
+                return false;
+            }
+
+            if (_isJsonTypeSupported.HasValue)
+            {
+                return _isJsonTypeSupported.Value;
+            }
+
+            try
+            {
+                _isJsonTypeSupported = (GetProductMajorVersion() >= 17 || IsAzureSql) && GetCompatibilityLevel() >= 170;
+            }
+            catch (PlatformNotSupportedException)
+            {
+                _isJsonTypeSupported = false;
+            }
+
+            return _isJsonTypeSupported.Value;
+        }
+    }
+
+    public static bool IsVectorTypeSupported
+    {
+        get
+        {
+            if (!IsConfigured)
+            {
+                return false;
+            }
+
+            if (_isVectorTypeSupported.HasValue)
+            {
+                return _isVectorTypeSupported.Value;
+            }
+
+            try
+            {
+                _isVectorTypeSupported = ((!IsLocalDb && GetProductMajorVersion() >= 17) || IsAzureSql)
+                    && GetCompatibilityLevel() >= 170;
+            }
+            catch (PlatformNotSupportedException)
+            {
+                _isVectorTypeSupported = false;
+            }
+
+            return _isVectorTypeSupported.Value;
+        }
+    }
 
     public static byte SqlServerMajorVersion
         => GetProductMajorVersion();
+
+    public static DbContextOptionsBuilder SetCompatibilityLevelFromEnvironment(DbContextOptionsBuilder builder)
+        => builder.UseSqlServerCompatibilityLevel(SqlServerMajorVersion * 10);
 
     public static string? ElasticPoolName { get; } = Config["ElasticPoolName"];
 
@@ -445,5 +505,22 @@ public static class TestEnvironment
         _productMajorVersion = (byte)Version.Parse((string)command.ExecuteScalar()).Major;
 
         return _productMajorVersion.Value;
+    }
+
+    private static int GetCompatibilityLevel()
+    {
+        if (_compatibilityLevel.HasValue)
+        {
+            return _compatibilityLevel.Value;
+        }
+
+        using var sqlConnection = new SqlConnection(SqlServerTestStore.CreateConnectionString("master"));
+        sqlConnection.Open();
+
+        using var command = new SqlCommand(
+            "SELECT compatibility_level FROM sys.databases WHERE [name] = 'master';", sqlConnection);
+        _compatibilityLevel = (byte)command.ExecuteScalar();
+
+        return _compatibilityLevel.Value;
     }
 }

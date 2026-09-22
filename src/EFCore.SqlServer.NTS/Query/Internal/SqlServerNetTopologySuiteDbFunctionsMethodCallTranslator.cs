@@ -51,10 +51,10 @@ public class SqlServerNetTopologySuiteDbFunctionsMethodCallTranslator : IMethodC
             return _sqlExpressionFactory.Function(
                 arguments[1],
                 "STCurveToLine",
-                Enumerable.Empty<SqlExpression>(),
+                [],
                 nullable: true,
                 instancePropagatesNullability: true,
-                argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                argumentsPropagateNullability: [],
                 typeof(Geometry),
                 arguments[1].TypeMapping);
         }

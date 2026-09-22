@@ -326,8 +326,8 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
     {
         Assert.Equal(
             CoreStrings.UnableToDiscriminate("DerivedType", "BaseType"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Find_base_type_using_derived_set_from_store_async(cancellationType))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Find_base_type_using_derived_set_from_store_async(cancellationType))).Message);
 
         AssertSql("ReadItem(None, BaseType|77)");
     }

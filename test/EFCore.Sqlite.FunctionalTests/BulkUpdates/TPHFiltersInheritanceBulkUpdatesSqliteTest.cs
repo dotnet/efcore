@@ -32,8 +32,8 @@ WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 
         AssertSql(
             """
-@__p_1='3'
-@__p_0='0'
+@p1='3'
+@p='0'
 
 DELETE FROM "Animals" AS "a"
 WHERE "a"."Id" IN (
@@ -41,7 +41,7 @@ WHERE "a"."Id" IN (
     FROM "Animals" AS "a0"
     WHERE "a0"."CountryId" = 1 AND "a0"."Name" = 'Great spotted kiwi'
     ORDER BY "a0"."Name"
-    LIMIT @__p_1 OFFSET @__p_0
+    LIMIT @p1 OFFSET @p
 )
 """);
     }
@@ -133,8 +133,10 @@ WHERE "a"."CountryId" = 1 AND "a"."Id" IN (
 
         AssertExecuteUpdateSql(
             """
+@p='Animal' (Size = 6)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'Animal'
+SET "Name" = @p
 WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 """);
     }
@@ -145,8 +147,10 @@ WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='NewBird' (Size = 7)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'NewBird'
+SET "Name" = @p
 WHERE "a"."CountryId" = 1 AND "a"."Discriminator" = 'Kiwi'
 """);
     }
@@ -164,8 +168,10 @@ WHERE "a"."CountryId" = 1 AND "a"."Discriminator" = 'Kiwi'
 
         AssertExecuteUpdateSql(
             """
+@p='SomeOtherKiwi' (Size = 13)
+
 UPDATE "Animals" AS "a"
-SET "Name" = 'SomeOtherKiwi'
+SET "Name" = @p
 WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 """);
     }
@@ -176,8 +182,10 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Animals" AS "a"
-SET "FoundOn" = 0
+SET "FoundOn" = @p
 WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 """);
     }
@@ -188,8 +196,10 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
@@ -203,9 +213,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Kiwi' (Size = 4)
+@p1='0'
+
 UPDATE "Animals" AS "a"
-SET "FoundOn" = 0,
-    "Name" = 'Kiwi'
+SET "Name" = @p,
+    "FoundOn" = @p1
 WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 """);
     }
@@ -216,8 +229,10 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"

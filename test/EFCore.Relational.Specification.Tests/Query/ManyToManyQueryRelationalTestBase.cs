@@ -10,16 +10,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixture) : ManyToManyQueryTestBase<TFixture>(fixture)
     where TFixture : ManyToManyQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_skip_navigation_split(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<EntityCompositeKey>(et => et.RootSkipShared)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_skip_navigation_then_reference_split(bool async)
         => AssertQuery(
             async,
@@ -29,8 +27,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedInclude<EntityTwo>(et => et.OneSkip),
                 new ExpectedInclude<EntityOne>(et => et.Reference, "OneSkip")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_skip_navigation_then_include_skip_navigation_split(bool async)
         => AssertQuery(
             async,
@@ -40,8 +37,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedInclude<EntityCompositeKey>(et => et.LeafSkipFull),
                 new ExpectedInclude<EntityLeaf>(et => et.OneSkip, "LeafSkipFull")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_skip_navigation_then_include_reference_and_skip_navigation_split(bool async)
         => AssertQuery(
             async,
@@ -53,8 +49,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedInclude<EntityOne>(et => et.Reference, "OneSkipPayloadFull"),
                 new ExpectedInclude<EntityOne>(et => et.SelfSkipPayloadRight, "OneSkipPayloadFull")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_skip_navigation_and_reference_split(bool async)
         => AssertQuery(
             async,
@@ -64,8 +59,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedInclude<EntityTwo>(et => et.OneSkipShared),
                 new ExpectedInclude<EntityTwo>(et => et.Reference)));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_where_split(bool async)
         => AssertQuery(
             async,
@@ -75,8 +69,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityThree, EntityOne>(
                     et => et.OneSkipPayloadFullShared, includeFilter: x => x.Where(i => i.Id < 10))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_order_by_split(bool async)
         => AssertQuery(
             async,
@@ -86,8 +79,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityThree, EntityTwo>(
                     et => et.TwoSkipFull, includeFilter: x => x.OrderBy(i => i.Id))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_order_by_skip_split(bool async)
         => AssertQuery(
             async,
@@ -97,8 +89,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityTwo, EntityTwo>(
                     et => et.SelfSkipSharedRight, includeFilter: x => x.OrderBy(i => i.Id).Skip(2))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_order_by_take_split(bool async)
         => AssertQuery(
             async,
@@ -108,8 +99,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityCompositeKey, EntityTwo>(
                     et => et.TwoSkipShared, includeFilter: x => x.OrderBy(i => i.Id).Take(2))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_order_by_skip_take_split(bool async)
         => AssertQuery(
             async,
@@ -119,8 +109,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityCompositeKey, EntityThree>(
                     et => et.ThreeSkipFull, includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_then_include_skip_navigation_where_split(bool async)
         => AssertQuery(
             async,
@@ -133,8 +122,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityThree, EntityOne>(
                     et => et.OneSkipPayloadFullShared, "ThreeSkipShared", includeFilter: x => x.Where(i => i.Id < 10))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_then_include_skip_navigation_order_by_skip_take_split(bool async)
         => AssertQuery(
             async,
@@ -147,8 +135,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityCompositeKey, EntityThree>(
                     et => et.ThreeSkipFull, "CompositeKeySkipShared", includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_where_then_include_skip_navigation_split(bool async)
         => AssertQuery(
             async,
@@ -160,8 +147,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                     et => et.CompositeKeySkipFull, includeFilter: x => x.Where(i => i.Key1 < 5)),
                 new ExpectedInclude<EntityCompositeKey>(et => et.TwoSkipShared, "CompositeKeySkipFull")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_split(bool async)
         => AssertQuery(
             async,
@@ -175,8 +161,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityTwo, EntityThree>(
                     et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.Where(i => i.Id < 10))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_where_then_include_skip_navigation_order_by_skip_take_split(bool async)
         => AssertQuery(
             async,
@@ -190,8 +175,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityTwo, EntityThree>(
                     et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_include_on_skip_navigation_combined_split(bool async)
         => AssertQuery(
             async,
@@ -204,8 +188,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedInclude<EntityOne>(et => et.Reference, "OneSkip"),
                 new ExpectedInclude<EntityOne>(et => et.Collection, "OneSkip")));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_include_on_skip_navigation_combined_with_filtered_then_includes_split(bool async)
         => AssertQuery(
             async,
@@ -224,8 +207,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityOne, EntityBranch>(
                     et => et.BranchSkip, "OneSkipPayloadFull", includeFilter: x => x.Where(e => e.Id < 20))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_on_skip_navigation_then_filtered_include_on_navigation_split(bool async)
         => AssertQuery(
             async,
@@ -239,8 +221,7 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityOne, EntityTwo>(
                     et => et.Collection, "OneSkipPayloadFull", includeFilter: x => x.Where(i => i.Id < 5))));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_on_navigation_then_filtered_include_on_skip_navigation_split(bool async)
         => AssertQuery(
             async,

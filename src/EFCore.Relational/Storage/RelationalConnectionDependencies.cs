@@ -54,7 +54,8 @@ public sealed record RelationalConnectionDependencies
         INamedConnectionStringResolver connectionStringResolver,
         IRelationalTransactionFactory relationalTransactionFactory,
         ICurrentDbContext currentContext,
-        IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
+        IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
+        IExceptionDetector exceptionDetector)
     {
         ContextOptions = contextOptions;
         TransactionLogger = transactionLogger;
@@ -63,6 +64,7 @@ public sealed record RelationalConnectionDependencies
         RelationalTransactionFactory = relationalTransactionFactory;
         CurrentContext = currentContext;
         RelationalCommandBuilderFactory = relationalCommandBuilderFactory;
+        ExceptionDetector = exceptionDetector;
     }
 
     /// <summary>
@@ -100,4 +102,9 @@ public sealed record RelationalConnectionDependencies
     ///     Contains the <see cref="DbContext" /> instance currently in use.
     /// </summary>
     public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; init; }
+
+    /// <summary>
+    ///     The exception detector.
+    /// </summary>
+    public IExceptionDetector ExceptionDetector { get; init; }
 }

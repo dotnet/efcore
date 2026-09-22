@@ -46,7 +46,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 QueryExpression: SelectExpression
                 {
                     Sources: [{ Expression: ObjectReferenceExpression } rootSource, ..],
-                    Predicate: SqlExpression predicate
+                    Predicate: { } predicate
                 } select
             } shapedQuery)
         {
@@ -98,7 +98,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         var liftPartitionKeys = queryCompilationContext.PartitionKeyPropertyValues.Count == 0;
         foreach (var property in partitionKeyProperties)
         {
-            if (liftPartitionKeys && _partitionKeyPropertyValues[property].ValueExpression is Expression valueExpression)
+            if (liftPartitionKeys && _partitionKeyPropertyValues[property].ValueExpression is { } valueExpression)
             {
                 queryCompilationContext.PartitionKeyPropertyValues.Add(valueExpression);
             }
@@ -193,7 +193,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 if (_discriminatorHandled
                     && scalarAccessExpression.PropertyName == _discriminatorJsonPropertyName)
                 {
-                    var comparer = _entityType.FindDiscriminatorProperty()!.GetProviderValueComparer();
+                    var comparer = _entityType.FindDiscriminatorProperty()!.GetValueComparer();
                     var discriminatorValues = _entityType.GetDerivedTypesInclusive().Select(e => e.GetDiscriminatorValue()).ToList();
                     if (discriminatorValues.Count == sqlExpressions.Length)
                     {
@@ -272,7 +272,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 && propertyValue is SqlConstantExpression { Value: { } specifiedDiscriminatorValue }
                 && _entityType.FindDiscriminatorProperty() is { } discriminatorProperty
                 && _entityType.GetDiscriminatorValue() is { } entityDiscriminatorValue
-                && discriminatorProperty.GetProviderValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue))
+                && discriminatorProperty.GetValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue))
             {
                 // This is the case where there is a single leaf node with a discriminator value. We always know this value,
                 // so the query never needs to drop out of ReadItem because of it.

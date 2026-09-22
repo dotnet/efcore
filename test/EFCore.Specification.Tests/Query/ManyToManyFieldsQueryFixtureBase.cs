@@ -157,102 +157,88 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        modelBuilder.Entity<EntityOne>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<EntityOne>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.Property(e => e.Name);
+        });
 
-        modelBuilder.Entity<EntityTwo>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<EntityTwo>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.Property(e => e.Name);
+        });
 
-        modelBuilder.Entity<EntityThree>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<EntityThree>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.Property(e => e.Name);
+        });
 
-        modelBuilder.Entity<JoinOneSelfPayload>(
-            b =>
-            {
-                b.Property(e => e.LeftId);
-                b.Property(e => e.RightId);
-            });
+        modelBuilder.Entity<JoinOneSelfPayload>(b =>
+        {
+            b.Property(e => e.LeftId);
+            b.Property(e => e.RightId);
+        });
 
-        modelBuilder.Entity<GeneratedKeysLeft>(
-            b =>
-            {
-                b.Property(e => e.Id);
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<GeneratedKeysLeft>(b =>
+        {
+            b.Property(e => e.Id);
+            b.Property(e => e.Name);
+        });
 
-        modelBuilder.Entity<GeneratedKeysRight>(
-            b =>
-            {
-                b.Property(e => e.Id);
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<GeneratedKeysRight>(b =>
+        {
+            b.Property(e => e.Id);
+            b.Property(e => e.Name);
+        });
 
-        modelBuilder.Entity<ImplicitManyToManyA>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<ImplicitManyToManyA>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.Property(e => e.Name);
+        });
 
-        modelBuilder.Entity<ImplicitManyToManyB>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<ImplicitManyToManyB>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.Property(e => e.Name);
+        });
 
-        modelBuilder.Entity<JoinOneToBranch>(
-            b =>
-            {
-                b.Property(e => e.EntityOneId);
-                b.Property(e => e.EntityBranchId);
-            });
+        modelBuilder.Entity<JoinOneToBranch>(b =>
+        {
+            b.Property(e => e.EntityOneId);
+            b.Property(e => e.EntityBranchId);
+        });
 
-        modelBuilder.Entity<JoinTwoToThree>(
-            b =>
-            {
-                b.Property(e => e.ThreeId);
-                b.Property(e => e.TwoId);
-            });
+        modelBuilder.Entity<JoinTwoToThree>(b =>
+        {
+            b.Property(e => e.ThreeId);
+            b.Property(e => e.TwoId);
+        });
 
-        modelBuilder.Entity<EntityCompositeKey>().HasKey(
-            e => new
-            {
-                e.Key1,
-                e.Key2,
-                e.Key3
-            });
+        modelBuilder.Entity<EntityCompositeKey>().HasKey(e => new
+        {
+            e.Key1,
+            e.Key2,
+            e.Key3
+        });
 
-        modelBuilder.Entity<EntityRoot>(
-            b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<EntityRoot>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.Property(e => e.Name);
+        });
 
-        modelBuilder.Entity<EntityBranch>(
-            b =>
-            {
-                b.Property(e => e.Number);
-            });
+        modelBuilder.Entity<EntityBranch>(b =>
+        {
+            b.Property(e => e.Number);
+        });
 
-        modelBuilder.Entity<EntityLeaf>(
-            b =>
-            {
-                b.Property(e => e.IsGreen);
-            });
+        modelBuilder.Entity<EntityLeaf>(b =>
+        {
+            b.Property(e => e.IsGreen);
+        });
 
         modelBuilder.Entity<EntityOne>()
             .HasMany(e => e.Collection)
@@ -281,12 +267,11 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
                 r => r.HasOne<EntityTwo>().WithMany().HasForeignKey(e => e.TwoId),
                 l => l.HasOne<EntityOne>().WithMany().HasForeignKey(e => e.OneId));
 
-        modelBuilder.Entity<JoinOneToThreePayloadFull>(
-            b =>
-            {
-                b.Property(e => e.OneId);
-                b.Property(e => e.ThreeId);
-            });
+        modelBuilder.Entity<JoinOneToThreePayloadFull>(b =>
+        {
+            b.Property(e => e.OneId);
+            b.Property(e => e.ThreeId);
+        });
 
         // Nav:6 Payload:Yes Join:Concrete Extra:None
         modelBuilder.Entity<EntityOne>()
@@ -353,13 +338,12 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
             .HasMany(e => e.CompositeKeySkipFull)
             .WithMany(e => e.ThreeSkipFull)
             .UsingEntity<JoinThreeToCompositeKeyFull>(
-                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(
-                    e => new
-                    {
-                        e.CompositeId1,
-                        e.CompositeId2,
-                        e.CompositeId3
-                    }).IsRequired(),
+                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(e => new
+                {
+                    e.CompositeId1,
+                    e.CompositeId2,
+                    e.CompositeId3
+                }).IsRequired(),
                 r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired(),
                 b =>
                 {
@@ -381,13 +365,12 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
             .WithMany(e => e.CompositeKeySkipFull)
             .UsingEntity<JoinCompositeKeyToLeaf>(
                 r => r.HasOne(x => x.Leaf).WithMany(x => x.JoinCompositeKeyFull),
-                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinLeafFull).HasForeignKey(
-                    e => new
-                    {
-                        e.CompositeId1,
-                        e.CompositeId2,
-                        e.CompositeId3
-                    }));
+                l => l.HasOne(x => x.Composite).WithMany(x => x.JoinLeafFull).HasForeignKey(e => new
+                {
+                    e.CompositeId1,
+                    e.CompositeId2,
+                    e.CompositeId3
+                }));
 
         modelBuilder.SharedTypeEntity<ProxyableSharedType>(
             "PST", b =>

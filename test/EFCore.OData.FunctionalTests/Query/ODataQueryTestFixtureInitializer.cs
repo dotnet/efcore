@@ -23,55 +23,48 @@ public class ODataQueryTestFixtureInitializer
     {
         var selfHostServer = Host.CreateDefaultBuilder()
             .ConfigureServices(services => services.AddSingleton<IHostLifetime, NoopHostLifetime>())
-            .ConfigureWebHostDefaults(
-                webBuilder => webBuilder
-                    .UseKestrel(options => options.Listen(IPAddress.Loopback, 0))
-                    .ConfigureServices(
-                        services =>
-                        {
-                            services.AddDbContext<TContext>(
-                                o => o.UseSqlServer(
-                                    SqlServerTestStore.CreateConnectionString(storeName)));
+            .ConfigureWebHostDefaults(webBuilder => webBuilder
+                .UseKestrel(options => options.Listen(IPAddress.Loopback, 0))
+                .ConfigureServices(services =>
+                {
+                    services.AddDbContext<TContext>(o => o.UseSqlServer(
+                        SqlServerTestStore.CreateConnectionString(storeName)));
 
-                            services.AddControllers().AddOData(
-                                o =>
-                                {
-                                    o.AddRouteComponents("odata", edmModel)
-                                        .SetMaxTop(null)
-                                        .Expand()
-                                        .Select()
-                                        .OrderBy()
-                                        .Filter()
-                                        .Count();
+                    services.AddControllers().AddOData(o =>
+                    {
+                        o.AddRouteComponents("odata", edmModel)
+                            .SetMaxTop(null)
+                            .Expand()
+                            .Select()
+                            .OrderBy()
+                            .Filter()
+                            .Count();
 
-                                    if (customRoutingConventions != null)
-                                    {
-                                        foreach (var customRoutingConvention in customRoutingConventions)
-                                        {
-                                            o.Conventions.Add(customRoutingConvention);
-                                        }
-                                    }
-                                });
-
-                            services.AddHttpClient();
-                        })
-                    .Configure(
-                        app =>
+                        if (customRoutingConventions != null)
                         {
-                            app.UseRouting();
-                            app.UseEndpoints(
-                                endpoints =>
-                                {
-                                    endpoints.MapControllers();
-                                });
-                        })
-                    .ConfigureLogging(
-                        (hostingContext, logging) =>
-                        {
-                            logging.AddDebug();
-                            logging.SetMinimumLevel(LogLevel.Warning);
+                            foreach (var customRoutingConvention in customRoutingConventions)
+                            {
+                                o.Conventions.Add(customRoutingConvention);
+                            }
                         }
-                    )).Build();
+                    });
+
+                    services.AddHttpClient();
+                })
+                .Configure(app =>
+                {
+                    app.UseRouting();
+                    app.UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapControllers();
+                    });
+                })
+                .ConfigureLogging((hostingContext, logging) =>
+                    {
+                        logging.AddDebug();
+                        logging.SetMinimumLevel(LogLevel.Warning);
+                    }
+                )).Build();
 
         selfHostServer.Start();
 

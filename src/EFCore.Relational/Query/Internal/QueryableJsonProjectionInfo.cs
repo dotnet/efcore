@@ -18,7 +18,7 @@ public readonly struct QueryableJsonProjectionInfo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QueryableJsonProjectionInfo(
-        Dictionary<IProperty, int> propertyIndexMap,
+        Dictionary<IPropertyBase, int> propertyIndexMap,
         List<(JsonProjectionInfo, INavigation)> childrenProjectionInfo)
     {
         PropertyIndexMap = propertyIndexMap;
@@ -34,7 +34,7 @@ public readonly struct QueryableJsonProjectionInfo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    public IDictionary<IProperty, int> PropertyIndexMap { get; }
+    public IDictionary<IPropertyBase, int> PropertyIndexMap { get; }
 
     /// <summary>
     ///     Information needed to construct each child JSON entity.

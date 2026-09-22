@@ -73,8 +73,8 @@ public class SqlServerNavigationExpansionExtensibilityHelper : NavigationExpansi
 
     private bool OwnedEntityMappedToSameTableAsOwner(IEntityType entityType)
         => entityType.IsOwned()
-            && entityType.FindOwnership()!.PrincipalEntityType.GetTableMappings().FirstOrDefault()?.Table is ITable ownerTable
-            && entityType.GetTableMappings().FirstOrDefault()?.Table is ITable entityTable
+            && entityType.FindOwnership()!.PrincipalEntityType.GetTableMappings().FirstOrDefault()?.Table is { } ownerTable
+            && entityType.GetTableMappings().FirstOrDefault()?.Table is { } entityTable
             && ownerTable == entityTable;
 
     /// <summary>

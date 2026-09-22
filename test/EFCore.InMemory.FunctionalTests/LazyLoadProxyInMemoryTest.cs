@@ -530,240 +530,209 @@ public class LazyLoadProxyInMemoryTest(LazyLoadProxyInMemoryTest.LoadInMemoryFix
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<Called>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Called>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Quest>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Quest>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Entity>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Entity>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Company>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Company>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Parson>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Parson>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<SingleShadowFk>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<SingleShadowFk>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Mother>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Mother>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Father>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Father>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Address>(
-                builder =>
-                {
-                    builder.Ignore(e => e.Milk);
-                    builder.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Address>(builder =>
+            {
+                builder.Ignore(e => e.Milk);
+                builder.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Pyrson>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Pyrson>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<NonVirtualOneToOneOwner>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<NonVirtualOneToOneOwner>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<VirtualOneToOneOwner>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<VirtualOneToOneOwner>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<NonVirtualParent>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<NonVirtualParent>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Blog>(
-                e =>
-                {
-                    e.Ignore(e => e.Milk);
-                    e.Ignore(e => e.Culture);
-                    e.OwnsOne(
-                        x => x.Writer, b =>
-                        {
-                            b.Ignore(e => e.Milk);
-                            b.Ignore(e => e.Culture);
-                        });
-                    e.OwnsOne(
-                        x => x.Reader, b =>
-                        {
-                            b.Ignore(e => e.Milk);
-                            b.Ignore(e => e.Culture);
-                        });
-                    e.OwnsOne(
-                        x => x.Host, b =>
-                        {
-                            b.Ignore(e => e.Milk);
-                            b.Ignore(e => e.Culture);
-                        });
-                });
+            modelBuilder.Entity<Blog>(e =>
+            {
+                e.Ignore(e => e.Milk);
+                e.Ignore(e => e.Culture);
+                e.OwnsOne(
+                    x => x.Writer, b =>
+                    {
+                        b.Ignore(e => e.Milk);
+                        b.Ignore(e => e.Culture);
+                    });
+                e.OwnsOne(
+                    x => x.Reader, b =>
+                    {
+                        b.Ignore(e => e.Milk);
+                        b.Ignore(e => e.Culture);
+                    });
+                e.OwnsOne(
+                    x => x.Host, b =>
+                    {
+                        b.Ignore(e => e.Milk);
+                        b.Ignore(e => e.Culture);
+                    });
+            });
 
-            modelBuilder.Entity<Single>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Single>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<VirtualOneToManyOwner>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<VirtualOneToManyOwner>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<NonVirtualOneToManyOwner>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<NonVirtualOneToManyOwner>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<ExplicitLazyLoadVirtualOneToManyOwner>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<ExplicitLazyLoadVirtualOneToManyOwner>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<ExplicitLazyLoadNonVirtualOneToManyOwner>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<ExplicitLazyLoadNonVirtualOneToManyOwner>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Child>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Child>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<NonVirtualChild>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<NonVirtualChild>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<ChildAk>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<ChildAk>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<ChildShadowFk>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<ChildShadowFk>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<ChildCompositeKey>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<ChildCompositeKey>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Single>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Single>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<SinglePkToPk>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<SinglePkToPk>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<SingleShadowFk>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<SingleShadowFk>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<SingleAk>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<SingleAk>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<SingleCompositeKey>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<SingleCompositeKey>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<Nose>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<Nose>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
 
-            modelBuilder.Entity<NonVirtualParent>(
-                b =>
-                {
-                    b.Ignore(e => e.Milk);
-                    b.Ignore(e => e.Culture);
-                });
+            modelBuilder.Entity<NonVirtualParent>(b =>
+            {
+                b.Ignore(e => e.Milk);
+                b.Ignore(e => e.Culture);
+            });
         }
     }
 }

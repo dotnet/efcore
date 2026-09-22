@@ -405,7 +405,7 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
             {
                 var (p1, p2) = (a.Parameters[i], b.Parameters[i]);
 
-                if (p1.Type != p2.Type)
+                if (p1.Type != p2.Type || p1.Name != p2.Name)
                 {
                     for (var j = 0; j < i; j++)
                     {

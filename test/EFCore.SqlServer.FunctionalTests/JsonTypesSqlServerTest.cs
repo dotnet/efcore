@@ -3,4 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class JsonTypesSqlServerTest : JsonTypesSqlServerTestBase;
+public class JsonTypesSqlServerTest(NonSharedFixture fixture) : JsonTypesSqlServerTestBase(fixture);

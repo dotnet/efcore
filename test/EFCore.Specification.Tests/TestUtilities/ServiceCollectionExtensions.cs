@@ -8,10 +8,9 @@ public static class ServiceCollectionExtensions
     private static readonly MethodInfo _addDbContext
         = typeof(EntityFrameworkServiceCollectionExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext))
-            .Single(
-                mi => mi.GetParameters().Length == 4
-                    && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
-                    && mi.GetGenericArguments().Length == 1);
+            .Single(mi => mi.GetParameters().Length == 4
+                && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
+                && mi.GetGenericArguments().Length == 1);
 
     public static IServiceCollection AddDbContext(
         this IServiceCollection serviceCollection,
@@ -25,10 +24,9 @@ public static class ServiceCollectionExtensions
     private static readonly MethodInfo _addDbContextPool
         = typeof(EntityFrameworkServiceCollectionExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory))
-            .Single(
-                mi => mi.GetParameters().Length == 3
-                    && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
-                    && mi.GetGenericArguments().Length == 1);
+            .Single(mi => mi.GetParameters().Length == 3
+                && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
+                && mi.GetGenericArguments().Length == 1);
 
     public static IServiceCollection AddPooledDbContextFactory(
         this IServiceCollection serviceCollection,

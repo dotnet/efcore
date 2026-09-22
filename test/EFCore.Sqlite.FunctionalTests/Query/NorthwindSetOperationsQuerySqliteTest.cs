@@ -21,6 +21,5 @@ public class NorthwindSetOperationsQuerySqliteTest : NorthwindSetOperationsQuery
         // Client evaluation in projection. Issue #16243.
         => Assert.Equal(
             RelationalStrings.SetOperationsNotAllowedAfterClientEvaluation,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_eval_Union_FirstOrDefault(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_eval_Union_FirstOrDefault(async))).Message);
 }

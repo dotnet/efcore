@@ -12,8 +12,7 @@ public class ServiceProviderExtensionsTest
     {
         var serviceProvider = new ServiceCollection().BuildServiceProvider(validateScopes: true);
 
-        Assert.Throws<InvalidOperationException>(
-            () => serviceProvider.GetRequiredService<IPilkington>());
+        Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<IPilkington>());
     }
 
     [ConditionalFact]
@@ -21,8 +20,7 @@ public class ServiceProviderExtensionsTest
     {
         var serviceProvider = new ServiceCollection().BuildServiceProvider(validateScopes: true);
 
-        Assert.Throws<InvalidOperationException>(
-            () => serviceProvider.GetRequiredService(typeof(IPilkington)));
+        Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService(typeof(IPilkington)));
     }
 
     [ConditionalFact]
@@ -35,8 +33,7 @@ public class ServiceProviderExtensionsTest
 
         Assert.Equal(
             KarlQuote,
-            Assert.Throws<NotSupportedException>(
-                () => serviceProvider.GetRequiredService<IPilkington>()).Message);
+            Assert.Throws<NotSupportedException>(() => serviceProvider.GetRequiredService<IPilkington>()).Message);
     }
 
     [ConditionalFact]
@@ -50,8 +47,7 @@ public class ServiceProviderExtensionsTest
 
         Assert.Equal(
             KarlQuote,
-            Assert.Throws<NotSupportedException>(
-                () => serviceProvider.GetRequiredService(typeof(IPilkington))).Message);
+            Assert.Throws<NotSupportedException>(() => serviceProvider.GetRequiredService(typeof(IPilkington))).Message);
     }
 
     [ConditionalFact]
@@ -80,8 +76,7 @@ public class ServiceProviderExtensionsTest
 
         Assert.Equal(
             KarlQuote,
-            Assert.Throws<NotSupportedException>(
-                () => serviceProvider.GetService<IPilkington>()).Message);
+            Assert.Throws<NotSupportedException>(() => serviceProvider.GetService<IPilkington>()).Message);
     }
 
     [ConditionalFact]
@@ -95,8 +90,7 @@ public class ServiceProviderExtensionsTest
 
         Assert.Equal(
             KarlQuote,
-            Assert.Throws<NotSupportedException>(
-                () => serviceProvider.GetService(typeof(IPilkington))).Message);
+            Assert.Throws<NotSupportedException>(() => serviceProvider.GetService(typeof(IPilkington))).Message);
     }
 
     private const string KarlQuote = "You can only talk rubbish if you're aware of knowledge.";

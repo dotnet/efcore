@@ -84,9 +84,7 @@ public class AppServiceProviderFactoryTest
     private class ProgramWithNoHostBuilder;
 
     private static void ValidateEnvironmentAndArgs(string[] args)
-    {
-        Assert.Equal(args, new[] { "arg1" });
-    }
+        => Assert.Equal(args, new[] { "arg1" });
 
     private static ServiceProvider BuildTestServiceProvider()
         => new ServiceCollection()

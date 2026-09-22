@@ -76,7 +76,7 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
                 if (keyContainsPartitionProperties)
                 {
                     primaryKey.DeclaringEntityType.Builder.HasNoKey(primaryKey);
-                    entityTypeBuilder.HasKey(primaryKeyProperties);
+                    entityTypeBuilder.PrimaryKey(primaryKeyProperties);
                 }
             }
         }
@@ -97,7 +97,7 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
             var jObjectProperty = entityType.FindDeclaredProperty(JObjectPropertyName);
             if (jObjectProperty != null)
             {
-                entityType.Builder.RemoveUnusedImplicitProperties(new[] { jObjectProperty });
+                entityType.Builder.RemoveUnusedImplicitProperties([jObjectProperty]);
             }
         }
     }

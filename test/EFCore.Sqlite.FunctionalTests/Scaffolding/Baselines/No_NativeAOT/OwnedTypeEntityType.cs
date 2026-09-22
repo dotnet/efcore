@@ -86,6 +86,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
                 "RefTypeEnumerable",
@@ -94,6 +95,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
 
             var refTypeIList = runtimeEntityType.AddProperty(
                 "RefTypeIList",
@@ -102,6 +104,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeIList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
 
             var refTypeList = runtimeEntityType.AddProperty(
                 "RefTypeList",
@@ -110,6 +113,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
 
             var valueTypeArray = runtimeEntityType.AddProperty(
                 "ValueTypeArray",
@@ -118,6 +122,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
 
             var valueTypeEnumerable = runtimeEntityType.AddProperty(
                 "ValueTypeEnumerable",
@@ -126,6 +131,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
 
             var valueTypeIList = runtimeEntityType.AddProperty(
                 "ValueTypeIList",
@@ -134,6 +140,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
 
             var valueTypeList = runtimeEntityType.AddProperty(
                 "ValueTypeList",
@@ -142,6 +149,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
 
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",

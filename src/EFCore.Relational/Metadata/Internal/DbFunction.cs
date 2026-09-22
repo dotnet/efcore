@@ -195,7 +195,7 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     public static IEnumerable<IDbFunction> GetDbFunctions(IReadOnlyModel model)
         => ((Dictionary<string, IDbFunction>?)model[RelationalAnnotationNames.DbFunctions])
             ?.OrderBy(t => t.Key).Select(t => t.Value)
-            ?? Enumerable.Empty<IDbFunction>();
+            ?? [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

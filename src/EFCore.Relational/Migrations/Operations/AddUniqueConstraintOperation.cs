@@ -39,7 +39,7 @@ public class AddUniqueConstraintOperation : MigrationOperation, ITableMigrationO
     /// <returns>The operation.</returns>
     public static AddUniqueConstraintOperation CreateFrom(IUniqueConstraint uniqueConstraint)
     {
-        Check.NotNull(uniqueConstraint, nameof(uniqueConstraint));
+        Check.NotNull(uniqueConstraint);
 
         var operation = new AddUniqueConstraintOperation
         {

@@ -120,7 +120,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
         bool contextOwnsConnection,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
     {
-        Check.NotNull(connection, nameof(connection));
+        Check.NotNull(connection);
 
         var extension = (SqliteOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnection(connection, contextOwnsConnection);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);

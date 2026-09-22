@@ -78,15 +78,14 @@ public interface ITableIndex : IAnnotatable
             .AppendJoin(
                 ", ",
                 Enumerable.Range(0, Columns.Count)
-                    .Select(
-                        i =>
-                            $@"'{Columns[i].Name}'{(
-                                MappedIndexes.First() is not RuntimeIndex
-                                && IsDescending is not null
-                                && (IsDescending.Count == 0 || IsDescending[i])
-                                    ? " Desc"
-                                    : ""
-                            )}"))
+                    .Select(i =>
+                        $@"'{Columns[i].Name}'{(
+                            MappedIndexes.First() is not RuntimeIndex
+                            && IsDescending is not null
+                            && (IsDescending.Count == 0 || IsDescending[i])
+                                ? " Desc"
+                                : ""
+                        )}"))
             .Append('}');
 
         if (IsUnique)

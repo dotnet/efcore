@@ -288,19 +288,13 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
         public async Task InitializeAsync()
             => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
 
-        public Task DisposeAsync()
-        {
-            ExistingTestStore.Dispose();
-            return Task.CompletedTask;
-        }
+        public async Task DisposeAsync()
+            => await ExistingTestStore.DisposeAsync();
     }
 
     public async Task InitializeAsync()
         => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
 
-    public Task DisposeAsync()
-    {
-        ExistingTestStore.Dispose();
-        return Task.CompletedTask;
-    }
+    public async Task DisposeAsync()
+        => await ExistingTestStore.DisposeAsync();
 }

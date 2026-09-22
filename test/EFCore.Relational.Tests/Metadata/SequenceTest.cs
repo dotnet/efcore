@@ -89,7 +89,6 @@ public class SequenceTest
 
         Assert.Equal(
             RelationalStrings.BadSequenceType,
-            Assert.Throws<ArgumentException>(
-                () => sequence.Type = typeof(bool)).Message);
+            Assert.Throws<ArgumentException>(() => sequence.Type = typeof(bool)).Message);
     }
 }

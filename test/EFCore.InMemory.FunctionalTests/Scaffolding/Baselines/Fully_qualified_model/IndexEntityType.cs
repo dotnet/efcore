@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 #pragma warning disable 219, 612, 618
@@ -38,20 +37,25 @@ namespace Scaffolding
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             id.SetGetter(
-                Guid (CompiledModelInMemoryTest.Index entity) => IndexUnsafeAccessors.Id(entity),
-                bool (CompiledModelInMemoryTest.Index entity) => IndexUnsafeAccessors.Id(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
                 Guid (CompiledModelInMemoryTest.Index instance) => IndexUnsafeAccessors.Id(instance),
                 bool (CompiledModelInMemoryTest.Index instance) => IndexUnsafeAccessors.Id(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
             id.SetSetter(
-                (CompiledModelInMemoryTest.Index entity, Guid value) => IndexUnsafeAccessors.Id(entity) = value);
+                CompiledModelInMemoryTest.Index (CompiledModelInMemoryTest.Index instance, Guid value) =>
+                {
+                    IndexUnsafeAccessors.Id(instance) = value;
+                    return instance;
+                });
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.Index entity, Guid value) => IndexUnsafeAccessors.Id(entity) = value);
+                CompiledModelInMemoryTest.Index (CompiledModelInMemoryTest.Index instance, Guid value) =>
+                {
+                    IndexUnsafeAccessors.Id(instance) = value;
+                    return instance;
+                });
             id.SetAccessors(
-                Guid (InternalEntityEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Guid>(0) : (entry.FlaggedAsTemporary(0) && IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(0) : IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))))),
-                Guid (InternalEntityEntry entry) => IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))),
-                Guid (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(id, 0),
-                Guid (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Guid>(id, 0),
-                object (ValueBuffer valueBuffer) => valueBuffer[0]);
+                Guid (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Guid>(0) : (entry.FlaggedAsTemporary(0) && IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(0) : IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))))),
+                Guid (IInternalEntry entry) => IndexUnsafeAccessors.Id(((CompiledModelInMemoryTest.Index)(entry.Entity))),
+                Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(id, 0),
+                Guid (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<Guid>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -89,33 +93,34 @@ namespace Scaffolding
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<Guid>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<Guid>(key));
             runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.Index)(source.Entity));
+                    var structuralType = ((CompiledModelInMemoryTest.Index)(source.Entity));
                     return ((ISnapshot)(new Snapshot<Guid>(((ValueComparer<Guid>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(id)))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<Guid>(((ValueComparer<Guid>)(((IProperty)id).GetValueComparer())).Snapshot(default(Guid))))));
             runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (InternalEntityEntry source) => ((ISnapshot)(new Snapshot<Guid>(default(Guid)))));
+                ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<Guid>(default(Guid)))));
             runtimeEntityType.SetShadowValuesFactory(
                 ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
             runtimeEntityType.SetEmptyShadowValuesFactory(
                 ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (InternalEntityEntry source) =>
+                ISnapshot (IInternalEntry source) =>
                 {
-                    var entity = ((CompiledModelInMemoryTest.Index)(source.Entity));
+                    var structuralType = ((CompiledModelInMemoryTest.Index)(source.Entity));
                     return ((ISnapshot)(new Snapshot<Guid>(((ValueComparer<Guid>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(id)))));
                 });
-            runtimeEntityType.Counts = new PropertyCounts(
+            runtimeEntityType.SetCounts(new PropertyCounts(
                 propertyCount: 1,
                 navigationCount: 0,
                 complexPropertyCount: 0,
+                complexCollectionCount: 0,
                 originalValueCount: 1,
                 shadowCount: 0,
                 relationshipCount: 1,
-                storeGeneratedCount: 1);
+                storeGeneratedCount: 1));
 
             Customize(runtimeEntityType);
         }

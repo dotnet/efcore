@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 public class EntityEntry : IInfrastructure<InternalEntityEntry>
 {
     private static readonly int MaxEntityState = Enum.GetValuesAsUnderlyingType<EntityState>().Cast<int>().Max();
-    private IEntityFinder? _finder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -138,12 +137,14 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual MemberEntry Member(IPropertyBase propertyBase)
     {
-        Check.NotNull(propertyBase, nameof(propertyBase));
+        Check.NotNull(propertyBase);
 
         return propertyBase switch
         {
             IProperty property => new PropertyEntry(InternalEntry, property),
-            IComplexProperty complexProperty => new ComplexPropertyEntry(InternalEntry, complexProperty),
+            IComplexProperty complexProperty => complexProperty.IsCollection
+                ? new ComplexCollectionEntry(InternalEntry, complexProperty)
+                : new ComplexPropertyEntry(InternalEntry, complexProperty),
             INavigationBase navigation => navigation.IsCollection
                 ? new CollectionEntry(InternalEntry, navigation)
                 : new ReferenceEntry(InternalEntry, (INavigation)navigation),
@@ -164,7 +165,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual MemberEntry Member(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         var property = InternalEntry.EntityType.FindProperty(propertyName);
         if (property != null)
@@ -175,7 +176,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
         var complexProperty = InternalEntry.EntityType.FindComplexProperty(propertyName);
         if (complexProperty != null)
         {
-            return new ComplexPropertyEntry(InternalEntry, complexProperty);
+            return complexProperty.IsCollection
+                ? new ComplexCollectionEntry(InternalEntry, complexProperty)
+                : new ComplexPropertyEntry(InternalEntry, complexProperty);
         }
 
         var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
@@ -199,7 +202,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<MemberEntry> Members
-        => Properties.Cast<MemberEntry>().Concat(ComplexProperties).Concat(Navigations);
+        => Properties.Cast<MemberEntry>().Concat(ComplexProperties).Concat(ComplexCollections).Concat(Navigations);
 
     /// <summary>
     ///     Provides access to change tracking information and operations for a given navigation of this entity.
@@ -213,7 +216,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual NavigationEntry Navigation(INavigationBase navigationBase)
     {
-        Check.NotNull(navigationBase, nameof(navigationBase));
+        Check.NotNull(navigationBase);
 
         return navigationBase.IsCollection
             ? new CollectionEntry(InternalEntry, navigationBase)
@@ -232,7 +235,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual NavigationEntry Navigation(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
             ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
@@ -273,10 +276,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
             var entityType = InternalEntry.EntityType;
             return entityType.GetNavigations()
                 .Concat<INavigationBase>(entityType.GetSkipNavigations())
-                .Select(
-                    navigation => navigation.IsCollection
-                        ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation.Name)
-                        : new ReferenceEntry(InternalEntry, navigation.Name));
+                .Select(navigation => navigation.IsCollection
+                    ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation)
+                    : new ReferenceEntry(InternalEntry, navigation));
         }
     }
 
@@ -291,7 +293,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry Property(IProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new PropertyEntry(InternalEntry, property);
     }
@@ -307,7 +309,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry Property(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new PropertyEntry(InternalEntry, Metadata.GetProperty(propertyName));
     }
@@ -334,7 +336,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry ComplexProperty(IComplexProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new ComplexPropertyEntry(InternalEntry, property);
     }
@@ -350,7 +352,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry ComplexProperty(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ComplexPropertyEntry(InternalEntry, Metadata.GetComplexProperty(propertyName));
     }
@@ -363,7 +365,51 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     examples.
     /// </remarks>
     public virtual IEnumerable<ComplexPropertyEntry> ComplexProperties
-        => Metadata.GetComplexProperties().Select(property => new ComplexPropertyEntry(InternalEntry, property));
+        => Metadata.GetComplexProperties().Where(p => !p.IsCollection)
+            .Select(property => new ComplexPropertyEntry(InternalEntry, property));
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given collection property of a complex type on this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="property">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry ComplexCollection(IComplexProperty property)
+    {
+        Check.NotNull(property, nameof(property));
+
+        return new ComplexCollectionEntry(InternalEntry, property);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given collection property of a complex type on this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="propertyName">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexCollectionEntry ComplexCollection(string propertyName)
+    {
+        Check.NotEmpty(propertyName, nameof(propertyName));
+
+        return new ComplexCollectionEntry(InternalEntry, Metadata.GetComplexProperty(propertyName));
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for all collection properties of complex type on this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    public virtual IEnumerable<ComplexCollectionEntry> ComplexCollections
+        => Metadata.GetComplexProperties().Where(p => p.IsCollection)
+            .Select(property => new ComplexCollectionEntry(InternalEntry, property));
 
     /// <summary>
     ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
@@ -380,7 +426,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </returns>
     public virtual ReferenceEntry Reference(INavigationBase navigation)
     {
-        Check.NotNull(navigation, nameof(navigation));
+        Check.NotNull(navigation);
 
         return new ReferenceEntry(InternalEntry, (INavigation)navigation);
     }
@@ -400,7 +446,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </returns>
     public virtual ReferenceEntry Reference(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ReferenceEntry(InternalEntry, propertyName);
     }
@@ -415,7 +461,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     for more information and examples.
     /// </remarks>
     public virtual IEnumerable<ReferenceEntry> References
-        => InternalEntry.EntityType.GetNavigations().Where(n => !n.IsCollection)
+        => InternalEntry.EntityType.GetNavigations()
+            .Concat<INavigationBase>(InternalEntry.EntityType.GetSkipNavigations())
+            .Where(n => !n.IsCollection)
             .Select(navigation => new ReferenceEntry(InternalEntry, navigation));
 
     /// <summary>
@@ -433,7 +481,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </returns>
     public virtual CollectionEntry Collection(INavigationBase navigation)
     {
-        Check.NotNull(navigation, nameof(navigation));
+        Check.NotNull(navigation);
 
         return new CollectionEntry(InternalEntry, navigation);
     }
@@ -454,7 +502,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </returns>
     public virtual CollectionEntry Collection(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new CollectionEntry(InternalEntry, propertyName);
     }
@@ -476,7 +524,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
             return entityType.GetNavigations()
                 .Concat<INavigationBase>(entityType.GetSkipNavigations())
                 .Where(navigation => navigation.IsCollection)
-                .Select(navigation => new CollectionEntry(InternalEntry, navigation.Name));
+                .Select(navigation => new CollectionEntry(InternalEntry, navigation));
         }
     }
 
@@ -555,7 +603,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         var values = Finder.GetDatabaseValues(InternalEntry);
 
-        return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
+        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, null);
     }
 
     /// <summary>
@@ -586,7 +634,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
 
-        return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
+        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, null);
     }
 
     /// <summary>
@@ -648,8 +696,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
         }
     }
 
+    [field: AllowNull, MaybeNull]
     private IEntityFinder Finder
-        => _finder ??= InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
+        => field ??= InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
 
     /// <summary>
     ///     Returns a string that represents the current object.

@@ -125,7 +125,7 @@ public class ForeignKeyAttributeConvention :
         IConventionForeignKeyBuilder relationshipBuilder,
         IConventionContext<IConventionForeignKeyBuilder> context)
     {
-        Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+        Check.NotNull(relationshipBuilder);
 
         var newRelationshipBuilder = UpdateRelationshipBuilder(relationshipBuilder, context);
         if (newRelationshipBuilder != null)
@@ -143,7 +143,7 @@ public class ForeignKeyAttributeConvention :
         IConventionNavigationBuilder navigationBuilder,
         IConventionContext<IConventionNavigationBuilder> context)
     {
-        Check.NotNull(navigationBuilder, nameof(navigationBuilder));
+        Check.NotNull(navigationBuilder);
 
         var onDependent = navigationBuilder.Metadata.IsOnDependent;
         var newRelationshipBuilder = UpdateRelationshipBuilder(navigationBuilder.Metadata.ForeignKey.Builder, context);
@@ -322,11 +322,10 @@ public class ForeignKeyAttributeConvention :
             if (existingProperties != null)
             {
                 var conflictingFk = foreignKey.DeclaringEntityType.FindForeignKeys(existingProperties)
-                    .FirstOrDefault(
-                        fk => fk != foreignKey
-                            && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
-                            && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
-                            && fk.GetPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
+                    .FirstOrDefault(fk => fk != foreignKey
+                        && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
+                        && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
+                        && fk.GetPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
                 if (conflictingFk != null)
                 {
                     throw new InvalidOperationException(

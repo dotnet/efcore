@@ -471,6 +471,5 @@ public class NumberToBytesConverterTest
                 "NumberToBytesConverter<Guid>",
                 "Guid",
                 "'double', 'float', 'decimal', 'char', 'int', 'long', 'short', 'byte', 'uint', 'ulong', 'ushort', 'sbyte'"),
-            Assert.Throws<InvalidOperationException>(
-                () => new NumberToBytesConverter<Guid>()).Message);
+            Assert.Throws<InvalidOperationException>(() => new NumberToBytesConverter<Guid>()).Message);
 }

@@ -25,8 +25,8 @@ public class WithConstructorsInMemoryTest(WithConstructorsInMemoryTest.WithConst
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<BlogQuery>().HasNoKey().ToInMemoryQuery(
-                () => context.Set<Blog>().Select(b => new BlogQuery(b.Title, b.MonthlyRevenue)));
+            modelBuilder.Entity<BlogQuery>().HasNoKey()
+                .ToInMemoryQuery(() => context.Set<Blog>().Select(b => new BlogQuery(b.Title, b.MonthlyRevenue)));
         }
     }
 }

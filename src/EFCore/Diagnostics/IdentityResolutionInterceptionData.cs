@@ -17,8 +17,7 @@ public readonly struct IdentityResolutionInterceptionData
     ///     Constructs the parameter object.
     /// </summary>
     /// <param name="context">The <see cref="DbContext" /> in use.</param>
-    [EntityFrameworkInternal]
-    [UsedImplicitly]
+    [EntityFrameworkInternal, UsedImplicitly]
     public IdentityResolutionInterceptionData(DbContext context)
         => Context = context;
 

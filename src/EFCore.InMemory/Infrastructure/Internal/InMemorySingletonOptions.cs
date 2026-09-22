@@ -23,7 +23,6 @@ public class InMemorySingletonOptions : IInMemorySingletonOptions
 
         if (inMemoryOptions != null)
         {
-            DatabaseRoot = inMemoryOptions.DatabaseRoot;
             IsNullabilityCheckEnabled = inMemoryOptions.IsNullabilityCheckEnabled;
         }
     }
@@ -39,15 +38,6 @@ public class InMemorySingletonOptions : IInMemorySingletonOptions
         var inMemoryOptions = options.FindExtension<InMemoryOptionsExtension>();
 
         if (inMemoryOptions != null
-            && DatabaseRoot != inMemoryOptions.DatabaseRoot)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.SingletonOptionChanged(
-                    nameof(InMemoryDbContextOptionsExtensions.UseInMemoryDatabase),
-                    nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
-        }
-
-        if (inMemoryOptions != null
             && IsNullabilityCheckEnabled != inMemoryOptions.IsNullabilityCheckEnabled)
         {
             throw new InvalidOperationException(
@@ -56,14 +46,6 @@ public class InMemorySingletonOptions : IInMemorySingletonOptions
                     nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
         }
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual InMemoryDatabaseRoot? DatabaseRoot { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

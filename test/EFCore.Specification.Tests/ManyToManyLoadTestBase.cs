@@ -9,37 +9,36 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ManyToManyLoadTestBase<TFixture>.ManyToManyLoadFixtureBase
 {
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
     public virtual async Task Load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -101,17 +100,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1 + 7 + 7, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_using_Query(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -153,13 +145,9 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Added, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+     InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Added, true)]
     public virtual void Attached_collections_are_not_marked_as_loaded(EntityState state, bool lazy)
     {
         using var context = Fixture.CreateContext();
@@ -167,18 +155,17 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         context.ChangeTracker.LazyLoadingEnabled = false;
 
         var left = ExpectLazyLoading
-            ? context.CreateProxy<EntityOne>(
-                b =>
-                {
-                    b.Id = 7776;
-                    b.TwoSkip = new ObservableCollection<EntityTwo> { new() { Id = 7777 } };
-                    b.TwoSkipShared = new ObservableCollection<EntityTwo> { new() { Id = 7778 } };
-                    b.SelfSkipPayloadLeft = new ObservableCollection<EntityOne> { new() { Id = 7779 } };
-                    b.SelfSkipPayloadRight = new ObservableCollection<EntityOne> { new() { Id = 7780 } };
-                    b.BranchSkip = new ObservableCollection<EntityBranch> { new() { Id = 7781 } };
-                    b.ThreeSkipPayloadFull = new ObservableCollection<EntityThree> { new() { Id = 7782 } };
-                    b.ThreeSkipPayloadFullShared = new ObservableCollection<EntityThree> { new() { Id = 7783 } };
-                })
+            ? context.CreateProxy<EntityOne>(b =>
+            {
+                b.Id = 7776;
+                b.TwoSkip = new ObservableCollection<EntityTwo> { new() { Id = 7777 } };
+                b.TwoSkipShared = new ObservableCollection<EntityTwo> { new() { Id = 7778 } };
+                b.SelfSkipPayloadLeft = new ObservableCollection<EntityOne> { new() { Id = 7779 } };
+                b.SelfSkipPayloadRight = new ObservableCollection<EntityOne> { new() { Id = 7780 } };
+                b.BranchSkip = new ObservableCollection<EntityBranch> { new() { Id = 7781 } };
+                b.ThreeSkipPayloadFull = new ObservableCollection<EntityThree> { new() { Id = 7782 } };
+                b.ThreeSkipPayloadFullShared = new ObservableCollection<EntityThree> { new() { Id = 7783 } };
+            })
             : new EntityOne
             {
                 Id = 7776,
@@ -221,17 +208,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.False(context.Entry(left).Collection(e => e.ThreeSkipPayloadFullShared).IsLoaded);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_already_loaded(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -286,17 +266,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1 + 4 + 4, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_using_Query_already_loaded(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -347,27 +320,15 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1 + 7 + 7, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false, true)]
-    [InlineData(EntityState.Unchanged, false, false)]
-    [InlineData(EntityState.Added, false, true)]
-    [InlineData(EntityState.Added, false, false)]
-    [InlineData(EntityState.Modified, false, true)]
-    [InlineData(EntityState.Modified, false, false)]
-    [InlineData(EntityState.Deleted, false, true)]
-    [InlineData(EntityState.Deleted, false, false)]
-    [InlineData(EntityState.Detached, false, true)]
-    [InlineData(EntityState.Detached, false, false)]
-    [InlineData(EntityState.Unchanged, true, true)]
-    [InlineData(EntityState.Unchanged, true, false)]
-    [InlineData(EntityState.Added, true, true)]
-    [InlineData(EntityState.Added, true, false)]
-    [InlineData(EntityState.Modified, true, true)]
-    [InlineData(EntityState.Modified, true, false)]
-    [InlineData(EntityState.Deleted, true, true)]
-    [InlineData(EntityState.Deleted, true, false)]
-    [InlineData(EntityState.Detached, true, true)]
-    [InlineData(EntityState.Detached, true, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, false, true), InlineData(EntityState.Unchanged, false, false),
+     InlineData(EntityState.Added, false, true), InlineData(EntityState.Added, false, false), InlineData(EntityState.Modified, false, true),
+     InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, true),
+     InlineData(EntityState.Deleted, false, false), InlineData(EntityState.Detached, false, true),
+     InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, true),
+     InlineData(EntityState.Unchanged, true, false), InlineData(EntityState.Added, true, true), InlineData(EntityState.Added, true, false),
+     InlineData(EntityState.Modified, true, true), InlineData(EntityState.Modified, true, false),
+     InlineData(EntityState.Deleted, true, true), InlineData(EntityState.Deleted, true, false),
+     InlineData(EntityState.Detached, true, true), InlineData(EntityState.Detached, true, false)]
     public virtual async Task Load_collection_partially_loaded(EntityState state, bool forceIdentityResolution, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -444,27 +405,15 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, false, true)]
-    [InlineData(EntityState.Unchanged, false, false)]
-    [InlineData(EntityState.Added, false, true)]
-    [InlineData(EntityState.Added, false, false)]
-    [InlineData(EntityState.Modified, false, true)]
-    [InlineData(EntityState.Modified, false, false)]
-    [InlineData(EntityState.Deleted, false, true)]
-    [InlineData(EntityState.Deleted, false, false)]
-    [InlineData(EntityState.Detached, false, true)]
-    [InlineData(EntityState.Detached, false, false)]
-    [InlineData(EntityState.Unchanged, true, true)]
-    [InlineData(EntityState.Unchanged, true, false)]
-    [InlineData(EntityState.Added, true, true)]
-    [InlineData(EntityState.Added, true, false)]
-    [InlineData(EntityState.Modified, true, true)]
-    [InlineData(EntityState.Modified, true, false)]
-    [InlineData(EntityState.Deleted, true, true)]
-    [InlineData(EntityState.Deleted, true, false)]
-    [InlineData(EntityState.Detached, true, true)]
-    [InlineData(EntityState.Detached, true, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, false, true), InlineData(EntityState.Unchanged, false, false),
+     InlineData(EntityState.Added, false, true), InlineData(EntityState.Added, false, false), InlineData(EntityState.Modified, false, true),
+     InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, true),
+     InlineData(EntityState.Deleted, false, false), InlineData(EntityState.Detached, false, true),
+     InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, true),
+     InlineData(EntityState.Unchanged, true, false), InlineData(EntityState.Added, true, true), InlineData(EntityState.Added, true, false),
+     InlineData(EntityState.Modified, true, true), InlineData(EntityState.Modified, true, false),
+     InlineData(EntityState.Deleted, true, true), InlineData(EntityState.Deleted, true, false),
+     InlineData(EntityState.Detached, true, true), InlineData(EntityState.Detached, true, false)]
     public virtual async Task Load_collection_partially_loaded_no_explicit_join(EntityState state, bool forceIdentityResolution, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -541,9 +490,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(QueryTrackingBehavior.NoTracking)]
-    [InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(QueryTrackingBehavior.NoTracking), InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Load_collection_partially_loaded_no_tracking(QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = Fixture.CreateContext();
@@ -593,17 +540,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_untyped(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -660,17 +600,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1 + 7 + 7, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_using_Query_untyped(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -712,17 +645,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_not_found_untyped(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -774,17 +700,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_using_Query_not_found_untyped(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -817,27 +736,20 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Added, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Added, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Detached, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Detached, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Added, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Added, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Detached, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Detached, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Added, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Added, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Detached, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Added, true, CascadeTiming.OnSaveChanges), InlineData(EntityState.Added, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Detached, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Detached, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_collection_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
     {
         using var context = Fixture.CreateContext();
@@ -894,27 +806,20 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1 + 4 + 4, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Added, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Added, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Detached, true, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Detached, false, CascadeTiming.Immediate)]
-    [InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Added, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Added, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Detached, true, CascadeTiming.OnSaveChanges)]
-    [InlineData(EntityState.Detached, false, CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Added, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Added, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
+     InlineData(EntityState.Detached, false, CascadeTiming.Immediate), InlineData(EntityState.Unchanged, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Unchanged, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Added, true, CascadeTiming.OnSaveChanges), InlineData(EntityState.Added, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Detached, true, CascadeTiming.OnSaveChanges),
+     InlineData(EntityState.Detached, false, CascadeTiming.OnSaveChanges)]
     public virtual async Task Load_collection_using_Query_already_loaded_untyped(
         EntityState state,
         bool async,
@@ -971,17 +876,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1 + 7 + 7, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_composite_key(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1038,17 +936,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(state == EntityState.Detached ? 0 : 1 + 2 + 2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Detached, true)]
-    [InlineData(EntityState.Detached, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
+     InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_using_Query_composite_key(EntityState state, bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1090,13 +981,9 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true, QueryTrackingBehavior.NoTracking)]
-    [InlineData(true, QueryTrackingBehavior.TrackAll)]
-    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(false, QueryTrackingBehavior.NoTracking)]
-    [InlineData(false, QueryTrackingBehavior.TrackAll)]
-    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(true, QueryTrackingBehavior.NoTracking), InlineData(true, QueryTrackingBehavior.TrackAll),
+     InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution), InlineData(false, QueryTrackingBehavior.NoTracking),
+     InlineData(false, QueryTrackingBehavior.TrackAll), InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual async Task Load_collection_for_detached_throws(bool async, QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = Fixture.CreateContext();
@@ -1120,10 +1007,8 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(QueryTrackingBehavior.NoTracking)]
-    [InlineData(QueryTrackingBehavior.TrackAll)]
-    [InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(QueryTrackingBehavior.NoTracking), InlineData(QueryTrackingBehavior.TrackAll),
+     InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Query_collection_for_detached_throws(QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = Fixture.CreateContext();
@@ -1140,9 +1025,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         var query = collectionEntry.Query();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Load_collection_using_Query_with_Include(bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1189,9 +1072,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(21, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Load_collection_using_Query_with_Include_for_inverse(bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1228,9 +1109,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(7, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Load_collection_using_Query_with_Include_for_same_collection(bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1267,9 +1146,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(7, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Load_collection_using_Query_with_filtered_Include(bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1317,9 +1194,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(9, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Load_collection_using_Query_with_filtered_Include_and_projection(bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1336,14 +1211,13 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
             .Query()
             .Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11))
             .OrderBy(e => e.Id)
-            .Select(
-                e => new
-                {
-                    e.Id,
-                    e.Name,
-                    Count1 = e.OneSkipShared.Count,
-                    Count3 = e.ThreeSkipFull.Count
-                });
+            .Select(e => new
+            {
+                e.Id,
+                e.Name,
+                Count1 = e.OneSkipShared.Count,
+                Count3 = e.ThreeSkipFull.Count
+            });
 
         var projected = async
             ? await queryable.ToListAsync()
@@ -1373,9 +1247,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         Assert.Equal(2, projected[2].Count3);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Load_collection_using_Query_with_join(bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1411,9 +1283,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Query_with_Include_marks_only_left_as_loaded(bool async)
     {
         using var context = Fixture.CreateContext();
@@ -1435,9 +1305,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Query_with_filtered_Include_marks_only_left_as_loaded(bool async)
     {
         using var context = Fixture.CreateContext();

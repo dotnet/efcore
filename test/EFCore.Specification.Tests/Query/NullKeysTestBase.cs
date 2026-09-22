@@ -33,11 +33,11 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             results.Select(e => e.Fk).ToArray());
 
         Assert.Equal(
-            new WithStringKey[] { null, null },
+            [null, null],
             results.Take(2).Select(e => e.Principal));
 
         Assert.Equal(
-            new[] { "Empire", "Fire", "Stereo", "Stereo" },
+            ["Empire", "Fire", "Stereo", "Stereo"],
             results.Skip(2).Select(e => e.Principal.Id));
     }
 
@@ -77,7 +77,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             results.Select(e => e.Id).ToArray());
 
         Assert.Equal(
-            new int?[] { null, 1, null, 2, null, null },
+            [null, 1, null, 2, null, null],
             results.Select(e => e.Fk));
 
         Assert.Null(results[0].Principal);
@@ -98,11 +98,11 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             .ToList();
 
         Assert.Equal(
-            new[] { 1, 2, 3, 4, 5, 6 },
+            [1, 2, 3, 4, 5, 6],
             results.Select(e => e.Id));
 
         Assert.Equal(
-            new int?[] { null, 1, null, 2, null, null },
+            [null, 1, null, 2, null, null],
             results.Select(e => e.Fk));
 
         Assert.Null(results[0].Principal);
@@ -217,32 +217,29 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
                 .WithOne(e => e.Self)
                 .HasForeignKey<WithStringFk>(e => e.SelfFk);
 
-            modelBuilder.Entity<WithIntKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.HasMany(e => e.Dependents)
-                        .WithOne(e => e.Principal)
-                        .HasForeignKey(e => e.Fk);
-                });
+            modelBuilder.Entity<WithIntKey>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.HasMany(e => e.Dependents)
+                    .WithOne(e => e.Principal)
+                    .HasForeignKey(e => e.Fk);
+            });
 
-            modelBuilder.Entity<WithNullableIntKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.HasMany(e => e.Dependents)
-                        .WithOne(e => e.Principal)
-                        .HasForeignKey(e => e.Fk);
-                });
+            modelBuilder.Entity<WithNullableIntKey>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.HasMany(e => e.Dependents)
+                    .WithOne(e => e.Principal)
+                    .HasForeignKey(e => e.Fk);
+            });
 
-            modelBuilder.Entity<WithAllNullableIntKey>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.HasMany(e => e.Dependents)
-                        .WithOne(e => e.Principal)
-                        .HasForeignKey(e => e.Fk);
-                });
+            modelBuilder.Entity<WithAllNullableIntKey>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.HasMany(e => e.Dependents)
+                    .WithOne(e => e.Principal)
+                    .HasForeignKey(e => e.Fk);
+            });
 
             modelBuilder.Entity<WithIntFk>()
                 .Property(e => e.Id).ValueGeneratedNever();

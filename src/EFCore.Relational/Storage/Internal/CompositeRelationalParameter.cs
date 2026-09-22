@@ -17,9 +17,7 @@ public class CompositeRelationalParameter : RelationalParameterBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CompositeRelationalParameter(
-        string invariantName,
-        IReadOnlyList<IRelationalParameter> relationalParameters)
+    public CompositeRelationalParameter(string invariantName, IReadOnlyList<IRelationalParameter> relationalParameters)
         : base(invariantName)
         => RelationalParameters = relationalParameters;
 
@@ -39,23 +37,20 @@ public class CompositeRelationalParameter : RelationalParameterBase
     /// </summary>
     public override void AddDbParameter(DbCommand command, object? value)
     {
-        if (value is object[] innerValues)
-        {
-            if (innerValues.Length < RelationalParameters.Count)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.MissingParameterValue(
-                        RelationalParameters[innerValues.Length].InvariantName));
-            }
-
-            for (var i = 0; i < RelationalParameters.Count; i++)
-            {
-                RelationalParameters[i].AddDbParameter(command, innerValues[i]);
-            }
-        }
-        else
+        if (value is not object[] innerValues)
         {
             throw new InvalidOperationException(RelationalStrings.ParameterNotObjectArray(InvariantName));
+        }
+
+        if (innerValues.Length < RelationalParameters.Count)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.MissingParameterValue(RelationalParameters[innerValues.Length].InvariantName));
+        }
+
+        for (var i = 0; i < RelationalParameters.Count; i++)
+        {
+            RelationalParameters[i].AddDbParameter(command, innerValues[i]);
         }
     }
 }

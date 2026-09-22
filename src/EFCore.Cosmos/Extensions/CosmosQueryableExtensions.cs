@@ -48,7 +48,7 @@ public static class CosmosQueryableExtensions
     public static IQueryable<TEntity> WithPartitionKey<TEntity>(this IQueryable<TEntity> source, object partitionKeyValue)
         where TEntity : class
     {
-        Check.NotNull(partitionKeyValue, nameof(partitionKeyValue));
+        Check.NotNull(partitionKeyValue);
 
         return
             source.Provider is EntityQueryProvider
@@ -80,8 +80,8 @@ public static class CosmosQueryableExtensions
         object partitionKeyValue2)
         where TEntity : class
     {
-        Check.NotNull(partitionKeyValue1, nameof(partitionKeyValue1));
-        Check.NotNull(partitionKeyValue2, nameof(partitionKeyValue2));
+        Check.NotNull(partitionKeyValue1);
+        Check.NotNull(partitionKeyValue2);
 
         return
             source.Provider is EntityQueryProvider
@@ -116,9 +116,9 @@ public static class CosmosQueryableExtensions
         object partitionKeyValue3)
         where TEntity : class
     {
-        Check.NotNull(partitionKeyValue1, nameof(partitionKeyValue1));
-        Check.NotNull(partitionKeyValue2, nameof(partitionKeyValue2));
-        Check.NotNull(partitionKeyValue3, nameof(partitionKeyValue3));
+        Check.NotNull(partitionKeyValue1);
+        Check.NotNull(partitionKeyValue2);
+        Check.NotNull(partitionKeyValue3);
 
         return
             source.Provider is EntityQueryProvider
@@ -162,8 +162,8 @@ public static class CosmosQueryableExtensions
         [NotParameterized] FormattableString sql)
         where TEntity : class
     {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotEmpty(sql.Format, nameof(source));
+        Check.NotNull(sql);
+        Check.NotEmpty(sql.Format);
 
         var queryableSource = (IQueryable)source;
         return queryableSource.Provider.CreateQuery<TEntity>(
@@ -205,8 +205,8 @@ public static class CosmosQueryableExtensions
         params object?[] parameters)
         where TEntity : class
     {
-        Check.NotEmpty(sql, nameof(sql));
-        Check.NotNull(parameters, nameof(parameters));
+        Check.NotEmpty(sql);
+        Check.NotNull(parameters);
 
         var queryableSource = (IQueryable)source;
         return queryableSource.Provider.CreateQuery<TEntity>(

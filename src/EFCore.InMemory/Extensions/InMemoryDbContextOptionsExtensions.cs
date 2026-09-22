@@ -121,8 +121,8 @@ public static class InMemoryDbContextOptionsExtensions
         InMemoryDatabaseRoot? databaseRoot,
         Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
     {
-        Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-        Check.NotEmpty(databaseName, nameof(databaseName));
+        Check.NotNull(optionsBuilder);
+        Check.NotEmpty(databaseName);
 
         var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
             ?? new InMemoryOptionsExtension();

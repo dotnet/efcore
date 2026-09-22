@@ -41,5 +41,5 @@ public class BuildReference
     }
 
     public static BuildReference ByPath(string path)
-        => new(new[] { MetadataReference.CreateFromFile(path) }, path: path);
+        => new([MetadataReference.CreateFromFile(path)], path: path);
 }

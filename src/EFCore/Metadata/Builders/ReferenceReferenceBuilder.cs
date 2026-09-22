@@ -56,7 +56,7 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ReferenceReferenceBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -94,9 +94,9 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
         params string[] foreignKeyPropertyNames)
         => new(
             HasForeignKeyBuilder(
-                ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName)))!,
+                ResolveEntityType(Check.NotNull(dependentEntityTypeName))!,
                 dependentEntityTypeName,
-                Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                Check.NotNull(foreignKeyPropertyNames)),
             this,
             Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName)!.Name,
             foreignKeySet: foreignKeyPropertyNames.Length > 0);
@@ -132,9 +132,9 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
         params string[] foreignKeyPropertyNames)
         => new(
             HasForeignKeyBuilder(
-                ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))!,
+                ResolveEntityType(Check.NotNull(dependentEntityType))!,
                 dependentEntityType.ShortDisplayName(),
-                Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+                Check.NotNull(foreignKeyPropertyNames)),
             this,
             Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
             foreignKeySet: foreignKeyPropertyNames.Length > 0);
@@ -213,9 +213,9 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
         params string[] keyPropertyNames)
         => new(
             HasPrincipalKeyBuilder(
-                ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))!,
+                ResolveEntityType(Check.NotEmpty(principalEntityTypeName))!,
                 principalEntityTypeName,
-                Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                Check.NotNull(keyPropertyNames)),
             this,
             inverted: Builder.Metadata.PrincipalEntityType.Name != ResolveEntityType(principalEntityTypeName)!.Name,
             principalKeySet: keyPropertyNames.Length > 0);
@@ -242,9 +242,9 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
         params string[] keyPropertyNames)
         => new(
             HasPrincipalKeyBuilder(
-                ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))!,
+                ResolveEntityType(Check.NotNull(principalEntityType))!,
                 principalEntityType.ShortDisplayName(),
-                Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
+                Check.NotNull(keyPropertyNames)),
             this,
             inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
             principalKeySet: keyPropertyNames.Length > 0);

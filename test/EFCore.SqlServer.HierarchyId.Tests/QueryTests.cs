@@ -302,12 +302,12 @@ public class QueryTests : IDisposable
 
         Assert.Equal(
             """
-            @__isaac_0='?' (DbType = Object)
+@isaac='?' (DbType = Object)
 
-            SELECT [p].[Name]
-            FROM [Patriarchy] AS [p]
-            WHERE @__isaac_0.IsDescendantOf([p].[Id]) = CAST(1 AS bit)
-            """,
+SELECT [p].[Name]
+FROM [Patriarchy] AS [p]
+WHERE @isaac.IsDescendantOf([p].[Id]) = CAST(1 AS bit)
+""",
             _db.Sql,
             ignoreLineEndingDifferences: true);
 
@@ -366,14 +366,12 @@ public class QueryTests : IDisposable
 
         Assert.Equal(
             """
-@__ids_0='?' (Size = 4000)
+@ids1='?' (DbType = Object)
+@ids2='?' (DbType = Object)
 
 SELECT TOP(2) [p].[Name]
 FROM [Patriarchy] AS [p]
-WHERE [p].[Id] IN (
-    SELECT CAST([i].[value] AS hierarchyid) AS [value]
-    FROM OPENJSON(@__ids_0) AS [i]
-)
+WHERE [p].[Id] IN (@ids1, @ids2)
 """,
             _db.Sql,
             ignoreLineEndingDifferences: true);

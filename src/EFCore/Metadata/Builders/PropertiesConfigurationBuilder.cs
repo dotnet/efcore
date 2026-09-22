@@ -27,7 +27,7 @@ public class PropertiesConfigurationBuilder
     [EntityFrameworkInternal]
     public PropertiesConfigurationBuilder(PropertyConfiguration property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         Configuration = property;
     }
@@ -49,7 +49,7 @@ public class PropertiesConfigurationBuilder
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertiesConfigurationBuilder HaveAnnotation(string annotation, object value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Configuration[annotation] = value;
 
@@ -139,7 +139,7 @@ public class PropertiesConfigurationBuilder
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertiesConfigurationBuilder HaveConversion(Type conversionType)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {
@@ -196,7 +196,7 @@ public class PropertiesConfigurationBuilder
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertiesConfigurationBuilder HaveConversion(Type conversionType, Type? comparerType, Type? providerComparerType)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {

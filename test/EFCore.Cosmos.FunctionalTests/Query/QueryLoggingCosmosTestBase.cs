@@ -87,11 +87,11 @@ FROM root c
         {
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
-                    "Customers", "None", "@__city_0='Redmond'", Environment.NewLine,
+                    "Customers", "None", "@city='Redmond'", Environment.NewLine,
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_0)
+WHERE (c["City"] = @city)
 """),
                 Fixture.TestSqlLoggerFactory.Log[3].Message);
         }
@@ -99,11 +99,11 @@ WHERE (c["City"] = @__city_0)
         {
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
-                    "Customers", "?", "@__city_0=?", Environment.NewLine,
+                    "Customers", "?", "@city=?", Environment.NewLine,
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["City"] = @__city_0)
+WHERE (c["City"] = @city)
 """),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }

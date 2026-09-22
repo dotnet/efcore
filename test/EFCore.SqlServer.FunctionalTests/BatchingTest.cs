@@ -22,15 +22,15 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
     protected BatchingTestFixture Fixture { get; }
 
-    [ConditionalTheory]
-    [InlineData(true, true, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, false, true)]
-    [InlineData(false, false, true)]
-    [InlineData(true, true, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, false, false)]
-    [InlineData(false, false, false)]
+    [ConditionalTheory,
+     InlineData(true, true, true),
+     InlineData(false, true, true),
+     InlineData(true, false, true),
+     InlineData(false, false, true),
+     InlineData(true, true, false),
+     InlineData(false, true, false),
+     InlineData(true, false, false),
+     InlineData(false, false, false)]
     public Task Inserts_are_batched_correctly(bool clientPk, bool clientFk, bool clientOrder)
     {
         var expectedBlogs = new List<Blog>();
@@ -122,11 +122,11 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             context => AssertDatabaseState(context, true, expectedBlogs));
     }
 
-    [ConditionalTheory]
-    [InlineData(1)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(100)]
+    [ConditionalTheory,
+     InlineData(1),
+     InlineData(3),
+     InlineData(4),
+     InlineData(100)]
     public Task Insertion_order_is_preserved(int maxBatchSize)
     {
         var blogId = new Guid();
@@ -299,9 +299,9 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                 return context.SaveChangesAsync();
             }, async context => Assert.Equal(2, await context.Owners.CountAsync()));
 
-    [ConditionalTheory]
-    [InlineData(3)]
-    [InlineData(4)]
+    [ConditionalTheory,
+     InlineData(3),
+     InlineData(4)]
     public Task Inserts_are_batched_only_when_necessary(int minBatchSize)
     {
         var expectedBlogs = new List<Blog>();
@@ -376,19 +376,17 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Owner>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                    b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
-                    b.Property(e => e.Name).HasColumnType("nvarchar(450)");
-                });
-            modelBuilder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
-                    b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
-                });
+            modelBuilder.Entity<Owner>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+                b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                b.Property(e => e.Name).HasColumnType("nvarchar(450)");
+            });
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
+                b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+            });
         }
 
         // ReSharper disable once UnusedMember.Local

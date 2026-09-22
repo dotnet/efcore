@@ -50,22 +50,20 @@ public class SqlServerSentinelValueGenerationScenariosTest : SqlServerValueGener
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Blog>(
-            b =>
-            {
-                b.Property(e => e.Id).HasSentinel(IntSentinel);
-                b.Property(e => e.Name).HasSentinel(StringSentinel);
-                b.Property(e => e.CreatedOn).HasSentinel(DateTimeSentinel);
-                b.Property(e => e.OtherId).HasSentinel(NullableIntSentinel);
-                b.Property(e => e.NeedsConverter).HasSentinel(new NeedsConverter(IntSentinel));
-            });
+        modelBuilder.Entity<Blog>(b =>
+        {
+            b.Property(e => e.Id).HasSentinel(IntSentinel);
+            b.Property(e => e.Name).HasSentinel(StringSentinel);
+            b.Property(e => e.CreatedOn).HasSentinel(DateTimeSentinel);
+            b.Property(e => e.OtherId).HasSentinel(NullableIntSentinel);
+            b.Property(e => e.NeedsConverter).HasSentinel(new NeedsConverter(IntSentinel));
+        });
 
-        modelBuilder.Entity<BlogWithSpatial>(
-            b =>
-            {
-                b.Property(e => e.Id).HasSentinel(IntSentinel);
-                b.Property(e => e.Name).HasSentinel(StringSentinel);
-                b.Property(e => e.GeometryCollection).HasSentinel(GeometryCollectionSentinel);
-            });
+        modelBuilder.Entity<BlogWithSpatial>(b =>
+        {
+            b.Property(e => e.Id).HasSentinel(IntSentinel);
+            b.Property(e => e.Name).HasSentinel(StringSentinel);
+            b.Property(e => e.GeometryCollection).HasSentinel(GeometryCollectionSentinel);
+        });
     }
 }

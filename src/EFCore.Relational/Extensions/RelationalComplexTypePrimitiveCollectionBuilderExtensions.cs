@@ -24,7 +24,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         primitiveCollectionBuilder.Metadata.SetColumnName(name);
 
@@ -88,7 +88,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
         string? typeName)
     {
-        Check.NullButNotEmpty(typeName, nameof(typeName));
+        Check.NullButNotEmpty(typeName);
 
         primitiveCollectionBuilder.Metadata.SetColumnType(typeName);
 
@@ -183,7 +183,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
         string? sql)
     {
-        Check.NullButNotEmpty(sql, nameof(sql));
+        Check.NullButNotEmpty(sql);
 
         primitiveCollectionBuilder.Metadata.SetDefaultValueSql(sql);
 
@@ -284,7 +284,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
         string? sql,
         bool? stored)
     {
-        Check.NullButNotEmpty(sql, nameof(sql));
+        Check.NullButNotEmpty(sql);
 
         primitiveCollectionBuilder.Metadata.SetComputedColumnSql(sql);
 
@@ -484,7 +484,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
         string? collation)
     {
-        Check.NullButNotEmpty(collation, nameof(collation));
+        Check.NullButNotEmpty(collation);
 
         primitiveCollectionBuilder.Metadata.SetCollation(collation);
 
@@ -518,7 +518,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         primitiveCollectionBuilder.Metadata.SetJsonPropertyName(name);
 

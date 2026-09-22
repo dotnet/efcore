@@ -38,7 +38,7 @@ public interface IMigrationCommandExecutor
     /// <param name="executionState">The state of the current migration execution.</param>
     /// <param name="commitTransaction">
     ///     Indicates whether the transaction started by this call should be commited.
-    ///     If <see langword="false" />, the transaction will be made available in <paramref name="executionState"/>.
+    ///     If <see langword="false" />, the transaction will be made available in <paramref name="executionState" />.
     /// </param>
     /// <param name="isolationLevel">The isolation level for the transaction.</param>
     int ExecuteNonQuery(
@@ -69,7 +69,7 @@ public interface IMigrationCommandExecutor
     /// <param name="executionState">The state of the current migration execution.</param>
     /// <param name="commitTransaction">
     ///     Indicates whether the transaction started by this call should be commited.
-    ///     If <see langword="false" />, the transaction will be made available in <paramref name="executionState"/>.
+    ///     If <see langword="false" />, the transaction will be made available in <paramref name="executionState" />.
     /// </param>
     /// <param name="isolationLevel">The isolation level for the transaction.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>

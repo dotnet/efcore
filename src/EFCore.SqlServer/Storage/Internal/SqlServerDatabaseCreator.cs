@@ -75,7 +75,9 @@ public class SqlServerDatabaseCreator(
         await using (masterConnection.ConfigureAwait(false))
         {
             await Dependencies.MigrationCommandExecutor
-                .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken)
+                .ExecuteNonQueryAsync(
+                    CreateCreateOperations(), masterConnection, new MigrationExecutionState(), commitTransaction: true,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             ClearPool();
@@ -136,12 +138,11 @@ IF EXISTS
      FROM [sys].[objects] o
      WHERE [o].[type] = 'U'
      AND [o].[is_ms_shipped] = 0
-     AND NOT EXISTS (SELECT *
-         FROM [sys].[extended_properties] AS [ep]
-         WHERE [ep].[major_id] = [o].[object_id]
-             AND [ep].[minor_id] = 0
-             AND [ep].[class] = 1
-             AND [ep].[name] = N'microsoft_database_tools_support'
+     AND [o].[object_id] NOT IN (SELECT [ep].[major_id]
+        FROM [sys].[extended_properties] AS [ep]
+        WHERE [ep].[minor_id] = 0
+            AND [ep].[class] = 1
+            AND [ep].[name] = N'microsoft_database_tools_support'
     )
 )
 SELECT 1 ELSE SELECT 0");
@@ -150,15 +151,15 @@ SELECT 1 ELSE SELECT 0");
     {
         var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
         return Dependencies.MigrationsSqlGenerator.Generate(
-            [
-                new SqlServerCreateDatabaseOperation
-                {
-                    Name = builder.InitialCatalog,
-                    FileName = builder.AttachDBFilename,
-                    Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>()
-                        .Model.GetRelationalModel().Collation
-                }
-            ]);
+        [
+            new SqlServerCreateDatabaseOperation
+            {
+                Name = builder.InitialCatalog,
+                FileName = builder.AttachDBFilename,
+                Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>()
+                    .Model.GetRelationalModel().Collation
+            }
+        ]);
     }
 
     /// <summary>
@@ -353,7 +354,9 @@ SELECT 1 ELSE SELECT 0");
         var masterConnection = _connection.CreateMasterConnection();
         await using var _ = masterConnection.ConfigureAwait(false);
         await Dependencies.MigrationCommandExecutor
-            .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken)
+            .ExecuteNonQueryAsync(
+                CreateDropCommands(), masterConnection, new MigrationExecutionState(), commitTransaction: true,
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
     }
 

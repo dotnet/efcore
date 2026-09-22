@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public interface IQueryExpressionInterceptor : IInterceptor
+public interface IQueryExpressionInterceptor : ISingletonInterceptor
 {
     /// <summary>
     ///     Called with the LINQ expression tree for a query before it is compiled.

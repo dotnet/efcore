@@ -17,7 +17,7 @@ public class ObservableCollectionListSourceTest
     [ConditionalFact]
     public void ObservableCollectionListSource_exposes_ObservableCollection_IEnumerable_constructor()
     {
-        IEnumerable<FakeEntity> entities = new[] { new FakeEntity(), new FakeEntity() };
+        IEnumerable<FakeEntity> entities = [new FakeEntity(), new FakeEntity()];
         var ols = new ObservableCollectionListSource<FakeEntity>(entities);
         Assert.Equal(2, ols.Count);
     }

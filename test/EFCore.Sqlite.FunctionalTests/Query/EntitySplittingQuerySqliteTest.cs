@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class EntitySplittingQuerySqliteTest : EntitySplittingQueryTestBase
+public class EntitySplittingQuerySqliteTest(NonSharedFixture fixture) : EntitySplittingQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;

@@ -139,15 +139,14 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
                 return _sqlExpressionFactory.Function(
                     instance,
                     "STGeometryN",
-                    new[]
-                    {
+                    [
                         _sqlExpressionFactory.Add(
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
-                    },
+                    ],
                     nullable: true,
                     instancePropagatesNullability: true,
-                    argumentsPropagateNullability: new[] { false },
+                    argumentsPropagateNullability: Statics.FalseArrays[1],
                     method.ReturnType,
                     _typeMappingSource.FindMapping(method.ReturnType, storeType));
             }
@@ -168,7 +167,7 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
                                 : _typeMappingSource.FindMapping(argument.Type)));
                 }
 
-                var finalArguments = Simplify(new[] { typeMappedArguments[0] }, isGeography);
+                var finalArguments = Simplify([typeMappedArguments[0]], isGeography);
 
                 return _sqlExpressionFactory.LessThanOrEqual(
                     _sqlExpressionFactory.Function(

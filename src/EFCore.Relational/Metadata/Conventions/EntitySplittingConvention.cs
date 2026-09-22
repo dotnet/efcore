@@ -92,10 +92,9 @@ public class EntitySplittingConvention : IModelFinalizingConvention, IEntityType
             var pk = entityType.FindPrimaryKey();
             if (pk != null
                 && !entityType.FindDeclaredForeignKeys(pk.Properties)
-                    .Any(
-                        fk => fk.PrincipalKey.IsPrimaryKey()
-                            && fk.PrincipalEntityType.IsAssignableFrom(entityType)
-                            && fk.PrincipalEntityType != entityType))
+                    .Any(fk => fk.PrincipalKey.IsPrimaryKey()
+                        && fk.PrincipalEntityType.IsAssignableFrom(entityType)
+                        && fk.PrincipalEntityType != entityType))
             {
                 entityType.Builder.HasRelationship(entityType, pk.Properties, pk)
                     ?.IsUnique(true)

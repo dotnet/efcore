@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
 public class ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture fixture)
     : ConvertToProviderTypesTestBase<
         ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>(fixture)
@@ -209,8 +209,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base
                 .AddOptions(builder)
-                .ConfigureWarnings(
-                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                .ConfigureWarnings(c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

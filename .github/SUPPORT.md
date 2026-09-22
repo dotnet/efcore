@@ -24,4 +24,4 @@ If you have a specific question about using the product, we encourage you to [as
 Official Support
 ----------------
 
-Entity Framework Core is covered by Microsoft's [.NET Core Support Policy](https://dotnet.microsoft.com/platform/support/policy/dotnet-core). If you've tried all the optoins above and are still looking for help, you may wish to [contact a Microsoft Support professional](http://support.microsoft.com/supportforbusiness/productselection?sapId=bec2bc54-b200-6962-301f-f098532f27b2). Please note that personal help may incur a fee.
+Entity Framework Core is covered by Microsoft's [.NET Core Support Policy](https://dotnet.microsoft.com/platform/support/policy/dotnet-core). If you've tried all the options above and are still looking for help, you may wish to [contact a Microsoft Support professional](http://support.microsoft.com/supportforbusiness/productselection?sapId=bec2bc54-b200-6962-301f-f098532f27b2). Please note that personal help may incur a fee.
