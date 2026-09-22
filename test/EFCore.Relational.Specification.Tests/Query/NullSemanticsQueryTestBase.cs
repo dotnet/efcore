@@ -1859,6 +1859,15 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_negated_nullable_comparison_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(x => x.Id)
+                .Select(x => !(x.NullableIntA <= 1) ? 0 : 1),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task CaseOpWhen_projection(bool async)
         => AssertQuery(
             async,

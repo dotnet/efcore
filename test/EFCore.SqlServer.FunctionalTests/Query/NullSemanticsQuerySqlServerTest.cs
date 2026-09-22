@@ -4635,6 +4635,21 @@ ORDER BY [e].[Id]
 """);
     }
 
+    public override async Task CaseWhen_negated_nullable_comparison_projection(bool async)
+    {
+        await base.CaseWhen_negated_nullable_comparison_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableIntA] <= 1 THEN 1
+    ELSE 0
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
     public override async Task CaseOpWhen_projection(bool async)
     {
         await base.CaseOpWhen_projection(async);
