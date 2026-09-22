@@ -14,6 +14,7 @@
     <!-- Arcade features -->
     <UsingToolXliff>false</UsingToolXliff>
 
+    <!-- For an LTS release EF design tools only support the current TFM, but the corresponding Roslyn build might only become available after RTM. -->
     <ShouldUseLiveRoslyn Condition="'$(PreReleaseVersionLabel)' == 'servicing' And !$(VersionPrefix.EndsWith('.0')) And !$(VersionPrefix.EndsWith('.1'))">true</ShouldUseLiveRoslyn>
 
     <!--
@@ -26,19 +27,10 @@
     <NextMajorVersion>$([MSBuild]::Add($([System.Version]::Parse('$(VersionPrefix)').Major), 1)).0.0-a</NextMajorVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(ShouldUseLiveRoslyn)' != 'true'">
-    <MicrosoftBuildFrameworkVersion>18.10.1</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>18.10.1</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>18.10.1</MicrosoftBuildTasksCoreVersion>
-    <MicrosoftCodeAnalysisCSharpVersion>5.9.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.9.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.9.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Label="MSBuild and Roslyn servicing" Condition="'$(ShouldUseLiveRoslyn)' == 'true'">
-    <MicrosoftBuildFrameworkVersion>18.10.1</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>18.10.1</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>18.10.1</MicrosoftBuildTasksCoreVersion>
+  <PropertyGroup Label="MSBuild and Roslyn">
+    <MicrosoftBuildFrameworkVersion>18.9.6</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.9.6</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.9.6</MicrosoftBuildTasksCoreVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.9.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.9.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
     <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.9.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
