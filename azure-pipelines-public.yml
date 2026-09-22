@@ -113,7 +113,7 @@ stages:
                 continueOnError: true
                 inputs:
                   pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
                   artifactType: Container
                   parallel: true
 
@@ -158,7 +158,7 @@ stages:
                 continueOnError: true
                 inputs:
                   pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
                   artifactType: Container
                   parallel: true
 
@@ -201,7 +201,7 @@ stages:
                 continueOnError: true
                 inputs:
                   pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
                   artifactType: Container
                   parallel: true
 
@@ -244,7 +244,7 @@ stages:
                 continueOnError: true
                 inputs:
                   pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults_Attempt_$(System.JobAttempt)
                   artifactType: Container
                   parallel: true
 

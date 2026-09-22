@@ -287,3 +287,15 @@ updates:
       interval: "weekly"
     labels:
       - "area-infrastructure"
+
+  - package-ecosystem: "npm"
+    directory: "/eng/harness-evaluation"
+    open-pull-requests-limit: 5
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "area-infrastructure"
+    groups:
+      npm:
+        patterns: ["*"]

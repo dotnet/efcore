@@ -16,7 +16,10 @@ user-invocable: false
 
 - Model snapshots use `typeof(Dictionary<string, object>)` (property bag format), not the actual CLR type. When examining the `ClrType` in a snapshot, don't assume it matches the real entity type.
 - `SnapshotModelProcessor.Process()` is used at design-time to fixup older model snapshots for backward compatibility.
+- `MigrationsModelDiffer` uses provider-agnostic structural comparison between relational models to determine what migration operations are necessary.
 
 ## Testing
 
 Migration operation tests: `test/EFCore.Relational.Tests/Migrations/`. Functional tests: `test/EFCore.{Provider}.FunctionalTests/Migrations/`. Model differ tests: `test/EFCore.Relational.Tests/Migrations/Internal/MigrationsModelDifferTest*.cs`.
+
+To simulate a snapshot model use `ModelBuilder` calls without conventions.

@@ -1,6 +1,6 @@
 ---
 name: make-skill
-description: 'Create new Agent Skills for GitHub Copilot. Use when asked to create, scaffold, or add a skill. Generates SKILL.md with frontmatter, directory structure, and optional resources.'
+description: 'Create and evaluate new Agent Skills for GitHub Copilot. Use when asked to create, scaffold, or add a skill. Generates SKILL.md, optional resources, and a paired Vally harness eval.'
 ---
 
 # Create Skill
@@ -33,8 +33,7 @@ After investigating, verify:
 - [ ] Have search queries for deeper topics
 - [ ] Can determine if the skill should be user-invocable or background knowledge only
 
-If there are any ambiguities, gaps in understanding, or multiple valid approaches, ask the user for clarification before proceeding to skill creation.
-Also, evaluate whether the task might be better handled by a custom agent, agentic workflow, an existing skill or multiple narrower skills, and discuss this with the user if relevant.
+If there are any ambiguities, gaps in understanding, or multiple valid approaches, ask the user for clarification before proceeding to skill creation. Also, evaluate whether the task might be better handled by a custom agent, agentic workflow, an existing skill or multiple narrower skills, and discuss this with the user if relevant.
 
 ### Step 2: Create the skill directory
 
@@ -92,26 +91,22 @@ Include these recommended sections, following this file's structure:
 
 > ❌ **NEVER** count API failures as success. Return "Unknown" and exclude from positive counts.
 
-### Step 7: Validate the skill
+### Step 7: Author and validate the harness evaluation
 
-Ensure the name:
-- Does not start or end with a hyphen
-- Does not contain consecutive hyphens
-- Is between 1-64 characters
-- YAML frontmatter name matches directory name exactly
+Create `eng/harness-evaluation/skills/<skill-name>/eval.yaml` and follow the authoring and validation rules in `eng/harness-evaluation/README.md`. The eval must require exact invocation of `<skill-name>` and meaningfully distinguish the skilled treatment from the unskilled control.
 
-After creating a skill, verify:
-- [ ] frontmatter fields are valid
-- [ ] SKILL.md is under 500 lines and 5000 tokens, split into references if needed
-- [ ] File references use relative paths
-- [ ] Instructions are actionable and specific
-- [ ] Instructions don't duplicate what's already in `.github/copilot-instructions.md` or under `.github/instructions/`
-- [ ] Workflow has numbered steps with clear checkpoints
-- [ ] Validation section exists with observable success criteria
-- [ ] No secrets, tokens, or internal URLs included
-- [ ] Common pitfalls are relevant and have solutions
+Also verify:
+
+- [ ] The skill name does not start or end with a hyphen, contain consecutive hyphens, or exceed 64 characters
+- [ ] YAML frontmatter name matches the directory name exactly and all frontmatter fields are valid
+- [ ] SKILL.md is under 500 lines and 5000 tokens, splitting stable detail into references when needed
+- [ ] File references are relative and instructions are actionable and specific
+- [ ] Instructions do not duplicate `.github/copilot-instructions.md` or `.github/instructions/`
+- [ ] The workflow has numbered steps and observable success criteria
+- [ ] No secrets, tokens, or internal URLs are included
 - [ ] Optional directories are used appropriately
-- [ ] Scripts handle edge cases gracefully and return structured outputs and helpful error messages when applicable
+- [ ] Scripts handle edge cases, fail closed, and return structured, helpful errors
+- [ ] The paired Vally comparison demonstrates distinctive value over the unskilled control
 
 ### Step 8: Test with Multi-Model Subagents
 
@@ -141,5 +136,4 @@ Follow [references/testing-patterns.md](references/testing-patterns.md):
 ## References
 
 - [Agent Skills Specification](https://agentskills.io/specification)
-- [Copilot Instructions](../../../.github/copilot-instructions.md)
-- [Contributing Guidelines](../../../.github/CONTRIBUTING.md)
+- Repository guidance: `.github/copilot-instructions.md` and `.github/CONTRIBUTING.md`

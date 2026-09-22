@@ -41,6 +41,23 @@
     </HelixCorrelationPayload>
   </ItemGroup>
 
+  <!-- AdditionalDotNetPackage batches by version, so runtimes with the same version must be added separately. -->
+  <Target Name="AddAspNetCoreRuntime" BeforeTargets="CoreTest">
+    <FindDotNetCliPackage Version="$(MicrosoftNETCorePlatformsVersion)"
+                          Runtime="$(DotNetCliRuntime)"
+                          PackageType="aspnetcore-runtime"
+                          Channel="$(DotNetCliChannel)"
+                          AdditionalFeeds="@(AdditionalDotNetPackageFeed)">
+      <Output TaskParameter="PackageUri" PropertyName="AspNetCoreRuntimePackageUri" />
+    </FindDotNetCliPackage>
+    <ItemGroup>
+      <HelixCorrelationPayload Include="dotnet-aspnetcore-runtime">
+        <Uri>$(AspNetCoreRuntimePackageUri)</Uri>
+        <Destination>$(DotNetCliDestination)</Destination>
+      </HelixCorrelationPayload>
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <MTPProject Include="$(RepoRoot)/test/**/*.csproj"/>
     <MTPProject Include="$(RepoRoot)/test/**/*.fsproj"/>
