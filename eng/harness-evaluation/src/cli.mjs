@@ -68,6 +68,9 @@ async function evaluate(args) {
     throw new Error(`--model must be a non-empty model name without '::': ${model}`);
   }
   const judgeModel = valueAfter(args, '--judge-model');
+  if (judgeModel !== undefined && (!judgeModel.trim() || judgeModel.includes('::'))) {
+    throw new Error(`--judge-model must be a non-empty model name without '::': ${judgeModel}`);
+  }
   const runsValue = valueAfter(args, '--runs');
   const runs = runsValue === undefined ? undefined : Number(runsValue);
   if (runs !== undefined && (!Number.isSafeInteger(runs) || runs <= 0)) {
