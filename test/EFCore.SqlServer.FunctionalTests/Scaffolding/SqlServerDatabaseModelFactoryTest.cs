@@ -4494,8 +4494,8 @@ CREATE TABLE MyTable (
                 @"
 CREATE TABLE MyTable (
     Id int,
-    A datetime2 DEFAULT (1968-10-23),
-    B date DEFAULT (1968-10-23),
+    A datetime2 DEFAULT ('1968-10-23'),
+    B date DEFAULT ('1968-10-23'),
 );",
                 [],
                 [],
@@ -4504,11 +4504,11 @@ CREATE TABLE MyTable (
                     var columns = dbModel.Tables.Single().Columns;
 
                     var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("(1968-10-23)", column.DefaultValueSql);
+                    Assert.Equal("('1968-10-23')", column.DefaultValueSql);
                     Assert.Equal(new DateTime(1968, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), column.DefaultValue);
 
                     column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(1968-10-23)", column.DefaultValueSql);
+                    Assert.Equal("('1968-10-23')", column.DefaultValueSql);
                     Assert.Equal(new DateOnly(1968, 10, 23), column.DefaultValue);
                 },
                 "DROP TABLE MyTable;");
