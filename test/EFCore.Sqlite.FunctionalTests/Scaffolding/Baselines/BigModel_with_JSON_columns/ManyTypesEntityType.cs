@@ -729,10 +729,10 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<string>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 10),
-            converter: new ValueConverter<DateOnly, string>(string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"), DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None)),
+            converter: new ValueConverter<DateOnly, string>(string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd", CultureInfo.InvariantCulture), DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateOnly, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<DateOnly, string>(string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"), DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None))));
+                new ValueConverter<DateOnly, string>(string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd", CultureInfo.InvariantCulture), DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None))));
         dateOnlyToStringConverterProperty.SetSentinelFromProviderValue("0001-01-01");
 
         var dateTime = runtimeEntityType.AddProperty(
@@ -934,10 +934,10 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<string>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<DateTimeOffset, string>(string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"), DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<DateTimeOffset, string>(string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz", CultureInfo.InvariantCulture), DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateTimeOffset, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<DateTimeOffset, string>(string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"), DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture))));
+                new ValueConverter<DateTimeOffset, string>(string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz", CultureInfo.InvariantCulture), DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture))));
         dateTimeOffsetToStringConverterProperty.SetSentinelFromProviderValue("0001-01-01 00:00:00+00:00");
 
         var dateTimeToBinaryConverterProperty = runtimeEntityType.AddProperty(
@@ -1020,10 +1020,10 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<string>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<DateTime, string>(string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"), DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture)),
+            converter: new ValueConverter<DateTime, string>(string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF", CultureInfo.InvariantCulture), DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateTime, string>(
                 JsonStringReaderWriter.Instance,
-                new ValueConverter<DateTime, string>(string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"), DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture))));
+                new ValueConverter<DateTime, string>(string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF", CultureInfo.InvariantCulture), DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture))));
         dateTimeToStringConverterProperty.SetSentinelFromProviderValue("0001-01-01 00:00:00");
 
         var dateTimeToTicksConverterProperty = runtimeEntityType.AddProperty(
@@ -9649,10 +9649,10 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<DateOnly>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 10),
-            converter: new ValueConverter<string, DateOnly>(DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd")),
+            converter: new ValueConverter<string, DateOnly>(DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd", CultureInfo.InvariantCulture)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, DateOnly>(
                 JsonDateOnlyReaderWriter.Instance,
-                new ValueConverter<string, DateOnly>(DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"))));
+                new ValueConverter<string, DateOnly>(DateOnly (string v) => DateOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None), string (DateOnly v) => v.ToString("yyyy\\-MM\\-dd", CultureInfo.InvariantCulture))));
 
         var stringToDateTimeConverterProperty = runtimeEntityType.AddProperty(
             "StringToDateTimeConverterProperty",
@@ -9691,10 +9691,10 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<DateTime>.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<string, DateTime>(DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture), string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF")),
+            converter: new ValueConverter<string, DateTime>(DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture), string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF", CultureInfo.InvariantCulture)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, DateTime>(
                 SqliteJsonDateTimeReaderWriter.Instance,
-                new ValueConverter<string, DateTime>(DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture), string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"))));
+                new ValueConverter<string, DateTime>(DateTime (string v) => DateTime.Parse(v, CultureInfo.InvariantCulture), string (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF", CultureInfo.InvariantCulture))));
 
         var stringToDateTimeOffsetConverterProperty = runtimeEntityType.AddProperty(
             "StringToDateTimeOffsetConverterProperty",
@@ -9733,10 +9733,10 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultDateTimeOffsetValueComparer.Default,
             mappingInfo: new RelationalTypeMappingInfo(
                 size: 48),
-            converter: new ValueConverter<string, DateTimeOffset>(DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture), string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz")),
+            converter: new ValueConverter<string, DateTimeOffset>(DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture), string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz", CultureInfo.InvariantCulture)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, DateTimeOffset>(
                 SqliteJsonDateTimeOffsetReaderWriter.Instance,
-                new ValueConverter<string, DateTimeOffset>(DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture), string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"))));
+                new ValueConverter<string, DateTimeOffset>(DateTimeOffset (string v) => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture), string (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz", CultureInfo.InvariantCulture))));
 
         var stringToDecimalNumberConverterProperty = runtimeEntityType.AddProperty(
             "StringToDecimalNumberConverterProperty",
