@@ -335,6 +335,7 @@ jobs:
               for (const comment of comments) {
                 const match = comment.body?.match(/^<!-- agent-harness-eval:([^ ]+) -->/);
                 if (comment.user?.login !== 'github-actions[bot]' || !match || selected.has(match[1])) continue;
+                core.info(`Marking component '${match[1]}' comment ${comment.id} as superseded.`);
                 await github.rest.issues.updateComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -353,10 +354,12 @@ jobs:
                 `Evaluation does not run automatically for new commits. A contributor with write access can comment ` +
                 `\`/eval\` to run all affected components or \`/eval component-name\` to run one component.`;
               if (rerunComment) {
+                core.info(`Updating stale evaluation comment ${rerunComment.id}.`);
                 await github.rest.issues.updateComment({
                   owner: context.repo.owner, repo: context.repo.repo, comment_id: rerunComment.id, body
                 });
               } else {
+                core.info(`Creating stale evaluation comment on PR #${issueNumber}.`);
                 await github.rest.issues.createComment({
                   owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body
                 });
@@ -378,6 +381,7 @@ jobs:
               }
               throw error;
             }
+            core.info(`Adding '${label}' label to PR #${issueNumber}.`);
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -392,11 +396,13 @@ jobs:
               comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(promptMarker));
             if (process.env.CAN_USE_SECRETS === 'true') {
               if (prompt && !process.env.COMPONENT_FILTER) {
+                core.info(`Deleting manual-evaluation comment ${prompt.id}.`);
                 await github.rest.issues.deleteComment({
                   owner: context.repo.owner, repo: context.repo.repo, comment_id: prompt.id
                 });
               }
-              if (rerunComment && !process.env.COMPONENT_FILTER) {
+              if (rerunComment) {
+                core.info(`Deleting stale evaluation comment ${rerunComment.id}.`);
                 await github.rest.issues.deleteComment({
                   owner: context.repo.owner, repo: context.repo.repo, comment_id: rerunComment.id
                 });
@@ -412,10 +418,12 @@ jobs:
               `\`/eval\` or \`/eval component-name\`, or ` +
               `[run the workflow manually](${manualUrl}) for pull request **#${issueNumber}**.`;
             if (prompt) {
+              core.info(`Updating manual-evaluation comment ${prompt.id}.`);
               await github.rest.issues.updateComment({
                 owner: context.repo.owner, repo: context.repo.repo, comment_id: prompt.id, body
               });
             } else {
+              core.info(`Creating manual-evaluation comment on PR #${issueNumber}.`);
               await github.rest.issues.createComment({
                 owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body
               });
@@ -470,11 +478,8 @@ jobs:
           script: |
             const marker = `<!-- agent-harness-eval:${process.env.COMPONENT} -->`;
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const manualUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
-              '/actions/workflows/agent-harness-evaluation.yml';
             const body = `${marker}\n### Agent evaluation: \`${process.env.COMPONENT}\`\n\n` +
               `Status: **running** for \`${process.env.HEAD_SHA}\`\n\n` +
-              `PR updates do not rerun evaluations automatically. [Run again manually](${manualUrl}) after later commits.\n\n` +
               `[View workflow run](${runUrl})`;
             const issueNumber = Number(process.env.PULL_REQUEST);
             const comments = await github.paginate(github.rest.issues.listComments, {
@@ -483,10 +488,12 @@ jobs:
             const existing = comments.find(comment =>
               comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(marker));
             if (existing) {
+              core.info(`Updating running result comment ${existing.id} for '${process.env.COMPONENT}'.`);
               await github.rest.issues.updateComment({
                 owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body
               });
             } else {
+              core.info(`Creating running result comment for '${process.env.COMPONENT}' on PR #${issueNumber}.`);
               await github.rest.issues.createComment({
                 owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body
               });
@@ -517,6 +524,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets['COPILOT_CLI_TOKEN'] }}
         run: |
           timeout --signal=TERM --kill-after=30s "${{ matrix.watchdog_minutes }}m" \
             node "$TRUSTED_ROOT/eng/harness-evaluation/src/cli.mjs" eval "$COMPONENT" \
@@ -632,6 +640,7 @@ jobs:
             const passed = process.env.EVAL_OUTCOME === 'success';
             let details = '_No complete Vally comparison was produced._';
             let gradeBreakdown = '';
+            let model = '';
             let reportGenerationFailed = false;
 
             const readRecords = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
@@ -680,8 +689,16 @@ jobs:
                 throw new Error(`expected one treatment results file, found ${treatmentFiles.length}`);
               }
 
+              const treatmentTrials = readRecords(treatmentFiles[0])
+                .filter(record => record.type === 'trial-result');
+              const models = [...new Set(treatmentTrials.map(trial => trial.model).filter(Boolean))];
+              if (treatmentTrials.length > 0 && models.length !== 1) {
+                throw new Error(`expected one treatment model, found ${models.length}`);
+              }
+              model = models[0] ?? '';
+
               const byStimulus = new Map();
-              for (const trial of readRecords(treatmentFiles[0]).filter(record => record.type === 'trial-result')) {
+              for (const trial of treatmentTrials) {
                 const stimulus = trial.stimulus ?? trial.gradeResult?.stimulusName ?? 'unknown';
                 const summary = byStimulus.get(stimulus) ?? {
                   trials: 0,
@@ -771,19 +788,16 @@ jobs:
             }
 
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const manualUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
-              '/actions/workflows/agent-harness-evaluation.yml';
             const artifactLink = process.env.ARTIFACT_URL
               ? `[Download Vally reports](${process.env.ARTIFACT_URL}) · `
               : '';
             const status = reportGenerationFailed ? 'error' : passed ? 'passed' : 'failed';
             const report = reportGenerationFailed
               ? 'An error occurred while generating the evaluation report.'
-              : `${details}${gradeBreakdown}${baseline}`;
+              : `${model ? `Model: **\`${model}\`**\n\n` : ''}${details}${gradeBreakdown}${baseline}`;
             const body = `${marker}\n### Agent evaluation: \`${process.env.COMPONENT}\`\n\n` +
               `Status: **${status}** for \`${process.env.HEAD_SHA}\`\n\n` +
-              `${report}\n\nPR updates do not rerun evaluations automatically. ` +
-              `[Run again manually](${manualUrl}) after later commits.\n\n` +
+              `${report}\n\n` +
               `${artifactLink}[View workflow run](${runUrl})`;
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, per_page: 100
@@ -791,10 +805,12 @@ jobs:
             const existing = comments.find(comment =>
               comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(marker));
             if (existing) {
+              core.info(`Updating result comment ${existing.id} for '${process.env.COMPONENT}' with status '${status}'.`);
               await github.rest.issues.updateComment({
                 owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body
               });
             } else {
+              core.info(`Creating result comment for '${process.env.COMPONENT}' with status '${status}' on PR #${issueNumber}.`);
               await github.rest.issues.createComment({
                 owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber, body
               });

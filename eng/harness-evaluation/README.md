@@ -59,7 +59,7 @@ npm test
 npm run lint
 
 # Run the configured treatment and control trials, then compare quality and token use.
-node src/cli.mjs eval <component-id> --runs 5 --workers 1 --require-pass
+node src/cli.mjs eval <component-id> --workers 1 [--require-pass] [--runs 5] [--model <model-name>]
 ```
 
 Set `defaults.timeout` to five times the slowest observed trial, rounded up to the next five-minute boundary.
