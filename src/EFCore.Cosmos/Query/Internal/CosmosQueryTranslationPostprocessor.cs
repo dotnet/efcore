@@ -9,25 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosQueryTranslationPostprocessor : QueryTranslationPostprocessor
+public class CosmosQueryTranslationPostprocessor(
+    QueryTranslationPostprocessorDependencies dependencies,
+    ISqlExpressionFactory sqlExpressionFactory,
+    CosmosQueryCompilationContext queryCompilationContext)
+    : QueryTranslationPostprocessor(dependencies, queryCompilationContext)
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public CosmosQueryTranslationPostprocessor(
-        QueryTranslationPostprocessorDependencies dependencies,
-        ISqlExpressionFactory sqlExpressionFactory,
-        QueryCompilationContext queryCompilationContext)
-        : base(dependencies, queryCompilationContext)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -40,12 +27,14 @@ public class CosmosQueryTranslationPostprocessor : QueryTranslationPostprocessor
 
         if (query is ShapedQueryExpression { QueryExpression: SelectExpression selectExpression })
         {
-            // Cosmos does not have nested select expression so this should be safe.
             selectExpression.ApplyProjection();
         }
 
-        query = new CosmosValueConverterCompensatingExpressionVisitor(_sqlExpressionFactory).Visit(query);
+        var afterValueConverterCompensation = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
+        var afterAliases = queryCompilationContext.AliasManager.PostprocessAliases(afterValueConverterCompensation);
+        var afterExtraction = new CosmosReadItemAndPartitionKeysExtractor().ExtractPartitionKeysAndId(
+            queryCompilationContext, sqlExpressionFactory, afterAliases);
 
-        return query;
+        return afterExtraction;
     }
 }

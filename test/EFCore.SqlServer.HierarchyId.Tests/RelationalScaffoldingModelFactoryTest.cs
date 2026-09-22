@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -44,7 +45,7 @@ public class RelationalScaffoldingModelFactoryTest
         _reporter = new TestOperationReporter();
 
         var assembly = typeof(RelationalScaffoldingModelFactoryTest).Assembly;
-        _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, new string[0])
+        _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
             .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
             .BuildServiceProvider(validateScopes: true)

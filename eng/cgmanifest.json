@@ -1,0 +1,23 @@
+{
+    "registrations": [
+        {
+            "component": {
+                "type": "nuget",
+                "nuget": {
+                    "name": "Qdrant.Client",
+                    "version": "1.8.0"
+                }
+            }
+        },
+        {
+            "component": {
+                "type": "nuget",
+                "nuget": {
+                    "name": "Milvus.Client",
+                    "version": "2.3.0-preview.1"
+                }
+            }
+        },
+    ],
+    "version": 1
+}

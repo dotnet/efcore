@@ -74,8 +74,8 @@ public class SqlServerNavigationExpansionExtensibilityHelper : NavigationExpansi
     private bool OwnedEntityMappedToSameTableAsOwner(IEntityType entityType)
         => entityType.IsOwned()
             && entityType.FindOwnership()!.PrincipalEntityType.GetTableMappings().FirstOrDefault()?.Table is ITable ownerTable
-                && entityType.GetTableMappings().FirstOrDefault()?.Table is ITable entityTable
-                && ownerTable == entityTable;
+            && entityType.GetTableMappings().FirstOrDefault()?.Table is ITable entityTable
+            && ownerTable == entityTable;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

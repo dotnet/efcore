@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.BulkUpdates;
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class InMemoryComplianceTest : ComplianceTestBase
@@ -16,6 +18,14 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(StoreGeneratedTestBase<>),
         typeof(ConferencePlannerTestBase<>),
         typeof(ManyToManyQueryTestBase<>),
+        typeof(ComplexTypeBulkUpdatesTestBase<>),
+        typeof(BulkUpdatesTestBase<>),
+        typeof(FiltersInheritanceBulkUpdatesTestBase<>),
+        typeof(InheritanceBulkUpdatesTestBase<>),
+        typeof(NonSharedModelBulkUpdatesTestBase),
+        typeof(NorthwindBulkUpdatesTestBase<>),
+        typeof(JsonQueryTestBase<>),
+        typeof(AdHocJsonQueryTestBase),
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

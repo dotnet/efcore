@@ -10,6 +10,4 @@ namespace Xunit;
 [XunitTestCaseDiscoverer(
     "Microsoft.EntityFrameworkCore.TestUtilities.Xunit.ConditionalTheoryDiscoverer",
     "Microsoft.EntityFrameworkCore.Specification.Tests")]
-public sealed class ConditionalTheoryAttribute : TheoryAttribute
-{
-}
+public sealed class ConditionalTheoryAttribute : TheoryAttribute;

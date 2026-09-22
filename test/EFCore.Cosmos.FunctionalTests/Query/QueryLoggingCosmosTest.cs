@@ -5,16 +5,14 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class QueryLoggingCosmosTest : QueryLoggingCosmosTestBase,
-    IClassFixture<QueryLoggingCosmosTest.NorthwindQueryCosmosFixtureInsensitive<NoopModelCustomizer>>
-{
-    public QueryLoggingCosmosTest(NorthwindQueryCosmosFixtureInsensitive<NoopModelCustomizer> fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class QueryLoggingCosmosTest(QueryLoggingCosmosTest.NorthwindQueryCosmosFixtureInsensitive<NoopModelCustomizer> fixture)
+    : QueryLoggingCosmosTestBase(fixture),
+        IClassFixture<QueryLoggingCosmosTest.NorthwindQueryCosmosFixtureInsensitive<NoopModelCustomizer>>
+{
     public class NorthwindQueryCosmosFixtureInsensitive<TModelCustomizer> : NorthwindQueryCosmosFixture<TModelCustomizer>
-        where TModelCustomizer : IModelCustomizer, new()
+        where TModelCustomizer : ITestModelCustomizer, new()
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).EnableSensitiveDataLogging(false);

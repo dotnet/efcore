@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
-#nullable enable
-
 public class Daisy : Flower
 {
     public required AdditionalDaisyInfo AdditionalInfo { get; set; }

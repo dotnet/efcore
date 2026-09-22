@@ -128,6 +128,36 @@ public class SqlServerBuilderExtensionsTest
     }
 
     [ConditionalFact]
+    public void Can_set_key_with_fillfactor()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasKey(e => e.Id)
+            .HasFillFactor(90);
+
+        var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
+
+        Assert.Equal(90, key.GetFillFactor());
+    }
+
+    [ConditionalFact]
+    public void Can_set_key_with_fillfactor_non_generic()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .HasKey("Id")
+            .HasFillFactor(90);
+
+        var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
+
+        Assert.Equal(90, key.GetFillFactor());
+    }
+
+    [ConditionalFact]
     public void Can_set_index_include()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1059,6 +1089,23 @@ public class SqlServerBuilderExtensionsTest
         var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
         Assert.Equal(90, index.GetFillFactor());
+    }
+
+    [ConditionalTheory]
+    [InlineData(0)]
+    [InlineData(101)]
+    public void Throws_if_attempt_to_set_key_fillfactor_with_argument_out_of_range(int fillFactor)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () =>
+            {
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .HasKey("Id")
+                    .HasFillFactor(fillFactor);
+            });
     }
 
     [ConditionalTheory]

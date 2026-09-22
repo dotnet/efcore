@@ -118,6 +118,12 @@ public class ExceptionTest
         public bool HasTemporaryValue(IProperty property)
             => throw new NotImplementedException();
 
+        public bool HasExplicitValue(IProperty property)
+            => throw new NotImplementedException();
+
+        public bool HasStoreGeneratedValue(IProperty property)
+            => throw new NotImplementedException();
+
         public bool IsStoreGenerated(IProperty property)
             => throw new NotImplementedException();
 
@@ -125,6 +131,9 @@ public class ExceptionTest
             => throw new NotImplementedException();
 
         public object GetOriginalValue(IPropertyBase propertyBase)
+            => throw new NotImplementedException();
+
+        public bool CanHaveOriginalValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
         public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)

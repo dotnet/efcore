@@ -3,18 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class CompositeKeysQueryRelationalTestBase<TFixture> : CompositeKeysQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class CompositeKeysQueryRelationalTestBase<TFixture>(TFixture fixture) : CompositeKeysQueryTestBase<TFixture>(fixture)
     where TFixture : CompositeKeysQueryFixtureBase, new()
 {
-    public CompositeKeysQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

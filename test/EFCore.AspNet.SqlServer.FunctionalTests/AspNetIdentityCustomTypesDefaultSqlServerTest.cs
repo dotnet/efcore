@@ -3,15 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class AspNetIdentityCustomTypesDefaultSqlServerTest
+public class AspNetIdentityCustomTypesDefaultSqlServerTest(
+    AspNetIdentityCustomTypesDefaultSqlServerTest.AspNetIdentityCustomTypesDefaultSqlServerFixture fixture)
     : AspNetIdentityCustomTypesDefaultTestBase<
-        AspNetIdentityCustomTypesDefaultSqlServerTest.AspNetIdentityCustomTypesDefaultSqlServerFixture>
+        AspNetIdentityCustomTypesDefaultSqlServerTest.AspNetIdentityCustomTypesDefaultSqlServerFixture>(fixture)
 {
-    public AspNetIdentityCustomTypesDefaultSqlServerTest(AspNetIdentityCustomTypesDefaultSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class AspNetIdentityCustomTypesDefaultSqlServerFixture : AspNetIdentityFixtureBase
     {
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)

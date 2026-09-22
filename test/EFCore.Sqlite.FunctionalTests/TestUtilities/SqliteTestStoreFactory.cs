@@ -18,5 +18,7 @@ public class SqliteTestStoreFactory : RelationalTestStoreFactory
         => SqliteTestStore.GetOrCreate(storeName);
 
     public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
-        => serviceCollection.AddEntityFrameworkSqlite();
+        => serviceCollection
+            .AddEntityFrameworkSqlite()
+            .AddEntityFrameworkSqliteNetTopologySuite();
 }

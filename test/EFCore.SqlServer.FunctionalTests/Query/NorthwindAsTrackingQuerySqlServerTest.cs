@@ -3,14 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindAsTrackingQuerySqlServerTest : NorthwindAsTrackingQueryTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
     public NorthwindAsTrackingQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

@@ -3,15 +3,25 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerOwnedTest.SqlServerFixture>
-{
-    public GraphUpdatesSqlServerOwnedTest(SqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlServerFixture fixture)
+    : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerOwnedTest.SqlServerFixture>(fixture)
+{
     // No owned types
     public override Task Update_root_by_collection_replacement_of_inserted_first_level(bool async)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Mark_explicitly_set_dependent_appropriately_with_any_inheritance_and_stable_generator(bool async, bool useAdd)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Mark_explicitly_set_stable_dependent_appropriately(bool async, bool useAdd)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Mark_explicitly_set_stable_dependent_appropriately_when_deep_in_graph(bool async, bool useAdd)
         => Task.CompletedTask;
 
     // No owned types
@@ -47,29 +57,45 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
         => Task.CompletedTask;
 
     // Owned dependents are always loaded
-    public override void Required_one_to_one_are_cascade_deleted_in_store(
+    public override Task Required_one_to_one_are_cascade_deleted_in_store(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
-    {
-    }
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+    public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
-    {
-    }
+        => Task.CompletedTask;
 
     // No owned types
     public override Task Can_insert_when_composite_FK_has_default_value_for_one_part(bool async)
         => Task.CompletedTask;
 
-    public override void Required_one_to_one_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
-    {
-    }
+    public override Task Required_one_to_one_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_with_AK_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
-    {
-    }
+    public override Task Required_one_to_one_with_AK_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Can_insert_when_bool_PK_in_composite_key_has_sentinel_value(bool async, bool initialValue)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Can_insert_when_int_PK_in_composite_key_has_sentinel_value(bool async, int initialValue)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Can_insert_when_nullable_bool_PK_in_composite_key_has_sentinel_value(bool async, bool? initialValue)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Throws_for_single_property_bool_key_with_default_value_generation(bool async, bool initialValue)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Throws_for_single_property_nullable_bool_key_with_default_value_generation(bool async, bool? initialValue)
+        => Task.CompletedTask;
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
@@ -81,6 +107,15 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.Entity<OwnerRoot>(
+                b =>
+                {
+                    b.OwnsOne(e => e.OptionalSingle).OwnsOne(e => e.Single);
+                    b.OwnsOne(e => e.RequiredSingle).OwnsOne(e => e.Single);
+                    b.OwnsMany(e => e.OptionalChildren).OwnsMany(e => e.Children);
+                    b.OwnsMany(e => e.RequiredChildren).OwnsMany(e => e.Children);
+                });
+
             modelBuilder.Entity<Root>(
                 b =>
                 {

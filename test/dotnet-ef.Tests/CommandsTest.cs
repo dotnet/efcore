@@ -73,11 +73,13 @@ public class CommandsTest
     {
         var names = new Stack<string>();
 
-        while (command != null)
-        {
-            names.Push(command.Name);
+        var c = command;
 
-            command = command.Parent;
+        while (c != null)
+        {
+            names.Push(c.Name!);
+
+            c = c.Parent;
         }
 
         return string.Join(" ", names);

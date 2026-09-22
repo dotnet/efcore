@@ -22,16 +22,14 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
         RelationalQueryTranslationPreprocessorDependencies relationalDependencies,
         QueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext)
-    {
-        _model = queryCompilationContext.Model;
-    }
+        => _model = queryCompilationContext.Model;
 
     /// <summary>
-    ///     Indicates that a <see cref="ConstantExpression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
-    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.VisitInlineQueryRoot" /> for
+    ///     Indicates that a <see cref="Expression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
+    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslateInlineQueryRoot" /> for
     ///     translation to a SQL <see cref="ValuesExpression" />.
     /// </summary>
-    protected override bool ShouldConvertToInlineQueryRoot(NewArrayExpression newArrayExpression)
+    protected override bool ShouldConvertToInlineQueryRoot(Expression expression)
         => true;
 
     /// <summary>
@@ -39,7 +37,7 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
     ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslatePrimitiveCollection" /> for
     ///     translation to a provider-specific SQL expansion mechanism, e.g. <c>OPENJSON</c> on SQL Server.
     /// </summary>
-    protected override bool ShouldConvertToParameterQueryRoot(ParameterExpression constantExpression)
+    protected override bool ShouldConvertToParameterQueryRoot(ParameterExpression parameterExpression)
         => true;
 
     /// <inheritdoc />

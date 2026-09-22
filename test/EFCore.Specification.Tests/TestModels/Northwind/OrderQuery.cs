@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
+#nullable disable
+
 public class OrderQuery
 {
     public OrderQuery()
@@ -10,9 +12,7 @@ public class OrderQuery
     }
 
     public OrderQuery(string customerID)
-    {
-        CustomerID = customerID;
-    }
+        => CustomerID = customerID;
 
     public string CustomerID { get; set; }
 

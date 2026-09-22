@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
-#nullable enable
-
 public class ComplexTypeData : ISetSource
 {
     private readonly IReadOnlyList<Customer> _customers;
@@ -52,7 +50,8 @@ public class ComplexTypeData : ISetSource
         {
             AddressLine1 = "804 S. Lakeshore Road",
             ZipCode = 38654,
-            Country = new Country { FullName = "United States", Code = "US" }
+            Country = new Country { FullName = "United States", Code = "US" },
+            Tags = ["foo", "bar"]
         };
 
         var customer1 = new Customer
@@ -71,13 +70,15 @@ public class ComplexTypeData : ISetSource
             {
                 AddressLine1 = "72 Hickory Rd.",
                 ZipCode = 07728,
-                Country = new Country { FullName = "Germany", Code = "DE" }
+                Country = new Country { FullName = "Germany", Code = "DE" },
+                Tags = ["baz"]
             },
             BillingAddress = new Address
             {
                 AddressLine1 = "79 Main St.",
                 ZipCode = 29293,
-                Country = new Country { FullName = "Germany", Code = "DE" }
+                Country = new Country { FullName = "Germany", Code = "DE" },
+                Tags = ["a1", "a2", "a3"]
             }
         };
 
@@ -85,7 +86,8 @@ public class ComplexTypeData : ISetSource
         {
             AddressLine1 = "79 Main St.",
             ZipCode = 29293,
-            Country = new Country { FullName = "Germany", Code = "DE" }
+            Country = new Country { FullName = "Germany", Code = "DE" },
+            Tags = ["foo", "moo"]
         };
 
         var customer3 = new Customer
@@ -96,12 +98,7 @@ public class ComplexTypeData : ISetSource
             BillingAddress = address3
         };
 
-        return new List<Customer>
-        {
-            customer1,
-            customer2,
-            customer3
-        };
+        return [customer1, customer2, customer3];
     }
 
     private static IReadOnlyList<CustomerGroup> CreateCustomerGroups(IReadOnlyList<Customer> customers)
@@ -127,12 +124,7 @@ public class ComplexTypeData : ISetSource
             OptionalCustomer = null
         };
 
-        return new List<CustomerGroup>
-        {
-            group1,
-            group2,
-            group3
-        };
+        return [group1, group2, group3];
     }
 
     private static IReadOnlyList<ValuedCustomer> CreateValuedCustomers()
@@ -185,12 +177,7 @@ public class ComplexTypeData : ISetSource
             BillingAddress = address3
         };
 
-        return new List<ValuedCustomer>
-        {
-            customer1,
-            customer2,
-            customer3
-        };
+        return [customer1, customer2, customer3];
     }
 
     private static IReadOnlyList<ValuedCustomerGroup> CreateValuedCustomerGroups(IReadOnlyList<ValuedCustomer> customers)
@@ -216,15 +203,10 @@ public class ComplexTypeData : ISetSource
             OptionalCustomer = null
         };
 
-        return new List<ValuedCustomerGroup>
-        {
-            group1,
-            group2,
-            group3
-        };
+        return [group1, group2, group3];
     }
 
-    public static void Seed(PoolableDbContext context)
+    public static Task SeedAsync(PoolableDbContext context)
     {
         var customers = CreateCustomers();
         var customerGroups = CreateCustomerGroups(customers);
@@ -236,6 +218,6 @@ public class ComplexTypeData : ISetSource
         context.AddRange(valuedCustomers);
         context.AddRange(valuedCustomerGroups);
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 }

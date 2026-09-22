@@ -36,4 +36,24 @@ public static class RelationalDbFunctionsExtensions
         TProperty operand,
         [NotParameterized] string collation)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Collate)));
+
+    /// <summary>
+    ///     Returns the smallest value from the given list of values. Usually corresponds to the <c>LEAST</c> SQL function.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="values">The list of values from which return the smallest value.</param>
+    public static T Least<T>(
+        this DbFunctions _,
+        [NotParameterized] params T[] values)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Least)));
+
+    /// <summary>
+    ///     Returns the greatest value from the given list of values. Usually corresponds to the <c>GREATEST</c> SQL function.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="values">The list of values from which return the greatest value.</param>
+    public static T Greatest<T>(
+        this DbFunctions _,
+        [NotParameterized] params T[] values)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Greatest)));
 }

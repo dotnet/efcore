@@ -29,9 +29,7 @@ public class MigrationEventData : MigratorEventData
         IMigrator migrator,
         Migration migration)
         : base(eventDefinition, messageGenerator, migrator)
-    {
-        Migration = migration;
-    }
+        => Migration = migration;
 
     /// <summary>
     ///     The <see cref="Migration" /> being processed.

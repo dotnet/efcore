@@ -23,9 +23,7 @@ public class UpdateAdapterFactory : IUpdateAdapterFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public UpdateAdapterFactory(ICurrentDbContext currentContext)
-    {
-        _currentContext = currentContext;
-    }
+        => _currentContext = currentContext;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

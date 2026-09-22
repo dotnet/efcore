@@ -37,7 +37,7 @@ public class CurrentValueComparerTest
     {
         using var context = new GodzillaContext();
 
-        var factory = new CurrentValueComparerFactory();
+        var factory = CurrentValueComparerFactory.Instance;
 
         Assert.IsType(expectedComparer, factory.Create(context.Model.FindEntityType(typeof(Godzilla)).FindProperty(property)));
     }
@@ -47,7 +47,7 @@ public class CurrentValueComparerTest
     {
         using var context = new GodzillaContext();
 
-        var factory = new CurrentValueComparerFactory();
+        var factory = CurrentValueComparerFactory.Instance;
 
         Assert.Equal(
             CoreStrings.NonComparableKeyType(
@@ -62,7 +62,7 @@ public class CurrentValueComparerTest
     {
         using var context = new GodzillaContext();
 
-        var factory = new CurrentValueComparerFactory();
+        var factory = CurrentValueComparerFactory.Instance;
 
         Assert.Equal(
             CoreStrings.NonComparableKeyTypes(
@@ -162,9 +162,9 @@ public class CurrentValueComparerTest
         using var context = new GodzillaContext();
 
         context.AttachRange(
-            generator(new byte[0]), generator(new byte[] { 9 }),
-            generator(new byte[0]), generator(new byte[] { 3, 3, 3 }),
-            generator(new byte[] { 1, 1 }), generator(new byte[] { 9 }), generator(new byte[] { 7 }), generator(new byte[] { 3, 3 }));
+            generator([]), generator([9]),
+            generator([]), generator([3, 3, 3]),
+            generator([1, 1]), generator([9]), generator([7]), generator([3, 3]));
 
         var comparer = context.Model
             .FindEntityType(typeof(Godzilla))
@@ -177,17 +177,7 @@ public class CurrentValueComparerTest
             .ToList();
 
         Assert.Equal(
-            new[]
-            {
-                new byte[0],
-                new byte[0],
-                new byte[] { 7 },
-                new byte[] { 9 },
-                new byte[] { 9 },
-                new byte[] { 1, 1 },
-                new byte[] { 3, 3 },
-                new byte[] { 3, 3, 3 }
-            },
+            new byte[][] { [], [], [7], [9], [9], [1, 1], [3, 3], [3, 3, 3] },
             entries);
     }
 
@@ -335,9 +325,9 @@ public class CurrentValueComparerTest
         using var context = new GodzillaContext();
 
         context.AttachRange(
-            generator(null), generator(new byte[] { 9 }),
-            generator(null), generator(new byte[] { 3, 3, 3 }),
-            generator(new byte[] { 1, 1 }), generator(new byte[] { 9 }), generator(new byte[] { 7 }), generator(new byte[] { 3, 3 }));
+            generator(null), generator([9]),
+            generator(null), generator([3, 3, 3]),
+            generator([1, 1]), generator([9]), generator([7]), generator([3, 3]));
 
         var comparer = context.Model
             .FindEntityType(typeof(Godzilla))
@@ -350,17 +340,7 @@ public class CurrentValueComparerTest
             .ToList();
 
         Assert.Equal(
-            new[]
-            {
-                null,
-                null,
-                new byte[] { 7 },
-                new byte[] { 9 },
-                new byte[] { 9 },
-                new byte[] { 1, 1 },
-                new byte[] { 3, 3 },
-                new byte[] { 3, 3, 3 }
-            },
+            new[] { null, null, [7], [9], [9], [1, 1], [3, 3], new byte[] { 3, 3, 3 } },
             entries);
     }
 

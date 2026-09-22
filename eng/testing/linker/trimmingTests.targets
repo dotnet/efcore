@@ -64,7 +64,7 @@
 
     <ItemGroup Condition="'$(AdditionalProjectReferences)' != ''">
       <_additionalProjectReferenceTemp Include="$(AdditionalProjectReferences)" />
-      <_additionalProjectReference Include="&lt;ProjectReference Include=&quot;$(LibrariesProjectRoot)%(_additionalProjectReferenceTemp.Identity)\src\%(_additionalProjectReferenceTemp.Identity).csproj&quot; SkipUseReferenceAssembly=&quot;true&quot; /&gt;" />
+      <_additionalProjectReference Include="&lt;ProjectReference Include=&quot;$(SolutionRoot)%(_additionalProjectReferenceTemp.Identity)\src\%(_additionalProjectReferenceTemp.Identity).csproj&quot; SkipUseReferenceAssembly=&quot;true&quot; /&gt;" />
     </ItemGroup>
 
     <PropertyGroup>

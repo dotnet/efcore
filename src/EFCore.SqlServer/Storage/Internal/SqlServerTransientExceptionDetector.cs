@@ -680,6 +680,7 @@ public static class SqlServerTransientExceptionDetector
                         {
                             return true;
                         }
+
                         continue;
                     // SQL Error Code: 121
                     // The semaphore timeout period has expired

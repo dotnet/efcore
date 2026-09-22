@@ -3,21 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class FunkyDataQuerySqlServerTest : FunkyDataQueryTestBase<FunkyDataQuerySqlServerTest.FunkyDataQuerySqlServerFixture>
+#nullable disable
+
+public class FunkyDataQuerySqlServerTest : FunkyDataQuerySqlServerBaseTest<FunkyDataQuerySqlServerTest.FunkyDataQuerySqlServerFixture>
 {
     public FunkyDataQuerySqlServerTest(FunkyDataQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected virtual bool CanExecuteQueryString
-        => true;
-
-    protected override QueryAsserter CreateQueryAsserter(FunkyDataQuerySqlServerFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 
     public override async Task String_contains_on_argument_with_wildcard_constant(bool async)
     {
@@ -159,7 +152,7 @@ WHERE [f].[FirstName] IS NOT NULL AND [f0].[LastName] IS NOT NULL AND (CHARINDEX
 SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
-WHERE NOT ([f].[FirstName] IS NOT NULL AND [f0].[LastName] IS NOT NULL AND (CHARINDEX([f0].[LastName], [f].[FirstName]) > 0 OR [f0].[LastName] LIKE N''))
+WHERE [f].[FirstName] IS NULL OR [f0].[LastName] IS NULL OR (CHARINDEX([f0].[LastName], [f].[FirstName]) <= 0 AND [f0].[LastName] NOT LIKE N'')
 """);
     }
 
@@ -173,44 +166,44 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'\%B%' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'\_B%' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'\_Ba\_%' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] NOT LIKE N'\%B\%a\%r%' ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -371,44 +364,44 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'%\%r' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'%r\_' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NOT NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'%\_r\_' ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] NOT LIKE N'%a\%r\%' ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -596,18 +589,15 @@ WHERE [f].[FirstName] LIKE @__s_0_contains ESCAPE N'\' OR [f].[LastName] LIKE @_
 """);
     }
 
-    protected override void ClearLog()
-        => Fixture.TestSqlLoggerFactory.Clear();
-
-    private void AssertSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-    public class FunkyDataQuerySqlServerFixture : FunkyDataQueryFixtureBase
+    public class FunkyDataQuerySqlServerFixture : FunkyDataQueryFixtureBase, ITestSqlLoggerFactory
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        protected override string StoreName
+            => nameof(FunkyDataQuerySqlServerTest);
     }
 }

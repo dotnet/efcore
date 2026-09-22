@@ -22,10 +22,10 @@ public abstract class RelationalDatabaseCleaner
     protected virtual bool AcceptSequence(DatabaseSequence sequence)
         => true;
 
-    protected virtual string BuildCustomSql(DatabaseModel databaseModel)
+    protected virtual string? BuildCustomSql(DatabaseModel databaseModel)
         => null;
 
-    protected virtual string BuildCustomEndingSql(DatabaseModel databaseModel)
+    protected virtual string? BuildCustomEndingSql(DatabaseModel databaseModel)
         => null;
 
     protected virtual void OpenConnection(IRelationalConnection connection)
@@ -108,26 +108,86 @@ public abstract class RelationalDatabaseCleaner
 
     private static void ExecuteScript(IRelationalConnection connection, IRawSqlCommandBuilder sqlBuilder, string customSql)
     {
-        var batches = Regex.Split(
-            Regex.Replace(
-                customSql,
-                @"\\\r?\n",
-                string.Empty,
-                default,
-                TimeSpan.FromMilliseconds(1000.0)),
-            @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)",
-            RegexOptions.IgnoreCase | RegexOptions.Multiline,
-            TimeSpan.FromMilliseconds(1000.0));
-        for (var i = 0; i < batches.Length; i++)
+        foreach (var batch in SplitBatches(customSql))
         {
-            if (batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase)
-                || string.IsNullOrWhiteSpace(batches[i]))
-            {
-                continue;
-            }
-
-            sqlBuilder.Build(batches[i])
+            sqlBuilder.Build(batch)
                 .ExecuteNonQuery(new RelationalCommandParameterObject(connection, null, null, null, null));
+        }
+    }
+
+    public static IReadOnlyList<string> SplitBatches(string sql)
+    {
+        var batches = new List<string>();
+        var preBatched = sql
+            .Replace("\\\n", "")
+            .Replace("\\\r\n", "")
+            .Split(["\r\n", "\n"], StringSplitOptions.None);
+
+        var quoted = false;
+        var batchBuilder = new StringBuilder();
+        foreach (var line in preBatched)
+        {
+            var trimmed = line.TrimStart();
+            if (!quoted
+                && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+                && (trimmed.Length == 2
+                    || char.IsWhiteSpace(trimmed[2])))
+            {
+                var batch = batchBuilder.ToString();
+                batchBuilder.Clear();
+
+                var count = trimmed.Length >= 4
+                    && int.TryParse(trimmed.AsSpan(3), out var specifiedCount)
+                        ? specifiedCount
+                        : 1;
+
+                for (var j = 0; j < count; j++)
+                {
+                    AppendBatch(batch);
+                }
+            }
+            else
+            {
+                var commentStart = false;
+                foreach (var c in trimmed)
+                {
+                    switch (c)
+                    {
+                        case '\'':
+                            quoted = !quoted;
+                            commentStart = false;
+                            break;
+                        case '-':
+                            if (!quoted)
+                            {
+                                if (commentStart)
+                                {
+                                    goto LineEnd;
+                                }
+                                commentStart = true;
+                            }
+                            break;
+                        default:
+                            commentStart = false;
+                            break;
+                    }
+                }
+
+                LineEnd:
+                batchBuilder.AppendLine(line);
+            }
+        }
+
+        AppendBatch(batchBuilder.ToString());
+
+        return batches;
+
+        void AppendBatch(string batch)
+        {
+            if (!string.IsNullOrWhiteSpace(batch))
+            {
+                batches.Add(batch);
+            }
         }
     }
 
@@ -140,7 +200,7 @@ public abstract class RelationalDatabaseCleaner
     protected virtual MigrationOperation Drop(DatabaseForeignKey foreignKey)
         => new DropForeignKeyOperation
         {
-            Name = foreignKey.Name,
+            Name = foreignKey.Name!,
             Table = foreignKey.Table.Name,
             Schema = foreignKey.Table.Schema
         };
@@ -148,8 +208,8 @@ public abstract class RelationalDatabaseCleaner
     protected virtual MigrationOperation Drop(DatabaseIndex index)
         => new DropIndexOperation
         {
-            Name = index.Name,
-            Table = index.Table.Name,
+            Name = index.Name!,
+            Table = index.Table!.Name,
             Schema = index.Table.Schema
         };
 }

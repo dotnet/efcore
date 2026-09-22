@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -21,9 +22,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     protected NavigationAttributeConventionBase(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -310,7 +309,8 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionModel model)
     {
-        var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo, model, out _);
+        var targetClrType =
+            Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo, model, useAttributes: true, out _);
         return targetClrType != null
             && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                 ? targetClrType
@@ -318,7 +318,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     }
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionEntityType entityType)
-        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType)
+        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true)
                 .TryGetValue(propertyInfo, out var target)
             && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                 ? target.Type

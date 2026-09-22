@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 
@@ -14,9 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// </remarks>
 public abstract class JsonValueReaderWriter
 {
-    private static readonly bool UseOldBehavior32896 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32896", out var enabled32896) && enabled32896;
-
     /// <summary>
     ///     Ensures the external types extend from the generic <see cref="JsonValueReaderWriter{TValue}" />
     /// </summary>
@@ -66,13 +64,13 @@ public abstract class JsonValueReaderWriter
     /// <returns>The read value.</returns>
     public object FromJsonString(string json, object? existingObject = null)
     {
-        if (!UseOldBehavior32896
-            && string.IsNullOrWhiteSpace(json))
+        if (string.IsNullOrWhiteSpace(json))
         {
             throw new InvalidOperationException(CoreStrings.EmptyJsonString);
         }
 
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
+        readerManager.MoveNext();
         return FromJson(ref readerManager, existingObject);
     }
 
@@ -128,4 +126,10 @@ public abstract class JsonValueReaderWriter
 
         return null;
     }
+
+    /// <summary>
+    ///     The expression representing construction of this object.
+    /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public abstract Expression ConstructorExpression { get; }
 }

@@ -213,7 +213,14 @@ namespace Microsoft.Data.Sqlite
         {
             if (IsolationLevel == IsolationLevel.ReadUncommitted)
             {
-                _connection!.ExecuteNonQuery("PRAGMA read_uncommitted = 0;");
+                try
+                {
+                    _connection!.ExecuteNonQuery("PRAGMA read_uncommitted = 0;");
+                }
+                catch
+                {
+                    // Ignore failure attempting to clean up.
+                }
             }
 
             _connection!.Transaction = null;
@@ -223,13 +230,19 @@ namespace Microsoft.Data.Sqlite
 
         private void RollbackInternal()
         {
-            if (!ExternalRollback)
+            try
             {
-                sqlite3_rollback_hook(_connection!.Handle, null, null);
-                _connection.ExecuteNonQuery("ROLLBACK;");
+                if (!ExternalRollback)
+                {
+                    sqlite3_rollback_hook(_connection!.Handle, null, null);
+                    _connection.ExecuteNonQuery("ROLLBACK;");
+                }
+            }
+            finally
+            {
+                Complete();
             }
 
-            Complete();
         }
 
         private void RollbackExternal(object userData)

@@ -1,27 +1,20 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerTypeAliasTest : IClassFixture<SqlServerFixture>
+public class SqlServerTypeAliasTest(SqlServerFixture fixture) : IClassFixture<SqlServerFixture>
 {
     private const string DatabaseName = "SqlServerTypeAliasTest";
 
-    protected SqlServerFixture Fixture { get; }
-
-    public SqlServerTypeAliasTest(SqlServerFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected SqlServerFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
-    public void Can_create_database_with_alias_columns()
+    public async Task Can_create_database_with_alias_columns()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         using (var context = new TypeAliasContext(options))
@@ -72,7 +65,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);
                     DecimalAlias = 3.14159m,
                     DoubleAlias = 3.14159,
                     FloatAlias = 3.14159f,
-                    BinaryAlias = new byte[] { 0, 1, 2, 3 },
+                    BinaryAlias = [0, 1, 2, 3],
                     StringAlias = "Rodrigo y Gabriela"
                 },
                 new TypeAliasEntityWithFacets
@@ -83,7 +76,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);
                     DecimalAlias = 3.14159m,
                     DoubleAlias = 3.14159,
                     FloatAlias = 3.14159f,
-                    BinaryAlias = new byte[] { 0, 1, 2, 3 },
+                    BinaryAlias = [0, 1, 2, 3],
                     StringAlias = "Mettavolution"
                 });
 
@@ -119,13 +112,8 @@ CREATE TYPE stringAlias FROM nvarchar(50);
             => entityType.FindProperty(propertyName)!.GetColumnType(new StoreObjectIdentifier());
     }
 
-    private class TypeAliasContext : DbContext
+    private class TypeAliasContext(DbContextOptions options) : DbContext(options)
     {
-        public TypeAliasContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TypeAliasEntity>();

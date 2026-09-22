@@ -5,13 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
 public class AdventureWorksSqlServerContext : AdventureWorksContextBase
 {
-    private readonly string _connectionString;
-
-    public AdventureWorksSqlServerContext(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
-
     protected override void ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(_connectionString);
+        => optionsBuilder.UseSqlServer(AdventureWorksSqlServerFixture.ConnectionString);
 }

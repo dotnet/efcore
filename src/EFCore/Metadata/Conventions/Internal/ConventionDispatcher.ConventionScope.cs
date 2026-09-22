@@ -182,6 +182,11 @@ public partial class ConventionDispatcher
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation);
 
+        public abstract string? OnModelEmbeddedDiscriminatorNameChanged(
+            IConventionModelBuilder modelBuilder,
+            string? oldName,
+            string? newName);
+
         public abstract IConventionNavigationBuilder? OnNavigationAdded(IConventionNavigationBuilder navigationBuilder);
 
         public abstract string? OnNavigationRemoved(

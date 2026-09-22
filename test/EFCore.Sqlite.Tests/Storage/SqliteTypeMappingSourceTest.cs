@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqliteTypeMappingSourceTest : RelationalTypeMapperTestBase
+public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 {
     [ConditionalTheory]
     [InlineData("INTEGER", typeof(byte), DbType.Byte)]
@@ -360,38 +360,22 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMapperTestBase
         return typeMappingSource;
     }
 
-    private enum LongEnum : long
-    {
-    }
+    private enum LongEnum : long;
 
-    private enum IntEnum
-    {
-    }
+    private enum IntEnum;
 
-    private enum ShortEnum : short
-    {
-    }
+    private enum ShortEnum : short;
 
-    private enum ByteEnum : byte
-    {
-    }
+    private enum ByteEnum : byte;
 
-    protected enum ULongEnum : ulong
-    {
-    }
+    protected enum ULongEnum : ulong;
 
-    protected enum UIntEnum : uint
-    {
-    }
+    protected enum UIntEnum : uint;
 
-    protected enum UShortEnum : ushort
-    {
-    }
+    protected enum UShortEnum : ushort;
 
-    protected enum SByteEnum : sbyte
-    {
-    }
+    protected enum SByteEnum : sbyte;
 
-    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
+    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configureConventions = null)
         => SqliteTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);
 }

@@ -38,7 +38,7 @@ public class OperationException : Exception
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DbUpdateException" /> class from a serialized form.
+    ///     Initializes a new instance of the <see cref="OperationException" /> class from a serialized form.
     /// </summary>
     /// <param name="info">The serialization info.</param>
     /// <param name="context">The streaming context being used.</param>

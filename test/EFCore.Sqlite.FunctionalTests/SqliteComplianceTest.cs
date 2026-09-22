@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqliteComplianceTest : RelationalComplianceTestBase
 {
     protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>

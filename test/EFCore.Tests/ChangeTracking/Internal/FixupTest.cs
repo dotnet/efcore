@@ -996,7 +996,7 @@ public class FixupTest
             () =>
             {
                 Assert.Equal(setFk ? principal.Id : 0, dependent.CategoryId);
-                Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
+                Assert.Equal(setToDependent ? [dependent] : [], principal.Products);
                 Assert.Equal(EntityState.Detached, context.Entry(principal).State);
                 Assert.Equal(
                     entityState == EntityState.Unchanged && setFk ? EntityState.Modified : entityState,
@@ -1050,7 +1050,7 @@ public class FixupTest
             () =>
             {
                 Assert.Equal(principal.Id, dependent.CategoryId);
-                Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
+                Assert.Equal(setToDependent ? [dependent] : [], principal.Products);
                 Assert.Equal(entityState, context.Entry(principal).State);
                 Assert.Equal(
                     setToDependent
@@ -2106,30 +2106,30 @@ public class FixupTest
 
         var stateManager = context.GetService<IStateManager>();
 
-        stateManager.StartTrackingFromQuery(categoryType, new Category(11), new ValueBuffer(new object[] { 11 }));
-        stateManager.StartTrackingFromQuery(categoryType, new Category(12), new ValueBuffer(new object[] { 12 }));
-        stateManager.StartTrackingFromQuery(categoryType, new Category(13), new ValueBuffer(new object[] { 13 }));
+        stateManager.StartTrackingFromQuery(categoryType, new Category(11), new Snapshot<int>(11));
+        stateManager.StartTrackingFromQuery(categoryType, new Category(12), new Snapshot<int>(12));
+        stateManager.StartTrackingFromQuery(categoryType, new Category(13), new Snapshot<int>(13));
 
-        stateManager.StartTrackingFromQuery(productType, new Product(21, 11), new ValueBuffer(new object[] { 21, 11 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(21, 11), new Snapshot<int, int>(21, 11));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(productType, new Product(22, 11), new ValueBuffer(new object[] { 22, 11 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(22, 11), new Snapshot<int, int>(22, 11));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(productType, new Product(23, 11), new ValueBuffer(new object[] { 23, 11 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(23, 11), new Snapshot<int, int>(23, 11));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(productType, new Product(24, 12), new ValueBuffer(new object[] { 24, 12 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(24, 12), new Snapshot<int, int>(24, 12));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(productType, new Product(25, 12), new ValueBuffer(new object[] { 25, 12 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(25, 12), new Snapshot<int, int>(25, 12));
         AssertAllFixedUp(context);
 
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(31, 22), new ValueBuffer(new object[] { 31, 22 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(31, 22), new Snapshot<int, int>(31, 22));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(32, 22), new ValueBuffer(new object[] { 32, 22 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(32, 22), new Snapshot<int, int>(32, 22));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(33, 24), new ValueBuffer(new object[] { 33, 24 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(33, 24), new Snapshot<int, int>(33, 24));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(34, 24), new ValueBuffer(new object[] { 34, 24 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(34, 24), new Snapshot<int, int>(34, 24));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(35, 24), new ValueBuffer(new object[] { 35, 24 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(35, 24), new Snapshot<int, int>(35, 24));
 
         AssertAllFixedUp(context);
 
@@ -2988,14 +2988,9 @@ public class FixupTest
             => StringComparer.InvariantCultureIgnoreCase.Compare(Name, other.Name);
     }
 
-    private class ComparableEntitiesContext : DbContext
+    private class ComparableEntitiesContext(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public ComparableEntitiesContext(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -3057,7 +3052,7 @@ public class FixupTest
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<ContainerRoomX> Rooms { get; set; } = new();
+        public List<ContainerRoomX> Rooms { get; set; } = [];
     }
 
     public class ContainerRoomX
@@ -3074,17 +3069,12 @@ public class FixupTest
     {
         public int Id { get; set; }
         public string Description { get; set; }
-        public List<ContainerRoomX> Rooms { get; set; } = new();
+        public List<ContainerRoomX> Rooms { get; set; } = [];
     }
 
-    protected class EscapeRoom : DbContext
+    protected class EscapeRoom(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public EscapeRoom(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -3205,14 +3195,9 @@ public class FixupTest
         public virtual IList<ParentChildX> ParentChildren { get; set; } = new List<ParentChildX>();
     }
 
-    protected class BadHashDay : DbContext
+    protected class BadHashDay(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public BadHashDay(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -3298,16 +3283,10 @@ public class FixupTest
         public EntityB EntityB { get; set; }
     }
 
-    private class BadBeeContext : DbContext
+    private class BadBeeContext(string databaseName, params IInterceptor[] interceptors) : DbContext
     {
-        private readonly IInterceptor[] _interceptors;
-        private readonly string _databaseName;
-
-        public BadBeeContext(string databaseName, params IInterceptor[] interceptors)
-        {
-            _interceptors = interceptors;
-            _databaseName = databaseName;
-        }
+        private readonly IInterceptor[] _interceptors = interceptors;
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -3365,16 +3344,11 @@ public class FixupTest
         public ICollection<Cat> Cats { get; } = new List<Cat>();
     }
 
-    private class Parent
+    private class Parent(int id)
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private readonly int _id;
+        private readonly int _id = id;
         private Child _child;
-
-        public Parent(int id)
-        {
-            _id = id;
-        }
 
         // ReSharper disable once ConvertToAutoProperty
         public int Id
@@ -3391,18 +3365,12 @@ public class FixupTest
             => _child = child;
     }
 
-    private class Child
+    private class Child(int id, int parentId)
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private readonly int _id;
-        private int _parentId;
+        private readonly int _id = id;
+        private int _parentId = parentId;
         private Parent _parent;
-
-        public Child(int id, int parentId)
-        {
-            _id = id;
-            _parentId = parentId;
-        }
 
         // ReSharper disable once ConvertToAutoProperty
         public int Id
@@ -3479,14 +3447,9 @@ public class FixupTest
 
     private class CategoryPN
     {
-        public CategoryPN()
-        {
-            Products = new List<ProductPN>();
-        }
-
         public int Id { get; set; }
 
-        public ICollection<ProductPN> Products { get; }
+        public ICollection<ProductPN> Products { get; } = new List<ProductPN>();
     }
 
     private class ProductPN
@@ -3518,9 +3481,7 @@ public class FixupTest
         }
 
         public Category(int id)
-        {
-            _id = id;
-        }
+            => _id = id;
 
         public string Value1 { get; set; }
         public string Value2 { get; set; }
@@ -3866,7 +3827,7 @@ public class FixupTest
         public string Name { get; set; }
 
         public FixupSite FixupSite { get; set; }
-        public List<FixupPost> Posts { get; } = new();
+        public List<FixupPost> Posts { get; } = [];
     }
 
     public class FixupSite
@@ -3885,7 +3846,7 @@ public class FixupTest
 
         public int? FixupBlogId { get; set; }
         public FixupBlog FixupBlog { get; set; }
-        public List<FixupTag> Tags { get; } = new();
+        public List<FixupTag> Tags { get; } = [];
     }
 
     public class FixupTag
@@ -3893,7 +3854,7 @@ public class FixupTest
         public int Id { get; set; }
         public string Content { get; set; }
 
-        public List<FixupPost> Posts { get; } = new();
+        public List<FixupPost> Posts { get; } = [];
     }
 
     [ConditionalFact]

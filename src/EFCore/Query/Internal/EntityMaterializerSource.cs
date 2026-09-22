@@ -15,18 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class EntityMaterializerSource : IEntityMaterializerSource
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly bool UseOldBehavior31866 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31866", out var enabled31866) && enabled31866;
-
-    internal static readonly bool UseOldBehavior32701 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32701", out var enabled32701) && enabled32701;
-
     private static readonly MethodInfo InjectableServiceInjectedMethod
         = typeof(IInjectableService).GetMethod(nameof(IInjectableService.Injected))!;
 
@@ -35,9 +23,15 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     private readonly List<IInstantiationBindingInterceptor> _bindingInterceptors;
     private readonly IMaterializationInterceptor? _materializationInterceptor;
 
-    private static readonly MethodInfo PopulateListMethod
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly MethodInfo PopulateListMethod
         = typeof(EntityMaterializerSource).GetMethod(
-            nameof(PopulateList), BindingFlags.NonPublic | BindingFlags.Static)!;
+            nameof(PopulateList), BindingFlags.Public | BindingFlags.Static)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -93,8 +87,6 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
         var constructorBinding = ModifyBindings(structuralType, structuralType.ConstructorBinding!);
         var bindingInfo = new ParameterBindingInfo(parameters, materializationContextExpression);
-        var blockExpressions = new List<Expression>();
-
         var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, entityInstanceName);
         bindingInfo.ServiceInstances.Add(instanceVariable);
 
@@ -102,6 +94,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             structuralType.GetProperties().Cast<IPropertyBase>().Where(p => !p.IsShadowProperty())
                 .Concat(structuralType.GetComplexProperties().Where(p => !p.IsShadowProperty())));
 
+        var blockExpressions = new List<Expression>();
         if (structuralType is IEntityType entityType)
         {
             var serviceProperties = entityType.GetServiceProperties().ToList();
@@ -123,7 +116,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         if (_materializationInterceptor == null
             // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
             // don't get intercepted.
-            || (structuralType is not IEntityType && !UseOldBehavior32701))
+            || structuralType is not IEntityType)
         {
             return properties.Count == 0 && blockExpressions.Count == 0
                 ? constructorExpression
@@ -179,22 +172,35 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         {
             if (property is IProperty { IsPrimitiveCollection: true, ClrType.IsArray: false })
             {
-                var currentVariable = Expression.Variable(property.ClrType);
-                return Expression.Block(
-                    new[] { currentVariable },
-                    Expression.Assign(
-                        currentVariable,
-                        Expression.MakeMemberAccess(parameter, property.GetMemberInfo(forMaterialization: true, forSet: false))),
-                    Expression.IfThenElse(
-                        Expression.OrElse(
-                            Expression.ReferenceEqual(currentVariable, Expression.Constant(null)),
-                            Expression.ReferenceEqual(value, Expression.Constant(null))),
-                        Expression.MakeMemberAccess(parameter, memberInfo).Assign(value),
-                        Expression.Call(
-                            PopulateListMethod.MakeGenericMethod(property.ClrType.TryGetElementType(typeof(IEnumerable<>))!),
-                            value,
-                            currentVariable)
-                    ));
+                var elementType = property.ClrType.TryGetElementType(typeof(IEnumerable<>))!;
+                var iCollectionInterface = typeof(ICollection<>).MakeGenericType(elementType);
+                if (iCollectionInterface.IsAssignableFrom(property.ClrType))
+                {
+                    var genericMethod = PopulateListMethod.MakeGenericMethod(elementType);
+                    var currentVariable = Expression.Variable(property.ClrType);
+                    var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
+                        ? (Expression)currentVariable
+                        : Expression.Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
+                    return Expression.Block(
+                        new[] { currentVariable },
+                        Expression.Assign(
+                            currentVariable,
+                            Expression.MakeMemberAccess(parameter, property.GetMemberInfo(forMaterialization: true, forSet: false))),
+                        Expression.IfThenElse(
+                            Expression.OrElse(
+                                Expression.OrElse(
+                                    Expression.ReferenceEqual(currentVariable, Expression.Constant(null)),
+                                    Expression.ReferenceEqual(value, Expression.Constant(null))),
+                                Expression.MakeMemberAccess(
+                                    currentVariable,
+                                    iCollectionInterface.GetProperty(nameof(ICollection<object>.IsReadOnly))!)),
+                            Expression.MakeMemberAccess(parameter, memberInfo).Assign(value),
+                            Expression.Call(
+                                genericMethod,
+                                value,
+                                convertedVariable)
+                        ));
+                }
             }
 
             return property.IsIndexerProperty()
@@ -206,7 +212,13 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         }
     }
 
-    private static IList<T> PopulateList<T>(IList<T> buffer, IList<T> target)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IList<T> PopulateList<T>(IEnumerable<T> buffer, IList<T> target)
     {
         target.Clear();
         foreach (var value in buffer)
@@ -234,19 +246,19 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                         InjectableServiceInjectedMethod,
                         getContext,
                         instanceVariable,
-                        Expression.Constant(bindingInfo, typeof(ParameterBindingInfo)))));
+                        Expression.Constant(bindingInfo.QueryTrackingBehavior, typeof(QueryTrackingBehavior?)),
+                        Expression.Constant(bindingInfo.StructuralType))));
         }
     }
 
     private static readonly ConstructorInfo MaterializationInterceptionDataConstructor
         = typeof(MaterializationInterceptionData).GetDeclaredConstructor(
-            new[]
-            {
-                typeof(MaterializationContext),
-                typeof(IEntityType),
-                typeof(QueryTrackingBehavior?),
-                typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>)
-            })!;
+        [
+            typeof(MaterializationContext),
+            typeof(IEntityType),
+            typeof(QueryTrackingBehavior?),
+            typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>)
+        ])!;
 
     private static readonly MethodInfo CreatingInstanceMethod
         = typeof(IMaterializationInterceptor).GetMethod(nameof(IMaterializationInterceptor.CreatingInstance))!;
@@ -272,11 +284,11 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     private static readonly MethodInfo DictionaryAddMethod
         = typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>).GetMethod(
             nameof(Dictionary<IPropertyBase, object>.Add),
-            new[] { typeof(IPropertyBase), typeof((object, Func<MaterializationContext, object?>)) })!;
+            [typeof(IPropertyBase), typeof((object, Func<MaterializationContext, object?>))])!;
 
     private static readonly ConstructorInfo DictionaryConstructor
         = typeof(ValueTuple<object, Func<MaterializationContext, object?>>).GetConstructor(
-            new[] { typeof(object), typeof(Func<MaterializationContext, object?>) })!;
+            [typeof(object), typeof(Func<MaterializationContext, object?>)])!;
 
     private Expression CreateMaterializeExpression(
         List<Expression> blockExpressions,
@@ -490,21 +502,14 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     public virtual Func<MaterializationContext, object> GetMaterializer(
         IEntityType entityType)
     {
-        return UseOldBehavior31866
-            ? Materializers.GetOrAdd(entityType, static (e, s) => CreateMaterializer(s, e), this)
-            : CreateMaterializer(this, entityType);
+        var materializationContextParameter
+            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
-        static Func<MaterializationContext, object> CreateMaterializer(EntityMaterializerSource self, IEntityType e)
-        {
-            var materializationContextParameter
-                = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
-
-            return Expression.Lambda<Func<MaterializationContext, object>>(
-                    ((IEntityMaterializerSource)self).CreateMaterializeExpression(
-                        new EntityMaterializerSourceParameters(e, "instance", null), materializationContextParameter),
-                    materializationContextParameter)
-                .Compile();
-        }
+        return Expression.Lambda<Func<MaterializationContext, object>>(
+                ((IEntityMaterializerSource)this).CreateMaterializeExpression(
+                    new EntityMaterializerSourceParameters(entityType, "instance", null), materializationContextParameter),
+                materializationContextParameter)
+            .Compile();
     }
 
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> EmptyMaterializers
@@ -520,61 +525,54 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     /// </summary>
     public virtual Func<MaterializationContext, object> GetEmptyMaterializer(IEntityType entityType)
     {
-        return UseOldBehavior31866
-            ? EmptyMaterializers.GetOrAdd(entityType, static (e, s) => CreateEmptyMaterializer(s, e), this)
-            : CreateEmptyMaterializer(this, entityType);
-
-        static Func<MaterializationContext, object> CreateEmptyMaterializer(EntityMaterializerSource self, IEntityType e)
+        var binding = entityType.ServiceOnlyConstructorBinding;
+        if (binding == null)
         {
-                var binding = e.ServiceOnlyConstructorBinding;
-                if (binding == null)
-                {
-                    var _ = e.ConstructorBinding;
-                    binding = e.ServiceOnlyConstructorBinding;
-                    if (binding == null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(e.DisplayName()));
-                    }
-                }
-
-                binding = self.ModifyBindings(e, binding);
-
-                var materializationContextExpression = Expression.Parameter(typeof(MaterializationContext), "mc");
-                var bindingInfo = new ParameterBindingInfo(
-                    new EntityMaterializerSourceParameters(e, "instance", null), materializationContextExpression);
-
-                var blockExpressions = new List<Expression>();
-                var instanceVariable = Expression.Variable(binding.RuntimeType, "instance");
-                var serviceProperties = e.GetServiceProperties().ToList();
-                bindingInfo.ServiceInstances.Add(instanceVariable);
-
-                CreateServiceInstances(binding, bindingInfo, blockExpressions, serviceProperties);
-
-                var constructorExpression = binding.CreateConstructorExpression(bindingInfo);
-
-                var properties = new HashSet<IPropertyBase>(serviceProperties);
-                foreach (var consumedProperty in binding.ParameterBindings.SelectMany(p => p.ConsumedProperties))
-                {
-                    properties.Remove(consumedProperty);
-                }
-
-                return Expression.Lambda<Func<MaterializationContext, object>>(
-                        self._materializationInterceptor == null
-                            ? properties.Count == 0 && blockExpressions.Count == 0
-                                ? constructorExpression
-                                : self.CreateMaterializeExpression(
-                                    blockExpressions, instanceVariable, constructorExpression, properties, bindingInfo)
-                            : self.CreateInterceptionMaterializeExpression(
-                                e,
-                                new HashSet<IPropertyBase>(),
-                                self._materializationInterceptor,
-                                bindingInfo,
-                                constructorExpression,
-                                instanceVariable,
-                                blockExpressions),
-                        materializationContextExpression)
-                    .Compile();
+            var _ = entityType.ConstructorBinding;
+            binding = entityType.ServiceOnlyConstructorBinding;
+            if (binding == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+            }
         }
+
+        binding = ModifyBindings(entityType, binding);
+
+        var materializationContextExpression = Expression.Parameter(typeof(MaterializationContext), "mc");
+        var bindingInfo = new ParameterBindingInfo(
+            new EntityMaterializerSourceParameters(entityType, "instance", null), materializationContextExpression);
+
+        var blockExpressions = new List<Expression>();
+        var instanceVariable = Expression.Variable(binding.RuntimeType, "instance");
+        var serviceProperties = entityType.GetServiceProperties().ToList();
+        bindingInfo.ServiceInstances.Add(instanceVariable);
+
+        CreateServiceInstances(binding, bindingInfo, blockExpressions, serviceProperties);
+
+        var constructorExpression = binding.CreateConstructorExpression(bindingInfo);
+
+        var properties = new HashSet<IPropertyBase>(serviceProperties);
+        foreach (var consumedProperty in binding.ParameterBindings.SelectMany(p => p.ConsumedProperties))
+        {
+            properties.Remove(consumedProperty);
+        }
+
+        return Expression.Lambda<Func<MaterializationContext, object>>(
+                _materializationInterceptor == null
+                    ? properties.Count == 0 && blockExpressions.Count == 0
+                        ? constructorExpression
+                        : CreateMaterializeExpression(
+                            blockExpressions, instanceVariable, constructorExpression, properties, bindingInfo)
+                    : CreateInterceptionMaterializeExpression(
+                        entityType,
+                        [],
+                        _materializationInterceptor,
+                        bindingInfo,
+                        constructorExpression,
+                        instanceVariable,
+                        blockExpressions),
+                materializationContextExpression)
+            .Compile();
     }
 
     private InstantiationBinding ModifyBindings(ITypeBase structuralType, InstantiationBinding binding)

@@ -3,18 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class FieldMappingInMemoryTest : FieldMappingTestBase<FieldMappingInMemoryTest.FieldMappingInMemoryFixture>
+public class FieldMappingInMemoryTest(FieldMappingInMemoryTest.FieldMappingInMemoryFixture fixture)
+    : FieldMappingTestBase<FieldMappingInMemoryTest.FieldMappingInMemoryFixture>(fixture)
 {
-    public FieldMappingInMemoryTest(FieldMappingInMemoryFixture fixture)
-        : base(fixture)
+    protected override async Task UpdateAsync<TBlog>(string navigation)
     {
-    }
-
-    protected override void Update<TBlog>(string navigation)
-    {
-        base.Update<TBlog>(navigation);
-
-        Fixture.Reseed();
+        await base.UpdateAsync<TBlog>(navigation);
+        await Fixture.ReseedAsync();
     }
 
     public class FieldMappingInMemoryFixture : FieldMappingFixtureBase

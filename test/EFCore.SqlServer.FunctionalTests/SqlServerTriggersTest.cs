@@ -6,14 +6,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
-{
-    public SqlServerTriggersTest(SqlServerTriggersFixture fixture)
-    {
-        Fixture = fixture;
-    }
+#nullable disable
 
-    private SqlServerTriggersFixture Fixture { get; }
+public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixture fixture)
+    : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
+{
+    private SqlServerTriggersFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void Triggers_run_on_insert_update_and_delete()
@@ -93,13 +91,8 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
     protected TriggersContext CreateContext()
         => (TriggersContext)Fixture.CreateContext();
 
-    protected class TriggersContext : PoolableDbContext
+    protected class TriggersContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public TriggersContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ProductBackup> ProductBackups { get; set; }
 
@@ -151,11 +144,11 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
 
-        protected override void Seed(PoolableDbContext context)
+        protected override async Task SeedAsync(PoolableDbContext context)
         {
-            context.Database.EnsureCreatedResiliently();
+            await context.Database.EnsureCreatedResilientlyAsync();
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"
 CREATE TRIGGER TRG_InsertProduct
 ON Products
@@ -169,7 +162,7 @@ BEGIN
     SELECT * FROM INSERTED;
 END");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"
 CREATE TRIGGER TRG_UpdateProduct
 ON Products
@@ -187,7 +180,7 @@ BEGIN
     WHERE p.Id IN(SELECT INSERTED.Id FROM INSERTED);
 END");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"
 CREATE TRIGGER TRG_DeleteProduct
 ON Products

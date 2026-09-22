@@ -5,11 +5,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class TPTFiltersInheritanceQueryTestBase<TFixture> : FiltersInheritanceQueryTestBase<TFixture>
-    where TFixture : TPTInheritanceQueryFixture, new()
-{
-    public TPTFiltersInheritanceQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+#nullable disable
+
+public abstract class TPTFiltersInheritanceQueryTestBase<TFixture>(TFixture fixture) : FiltersInheritanceQueryTestBase<TFixture>(fixture)
+    where TFixture : TPTInheritanceQueryFixture, new();

@@ -5,15 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new();
-
-    protected NorthwindEFPropertyIncludeQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

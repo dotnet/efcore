@@ -91,9 +91,9 @@ csharp_style_var_elsewhere = true:suggestion
 
 # Expression-bodied members
 # Explicitly disabled due to difference in coding style between source and tests
-#csharp_style_expression_bodied_methods = false:silent
-#csharp_style_expression_bodied_constructors = false:silent
-csharp_style_expression_bodied_operators = false:silent
+csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_constructors = true:suggestion
+csharp_style_expression_bodied_operators = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_expression_bodied_indexers = true:suggestion
 csharp_style_expression_bodied_accessors = true:suggestion
@@ -116,6 +116,9 @@ csharp_style_conditional_delegate_call = true:suggestion
 
 # Code block preferences
 csharp_prefer_braces = true:suggestion
+
+# Primary constructors
+csharp_style_prefer_primary_constructors = true:suggestion
 
 ## Formatting conventions
 # Dotnet formatting settings:
@@ -247,9 +250,6 @@ dotnet_naming_symbols.everything_else.applicable_accessibilities = *
 dotnet_naming_rule.everything_else_naming.symbols = everything_else
 dotnet_naming_rule.everything_else_naming.style = camel_case_style
 dotnet_naming_rule.everything_else_naming.severity = suggestion
-
-# Microsoft .NET properties
-csharp_style_expression_bodied_methods = true:suggestion
 
 # ReSharper properties
 resharper_local_function_body = expression_body

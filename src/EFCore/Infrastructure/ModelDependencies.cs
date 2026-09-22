@@ -47,9 +47,7 @@ public sealed record ModelDependencies
     [EntityFrameworkInternal]
     public ModelDependencies(
         IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-    {
-        Logger = logger;
-    }
+        => Logger = logger;
 
     /// <summary>
     ///     Gets the logger.

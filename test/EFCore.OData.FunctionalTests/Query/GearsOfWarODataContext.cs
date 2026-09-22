@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class GearsOfWarODataContext : PoolableDbContext
+public class GearsOfWarODataContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public GearsOfWarODataContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public DbSet<Gear> Gears { get; set; }
     public DbSet<Squad> Squads { get; set; }
     public DbSet<CogTag> Tags { get; set; }

@@ -29,9 +29,7 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
         string storeType,
         JsonValueReaderWriter? jsonValueReaderWriter = null)
         : base(CreateRelationalTypeMappingParameters(storeType, jsonValueReaderWriter))
-    {
-        SpatialConverter = converter;
-    }
+        => SpatialConverter = converter;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
@@ -51,9 +49,7 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
                             parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType)
                         : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel))
                 }))
-    {
-        SpatialConverter = converter;
-    }
+        => SpatialConverter = converter;
 
     private static ValueComparer? CreateProviderValueComparer(Type providerType)
         => providerType.IsAssignableTo(typeof(TGeometry))
@@ -150,7 +146,7 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
         => Expression.Convert(
             Expression.Call(
                 Expression.New(WktReaderType),
-                WktReaderType.GetMethod("Read", new[] { typeof(string) })!,
+                WktReaderType.GetMethod("Read", [typeof(string)])!,
                 Expression.Constant(CreateWktWithSrid(value), typeof(string))),
             value.GetType());
 

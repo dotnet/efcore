@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class TPCRelationshipsQueryRelationalFixture : InheritanceRelationshipsQueryRelationalFixture
 {
     protected override string StoreName

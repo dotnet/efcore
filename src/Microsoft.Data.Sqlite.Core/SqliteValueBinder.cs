@@ -9,20 +9,11 @@ using Microsoft.Data.Sqlite.Properties;
 namespace Microsoft.Data.Sqlite
 {
     // TODO: Make generic
-    internal abstract class SqliteValueBinder
+    internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
     {
-        private readonly object? _value;
-        private readonly SqliteType? _sqliteType;
-
         protected SqliteValueBinder(object? value)
             : this(value, null)
         {
-        }
-
-        protected SqliteValueBinder(object? value, SqliteType? sqliteType)
-        {
-            _value = value;
-            _sqliteType = sqliteType;
         }
 
         protected abstract void BindInt64(long value);
@@ -47,33 +38,33 @@ namespace Microsoft.Data.Sqlite
 
         public virtual void Bind()
         {
-            if (_value == null)
+            if (value == null)
             {
                 BindNull();
 
                 return;
             }
 
-            var type = _value.GetType().UnwrapNullableType().UnwrapEnumType();
+            var type = value.GetType().UnwrapNullableType().UnwrapEnumType();
             if (type == typeof(bool))
             {
-                var value = (bool)_value ? 1L : 0;
-                BindInt64(value);
+                var value1 = (bool)value ? 1L : 0;
+                BindInt64(value1);
             }
             else if (type == typeof(byte))
             {
-                var value = (long)(byte)_value;
-                BindInt64(value);
+                var value1 = (long)(byte)value;
+                BindInt64(value1);
             }
             else if (type == typeof(byte[]))
             {
-                var value = (byte[])_value;
-                BindBlob(value);
+                var value1 = (byte[])value;
+                BindBlob(value1);
             }
             else if (type == typeof(char))
             {
-                var chr = (char)_value;
-                if (_sqliteType != SqliteType.Integer)
+                var chr = (char)value;
+                if (sqliteType != SqliteType.Integer)
                 {
                     var value = new string(chr, 1);
                     BindText(value);
@@ -86,8 +77,8 @@ namespace Microsoft.Data.Sqlite
             }
             else if (type == typeof(DateTime))
             {
-                var dateTime = (DateTime)_value;
-                if (_sqliteType == SqliteType.Real)
+                var dateTime = (DateTime)value;
+                if (sqliteType == SqliteType.Real)
                 {
                     var value = ToJulianDate(dateTime);
                     BindDouble(value);
@@ -100,8 +91,8 @@ namespace Microsoft.Data.Sqlite
             }
             else if (type == typeof(DateTimeOffset))
             {
-                var dateTimeOffset = (DateTimeOffset)_value;
-                if (_sqliteType == SqliteType.Real)
+                var dateTimeOffset = (DateTimeOffset)value;
+                if (sqliteType == SqliteType.Real)
                 {
                     var value = ToJulianDate(dateTimeOffset.DateTime);
                     BindDouble(value);
@@ -115,8 +106,8 @@ namespace Microsoft.Data.Sqlite
 #if NET6_0_OR_GREATER
             else if (type == typeof(DateOnly))
             {
-                var dateOnly = (DateOnly)_value;
-                if (_sqliteType == SqliteType.Real)
+                var dateOnly = (DateOnly)value;
+                if (sqliteType == SqliteType.Real)
                 {
                     var value = ToJulianDate(dateOnly.Year, dateOnly.Month, dateOnly.Day, 0, 0, 0, 0);
                     BindDouble(value);
@@ -129,8 +120,8 @@ namespace Microsoft.Data.Sqlite
             }
             else if (type == typeof(TimeOnly))
             {
-                var timeOnly = (TimeOnly)_value;
-                if (_sqliteType == SqliteType.Real)
+                var timeOnly = (TimeOnly)value;
+                if (sqliteType == SqliteType.Real)
                 {
                     var value = GetTotalDays(timeOnly.Hour, timeOnly.Minute, timeOnly.Second, timeOnly.Millisecond);
                     BindDouble(value);
@@ -150,23 +141,23 @@ namespace Microsoft.Data.Sqlite
             }
             else if (type == typeof(decimal))
             {
-                var value = ((decimal)_value).ToString("0.0###########################", CultureInfo.InvariantCulture);
-                BindText(value);
+                var value1 = ((decimal)value).ToString("0.0###########################", CultureInfo.InvariantCulture);
+                BindText(value1);
             }
             else if (type == typeof(double))
             {
-                var value = (double)_value;
-                BindDouble(value);
+                var value1 = (double)value;
+                BindDouble(value1);
             }
             else if (type == typeof(float))
             {
-                var value = (double)(float)_value;
-                BindDouble(value);
+                var value1 = (double)(float)value;
+                BindDouble(value1);
             }
             else if (type == typeof(Guid))
             {
-                var guid = (Guid)_value;
-                if (_sqliteType != SqliteType.Blob)
+                var guid = (Guid)value;
+                if (sqliteType != SqliteType.Blob)
                 {
                     var value = guid.ToString().ToUpperInvariant();
                     BindText(value);
@@ -179,33 +170,33 @@ namespace Microsoft.Data.Sqlite
             }
             else if (type == typeof(int))
             {
-                var value = (long)(int)_value;
-                BindInt64(value);
+                var value1 = (long)(int)value;
+                BindInt64(value1);
             }
             else if (type == typeof(long))
             {
-                var value = (long)_value;
-                BindInt64(value);
+                var value1 = (long)value;
+                BindInt64(value1);
             }
             else if (type == typeof(sbyte))
             {
-                var value = (long)(sbyte)_value;
-                BindInt64(value);
+                var value1 = (long)(sbyte)value;
+                BindInt64(value1);
             }
             else if (type == typeof(short))
             {
-                var value = (long)(short)_value;
-                BindInt64(value);
+                var value1 = (long)(short)value;
+                BindInt64(value1);
             }
             else if (type == typeof(string))
             {
-                var value = (string)_value;
-                BindText(value);
+                var value1 = (string)value;
+                BindText(value1);
             }
             else if (type == typeof(TimeSpan))
             {
-                var timeSpan = (TimeSpan)_value;
-                if (_sqliteType == SqliteType.Real)
+                var timeSpan = (TimeSpan)value;
+                if (sqliteType == SqliteType.Real)
                 {
                     var value = timeSpan.TotalDays;
                     BindDouble(value);
@@ -218,18 +209,18 @@ namespace Microsoft.Data.Sqlite
             }
             else if (type == typeof(uint))
             {
-                var value = (long)(uint)_value;
-                BindInt64(value);
+                var value1 = (long)(uint)value;
+                BindInt64(value1);
             }
             else if (type == typeof(ulong))
             {
-                var value = (long)(ulong)_value;
-                BindInt64(value);
+                var value1 = (long)(ulong)value;
+                BindInt64(value1);
             }
             else if (type == typeof(ushort))
             {
-                var value = (long)(ushort)_value;
-                BindInt64(value);
+                var value1 = (long)(ushort)value;
+                BindInt64(value1);
             }
             else
             {

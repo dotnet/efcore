@@ -1,12 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 
@@ -21,6 +19,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     protected string AssemblyFileName { get; set; }
     protected string StartupAssemblyFileName { get; set; }
     protected string ProjectDirectory { get; }
+    protected string Project { get; }
     protected string RootNamespace { get; }
     protected string? Language { get; }
     protected bool Nullable { get; }
@@ -29,11 +28,13 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     protected OperationExecutorBase(
         string assembly,
         string? startupAssembly,
+        string? project,
         string? projectDir,
         string? rootNamespace,
         string? language,
         bool nullable,
-        string[] remainingArguments)
+        string[] remainingArguments,
+        IOperationReportHandler reportHandler)
     {
         AssemblyFileName = Path.GetFileNameWithoutExtension(assembly);
         StartupAssemblyFileName = startupAssembly == null
@@ -44,18 +45,20 @@ internal abstract class OperationExecutorBase : IOperationExecutor
             Path.Combine(Directory.GetCurrentDirectory(), Path.GetDirectoryName(startupAssembly ?? assembly)!));
 
         RootNamespace = rootNamespace ?? AssemblyFileName;
+        Project = project ?? "";
         ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();
         Language = language;
         Nullable = nullable;
-        RemainingArguments = remainingArguments ?? Array.Empty<string>();
+        RemainingArguments = remainingArguments ?? [];
 
-        Reporter.WriteVerbose(Resources.UsingAssembly(AssemblyFileName));
-        Reporter.WriteVerbose(Resources.UsingStartupAssembly(StartupAssemblyFileName));
-        Reporter.WriteVerbose(Resources.UsingApplicationBase(AppBasePath));
-        Reporter.WriteVerbose(Resources.UsingWorkingDirectory(Directory.GetCurrentDirectory()));
-        Reporter.WriteVerbose(Resources.UsingRootNamespace(RootNamespace));
-        Reporter.WriteVerbose(Resources.UsingProjectDir(ProjectDirectory));
-        Reporter.WriteVerbose(Resources.RemainingArguments(string.Join(",", RemainingArguments.Select(s => "'" + s + "'"))));
+        var reporter = new OperationReporter(reportHandler);
+        reporter.WriteVerbose(Resources.UsingAssembly(AssemblyFileName));
+        reporter.WriteVerbose(Resources.UsingStartupAssembly(StartupAssemblyFileName));
+        reporter.WriteVerbose(Resources.UsingApplicationBase(AppBasePath));
+        reporter.WriteVerbose(Resources.UsingWorkingDirectory(Directory.GetCurrentDirectory()));
+        reporter.WriteVerbose(Resources.UsingRootNamespace(RootNamespace));
+        reporter.WriteVerbose(Resources.UsingProjectDir(ProjectDirectory));
+        reporter.WriteVerbose(Resources.RemainingArguments(string.Join(",", RemainingArguments.Select(s => "'" + s + "'"))));
     }
 
     public virtual void Dispose()
@@ -140,14 +143,25 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     public IEnumerable<IDictionary> GetContextTypes()
         => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 
-    public void OptimizeContext(string? outputDir, string? modelNamespace, string? contextType)
-        => InvokeOperation(
+    public IEnumerable<string> OptimizeContext(
+        string? outputDir,
+        string? modelNamespace,
+        string? contextType,
+        string? suffix,
+        bool scaffoldModel,
+        bool precompileQueries,
+        bool nativeAot)
+        => InvokeOperation<IEnumerable<string>>(
             "OptimizeContext",
             new Dictionary<string, object?>
             {
                 ["outputDir"] = outputDir,
                 ["modelNamespace"] = modelNamespace,
-                ["contextType"] = contextType
+                ["contextType"] = contextType,
+                ["suffix"] = suffix,
+                ["scaffoldModel"] = scaffoldModel,
+                ["precompileQueries"] = precompileQueries,
+                ["nativeAot"] = nativeAot
             });
 
     public IDictionary ScaffoldContext(

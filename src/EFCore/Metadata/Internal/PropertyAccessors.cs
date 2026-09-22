@@ -29,7 +29,9 @@ public sealed class PropertyAccessors
         PreStoreGeneratedCurrentValueGetter = preStoreGeneratedCurrentValueGetter;
         OriginalValueGetter = originalValueGetter;
         RelationshipSnapshotGetter = relationshipSnapshotGetter;
+#pragma warning disable CS0612 // Type or member is obsolete
         ValueBufferGetter = valueBufferGetter;
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 
     /// <summary>
@@ -70,5 +72,6 @@ public sealed class PropertyAccessors
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Obsolete]
     public Func<ValueBuffer, object>? ValueBufferGetter { get; }
 }

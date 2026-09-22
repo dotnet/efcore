@@ -13,7 +13,5 @@ public class DbContextAttributeTest
         Assert.Same(typeof(MyContext), attribute.ContextType);
     }
 
-    public class MyContext : DbContext
-    {
-    }
+    public class MyContext : DbContext;
 }

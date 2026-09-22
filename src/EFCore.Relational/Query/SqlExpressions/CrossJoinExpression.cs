@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class CrossJoinExpression : JoinExpressionBase
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="CrossJoinExpression" /> class.
     /// </summary>
@@ -23,8 +25,8 @@ public class CrossJoinExpression : JoinExpressionBase
     {
     }
 
-    private CrossJoinExpression(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
-        : base(table, annotations)
+    private CrossJoinExpression(TableExpressionBase table, IReadOnlyDictionary<string, IAnnotation>? annotations)
+        : base(table, prunable: false, annotations)
     {
     }
 
@@ -40,12 +42,21 @@ public class CrossJoinExpression : JoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override CrossJoinExpression Update(TableExpressionBase table)
         => table != Table
-            ? new CrossJoinExpression(table, GetAnnotations())
+            ? new CrossJoinExpression(table, Annotations)
             : this;
 
     /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new CrossJoinExpression(Table, annotations);
+    protected override CrossJoinExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Table, Annotations);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??=
+                typeof(CrossJoinExpression).GetConstructor(
+                    [typeof(TableExpressionBase), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            Table.Quote(),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

@@ -35,9 +35,7 @@ public class PooledDbContextFactory<[DynamicallyAccessedMembers(DbContext.Dynami
     /// </summary>
     [EntityFrameworkInternal]
     public PooledDbContextFactory(IDbContextPool<TContext> pool)
-    {
-        _pool = pool;
-    }
+        => _pool = pool;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="PooledDbContextFactory{TContext}" /> class.

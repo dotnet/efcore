@@ -57,9 +57,7 @@ public class CommandExecutedEventData : CommandEndEventData
             startTime,
             duration,
             commandSource)
-    {
-        Result = result;
-    }
+        => Result = result;
 
     /// <summary>
     ///     The result of executing the command.

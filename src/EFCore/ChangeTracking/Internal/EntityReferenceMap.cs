@@ -28,9 +28,7 @@ public class EntityReferenceMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EntityReferenceMap(bool hasSubMap)
-    {
-        _hasSubMap = hasSubMap;
-    }
+        => _hasSubMap = hasSubMap;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

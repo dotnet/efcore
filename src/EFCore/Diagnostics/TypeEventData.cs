@@ -22,9 +22,7 @@ public class TypeEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         Type clrType)
         : base(eventDefinition, messageGenerator)
-    {
-        ClrType = clrType;
-    }
+        => ClrType = clrType;
 
     /// <summary>
     ///     The <see cref="Type" /> associated with this event.

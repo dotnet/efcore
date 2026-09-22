@@ -5,7 +5,6 @@
 
 using System.Collections;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -24,10 +23,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+        private readonly Func<CosmosQueryContext, JToken, T> _shaper;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
-        private readonly string _partitionKey;
+        private readonly string _cosmosContainer;
+        private readonly PartitionKey _cosmosPartitionKey;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
         private readonly bool _threadSafetyChecksEnabled;
@@ -37,9 +37,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             SelectExpression selectExpression,
-            Func<CosmosQueryContext, JObject, T> shaper,
+            Func<CosmosQueryContext, JToken, T> shaper,
             Type contextType,
-            string partitionKeyFromExtension,
+            IEntityType rootEntityType,
+            List<Expression> partitionKeyPropertyValues,
             bool standAloneStateManager,
             bool threadSafetyChecksEnabled)
         {
@@ -53,13 +54,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _standAloneStateManager = standAloneStateManager;
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
 
-            var partitionKey = selectExpression.GetPartitionKey(cosmosQueryContext.ParameterValues);
-            if (partitionKey != null && partitionKeyFromExtension != null && partitionKeyFromExtension != partitionKey)
-            {
-                throw new InvalidOperationException(CosmosStrings.PartitionKeyMismatch(partitionKeyFromExtension, partitionKey));
-            }
-
-            _partitionKey = partitionKey ?? partitionKeyFromExtension;
+            _cosmosContainer = rootEntityType.GetContainer()
+                ?? throw new UnreachableException("Root entity type without a Cosmos container.");
+            _cosmosPartitionKey = GeneratePartitionKey(
+                rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.ParameterValues);
         }
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -73,7 +71,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private CosmosSqlQuery GenerateQuery()
             => _querySqlGeneratorFactory.Create().GetSqlQuery(
-                (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                (SelectExpression)new ParameterInliner(
                         _sqlExpressionFactory,
                         _cosmosQueryContext.ParameterValues)
                     .Visit(_selectExpression),
@@ -105,25 +103,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly QueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly SelectExpression _selectExpression;
-            private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+            private readonly Func<CosmosQueryContext, JToken, T> _shaper;
             private readonly Type _contextType;
-            private readonly string _partitionKey;
+            private readonly string _cosmosContainer;
+            private readonly PartitionKey _cosmosPartitionKey;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
-            private IEnumerator<JObject> _enumerator;
+            private IEnumerator<JToken> _enumerator;
 
             public Enumerator(QueryingEnumerable<T> queryingEnumerable)
             {
                 _queryingEnumerable = queryingEnumerable;
                 _cosmosQueryContext = queryingEnumerable._cosmosQueryContext;
                 _shaper = queryingEnumerable._shaper;
-                _selectExpression = queryingEnumerable._selectExpression;
                 _contextType = queryingEnumerable._contextType;
-                _partitionKey = queryingEnumerable._partitionKey;
+                _cosmosContainer = queryingEnumerable._cosmosContainer;
+                _cosmosPartitionKey = queryingEnumerable._cosmosPartitionKey;
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _exceptionDetector = _cosmosQueryContext.ExceptionDetector;
@@ -142,38 +140,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_enumerator == null)
                     {
-                        if (_enumerator == null)
-                        {
-                            var sqlQuery = _queryingEnumerable.GenerateQuery();
+                        var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                            EntityFrameworkEventSource.Log.QueryExecuting();
+                        EntityFrameworkMetricsData.ReportQueryExecuting();
 
-                            _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQuery(
-                                    _selectExpression.Container,
-                                    _partitionKey,
-                                    sqlQuery)
-                                .GetEnumerator();
-                            _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
-                        }
-
-                        var hasNext = _enumerator.MoveNext();
-
-                        Current
-                            = hasNext
-                                ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                                : default;
-
-                        return hasNext;
+                        _enumerator = _cosmosQueryContext.CosmosClient
+                            .ExecuteSqlQuery(_cosmosContainer, _cosmosPartitionKey, sqlQuery)
+                            .GetEnumerator();
+                        _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
-                    }
+
+                    var hasNext = _enumerator.MoveNext();
+
+                    Current
+                        = hasNext
+                            ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                            : default;
+
+                    return hasNext;
                 }
                 catch (Exception exception)
                 {
@@ -204,26 +192,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly QueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly SelectExpression _selectExpression;
-            private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+            private readonly Func<CosmosQueryContext, JToken, T> _shaper;
             private readonly Type _contextType;
-            private readonly string _partitionKey;
+            private readonly string _cosmosContainer;
+            private readonly PartitionKey _cosmosPartitionKey;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
             private readonly IConcurrencyDetector _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
-            private IAsyncEnumerator<JObject> _enumerator;
+            private IAsyncEnumerator<JToken> _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
             {
                 _queryingEnumerable = queryingEnumerable;
                 _cosmosQueryContext = queryingEnumerable._cosmosQueryContext;
                 _shaper = queryingEnumerable._shaper;
-                _selectExpression = queryingEnumerable._selectExpression;
                 _contextType = queryingEnumerable._contextType;
-                _partitionKey = queryingEnumerable._partitionKey;
+                _cosmosContainer = queryingEnumerable._cosmosContainer;
+                _cosmosPartitionKey = queryingEnumerable._cosmosPartitionKey;
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _exceptionDetector = _cosmosQueryContext.ExceptionDetector;
@@ -240,38 +228,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_enumerator == null)
                     {
-                        if (_enumerator == null)
-                        {
-                            var sqlQuery = _queryingEnumerable.GenerateQuery();
+                        var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                            EntityFrameworkEventSource.Log.QueryExecuting();
+                        EntityFrameworkMetricsData.ReportQueryExecuting();
 
-                            _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQueryAsync(
-                                    _selectExpression.Container,
-                                    _partitionKey,
-                                    sqlQuery)
-                                .GetAsyncEnumerator(_cancellationToken);
-                            _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
-                        }
-
-                        var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
-
-                        Current
-                            = hasNext
-                                ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                                : default;
-
-                        return hasNext;
+                        _enumerator = _cosmosQueryContext.CosmosClient
+                            .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKey, sqlQuery)
+                            .GetAsyncEnumerator(_cancellationToken);
+                        _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
-                    }
+
+                    var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
+
+                    Current
+                        = hasNext
+                            ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                            : default;
+
+                    return hasNext;
                 }
                 catch (Exception exception)
                 {

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
+#nullable disable
+
 public abstract class EntityBranch2 : EntityRoot
 {
     public virtual long Slumber { get; set; }

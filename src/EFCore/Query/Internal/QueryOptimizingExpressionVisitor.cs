@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 {
-    private static readonly List<MethodInfo> SingleResultMethodInfos = new()
-    {
+    private static readonly List<MethodInfo> SingleResultMethodInfos =
+    [
         QueryableMethods.FirstWithPredicate,
         QueryableMethods.FirstWithoutPredicate,
         QueryableMethods.FirstOrDefaultWithPredicate,
@@ -28,15 +28,13 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         QueryableMethods.LastWithoutPredicate,
         QueryableMethods.LastOrDefaultWithPredicate,
         QueryableMethods.LastOrDefaultWithoutPredicate
-        //QueryableMethodProvider.ElementAtMethodInfo,
-        //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
-    };
+    ];
 
     private static readonly MethodInfo StringCompareWithComparisonMethod =
-        typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string), typeof(StringComparison) })!;
+        typeof(string).GetRuntimeMethod(nameof(string.Compare), [typeof(string), typeof(string), typeof(StringComparison)])!;
 
     private static readonly MethodInfo StringCompareWithoutComparisonMethod =
-        typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) })!;
+        typeof(string).GetRuntimeMethod(nameof(string.Compare), [typeof(string), typeof(string)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -380,11 +378,17 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             var (conditional, convert) = inner switch
             {
                 ConditionalExpression c => (c, null),
-                UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: ConditionalExpression cond } conv => (cond, conv),
+                UnaryExpression
+                {
+                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: ConditionalExpression cond
+                } conv => (cond, conv),
                 _ => (null, null)
             };
 
-            if (conditional is { Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest } conditionalExpression
+            if (conditional is
+                {
+                    Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest
+                } conditionalExpression
                 && !(conditionalExpression.Type.IsNullableValueType()
                     && visitedMemberExpression.Member.Name is nameof(Nullable<int>.HasValue) or nameof(Nullable<int>.Value)))
             {

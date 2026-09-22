@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
 
             AssertAnnotations(model);
             AssertAnnotations(entityType);
@@ -54,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             AssertAnnotations(nav2);
             AssertAnnotations(index);
 
+            Assert.Same(model, processor.Process(model));
+
             Assert.Empty(reporter.Messages);
         }
 
@@ -61,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Can_resolve_ISnapshotModelProcessor_from_DI()
         {
             var assembly = typeof(SnapshotModelProcessorTest).Assembly;
-            var snapshotModelProcessor = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), new string[0])
+            var snapshotModelProcessor = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), [])
                 .Build(SqlServerTestHelpers.Instance.CreateContext())
                 .CreateScope()
                 .ServiceProvider
@@ -191,19 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Can_diff_against_older_ownership_model(Type snapshotType)
         {
             using var context = new OwnershipContext();
-            var differ = context.GetService<IMigrationsModelDiffer>();
-            var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
-            var reporter = new TestOperationReporter();
-            var modelRuntimeInitializer =
-                SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
-            var processor = new SnapshotModelProcessor(reporter, modelRuntimeInitializer);
-            var model = processor.Process(snapshot.Model);
-
-            var differences = differ.GetDifferences(
-                model.GetRelationalModel(),
-                context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
-
-            Assert.Empty(differences);
+            AssertSameSnapshot(snapshotType, context);
         }
 
         [ConditionalTheory]
@@ -213,17 +204,84 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Can_diff_against_older_sequence_model(Type snapshotType)
         {
             using var context = new SequenceContext();
+            AssertSameSnapshot(snapshotType, context);
+        }
+
+        private static void AssertSameSnapshot(Type snapshotType, DbContext context)
+        {
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
-            var processor = new SnapshotModelProcessor(reporter, setBuilder);
-            var model = processor.Process(snapshot.Model);
+            var modelRuntimeInitializer =
+                SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
+
+            var model = PreprocessModel(snapshot);
+            model = new SnapshotModelProcessor(reporter, modelRuntimeInitializer).Process(model, resetVersion: true);
+            var currentModel = context.GetService<IDesignTimeModel>().Model;
 
             var differences = differ.GetDifferences(
-                model.GetRelationalModel(), context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
+                model.GetRelationalModel(),
+                currentModel.GetRelationalModel());
 
             Assert.Empty(differences);
+
+            var generator = CSharpMigrationsGeneratorTest.CreateMigrationsCodeGenerator();
+
+            var oldSnapshotCode = generator.GenerateSnapshot(
+                "MyNamespace",
+                context.GetType(),
+                "MySnapshot",
+                model);
+
+            var newSnapshotCode = generator.GenerateSnapshot(
+                "MyNamespace",
+                context.GetType(),
+                "MySnapshot",
+                currentModel);
+
+            Assert.Equal(newSnapshotCode, oldSnapshotCode);
+        }
+
+        private static IModel PreprocessModel(ModelSnapshot snapshot)
+        {
+            var model = snapshot.Model;
+            if (model.FindAnnotation(RelationalAnnotationNames.MaxIdentifierLength) == null)
+            {
+                ((Model)model)[RelationalAnnotationNames.MaxIdentifierLength] = 128;
+            }
+
+            foreach (EntityType entityType in model.GetEntityTypes())
+            {
+                var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.Schema);
+                if (schemaAnnotation != null
+                    && schemaAnnotation.Value == null)
+                {
+                    entityType.RemoveAnnotation(RelationalAnnotationNames.Schema);
+                }
+
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.IsForeignKey())
+                    {
+                        if (property.ValueGenerated != ValueGenerated.Never)
+                        {
+                            property.SetValueGenerated(null, ConfigurationSource.Explicit);
+                        }
+
+                        if (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
+                        {
+                            property.SetValueGenerationStrategy(null);
+                        }
+                    }
+                    else if (property.GetValueGenerationStrategy() is SqlServerValueGenerationStrategy strategy
+                             && strategy != SqlServerValueGenerationStrategy.None)
+                    {
+                        property.SetValueGenerationStrategy(strategy);
+                    }
+                }
+            }
+
+            return model;
         }
 
         private void AddAnnotations(IMutableAnnotatable element)
@@ -272,11 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private static IEnumerable<string> GetAnnotationNames()
-            => typeof(RelationalAnnotationNames)
-                .GetTypeInfo()
-                .GetRuntimeFields()
-                .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
-                .Select(p => (string)p.GetValue(null));
+            => RelationalAnnotationNames.AllNames;
 
         private class DummyModelRuntimeInitializer : IModelRuntimeInitializer
         {

@@ -21,12 +21,10 @@ public class CurrentProviderValueComparer<TModel, TProvider> : IComparer<IUpdate
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CurrentProviderValueComparer(
-        IPropertyBase property,
-        ValueConverter<TModel, TProvider> converter)
+    public CurrentProviderValueComparer(IProperty property)
     {
         _property = property;
-        _converter = converter.ConvertToProviderExpression.Compile();
+        _converter = ((ValueConverter<TModel, TProvider>)property.GetTypeMapping().Converter!).ConvertToProviderTyped;
         _underlyingComparer = Comparer<TProvider>.Default;
     }
 

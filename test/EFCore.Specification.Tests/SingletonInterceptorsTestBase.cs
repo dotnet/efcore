@@ -1,22 +1,13 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-#nullable enable
 
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SingletonInterceptorsTestBase<TContext>
-    where TContext : DbContext
+public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTestBase
+    where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
-    protected SingletonInterceptorsTestBase(SingletonInterceptorsFixtureBase fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected SingletonInterceptorsFixtureBase Fixture { get; }
-
     protected class Book
     {
         public Guid Id { get; set; }
@@ -35,16 +26,10 @@ public abstract class SingletonInterceptorsTestBase<TContext>
         public string? InitializedBy { get; set; }
     }
 
-    protected class Pamphlet
+    protected class Pamphlet(Guid id, string? title)
     {
-        public Pamphlet(Guid id, string? title)
-        {
-            Id = id;
-            Title = title;
-        }
-
-        public Guid Id { get; set; }
-        public string? Title { get; set; }
+        public Guid Id { get; set; } = id;
+        public string? Title { get; set; } = title;
     }
 
     public class TestEntity30244
@@ -52,29 +37,18 @@ public abstract class SingletonInterceptorsTestBase<TContext>
         [DatabaseGenerated((DatabaseGeneratedOption.None))]
         public int Id { get; set; }
 
-        public string? Name { get; set; }
-        public List<KeyValueSetting30244> Settings { get; } = new();
+        public string? Title { get; set; }
+        public List<KeyValueSetting30244> Settings { get; } = [];
     }
 
-    public class KeyValueSetting30244
+    public class KeyValueSetting30244(string key, string value)
     {
-        public KeyValueSetting30244(string key, string value)
-        {
-            Key = key;
-            Value = value;
-        }
-
-        public string Key { get; set; }
-        public string Value { get; set; }
+        public string Key { get; set; } = key;
+        public string Value { get; set; } = value;
     }
 
-    public abstract class LibraryContext : PoolableDbContext
+    public abstract class LibraryContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        protected LibraryContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Book>(
@@ -91,31 +65,26 @@ public abstract class SingletonInterceptorsTestBase<TContext>
         }
     }
 
-    public abstract LibraryContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject);
-
-    public abstract class SingletonInterceptorsFixtureBase : SharedStoreFixtureBase<TContext>
+    public async Task<TContext> CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject, bool usePooling)
     {
-        public virtual DbContextOptions CreateOptions(IEnumerable<ISingletonInterceptor> interceptors, bool inject)
-        {
-            var optionsBuilder = inject
-                ? new DbContextOptionsBuilder<DbContext>().UseInternalServiceProvider(
-                    InjectInterceptors(new ServiceCollection(), interceptors)
-                        .BuildServiceProvider(validateScopes: true))
-                : new DbContextOptionsBuilder<DbContext>().AddInterceptors(interceptors);
+        var contextFactory = await base.InitializeAsync<TContext>(
+            onConfiguring: inject ? null : o => o.AddInterceptors(interceptors),
+            addServices: inject ? s => InjectInterceptors(s, interceptors) : null,
+            usePooling: usePooling,
+            useServiceProvider: inject);
 
-            return AddOptions(TestStore.AddProviderOptions(optionsBuilder)).EnableDetailedErrors().Options;
+        return contextFactory.CreateContext();
+    }
+
+    protected virtual IServiceCollection InjectInterceptors(
+        IServiceCollection serviceCollection,
+        IEnumerable<ISingletonInterceptor> injectedInterceptors)
+    {
+        foreach (var interceptor in injectedInterceptors)
+        {
+            serviceCollection.AddSingleton(interceptor);
         }
 
-        protected virtual IServiceCollection InjectInterceptors(
-            IServiceCollection serviceCollection,
-            IEnumerable<ISingletonInterceptor> injectedInterceptors)
-        {
-            foreach (var interceptor in injectedInterceptors)
-            {
-                serviceCollection.AddSingleton(interceptor);
-            }
-
-            return serviceCollection;
-        }
+        return serviceCollection;
     }
 }

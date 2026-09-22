@@ -51,10 +51,9 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public Model()
+    public Model(Guid? modelId = null)
         : this(new ConventionSet())
-    {
-    }
+        => ModelId = modelId ?? Guid.NewGuid();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,6 +74,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         _modelFinalizedConventions = conventions.ModelFinalizedConventions;
         Builder = builder;
         Configuration = modelConfiguration;
+        ModelId = Guid.NewGuid();
         dispatcher.OnModelInitialized(builder);
     }
 
@@ -459,7 +459,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Guid ModelId { get; } = Guid.NewGuid();
+    public virtual Guid ModelId { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -843,12 +843,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
             return null;
         }
 
-        if (_propertiesByType.TryGetValue(unwrappedType, out var properties))
-        {
-            return properties;
-        }
-
-        return null;
+        return _propertiesByType.GetValueOrDefault(unwrappedType);
     }
 
     /// <summary>
@@ -874,7 +869,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
             return;
         }
 
-        _propertiesByType.Add(type, new HashSet<Property> { property });
+        _propertiesByType.Add(type, [property]);
     }
 
     /// <summary>
@@ -1011,6 +1006,45 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual string GetEmbeddedDiscriminatorName()
+        => (string?)this[CoreAnnotationNames.EmbeddedDiscriminatorName]
+            ?? DefaultEmbeddedDiscriminatorName;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public const string DefaultEmbeddedDiscriminatorName = "$type";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? SetEmbeddedDiscriminatorName(
+        string? name,
+        ConfigurationSource configurationSource)
+        => (string?)SetOrRemoveAnnotation(
+            CoreAnnotationNames.EmbeddedDiscriminatorName, name, configurationSource)?.Value;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetEmbeddedDiscriminatorNameConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.EmbeddedDiscriminatorName)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [DebuggerStepThrough]
     public virtual ChangeTrackingStrategy GetChangeTrackingStrategy()
         => _changeTrackingStrategy ?? ChangeTrackingStrategy.Snapshot;
@@ -1094,7 +1128,6 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         ConventionDispatcher.AssertNoScope();
 
         var finalizedModel = (IModel)ConventionDispatcher.OnModelFinalizing(Builder).Metadata;
-
         if (finalizedModel is Model model)
         {
             finalizedModel = model.MakeReadonly();
@@ -1112,12 +1145,15 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual IModel OnModelFinalized()
     {
         IModel model = this;
-        foreach (var modelConvention in _modelFinalizedConventions!)
+        if (_modelFinalizedConventions != null)
         {
-            model = modelConvention.ProcessModelFinalized(model);
-        }
+            foreach (var modelConvention in _modelFinalizedConventions)
+            {
+                model = modelConvention.ProcessModelFinalized(model);
+            }
 
-        _modelFinalizedConventions = null;
+            _modelFinalizedConventions = null;
+        }
 
         return model;
     }
@@ -1248,6 +1284,30 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         bool fromDataAnnotation)
         => SetPropertyAccessMode(
             propertyAccessMode,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    void IMutableModel.SetEmbeddedDiscriminatorName(string? name)
+        => SetEmbeddedDiscriminatorName(name, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    string? IConventionModel.SetEmbeddedDiscriminatorName(
+        string? name,
+        bool fromDataAnnotation)
+        => SetEmbeddedDiscriminatorName(
+            name,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

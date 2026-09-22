@@ -31,4 +31,22 @@ public class CompiledModelCodeGenerationOptions
     /// </summary>
     /// <value> A value indicating whether nullable reference types are enabled. </value>
     public virtual bool UseNullableReferenceTypes { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the suffix to attach to the name of all the generated files.
+    /// </summary>
+    /// <value> The suffix to attach to the name of all the generated files. </value>
+    public virtual string? Suffix { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the generated code should be compatible with NativeAOT.
+    /// </summary>
+    /// <value> A value indicating whether the generated code should be compatible with NativeAOT. </value>
+    public virtual bool ForNativeAot { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the set of file names generated so far.
+    /// </summary>
+    /// <value> The file names generated so far. </value>
+    public virtual ISet<string> GeneratedFileNames { get; set; } = new HashSet<string>();
 }

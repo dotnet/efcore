@@ -42,7 +42,7 @@ public class MethodCallCodeFragment : IMethodCallCodeFragment
         Namespace = methodInfo.DeclaringType?.Namespace;
         DeclaringType = methodInfo.DeclaringType?.Name;
         Method = methodInfo.Name;
-        _arguments = new List<object?>(arguments);
+        _arguments = [..arguments];
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class MethodCallCodeFragment : IMethodCallCodeFragment
     public MethodCallCodeFragment(string method, params object?[] arguments)
     {
         Method = method;
-        _arguments = new List<object?>(arguments);
+        _arguments = [..arguments];
     }
 
     private MethodCallCodeFragment(
@@ -64,18 +64,14 @@ public class MethodCallCodeFragment : IMethodCallCodeFragment
         object?[] arguments,
         MethodCallCodeFragment chainedCall)
         : this(methodInfo, arguments)
-    {
-        ChainedCall = chainedCall;
-    }
+        => ChainedCall = chainedCall;
 
     private MethodCallCodeFragment(
         string method,
         object?[] arguments,
         MethodCallCodeFragment chainedCall)
         : this(method, arguments)
-    {
-        ChainedCall = chainedCall;
-    }
+        => ChainedCall = chainedCall;
 
     /// <summary>
     ///     Gets the <see cref="MethodInfo" /> for this method call.

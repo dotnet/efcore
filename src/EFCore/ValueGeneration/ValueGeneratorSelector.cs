@@ -37,26 +37,30 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
     protected virtual ValueGeneratorSelectorDependencies Dependencies { get; }
 
-    /// <summary>
-    ///     Selects the appropriate value generator for a given property.
-    /// </summary>
-    /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="typeBase">
-    ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
-    ///     this entity type may be different from the declared entity type on <paramref name="property" />
-    /// </param>
-    /// <returns>The value generator to be used.</returns>
-    public virtual ValueGenerator Select(IProperty property, ITypeBase typeBase)
-        => Cache.GetOrAdd(property, typeBase, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
+    /// <inheritdoc />
+    [Obsolete("Use TrySelect and throw if needed when the generator is not found.")]
+    public virtual ValueGenerator? Select(IProperty property, ITypeBase typeBase)
+        => Cache.GetOrAdd(
+            property, typeBase, (p, t) => Find(p, t)
+                ?? throw new NotSupportedException(
+                    CoreStrings.NoValueGenerator(p.Name, p.DeclaringType.DisplayName(), p.ClrType.ShortDisplayName())));
+
+    /// <inheritdoc />
+    public virtual bool TrySelect(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator)
+    {
+        valueGenerator = Cache.GetOrAdd(property, typeBase, (p, t) => Find(p, t));
+        return valueGenerator != null;
+    }
+
+    private ValueGenerator? Find(IProperty p, ITypeBase t)
+        => CreateFromFactory(p, t) ?? (TryCreate(p, t, out var valueGenerator) ? valueGenerator : null);
 
     private static ValueGenerator? CreateFromFactory(IProperty property, ITypeBase structuralType)
     {
@@ -85,28 +89,51 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
     /// <returns>The newly created value generator.</returns>
+    [Obsolete("Use TryCreate and throw if needed when the generator is not found.")]
     public virtual ValueGenerator Create(IProperty property, ITypeBase typeBase)
     {
-        var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-        var generator = FindForType(property, typeBase, propertyType);
-        if (generator != null)
+        if (!TryCreate(property, typeBase, out var valueGenerator))
         {
-            return generator;
+            throw new NotSupportedException(
+                CoreStrings.NoValueGenerator(
+                    property.Name, property.DeclaringType.DisplayName(), property.DeclaringType.ClrType.ShortDisplayName()));
+        }
+
+        return valueGenerator!;
+    }
+
+    /// <summary>
+    ///     Creates a new value generator for the given property.
+    /// </summary>
+    /// <param name="property">The property to get the value generator for.</param>
+    /// <param name="typeBase">
+    ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
+    ///     this entity type may be different from the declared entity type on <paramref name="property" />
+    /// </param>
+    /// <param name="valueGenerator">The newly created value generator, or <see langword="null" /> if none is available.</param>
+    /// <returns><see langword="true" /> if a generator was created.</returns>
+    public virtual bool TryCreate(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator)
+    {
+        var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
+        valueGenerator = FindForType(property, typeBase, propertyType);
+        if (valueGenerator != null)
+        {
+            return true;
         }
 
         var converter = property.GetTypeMapping().Converter;
         if (converter != null
             && converter.ProviderClrType != propertyType)
         {
-            generator = FindForType(property, typeBase, converter.ProviderClrType);
-            if (generator != null)
+            valueGenerator = FindForType(property, typeBase, converter.ProviderClrType);
+            if (valueGenerator != null)
             {
-                return generator.WithConverter(converter);
+                valueGenerator = valueGenerator.WithConverter(converter);
+                return true;
             }
         }
 
-        throw new NotSupportedException(
-            CoreStrings.NoValueGenerator(property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
+        return false;
     }
 
     /// <summary>

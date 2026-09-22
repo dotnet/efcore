@@ -48,9 +48,7 @@ public sealed record ModelValidatorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public ModelValidatorDependencies(IMemberClassifier memberClassifier)
-    {
-        MemberClassifier = memberClassifier;
-    }
+        => MemberClassifier = memberClassifier;
 
     /// <summary>
     ///     The member classifier.

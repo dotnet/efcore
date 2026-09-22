@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class InheritanceQueryInMemoryTest : InheritanceQueryTestBase<InheritanceQueryInMemoryFixture>
+public class InheritanceQueryInMemoryTest(InheritanceQueryInMemoryFixture fixture)
+    : InheritanceQueryTestBase<InheritanceQueryInMemoryFixture>(fixture)
 {
-    public InheritanceQueryInMemoryTest(InheritanceQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public override async Task Can_query_all_animal_views(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(

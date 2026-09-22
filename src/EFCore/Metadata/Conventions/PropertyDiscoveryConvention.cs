@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -20,9 +21,13 @@ public class PropertyDiscoveryConvention :
     ///     Creates a new instance of <see cref="PropertyDiscoveryConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public PropertyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
+    /// <param name="useAttributes">Whether the convention will use attributes found on the members.</param>
+    public PropertyDiscoveryConvention(
+        ProviderConventionSetBuilderDependencies dependencies,
+        bool useAttributes = true)
     {
         Dependencies = dependencies;
+        UseAttributes = useAttributes;
     }
 
     /// <summary>
@@ -30,39 +35,16 @@ public class PropertyDiscoveryConvention :
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
+    /// <summary>
+    ///     A value indicating whether the convention will use attributes found on the members.
+    /// </summary>
+    protected virtual bool UseAttributes { get; }
+
     /// <inheritdoc />
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
-        => Process(entityTypeBuilder);
-
-    /// <inheritdoc />
-    public void ProcessComplexPropertyAdded(
-        IConventionComplexPropertyBuilder propertyBuilder,
-        IConventionContext<IConventionComplexPropertyBuilder> context)
-    {
-        var complexType = propertyBuilder.Metadata.ComplexType;
-        var model = complexType.Model;
-        foreach (var propertyInfo in complexType.GetRuntimeProperties().Values)
-        {
-            if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, model, out _))
-            {
-                continue;
-            }
-
-            complexType.Builder.Property(propertyInfo);
-        }
-
-        foreach (var fieldInfo in complexType.GetRuntimeFields().Values)
-        {
-            if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(fieldInfo, model, out _))
-            {
-                continue;
-            }
-
-            complexType.Builder.Property(fieldInfo);
-        }
-    }
+        => DiscoverPrimitiveProperties(entityTypeBuilder, context);
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
@@ -75,26 +57,37 @@ public class PropertyDiscoveryConvention :
                 || oldBaseType != null)
             && entityTypeBuilder.Metadata.BaseType == newBaseType)
         {
-            Process(entityTypeBuilder);
+            DiscoverPrimitiveProperties(entityTypeBuilder, context);
         }
     }
 
-    private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
+    /// <inheritdoc />
+    public void ProcessComplexPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        IConventionContext<IConventionComplexPropertyBuilder> context)
+        => DiscoverPrimitiveProperties(propertyBuilder.Metadata.ComplexType.Builder, context);
+
+    /// <summary>
+    ///     Discovers properties on the given structural type.
+    /// </summary>
+    /// <param name="structuralTypeBuilder">The type for which the properties will be discovered.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    protected virtual void DiscoverPrimitiveProperties(
+        IConventionTypeBaseBuilder structuralTypeBuilder,
+        IConventionContext context)
     {
-        var entityType = entityTypeBuilder.Metadata;
-        var model = entityType.Model;
-        foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
+        var structuralType = structuralTypeBuilder.Metadata;
+        foreach (var propertyInfo in GetMembers(structuralType))
         {
-            if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, model, out var mapping)
-                || ((Model)model).FindIsComplexConfigurationSource(propertyInfo.GetMemberType().UnwrapNullableType()) != null)
+            if (!IsCandidatePrimitiveProperty(propertyInfo, structuralType, out var mapping))
             {
                 continue;
             }
 
-            var propertyBuilder = entityTypeBuilder.Property(propertyInfo);
+            var propertyBuilder = structuralTypeBuilder.Property(propertyInfo);
             if (mapping?.ElementTypeMapping != null)
             {
-                var elementType = propertyInfo.PropertyType.TryGetElementType(typeof(IEnumerable<>));
+                var elementType = propertyInfo.GetMemberType().TryGetElementType(typeof(IEnumerable<>));
                 if (elementType != null)
                 {
                     propertyBuilder?.SetElementType(elementType);
@@ -102,4 +95,28 @@ public class PropertyDiscoveryConvention :
             }
         }
     }
+
+    /// <summary>
+    ///     Returns the CLR members from the given type that should be considered when discovering properties.
+    /// </summary>
+    /// <param name="structuralType">The type for which the properties will be discovered.</param>
+    /// <returns>The CLR members to be considered.</returns>
+    protected virtual IEnumerable<MemberInfo> GetMembers(IConventionTypeBase structuralType)
+        => structuralType is IConventionComplexType
+            ? structuralType.GetRuntimeProperties().Values.Cast<MemberInfo>()
+                .Concat(structuralType.GetRuntimeFields().Values)
+            : structuralType.GetRuntimeProperties().Values;
+
+    /// <summary>
+    ///     Returns a value indicating whether the given member is a primitive property candidate.
+    /// </summary>
+    /// <param name="memberInfo">The member.</param>
+    /// <param name="structuralType">The type for which the properties will be discovered.</param>
+    /// <param name="mapping">The type mapping for the property.</param>
+    protected virtual bool IsCandidatePrimitiveProperty(
+        MemberInfo memberInfo,
+        IConventionTypeBase structuralType,
+        out CoreTypeMapping? mapping)
+        => Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(memberInfo, structuralType.Model, UseAttributes, out mapping)
+            && ((Model)structuralType.Model).FindIsComplexConfigurationSource(memberInfo.GetMemberType().UnwrapNullableType()) == null;
 }

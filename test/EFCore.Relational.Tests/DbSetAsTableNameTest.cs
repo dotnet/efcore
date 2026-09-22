@@ -107,6 +107,24 @@ public abstract class DbSetAsTableNameTest
         Assert.Equal("YummyMarmite", GetTableName<Marmite>(context));
     }
 
+    [ConditionalFact]
+    public virtual void DbSet_long_name_properly_truncated()
+    {
+        using var context = CreateContext();
+        var maxLength = context.Model.GetMaxIdentifierLength();
+        var realLength = GetTableName<ReallyLongNameA>(context).Length;
+        Assert.True(realLength <= maxLength);
+    }
+
+    [ConditionalFact]
+    public virtual void DbSet_long_name_uniquely_truncated()
+    {
+        using var context = CreateContext();
+        var nameA = GetTableName<ReallyLongNameA>(context);
+        var nameB = GetTableName<ReallyLongNameB>(context);
+        Assert.NotEqual(nameA, nameB);
+    }
+
     protected abstract string GetTableName<TEntity>(DbContext context);
 
     protected abstract string GetTableName<TEntity>(DbContext context, string entityTypeName);
@@ -124,6 +142,20 @@ public abstract class DbSetAsTableNameTest
         public DbSet<WheatThin> WheatThins { get; set; }
         public DbSet<Marmite> Food { get; set; }
         public DbSet<Marmite> Beverage { get; set; }
+
+        public DbSet<ReallyLongNameA>
+            ReallyLongNames12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890A
+        {
+            get;
+            set;
+        }
+
+        public DbSet<ReallyLongNameB>
+            ReallyLongNames12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890B
+        {
+            get;
+            set;
+        }
 
         public DbSet<BothEntity> Bovrils
             => Set<BothEntity>("Bovril");
@@ -178,39 +210,27 @@ public abstract class DbSetAsTableNameTest
         public int Id { get; set; }
     }
 
-    protected class Galaxy : Chocolate
-    {
-    }
+    protected class Galaxy : Chocolate;
 
-    protected class DairyMilk : Chocolate
-    {
-    }
+    protected class DairyMilk : Chocolate;
 
     protected class Fruit
     {
         public int Id { get; set; }
     }
 
-    protected class Apple : Fruit
-    {
-    }
+    protected class Apple : Fruit;
 
-    protected class Banana : Fruit
-    {
-    }
+    protected class Banana : Fruit;
 
     protected class Cracker
     {
         public int Id { get; set; }
     }
 
-    protected class Trisket : Cracker
-    {
-    }
+    protected class Trisket : Cracker;
 
-    protected class WheatThin : Cracker
-    {
-    }
+    protected class WheatThin : Cracker;
 
     protected class Marmite
     {
@@ -223,6 +243,16 @@ public abstract class DbSetAsTableNameTest
     }
 
     protected class VeggieEntity
+    {
+        public int Id { get; set; }
+    }
+
+    protected class ReallyLongNameA
+    {
+        public int Id { get; set; }
+    }
+
+    protected class ReallyLongNameB
     {
         public int Id { get; set; }
     }

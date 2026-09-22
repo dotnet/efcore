@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.DotNet.Cli.CommandLine;
 
-internal class CommandLineApplication
+internal class CommandLineApplication(bool throwOnUnexpectedArg = true)
 {
     private enum ParseOptionResult
     {
@@ -24,35 +24,24 @@ internal class CommandLineApplication
     // Indicates whether the parser should throw an exception when it runs into an unexpected argument.
     // If this field is set to false, the parser will stop parsing when it sees an unexpected argument, and all
     // remaining arguments, including the first unexpected argument, will be stored in RemainingArguments property.
-    private readonly bool _throwOnUnexpectedArg;
-
-    public CommandLineApplication(bool throwOnUnexpectedArg = true)
-    {
-        _throwOnUnexpectedArg = throwOnUnexpectedArg;
-        Options = new List<CommandOption>();
-        Arguments = new List<CommandArgument>();
-        Commands = new List<CommandLineApplication>();
-        RemainingArguments = new List<string>();
-        ApplicationArguments = new List<string>();
-        Invoke = _ => 0;
-    }
+    private readonly bool _throwOnUnexpectedArg = throwOnUnexpectedArg;
 
     public CommandLineApplication? Parent { get; set; }
     public string? Name { get; set; }
     public string? FullName { get; set; }
     public string? Syntax { get; set; }
     public string? Description { get; set; }
-    public List<CommandOption> Options { get; }
+    public List<CommandOption> Options { get; } = [];
     public CommandOption? OptionHelp { get; private set; }
     public CommandOption? OptionVersion { get; private set; }
-    public List<CommandArgument> Arguments { get; }
-    public List<string> RemainingArguments { get; }
-    public List<string> ApplicationArguments { get; }
+    public List<CommandArgument> Arguments { get; } = [];
+    public List<string> RemainingArguments { get; } = [];
+    public List<string> ApplicationArguments { get; } = [];
     public bool IsShowingInformation { get; protected set; } // Is showing help or version?
-    public Func<string[], int> Invoke { get; set; }
+    public Func<string[], int> Invoke { get; set; } = _ => 0;
     public Func<string>? LongVersionGetter { get; set; }
     public Func<string>? ShortVersionGetter { get; set; }
-    public List<CommandLineApplication> Commands { get; }
+    public List<CommandLineApplication> Commands { get; } = [];
     public bool HandleResponseFiles { get; set; }
     public bool AllowArgumentSeparator { get; set; }
     public bool HandleRemainingArguments { get; set; }
@@ -187,7 +176,7 @@ internal class CommandLineApplication
         var arg = args[index];
 
         var optionPrefixLength = isLongOption ? 2 : 1;
-        var optionComponents = arg.Substring(optionPrefixLength).Split(new[] { ':', '=' }, 2);
+        var optionComponents = arg.Substring(optionPrefixLength).Split([':', '='], 2);
         var optionName = optionComponents[0];
 
         if (isLongOption)
@@ -584,31 +573,24 @@ internal class CommandLineApplication
         return File.ReadLines(fileName);
     }
 
-    private sealed class CommandArgumentEnumerator : IEnumerator<CommandArgument>
+    private sealed class CommandArgumentEnumerator(IEnumerator<CommandArgument> enumerator) : IEnumerator<CommandArgument>
     {
-        private readonly IEnumerator<CommandArgument> _enumerator;
-
-        public CommandArgumentEnumerator(IEnumerator<CommandArgument> enumerator)
-        {
-            _enumerator = enumerator;
-        }
-
         public CommandArgument Current
-            => _enumerator.Current;
+            => enumerator.Current;
 
         object IEnumerator.Current
             => Current;
 
         public void Dispose()
-            => _enumerator.Dispose();
+            => enumerator.Dispose();
 
         public bool MoveNext()
             // If current argument allows multiple values, we don't move forward and
             // all later values will be added to current CommandArgument.Values
             => Current?.MultipleValues == true
-                || _enumerator.MoveNext();
+                || enumerator.MoveNext();
 
         public void Reset()
-            => _enumerator.Reset();
+            => enumerator.Reset();
     }
 }

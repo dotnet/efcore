@@ -85,25 +85,17 @@ public partial class NavigationExpandingExpressionVisitor
     /// <summary>
     ///     A tree structure of includes for a given entity type in <see cref="EntityReference" />.
     /// </summary>
-    private sealed class IncludeTreeNode : Dictionary<INavigationBase, IncludeTreeNode>
+    private sealed class IncludeTreeNode(IEntityType entityType, EntityReference? reference, bool setLoaded)
+        : Dictionary<INavigationBase, IncludeTreeNode>
     {
-        private EntityReference? _entityReference;
-
         public IncludeTreeNode(IEntityType entityType)
             : this(entityType, null, setLoaded: true)
         {
         }
 
-        public IncludeTreeNode(IEntityType entityType, EntityReference? entityReference, bool setLoaded)
-        {
-            EntityType = entityType;
-            _entityReference = entityReference;
-            SetLoaded = setLoaded;
-        }
-
-        public IEntityType EntityType { get; }
+        public IEntityType EntityType { get; } = entityType;
         public LambdaExpression? FilterExpression { get; private set; }
-        public bool SetLoaded { get; private set; }
+        public bool SetLoaded { get; private set; } = setLoaded;
 
         public IncludeTreeNode AddNavigation(INavigationBase navigation, bool setLoaded)
         {
@@ -118,17 +110,17 @@ public partial class NavigationExpandingExpressionVisitor
             }
 
             IncludeTreeNode? nodeToAdd = null;
-            if (_entityReference != null)
+            if (reference != null)
             {
                 if (navigation is INavigation concreteNavigation
-                    && _entityReference.ForeignKeyExpansionMap.TryGetValue(
+                    && reference.ForeignKeyExpansionMap.TryGetValue(
                         (concreteNavigation.ForeignKey, concreteNavigation.IsOnDependent), out var expansion))
                 {
                     // Value known to be non-null
                     nodeToAdd = UnwrapEntityReference(expansion)!.IncludePaths;
                 }
                 else if (navigation is ISkipNavigation skipNavigation
-                         && _entityReference.ForeignKeyExpansionMap.TryGetValue(
+                         && reference.ForeignKeyExpansionMap.TryGetValue(
                              (skipNavigation.ForeignKey, skipNavigation.IsOnDependent), out var firstExpansion)
                          // Value known to be non-null
                          && UnwrapEntityReference(firstExpansion)!.ForeignKeyExpansionMap.TryGetValue(
@@ -169,7 +161,7 @@ public partial class NavigationExpandingExpressionVisitor
         }
 
         public void AssignEntityReference(EntityReference entityReference)
-            => _entityReference = entityReference;
+            => reference = entityReference;
 
         public void ApplyFilter(LambdaExpression filterExpression)
             => FilterExpression = filterExpression;
@@ -209,7 +201,7 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private sealed class NavigationExpansionExpression : Expression, IPrintableExpression
     {
-        private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings = new();
+        private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings = [];
 
         private readonly string _parameterName;
 
@@ -246,7 +238,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public Expression PendingSelector { get; private set; }
         public MethodInfo? CardinalityReducingGenericMethodInfo { get; private set; }
-        public List<Expression> CardinalityReducingMethodArguments { get; } = new();
+        public List<Expression> CardinalityReducingMethodArguments { get; } = [];
 
         public Type SourceElementType
             => CurrentParameter.Type;
@@ -370,18 +362,12 @@ public partial class NavigationExpandingExpressionVisitor
     ///     <see cref="NavigationExpansionExpression" />. Contains <see cref="Value" />,
     ///     which can be <see cref="NewExpression" /> or <see cref="EntityReference" />.
     /// </summary>
-    private sealed class NavigationTreeExpression : NavigationTreeNode, IPrintableExpression
+    private sealed class NavigationTreeExpression(Expression value) : NavigationTreeNode(null, null), IPrintableExpression
     {
-        public NavigationTreeExpression(Expression value)
-            : base(null, null)
-        {
-            Value = value;
-        }
-
         /// <summary>
         ///     Either <see cref="NewExpression" /> or <see cref="EntityReference" />.
         /// </summary>
-        public Expression Value { get; private set; }
+        public Expression Value { get; private set; } = value;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
@@ -463,15 +449,9 @@ public partial class NavigationExpandingExpressionVisitor
     ///     Owned navigations are not expanded, since they map differently in different providers.
     ///     This remembers such references so that they can still be treated like navigations.
     /// </summary>
-    private sealed class OwnedNavigationReference : Expression, IPrintableExpression
+    private sealed class OwnedNavigationReference(Expression parent, INavigation navigation, EntityReference entityReference)
+        : Expression, IPrintableExpression
     {
-        public OwnedNavigationReference(Expression parent, INavigation navigation, EntityReference entityReference)
-        {
-            Parent = parent;
-            Navigation = navigation;
-            EntityReference = entityReference;
-        }
-
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Parent = visitor.Visit(Parent);
@@ -479,9 +459,9 @@ public partial class NavigationExpandingExpressionVisitor
             return this;
         }
 
-        public Expression Parent { get; private set; }
-        public INavigation Navigation { get; }
-        public EntityReference EntityReference { get; }
+        public Expression Parent { get; private set; } = parent;
+        public INavigation Navigation { get; } = navigation;
+        public EntityReference EntityReference { get; } = entityReference;
 
         public override Type Type
             => Navigation.ClrType;
@@ -505,14 +485,8 @@ public partial class NavigationExpandingExpressionVisitor
     /// <summary>
     ///     Queryable properties are not expanded (similar to <see cref="OwnedNavigationReference" />.
     /// </summary>
-    private sealed class PrimitiveCollectionReference : Expression, IPrintableExpression
+    private sealed class PrimitiveCollectionReference(Expression parent, IProperty property) : Expression, IPrintableExpression
     {
-        public PrimitiveCollectionReference(Expression parent, IProperty property)
-        {
-            Parent = parent;
-            Property = property;
-        }
-
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             Parent = visitor.Visit(Parent);
@@ -520,8 +494,8 @@ public partial class NavigationExpandingExpressionVisitor
             return this;
         }
 
-        public Expression Parent { get; private set; }
-        public new IProperty Property { get; }
+        public Expression Parent { get; private set; } = parent;
+        public new IProperty Property { get; } = property;
 
         public override Type Type
             => Property.ClrType;

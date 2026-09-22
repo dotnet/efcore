@@ -3,13 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ProxiesApiConsistencyTest : ApiConsistencyTestBase<ProxiesApiConsistencyTest.ProxiesApiConsistencyFixture>
+public class ProxiesApiConsistencyTest(ProxiesApiConsistencyTest.ProxiesApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<ProxiesApiConsistencyTest.ProxiesApiConsistencyFixture>(fixture)
 {
-    public ProxiesApiConsistencyTest(ProxiesApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkProxies();
 
@@ -18,6 +14,6 @@ public class ProxiesApiConsistencyTest : ApiConsistencyTestBase<ProxiesApiConsis
 
     public class ProxiesApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new() { typeof(ProxiesServiceCollectionExtensions) };
+        public override HashSet<Type> FluentApiTypes { get; } = [typeof(ProxiesServiceCollectionExtensions)];
     }
 }

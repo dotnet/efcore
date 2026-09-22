@@ -21,7 +21,7 @@ public class CosmosItemCommandExecutedEventData : EventData
     /// <param name="activityId">The activity ID.</param>
     /// <param name="resourceId">The ID of the resource being read.</param>
     /// <param name="containerId">The ID of the Cosmos container being queried.</param>
-    /// <param name="partitionKey">The key of the Cosmos partition that the query is using.</param>
+    /// <param name="partitionKeyValue">The key of the Cosmos partition that the query is using.</param>
     /// <param name="logSensitiveData">Indicates whether the application allows logging of sensitive data.</param>
     public CosmosItemCommandExecutedEventData(
         EventDefinitionBase eventDefinition,
@@ -31,7 +31,7 @@ public class CosmosItemCommandExecutedEventData : EventData
         string activityId,
         string containerId,
         string resourceId,
-        string? partitionKey,
+        PartitionKey partitionKeyValue,
         bool logSensitiveData)
         : base(eventDefinition, messageGenerator)
     {
@@ -40,7 +40,7 @@ public class CosmosItemCommandExecutedEventData : EventData
         ActivityId = activityId;
         ContainerId = containerId;
         ResourceId = resourceId;
-        PartitionKey = partitionKey;
+        PartitionKeyValue = partitionKeyValue;
         LogSensitiveData = logSensitiveData;
     }
 
@@ -72,7 +72,7 @@ public class CosmosItemCommandExecutedEventData : EventData
     /// <summary>
     ///     The key of the Cosmos partition that the query is using.
     /// </summary>
-    public virtual string? PartitionKey { get; }
+    public virtual PartitionKey PartitionKeyValue { get; }
 
     /// <summary>
     ///     Indicates whether the application allows logging of sensitive data.

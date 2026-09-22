@@ -20,10 +20,10 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     private static readonly MethodInfo StringStartsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
 
     private static readonly MethodInfo StringEndsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
 
     private static readonly MethodInfo EscapeLikePatternParameterMethod =
         typeof(SqliteSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructLikePatternParameter))!;
@@ -95,9 +95,6 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         { typeof(double), "mod" },
         { typeof(float), "mod" }
     };
-
-    private static readonly bool UseOldBehavior32432 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32432", out var enabled32432) && enabled32432;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -214,6 +211,11 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
 
         if (visitedExpression is SqlBinaryExpression sqlBinary)
         {
+            if (sqlBinary.OperatorType == ExpressionType.ExclusiveOr)
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
             if (sqlBinary.OperatorType == ExpressionType.Modulo
                 && (ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Left), out var function)
                     || ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Right), out function)))
@@ -222,7 +224,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     function,
                     new[] { sqlBinary.Left, sqlBinary.Right },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
+                    argumentsPropagateNullability: new[] { false, false },
                     visitedExpression.Type,
                     visitedExpression.TypeMapping);
             }
@@ -295,7 +297,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     // simple LIKE
                     translation = patternConstant.Value switch
                     {
-                        null => _sqlExpressionFactory.Like(translatedInstance, _sqlExpressionFactory.Constant(null, stringTypeMapping)),
+                        null => _sqlExpressionFactory.Like(
+                            translatedInstance,
+                            _sqlExpressionFactory.Constant(null, typeof(string), stringTypeMapping)),
 
                         // In .NET, all strings start with/end with/contain the empty string, but SQL LIKE return false for empty patterns.
                         // Return % which always matches instead.
@@ -331,9 +335,8 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                             Expression.Constant(startsWith)),
                         QueryCompilationContext.QueryContextParameter);
 
-                    var escapedPatternParameter = UseOldBehavior32432
-                        ? _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda)
-                        : _queryCompilationContext.RegisterRuntimeParameter(
+                    var escapedPatternParameter =
+                        _queryCompilationContext.RegisterRuntimeParameter(
                             $"{patternParameter.Name}_{(startsWith ? "startswith" : "endswith")}", lambda);
 
                     translation = _sqlExpressionFactory.Like(
@@ -420,7 +423,14 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         }
     }
 
-    private static string? ConstructLikePatternParameter(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal] // Can be called from precompiled shapers
+    public static string? ConstructLikePatternParameter(
         QueryContext queryContext,
         string baseParameterName,
         bool startsWith)
@@ -457,6 +467,38 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         }
 
         return builder.ToString();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override SqlExpression GenerateGreatest(IReadOnlyList<SqlExpression> expressions, Type resultType)
+    {
+        // Docs: https://sqlite.org/lang_corefunc.html#max_scalar
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        // The multi-argument max() function returns the argument with the maximum value, or return NULL if any argument is NULL.
+        return _sqlExpressionFactory.Function(
+            "max", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override SqlExpression GenerateLeast(IReadOnlyList<SqlExpression> expressions, Type resultType)
+    {
+        // Docs: https://sqlite.org/lang_corefunc.html#min_scalar
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        // The multi-argument min() function returns the argument with the minimum value, or return NULL if any argument is NULL.
+        return _sqlExpressionFactory.Function(
+            "min", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
     }
 
     [return: NotNullIfNotNull(nameof(expression))]
@@ -508,7 +550,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         return op switch
         {
             ExpressionType.Add => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
-            ExpressionType.Divide => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
+            ExpressionType.Divide => DecimalDivisionExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
             ExpressionType.Multiply => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
             ExpressionType.Subtract => DecimalSubtractExpressionFactoryMethod(left, right),
             _ => visitedExpression
@@ -530,6 +572,14 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                 new[] { left, right },
                 nullable: true,
                 new[] { true, true },
+                visitedExpression.Type);
+
+        Expression DecimalDivisionExpressionFactoryMethod(string name, SqlExpression left, SqlExpression right)
+            => Dependencies.SqlExpressionFactory.Function(
+                name,
+                new[] { left, right },
+                nullable: true,
+                new[] { false, false },
                 visitedExpression.Type);
 
         Expression DecimalSubtractExpressionFactoryMethod(SqlExpression left, SqlExpression right)

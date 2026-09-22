@@ -30,9 +30,7 @@ public class ParameterQueryRootExpression : QueryRootExpression
         Type elementType,
         ParameterExpression parameterExpression)
         : base(asyncQueryProvider, elementType)
-    {
-        ParameterExpression = parameterExpression;
-    }
+        => ParameterExpression = parameterExpression;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="ParameterQueryRootExpression" /> class.
@@ -41,9 +39,7 @@ public class ParameterQueryRootExpression : QueryRootExpression
     /// <param name="parameterExpression">The parameter expression representing the values for this query root.</param>
     public ParameterQueryRootExpression(Type elementType, ParameterExpression parameterExpression)
         : base(elementType)
-    {
-        ParameterExpression = parameterExpression;
-    }
+        => ParameterExpression = parameterExpression;
 
     /// <inheritdoc />
     public override Expression DetachQueryProvider()

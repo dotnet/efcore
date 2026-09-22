@@ -3,13 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class EntitySplittingSqliteTest : EntitySplittingTestBase
-{
-    public EntitySplittingSqliteTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
+#nullable disable
 
+public class EntitySplittingSqliteTest(ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(testOutputHelper)
+{
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 

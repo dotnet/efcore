@@ -45,9 +45,7 @@ public sealed record EntityMaterializerSourceDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public EntityMaterializerSourceDependencies(IEnumerable<ISingletonInterceptor> singletonInterceptors)
-    {
-        SingletonInterceptors = singletonInterceptors;
-    }
+        => SingletonInterceptors = singletonInterceptors;
 
     /// <summary>
     ///     Registered singleton interceptors.

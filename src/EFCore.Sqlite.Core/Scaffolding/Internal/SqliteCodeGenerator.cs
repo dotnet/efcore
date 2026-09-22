@@ -14,7 +14,7 @@ public class SqliteCodeGenerator : ProviderCodeGenerator
     private static readonly MethodInfo UseSqliteMethodInfo
         = typeof(SqliteDbContextOptionsBuilderExtensions).GetRuntimeMethod(
             nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite),
-            new[] { typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<SqliteDbContextOptionsBuilder>) })!;
+            [typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<SqliteDbContextOptionsBuilder>)])!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteCodeGenerator" /> class.
@@ -37,6 +37,6 @@ public class SqliteCodeGenerator : ProviderCodeGenerator
         => new(
             UseSqliteMethodInfo,
             providerOptions == null
-                ? new object[] { connectionString }
-                : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
+                ? [connectionString]
+                : [connectionString, new NestedClosureCodeFragment("x", providerOptions)]);
 }

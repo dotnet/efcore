@@ -267,7 +267,7 @@ public class SqliteConnectionTest
     {
 #if E_SQLITE3 || WINSQLITE3
         Open_works_when_password_unsupported();
-#elif E_SQLCIPHER || SQLCIPHER
+#elif E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
         Open_works_when_password_supported();
 #elif SQLITE3
         Open_works_when_password_might_be_supported();
@@ -314,7 +314,7 @@ public class SqliteConnectionTest
         connection.Open();
     }
 
-#if E_SQLCIPHER || SQLCIPHER
+#if E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
     [Fact]
     public void Open_decrypts_lazily_when_no_password()
     {
@@ -1186,8 +1186,8 @@ public class SqliteConnectionTest
             c => Assert.Equal(DbMetaDataColumnNames.NumberOfIdentifierParts, c.ColumnName));
         Assert.Collection(
             dataTable.Rows.Cast<DataRow>().Select(r => r.ItemArray),
-            r => Assert.Equal(new object[] { DbMetaDataCollectionNames.MetaDataCollections, 0, 0 }, r),
-            r => Assert.Equal(new object[] { DbMetaDataCollectionNames.ReservedWords, 0, 0 }, r));
+            r => Assert.Equal([DbMetaDataCollectionNames.MetaDataCollections, 0, 0], r),
+            r => Assert.Equal([DbMetaDataCollectionNames.ReservedWords, 0, 0], r));
     }
 
     [Fact]
@@ -1205,11 +1205,11 @@ public class SqliteConnectionTest
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("Unknown")]
-    public void GetSchema_throws_when_unknown_collection(string collectionName)
+    public void GetSchema_throws_when_unknown_collection(string? collectionName)
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
 
-        var ex = Assert.Throws<ArgumentException>(() => connection.GetSchema(collectionName));
+        var ex = Assert.Throws<ArgumentException>(() => connection.GetSchema(collectionName!));
 
         Assert.Equal(Resources.UnknownCollection(collectionName), ex.Message);
     }

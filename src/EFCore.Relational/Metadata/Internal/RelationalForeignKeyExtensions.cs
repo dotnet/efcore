@@ -342,7 +342,7 @@ public static class RelationalForeignKeyExtensions
         static HashSet<StoreObjectIdentifier> GetMappedStoreObjects(
             IReadOnlyTypeBase type,
             StoreObjectType storeObjectType)
-            => AddMappedStoreObjects(type, storeObjectType, new HashSet<StoreObjectIdentifier>());
+            => AddMappedStoreObjects(type, storeObjectType, []);
 
         static HashSet<StoreObjectIdentifier> AddMappedStoreObjects(
             IReadOnlyTypeBase type,

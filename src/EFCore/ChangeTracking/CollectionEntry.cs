@@ -36,9 +36,7 @@ public class CollectionEntry : NavigationEntry
     [EntityFrameworkInternal]
     public CollectionEntry(InternalEntityEntry internalEntry, string name)
         : base(internalEntry, name, collection: true)
-    {
-        LocalDetectChanges();
-    }
+        => LocalDetectChanges();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,9 +47,7 @@ public class CollectionEntry : NavigationEntry
     [EntityFrameworkInternal]
     public CollectionEntry(InternalEntityEntry internalEntry, INavigationBase navigationBase)
         : base(internalEntry, navigationBase, collection: true)
-    {
-        LocalDetectChanges();
-    }
+        => LocalDetectChanges();
 
     private void LocalDetectChanges()
     {

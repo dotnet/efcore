@@ -37,9 +37,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ProviderConventionSetBuilder(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -101,11 +99,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.Add(new QueryFilterRewritingConvention(Dependencies));
         conventionSet.Add(new RuntimeModelConvention(Dependencies));
         conventionSet.Add(new ElementMappingConvention(Dependencies));
-
-        if (!ElementTypeChangedConvention.UseOldBehavior32411)
-        {
-            conventionSet.Add(new ElementTypeChangedConvention(Dependencies));
-        }
+        conventionSet.Add(new ElementTypeChangedConvention(Dependencies));
 
         return conventionSet;
     }

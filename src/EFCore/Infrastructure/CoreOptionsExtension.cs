@@ -42,12 +42,15 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     private DbContextOptionsExtensionInfo? _info;
     private IEnumerable<IInterceptor>? _interceptors;
     private IEnumerable<ISingletonInterceptor>? _singletonInterceptors;
+    private Action<DbContext, bool>? _seed;
+    private Func<DbContext, bool, CancellationToken, Task>? _seedAsync;
 
     private static readonly TimeSpan DefaultLoggingCacheTime = TimeSpan.FromSeconds(1);
 
     private WarningsConfiguration _warningsConfiguration
         = new WarningsConfiguration()
             .TryWithExplicit(CoreEventId.ManyServiceProvidersCreatedWarning, WarningBehavior.Throw)
+            .TryWithExplicit(CoreEventId.AccidentalEntityType, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.InvalidIncludePathError, WarningBehavior.Throw)
@@ -84,6 +87,8 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         _serviceProviderCachingEnabled = copyFrom.ServiceProviderCachingEnabled;
         _interceptors = copyFrom.Interceptors?.ToList();
         _singletonInterceptors = copyFrom.SingletonInterceptors?.ToList();
+        _seed = copyFrom._seed;
+        _seedAsync = copyFrom._seedAsync;
 
         if (copyFrom._replacedServices != null)
         {
@@ -407,6 +412,36 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     }
 
     /// <summary>
+    ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+    ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+    /// </summary>
+    /// <param name="seed">The option to change.</param>
+    /// <returns>A new instance with the option changed.</returns>
+    public virtual CoreOptionsExtension WithSeeding(Action<DbContext, bool> seed)
+    {
+        var clone = Clone();
+
+        clone._seed = seed;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+    ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+    /// </summary>
+    /// <param name="seedAsync">The option to change.</param>
+    /// <returns>A new instance with the option changed.</returns>
+    public virtual CoreOptionsExtension WithAsyncSeeding(Func<DbContext, bool, CancellationToken, Task> seedAsync)
+    {
+        var clone = Clone();
+
+        clone._seedAsync = seedAsync;
+
+        return clone;
+    }
+
+    /// <summary>
     ///     The option set from the <see cref="DbContextOptionsBuilder.EnableSensitiveDataLogging" /> method.
     /// </summary>
     public virtual bool IsSensitiveDataLoggingEnabled
@@ -529,6 +564,24 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         => _singletonInterceptors;
 
     /// <summary>
+    ///     The option set from the
+    ///     <see
+    ///         cref="DbContextOptionsBuilder.UseSeeding(Action{DbContext, bool})" />
+    ///     method.
+    /// </summary>
+    public virtual Action<DbContext, bool>? Seeder
+        => _seed;
+
+    /// <summary>
+    ///     The option set from the
+    ///     <see
+    ///         cref="DbContextOptionsBuilder.UseAsyncSeeding(Func{DbContext, bool, CancellationToken, Task})" />
+    ///     method.
+    /// </summary>
+    public virtual Func<DbContext, bool, CancellationToken, Task>? AsyncSeeder
+        => _seedAsync;
+
+    /// <summary>
     ///     Adds the services required to make the selected options work. This is used when there
     ///     is no external <see cref="IServiceProvider" /> and EF is maintaining its own service
     ///     provider internally. This allows database providers (and other extensions) to register their
@@ -606,15 +659,10 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         }
     }
 
-    private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
+    private sealed class ExtensionInfo(CoreOptionsExtension extension) : DbContextOptionsExtensionInfo(extension)
     {
         private int? _serviceProviderHash;
         private string? _logFragment;
-
-        public ExtensionInfo(CoreOptionsExtension extension)
-            : base(extension)
-        {
-        }
 
         private new CoreOptionsExtension Extension
             => (CoreOptionsExtension)base.Extension;

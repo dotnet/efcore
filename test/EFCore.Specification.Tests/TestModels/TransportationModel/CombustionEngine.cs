@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
+#nullable disable
+
 public abstract class CombustionEngine : Engine
 {
     public FuelTank FuelTank { get; set; }

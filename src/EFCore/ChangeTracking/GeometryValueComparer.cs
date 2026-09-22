@@ -52,7 +52,7 @@ public class GeometryValueComparer<[DynamicallyAccessedMembers(DynamicallyAccess
                             Expression.IsFalse(yNull),
                             Expression.Call(
                                 x,
-                                typeof(TGeometry).GetRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) })!,
+                                typeof(TGeometry).GetRuntimeMethod("EqualsExact", [typeof(TGeometry)])!,
                                 y))))),
             left,
             right);

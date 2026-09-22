@@ -26,9 +26,7 @@ public class JsonValueReaderWriterSource : IJsonValueReaderWriterSource
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public JsonValueReaderWriterSource(JsonValueReaderWriterSourceDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

@@ -35,6 +35,10 @@ public class CosmosCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotatio
         {
             annotations.Remove(CosmosAnnotationNames.Throughput);
         }
+        else
+        {
+            annotations.Remove(CosmosAnnotationNames.ModelDependencies);
+        }
 
         base.Generate(model, parameters);
     }

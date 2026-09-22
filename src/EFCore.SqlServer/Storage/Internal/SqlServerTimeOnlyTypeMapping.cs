@@ -19,7 +19,7 @@ public class SqlServerTimeOnlyTypeMapping : TimeOnlyTypeMapping
     // Note: this array will be accessed using the precision as an index
     // so the order of the entries in this array is important
     private readonly string[] _timeFormats =
-    {
+    [
         @"'{0:HH\:mm\:ss}'",
         @"'{0:HH\:mm\:ss\.F}'",
         @"'{0:HH\:mm\:ss\.FF}'",
@@ -28,7 +28,7 @@ public class SqlServerTimeOnlyTypeMapping : TimeOnlyTypeMapping
         @"'{0:HH\:mm\:ss\.FFFFF}'",
         @"'{0:HH\:mm\:ss\.FFFFFF}'",
         @"'{0:HH\:mm\:ss\.FFFFFFF}'"
-    };
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

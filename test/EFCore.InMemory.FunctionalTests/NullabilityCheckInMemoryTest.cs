@@ -6,14 +6,9 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class NullabilityCheckInMemoryTest : IClassFixture<InMemoryFixture>
+public class NullabilityCheckInMemoryTest(InMemoryFixture fixture) : IClassFixture<InMemoryFixture>
 {
-    public NullabilityCheckInMemoryTest(InMemoryFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected InMemoryFixture Fixture { get; }
+    protected InMemoryFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void IsRequired_for_property_throws_while_inserting_null_value()

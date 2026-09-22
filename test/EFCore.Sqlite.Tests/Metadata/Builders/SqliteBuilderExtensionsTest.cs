@@ -47,13 +47,13 @@ public class SqliteBuilderExtensionsTest
         var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
 
         modelBuilder
-            .Entity(typeof(Customer))
-            .Property(typeof(string), "Geometry")
+            .Entity(typeof(Customer))!
+            .Property(typeof(string), "Geometry")!
             .HasSrid(1);
 
         var property = modelBuilder
-            .Entity(typeof(Customer))
-            .Property(typeof(string), "Geometry")
+            .Entity(typeof(Customer))!
+            .Property(typeof(string), "Geometry")!
             .Metadata;
 
         Assert.Equal(1, property.GetSrid());
@@ -179,6 +179,6 @@ public class SqliteBuilderExtensionsTest
     private class Customer
     {
         public int Id { get; set; }
-        public string Geometry { get; set; }
+        public string? Geometry { get; set; }
     }
 }

@@ -21,13 +21,13 @@ public class RelationalParameterBasedSqlProcessor
     ///     Creates a new instance of the <see cref="RelationalParameterBasedSqlProcessor" /> class.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
-    /// <param name="useRelationalNulls">A bool value indicating if relational nulls should be used.</param>
+    /// <param name="parameters">Parameter object containing parameters for this class.</param>
     public RelationalParameterBasedSqlProcessor(
         RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
+        RelationalParameterBasedSqlProcessorParameters parameters)
     {
         Dependencies = dependencies;
-        UseRelationalNulls = useRelationalNulls;
+        Parameters = parameters;
     }
 
     /// <summary>
@@ -36,9 +36,9 @@ public class RelationalParameterBasedSqlProcessor
     protected virtual RelationalParameterBasedSqlProcessorDependencies Dependencies { get; }
 
     /// <summary>
-    ///     A bool value indicating if relational nulls should be used.
+    ///     Parameter object containing parameters for this class.
     /// </summary>
-    protected virtual bool UseRelationalNulls { get; }
+    protected virtual RelationalParameterBasedSqlProcessorParameters Parameters { get; }
 
     /// <summary>
     ///     Optimizes the query expression for given parameter values.
@@ -74,7 +74,7 @@ public class RelationalParameterBasedSqlProcessor
         Expression queryExpression,
         IReadOnlyDictionary<string, object?> parametersValues,
         out bool canCache)
-        => new SqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(queryExpression, parametersValues, out canCache);
+        => new SqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, parametersValues, out canCache);
 
     /// <summary>
     ///     Expands the parameters to <see cref="FromSqlExpression" /> inside the query expression for given parameter values.

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public readonly struct RelationalCommandParameterObject
+public readonly record struct RelationalCommandParameterObject
 {
     /// <summary>
     ///     <para>

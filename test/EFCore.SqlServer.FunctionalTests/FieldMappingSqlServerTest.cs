@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class FieldMappingSqlServerTest : FieldMappingTestBase<FieldMappingSqlServerTest.FieldMappingSqlServerFixture>
-{
-    public FieldMappingSqlServerTest(FieldMappingSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class FieldMappingSqlServerTest(FieldMappingSqlServerTest.FieldMappingSqlServerFixture fixture)
+    : FieldMappingTestBase<FieldMappingSqlServerTest.FieldMappingSqlServerFixture>(fixture)
+{
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

@@ -26,9 +26,7 @@ public class WarningsConfigurationBuilder
     /// </summary>
     /// <param name="optionsBuilder">The options builder to which the warnings configuration will be applied.</param>
     public WarningsConfigurationBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        _optionsBuilder = optionsBuilder;
-    }
+        => _optionsBuilder = optionsBuilder;
 
     /// <summary>
     ///     Sets the default behavior when a warning is generated.
