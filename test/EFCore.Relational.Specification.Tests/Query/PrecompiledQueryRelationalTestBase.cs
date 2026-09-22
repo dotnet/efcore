@@ -210,11 +210,11 @@ await context.Blogs.ToListAsync();
             interceptorCodeAsserter: code =>
             {
                 Assert.Matches(
-                    @"\bprivate\s+static\s+readonly\b(?=[^;]*\bNumberBytes\b)[^;=]*\bNumberBytes\s*=\s*[^;]+;",
-                    code); // Expected a private static readonly field named NumberBytes with an initializer.
+                    @"\bprivate\s+static\s+readonly\b(?=[^;]*\b_NumberBytes\b)[^;=]*\b_NumberBytes\s*=\s*[^;]+;",
+                    code); // Expected a private static readonly field named _NumberBytes with an initializer.
                 Assert.True(
-                    Regex.Matches(code, @"\bNumberBytes\b").Count > 1,
-                    "Expected at least 1 reference to NumberBytes excluding the initializer.");
+                    Regex.Matches(code, @"\b_NumberBytes\b").Count > 1,
+                    "Expected at least 1 reference to _NumberBytes excluding the initializer.");
             });
 
     #endregion Expression types
