@@ -94,11 +94,11 @@ test('eval scopes component resolution and output validation to the selected rep
   }
 });
 
-test('eval rejects missing model and runs option values', async () => {
+test('eval rejects missing model, judge model, and runs option values', async () => {
   const root = await makeRepo();
   try {
     const cliPath = fileURLToPath(new URL('../src/cli.mjs', import.meta.url));
-    for (const option of ['--model', '--runs']) {
+    for (const option of ['--model', '--judge-model', '--runs']) {
       const result = spawnSync(process.execPath, [
         cliPath,
         'eval',

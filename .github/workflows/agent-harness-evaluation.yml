@@ -525,6 +525,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           COPILOT_GITHUB_TOKEN: ${{ secrets['COPILOT_CLI_TOKEN'] }}
+          GITHUB_COPILOT_API_TOKEN: ${{ secrets['COPILOT_CLI_TOKEN'] }}
         run: |
           timeout --signal=TERM --kill-after=30s "${{ matrix.watchdog_minutes }}m" \
             node "$TRUSTED_ROOT/eng/harness-evaluation/src/cli.mjs" eval "$COMPONENT" \
