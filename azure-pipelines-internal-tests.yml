@@ -725,6 +725,7 @@ extends:
           HelixMacOsArm64Result: $[ stageDependencies.build.Helix_macOS_ARM64.result ]
           HelixWindowsArm64Result: $[ stageDependencies.build.Helix_Windows_Arm64.result ]
           HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
+          HelixJobMonitorResult: $[ stageDependencies.build.HelixJobMonitor.result ]
         steps:
           - pwsh: |
               $jobResults = @{
@@ -741,9 +742,11 @@ extends:
                 Helix_macOS_ARM64 = "$(HelixMacOsArm64Result)"
                 Helix_Windows_Arm64 = "$(HelixWindowsArm64Result)"
                 Helix_Ubuntu_Cosmos = "$(HelixUbuntuCosmosResult)"
+                HelixJobMonitor = "$(HelixJobMonitorResult)"
               }
 
               & eng/aggregate-azdo-tests.ps1 -JobResults $jobResults
             displayName: Evaluate grouped job outcomes
             env:
+              HELIX_ACCESSTOKEN: $(HelixApiAccessToken)
               SYSTEM_ACCESSTOKEN: $(System.AccessToken)
