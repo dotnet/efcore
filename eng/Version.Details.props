@@ -6,9 +6,9 @@ This file should be imported by eng/Versions.props
 <Project>
   <PropertyGroup>
     <!-- dotnet-dotnet dependencies -->
-    <MicrosoftDotNetArcadeSdkPackageVersion>10.0.0-beta.26472.120</MicrosoftDotNetArcadeSdkPackageVersion>
-    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>10.0.0-beta.26472.120</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
-    <MicrosoftDotNetHelixSdkPackageVersion>10.0.0-beta.26472.120</MicrosoftDotNetHelixSdkPackageVersion>
+    <MicrosoftDotNetArcadeSdkPackageVersion>10.0.0-beta.26473.102</MicrosoftDotNetArcadeSdkPackageVersion>
+    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>10.0.0-beta.26473.102</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
+    <MicrosoftDotNetHelixSdkPackageVersion>10.0.0-beta.26473.102</MicrosoftDotNetHelixSdkPackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>10.0.14</MicrosoftExtensionsCachingMemoryPackageVersion>
     <MicrosoftExtensionsConfigurationPackageVersion>10.0.14</MicrosoftExtensionsConfigurationPackageVersion>
     <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>10.0.14</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
@@ -16,10 +16,10 @@ This file should be imported by eng/Versions.props
     <MicrosoftExtensionsConfigurationJsonPackageVersion>10.0.14</MicrosoftExtensionsConfigurationJsonPackageVersion>
     <MicrosoftExtensionsDependencyInjectionPackageVersion>10.0.14</MicrosoftExtensionsDependencyInjectionPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>10.0.14</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>10.0.14-servicing.26472.120</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>10.0.14-servicing.26473.102</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
     <MicrosoftExtensionsLoggingPackageVersion>10.0.14</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftNETCoreAppRefPackageVersion>10.0.14</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>10.0.14-servicing.26472.120</MicrosoftNETCorePlatformsPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>10.0.14-servicing.26473.102</MicrosoftNETCorePlatformsPackageVersion>
     <SystemFormatsAsn1PackageVersion>10.0.14</SystemFormatsAsn1PackageVersion>
     <SystemRuntimeCachingPackageVersion>10.0.14</SystemRuntimeCachingPackageVersion>
     <SystemTextEncodingsWebPackageVersion>10.0.14</SystemTextEncodingsWebPackageVersion>
