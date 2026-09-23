@@ -40,7 +40,7 @@ deactivate init
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 _OLD_PATH="$PATH"
 # Tell dotnet where to find itself
-export DOTNET_ROOT="$DIR/.dotnet"
+export DOTNET_ROOT="${DOTNET_GLOBAL_INSTALL_DIR:-$DIR/.dotnet}"
 # Put dotnet first on PATH
 export PATH="$DOTNET_ROOT:$PATH"
 

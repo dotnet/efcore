@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -244,6 +245,33 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
 """,
                     Assert.Single(accessors),
                     ignoreLineEndingDifferences: true));
+
+    [Fact]
+    public void Private_instance_field_read_with_updated_memory_safety_rules()
+    {
+        var (translator, _) = CreateTranslator(useUpdatedMemorySafetyRules: true);
+        var namespaces = new HashSet<string>();
+        var unsafeAccessors = new HashSet<MethodDeclarationSyntax>();
+
+        translator.TranslateExpression(
+            Field(Parameter(typeof(Blog), "blog"), "_privateField"),
+            constantReplacements: null,
+            namespaces,
+            unsafeAccessors);
+
+        var declaration = Assert.Single(unsafeAccessors);
+
+        if (MemorySafetyRules.SafeKeyword == SyntaxKind.None)
+        {
+            // The Roslyn version currently referenced by this project doesn't recognize "safe" as a contextual
+            // keyword yet, so it can never be emitted, even when updated memory safety rules were requested.
+            Assert.DoesNotContain(declaration.Modifiers, modifier => modifier.Text == "safe");
+        }
+        else
+        {
+            Assert.Contains(declaration.Modifiers, modifier => modifier.Text == "safe");
+        }
+    }
 
     // TODO: Also test accessing private static fields
     // TODO: Also test accessing private properties, instance and static
@@ -2021,11 +2049,11 @@ catch
         }
     }
 
-    private (LinqToCSharpSyntaxTranslator, AdhocWorkspace) CreateTranslator()
+    private (LinqToCSharpSyntaxTranslator, AdhocWorkspace) CreateTranslator(bool useUpdatedMemorySafetyRules = false)
     {
         var workspace = new AdhocWorkspace();
         var syntaxGenerator = SyntaxGenerator.GetGenerator(workspace, LanguageNames.CSharp);
-        return (new LinqToCSharpSyntaxTranslator(syntaxGenerator), workspace);
+        return (new LinqToCSharpSyntaxTranslator(syntaxGenerator, useUpdatedMemorySafetyRules), workspace);
     }
 
     // ReSharper disable UnusedMember.Local

@@ -82,7 +82,14 @@ public class RelationalSqlGenerationHelper : ISqlGenerationHelper
     /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
     /// <param name="name">The candidate name for the parameter.</param>
     public virtual void GenerateParameterName(StringBuilder builder, string name)
-        => builder.Append('@').Append(name);
+    {
+        if (!name.StartsWith('@'))
+        {
+            builder.Append('@');
+        }
+
+        builder.Append(name);
+    }
 
     /// <summary>
     ///     Generates a valid parameter placeholder name for the given candidate name.

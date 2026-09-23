@@ -3,9 +3,9 @@
   <Import Project="Version.Details.props" />
 
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>11.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>rtm</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration></PreReleaseVersionIteration>
+    <VersionPrefix>12.0.0</VersionPrefix>
+    <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
     <DotNetFinalVersionKind></DotNetFinalVersionKind>
 
@@ -46,7 +46,7 @@
     <SQLite3MCPCLRawBundleVersion>2.4.0</SQLite3MCPCLRawBundleVersion>
     <XUnitV3Version>4.0.0-pre.108</XUnitV3Version>
     <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26467.112</MicrosoftDotNetXUnitV3ExtensionsVersion>
-    <MicrosoftTestingPlatformVersion>2.4.1</MicrosoftTestingPlatformVersion>
+    <MicrosoftTestingPlatformVersion>2.4.0</MicrosoftTestingPlatformVersion>
     <MicrosoftTestingExtensionsCodeCoverageVersion>18.11.2</MicrosoftTestingExtensionsCodeCoverageVersion>
   </PropertyGroup>
 
@@ -56,7 +56,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Tooling dependencies">
-    <ICSharpCodeDecompilerVersion>10.1.1.8388</ICSharpCodeDecompilerVersion>
+    <ICSharpCodeDecompilerVersion>11.0.0.9375</ICSharpCodeDecompilerVersion>
     <SystemCommandLineVersion>2.0.12</SystemCommandLineVersion>
   </PropertyGroup>
 

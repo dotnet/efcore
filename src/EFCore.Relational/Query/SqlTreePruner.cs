@@ -273,10 +273,17 @@ public class SqlTreePruner : ExpressionVisitor
     ///     that ordering isn't actually necessary.
     /// </summary>
     /// <remarks>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     <para>
+    ///         This also visits the row/parameter contents of the <see cref="ValuesExpression" />, so that column
+    ///         references embedded within it (e.g. a navigation column inlined into a row) get registered in
+    ///         <see cref="ReferencedColumnMap" /> before the tables providing them are considered for pruning.
+    ///     </para>
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
     /// </remarks>
     [EntityFrameworkInternal]
     protected virtual ValuesExpression PruneValues(ValuesExpression values)
@@ -301,7 +308,7 @@ public class SqlTreePruner : ExpressionVisitor
                     for (var j = 0; j < i; j++)
                     {
                         referencedColumns[j] = true;
-                        newColumnNames.Add(columnName);
+                        newColumnNames.Add(values.ColumnNames[j]);
                     }
                 }
 
@@ -337,24 +344,32 @@ public class SqlTreePruner : ExpressionVisitor
             }
         }
 
-        if (referencedColumns is null)
-        {
-            return values;
-        }
-
-        // We know at least some columns are getting pruned.
-        Debug.Assert(newColumnNames is not null);
-
+        // Always visit nested expressions so that column references inside VALUES cells (e.g. navigation
+        // columns embedded in an inline collection) are registered before outer tables are pruned (#38700).
         switch (values)
         {
             // If we have a value parameter (row values aren't specific in line), we still prune the column names.
             // Later in SqlNullabilityProcessor, when the parameterized collection is inline to constants, we'll take
             // the column names into account.
             case { ValuesParameter: not null }:
-                return new ValuesExpression(values.Alias, rowValues: null, values.ValuesParameter, newColumnNames);
+            {
+                var visitedParameter = (SqlParameterExpression)Visit(values.ValuesParameter);
+
+                return referencedColumns is null
+                    ? values.Update(visitedParameter)
+                    : new ValuesExpression(values.Alias, rowValues: null, visitedParameter, newColumnNames!);
+            }
 
             // Go over the rows and create new ones without the pruned columns.
             case { RowValues: { } rowValues }:
+            {
+                if (referencedColumns is null)
+                {
+                    return values.Update(this.VisitAndConvert(rowValues));
+                }
+
+                Debug.Assert(newColumnNames is not null);
+
                 var newRowValues = new RowValueExpression[rowValues.Count];
 
                 for (var i = 0; i < rowValues.Count; i++)
@@ -366,7 +381,7 @@ public class SqlTreePruner : ExpressionVisitor
                     {
                         if (referencedColumns[j])
                         {
-                            newValues.Add(oldValues[j]);
+                            newValues.Add((SqlExpression)Visit(oldValues[j]));
                         }
                     }
 
@@ -374,6 +389,7 @@ public class SqlTreePruner : ExpressionVisitor
                 }
 
                 return new ValuesExpression(values.Alias, newRowValues, valuesParameter: null, newColumnNames);
+            }
 
             default:
                 throw new UnreachableException();

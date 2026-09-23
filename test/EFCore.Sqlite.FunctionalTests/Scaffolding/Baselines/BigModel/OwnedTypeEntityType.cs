@@ -683,7 +683,8 @@ public partial class OwnedTypeEntityType
         var detailsFragment = new RuntimeEntityTypeMappingFragment(
             runtimeEntityType,
             StoreObjectIdentifier.Table("Details", null),
-            null);
+            null,
+            false);
         fragments.Add(StoreObjectIdentifier.Table("Details", null), detailsFragment);
         runtimeEntityType.AddAnnotation("Relational:MappingFragments", fragments);
         runtimeEntityType.AddAnnotation("Relational:FunctionName", null);

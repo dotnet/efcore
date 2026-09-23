@@ -387,6 +387,250 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AnyBig = g.Any(o => o.OrderID > 10500) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_All_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AllBig = g.All(o => o.OrderID > 10500) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_without_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, HasAny = g.Any() }),
+            elementSorter: e => e.Key);
+
+    // The shape reported in #27953: a quantifier guarding an aggregate expression that would otherwise divide by zero.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_guarding_aggregate_expression(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, Average = !g.Any() ? 0 : g.Sum(o => o.OrderID) / g.Count() }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_predicate_and_other_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Total = g.Sum(o => o.OrderID),
+                    AnyBig = g.Any(o => o.OrderID > 10500)
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_predicate_guarding_nullable_Sum(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Employees = g.Any(o => o.EmployeeID != null) ? g.Sum(o => (int?)o.EmployeeID) : null
+                }),
+            elementSorter: e => e.Key);
+
+    // EmployeeID is nullable, so the predicate is NULL rather than false on a row with no employee. Enumerable.Any/All
+    // treat that as "does not satisfy"; the SQL must too, so such a row has to be left out of the match count.
+    //
+    // No Northwind order actually has a NULL EmployeeID, so these two only pin the SQL shape. The behaviour itself is
+    // covered by NullSemanticsQueryTestBase.Quantifier_over_group_treats_null_predicate_as_not_satisfied, whose model
+    // does hold NULLs.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_nullable_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AnySenior = g.Any(o => o.EmployeeID > 5) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_All_with_nullable_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AllSenior = g.All(o => o.EmployeeID > 5) }),
+            elementSorter: e => e.Key);
+
+    // A Select over the grouping element keeps a scalar element selector on the aggregate, which COUNT would treat as a
+    // value to count rather than a row - dropping the NULL elements this predicate matches. GroupingAggregateScanner only
+    // lifts aggregates whose source is the grouping parameter itself, so the shape falls back to EXISTS and keeps
+    // Enumerable's semantics. Asserted here so that widening the whitelist has to revisit the counts.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Distinct_Any_with_nullable_element(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Employees = g.Select(o => o.EmployeeID).Distinct().Count(),
+                    AnyUnassigned = g.Select(o => o.EmployeeID).Distinct().Any(id => id == null)
+                }),
+            elementSorter: e => e.Key);
+
+    // A grouping element filtered by Where rather than by the quantifier's own predicate: the aggregate reads the filter
+    // already on the element, so Any needs no predicate of its own to count against.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Where_Any_over_grouping_element(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AnyBig = g.Where(o => o.OrderID > 10500).Any() }),
+            elementSorter: e => e.Key);
+
+    // The same, with a filter that leaves no rows in any group. Both counts come out 0, which has to read as Any false and
+    // All true - the Enumerable semantics for an empty sequence.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Where_quantifiers_over_empty_filtered_grouping_element(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Any = g.Where(o => o.OrderID > 999999).Any(),
+                    All = g.Where(o => o.OrderID > 999999).All(o => o.OrderID > 0)
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_predicate_through_navigation_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.Any(o => o.Customer!.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_All_with_predicate_through_navigation_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.All(o => o.Customer!.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Queryable_Any_with_predicate_through_navigation_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.AsQueryable().Any(o => o.Customer!.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Queryable_All_with_predicate_through_navigation_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.AsQueryable().All(o => o.Customer!.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_and_aggregate_through_navigation_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(
+                    g => new
+                    {
+                        g.Key,
+                        HasOrders = g.Any(),
+                        Londons = g.Count(o => o.Customer!.City == "London")
+                    }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_All_and_aggregate_through_navigation_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(
+                    g => new
+                    {
+                        g.Key,
+                        AllLate = g.All(o => o.OrderID > 10250),
+                        Londons = g.Count(o => o.Customer!.City == "London")
+                    }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_multiple_aggregates_with_Any_and_All_sharing_same_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(
+                    g => new
+                    {
+                        g.Key,
+                        Region = g.Max(o => o.Customer!.Region),
+                        AnyLondon = g.Any(o => o.Customer!.City == "London"),
+                        AllLondon = g.All(o => o.Customer!.City == "London"),
+                        Count = g.Count()
+                    }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_through_two_level_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.ProductID)
+                .Select(g => new { g.Key, Londons = g.Any(od => od.Order!.Customer!.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_key_and_Any_through_same_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer!.City)
+                .Select(g => new { g.Key, Londons = g.Any(o => o.Customer!.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_through_navigation_in_intermediate_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Select(o => new { o.EmployeeID, o.Customer!.City })
+                .GroupBy(x => x.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.Any(x => x.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_key_and_aggregate_through_same_navigation(bool async)
         => AssertQuery(
             async,
@@ -2491,6 +2735,14 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementAsserter: (e, a) => AssertGrouping(e, a));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_property_entity_by_identifier(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(e => e.OrderID < 10300).GroupBy(o => o.OrderID),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Final_GroupBy_property_anonymous_type(bool async)
         => AssertQuery(
             async,
@@ -2729,6 +2981,136 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             {
                 Assert.Equal(e.Key, a.Key);
                 AssertCollection(e.Data, a.Data);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Select(e => e.OrderID).ToList()),
+            elementSorter: e => string.Join(",", e.OrderBy(id => id)),
+            elementAsserter: (e, a) => AssertCollection(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_grouping_element_array_with_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => new { g.Key, Orders = g.Select(e => e.OrderID).ToArray() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                AssertCollection(e.Orders, a.Orders);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_with_element_selector_selecting_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.ToList()),
+            elementSorter: e => string.Join(",", e.OrderBy(id => id)),
+            elementAsserter: (e, a) => AssertCollection(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_grouping_element_list_with_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Count = g.Count(),
+                    Orders = g.Select(e => e.OrderID).ToList()
+                }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                Assert.Equal(e.Count, a.Count);
+                AssertCollection(e.Orders, a.Orders);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_filtered_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => g.Where(e => e.OrderID > 10500).Select(e => e.OrderID).ToList()),
+            elementSorter: e => string.Join(",", e.OrderBy(id => id)),
+            elementAsserter: (e, a) => AssertCollection(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_grouping_element_list_with_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).OrderBy(g => g.Key)
+                .Select(g => g.Select(e => e.OrderID).ToList())
+                .Take(5),
+            elementAsserter: (e, a) => AssertCollection(e, a),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_with_result_selector_selecting_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(
+                o => o.CustomerID,
+                (key, elements) => new { Key = key, Orders = elements.Select(e => e.OrderID).ToList() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                AssertCollection(e.Orders, a.Orders);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Take_selecting_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5)
+                .Select(g => g.Select(e => e.OrderID).ToList()),
+            elementAsserter: (e, a) => AssertCollection(e, a),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Skip_selecting_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Skip(85)
+                .Select(g => g.Select(e => e.OrderID).ToList()),
+            elementAsserter: (e, a) => AssertCollection(e, a),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Where_aggregate_selecting_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Where(g => g.Count() > 10)
+                .Select(g => g.Select(e => e.OrderID).ToList()),
+            elementSorter: e => string.Join(",", e.OrderBy(id => id)),
+            elementAsserter: (e, a) => AssertCollection(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_OrderBy_aggregate_selecting_grouping_element_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("A")).GroupBy(o => o.CustomerID)
+                .OrderBy(g => g.Count()).ThenBy(g => g.Key)
+                .Select(g => g.Select(e => e.OrderID).ToList()),
+            elementAsserter: (e, a) => AssertCollection(e, a),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_grouping_element_list_with_translated_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { Key = g.Key!.ToUpper(), Orders = g.Select(e => e.OrderID).ToList() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                AssertCollection(e.Orders, a.Orders);
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]

@@ -242,5 +242,4 @@ After creating or modifying an agent, verify:
 - [GitHub Copilot Extensions documentation](https://docs.github.com/en/copilot/building-copilot-extensions/about-building-copilot-extensions)
 - [GitHub Copilot Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration)
 - [Agent Skills Specification](https://agentskills.io/specification)
-- [make-skill](../make-skill/SKILL.md)
-- [make-instructions](../make-instructions/SKILL.md)
+- Related repository skills: `make-skill` and `make-instructions`
