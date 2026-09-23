@@ -211,7 +211,16 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             }
         }
 
-        Task.WaitAll(tasks.ToArray());
+        try
+        {
+            Task.WaitAll(tasks.ToArray());
+        }
+        finally
+        {
+            // Reseed even if a task above failed (e.g. a connection-pool timeout), so a failure here doesn't
+            // leave stray data behind for other tests sharing this fixture's database.
+            await Fixture.ReseedAsync();
+        }
 
         async Task RemoveAndAddPosts(Blog blog)
         {
@@ -226,8 +235,6 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
             await context.SaveChangesAsync();
         }
-
-        await Fixture.ReseedAsync();
     }
 
     [Fact]
@@ -274,14 +281,19 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             tasks.Add(Action(owner));
         }
 
-        Task.WaitAll(tasks.ToArray());
-
-        using (var context = CreateContext())
+        try
         {
+            Task.WaitAll(tasks.ToArray());
+
+            using var context = CreateContext();
             Assert.Empty(await context.Blogs.ToListAsync());
         }
-
-        await Fixture.ReseedAsync();
+        finally
+        {
+            // Reseed even if a task above failed (e.g. a connection-pool timeout) or the assertion failed,
+            // so a failure here doesn't leave stray data behind for other tests sharing this fixture's database.
+            await Fixture.ReseedAsync();
+        }
     }
 
     [Fact]
