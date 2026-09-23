@@ -2,6 +2,8 @@
   <PropertyGroup>
     <!-- Disable IsAotCompatible on non-DefaultNetCoreTargetFrameworks even if explicitly enabled or else we'll get NETSDK1210 errors -->
     <IsAotCompatible Condition="'$(TargetFramework)' != '$(DefaultNetCoreTargetFramework)'"></IsAotCompatible>
+    <EnablePreviewFeatures Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">true</EnablePreviewFeatures>
+    <Features Condition="'$(MSBuildProjectExtension)' == '.csproj' AND '$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(Features);runtime-async=on</Features>
     <PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' and Exists('README.md')">README.md</PackageReadmeFile>
   </PropertyGroup>
 

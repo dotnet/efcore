@@ -42,8 +42,6 @@
     <DefaultNetCoreTargetFramework>$(NetCurrent)</DefaultNetCoreTargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>preview</LangVersion>
-    <EnablePreviewFeatures Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">true</EnablePreviewFeatures>
-    <Features Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(Features);runtime-async=on</Features>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
     <DebugType>portable</DebugType>
