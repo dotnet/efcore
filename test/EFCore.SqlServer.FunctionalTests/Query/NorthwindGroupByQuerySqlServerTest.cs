@@ -2949,6 +2949,42 @@ ORDER BY [c1].[City], [c0].[CustomerID]
         AssertSql();
     }
 
+    public override async Task GroupBy_nullable_value_type_key_Select_ToList(bool async)
+    {
+        await base.GroupBy_nullable_value_type_key_Select_ToList(async);
+
+        AssertSql(
+            """
+SELECT [e].[ReportsTo], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[ReportsTo]
+""");
+    }
+
+    public override async Task GroupBy_nullable_value_type_key_Select_element_projection(bool async)
+    {
+        await base.GroupBy_nullable_value_type_key_Select_element_projection(async);
+
+        AssertSql(
+            """
+SELECT [e].[ReportsTo], [e].[EmployeeID]
+FROM [Employees] AS [e]
+ORDER BY [e].[ReportsTo]
+""");
+    }
+
+    public override async Task GroupBy_nullable_value_type_key_with_element_selector_Select_ToList(bool async)
+    {
+        await base.GroupBy_nullable_value_type_key_with_element_selector_Select_ToList(async);
+
+        AssertSql(
+            """
+SELECT [e].[ReportsTo], [e].[EmployeeID]
+FROM [Employees] AS [e]
+ORDER BY [e].[ReportsTo]
+""");
+    }
+
     public override async Task Count_after_GroupBy_aggregate(bool async)
     {
         await base.Count_after_GroupBy_aggregate(async);
@@ -4821,6 +4857,67 @@ ORDER BY [c].[City]
 """);
     }
 
+    public override async Task Final_GroupBy_nullable_value_type_key(bool async)
+    {
+        await base.Final_GroupBy_nullable_value_type_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[ReportsTo], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[ReportsTo]
+""");
+    }
+
+    public override async Task Final_GroupBy_nullable_cast_over_optional_navigation(bool async)
+    {
+        await base.Final_GroupBy_nullable_cast_over_optional_navigation(async);
+
+        AssertSql(
+            """
+SELECT [e0].[EmployeeID], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
+ORDER BY [e0].[EmployeeID]
+""");
+    }
+
+    public override async Task Final_GroupBy_anonymous_key_with_nullable_value_type(bool async)
+    {
+        await base.Final_GroupBy_anonymous_key_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [e].[ReportsTo], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[ReportsTo]
+""");
+    }
+
+    public override async Task Final_GroupBy_composite_key_with_nullable_value_type(bool async)
+    {
+        await base.Final_GroupBy_composite_key_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [e].[ReportsTo], [e].[Country], [e].[EmployeeID], [e].[City], [e].[FirstName], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[ReportsTo], [e].[Country]
+""");
+    }
+
+    public override async Task Final_GroupBy_nullable_value_type_key_as_object(bool async)
+    {
+        await base.Final_GroupBy_nullable_value_type_key_as_object(async);
+
+        AssertSql(
+            """
+SELECT [e].[ReportsTo], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[ReportsTo]
+""");
+    }
+
     #endregion FinalGroupBy
 
     public override async Task GroupBy_Where_with_grouping_result(bool async)
@@ -4913,6 +5010,39 @@ ORDER BY [s1].[Key]
                 () => base.GroupBy_selecting_grouping_element_list_with_captured_instance(async))).Message);
 
         AssertSql();
+    }
+
+    public override async Task Final_GroupBy_nullable_value_type_key_with_split_Include(bool async)
+    {
+        await base.Final_GroupBy_nullable_value_type_key_with_split_Include(async);
+
+        AssertSql(
+            """
+SELECT [c0].[Key], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
+        SELECT MAX([o].[EmployeeID])
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Key]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%' OR [c].[CustomerID] LIKE N'P%'
+) AS [c0]
+ORDER BY [c0].[Key], [c0].[CustomerID]
+""",
+            //
+            """
+SELECT [c0].[Key], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c0].[CustomerID]
+FROM (
+    SELECT [c].[CustomerID], (
+        SELECT MAX([o].[EmployeeID])
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Key]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%' OR [c].[CustomerID] LIKE N'P%'
+) AS [c0]
+INNER JOIN [Orders] AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
+ORDER BY [c0].[Key], [c0].[CustomerID]
+""");
     }
 
     private void AssertSql(params string[] expected)
