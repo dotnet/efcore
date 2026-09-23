@@ -1,0 +1,19 @@
+{
+  "name": "efcore-harness-evaluation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "lint": "node src/cli.mjs lint",
+    "eval": "node src/cli.mjs eval"
+  },
+  "devDependencies": {
+    "@microsoft/vally": "0.16.0",
+    "@microsoft/vally-cli": "0.16.0",
+    "yaml": "2.9.1"
+  }
+}
