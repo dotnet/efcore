@@ -31,7 +31,7 @@ function valueAfter(args, name, fallback) {
 function printUsage() {
   console.error(`Usage:
   node src/cli.mjs lint
-  node src/cli.mjs eval <component> [--repo-root <directory>] [--model <model>] [--runs <n>] [--workers <n>] [--require-pass] [--output <directory>]`);
+  node src/cli.mjs eval <component> [--repo-root <directory>] [--model <model>] [--judge-model <model>] [--runs <n>] [--workers <n>] [--require-pass] [--output <directory>]`);
 }
 
 async function lint() {
@@ -67,6 +67,10 @@ async function evaluate(args) {
   if (model !== undefined && (!model.trim() || model.includes('::'))) {
     throw new Error(`--model must be a non-empty model name without '::': ${model}`);
   }
+  const judgeModel = valueAfter(args, '--judge-model');
+  if (judgeModel !== undefined && (!judgeModel.trim() || judgeModel.includes('::'))) {
+    throw new Error(`--judge-model must be a non-empty model name without '::': ${judgeModel}`);
+  }
   const runsValue = valueAfter(args, '--runs');
   const runs = runsValue === undefined ? undefined : Number(runsValue);
   if (runs !== undefined && (!Number.isSafeInteger(runs) || runs <= 0)) {
@@ -96,6 +100,9 @@ async function evaluate(args) {
   if (model !== undefined) {
     experimentArguments.push('--param', `MODEL=${model}`);
   }
+  if (judgeModel !== undefined) {
+    experimentArguments.push('--param', `JUDGE_MODEL=${judgeModel}`);
+  }
   const experimentResult = runVally(experimentArguments, { cwd: repoRoot, inherit: true });
   if (experimentResult.status !== 0) {
     process.exitCode = 1;
@@ -117,8 +124,13 @@ async function evaluate(args) {
     '--verbose',
     '--fail-on-regression',
   ];
-  if (treatmentSpec.defaults?.judge_model) {
-    comparisonArguments.push('--judge-model', treatmentSpec.defaults.judge_model);
+  const configuredJudgeModel = treatmentSpec.defaults?.judge_model;
+  const defaultJudgeModel = typeof configuredJudgeModel === 'string'
+    ? configuredJudgeModel.match(/^\$\{JUDGE_MODEL=(.*)\}$/)?.[1] ?? configuredJudgeModel
+    : configuredJudgeModel;
+  const comparisonJudgeModel = judgeModel ?? defaultJudgeModel;
+  if (comparisonJudgeModel) {
+    comparisonArguments.push('--judge-model', comparisonJudgeModel);
   }
   const comparisonResult = runVally(comparisonArguments, { cwd: repoRoot, inherit: true });
   if (!treatmentPass || comparisonResult.status !== 0) {
