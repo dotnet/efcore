@@ -711,6 +711,33 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public required string Street { get; set; }
     }
 
+    [Theory]
+    [InlineData("IsUnique")]
+    [InlineData("IsDescending")]
+    [InlineData("Filter")]
+    public void Json_index_with_unsupported_option_throws(string option)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.ComplexProperty(e => e.Address, cb => cb.ToJson());
+            var indexBuilder = b.HasIndex("Address.City");
+
+            _ = option switch
+            {
+                "IsUnique" => indexBuilder.IsUnique(),
+                "IsDescending" => indexBuilder.IsDescending(),
+                "Filter" => indexBuilder.HasFilter("[Id] > 0"),
+                _ => throw new InvalidOperationException()
+            };
+        });
+
+        VerifyError(
+            SqlServerStrings.JsonIndexUnsupportedOption(
+                "{'City'}", nameof(EntityWithIncludedComplexJson), option),
+            modelBuilder);
+    }
+
     [Fact]
     public virtual void Detects_incompatible_memory_optimized_shared_table()
     {

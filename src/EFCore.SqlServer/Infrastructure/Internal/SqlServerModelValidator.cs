@@ -229,6 +229,16 @@ public class SqlServerModelValidator(
         ValidateIndexIncludeProperties(index);
         ValidateFullTextIndex(index);
         ValidateVectorIndex(index);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        if (index.IsJsonIndex())
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        {
+            ValidateUnsupportedIndexOptions(
+                index,
+                option => SqlServerStrings.JsonIndexUnsupportedOption(
+                    index.DisplayName(), index.DeclaringEntityType.DisplayName(), option));
+        }
     }
 
     /// <summary>
