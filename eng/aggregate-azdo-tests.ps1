@@ -33,9 +33,8 @@ $groupJobs = @{
     SqlServer = @('Windows_SqlServer', 'Helix_Windows_SqlServer', 'Helix_Ubuntu_SqlServer')
 }
 
-$helixJobNames = @($groupJobs.Values
+$jobNames = @($groupJobs.Values
     | ForEach-Object { $_ }
-    | Where-Object { $_ -like 'Helix_*' }
     | Select-Object -Unique)
 
 function Get-JobRecord($timeline, [string]$jobName)
@@ -266,9 +265,20 @@ function Set-HelixJobResults(
         }
     }
 
+    $helixJobNames = @($helixJobNames | Where-Object { $resultsByJob[$_] -ne 'Skipped' })
+    if ($helixJobNames.Count -eq 0)
+    {
+        return
+    }
+
     if (-not $resultsByJob.ContainsKey('HelixJobMonitor'))
     {
         throw "Missing result for job 'HelixJobMonitor'."
+    }
+
+    if ($resultsByJob.HelixJobMonitor -notin @('Succeeded', 'SucceededWithIssues', 'Failed'))
+    {
+        throw "The Helix Job Monitor did not complete: $($resultsByJob.HelixJobMonitor)."
     }
 
     $apiContext = Get-AzureDevOpsApiContext
@@ -277,11 +287,6 @@ function Set-HelixJobResults(
 
     foreach ($jobName in $helixJobNames)
     {
-        if ($resultsByJob[$jobName] -eq 'Skipped')
-        {
-            continue
-        }
-
         if ($resultsByJob[$jobName] -notin @('Succeeded', 'SucceededWithIssues'))
         {
             Write-Warning "Helix submission job '$jobName' did not succeed: $($resultsByJob[$jobName])."
@@ -293,7 +298,16 @@ function Set-HelixJobResults(
 
         if ($phaseRuns.Count -eq 0)
         {
-            $missingRuns += $jobName
+            if ($resultsByJob[$jobName] -eq 'SucceededWithIssues')
+            {
+                Write-Warning "Helix submission job '$jobName' succeeded with issues and has no completed monitor test run. Treating it as failed."
+                $resultsByJob[$jobName] = 'Failed'
+            }
+            else
+            {
+                $missingRuns += $jobName
+            }
+
             continue
         }
 
@@ -358,6 +372,19 @@ function Set-HelixJobResults(
             throw "The Helix Job Monitor result was '$($resultsByJob.HelixJobMonitor)' and it did not publish completed test runs for: $($missingRuns -join ', ')."
         }
     }
+
+    if ($resultsByJob.HelixJobMonitor -ne 'Succeeded')
+    {
+        # The monitor also fails for test or submission failures, which remain subject to redundant-job grouping.
+        # Only consider this build's selected jobs, not failures retained from a parent build during selective retry.
+        $failedJobs = @($jobNames | Where-Object { $resultsByJob[$_] -in @('Failed', 'SucceededWithIssues', 'Canceled') })
+        if ($failedJobs.Count -eq 0)
+        {
+            throw "The Helix Job Monitor result was '$($resultsByJob.HelixJobMonitor)', but no failed jobs or Helix work items explain that result."
+        }
+
+        Write-Warning "The Helix Job Monitor result was '$($resultsByJob.HelixJobMonitor)'. Evaluating reported failures in $($failedJobs -join ', ') using redundant-job groups."
+    }
 }
 
 $jobAttempt = 1
@@ -370,7 +397,7 @@ if (-not [int]::TryParse($env:BUILD_BUILDID, [ref]$buildId) -or $buildId -le 0)
     throw "BUILD_BUILDID must contain a valid build ID; received '$env:BUILD_BUILDID'."
 }
 
-Set-HelixJobResults $JobResults $helixJobNames $buildId
+Set-HelixJobResults $JobResults $jobNames $buildId
 $failedGroups = @(Get-FailedGroups $JobResults)
 
 # Retrying validation queues a child build containing the distinct jobs needed by all failed groups.
@@ -452,7 +479,7 @@ if (($jobAttempt -gt 1 -or $stageAttempt -gt 1) -and $failedGroups.Count -gt 0)
         }
 
         $JobResults.HelixJobMonitor = $monitorRecord.result
-        Set-HelixJobResults $JobResults $helixJobsToRetry $retryBuild.id
+        Set-HelixJobResults $JobResults $jobsToRetry $retryBuild.id
     }
 
     $failedGroups = @(Get-FailedGroups $JobResults)
