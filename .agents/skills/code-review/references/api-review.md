@@ -31,4 +31,4 @@ API baseline generation, baseline-file updates, and `EFCore.ApiBaseline.Tests` e
 
 Feed API findings into the main code-review format. A useful API finding identifies the affected member, the concrete compatibility or usability consequence, the established sibling pattern or contract, and a viable API shape. Do not emit a separate API report.
 
-Do not report general Framework Design Guideline preferences unless they produce a concrete problem for this API or conflict with an established EF Core API conventions.
+Do not report general Framework Design Guideline preferences unless they produce a concrete problem for this API or conflict with established EF Core API conventions.
