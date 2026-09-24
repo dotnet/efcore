@@ -1091,7 +1091,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     }
 
                     AfterLoop:
-                    _modificationCommandGraph.AddEdge(predecessor, command, new CommandDependency(foreignKey), requiresBatchingBoundary);
+                    _modificationCommandGraph.AddEdge(
+                        predecessor,
+                        command,
+                        new CommandDependency(foreignKey, Breakable: !foreignKey.IsConstrained && !requiresBatchingBoundary),
+                        requiresBatchingBoundary);
                 }
             }
         }
