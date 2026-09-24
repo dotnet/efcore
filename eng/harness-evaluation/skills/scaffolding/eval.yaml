@@ -31,9 +31,6 @@ stimuli:
       - It grounds the proposed changes in the staged model-factory and reverse-engineer tests.
       - It keeps reverse engineering separate from compiled-model generation and includes generated-code validation.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ scaffolding ]
       - type: file-matches
         config:
           path: analysis.md
@@ -49,8 +46,7 @@ stimuli:
           max: 750000
 scoring:
   weights:
-    skill-invocation: 0.27
     file-matches: 0.27
-    prompt: 0.36
+    prompt: 0.63
     token-budget: 0.1
   threshold: 0.75

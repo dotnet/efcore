@@ -16,12 +16,20 @@ Use this reference only for supported public or protected API changes outside `.
    - overload resolution and optional-parameter ambiguity;
    - sealing, virtual members, constructors, interfaces, and intended extensibility;
    - defaults and behavior consistency across core, relational, and providers.
+   For added or changed overloads, compare binding for representative existing source calls before and after the change. Pay particular attention to `params` members, optional parameters, `null`, and arguments that convert to both array and interface parameter types. State the concrete binding and semantic change in the finding; do not merely request overload-resolution tests. For example, a one-argument sequence call may change from passing the sequence as one `params` element to passing its contents through a collection overload with an optional trailing parameter. An additive overload can preserve binaries while silently changing behavior when callers recompile.
 6. Check source, binary, and behavioral compatibility. Prefer an additive overload over changing a shipped signature. When replacement is necessary, the old API should be preserved with `ObsoleteAttribute` with a message that points to the replacement unless established release policy permits removal.
 7. Require complete XML documentation for the contract, including null behavior, defaults, cancellation, and provider limitations where relevant.
 8. Verify implementations and overrides agree with the abstraction contract.
 9. Before finishing, account explicitly for demonstrated need, contract documentation, and focused behavioral coverage. Do not recommend an additive overload until the need gate in Step 4 passes. When the proposed change omits documentation or tests for a justified added or replacement API, report that concrete omission; do not let compatibility findings displace this completeness check.
 
-The final review must be explicit: reject or defer the new surface because need is not demonstrated or the shape needs to be reworked, or ensure that any justified additive API requires complete XML documentation and focused behavioral tests. Do not leave those obligations implicit.
+The final review must be explicit. For every proposed additive or replacement API, either reject or defer the new surface because need is not demonstrated or the shape needs to be reworked, or state all of these obligations in the finding:
+
+- the demonstrated user need;
+- compatibility of existing source-call binding and behavior;
+- complete XML documentation for the public contract; and
+- focused behavioral tests for the new shape.
+
+Do not leave these obligations implicit or replace them with a generic request to document or test the API.
 
 ## API Baselines
 

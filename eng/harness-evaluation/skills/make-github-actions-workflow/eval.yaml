@@ -31,10 +31,6 @@ stimuli:
       - Permissions are explicit and minimal, and pull_request_target never executes or checks out untrusted PR content.
       - Commenting preserves the staged workflow's immutable actions/github-script SHA reference and is idempotent across reruns without trusting a marker in a contributor-authored comment.
     graders:
-      - type: skill-invocation
-        config:
-          required:
-            - make-github-actions-workflow
       - type: file-matches
         config:
           path: .github/workflows/validate-pr-target-branch.yml
@@ -53,8 +49,7 @@ stimuli:
           max: 750000
 scoring:
   weights:
-    skill-invocation: 0.27
     file-matches: 0.27
-    prompt: 0.36
+    prompt: 0.63
     token-budget: 0.1
   threshold: 0.75

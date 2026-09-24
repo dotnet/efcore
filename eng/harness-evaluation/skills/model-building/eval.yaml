@@ -31,9 +31,6 @@ stimuli:
       - It explains that each nested complex property raises IComplexPropertyAddedConvention and discovery runs against IConventionComplexPropertyBuilder.Metadata.ComplexType through IConventionTypeBaseBuilder.
       - The proposed test is specific to PropertyDiscoveryConventionTest and covers at least two complex-property levels.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ model-building ]
       - type: file-matches
         config:
           path: analysis.md
@@ -49,8 +46,7 @@ stimuli:
           max: 750000
 scoring:
   weights:
-    skill-invocation: 0.27
     file-matches: 0.27
-    prompt: 0.36
+    prompt: 0.63
     token-budget: 0.1
   threshold: 0.75

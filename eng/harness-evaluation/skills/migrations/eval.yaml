@@ -29,10 +29,6 @@ stimuli:
       - It accounts for property-bag snapshot CLR types and treats missing new metadata as the previous default where appropriate.
       - It proposes a concrete old-ModelSnapshot round-trip and empty-diff regression test using the staged SnapshotModelProcessorTest harness.
     graders:
-      - type: skill-invocation
-        config:
-          required:
-            - migrations
       - type: file-matches
         config:
           path: analysis.md
@@ -50,8 +46,7 @@ stimuli:
           max: 2000000
 scoring:
   weights:
-    skill-invocation: 0.27
     file-matches: 0.27
-    prompt: 0.36
+    prompt: 0.63
     token-budget: 0.1
   threshold: 0.75

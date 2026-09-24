@@ -4,7 +4,7 @@ import {
   readFile,
   readdir,
 } from 'node:fs/promises';
-import { dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   computeSkillScore,
@@ -181,32 +181,11 @@ export async function validateEval(evalPath, componentId) {
 
   for (const [index, stimulus] of (spec.stimuli ?? []).entries()) {
     const label = stimulus?.name || `stimuli[${index}]`;
+    if ((stimulus.graders ?? []).some((grader) => grader?.type === 'skill-invocation')) {
+      errors.push(`${label}: skill-invocation grader must not be used in shared control/treatment scoring; treatment activation is enforced by the runner`);
+    }
     if (!(stimulus.graders ?? []).some((grader) => grader?.type === 'token-budget')) {
       errors.push(`${label}: token-budget grader must be defined`);
-    }
-  }
-
-  return errors;
-}
-
-async function validateActivationGraders(component, evalPath) {
-  if (component.kind !== 'skill') {
-    return [];
-  }
-
-  const spec = parse(await readFile(evalPath, 'utf8'));
-  const errors = [];
-  for (const [index, stimulus] of (spec.stimuli ?? []).entries()) {
-    const label = stimulus?.name || `stimuli[${index}]`;
-    const graders = stimulus?.graders ?? [];
-    const invokesTarget = graders.some(
-      (grader) => grader?.type === 'skill-invocation'
-        && Array.isArray(grader?.config?.required)
-        && grader.config.required.length === 1
-        && grader.config.required[0] === component.id,
-    );
-    if (!invokesTarget) {
-      errors.push(`${label}: skill eval must require exact activation of '${component.id}'`);
     }
   }
 
@@ -287,7 +266,6 @@ export async function validateInventory(repoRoot = defaultRepoRoot) {
     } else {
       const absoluteEvalPath = join(repoRoot, evalPath);
       errors.push(...(await validateEval(absoluteEvalPath, component.id)).map((error) => `${component.id}: ${error}`));
-      errors.push(...(await validateActivationGraders(component, absoluteEvalPath)).map((error) => `${component.id}: ${error}`));
       errors.push(...(await validateComponentEnvironment(component, absoluteEvalPath, repoRoot)).map(
         (error) => `${component.id}: ${error}`,
       ));
@@ -385,6 +363,55 @@ export async function variantPassed(resultsFile, evalFile, planFile, variant = '
   return typeof threshold === 'number'
     ? computeSkillScore(spec.name, stimulusScores, threshold).passed
     : stimulusScores.every((stimulus) => stimulus.multiTrial.passToTheK === 1);
+}
+
+export async function variantInvokedSkill(resultsFile, requiredSkill) {
+  try {
+    const records = (await readFile(resultsFile, 'utf8'))
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map(JSON.parse);
+    const trialIds = records
+      .filter((record) => record.type === 'trial-result')
+      .map((record) => record.itemId);
+    if (trialIds.length === 0 || trialIds.some((trialId) => typeof trialId !== 'string')) {
+      return false;
+    }
+
+    const metadataPaths = await filesRecursively(
+      dirname(resultsFile),
+      (path) => basename(path) === 'metadata.json',
+    );
+    const metadataByTrialId = new Map();
+    for (const metadataPath of metadataPaths) {
+      const metadata = JSON.parse(await readFile(metadataPath, 'utf8'));
+      if (typeof metadata.trialId !== 'string' || metadataByTrialId.has(metadata.trialId)) {
+        return false;
+      }
+      metadataByTrialId.set(metadata.trialId, metadataPath);
+    }
+
+    for (const trialId of trialIds) {
+      const metadataPath = metadataByTrialId.get(trialId);
+      if (!metadataPath) {
+        return false;
+      }
+
+      const events = (await readFile(join(dirname(metadataPath), 'events.jsonl'), 'utf8'))
+        .split(/\r?\n/)
+        .filter(Boolean)
+        .map(JSON.parse);
+      if (!events.some((event) =>
+        (event.type === 'skill.invoked' || event.type === 'skill_activation')
+          && event.data?.name === requiredSkill)) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function runVally(argumentsList, options = {}) {

@@ -40,9 +40,6 @@ stimuli:
       - It addresses reflection and NativeAOT using concrete EntityType annotations or an alternative design and requires ConfigureAwait(false) on the callback.
       - It grounds the advice in at least two staged EntityType members or annotations.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ code-review ]
       - type: file-matches
         config:
           path: review.md
@@ -85,9 +82,6 @@ stimuli:
       - It requires enqueueing only after ResetStateAsync completes and explains why the proposed await-then-rent test cannot expose the race.
       - It proposes a focused interleaving test that blocks reset while another operation attempts to rent the same context.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ code-review ]
       - type: file-matches
         config:
           path: review.md
@@ -124,9 +118,6 @@ stimuli:
       - It explains that another C# line terminator can end the generated single-line comment without receiving a new `///` prefix, allowing injected source and violating the threat-model scaffolding guarantee.
       - It requires restoring all line-terminator handling and an adversarial test that proves generated source remains inert and compilable.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ code-review ]
       - type: file-matches
         config:
           path: review.md
@@ -165,17 +156,15 @@ stimuli:
         - src: ../../../../src/EFCore/DbContext.cs
           dest: src/EFCore/DbContext.cs
     rubric:
-      - The review activates supported API analysis and identifies source, binary, and virtual-override compatibility consequences of replacing the shipped signature.
-      - It recommends preserving the existing member, requires demonstrated user need before considering an additive overload, and checks consistency with the staged Find/FindAsync family.
+      - The review applies supported API analysis and identifies source, binary, and virtual-override compatibility consequences of replacing the shipped signature.
+      - It identifies that retaining the proposal as an additive overload would still change existing one-argument IEnumerable calls after recompilation because the optional token changes overload selection and sequence interpretation.
+      - It recommends preserving the existing member, requires demonstrated user need before considering a revised additive overload, and checks consistency with the staged Find/FindAsync family.
       - If it recommends an additive overload, it also requires XML documentation and focused behavioral coverage.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ code-review ]
       - type: file-matches
         config:
           path: review.md
-          pattern: (?i)(?=[\s\S]*(binary|compiled caller|MissingMethodException))(?=[\s\S]*(source|fail.*compile|recompil))(?=[\s\S]*(virtual|override))(?=[\s\S]*(overload|preserve))(?=[\s\S]*(FindAsync|DbSet))[\s\S]+
+          pattern: (?i)(?=[\s\S]*(FindAsync|DbSet))(?=[\s\S]*(breaking|compatib|preserve|retain|keep))(?=[\s\S]*(virtual|override|compiled caller|MissingMethodException))[\s\S]+
       - type: prompt
         config:
           scoring: binary
@@ -200,9 +189,6 @@ stimuli:
       - It does not invent a need for new behavioral tests.
       - It does not load the API or security review reference for this documentation-only change.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ code-review ]
       - type: file-matches
         config:
           path: review.md
@@ -218,8 +204,7 @@ stimuli:
           max: 1000000
 scoring:
   weights:
-    skill-invocation: 0.12
     file-matches: 0.18
-    prompt: 0.60
+    prompt: 0.72
     token-budget: 0.1
   threshold: 0.8

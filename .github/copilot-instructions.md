@@ -29,7 +29,7 @@ Set `EF_TEST_REWRITE_BASELINES=1` to rewrite SQL and compiled-model baselines. P
 
 ## Repository conventions
 
-- Put provider-independent behavior in core or relational specification tests, then override new virtual tests in inheriting provider class adding specific assertions such as `AssertSql` for providers that produce SQL. `Check_all_tests_overridden` detects missing overrides.
+- Put provider-independent behavior in core or relational specification tests, then override new virtual tests in inheriting provider classes, adding specific assertions such as `AssertSql` for providers that produce SQL. Preserve existing `Check_all_tests_overridden` guards, but do not add one to a provider class that intentionally overrides only a subset of tests.
 - Prefer existing test infrastructure: `TestHelpers` for services/models, `NonSharedModelTestBase` for both the tests that share a model as well as those that do not.
 - Preserve public API and binary compatibility. Prefer overloads over changing shipped signatures. If you need to break a public API, add a new API instead and mark the old one as obsolete. Use `ObsoleteAttribute` with the message pointing to the new API
 - Types are public by default. Types under `.Internal` or marked `[EntityFrameworkInternal]` must use the repository's internal-API XML documentation pattern on all members and they don't need to preserve compatibility.

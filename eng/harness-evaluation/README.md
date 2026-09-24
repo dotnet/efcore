@@ -26,7 +26,7 @@ Every stimulus must:
 
 The runner passes declared input files from the evaluated commit to Vally, which validates and stages them in an isolated workspace. Inputs are optional.
 
-Skill evals load only their target skill and require a `skill-invocation` grader. The checked-in Vally experiment clears root `skills` and `files` for the unskilled control while the treatment inherits the eval's root environment.
+Skill evals load only their target skill. Do not add `skill-invocation` graders: shared graders score both variants, while the runner separately requires the exact target skill's activation in every treatment trial. The checked-in Vally experiment clears root `skills` and `files` for the unskilled control while the treatment inherits the eval's root environment.
 
 ## Acceptance
 
@@ -65,6 +65,33 @@ node src/cli.mjs eval <component-id> --workers 1 [--require-pass] [--runs 5] [--
 Set `defaults.timeout` to five times the slowest observed trial, rounded up to the next five-minute boundary.
 
 Behavioral runs use the Copilot SDK and require a valid local Copilot login or `COPILOT_GITHUB_TOKEN`. Results are written below `artifacts/TestResults/harness-evaluation/<component-id>/` as one timestamped experiment containing separate `control` and `treatment` variants, plus `comparison.jsonl`. They may contain prompts, model output, and tool payloads; do not commit them.
+
+### Agent execution
+
+`cli.mjs eval` produces large progress and grading reports. Agents must use their execution environment's background mode and redirect stdout and stderr to files; do not stream command output into the conversation context. A PowerShell fallback from `eng/harness-evaluation` is:
+
+```powershell
+$component = '<component-id>'
+$logDirectory = '..\..\artifacts\TestResults\harness-evaluation-logs'
+New-Item -ItemType Directory -Force $logDirectory | Out-Null
+
+$process = Start-Process node -ArgumentList @(
+    'src/cli.mjs', 'eval', $component,
+    '--workers', '1', '--require-pass', '--runs', '5'
+  ) -RedirectStandardOutput (Join-Path $logDirectory "$component.log") `
+    -RedirectStandardError (Join-Path $logDirectory "$component.err.log") `
+    -PassThru
+$process.Id
+```
+
+Wait for process completion or a terminal completion notification; do not repeatedly poll or print the growing log. The component artifact root is `..\..\artifacts\TestResults\harness-evaluation\<component-id>`. Then inspect, in order:
+
+1. `validation.json` for the treatment quality and activation gates.
+2. `comparison.jsonl` for aggregate quality, grader flips, and token deltas.
+3. The newest timestamped experiment's `control/results.jsonl` and `treatment/results.jsonl` for per-stimulus failures.
+4. The redirected `.err.log`, then targeted lines from `.log`, only when the summary artifacts are missing or incomplete.
+
+Project only the fields needed for diagnosis. Do not dump complete `results.jsonl`, `events.jsonl`, workspace patches, or redirected logs into the conversation context.
 
 The runner defaults to one active trial per component. GitHub Actions parallelizes separate component jobs, so increasing Vally workers would multiply concurrent Copilot sessions and can cause session destruction or rate limiting.
 
