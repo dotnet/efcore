@@ -237,7 +237,8 @@ public class SqlServerModelValidator(
             ValidateUnsupportedIndexOptions(
                 index,
                 option => SqlServerStrings.JsonIndexUnsupportedOption(
-                    index.DisplayName(), index.DeclaringEntityType.DisplayName(), option));
+                    index.DisplayName(), index.DeclaringEntityType.DisplayName(), option),
+                allowFillFactor: true);
         }
     }
 
@@ -435,7 +436,10 @@ public class SqlServerModelValidator(
         }
     }
 
-    private static void ValidateUnsupportedIndexOptions(IIndex index, Func<string, string> errorFactory)
+    private static void ValidateUnsupportedIndexOptions(
+        IIndex index,
+        Func<string, string> errorFactory,
+        bool allowFillFactor = false)
     {
         var option = index switch
         {
@@ -444,7 +448,7 @@ public class SqlServerModelValidator(
             _ when index.GetFilter() is not null => "Filter",
             _ when index.IsClustered() is not null => "IsClustered",
             _ when index.GetIncludeProperties() is not null => "IncludeProperties",
-            _ when index.GetFillFactor() is not null => "FillFactor",
+            _ when !allowFillFactor && index.GetFillFactor() is not null => "FillFactor",
             _ when index.IsCreatedOnline() is not null => "IsCreatedOnline",
             _ when index.GetSortInTempDb() is not null => "SortInTempDb",
             _ when index.GetDataCompression() is not null => "DataCompression",

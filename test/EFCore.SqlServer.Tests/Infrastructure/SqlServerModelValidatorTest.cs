@@ -739,6 +739,19 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [Fact]
+    public void Json_index_with_fill_factor_passes()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.ComplexProperty(e => e.Address, cb => cb.ToJson());
+            b.HasIndex("Address.City").HasFillFactor(80);
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
     public virtual void Detects_incompatible_memory_optimized_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
