@@ -715,7 +715,61 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [InlineData("IsUnique")]
     [InlineData("IsDescending")]
     [InlineData("Filter")]
+    [InlineData("IsClustered")]
+    [InlineData("IncludeProperties")]
+    [InlineData("IsCreatedOnline")]
+    [InlineData("SortInTempDb")]
+    [InlineData("DataCompression")]
     public void Json_index_with_unsupported_option_throws(string option)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.ComplexProperty(e => e.Address, cb => cb.ToJson());
+            var indexBuilder = b.HasIndex("Address.City");
+
+            switch (option)
+            {
+                case "IsUnique":
+                    indexBuilder.IsUnique();
+                    break;
+                case "IsDescending":
+                    indexBuilder.IsDescending();
+                    break;
+                case "Filter":
+                    indexBuilder.HasFilter("[Id] > 0");
+                    break;
+                case "IsClustered":
+                    indexBuilder.IsClustered();
+                    break;
+                case "IncludeProperties":
+                    indexBuilder.IncludeProperties("Id");
+                    break;
+                case "IsCreatedOnline":
+                    indexBuilder.IsCreatedOnline();
+                    break;
+                case "SortInTempDb":
+                    indexBuilder.SortInTempDb();
+                    break;
+                case "DataCompression":
+                    indexBuilder.Metadata.SetDataCompression(DataCompressionType.Page);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        });
+
+        VerifyError(
+            SqlServerStrings.JsonIndexUnsupportedOption(
+                "{'City'}", nameof(EntityWithIncludedComplexJson), option),
+            modelBuilder);
+    }
+
+    [Theory]
+    [InlineData("FillFactor")]
+    [InlineData("CreatedOffline")]
+    [InlineData("SortInTempDbDisabled")]
+    public void Json_index_with_supported_option_passes(string option)
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
@@ -725,27 +779,11 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
             _ = option switch
             {
-                "IsUnique" => indexBuilder.IsUnique(),
-                "IsDescending" => indexBuilder.IsDescending(),
-                "Filter" => indexBuilder.HasFilter("[Id] > 0"),
+                "FillFactor" => indexBuilder.HasFillFactor(80),
+                "CreatedOffline" => indexBuilder.IsCreatedOnline(false),
+                "SortInTempDbDisabled" => indexBuilder.SortInTempDb(false),
                 _ => throw new InvalidOperationException()
             };
-        });
-
-        VerifyError(
-            SqlServerStrings.JsonIndexUnsupportedOption(
-                "{'City'}", nameof(EntityWithIncludedComplexJson), option),
-            modelBuilder);
-    }
-
-    [Fact]
-    public void Json_index_with_fill_factor_passes()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
-        {
-            b.ComplexProperty(e => e.Address, cb => cb.ToJson());
-            b.HasIndex("Address.City").HasFillFactor(80);
         });
 
         Validate(modelBuilder);

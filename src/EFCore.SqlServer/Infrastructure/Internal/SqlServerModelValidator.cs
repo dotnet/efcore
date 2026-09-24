@@ -234,11 +234,7 @@ public class SqlServerModelValidator(
         if (index.IsJsonIndex())
 #pragma warning restore EF1001 // Internal EF Core API usage.
         {
-            ValidateUnsupportedIndexOptions(
-                index,
-                option => SqlServerStrings.JsonIndexUnsupportedOption(
-                    index.DisplayName(), index.DeclaringEntityType.DisplayName(), option),
-                allowFillFactor: true);
+            ValidateUnsupportedJsonIndexOptions(index);
         }
     }
 
@@ -436,10 +432,7 @@ public class SqlServerModelValidator(
         }
     }
 
-    private static void ValidateUnsupportedIndexOptions(
-        IIndex index,
-        Func<string, string> errorFactory,
-        bool allowFillFactor = false)
+    private static void ValidateUnsupportedJsonIndexOptions(IIndex index)
     {
         var option = index switch
         {
@@ -448,7 +441,30 @@ public class SqlServerModelValidator(
             _ when index.GetFilter() is not null => "Filter",
             _ when index.IsClustered() is not null => "IsClustered",
             _ when index.GetIncludeProperties() is not null => "IncludeProperties",
-            _ when !allowFillFactor && index.GetFillFactor() is not null => "FillFactor",
+            _ when index.IsCreatedOnline() is true => "IsCreatedOnline",
+            _ when index.GetSortInTempDb() is true => "SortInTempDb",
+            _ when index.GetDataCompression() is not null => "DataCompression",
+            _ => null
+        };
+
+        if (option is not null)
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.JsonIndexUnsupportedOption(
+                    index.DisplayName(), index.DeclaringEntityType.DisplayName(), option));
+        }
+    }
+
+    private static void ValidateUnsupportedIndexOptions(IIndex index, Func<string, string> errorFactory)
+    {
+        var option = index switch
+        {
+            { IsUnique: true } => nameof(index.IsUnique),
+            { IsDescending: not null } => nameof(index.IsDescending),
+            _ when index.GetFilter() is not null => "Filter",
+            _ when index.IsClustered() is not null => "IsClustered",
+            _ when index.GetIncludeProperties() is not null => "IncludeProperties",
+            _ when index.GetFillFactor() is not null => "FillFactor",
             _ when index.IsCreatedOnline() is not null => "IsCreatedOnline",
             _ when index.GetSortInTempDb() is not null => "SortInTempDb",
             _ when index.GetDataCompression() is not null => "DataCompression",
