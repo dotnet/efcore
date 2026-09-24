@@ -590,6 +590,75 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     }
 
     /// <summary>
+    ///     Returns a SQL fragment for the column list of an index from a <see cref="CreateIndexOperation" />.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
+    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+    /// <param name="builder">The command builder to use to build the commands.</param>
+    protected override void GenerateIndexColumnList(
+        CreateIndexOperation operation,
+        IModel? model,
+        MigrationCommandListBuilder builder)
+    {
+        if (operation[RelationalAnnotationNames.JsonIndex] is not RelationalJsonIndex jsonIndex)
+        {
+            base.GenerateIndexColumnList(operation, model, builder);
+            return;
+        }
+
+        var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+        for (var i = 0; i < jsonIndex.Elements.Count; i++)
+        {
+            if (i > 0)
+            {
+                builder.Append(", ");
+            }
+
+            var element = jsonIndex.Elements[i];
+            builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(element.ContainingColumn.Name));
+
+            if (element.Path.Count > 0)
+            {
+                builder.Append(" ->> ");
+
+                if (element.Path is [{ IsArray: false, PropertyName: { } propertyName }])
+                {
+                    builder.Append(
+                        stringTypeMapping.GenerateSqlLiteral(
+                            Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName)));
+                }
+                else
+                {
+                    var path = new StringBuilder("$");
+                    var collectionIndex = 0;
+                    foreach (var segment in element.Path)
+                    {
+                        if (segment.IsArray)
+                        {
+                            path.Append('[')
+                                .Append(jsonIndex.CollectionIndices?[i]?[collectionIndex++]?.ToString() ?? "*")
+                                .Append(']');
+                        }
+                        else
+                        {
+                            path.Append('.')
+                                .Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(segment.PropertyName!));
+                        }
+                    }
+
+                    builder.Append(stringTypeMapping.GenerateSqlLiteral(path.ToString()));
+                }
+            }
+
+            if (operation.IsDescending is not null
+                && (operation.IsDescending.Length == 0 || operation.IsDescending[i]))
+            {
+                builder.Append(" DESC");
+            }
+        }
+    }
+
+    /// <summary>
     ///     Builds commands for the given <see cref="RenameIndexOperation" />
     ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
     /// </summary>

@@ -16,6 +16,51 @@ public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase
         .OptionsBuilder).Options)
 {
     [Fact]
+    public virtual void Create_unique_json_index_over_complex_property_member()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        modelBuilder.Entity<JsonIndexBlog>(
+            e =>
+            {
+                e.ToTable("Blogs");
+                e.ComplexProperty(
+                    b => b.Details, cb =>
+                    {
+                        cb.ToJson();
+                        cb.Property(i => i.Slug);
+                        cb.Property(i => i.Owner);
+                    });
+                e.HasIndex(b => b.Details.Slug).IsUnique();
+            });
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+
+        Generate(operation);
+
+        AssertSql(
+            """
+CREATE UNIQUE INDEX "IX_Blogs_Details_Slug" ON "Blogs" ("Details" ->> 'Slug');
+""");
+    }
+
+    private class JsonIndexBlog
+    {
+        public int Id { get; set; }
+        public JsonIndexDetails Details { get; set; } = new();
+    }
+
+    private class JsonIndexDetails
+    {
+        public string Slug { get; set; } = null!;
+        public string Owner { get; set; } = null!;
+    }
+
+    [Fact]
     public virtual void It_lifts_foreign_key_additions()
     {
         Generate(
