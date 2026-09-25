@@ -4650,6 +4650,25 @@ ORDER BY [e].[Id]
 """);
     }
 
+    public override async Task CaseWhen_negated_nullable_comparison_in_later_clause_projection(bool async)
+    {
+        await base.CaseWhen_negated_nullable_comparison_in_later_clause_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[BoolB] = CAST(1 AS bit) THEN 1
+    WHEN CASE
+        WHEN [e].[NullableIntA] <= 1 THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit) THEN 2
+    ELSE 3
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
     public override async Task CaseOpWhen_projection(bool async)
     {
         await base.CaseOpWhen_projection(async);
