@@ -934,7 +934,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.EFConstantNotSupportedInPrecompiledQueries);
                     }
 
-                    if (!_parameterize)
+                    if (!_parameterize && !_generateContextAccessors)
                     {
                         throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"));
                     }
@@ -950,6 +950,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     // To have a query cache hit, the constantization will happen later in pipeline.
                     argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
                     var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState);
+                    if (!_parameterize && evaluatedArgument is not QueryParameterExpression)
+                    {
+                        throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"));
+                    }
+
                     _state = argumentState;
                     return Call(method, evaluatedArgument);
                 }
@@ -1181,7 +1186,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         Expression HandleParameter(MethodCallExpression methodCall, string methodName)
         {
-            if (!_parameterize)
+            if (!_parameterize && !_generateContextAccessors)
             {
                 throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries(methodName));
             }
@@ -1195,6 +1200,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
             var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState, forceEvaluation: true);
+            if (!_parameterize && evaluatedArgument is not QueryParameterExpression)
+            {
+                throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries(methodName));
+            }
+
             _state = argumentState;
             return Call(methodCall.Method, evaluatedArgument);
         }
