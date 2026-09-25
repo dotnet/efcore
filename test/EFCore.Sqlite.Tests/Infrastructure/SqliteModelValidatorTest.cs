@@ -24,6 +24,19 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     }
 
     [Fact]
+    public void Detects_json_index_over_all_collection_elements()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<JsonCollectionOwner>(b =>
+        {
+            b.ComplexCollection(e => e.Items).ToJson();
+            b.HasIndex("Items[].Value");
+        });
+
+        VerifyError(SqliteStrings.JsonIndexAllElementsNotSupported, modelBuilder);
+    }
+
+    [Fact]
     public void Detects_schemas()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -32,6 +45,17 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyWarning(
             SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"),
             modelBuilder);
+    }
+
+    private class JsonCollectionOwner
+    {
+        public int Id { get; set; }
+        public List<JsonCollectionItem> Items { get; set; } = [];
+    }
+
+    private class JsonCollectionItem
+    {
+        public string Value { get; set; } = null!;
     }
 
     [Fact]

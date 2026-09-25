@@ -20,19 +20,7 @@ public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase
     {
         var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
         var modelBuilder = TestHelpers.CreateConventionBuilder(services);
-        modelBuilder.Entity<JsonIndexBlog>(
-            e =>
-            {
-                e.ToTable("Blogs");
-                e.ComplexProperty(
-                    b => b.Details, cb =>
-                    {
-                        cb.ToJson();
-                        cb.Property(i => i.Slug);
-                        cb.Property(i => i.Owner);
-                    });
-                e.HasIndex(b => b.Details.Slug).IsUnique();
-            });
+        BuildModel(modelBuilder);
 
         var model = modelBuilder.FinalizeModel(designTime: true);
         var operation = Assert.Single(
@@ -40,12 +28,32 @@ public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase
                 .GetDifferences(null, model.GetRelationalModel())
                 .OfType<CreateIndexOperation>());
 
-        Generate(operation);
+        var migrationCode = TestHelpers.CreateDesignServiceProvider().GetRequiredService<IMigrationsCodeGenerator>()
+            .GenerateMigration("Migrations", "AddJsonIndex", [operation], []);
+        Assert.DoesNotContain(RelationalAnnotationNames.JsonIndex, migrationCode);
+
+        operation.RemoveAnnotation(RelationalAnnotationNames.JsonIndex);
+        Generate(BuildModel, operation);
 
         AssertSql(
             """
 CREATE UNIQUE INDEX "IX_Blogs_Details_Slug" ON "Blogs" ("Details" ->> 'Slug');
 """);
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonIndexBlog>(
+                e =>
+                {
+                    e.ToTable("Blogs");
+                    e.ComplexProperty(
+                        b => b.Details, cb =>
+                        {
+                            cb.ToJson();
+                            cb.Property(i => i.Slug);
+                            cb.Property(i => i.Owner);
+                        });
+                    e.HasIndex(b => b.Details.Slug).IsUnique();
+                });
     }
 
     private class JsonIndexBlog

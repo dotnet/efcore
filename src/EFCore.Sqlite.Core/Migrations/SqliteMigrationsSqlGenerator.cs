@@ -600,7 +600,11 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         IModel? model,
         MigrationCommandListBuilder builder)
     {
-        if (operation[RelationalAnnotationNames.JsonIndex] is not RelationalJsonIndex jsonIndex)
+        var jsonIndex = operation[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex
+            ?? model?.GetRelationalModel()
+                .FindTable(operation.Table, operation.Schema)?
+                .Indexes.FirstOrDefault(i => i.Name == operation.Name)?[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
+        if (jsonIndex is null)
         {
             base.GenerateIndexColumnList(operation, model, builder);
             return;
