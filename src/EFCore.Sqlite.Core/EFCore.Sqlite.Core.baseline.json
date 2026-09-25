@@ -355,6 +355,9 @@
         },
         {
           "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+        },
+        {
+          "Member": "override void GenerateIndexColumnList(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         }
       ]
     },
