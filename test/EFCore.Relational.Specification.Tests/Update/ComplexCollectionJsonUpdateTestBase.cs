@@ -1,6 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Update;
 
 public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
@@ -667,6 +674,244 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
+    [Fact] // Issue #38625
+    public virtual Task Complex_collection_absent_from_json_is_materialized_as_empty()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // Simulate a row persisted before the Others sub-collection was added to the type,
+                // so the key is absent from the stored document.
+                await SetStoredDocumentAsync(
+                    context, "Widgets", "Deep", id: 1, """{"Mid":{"Items":[{"Title":"Item1","Inner":[{"Value":"inner-0"}]}]}}""");
+
+                // Tracking and no-tracking queries go through separate fixup paths.
+                AssertMaterialized(await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync());
+                AssertMaterialized(await context.Set<WidgetWithDeepJson>().AsNoTracking().OrderBy(w => w.Id).FirstAsync());
+
+                static void AssertMaterialized(WidgetWithDeepJson widget)
+                {
+                    var item = Assert.Single(widget.Deep.Mid.Items);
+
+                    Assert.Equal("Item1", item.Title);
+                    Assert.Equal("inner-0", Assert.Single(item.Inner).Value);
+
+                    // A complex collection that is absent from the JSON document materializes as an empty collection, not null.
+                    Assert.NotNull(item.Others);
+                    Assert.Empty(item.Others);
+                }
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Complex_collection_absent_from_json_in_value_type_complex_type_is_materialized_as_empty()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // A value type complex type takes the inlined fixup path rather than the invoked one
+                await SetStoredDocumentAsync(context, "StructWidgets", "Data", id: 1, """{"Label":"S1"}""");
+
+                var widget = await context.Set<StructWidget>().OrderBy(w => w.Id).FirstAsync();
+                Assert.Equal("S1", widget.Data.Label);
+                Assert.NotNull(widget.Data.Tags);
+                Assert.Empty(widget.Data.Tags);
+
+                var untrackedWidget = await context.Set<StructWidget>().AsNoTracking().OrderBy(w => w.Id).FirstAsync();
+                Assert.NotNull(untrackedWidget.Data.Tags);
+                Assert.Empty(untrackedWidget.Data.Tags);
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Complex_collection_explicitly_null_in_json_is_materialized_as_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // Unlike an absent key, an explicit null in the document is preserved.
+                await SetStoredDocumentAsync(
+                    context, "Widgets", "Deep", id: 1,
+                    """{"Mid":{"Items":[{"Title":"Item1","Inner":[{"Value":"inner-0"}],"Others":null}]}}""");
+
+                var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+                Assert.Null(Assert.Single(widget.Deep.Mid.Items).Others);
+
+                var untrackedWidget = await context.Set<WidgetWithDeepJson>().AsNoTracking().OrderBy(w => w.Id).FirstAsync();
+                Assert.Null(Assert.Single(untrackedWidget.Deep.Mid.Items).Others);
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Save_changes_after_loading_row_with_complex_collection_absent_from_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                await SetStoredDocumentAsync(
+                    context, "Widgets", "Deep", id: 1, """{"Mid":{"Items":[{"Title":"Item1","Inner":[{"Value":"inner-0"}]}]}}""");
+
+                var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+
+                // Modifying an unrelated scalar must not make the row unsaveable.
+                widget.Deep.Mid.Items[0].Title = "Item1-updated";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+                    var item = Assert.Single(widget.Deep.Mid.Items);
+                    Assert.Equal("Item1-updated", item.Title);
+                    Assert.Empty(item.Others);
+                }
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Primitive_collection_absent_from_json_is_materialized_as_empty()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // Simulate a row persisted before the Codes collection was added to the element type. The second element has the
+                // key, so this also covers the read flag of one element not carrying over to the next.
+                await SetStoredDocumentAsync(
+                    context, "CodeWidgets", "Data", id: 1,
+                    """{"Items":[{"Label":"C1"},{"Label":"C2","Codes":[7]},{"Label":"C3"}]}""");
+
+                AssertMaterialized(await context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync());
+                AssertMaterialized(await context.Set<CodeWidget>().AsNoTracking().OrderBy(w => w.Id).FirstAsync());
+
+                static void AssertMaterialized(CodeWidget widget)
+                {
+                    Assert.Equal(["C1", "C2", "C3"], widget.Data.Items.Select(i => i.Label));
+
+                    // A primitive collection absent from the JSON document materializes as empty, not null; one that is present
+                    // keeps its values.
+                    Assert.NotNull(widget.Data.Items[0].Codes);
+                    Assert.Empty(widget.Data.Items[0].Codes);
+                    Assert.Equal([7], widget.Data.Items[1].Codes);
+                    Assert.Empty(widget.Data.Items[2].Codes);
+
+                    // Every collection kind the reader/writer can build comes back empty, whichever way it is created
+                    Assert.All(widget.Data.Items, i => Assert.Empty(Assert.IsType<int[]>(i.ArrayCodes)));
+                    Assert.All(widget.Data.Items, i => Assert.Empty(Assert.IsType<List<int>>(i.InterfaceCodes)));
+                    Assert.All(widget.Data.Items, i => Assert.Empty(i.TextCodes));
+                    Assert.All(widget.Data.Items, i => Assert.Empty(Assert.IsType<ReadOnlyCollection<int>>(i.ReadOnlyCodes)));
+
+                    // An optional collection and one with its own reader/writer are left alone, so an absent key stays null
+                    Assert.All(widget.Data.Items, i => Assert.Null(i.OptionalCodes));
+                    Assert.All(widget.Data.Items, i => Assert.Null(i.CustomCodes));
+                }
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Primitive_collection_absent_from_json_in_owned_entity_is_materialized_as_empty()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // JSON-mapped owned entities share the property read loop with complex types, so they are covered too.
+                await SetStoredDocumentAsync(context, "OwnedCodeWidgets", "Owned", id: 1, """{"Label":"O1"}""");
+
+                AssertMaterialized(await context.Set<OwnedCodeWidget>().OrderBy(w => w.Id).FirstAsync());
+                AssertMaterialized(await context.Set<OwnedCodeWidget>().AsNoTracking().OrderBy(w => w.Id).FirstAsync());
+
+                static void AssertMaterialized(OwnedCodeWidget widget)
+                {
+                    Assert.Equal("O1", widget.Owned.Label);
+                    Assert.NotNull(widget.Owned.Codes);
+                    Assert.Empty(widget.Owned.Codes);
+                }
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Save_changes_after_loading_row_with_primitive_collection_absent_from_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // CustomCodes has its own reader/writer, so it is not synthesized and has to be present for the row to be saveable
+                await SetStoredDocumentAsync(
+                    context, "CodeWidgets", "Data", id: 1, """{"Items":[{"Label":"C1","CustomCodes":[9]}]}""");
+
+                var widget = await context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync();
+
+                // Modifying an unrelated scalar must not make the row unsaveable.
+                widget.Data.Items[0].Label = "C1-updated";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var widget = await context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync();
+                    var item = Assert.Single(widget.Data.Items);
+                    Assert.Equal("C1-updated", item.Label);
+                    Assert.Empty(item.Codes);
+                }
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Saving_null_required_primitive_collection_in_complex_collection_element_throws()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var widget = await context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync();
+                widget.Data.Items[0].Codes = null!;
+
+                // The element's own entry reports the failure; without that, the containing property is looked up on the wrong
+                // entry and the user gets an internal "property belongs to type" message instead.
+                Assert.Equal(
+                    CoreStrings.NullRequiredPrimitiveCollection(
+                        "CodeWidget.Data#CodeData.Items#CodeItem", nameof(CodeItem.Codes)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+            });
+
+    [Fact] // Issue #38625
+    public virtual Task Saving_null_required_complex_collection_in_complex_collection_element_throws()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var widget = await context.Set<WidgetWithDeepJson>().OrderBy(w => w.Id).FirstAsync();
+                widget.Deep.Mid.Items[0].Others = null!;
+
+                Assert.Equal(
+                    CoreStrings.NullRequiredComplexProperty(nameof(DeepItem), nameof(DeepItem.Others)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+            });
+
+    private static async Task SetStoredDocumentAsync(DbContext context, string table, string column, int id, string json)
+    {
+        // Identifiers are delimited by the provider so that any provider can run this test; the document is inlined rather than
+        // parameterized so that providers with a dedicated JSON store type need no cast. Braces are escaped for string.Format.
+        var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+
+        var literal = json.Replace("'", "''").Replace("{", "{{").Replace("}", "}}");
+
+        var rowsAffected = await context.Database.ExecuteSqlRawAsync(
+            $"UPDATE {Q(table)} SET {Q(column)} = '{literal}' WHERE {Q("Id")} = {id}");
+
+        // Otherwise a mismatched table or column name would leave the seeded document in place and make the test vacuous.
+        Assert.Equal(1, rowsAffected);
+
+        string Q(string name)
+            => sqlGenerationHelper.DelimitIdentifier(name);
+    }
+
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
@@ -683,6 +928,9 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
     {
         public DbSet<CompanyWithComplexCollections> Companies { get; set; } = null!;
         public DbSet<WidgetWithDeepJson> Widgets { get; set; } = null!;
+        public DbSet<StructWidget> StructWidgets { get; set; } = null!;
+        public DbSet<CodeWidget> CodeWidgets { get; set; } = null!;
+        public DbSet<OwnedCodeWidget> OwnedCodeWidgets { get; set; } = null!;
         public DbSet<EntityWithNullableMeta> EntitiesWithNullableMeta { get; set; } = null!;
     }
 
@@ -748,6 +996,104 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
     protected class InnerEntry
     {
         public required string Value { get; set; }
+    }
+
+    protected class CodeWidget
+    {
+        public int Id { get; set; }
+        public required CodeData Data { get; set; }
+    }
+
+    protected class OwnedCodeWidget
+    {
+        public int Id { get; set; }
+        public required OwnedCodes Owned { get; set; }
+    }
+
+    protected class OwnedCodes
+    {
+        public required string Label { get; set; }
+        public List<int> Codes { get; set; } = [];
+    }
+
+    protected class CodeData
+    {
+        public List<CodeItem> Items { get; set; } = [];
+    }
+
+    // One property per way the collection to create is decided: a concrete type with a parameterless constructor, an array, a
+    // type reachable only through the List<T> fallback, one the reader/writer builds from a list, and the two kinds that are
+    // deliberately left alone.
+    protected class CodeItem
+    {
+        public required string Label { get; set; }
+        public List<int> Codes { get; set; } = [];
+
+        public int[] ArrayCodes { get; set; } = [];
+
+        public IList<int> InterfaceCodes { get; set; } = [];
+
+        public List<string> TextCodes { get; set; } = [];
+
+        // Read-only collections are created by the JSON reader/writer from a list rather than a parameterless constructor
+        public ReadOnlyCollection<int> ReadOnlyCodes { get; set; } = new([]);
+
+        // Optional, so an absent key legitimately means null and nothing is synthesized
+        public List<int>? OptionalCodes { get; set; }
+
+        // Configured with its own reader/writer below, so nothing is synthesized for it when the key is absent
+        public List<int> CustomCodes { get; set; } = [];
+    }
+
+    protected class CodeListReaderWriter : JsonValueReaderWriter<List<int>>
+    {
+        private static readonly ConstructorInfo Constructor = typeof(CodeListReaderWriter).GetConstructor([])!;
+
+        [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+        public override Expression ConstructorExpression
+            => Expression.New(Constructor);
+
+        public override List<int> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+        {
+            var values = new List<int>();
+            while (manager.CurrentReader.TokenType != JsonTokenType.EndArray)
+            {
+                manager.MoveNext();
+                if (manager.CurrentReader.TokenType == JsonTokenType.Number)
+                {
+                    values.Add(manager.CurrentReader.GetInt32());
+                }
+            }
+
+            return values;
+        }
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, List<int> value)
+        {
+            writer.WriteStartArray();
+            foreach (var item in value)
+            {
+                writer.WriteNumberValue(item);
+            }
+
+            writer.WriteEndArray();
+        }
+    }
+
+    protected class StructWidget
+    {
+        public int Id { get; set; }
+        public StructData Data { get; set; }
+    }
+
+    protected struct StructData
+    {
+        public StructData()
+        {
+        }
+
+        public required string Label { get; set; }
+        public List<InnerEntry> Tags { get; set; } = [];
     }
 
     protected class EntityWithNullableMeta
@@ -830,6 +1176,41 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                     });
             });
 
+            modelBuilder.Entity<StructWidget>(b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.ComplexProperty(
+                    x => x.Data, db =>
+                    {
+                        db.ToJson();
+                        db.ComplexCollection(d => d.Tags);
+                    });
+            });
+
+            modelBuilder.Entity<CodeWidget>(b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.ComplexProperty(
+                    x => x.Data, db =>
+                    {
+                        db.ToJson();
+                        db.ComplexCollection(
+                            d => d.Items,
+                            ib => ib.PrimitiveCollection(i => i.CustomCodes).Metadata
+                                .SetJsonValueReaderWriterType(typeof(CodeListReaderWriter)));
+                    });
+            });
+
+            modelBuilder.Entity<OwnedCodeWidget>(b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.OwnsOne(x => x.Owned, ob => ob.ToJson());
+                b.Navigation(x => x.Owned).IsRequired();
+            });
+
             modelBuilder.Entity<EntityWithNullableMeta>(b =>
             {
                 b.Property(x => x.Id).ValueGeneratedNever();
@@ -897,6 +1278,33 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             };
 
             context.Add(widget);
+
+            context.Add(new StructWidget { Id = 1, Data = new StructData { Label = "S1", Tags = [new InnerEntry { Value = "t-0" }] } });
+
+            context.Add(
+                new CodeWidget
+                {
+                    Id = 1,
+                    Data = new CodeData
+                    {
+                        Items =
+                        [
+                            new CodeItem
+                            {
+                                Label = "C1",
+                                Codes = [1, 2],
+                                ArrayCodes = [4],
+                                InterfaceCodes = [5],
+                                TextCodes = ["six"],
+                                ReadOnlyCodes = new([3]),
+                                OptionalCodes = [7],
+                                CustomCodes = [9]
+                            }
+                        ]
+                    }
+                });
+
+            context.Add(new OwnedCodeWidget { Id = 1, Owned = new OwnedCodes { Label = "O1", Codes = [4] } });
 
             var entityWithNullableMeta = new EntityWithNullableMeta
             {
