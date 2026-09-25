@@ -13230,7 +13230,7 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex : System.IEquatable<Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex>",
       "Methods": [
         {
-          "Member": "RelationalJsonIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement> elements, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? collectionIndices);"
+          "Member": "RelationalJsonIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement> elements, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? collectionIndices, System.Collections.Generic.IReadOnlyList<bool>? isDescending = null);"
         },
         {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex? other);"
@@ -13240,6 +13240,9 @@
         },
         {
           "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "bool IsElementDescending(int index);"
         }
       ],
       "Properties": [
@@ -13248,6 +13251,9 @@
         },
         {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement> Elements { get; }"
+        },
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<bool>? IsDescending { get; }"
         }
       ]
     },
@@ -16719,6 +16725,9 @@
         },
         {
           "Member": "static string JsonPathIndexElementsCollectionIndicesMismatch(object? elementCount, object? collectionIndicesCount);"
+        },
+        {
+          "Member": "static string JsonPathIndexElementsIsDescendingMismatch(object? elementCount, object? isDescendingCount);"
         },
         {
           "Member": "static string JsonPathIndexPropertiesInDifferentJsonColumns(object? indexProperties, object? entityType, object? firstColumn, object? secondColumn);"

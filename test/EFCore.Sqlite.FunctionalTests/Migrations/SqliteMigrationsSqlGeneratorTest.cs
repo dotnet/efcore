@@ -131,6 +131,48 @@ CREATE INDEX "IX_JsonCollectionIndexBlog_Posts_Comments" ON "JsonCollectionIndex
                 });
     }
 
+    [Fact]
+    public virtual void Create_json_index_with_mixed_sort_directions_over_shared_container()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+        Assert.Null(operation.IsDescending);
+
+        var jsonIndex = Assert.IsType<RelationalJsonIndex>(operation[RelationalAnnotationNames.JsonIndex]);
+        Assert.Equal(2, jsonIndex.Elements.Count);
+        Assert.False(jsonIndex.IsElementDescending(0));
+        Assert.True(jsonIndex.IsElementDescending(1));
+
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE INDEX "IX_Blogs_Details_Slug_Details_Owner" ON "Blogs" ("Details" ->> 'Slug', "Details" ->> 'Owner' DESC);
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonIndexBlog>(
+                e =>
+                {
+                    e.ToTable("Blogs");
+                    e.ComplexProperty(
+                        b => b.Details, cb =>
+                        {
+                            cb.ToJson();
+                            cb.Property(i => i.Slug);
+                            cb.Property(i => i.Owner);
+                        });
+                    e.HasIndex(b => new { b.Details.Slug, b.Details.Owner }).IsDescending(false, true);
+                });
+    }
+
     private class JsonIndexBlog
     {
         public int Id { get; set; }

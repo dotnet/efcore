@@ -669,8 +669,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                 }
             }
 
-            if (operation.IsDescending is not null
-                && (operation.IsDescending.Length == 0 || operation.IsDescending[i]))
+            if (jsonIndex.IsElementDescending(i))
             {
                 builder.Append(" DESC");
             }
