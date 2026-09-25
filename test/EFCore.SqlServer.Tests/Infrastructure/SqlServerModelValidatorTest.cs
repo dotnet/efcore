@@ -767,6 +767,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
     [Theory]
     [InlineData("FillFactor")]
+    [InlineData("NonClustered")]
+    [InlineData("NoIncludeProperties")]
     [InlineData("CreatedOffline")]
     [InlineData("SortInTempDbDisabled")]
     public void Json_index_with_supported_option_passes(string option)
@@ -780,6 +782,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             _ = option switch
             {
                 "FillFactor" => indexBuilder.HasFillFactor(80),
+                "NonClustered" => indexBuilder.IsClustered(false),
+                "NoIncludeProperties" => indexBuilder.IncludeProperties(),
                 "CreatedOffline" => indexBuilder.IsCreatedOnline(false),
                 "SortInTempDbDisabled" => indexBuilder.SortInTempDb(false),
                 _ => throw new InvalidOperationException()
