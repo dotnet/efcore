@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
@@ -621,15 +622,22 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
             var element = jsonIndex.Elements[i];
             builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(element.ContainingColumn.Name));
 
-            if (element.Path.Count > 0)
+            var isArray = element is IRelationalJsonArray;
+            if (element.Path.Count > 0 || isArray)
             {
                 builder.Append(" ->> ");
 
-                if (element.Path is [{ IsArray: false, PropertyName: { } propertyName }])
+                if (!isArray
+                    && element.Path is [{ IsArray: false, PropertyName: { } propertyName }])
                 {
                     builder.Append(
                         stringTypeMapping.GenerateSqlLiteral(
                             Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName)));
+                }
+                else if (element.Path.Count == 0
+                         && isArray)
+                {
+                    builder.Append(jsonIndex.CollectionIndices![i]![0]!.Value.ToString(CultureInfo.InvariantCulture));
                 }
                 else
                 {
@@ -648,6 +656,13 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                             path.Append('.')
                                 .Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(segment.PropertyName!));
                         }
+                    }
+
+                    if (isArray)
+                    {
+                        path.Append('[')
+                            .Append(jsonIndex.CollectionIndices![i]![collectionIndex]!.Value)
+                            .Append(']');
                     }
 
                     builder.Append(stringTypeMapping.GenerateSqlLiteral(path.ToString()));

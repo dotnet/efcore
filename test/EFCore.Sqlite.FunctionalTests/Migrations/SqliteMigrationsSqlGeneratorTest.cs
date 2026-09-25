@@ -56,6 +56,81 @@ CREATE UNIQUE INDEX "IX_Blogs_Details_Slug" ON "Blogs" ("Details" ->> 'Slug');
                 });
     }
 
+    [Fact]
+    public virtual void Create_json_index_over_root_collection_element()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+        var jsonIndex = Assert.IsType<RelationalJsonIndex>(operation[RelationalAnnotationNames.JsonIndex]);
+        Assert.Empty(Assert.IsAssignableFrom<IRelationalJsonArray>(Assert.Single(jsonIndex.Elements)).Path);
+        Assert.Equal(new int?[] { 0 }, Assert.Single(jsonIndex.CollectionIndices!));
+
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE INDEX "IX_JsonCollectionIndexBlog_Items" ON "JsonCollectionIndexBlog" ("Items" ->> 0);
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonCollectionIndexBlog>(
+                e =>
+                {
+                    e.ComplexCollection(b => b.Items).ToJson();
+                    e.Ignore(b => b.Posts);
+                    e.HasIndex("Items[0]");
+                });
+    }
+
+    [Fact]
+    public virtual void Create_json_index_over_nested_collection_element()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+        var jsonIndex = Assert.IsType<RelationalJsonIndex>(operation[RelationalAnnotationNames.JsonIndex]);
+        var element = Assert.IsAssignableFrom<IRelationalJsonArray>(Assert.Single(jsonIndex.Elements));
+        Assert.Collection(
+            element.Path,
+            segment => Assert.True(segment.IsArray),
+            segment => Assert.Equal("Comments", segment.PropertyName));
+        Assert.Equal(new int?[] { 0, 1 }, Assert.Single(jsonIndex.CollectionIndices!));
+
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE INDEX "IX_JsonCollectionIndexBlog_Posts_Comments" ON "JsonCollectionIndexBlog" ("Posts" ->> '$[0].Comments[1]');
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonCollectionIndexBlog>(
+                e =>
+                {
+                    e.ComplexCollection(
+                        b => b.Posts, cb =>
+                        {
+                            cb.ToJson();
+                            cb.ComplexCollection(p => p.Comments);
+                        });
+                    e.Ignore(b => b.Items);
+                    e.HasIndex("Posts[0].Comments[1]");
+                });
+    }
+
     private class JsonIndexBlog
     {
         public int Id { get; set; }
@@ -66,6 +141,18 @@ CREATE UNIQUE INDEX "IX_Blogs_Details_Slug" ON "Blogs" ("Details" ->> 'Slug');
     {
         public string Slug { get; set; } = null!;
         public string Owner { get; set; } = null!;
+    }
+
+    private class JsonCollectionIndexBlog
+    {
+        public int Id { get; set; }
+        public List<JsonIndexDetails> Items { get; set; } = [];
+        public List<JsonCollectionIndexDetails> Posts { get; set; } = [];
+    }
+
+    private class JsonCollectionIndexDetails
+    {
+        public List<JsonIndexDetails> Comments { get; set; } = [];
     }
 
     [Fact]
