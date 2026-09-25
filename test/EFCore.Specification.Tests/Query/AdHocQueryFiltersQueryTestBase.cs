@@ -863,41 +863,50 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     #region 38151
 
     [Fact]
-    public virtual async Task Query_filter_with_EF_Constant_throws()
+    public virtual async Task Non_compiled_query_with_EF_Constant_in_query_filter_over_context_property()
     {
-        var contextFactory = await InitializeNonSharedTest<Context38151_Constant>();
+        var contextFactory = await InitializeNonSharedTest<Context38151_Constant>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateDbContext();
 
-        var message = Assert.Throws<InvalidOperationException>(() => context.Set<Entity38151>().ToList()).Message;
-        Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"), message);
+        Assert.Equal([1, 2], context.Set<Entity38151>().OrderBy(e => e.Id).Select(e => e.Id).ToList());
     }
 
-    protected class Context38151_Constant(DbContextOptions options) : DbContext(options)
+    protected class Context38151_Constant(DbContextOptions options) : Context38151(options)
     {
-        public int TenantId { get; set; } = 1;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity38151>()
                 .HasQueryFilter(e => e.TenantId == EF.Constant(TenantId));
     }
 
     [Fact]
-    public virtual async Task Query_filter_with_EF_Parameter_throws()
+    public virtual async Task Non_compiled_query_with_EF_Parameter_in_query_filter_over_context_property()
     {
-        var contextFactory = await InitializeNonSharedTest<Context38151_Parameter>();
+        var contextFactory = await InitializeNonSharedTest<Context38151_Parameter>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateDbContext();
 
-        var message = Assert.Throws<InvalidOperationException>(() => context.Set<Entity38151>().ToList()).Message;
-        Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Parameter<T>"), message);
+        Assert.Equal([1, 2], context.Set<Entity38151>().OrderBy(e => e.Id).Select(e => e.Id).ToList());
     }
 
-    protected class Context38151_Parameter(DbContextOptions options) : DbContext(options)
+    protected class Context38151_Parameter(DbContextOptions options) : Context38151(options)
     {
-        public int TenantId { get; set; } = 1;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity38151>()
                 .HasQueryFilter(e => e.TenantId == EF.Parameter(TenantId));
+    }
+
+    protected abstract class Context38151(DbContextOptions options) : DbContext(options)
+    {
+        public int TenantId { get; set; } = 1;
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Entity38151 { TenantId = 1 },
+                new Entity38151 { TenantId = 1 },
+                new Entity38151 { TenantId = 2 });
+
+            return SaveChangesAsync();
+        }
     }
 
     public class Entity38151

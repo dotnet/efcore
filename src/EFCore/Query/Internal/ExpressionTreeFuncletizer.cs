@@ -934,7 +934,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.EFConstantNotSupportedInPrecompiledQueries);
                     }
 
-                    if (!_parameterize)
+                    if (!_parameterize && !_generateContextAccessors)
                     {
                         throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"));
                     }
@@ -1181,7 +1181,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         Expression HandleParameter(MethodCallExpression methodCall, string methodName)
         {
-            if (!_parameterize)
+            if (!_parameterize && !_generateContextAccessors)
             {
                 throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries(methodName));
             }
