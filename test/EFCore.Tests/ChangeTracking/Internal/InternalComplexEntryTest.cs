@@ -767,6 +767,32 @@ public class InternalComplexEntryTest
         Assert.Equal(EntityState.Added, items[2].State);
     }
 
+    [ConditionalFact]
+    public void Entity_can_be_marked_modified_after_nested_complex_collection_shrinks()
+    {
+        var model = CreateModelWithNestedComplexCollection();
+        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
+        var stateManager = serviceProvider.GetRequiredService<IStateManager>();
+
+        var blog = new BlogWithNestedCollection
+        {
+            Items =
+            [
+                new NestedCollectionItem { Name = "foo" },
+                new NestedCollectionItem { Name = "bar" }
+            ]
+        };
+
+        var entityEntry = stateManager.GetOrCreateEntry(blog);
+        entityEntry.SetEntityState(EntityState.Unchanged);
+
+        blog.Items = [new NestedCollectionItem { Name = "foo" }];
+
+        entityEntry.SetEntityState(EntityState.Modified);
+
+        Assert.Equal(EntityState.Modified, entityEntry.EntityState);
+    }
+
     private static IModel CreateModel()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -777,6 +803,18 @@ public class InternalComplexEntryTest
             eb.ComplexCollection(e => e.Tags);
             eb.ComplexCollection(e => e.OtherTags);
         });
+
+        return modelBuilder.FinalizeModel();
+    }
+
+    private static IModel CreateModelWithNestedComplexCollection()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<BlogWithNestedCollection>(
+            b => b.ComplexCollection(
+                e => e.Items,
+                b => b.ComplexCollection(e => e.NestedItems)));
 
         return modelBuilder.FinalizeModel();
     }
@@ -829,6 +867,18 @@ public class InternalComplexEntryTest
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public NestedJson NestedJson { get; set; } = new();
+    }
+
+    private class BlogWithNestedCollection
+    {
+        public int Id { get; set; }
+        public List<NestedCollectionItem> Items { get; set; } = [];
+    }
+
+    private class NestedCollectionItem
+    {
+        public string Name { get; set; } = "";
+        public List<NestedItem> NestedItems { get; set; } = [];
     }
 
     private record NestedJson

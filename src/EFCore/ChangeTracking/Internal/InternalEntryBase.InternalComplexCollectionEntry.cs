@@ -156,10 +156,8 @@ public partial class InternalEntryBase
             if (!UseOldBehavior37585
                 && _containingEntry is InternalComplexEntry complexEntry)
             {
-                var ordinal = original ? complexEntry.OriginalOrdinal : complexEntry.Ordinal;
-                if (ordinal < 0)
+                if (!IsInCollection(complexEntry, original))
                 {
-                    // Ordinal is -1 (entry is deleted/added), so the collection doesn't exist.
                     return null;
                 }
             }
@@ -167,6 +165,23 @@ public partial class InternalEntryBase
             return original
                 ? (IList?)_containingEntry.GetOriginalValue(_complexCollection)
                 : (IList?)_containingEntry[_complexCollection];
+        }
+
+        private static bool IsInCollection(InternalComplexEntry entry, bool original)
+        {
+            var ordinal = original ? entry.OriginalOrdinal : entry.Ordinal;
+            if (ordinal < 0
+                || (entry.ContainingEntry is InternalComplexEntry containingEntry
+                    && !IsInCollection(containingEntry, original)))
+            {
+                return false;
+            }
+
+            var collection = original
+                ? (IList?)entry.ContainingEntry.GetOriginalValue(entry.ComplexProperty)
+                : (IList?)entry.ContainingEntry[entry.ComplexProperty];
+
+            return ordinal < (collection?.Count ?? 0);
         }
 
         public void AcceptChanges()
