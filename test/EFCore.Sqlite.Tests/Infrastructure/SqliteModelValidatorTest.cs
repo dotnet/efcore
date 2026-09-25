@@ -23,19 +23,6 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
                 nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
     }
 
-    [Fact]
-    public void Detects_json_index_over_all_collection_elements()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<JsonCollectionOwner>(b =>
-        {
-            b.ComplexCollection(e => e.Items).ToJson();
-            b.HasIndex("Items[].Value");
-        });
-
-        VerifyError(SqliteStrings.JsonIndexAllElementsNotSupported, modelBuilder);
-    }
-
     // SQLite cannot build an expression index over all elements of a JSON array, unlike other relational providers.
     public override void Detects_index_on_complex_collection_property()
     {
@@ -75,17 +62,6 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyWarning(
             SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"),
             modelBuilder);
-    }
-
-    private class JsonCollectionOwner
-    {
-        public int Id { get; set; }
-        public List<JsonCollectionItem> Items { get; set; } = [];
-    }
-
-    private class JsonCollectionItem
-    {
-        public string Value { get; set; } = null!;
     }
 
     [Fact]
