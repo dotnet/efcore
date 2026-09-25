@@ -184,16 +184,10 @@
           "Stage": "Obsolete"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder ExecutionStrategy(System.Func<Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies, Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> getExecutionStrategy);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder GatewayModeMaxConnectionLimit(int connectionLimit);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder HttpClientFactory(System.Func<System.Net.Http.HttpClient>? httpClientFactory);"
@@ -224,9 +218,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder SessionTokenManagementMode(Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode mode);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder WebProxy(System.Net.IWebProxy proxy);"
@@ -310,9 +301,6 @@
           "Member": "CosmosDiscriminatorConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
         },
         {
-          "Member": "override void ProcessDiscriminatorPropertySet(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTypeBaseBuilder structuralTypeBuilder, string? name, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string> context);"
-        },
-        {
           "Member": "virtual void ProcessEmbeddedDiscriminatorName(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, string? newName, string? oldName, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string> context);"
         },
         {
@@ -322,19 +310,10 @@
           "Member": "virtual void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
         },
         {
-          "Member": "override void ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
-        },
-        {
           "Member": "virtual void ProcessForeignKeyOwnershipChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"
         },
         {
           "Member": "virtual void ProcessForeignKeyRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey> context);"
-        },
-        {
-          "Member": "override void SetDefaultDiscriminatorValues(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> entityTypes, Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionDiscriminatorBuilder discriminatorBuilder);"
         }
       ]
     },
@@ -749,9 +728,6 @@
       "Methods": [
         {
           "Member": "CosmosInversePropertyAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? TryGetTargetEntityTypeBuilder(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Type targetClrType, System.Reflection.MemberInfo navigationMemberInfo, bool shouldCreate = true);"
         }
       ]
     },
@@ -843,9 +819,6 @@
         },
         {
           "Member": "virtual void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
-        },
-        {
-          "Member": "override void ProcessKeyProperties(System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> keyProperties, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
         }
       ]
     },
@@ -856,13 +829,7 @@
           "Member": "CosmosManyToManyJoinEntityTypeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
         },
         {
-          "Member": "override void CreateJoinEntityType(string joinEntityTypeName, Microsoft.EntityFrameworkCore.Metadata.IConventionSkipNavigation skipNavigation);"
-        },
-        {
           "Member": "virtual void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
-        },
-        {
-          "Member": "override void ProcessSkipNavigationForeignKeyChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionSkipNavigationBuilder skipNavigationBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey? foreignKey, Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey? oldForeignKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey> context);"
         }
       ]
     },
@@ -1274,9 +1241,6 @@
           "Member": "CosmosRelationshipDiscoveryConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
         },
         {
-          "Member": "override bool? ShouldBeOwned(System.Type targetType, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
-        },
-        {
           "Member": "static bool ShouldBeOwnedType(System.Type targetType, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
         }
       ]
@@ -1286,12 +1250,6 @@
       "Methods": [
         {
           "Member": "CosmosRuntimeModelConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType runtimeEntityType, bool runtime);"
-        },
-        {
-          "Member": "override void ProcessModelAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Metadata.RuntimeModel runtimeModel, bool runtime);"
         }
       ]
     },
@@ -1404,9 +1362,6 @@
       "Methods": [
         {
           "Member": "CosmosValueGenerationConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ValueGenerated? GetValueGenerated(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
         },
         {
           "Member": "virtual void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"

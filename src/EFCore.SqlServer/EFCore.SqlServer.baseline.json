@@ -204,12 +204,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name);"
         },
         {
@@ -217,9 +211,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder IsHidden(bool hidden = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ]
     },
@@ -227,19 +218,10 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder UseHistoryTable(string name);"
@@ -302,9 +284,6 @@
       "Methods": [
         {
           "Member": "SqlServerAutoLoadConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override bool ShouldBeAutoLoaded(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
         }
       ]
     },
@@ -386,9 +365,6 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet Build();"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet CreateConventionSet();"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder CreateModelBuilder();"
@@ -1731,18 +1707,6 @@
       "Methods": [
         {
           "Member": "SqlServerJsonObjectExpression(System.Collections.Generic.IReadOnlyList<string> propertyNames, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> propertyValues, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping);"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression Quote();"
         }
       ],
       "Properties": [
@@ -1858,12 +1822,6 @@
           "Member": "virtual void AddDescription(Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, string description, string? schema, string table, string? column = null, bool omitVariableDeclarations = false);"
         },
         {
-          "Member": "override void ColumnDefinition(string? schema, string table, string name, Microsoft.EntityFrameworkCore.Migrations.Operations.ColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void ComputedColumnDefinition(string? schema, string table, string name, Microsoft.EntityFrameworkCore.Migrations.Operations.ColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
           "Member": "virtual void CreateIndexes(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.ITableIndex> indexes, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
@@ -1879,112 +1837,19 @@
           "Member": "virtual void DropIndexes(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.ITableIndex> indexes, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void ForeignKeyAction(Microsoft.EntityFrameworkCore.Migrations.ReferentialAction referentialAction, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.MigrationCommand> Generate(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> operations, Microsoft.EntityFrameworkCore.Metadata.IModel? model = null, Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerationOptions options = Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerationOptions.Default);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddCheckConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddPrimaryKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RestartSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropPrimaryKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.EnsureSchemaOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
           "Member": "virtual void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.SqlServerCreateDatabaseOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
           "Member": "virtual void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.SqlServerDropDatabaseOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterDatabaseOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropForeignKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.SqlOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.InsertDataOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DeleteDataOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.UpdateDataOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.ITableIndex> GetIndexesToRebuild(Microsoft.EntityFrameworkCore.Metadata.IColumn? column, Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation currentOperation);"
-        },
-        {
-          "Member": "override void IndexOptions(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void IndexTraits(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
           "Member": "virtual void Rename(string name, string newName, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
           "Member": "virtual void Rename(string name, string newName, string? type, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
-        },
-        {
-          "Member": "override void SequenceOptions(string? schema, string name, Microsoft.EntityFrameworkCore.Migrations.Operations.SequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool forAlter);"
         },
         {
           "Member": "virtual void Transfer(string? newSchema, string? schema, string name, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
@@ -2256,9 +2121,6 @@
       "Methods": [
         {
           "Member": "SqlServerOnDeleteConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.DeleteBehavior GetTargetDeleteBehavior(Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey);"
         },
         {
           "Member": "virtual void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
@@ -2712,12 +2574,6 @@
         },
         {
           "Member": "SqlServerRetryingExecutionStrategy(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies dependencies, int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd);"
-        },
-        {
-          "Member": "override System.TimeSpan? GetNextDelay(System.Exception lastException);"
-        },
-        {
-          "Member": "override bool ShouldRetryOn(System.Exception exception);"
         }
       ],
       "Fields": [
@@ -2736,24 +2592,6 @@
       "Methods": [
         {
           "Member": "SqlServerRuntimeModelConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType runtimeEntityType, bool runtime);"
-        },
-        {
-          "Member": "override void ProcessIndexAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex runtimeIndex, bool runtime);"
-        },
-        {
-          "Member": "override void ProcessKeyAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Metadata.RuntimeKey runtimeKey, bool runtime);"
-        },
-        {
-          "Member": "override void ProcessModelAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Metadata.RuntimeModel runtimeModel, bool runtime);"
-        },
-        {
-          "Member": "override void ProcessPropertyAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty runtimeProperty, bool runtime);"
-        },
-        {
-          "Member": "override void ProcessPropertyOverridesAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyOverrides propertyOverrides, Microsoft.EntityFrameworkCore.Metadata.RuntimeRelationalPropertyOverrides runtimePropertyOverrides, bool runtime);"
         }
       ]
     },
@@ -2785,20 +2623,6 @@
       "Methods": [
         {
           "Member": "SqlServerSharedTableConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
-        },
-        {
-          "Member": "override bool AreCompatible(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey key, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey duplicateKey, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
-        },
-        {
-          "Member": "override bool AreCompatible(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex index, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex duplicateIndex, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override bool DefaultConstraintsUniqueAcrossTables { get; }"
-        },
-        {
-          "Member": "override bool IndexesUniqueAcrossTables { get; }"
         }
       ]
     },
@@ -2807,12 +2631,6 @@
       "Methods": [
         {
           "Member": "SqlServerStoreGenerationConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
-        },
-        {
-          "Member": "override void Validate(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         }
       ]
     },
@@ -2915,19 +2733,7 @@
           "Member": "SqlServerValueGenerationConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ValueGenerated? GetValueGenerated(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
-        },
-        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ValueGenerated? GetValueGenerated(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
-        },
-        {
-          "Member": "override bool MappingStrategyAllowsValueGeneration(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, string? mappingStrategy);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
         }
       ]
     },
@@ -3039,12 +2845,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder>",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder HasColumnName(string name);"
         },
         {
@@ -3052,9 +2852,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder IsHidden(bool hidden = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ]
     },
@@ -3062,19 +2859,10 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder UseHistoryTable(string name);"

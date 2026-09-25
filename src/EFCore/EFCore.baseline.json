@@ -41,22 +41,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.AdHocMapperDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.AdHocMapperDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.AdHocMapperDependencies? left, Microsoft.EntityFrameworkCore.Metadata.AdHocMapperDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.AdHocMapperDependencies? left, Microsoft.EntityFrameworkCore.Metadata.AdHocMapperDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -73,12 +64,6 @@
       "Methods": [
         {
           "Member": "Annotatable();"
-        },
-        {
-          "Member": "override void EnsureMutable();"
-        },
-        {
-          "Member": "override void EnsureReadOnly();"
         }
       ]
     },
@@ -315,12 +300,6 @@
       "Methods": [
         {
           "Member": "BackingFieldAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.BackingFieldAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.BackingFieldAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -392,14 +371,6 @@
       "Methods": [
         {
           "Member": "BinaryValueGenerator();"
-        },
-        {
-          "Member": "override byte[] Next(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override bool GeneratesTemporaryValues { get; }"
         }
       ]
     },
@@ -590,22 +561,13 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity>> Entries<TEntity>();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry> GetEntriesForState(bool added = false, bool modified = false, bool deleted = false, bool unchanged = false);"
         },
         {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity>> GetEntriesForState<TEntity>(bool added = false, bool modified = false, bool deleted = false, bool unchanged = false);"
         },
         {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual bool HasChanges();"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual void TrackGraph(object rootEntity, System.Action<Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntryGraphNode> callback);"
@@ -759,15 +721,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionCollectionBuilder",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder UsingEntity(System.Type joinEntityType);"
         },
         {
@@ -880,29 +833,11 @@
       "Methods": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? FindEntry(object entity);"
-        },
-        {
-          "Member": "override void Load();"
-        },
-        {
-          "Member": "override void Load(Microsoft.EntityFrameworkCore.ChangeTracking.LoadOptions options);"
-        },
-        {
-          "Member": "override System.Threading.Tasks.Task LoadAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override System.Threading.Tasks.Task LoadAsync(Microsoft.EntityFrameworkCore.ChangeTracking.LoadOptions options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override System.Linq.IQueryable Query();"
         }
       ],
       "Properties": [
         {
           "Member": "virtual System.Collections.IEnumerable? CurrentValue { get; set; }"
-        },
-        {
-          "Member": "override bool IsModified { get; set; }"
         }
       ]
     },
@@ -928,15 +863,6 @@
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder?>",
       "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionCollectionBuilder WithMany(string? navigationName = null);"
         },
@@ -1004,13 +930,7 @@
           "Member": "CompiledQueryCacheKey();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGenerator.CompiledQueryCacheKey other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         }
       ]
     },
@@ -1021,22 +941,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGeneratorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGeneratorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGeneratorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Query.CompiledQueryCacheKeyGeneratorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -1115,12 +1026,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder ComplexProperty(System.Type propertyType, string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder HasChangeTrackingStrategy(Microsoft.EntityFrameworkCore.ChangeTrackingStrategy changeTrackingStrategy);"
         },
         {
@@ -1161,9 +1066,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder Property(System.Type propertyType, string propertyName);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder UseDefaultPropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -1285,9 +1187,6 @@
           "Member": "virtual System.Collections.IEnumerable? CurrentValue { get; set; }"
         },
         {
-          "Member": "override bool IsModified { get; set; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexElementEntry this[int ordinal] { get; }"
         },
         {
@@ -1317,12 +1216,6 @@
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder>",
       "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder HasAnnotation(string annotation, object? value);"
         },
@@ -1388,9 +1281,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder IsUnicode(bool unicode = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -1590,18 +1480,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertiesConfigurationBuilder",
-      "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        }
-      ]
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertiesConfigurationBuilder"
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertiesConfigurationBuilder<TProperty> : Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertiesConfigurationBuilder"
@@ -1670,12 +1549,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder ComplexProperty(System.Type propertyType, string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder HasChangeTrackingStrategy(Microsoft.EntityFrameworkCore.ChangeTrackingStrategy changeTrackingStrategy);"
         },
         {
@@ -1728,9 +1601,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder Property(System.Type propertyType, string propertyName);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder UseDefaultPropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -1931,9 +1801,6 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry> ComplexProperties { get; }"
         },
         {
-          "Member": "override bool IsModified { get; set; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IComplexProperty Metadata { get; }"
         },
         {
@@ -1999,12 +1866,6 @@
       "Methods": [
         {
           "Member": "ComplexTypeAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessComplexPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder> context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.ComponentModel.DataAnnotations.Schema.ComplexTypeAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
         }
       ]
     },
@@ -2012,16 +1873,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypeDiscriminatorBuilder : Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeDiscriminatorBuilder",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypeDiscriminatorBuilder HasValue(object? value);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ]
     },
@@ -2041,12 +1893,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder ElementType(System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder> builderAction);"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder HasAnnotation(string annotation, object? value);"
@@ -2080,9 +1926,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder IsUnicode(bool unicode = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -2175,12 +2018,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder>",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder HasAnnotation(string annotation, object? value);"
         },
         {
@@ -2260,9 +2097,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder IsUnicode(bool unicode = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -2441,9 +2275,6 @@
       "Methods": [
         {
           "Member": "ConcurrencyCheckAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.ConcurrencyCheckAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -2527,20 +2358,11 @@
       "Methods": [
         {
           "Member": "ConstructorBinding(System.Reflection.ConstructorInfo constructor, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.ParameterBinding> parameterBindings);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression CreateConstructorExpression(Microsoft.EntityFrameworkCore.Metadata.ParameterBindingInfo bindingInfo);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding With(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.ParameterBinding> parameterBindings);"
         }
       ],
       "Properties": [
         {
           "Member": "virtual System.Reflection.ConstructorInfo Constructor { get; }"
-        },
-        {
-          "Member": "override System.Type RuntimeType { get; }"
         }
       ]
     },
@@ -2581,12 +2403,6 @@
       "Methods": [
         {
           "Member": "ContextParameterBinding(System.Type contextType, params Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[]? serviceProperties);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression BindToParameter(System.Linq.Expressions.Expression materializationExpression, System.Linq.Expressions.Expression bindingInfoExpression);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding With(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[] consumedProperties);"
         }
       ]
     },
@@ -2600,22 +2416,13 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Internal.ConventionAnnotation AddAnnotation(string name, object? value, Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource configurationSource);"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Infrastructure.Annotation CreateAnnotation(string name, object? value);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Internal.ConventionAnnotation? FindAnnotation(string name);"
         },
         {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.Internal.ConventionAnnotation> GetAnnotations();"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Infrastructure.Annotation? OnAnnotationSet(string name, Microsoft.EntityFrameworkCore.Infrastructure.Annotation? annotation, Microsoft.EntityFrameworkCore.Infrastructure.Annotation? oldAnnotation);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? OnAnnotationSet(string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation);"
-        },
-        {
-          "Member": "override void SetAnnotation(string name, object? value);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Internal.ConventionAnnotation? SetAnnotation(string name, object? value, Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource configurationSource);"
@@ -2837,12 +2644,6 @@
           "Member": "virtual void Add(System.Func<System.IServiceProvider, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention> conventionFactory);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual void Remove(System.Type conventionType);"
         },
         {
@@ -2850,9 +2651,6 @@
         },
         {
           "Member": "virtual void Replace<TImplementation>(System.Func<System.IServiceProvider, TImplementation> conventionFactory);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ]
     },
@@ -5060,22 +4858,13 @@
           "Member": "CoreTypeMappingParameters();"
         },
         {
-          "Member": "override bool Equals(object obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters left, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters left, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters right);"
-        },
-        {
-          "Member": "override string ToString();"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters WithComposedConverter(Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? converter, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? comparer, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? keyComparer, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? elementMapping, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter);"
@@ -5113,9 +4902,6 @@
       "Methods": [
         {
           "Member": "CoreTypeMapping(Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters parameters);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer CreateDefaultComparer(bool favorStructuralComparisons);"
         }
       ]
     },
@@ -5152,22 +4938,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Storage.DatabaseDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.DatabaseDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Storage.DatabaseDependencies? left, Microsoft.EntityFrameworkCore.Storage.DatabaseDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Storage.DatabaseDependencies? left, Microsoft.EntityFrameworkCore.Storage.DatabaseDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -5222,19 +4999,10 @@
           "Member": "virtual System.Threading.Tasks.Task<bool> EnsureDeletedAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual void RollbackTransaction();"
         },
         {
           "Member": "virtual System.Threading.Tasks.Task RollbackTransactionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ],
       "Properties": [
@@ -5257,9 +5025,6 @@
       "Methods": [
         {
           "Member": "DatabaseGeneratedAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -5292,38 +5057,18 @@
           "Member": "Microsoft.EntityFrameworkCore.Storage.DatabaseProviderDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.DatabaseProviderDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Storage.DatabaseProviderDependencies? left, Microsoft.EntityFrameworkCore.Storage.DatabaseProviderDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Storage.DatabaseProviderDependencies? left, Microsoft.EntityFrameworkCore.Storage.DatabaseProviderDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder",
-      "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        }
-      ]
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder"
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder<TEntity> : Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder"
@@ -5511,9 +5256,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry Entry(object entity);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "virtual object? Find(System.Type entityType, params object?[]? keyValues);"
         },
         {
@@ -5533,9 +5275,6 @@
         },
         {
           "Member": "virtual System.Linq.IQueryable<TResult> FromExpression<TResult>(System.Linq.Expressions.Expression<System.Func<System.Linq.IQueryable<TResult>>> expression);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity> Remove<TEntity>(TEntity entity);"
@@ -5566,9 +5305,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.DbSet<TEntity> Set<TEntity>(string name);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity> Update<TEntity>(TEntity entity);"
@@ -5650,19 +5386,10 @@
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.DbContextId other);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.DbContextId left, Microsoft.EntityFrameworkCore.DbContextId right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.DbContextId left, Microsoft.EntityFrameworkCore.DbContextId right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -5743,9 +5470,6 @@
       "Type": "abstract class Microsoft.EntityFrameworkCore.DbContextOptions : Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "virtual bool Equals(Microsoft.EntityFrameworkCore.DbContextOptions other);"
         },
         {
@@ -5756,9 +5480,6 @@
         },
         {
           "Member": "virtual TExtension GetExtension<TExtension>();"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "abstract Microsoft.EntityFrameworkCore.DbContextOptions WithExtension<TExtension>(TExtension extension);"
@@ -5787,17 +5508,6 @@
         },
         {
           "Member": "DbContextOptions(System.Collections.Generic.IReadOnlyDictionary<System.Type, Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension> extensions);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.DbContextOptions WithExtension<TExtension>(TExtension extension);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.DbContextOptions WithoutExtension<TExtension>();"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Type ContextType { get; }"
         }
       ]
     },
@@ -5835,12 +5545,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder EnableThreadSafetyChecks(bool enableChecks = true);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder LogTo(System.Action<string> action, Microsoft.Extensions.Logging.LogLevel minimumLevel = Microsoft.Extensions.Logging.LogLevel.Debug, Microsoft.EntityFrameworkCore.Diagnostics.DbContextLoggerOptions? options = null);"
         },
         {
@@ -5860,9 +5564,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder ReplaceService<TService, TCurrentImplementation, TNewImplementation>();"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseApplicationServiceProvider(System.IServiceProvider? serviceProvider);"
@@ -6056,18 +5757,7 @@
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.DbFunctions",
-      "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        }
-      ]
+      "Type": "sealed class Microsoft.EntityFrameworkCore.DbFunctions"
     },
     {
       "Type": "static class Microsoft.EntityFrameworkCore.DbFunctionsExtensions",
@@ -6231,9 +5921,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity> Entry(TEntity entity);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "virtual TEntity? Find(params object?[]? keyValues);"
         },
         {
@@ -6246,9 +5933,6 @@
           "Member": "virtual System.Collections.Generic.IAsyncEnumerator<TEntity> GetAsyncEnumerator(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
         },
         {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity> Remove(TEntity entity);"
         },
         {
@@ -6256,9 +5940,6 @@
         },
         {
           "Member": "virtual void RemoveRange(System.Collections.Generic.IEnumerable<TEntity> entities);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity> Update(TEntity entity);"
@@ -6397,17 +6078,6 @@
       "Methods": [
         {
           "Member": "DefaultValueBinding(System.Type runtimeType);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression CreateConstructorExpression(Microsoft.EntityFrameworkCore.Metadata.ParameterBindingInfo bindingInfo);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding With(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.ParameterBinding> parameterBindings);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Type RuntimeType { get; }"
         }
       ]
     },
@@ -6425,12 +6095,6 @@
         },
         {
           "Member": "virtual void ProcessNavigationAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionNavigationBuilder navigationBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionNavigationBuilder> context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.DeleteBehaviorAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.DeleteBehaviorAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -6439,20 +6103,11 @@
       "Methods": [
         {
           "Member": "DependencyInjectionMethodParameterBinding(System.Type parameterType, System.Type serviceType, System.Reflection.MethodInfo method, params Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[]? serviceProperties);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression BindToParameter(Microsoft.EntityFrameworkCore.Metadata.ParameterBindingInfo bindingInfo);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding With(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[] consumedProperties);"
         }
       ],
       "Properties": [
         {
           "Member": "virtual System.Reflection.MethodInfo Method { get; }"
-        },
-        {
-          "Member": "override System.Func<Microsoft.EntityFrameworkCore.Storage.MaterializationContext, Microsoft.EntityFrameworkCore.Metadata.IEntityType, object, object?> ServiceDelegate { get; }"
         }
       ]
     },
@@ -6461,17 +6116,6 @@
       "Methods": [
         {
           "Member": "DependencyInjectionParameterBinding(System.Type parameterType, System.Type serviceType, params Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[]? serviceProperties);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression BindToParameter(System.Linq.Expressions.Expression materializationExpression, System.Linq.Expressions.Expression bindingInfoExpression);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding With(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[] consumedProperties);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Func<Microsoft.EntityFrameworkCore.Storage.MaterializationContext, Microsoft.EntityFrameworkCore.Metadata.IEntityType, object, object?> ServiceDelegate { get; }"
         }
       ]
     },
@@ -6543,12 +6187,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.DiscriminatorBuilder : Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionDiscriminatorBuilder",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.DiscriminatorBuilder HasValue(object? value);"
         },
         {
@@ -6562,9 +6200,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.DiscriminatorBuilder IsComplete(bool complete = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ]
     },
@@ -6621,9 +6256,6 @@
       "Methods": [
         {
           "Member": "DiscriminatorValueGeneratorFactory();"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator Create(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.ITypeBase entityType);"
         }
       ]
     },
@@ -6992,12 +6624,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionElementTypeBuilder>",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder HasAnnotation(string annotation, object? value);"
         },
         {
@@ -7038,9 +6664,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder IsUnicode(bool unicode = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ],
       "Properties": [
@@ -7074,16 +6697,10 @@
           "Member": "virtual void DetectChanges();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues? GetDatabaseValues();"
         },
         {
           "Member": "virtual System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues?> GetDatabaseValuesAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.MemberEntry Member(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
@@ -7114,9 +6731,6 @@
         },
         {
           "Member": "virtual System.Threading.Tasks.Task ReloadAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -7275,12 +6889,6 @@
       "Methods": [
         {
           "Member": "EntityFrameworkDesignServicesBuilder(Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder TryAddCoreServices();"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Infrastructure.ServiceCharacteristics? TryGetServiceCharacteristics(System.Type serviceType);"
         }
       ]
     },
@@ -7306,10 +6914,6 @@
         },
         {
           "Member": "void ExecutionStrategyOperationFailure();",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "override void OnEventCommand(System.Diagnostics.Tracing.EventCommandEventArgs command);",
           "Stage": "Obsolete"
         },
         {
@@ -7805,15 +7409,7 @@
           "Stage": "Obsolete"
         },
         {
-          "Member": "override bool Equals(object obj);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.EntityMaterializerSourceParameters other);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "override int GetHashCode();",
           "Stage": "Obsolete"
         },
         {
@@ -7822,10 +7418,6 @@
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.EntityMaterializerSourceParameters left, Microsoft.EntityFrameworkCore.Query.EntityMaterializerSourceParameters right);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "override string ToString();",
           "Stage": "Obsolete"
         }
       ],
@@ -7854,33 +7446,12 @@
           "Member": "EntityQueryRootExpression(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression DetachQueryProvider();"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.EntityQueryRootExpression UpdateEntityType(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
         {
-          "Member": "override bool CanReduce { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IEntityType EntityType { get; }"
-        },
-        {
-          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }"
         }
       ]
     },
@@ -8019,12 +7590,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ComplexProperty(System.Type propertyType, string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder HasAlternateKey(params string[] propertyNames);"
         },
         {
@@ -8161,9 +7726,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder Property(System.Type propertyType, string propertyName);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -8418,12 +7980,6 @@
       "Methods": [
         {
           "Member": "EntityTypeConfigurationAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessComplexTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, Microsoft.EntityFrameworkCore.EntityTypeConfigurationAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.EntityTypeConfigurationAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
         }
       ]
     },
@@ -8464,12 +8020,6 @@
       "Methods": [
         {
           "Member": "EntityTypeParameterBinding(params Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[]? serviceProperties);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression BindToParameter(System.Linq.Expressions.Expression materializationExpression, System.Linq.Expressions.Expression bindingInfoExpression);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding With(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[] consumedProperties);"
         }
       ]
     },
@@ -8533,12 +8083,6 @@
       "Methods": [
         {
           "Member": "EquatableKeyValue(Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable metadata, TKey? keyValue, System.Collections.Generic.IEqualityComparer<TKey> keyComparer);"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         }
       ]
     },
@@ -8565,22 +8109,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.EvaluatableExpressionFilterDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.EvaluatableExpressionFilterDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.EvaluatableExpressionFilterDependencies? left, Microsoft.EntityFrameworkCore.Query.EvaluatableExpressionFilterDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.EvaluatableExpressionFilterDependencies? left, Microsoft.EntityFrameworkCore.Query.EvaluatableExpressionFilterDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -8594,9 +8129,6 @@
       "Methods": [
         {
           "Member": "EventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -8817,22 +8349,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies? left, Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies? left, Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -9067,79 +8590,7 @@
           "Member": "virtual string PrintExpressionDebug(System.Linq.Expressions.Expression expression);"
         },
         {
-          "Member": "override string ToString();"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression? Visit(System.Linq.Expressions.Expression? expression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitBinary(System.Linq.Expressions.BinaryExpression binaryExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitBlock(System.Linq.Expressions.BlockExpression blockExpression);"
-        },
-        {
           "Member": "virtual void VisitCollection<T>(System.Collections.Generic.IReadOnlyCollection<T> items, System.Action<Microsoft.EntityFrameworkCore.Query.ExpressionPrinter>? joinAction = null);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitConditional(System.Linq.Expressions.ConditionalExpression conditionalExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitConstant(System.Linq.Expressions.ConstantExpression constantExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitDefault(System.Linq.Expressions.DefaultExpression defaultExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitExtension(System.Linq.Expressions.Expression extensionExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitGoto(System.Linq.Expressions.GotoExpression gotoExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitIndex(System.Linq.Expressions.IndexExpression indexExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitInvocation(System.Linq.Expressions.InvocationExpression invocationExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitLabel(System.Linq.Expressions.LabelExpression labelExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitLambda<T>(System.Linq.Expressions.Expression<T> lambdaExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitLoop(System.Linq.Expressions.LoopExpression loopExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMember(System.Linq.Expressions.MemberExpression memberExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMemberInit(System.Linq.Expressions.MemberInitExpression memberInitExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMethodCall(System.Linq.Expressions.MethodCallExpression methodCallExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitNew(System.Linq.Expressions.NewExpression newExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitNewArray(System.Linq.Expressions.NewArrayExpression newArrayExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitParameter(System.Linq.Expressions.ParameterExpression parameterExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitSwitch(System.Linq.Expressions.SwitchExpression switchExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitTry(System.Linq.Expressions.TryExpression tryExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitTypeBinary(System.Linq.Expressions.TypeBinaryExpression typeBinaryExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitUnary(System.Linq.Expressions.UnaryExpression unaryExpression);"
         }
       ]
     },
@@ -9151,17 +8602,6 @@
         },
         {
           "Member": "FactoryMethodBinding(object factoryInstance, System.Reflection.MethodInfo factoryMethod, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.ParameterBinding> parameterBindings, System.Type runtimeType);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression CreateConstructorExpression(Microsoft.EntityFrameworkCore.Metadata.ParameterBindingInfo bindingInfo);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding With(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.ParameterBinding> parameterBindings);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Type RuntimeType { get; }"
         }
       ]
     },
@@ -9401,9 +8841,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.GroupByShaperExpression Update(System.Linq.Expressions.Expression keySelector, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression groupingEnumerable);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
@@ -9412,12 +8849,6 @@
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression KeySelector { get; }"
-        },
-        {
-          "Member": "sealed override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -9464,14 +8895,6 @@
       "Methods": [
         {
           "Member": "GuidValueGenerator();"
-        },
-        {
-          "Member": "override System.Guid Next(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override bool GeneratesTemporaryValues { get; }"
         }
       ]
     },
@@ -9486,12 +8909,6 @@
         },
         {
           "Member": "virtual System.Threading.Tasks.Task<long> GetNewLowValueAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override TValue Next(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry);"
-        },
-        {
-          "Member": "override System.Threading.Tasks.ValueTask<TValue> NextAsync(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
         }
       ]
     },
@@ -14720,9 +14137,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.IncludeExpression Update(System.Linq.Expressions.Expression entityExpression, System.Linq.Expressions.Expression navigationExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
@@ -14734,12 +14148,6 @@
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression NavigationExpression { get; }"
-        },
-        {
-          "Member": "sealed override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -14799,9 +14207,6 @@
         },
         {
           "Member": "virtual System.IDisposable SuspendIndent();"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -14839,12 +14244,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder>",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder HasAnnotation(string annotation, object? value);"
         },
         {
@@ -14852,9 +14251,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder IsUnique(bool unique = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ],
       "Properties": [
@@ -14906,16 +14302,7 @@
           "Member": "InlineQueryRootExpression(System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression> values, System.Type elementType);"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression DetachQueryProvider();"
-        },
-        {
-          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.InlineQueryRootExpression Update(System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression> values);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
@@ -15039,28 +14426,7 @@
           "Member": "static bool IsAmbiguous(Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, System.Reflection.MemberInfo navigation, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType targetEntityType);"
         },
         {
-          "Member": "override void ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Reflection.MemberInfo navigationMemberInfo, System.Type targetClrType, System.ComponentModel.DataAnnotations.Schema.InversePropertyAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, System.Reflection.MemberInfo navigationMemberInfo, System.Type targetClrType, System.ComponentModel.DataAnnotations.Schema.InversePropertyAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeMemberIgnored(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string> context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeMemberIgnored(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Reflection.MemberInfo navigationMemberInfo, System.Type targetClrType, System.ComponentModel.DataAnnotations.Schema.InversePropertyAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string> context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, System.Reflection.MemberInfo navigationMemberInfo, System.Type targetClrType, System.ComponentModel.DataAnnotations.Schema.InversePropertyAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
-        },
-        {
           "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
-        },
-        {
-          "Member": "override void ProcessNavigationAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionNavigationBuilder navigationBuilder, System.ComponentModel.DataAnnotations.Schema.InversePropertyAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionNavigationBuilder> context);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? TryGetTargetEntityTypeBuilder(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Type targetClrType, System.Reflection.MemberInfo navigationMemberInfo, bool shouldCreate = true);"
@@ -15069,17 +14435,6 @@
     },
     {
       "Type": "abstract class Microsoft.EntityFrameworkCore.Metadata.Builders.InvertibleRelationshipBuilderBase : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder>",
-      "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        }
-      ],
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType DeclaringEntityType { get; }"
@@ -16791,18 +16146,9 @@
       "Methods": [
         {
           "Member": "JsonBoolReaderWriter();"
-        },
-        {
-          "Member": "override bool FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, bool value);"
         }
       ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonBoolReaderWriter Instance { get; }"
         }
@@ -16810,18 +16156,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonByteArrayReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<byte[]>",
-      "Methods": [
-        {
-          "Member": "override byte[] FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, byte[] value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonByteArrayReaderWriter Instance { get; }"
         }
@@ -16829,18 +16164,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonByteReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<byte>",
-      "Methods": [
-        {
-          "Member": "override byte FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, byte value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonByteReaderWriter Instance { get; }"
         }
@@ -16851,34 +16175,12 @@
       "Methods": [
         {
           "Member": "JsonCastValueReaderWriter(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter providerReaderWriter);"
-        },
-        {
-          "Member": "override TConverted FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, TConverted value);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
         }
       ]
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonCharReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<char>",
-      "Methods": [
-        {
-          "Member": "override char FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, char value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonCharReaderWriter Instance { get; }"
         }
@@ -16889,17 +16191,6 @@
       "Methods": [
         {
           "Member": "JsonCollectionOfNullableStructsReaderWriter(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TElement> elementReaderWriter);"
-        },
-        {
-          "Member": "override System.Collections.Generic.IEnumerable<TElement?> FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, System.Collections.Generic.IEnumerable<TElement?> value);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
         }
       ]
     },
@@ -16908,17 +16199,6 @@
       "Methods": [
         {
           "Member": "JsonCollectionOfReferencesReaderWriter(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter elementReaderWriter);"
-        },
-        {
-          "Member": "override object FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, object? value);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
         }
       ]
     },
@@ -16927,17 +16207,6 @@
       "Methods": [
         {
           "Member": "JsonCollectionOfStructsReaderWriter(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TElement> elementReaderWriter);"
-        },
-        {
-          "Member": "override System.Collections.Generic.IEnumerable<TElement> FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, System.Collections.Generic.IEnumerable<TElement> value);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
         }
       ]
     },
@@ -16946,37 +16215,12 @@
       "Methods": [
         {
           "Member": "JsonConvertedValueReaderWriter(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TProvider> providerReaderWriter, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter converter);"
-        },
-        {
-          "Member": "override TModel FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, TModel value);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
-        {
-          "Member": "override bool HandlesNullWrites { get; }"
         }
       ]
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonDateOnlyReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<System.DateOnly>",
-      "Methods": [
-        {
-          "Member": "override System.DateOnly FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, System.DateOnly value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonDateOnlyReaderWriter Instance { get; }"
         }
@@ -16984,18 +16228,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonDateTimeOffsetReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<System.DateTimeOffset>",
-      "Methods": [
-        {
-          "Member": "override System.DateTimeOffset FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, System.DateTimeOffset value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonDateTimeOffsetReaderWriter Instance { get; }"
         }
@@ -17003,18 +16236,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonDateTimeReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<System.DateTime>",
-      "Methods": [
-        {
-          "Member": "override System.DateTime FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, System.DateTime value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonDateTimeReaderWriter Instance { get; }"
         }
@@ -17022,18 +16244,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonDecimalReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<decimal>",
-      "Methods": [
-        {
-          "Member": "override decimal FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, decimal value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonDecimalReaderWriter Instance { get; }"
         }
@@ -17041,18 +16252,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonDoubleReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<double>",
-      "Methods": [
-        {
-          "Member": "override double FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, double value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonDoubleReaderWriter Instance { get; }"
         }
@@ -17060,18 +16260,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonFloatReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<float>",
-      "Methods": [
-        {
-          "Member": "override float FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, float value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonFloatReaderWriter Instance { get; }"
         }
@@ -17079,18 +16268,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonGuidReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<System.Guid>",
-      "Methods": [
-        {
-          "Member": "override System.Guid FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, System.Guid value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonGuidReaderWriter Instance { get; }"
         }
@@ -17098,18 +16276,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonInt16ReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<short>",
-      "Methods": [
-        {
-          "Member": "override short FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, short value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonInt16ReaderWriter Instance { get; }"
         }
@@ -17117,18 +16284,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonInt32ReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<int>",
-      "Methods": [
-        {
-          "Member": "override int FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, int value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonInt32ReaderWriter Instance { get; }"
         }
@@ -17136,18 +16292,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonInt64ReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<long>",
-      "Methods": [
-        {
-          "Member": "override long FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, long value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonInt64ReaderWriter Instance { get; }"
         }
@@ -17155,18 +16300,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonNullReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<object?>",
-      "Methods": [
-        {
-          "Member": "override object? FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, object? value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonNullReaderWriter Instance { get; }"
         }
@@ -17199,18 +16333,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonSByteReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<sbyte>",
-      "Methods": [
-        {
-          "Member": "override sbyte FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, sbyte value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonSByteReaderWriter Instance { get; }"
         }
@@ -17218,18 +16341,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonSignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum>",
-      "Methods": [
-        {
-          "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, TEnum value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonSignedEnumReaderWriter<TEnum> Instance { get; }"
         }
@@ -17237,18 +16349,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonStringReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<string>",
-      "Methods": [
-        {
-          "Member": "override string FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, string value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonStringReaderWriter Instance { get; }"
         }
@@ -17256,18 +16357,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonTimeOnlyReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<System.TimeOnly>",
-      "Methods": [
-        {
-          "Member": "override System.TimeOnly FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, System.TimeOnly value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonTimeOnlyReaderWriter Instance { get; }"
         }
@@ -17275,18 +16365,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonTimeSpanReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<System.TimeSpan>",
-      "Methods": [
-        {
-          "Member": "override System.TimeSpan FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, System.TimeSpan value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonTimeSpanReaderWriter Instance { get; }"
         }
@@ -17294,18 +16373,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUInt16ReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<ushort>",
-      "Methods": [
-        {
-          "Member": "override ushort FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, ushort value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonUInt16ReaderWriter Instance { get; }"
         }
@@ -17313,18 +16381,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUInt32ReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<uint>",
-      "Methods": [
-        {
-          "Member": "override uint FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, uint value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonUInt32ReaderWriter Instance { get; }"
         }
@@ -17332,18 +16389,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUInt64ReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<ulong>",
-      "Methods": [
-        {
-          "Member": "override ulong FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, ulong value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonUInt64ReaderWriter Instance { get; }"
         }
@@ -17351,18 +16397,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUnsignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum>",
-      "Methods": [
-        {
-          "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, TEnum value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonUnsignedEnumReaderWriter<TEnum> Instance { get; }"
         }
@@ -17410,21 +16445,10 @@
           "Member": "JsonValueReaderWriter();"
         },
         {
-          "Member": "sealed override object FromJson(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
           "Member": "abstract TValue FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
         },
         {
-          "Member": "sealed override void ToJson(System.Text.Json.Utf8JsonWriter writer, object? value);"
-        },
-        {
           "Member": "abstract void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, TValue value);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "sealed override System.Type ValueType { get; }"
         }
       ]
     },
@@ -17451,39 +16475,19 @@
           "Member": "Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriterSourceDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriterSourceDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriterSourceDependencies? left, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriterSourceDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriterSourceDependencies? left, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriterSourceDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonWarningEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum> where TEnum : struct, System.Enum",
-      "Methods": [
-        {
-          "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, TEnum value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonWarningEnumReaderWriter<TEnum> Instance { get; }"
         }
@@ -17503,12 +16507,6 @@
         },
         {
           "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.KeyAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.KeyAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -17516,16 +16514,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder>",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder HasAnnotation(string annotation, object? value);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ],
       "Properties": [
@@ -17659,9 +16648,6 @@
       "Methods": [
         {
           "Member": "KeylessAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.KeylessAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
         }
       ]
     },
@@ -17670,18 +16656,6 @@
       "Methods": [
         {
           "Member": "LazyLoaderParameterBindingFactory(Microsoft.EntityFrameworkCore.Metadata.LazyLoaderParameterBindingFactoryDependencies dependencies);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding Bind(Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, System.Type parameterType, string parameterName);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding Bind(Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, System.Type parameterType, string parameterName);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding Bind(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType, System.Type parameterType, string parameterName);"
-        },
-        {
-          "Member": "override bool CanBind(System.Type parameterType, string parameterName);"
         }
       ],
       "Properties": [
@@ -17697,22 +16671,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.LazyLoaderParameterBindingFactoryDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.LazyLoaderParameterBindingFactoryDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.LazyLoaderParameterBindingFactoryDependencies? left, Microsoft.EntityFrameworkCore.Metadata.LazyLoaderParameterBindingFactoryDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.LazyLoaderParameterBindingFactoryDependencies? left, Microsoft.EntityFrameworkCore.Metadata.LazyLoaderParameterBindingFactoryDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -17747,27 +16712,15 @@
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.LiftableConstantExpression Update(System.Linq.Expressions.LambdaExpression resolverExpression);",
           "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
-          "Stage": "Experimental"
         }
       ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }",
-          "Stage": "Experimental"
-        },
         {
           "Member": "virtual System.Linq.Expressions.ConstantExpression OriginalExpression { get; }",
           "Stage": "Experimental"
         },
         {
           "Member": "virtual System.Linq.Expressions.LambdaExpression ResolverExpression { get; }",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Type Type { get; }",
           "Stage": "Experimental"
         },
         {
@@ -17789,15 +16742,7 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);",
-          "Stage": "Experimental"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.LiftableConstantExpressionDependencies? other);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override int GetHashCode();",
           "Stage": "Experimental"
         },
         {
@@ -17806,10 +16751,6 @@
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.LiftableConstantExpressionDependencies? left, Microsoft.EntityFrameworkCore.Query.LiftableConstantExpressionDependencies? right);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override string ToString();",
           "Stage": "Experimental"
         }
       ]
@@ -17898,14 +16839,6 @@
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression LiftConstants(System.Linq.Expressions.Expression expression, System.Linq.Expressions.ParameterExpression contextParameter, System.Collections.Generic.HashSet<string> variableNames);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitBinary(System.Linq.Expressions.BinaryExpression binaryExpression);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitExtension(System.Linq.Expressions.Expression node);",
           "Stage": "Experimental"
         }
       ],
@@ -18060,9 +16993,6 @@
         },
         {
           "Member": "static implicit operator string(Microsoft.EntityFrameworkCore.Diagnostics.LoggerCategory<T> loggerCategory);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -18179,9 +17109,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.MaterializeCollectionNavigationExpression Update(System.Linq.Expressions.Expression subquery);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
@@ -18189,13 +17116,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.INavigationBase Navigation { get; }"
         },
         {
-          "Member": "sealed override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
-        {
           "Member": "virtual System.Linq.Expressions.Expression Subquery { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -18220,15 +17141,7 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);",
-          "Stage": "Experimental"
-        },
-        {
           "Member": "virtual bool Equals(Microsoft.EntityFrameworkCore.Query.MaterializerLiftableConstantContext? other);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override int GetHashCode();",
           "Stage": "Experimental"
         },
         {
@@ -18241,10 +17154,6 @@
         },
         {
           "Member": "virtual bool PrintMembers(System.Text.StringBuilder builder);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override string ToString();",
           "Stage": "Experimental"
         }
       ],
@@ -18264,12 +17173,6 @@
       "Methods": [
         {
           "Member": "MaxLengthAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.MaxLengthAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.MaxLengthAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -18308,22 +17211,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -18337,17 +17231,6 @@
     },
     {
       "Type": "abstract class Microsoft.EntityFrameworkCore.ChangeTracking.MemberEntry : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IInternalEntry>",
-      "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        }
-      ],
       "Properties": [
         {
           "Member": "virtual object? CurrentValue { get; set; }"
@@ -18382,13 +17265,7 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.MemberIdentity Create(System.Reflection.MemberInfo? memberInfo);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.MemberIdentity other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.MemberIdentity left, Microsoft.EntityFrameworkCore.Metadata.MemberIdentity right);"
@@ -18530,13 +17407,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.ModelBuilder Entity(string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder> buildAction);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IModel FinalizeModel();"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ModelBuilder HasAnnotation(string annotation, object? value);"
@@ -18575,9 +17446,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.ModelBuilder SharedTypeEntity(string name, System.Type type, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder> buildAction);"
         },
         {
-          "Member": "override string? ToString();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ModelBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
         }
       ],
@@ -18598,12 +17466,6 @@
         },
         {
           "Member": "virtual bool Equals(Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKey other);"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         }
       ]
     },
@@ -18633,22 +17495,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKeyFactoryDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKeyFactoryDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKeyFactoryDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKeyFactoryDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKeyFactoryDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelCacheKeyFactoryDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -18696,12 +17549,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.ModelConfigurationBuilder DefaultTypeMapping(System.Type scalarType, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder> buildAction);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ModelConfigurationBuilder IgnoreAny<T>();"
         },
         {
@@ -18718,9 +17565,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ModelConfigurationBuilder Properties(System.Type propertyType, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.PropertiesConfigurationBuilder> buildAction);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ],
       "Properties": [
@@ -18736,22 +17580,13 @@
           "Member": "Microsoft.EntityFrameworkCore.ModelCreationDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.ModelCreationDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.ModelCreationDependencies? left, Microsoft.EntityFrameworkCore.ModelCreationDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.ModelCreationDependencies? left, Microsoft.EntityFrameworkCore.ModelCreationDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -18795,22 +17630,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizerDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizerDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizerDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizerDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizerDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelCustomizerDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -18821,22 +17647,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Infrastructure.ModelDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Infrastructure.ModelDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Infrastructure.ModelDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Infrastructure.ModelDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -18871,22 +17688,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializerDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializerDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializerDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializerDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializerDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializerDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -18927,22 +17735,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Infrastructure.ModelSourceDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Infrastructure.ModelSourceDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Infrastructure.ModelSourceDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelSourceDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Infrastructure.ModelSourceDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelSourceDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -19091,22 +17890,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -19182,12 +17972,6 @@
       "Methods": [
         {
           "Member": "NavigationBackingFieldAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessNavigationAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionNavigationBuilder navigationBuilder, Microsoft.EntityFrameworkCore.BackingFieldAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionNavigationBuilder> context);"
-        },
-        {
-          "Member": "override void ProcessSkipNavigationAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionSkipNavigationBuilder skipNavigationBuilder, Microsoft.EntityFrameworkCore.BackingFieldAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionSkipNavigationBuilder> context);"
         }
       ]
     },
@@ -19214,12 +17998,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder EnableLazyLoading(bool lazyLoadingEnabled = true);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder HasAnnotation(string annotation, object? value);"
         },
         {
@@ -19227,9 +18005,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder IsRequired(bool required = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -19251,12 +18026,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder<TSource, TTarget> EnableLazyLoading(bool lazyLoadingEnabled = true);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder<TSource, TTarget> HasAnnotation(string annotation, object? value);"
         },
         {
@@ -19264,9 +18033,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder<TSource, TTarget> IsRequired(bool required = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.NavigationBuilder<TSource, TTarget> UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -19359,22 +18125,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies? left, Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies? left, Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -19496,9 +18253,6 @@
       "Methods": [
         {
           "Member": "NotMappedTypeAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
         }
       ]
     },
@@ -19545,12 +18299,6 @@
       "Methods": [
         {
           "Member": "ObjectArrayParameterBinding(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.ParameterBinding> bindings);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression BindToParameter(Microsoft.EntityFrameworkCore.Metadata.ParameterBindingInfo bindingInfo);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding With(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[] consumedProperties);"
         }
       ]
     },
@@ -19656,28 +18404,11 @@
       "Methods": [
         {
           "Member": "OwnedAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessComplexTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, Microsoft.EntityFrameworkCore.OwnedAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
-        },
-        {
-          "Member": "override void ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.OwnedAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
         }
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedEntityTypeBuilder",
-      "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        }
-      ]
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedEntityTypeBuilder"
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedEntityTypeBuilder<T> : Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedEntityTypeBuilder"
@@ -20035,15 +18766,6 @@
         },
         {
           "Member": "ParameterQueryRootExpression(System.Type elementType, Microsoft.EntityFrameworkCore.Query.QueryParameterExpression queryParameterExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression DetachQueryProvider();"
-        },
-        {
-          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
@@ -20131,12 +18853,6 @@
       "Methods": [
         {
           "Member": "PrecisionAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.PrecisionAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.PrecisionAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -20148,12 +18864,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder ElementType(System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder> builderAction);"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder HasAnnotation(string annotation, object? value);"
@@ -20187,9 +18897,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder IsUnicode(bool unicode = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -20294,15 +19001,6 @@
         },
         {
           "Member": "ProjectionBindingExpression(System.Linq.Expressions.Expression queryExpression, int index, System.Type type);"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
@@ -20310,16 +19008,10 @@
           "Member": "virtual int? Index { get; }"
         },
         {
-          "Member": "sealed override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.ProjectionMember? ProjectionMember { get; }"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression QueryExpression { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -20333,16 +19025,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.ProjectionMember Append(System.Reflection.MemberInfo member);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "Microsoft.EntityFrameworkCore.Query.ProjectionMember Prepend(System.Reflection.MemberInfo member);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -20356,12 +19039,6 @@
       "Methods": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertiesConfigurationBuilder AreUnicode(bool unicode = true);"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertiesConfigurationBuilder HaveAnnotation(string annotation, object value);"
@@ -20395,9 +19072,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertiesConfigurationBuilder HaveSentinel(object? sentinel);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ]
     },
@@ -20526,12 +19200,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder>",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder HasAnnotation(string annotation, object? value);"
         },
         {
@@ -20614,9 +19282,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder IsUnicode(bool unicode = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder UsePropertyAccessMode(Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode);"
@@ -20834,9 +19499,6 @@
           "Member": "virtual bool IsLoaded { get; set; }"
         },
         {
-          "Member": "override bool IsModified { get; set; }"
-        },
-        {
           "Member": "virtual bool IsTemporary { get; set; }"
         },
         {
@@ -20879,12 +19541,6 @@
       "Methods": [
         {
           "Member": "PropertyParameterBinding(Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression BindToParameter(Microsoft.EntityFrameworkCore.Metadata.ParameterBindingInfo bindingInfo);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ParameterBinding With(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[] consumedProperties);"
         }
       ]
     },
@@ -20936,12 +19592,6 @@
           "Member": "abstract Microsoft.EntityFrameworkCore.ChangeTracking.PropertyValues Clone();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "abstract TValue GetValue<TValue>(string propertyName);"
         },
         {
@@ -20958,9 +19608,6 @@
         },
         {
           "Member": "abstract object ToObject();"
-        },
-        {
-          "Member": "override string? ToString();"
         },
         {
           "Member": "virtual bool TryGetValue<TValue>(string propertyName, out TValue value);"
@@ -21013,22 +19660,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies? left, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies? left, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies With(Microsoft.EntityFrameworkCore.Infrastructure.ICurrentDbContext currentContext);"
@@ -21443,15 +20081,6 @@
         },
         {
           "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateWhere(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression predicate);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitExtension(System.Linq.Expressions.Expression extensionExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMember(System.Linq.Expressions.MemberExpression memberExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMethodCall(System.Linq.Expressions.MethodCallExpression methodCallExpression);"
         }
       ],
       "Properties": [
@@ -21479,22 +20108,13 @@
           "Member": "void Deconstruct(out System.Linq.Expressions.LambdaExpression PropertySelector, out System.Linq.Expressions.Expression ValueExpression);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter? left, Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter? left, Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -21513,22 +20133,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitorDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitorDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -21617,22 +20228,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.QueryCompilationContextDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.QueryCompilationContextDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.QueryCompilationContextDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryCompilationContextDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.QueryCompilationContextDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryCompilationContextDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -21730,22 +20332,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.QueryContextDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.QueryContextDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.QueryContextDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryContextDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.QueryContextDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryContextDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -21812,12 +20405,6 @@
         },
         {
           "Member": "System.Linq.Expressions.Expression Rewrite(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel model, System.Linq.Expressions.Expression expression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMember(System.Linq.Expressions.MemberExpression memberExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMethodCall(System.Linq.Expressions.MethodCallExpression methodCallExpression);"
         }
       ]
     },
@@ -21835,16 +20422,7 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
@@ -21856,13 +20434,7 @@
           "Member": "virtual string Name { get; }"
         },
         {
-          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ParameterTranslationMode? TranslationMode { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -21879,33 +20451,15 @@
           "Member": "abstract System.Linq.Expressions.Expression DetachQueryProvider();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "abstract void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
         {
-          "Member": "override bool CanReduce { get; }"
-        },
-        {
           "Member": "virtual System.Type ElementType { get; }"
         },
         {
-          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.IAsyncQueryProvider? QueryProvider { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -21920,9 +20474,6 @@
         },
         {
           "Member": "virtual bool ShouldConvertToParameterQueryRoot(Microsoft.EntityFrameworkCore.Query.QueryParameterExpression queryParameterExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMethodCall(System.Linq.Expressions.MethodCallExpression methodCallExpression);"
         }
       ]
     },
@@ -21974,22 +20525,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.QueryTranslationPostprocessorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.QueryTranslationPostprocessorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.QueryTranslationPostprocessorDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryTranslationPostprocessorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.QueryTranslationPostprocessorDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryTranslationPostprocessorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -22029,22 +20571,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.QueryTranslationPreprocessorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.QueryTranslationPreprocessorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.QueryTranslationPreprocessorDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryTranslationPreprocessorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.QueryTranslationPreprocessorDependencies? left, Microsoft.EntityFrameworkCore.Query.QueryTranslationPreprocessorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -22135,27 +20668,7 @@
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.ChangeTracking.ReferenceEntry : Microsoft.EntityFrameworkCore.ChangeTracking.NavigationEntry",
-      "Methods": [
-        {
-          "Member": "override void Load();"
-        },
-        {
-          "Member": "override void Load(Microsoft.EntityFrameworkCore.ChangeTracking.LoadOptions options);"
-        },
-        {
-          "Member": "override System.Threading.Tasks.Task LoadAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override System.Threading.Tasks.Task LoadAsync(Microsoft.EntityFrameworkCore.ChangeTracking.LoadOptions options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override System.Linq.IQueryable Query();"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override bool IsModified { get; set; }"
-        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry? TargetEntry { get; }"
         }
@@ -22183,15 +20696,6 @@
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder>",
       "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder WithMany(string? collection = null);"
         },
@@ -22289,17 +20793,6 @@
     },
     {
       "Type": "abstract class Microsoft.EntityFrameworkCore.Metadata.Builders.RelationshipBuilderBase : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder>",
-      "Methods": [
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
-        }
-      ],
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey Metadata { get; }"
@@ -22369,15 +20862,6 @@
         },
         {
           "Member": "static System.Linq.Expressions.Expression Replace(System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression> originals, System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.Expression> replacements, System.Linq.Expressions.Expression tree);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression? Visit(System.Linq.Expressions.Expression? expression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMember(System.Linq.Expressions.MemberExpression memberExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitMethodCall(System.Linq.Expressions.MethodCallExpression methodCallExpression);"
         }
       ]
     },
@@ -22386,15 +20870,6 @@
       "Methods": [
         {
           "Member": "RequiredNavigationAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessForeignKeyPrincipalEndChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, System.Collections.Generic.IEnumerable<System.ComponentModel.DataAnnotations.RequiredAttribute>? dependentToPrincipalAttributes, System.Collections.Generic.IEnumerable<System.ComponentModel.DataAnnotations.RequiredAttribute>? principalToDependentAttributes, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
-        },
-        {
-          "Member": "override void ProcessNavigationAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionNavigationBuilder navigationBuilder, System.ComponentModel.DataAnnotations.RequiredAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionNavigationBuilder> context);"
-        },
-        {
-          "Member": "override void ProcessSkipNavigationAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionSkipNavigationBuilder skipNavigationBuilder, System.ComponentModel.DataAnnotations.RequiredAttribute attribute, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionSkipNavigationBuilder> context);"
         }
       ]
     },
@@ -22403,12 +20878,6 @@
       "Methods": [
         {
           "Member": "RequiredPropertyAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.RequiredAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.RequiredAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -22521,26 +20990,9 @@
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeComplexProperty : Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeComplexProperty, Microsoft.EntityFrameworkCore.Metadata.IComplexProperty, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyComplexProperty, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IPropertyBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimePropertyBase",
-      "Methods": [
-        {
-          "Member": "override string ToString();"
-        }
-      ],
       "Properties": [
         {
-          "Member": "override System.Type ClrType { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeComplexType ComplexType { get; }"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeBase DeclaringType { get; }"
-        },
-        {
-          "Member": "override bool IsCollection { get; }"
-        },
-        {
-          "Member": "override object? Sentinel { get; }"
         }
       ]
     },
@@ -22548,33 +21000,12 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeComplexType : Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeComplexType, Microsoft.EntityFrameworkCore.Metadata.IComplexType, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyComplexType, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTypeBase, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.ITypeBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeTypeBase",
       "Methods": [
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Internal.PropertyCounts CalculateCounts();"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase? FindMember(string name);"
-        },
-        {
-          "Member": "override System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> FindMembersInHierarchy(string name);"
-        },
-        {
-          "Member": "override System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> GetDeclaredMembers();"
-        },
-        {
-          "Member": "override System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> GetMembers();"
-        },
-        {
           "Member": "virtual void SetCounts(Microsoft.EntityFrameworkCore.Metadata.Internal.PropertyCounts value);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeComplexProperty ComplexProperty { get; }"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding? ConstructorBinding { get; set; }"
         }
       ]
     },
@@ -22591,37 +21022,17 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression Reduce();",
-          "Stage": "Experimental"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression Update(System.Linq.Expressions.Expression initializeExpression);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
           "Stage": "Experimental"
         }
       ],
       "Properties": [
-        {
-          "Member": "override bool CanReduce { get; }",
-          "Stage": "Experimental"
-        },
         {
           "Member": "virtual System.Linq.Expressions.Expression InitializeExpression { get; }",
           "Stage": "Experimental"
         },
         {
           "Member": "virtual string Name { get; }",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Type Type { get; }",
           "Stage": "Experimental"
         },
         {
@@ -22640,10 +21051,6 @@
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression Process(System.Linq.Expressions.Expression expression);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitExtension(System.Linq.Expressions.Expression node);",
           "Stage": "Experimental"
         }
       ],
@@ -22683,9 +21090,6 @@
         },
         {
           "Member": "virtual bool? IsUnicode();"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -22731,9 +21135,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeTrigger AddTrigger(string modelName);"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Internal.PropertyCounts CalculateCounts();"
-        },
-        {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey> FindDeclaredForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
@@ -22750,12 +21151,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeKey? FindKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase? FindMember(string name);"
-        },
-        {
-          "Member": "override System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> FindMembersInHierarchy(string name);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation? FindNavigation(string name);"
@@ -22785,9 +21180,6 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimeKey> GetDeclaredKeys();"
         },
         {
-          "Member": "override System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> GetDeclaredMembers();"
-        },
-        {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey> GetForeignKeys();"
         },
         {
@@ -22797,12 +21189,6 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimeKey> GetKeys();"
         },
         {
-          "Member": "override System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> GetMembers();"
-        },
-        {
-          "Member": "override System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> GetSnapshottableMembers();"
-        },
-        {
           "Member": "virtual void Reparent(Microsoft.EntityFrameworkCore.Metadata.RuntimeModel model);"
         },
         {
@@ -22810,24 +21196,11 @@
         },
         {
           "Member": "virtual void SetPrimaryKey(Microsoft.EntityFrameworkCore.Metadata.RuntimeKey key);"
-        },
-        {
-          "Member": "override string ToString();"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.InstantiationBinding? ConstructorBinding { get; set; }"
         }
       ]
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey : Microsoft.EntityFrameworkCore.Infrastructure.RuntimeAnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeForeignKey, Microsoft.EntityFrameworkCore.Metadata.IForeignKey, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
-      "Methods": [
-        {
-          "Member": "override string ToString();"
-        }
-      ],
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType DeclaringEntityType { get; }"
@@ -22845,11 +21218,6 @@
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex : Microsoft.EntityFrameworkCore.Infrastructure.RuntimeAnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.IIndex, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
-      "Methods": [
-        {
-          "Member": "override string ToString();"
-        }
-      ],
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType DeclaringEntityType { get; }"
@@ -22864,11 +21232,6 @@
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeKey : Microsoft.EntityFrameworkCore.Infrastructure.RuntimeAnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeKey, Microsoft.EntityFrameworkCore.Metadata.IKey, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
-      "Methods": [
-        {
-          "Member": "override string ToString();"
-        }
-      ],
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType DeclaringEntityType { get; }"
@@ -22979,9 +21342,6 @@
         },
         {
           "Member": "System.Linq.Expressions.Expression Rewrite(System.Linq.Expressions.Expression expression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitExtension(System.Linq.Expressions.Expression extensionExpression);"
         }
       ]
     },
@@ -22992,22 +21352,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Infrastructure.RuntimeModelDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Infrastructure.RuntimeModelDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Infrastructure.RuntimeModelDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.RuntimeModelDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Infrastructure.RuntimeModelDependencies? left, Microsoft.EntityFrameworkCore.Infrastructure.RuntimeModelDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -23024,29 +21375,12 @@
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation : Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeNavigation, Microsoft.EntityFrameworkCore.Metadata.INavigation, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyNavigation, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyNavigationBase, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.INavigationBase, Microsoft.EntityFrameworkCore.Metadata.IPropertyBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeNavigationBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimePropertyBase",
-      "Methods": [
-        {
-          "Member": "override string ToString();"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Type ClrType { get; }"
-        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType DeclaringEntityType { get; }"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeBase DeclaringType { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey ForeignKey { get; }"
-        },
-        {
-          "Member": "override bool IsCollection { get; }"
-        },
-        {
-          "Member": "override object? Sentinel { get; }"
         }
       ]
     },
@@ -23070,29 +21404,14 @@
         },
         {
           "Member": "virtual void SetSentinelFromProviderValue(object? providerValue);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
         {
-          "Member": "override System.Type ClrType { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.DebugView DebugView { get; }"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeBase DeclaringType { get; }"
-        },
-        {
-          "Member": "override bool IsCollection { get; }"
-        },
-        {
           "Member": "virtual bool IsPrimitiveCollection { get; private set; }"
-        },
-        {
-          "Member": "override object? Sentinel { get; }"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping TypeMapping { get; set; }"
@@ -23126,57 +21445,23 @@
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeServiceProperty : Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeServiceProperty, Microsoft.EntityFrameworkCore.Metadata.IServiceProperty, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyServiceProperty, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IPropertyBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimePropertyBase",
-      "Methods": [
-        {
-          "Member": "override string ToString();"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Type ClrType { get; }"
-        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType DeclaringEntityType { get; }"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeBase DeclaringType { get; }"
-        },
-        {
-          "Member": "override bool IsCollection { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.ServiceParameterBinding ParameterBinding { get; set; }"
-        },
-        {
-          "Member": "override object? Sentinel { get; }"
         }
       ]
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeSkipNavigation : Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeSkipNavigation, Microsoft.EntityFrameworkCore.Metadata.ISkipNavigation, Microsoft.EntityFrameworkCore.Metadata.IReadOnlySkipNavigation, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyNavigationBase, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.INavigationBase, Microsoft.EntityFrameworkCore.Metadata.IPropertyBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeNavigationBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimePropertyBase",
-      "Methods": [
-        {
-          "Member": "override string ToString();"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Type ClrType { get; }"
-        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType DeclaringEntityType { get; }"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeBase DeclaringType { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeSkipNavigation? Inverse { get; set; }"
-        },
-        {
-          "Member": "override bool IsCollection { get; }"
-        },
-        {
-          "Member": "override object? Sentinel { get; }"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType TargetEntityType { get; }"
@@ -23185,11 +21470,6 @@
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeTrigger : Microsoft.EntityFrameworkCore.Infrastructure.RuntimeAnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.ITrigger, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTrigger, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
-      "Methods": [
-        {
-          "Member": "override string ToString();"
-        }
-      ],
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IEntityType EntityType { get; }"
@@ -23417,14 +21697,6 @@
       "Methods": [
         {
           "Member": "SequentialGuidValueGenerator();"
-        },
-        {
-          "Member": "override System.Guid Next(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override bool GeneratesTemporaryValues { get; }"
         }
       ]
     },
@@ -23561,9 +21833,6 @@
       "Methods": [
         {
           "Member": "ServiceParameterBinding(System.Type parameterType, System.Type serviceType, params Microsoft.EntityFrameworkCore.Metadata.IPropertyBase[]? serviceProperties);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression BindToParameter(Microsoft.EntityFrameworkCore.Metadata.ParameterBindingInfo bindingInfo);"
         },
         {
           "Member": "abstract System.Linq.Expressions.Expression BindToParameter(System.Linq.Expressions.Expression materializationExpression, System.Linq.Expressions.Expression bindingInfoExpression);"
@@ -23704,9 +21973,6 @@
           "Member": "virtual void VerifyNoClientConstant(System.Linq.Expressions.Expression expression);"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression VisitExtension(System.Linq.Expressions.Expression extensionExpression);"
-        },
-        {
           "Member": "abstract System.Linq.Expressions.Expression VisitShapedQuery(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression shapedQueryExpression);"
         }
       ],
@@ -23726,22 +21992,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitorDependencies? left, Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitorDependencies? left, Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -23791,15 +22048,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression UpdateShaperExpression(System.Linq.Expressions.Expression shaperExpression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
         }
       ],
       "Properties": [
-        {
-          "Member": "sealed override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
         {
           "Member": "virtual System.Linq.Expressions.Expression QueryExpression { get; }"
         },
@@ -23808,9 +22059,6 @@
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression ShaperExpression { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -23913,9 +22161,6 @@
       "Methods": [
         {
           "Member": "StringLengthAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.StringLengthAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -24146,14 +22391,6 @@
       "Methods": [
         {
           "Member": "StringValueGenerator();"
-        },
-        {
-          "Member": "override string Next(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "override bool GeneratesTemporaryValues { get; }"
         }
       ]
     },
@@ -24170,22 +22407,13 @@
           "Member": "void Deconstruct(out Microsoft.EntityFrameworkCore.Metadata.ITypeBase StructuralType, out string InstanceName, out System.Type ClrType, out bool IsNullable, out Microsoft.EntityFrameworkCore.QueryTrackingBehavior? QueryTrackingBehavior);"
         },
         {
-          "Member": "override bool Equals(object obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.StructuralTypeMaterializerSourceParameters other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.StructuralTypeMaterializerSourceParameters left, Microsoft.EntityFrameworkCore.Query.StructuralTypeMaterializerSourceParameters right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.StructuralTypeMaterializerSourceParameters left, Microsoft.EntityFrameworkCore.Query.StructuralTypeMaterializerSourceParameters right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -24231,9 +22459,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.StructuralTypeShaperExpression Update(System.Linq.Expressions.Expression valueBufferExpression);"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.StructuralTypeShaperExpression WithType(Microsoft.EntityFrameworkCore.Metadata.ITypeBase type);"
         }
       ],
@@ -24245,13 +22470,7 @@
           "Member": "virtual System.Linq.Expressions.LambdaExpression MaterializationCondition { get; }"
         },
         {
-          "Member": "sealed override System.Linq.Expressions.ExpressionType NodeType { get; }"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.ITypeBase StructuralType { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression ValueBufferExpression { get; }"
@@ -24264,11 +22483,6 @@
         {
           "Member": "TemporaryGuidValueGenerator();"
         }
-      ],
-      "Properties": [
-        {
-          "Member": "override bool GeneratesTemporaryValues { get; }"
-        }
       ]
     },
     {
@@ -24276,9 +22490,6 @@
       "Methods": [
         {
           "Member": "TemporaryNumberValueGeneratorFactory();"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator Create(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.ITypeBase entityType);"
         }
       ]
     },
@@ -24363,9 +22574,6 @@
       "Methods": [
         {
           "Member": "TimestampAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.ComponentModel.DataAnnotations.TimestampAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -24398,16 +22606,7 @@
           "Member": "TriggerBuilder(Microsoft.EntityFrameworkCore.Metadata.IMutableTrigger trigger);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TriggerBuilder HasAnnotation(string annotation, object? value);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ],
       "Properties": [
@@ -24585,12 +22784,6 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder",
       "Methods": [
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder HasAnnotation(string annotation, object value);"
         },
         {
@@ -24613,9 +22806,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder IsUnicode(bool unicode = true);"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ]
     },
@@ -24679,22 +22869,13 @@
           "Member": "TypeMappingInfo();"
         },
         {
-          "Member": "override bool Equals(object obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo left, Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo left, Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo right);"
-        },
-        {
-          "Member": "override string ToString();"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo WithConverter(in Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo converterInfo);"
@@ -24738,24 +22919,6 @@
       "Methods": [
         {
           "Member": "TypeMappingSource(Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies dependencies);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(Microsoft.EntityFrameworkCore.Metadata.IElementType elementType);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(System.Type type);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(System.Type type, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? elementMapping = null);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(System.Reflection.MemberInfo member);"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(System.Reflection.MemberInfo member, Microsoft.EntityFrameworkCore.Metadata.IModel model, bool useAttributes);"
         }
       ]
     },
@@ -24806,22 +22969,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies? left, Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies? left, Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -24841,9 +22995,6 @@
       "Methods": [
         {
           "Member": "UnicodeAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.UnicodeAttribute attribute, System.Reflection.MemberInfo clrMember, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext context);"
         }
       ]
     },
@@ -25020,13 +23171,7 @@
           "Member": "ValueBuffer();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.ValueBuffer other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         }
       ],
       "Fields": [
@@ -25117,19 +23262,10 @@
           "Member": "static System.Linq.Expressions.Expression<System.Func<T, T>> CreateDefaultSnapshotExpression(bool favorStructuralComparisons);"
         },
         {
-          "Member": "override bool Equals(object? left, object? right);"
-        },
-        {
           "Member": "virtual bool Equals(T? left, T? right);"
         },
         {
-          "Member": "override int GetHashCode(object? instance);"
-        },
-        {
           "Member": "virtual int GetHashCode(T instance);"
-        },
-        {
-          "Member": "override object? Snapshot(object? instance);"
         },
         {
           "Member": "virtual T Snapshot(T instance);"
@@ -25149,13 +23285,7 @@
           "Member": "virtual System.Linq.Expressions.Expression<System.Func<T, int>> HashCodeExpression { get; }"
         },
         {
-          "Member": "override System.Linq.Expressions.LambdaExpression ObjectEqualsExpression { get; }"
-        },
-        {
           "Member": "virtual System.Linq.Expressions.Expression<System.Func<T, T>> SnapshotExpression { get; }"
-        },
-        {
-          "Member": "override System.Type Type { get; }"
         }
       ]
     },
@@ -25223,34 +23353,16 @@
       ],
       "Properties": [
         {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpressionWithoutMappingHints { get; }"
-        },
-        {
-          "Member": "override System.Func<object?, object?> ConvertFromProvider { get; }"
-        },
-        {
           "Member": "virtual System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> ConvertFromProviderExpression { get; }"
         },
         {
           "Member": "virtual System.Func<TProvider, TModel> ConvertFromProviderTyped { get; }"
         },
         {
-          "Member": "override System.Func<object?, object?> ConvertToProvider { get; }"
-        },
-        {
           "Member": "virtual System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> ConvertToProviderExpression { get; }"
         },
         {
           "Member": "virtual System.Func<TModel, TProvider> ConvertToProviderTyped { get; }"
-        },
-        {
-          "Member": "override System.Type ModelClrType { get; }"
-        },
-        {
-          "Member": "override System.Type ProviderClrType { get; }"
         }
       ]
     },
@@ -25318,22 +23430,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterSelectorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterSelectorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterSelectorDependencies? left, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterSelectorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterSelectorDependencies? left, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterSelectorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -25446,12 +23549,6 @@
         },
         {
           "Member": "virtual System.Threading.Tasks.ValueTask<TValue> NextAsync(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
-        },
-        {
-          "Member": "override object? NextValue(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry);"
-        },
-        {
-          "Member": "override System.Threading.Tasks.ValueTask<object?> NextValueAsync(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
         }
       ]
     },
@@ -25478,22 +23575,13 @@
           "Member": "Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCacheDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCacheDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCacheDependencies? left, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCacheDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCacheDependencies? left, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCacheDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -25540,22 +23628,13 @@
           "Member": "Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelectorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelectorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelectorDependencies? left, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelectorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelectorDependencies? left, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelectorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
