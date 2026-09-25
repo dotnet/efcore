@@ -21,6 +21,9 @@ public partial class InternalEntryBase
     internal static readonly bool UseOldBehavior38299 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38299", out var enabled) && enabled;
 
+    internal static readonly bool UseOldBehavior39073 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39073", out var enabled) && enabled;
+
     private struct InternalComplexCollectionEntry(InternalEntryBase entry, IComplexProperty complexCollection)
     {
         private static readonly bool UseOldBehavior37585 =
@@ -46,7 +49,8 @@ public partial class InternalEntryBase
                 && (defaultState != EntityState.Deleted || original)
                 && (defaultState != EntityState.Added || !original))
             {
-                for (var i = 0; i < collection.Count; i++)
+                var count = UseOldBehavior39073 ? entries.Count : collection.Count;
+                for (var i = 0; i < count; i++)
                 {
                     if (entries[i] != null)
                     {
@@ -413,8 +417,12 @@ public partial class InternalEntryBase
             var defaultState = newState == EntityState.Modified && !modifyProperties
                 ? EntityState.Unchanged
                 : newState;
-            var originalEntries = GetOrCreateEntries(original: true, defaultState).Take(originalCollectionCount).ToArray();
-            var currentEntries = GetOrCreateEntries(original: false, defaultState).Take(currentCollectionCount).ToArray();
+            var originalEntries = GetOrCreateEntries(original: true, defaultState)
+                .Take(UseOldBehavior39073 ? int.MaxValue : originalCollectionCount)
+                .ToArray();
+            var currentEntries = GetOrCreateEntries(original: false, defaultState)
+                .Take(UseOldBehavior39073 ? int.MaxValue : currentCollectionCount)
+                .ToArray();
             if (setOriginalState)
             {
                 foreach (var originalEntry in originalEntries)

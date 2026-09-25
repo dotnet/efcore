@@ -1166,7 +1166,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// </summary>
     public IEnumerable<InternalComplexEntry> GetFlattenedComplexEntries()
         => _complexCollectionEntries
-            .SelectMany(c => c.GetOrCreateEntries(original: false).Take(c.GetCollection(original: false)?.Count ?? 0))
+            .SelectMany(
+                c => c.GetOrCreateEntries(original: false)
+                    .Take(UseOldBehavior39073 ? int.MaxValue : c.GetCollection(original: false)?.Count ?? 0))
             .Where(e => e != null)!;
 
     /// <summary>
