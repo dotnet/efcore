@@ -1165,7 +1165,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public IEnumerable<InternalComplexEntry> GetFlattenedComplexEntries()
-        => _complexCollectionEntries.SelectMany(c => c.GetOrCreateEntries(original: false)).Where(e => e != null)!;
+        => _complexCollectionEntries
+            .SelectMany(c => c.GetOrCreateEntries(original: false).Take(c.GetCollection(original: false)?.Count ?? 0))
+            .Where(e => e != null)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

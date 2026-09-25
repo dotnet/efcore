@@ -46,7 +46,7 @@ public partial class InternalEntryBase
                 && (defaultState != EntityState.Deleted || original)
                 && (defaultState != EntityState.Added || !original))
             {
-                for (var i = 0; i < entries.Count; i++)
+                for (var i = 0; i < collection.Count; i++)
                 {
                     if (entries[i] != null)
                     {
@@ -151,13 +151,15 @@ public partial class InternalEntryBase
             return _entries;
         }
 
-        private IList? GetCollection(bool original)
+        public IList? GetCollection(bool original)
         {
             if (!UseOldBehavior37585
                 && _containingEntry is InternalComplexEntry complexEntry)
             {
-                if (!IsInCollection(complexEntry, original))
+                var ordinal = original ? complexEntry.OriginalOrdinal : complexEntry.Ordinal;
+                if (ordinal < 0)
                 {
+                    // Ordinal is -1 (entry is deleted/added), so the collection doesn't exist.
                     return null;
                 }
             }
@@ -165,23 +167,6 @@ public partial class InternalEntryBase
             return original
                 ? (IList?)_containingEntry.GetOriginalValue(_complexCollection)
                 : (IList?)_containingEntry[_complexCollection];
-        }
-
-        private static bool IsInCollection(InternalComplexEntry entry, bool original)
-        {
-            var ordinal = original ? entry.OriginalOrdinal : entry.Ordinal;
-            if (ordinal < 0
-                || (entry.ContainingEntry is InternalComplexEntry containingEntry
-                    && !IsInCollection(containingEntry, original)))
-            {
-                return false;
-            }
-
-            var collection = original
-                ? (IList?)entry.ContainingEntry.GetOriginalValue(entry.ComplexProperty)
-                : (IList?)entry.ContainingEntry[entry.ComplexProperty];
-
-            return ordinal < (collection?.Count ?? 0);
         }
 
         public void AcceptChanges()
@@ -420,14 +405,16 @@ public partial class InternalEntryBase
                 setOriginalState = true;
             }
 
-            EnsureCapacity(GetCollection(original: true)?.Count ?? 0, original: true, trim: false);
-            EnsureCapacity(GetCollection(original: false)?.Count ?? 0, original: false, trim: false);
+            var originalCollectionCount = GetCollection(original: true)?.Count ?? 0;
+            var currentCollectionCount = GetCollection(original: false)?.Count ?? 0;
+            EnsureCapacity(originalCollectionCount, original: true, trim: false);
+            EnsureCapacity(currentCollectionCount, original: false, trim: false);
 
             var defaultState = newState == EntityState.Modified && !modifyProperties
                 ? EntityState.Unchanged
                 : newState;
-            var originalEntries = GetOrCreateEntries(original: true, defaultState).ToArray();
-            var currentEntries = GetOrCreateEntries(original: false, defaultState).ToArray();
+            var originalEntries = GetOrCreateEntries(original: true, defaultState).Take(originalCollectionCount).ToArray();
+            var currentEntries = GetOrCreateEntries(original: false, defaultState).Take(currentCollectionCount).ToArray();
             if (setOriginalState)
             {
                 foreach (var originalEntry in originalEntries)

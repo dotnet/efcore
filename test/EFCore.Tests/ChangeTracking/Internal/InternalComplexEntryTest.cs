@@ -771,15 +771,22 @@ public class InternalComplexEntryTest
     public void Entity_can_be_marked_modified_after_nested_complex_collection_shrinks()
     {
         var model = CreateModelWithNestedComplexCollection();
+        var complexProperty = model.FindEntityType(typeof(BlogWithNestedCollection))!
+            .FindComplexProperty(nameof(BlogWithNestedCollection.Items))!;
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
         var stateManager = serviceProvider.GetRequiredService<IStateManager>();
+        var changeDetector = serviceProvider.GetRequiredService<IChangeDetector>();
 
         var blog = new BlogWithNestedCollection
         {
             Items =
             [
                 new NestedCollectionItem { Name = "foo" },
-                new NestedCollectionItem { Name = "bar" }
+                new NestedCollectionItem
+                {
+                    Name = "bar",
+                    NestedItems = [new NestedItem { Name = "baz" }]
+                }
             ]
         };
 
@@ -791,6 +798,10 @@ public class InternalComplexEntryTest
         entityEntry.SetEntityState(EntityState.Modified);
 
         Assert.Equal(EntityState.Modified, entityEntry.EntityState);
+
+        changeDetector.DetectChanges(stateManager);
+
+        Assert.Equal(EntityState.Deleted, entityEntry.GetComplexCollectionOriginalEntry(complexProperty, 1).EntityState);
     }
 
     private static IModel CreateModel()
