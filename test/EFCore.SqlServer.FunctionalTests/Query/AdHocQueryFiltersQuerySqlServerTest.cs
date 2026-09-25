@@ -534,6 +534,20 @@ ORDER BY [e].[Id]
 """);
     }
 
+    public override async Task Non_compiled_query_with_EF_Constant_literal_in_query_filter_throws()
+    {
+        await base.Non_compiled_query_with_EF_Constant_literal_in_query_filter_throws();
+
+        AssertSql();
+    }
+
+    public override async Task Non_compiled_query_with_EF_Parameter_literal_in_query_filter_throws()
+    {
+        await base.Non_compiled_query_with_EF_Parameter_literal_in_query_filter_throws();
+
+        AssertSql();
+    }
+
     public override async Task GroupBy_aggregate_over_required_navigation_with_query_filter(bool async)
     {
         await base.GroupBy_aggregate_over_required_navigation_with_query_filter(async);
