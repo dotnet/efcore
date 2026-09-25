@@ -2126,6 +2126,61 @@ ALTER TABLE [People] ALTER COLUMN [Settings] json NOT NULL;
 """);
     }
 
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual void Create_unique_json_index_over_complex_property_member()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+
+        // Scaffolded migration code cannot contain the non-literal RelationalJsonIndex annotation;
+        // removing this filter would make CSharpMigrationOperationGenerator throw here.
+        var migrationCode = TestHelpers.CreateDesignServiceProvider().GetRequiredService<IMigrationsCodeGenerator>()
+            .GenerateMigration("Migrations", "AddJsonIndex", [operation], []);
+        Assert.DoesNotContain(RelationalAnnotationNames.JsonIndex, migrationCode);
+
+        operation.RemoveAnnotation(RelationalAnnotationNames.JsonIndex);
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_Blogs_Details_Slug] ON [Blogs]([Details]) FOR (N'$.Slug');
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonIndexBlog>(
+                e =>
+                {
+                    e.ToTable("Blogs");
+                    e.ComplexProperty(
+                        b => b.Details, cb =>
+                        {
+                            cb.ToJson().HasColumnType("json");
+                            cb.Property(i => i.Slug);
+                            cb.Property(i => i.Owner);
+                        });
+                    e.HasIndex(b => b.Details.Slug).IsUnique();
+                });
+    }
+
+    private class JsonIndexBlog
+    {
+        public int Id { get; set; }
+        public JsonIndexBlogDetails Details { get; set; } = null!;
+    }
+
+    private class JsonIndexBlogDetails
+    {
+        public string Slug { get; set; } = null!;
+        public string Owner { get; set; } = null!;
+    }
+
     private static void CreateGotModel(ModelBuilder b)
         => b.HasDefaultSchema("dbo").Entity(
             "Person", pb =>
