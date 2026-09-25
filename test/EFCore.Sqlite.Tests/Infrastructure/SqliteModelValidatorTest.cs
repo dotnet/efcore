@@ -23,6 +23,36 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
                 nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
     }
 
+    // SQLite cannot build an expression index over all elements of a JSON array, unlike other relational providers.
+    public override void Detects_index_on_complex_collection_property()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(base.Detects_index_on_complex_collection_property);
+
+        Assert.Equal(SqliteStrings.JsonIndexAllElementsNotSupported, exception.Message);
+    }
+
+    public override void Detects_index_traversing_complex_collection()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(base.Detects_index_traversing_complex_collection);
+
+        Assert.Equal(SqliteStrings.JsonIndexAllElementsNotSupported, exception.Message);
+    }
+
+    public override void Passes_on_json_path_index_in_single_complex_collection()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(base.Passes_on_json_path_index_in_single_complex_collection);
+
+        Assert.Equal(SqliteStrings.JsonIndexAllElementsNotSupported, exception.Message);
+    }
+
+    public override void Passes_on_json_path_index_through_nested_complex_collections_all_elements()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(
+            base.Passes_on_json_path_index_through_nested_complex_collections_all_elements);
+
+        Assert.Equal(SqliteStrings.JsonIndexAllElementsNotSupported, exception.Message);
+    }
+
     [Fact]
     public void Detects_schemas()
     {
