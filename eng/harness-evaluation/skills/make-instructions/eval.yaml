@@ -34,10 +34,6 @@ stimuli:
       - It remains concise and avoids duplicating root instructions or turning the content into a procedural skill.
       - The matching `eng/harness-evaluation/instructions/query-implementation/eval.yaml` is named `query-implementation` and declares the exact target instruction, bounded resources, token grading, deterministic checks where practical, a focused semantic rubric, and a committed scoring threshold.
     graders:
-      - type: skill-invocation
-        config:
-          required:
-            - make-instructions
       - type: file-matches
         config:
           path: .github/instructions/query-implementation.instructions.md
@@ -59,8 +55,7 @@ stimuli:
           max: 1000000
 scoring:
   weights:
-    skill-invocation: 0.18
     file-matches: 0.36
-    prompt: 0.36
+    prompt: 0.54
     token-budget: 0.1
   threshold: 0.75

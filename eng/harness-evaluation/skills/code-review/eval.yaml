@@ -1,0 +1,210 @@
+name: code-review
+description: Evaluates evidence-backed EF Core review behavior, conditional API and security analysis, test-gap detection, and false-positive restraint.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: ${MODEL=gpt-5.6-sol}
+  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/code-review
+stimuli:
+  - name: review-an-internal-public-api-change
+    prompt: |-
+      Before reviewing, use the available repository skill that applies to this task. Inspect src/EFCore/Metadata/Internal/EntityType.cs and review this proposed member as if it were added to EntityType:
+
+          public virtual async Task<object> ActivateAsync(
+              Type type,
+              Func<object, Task> callback)
+          {
+              var instance = Activator.CreateInstance(type)!;
+              await callback(instance);
+              return instance;
+          }
+
+      Write review.md with findings and requirements grounded by at least two relevant existing EntityType members or annotations. Do not access GitHub.
+    constraints: &review_constraints
+      max_turns: 50
+      max_tokens: 1000000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../src/EFCore/Metadata/Internal/EntityType.cs
+          dest: src/EFCore/Metadata/Internal/EntityType.cs
+    rubric:
+      - The review applies the standard internal-API warning XML documentation and does not treat the member as supported public API merely because it is public.
+      - It addresses reflection and NativeAOT using concrete EntityType annotations or an alternative design and requires ConfigureAwait(false) on the callback.
+      - It grounds the advice in at least two staged EntityType members or annotations.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*internal(?:-| )API)(?=[\s\S]*(NativeAOT|RequiresDynamicCode|DynamicallyAccessedMembers))(?=[\s\S]*ConfigureAwait\(false\))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: catch-pooled-context-reset-race
+    prompt: |-
+      Before reviewing, use the available repository skill that applies to this task. Inspect the staged pooling implementation and tests. Review a proposed change that rewrites the successful branch of DbContextPool.ReturnAsync as follows:
+
+          if (Interlocked.Increment(ref _count) <= _maxSize)
+          {
+              _pool.Enqueue(context);
+              await context.ResetStateAsync(cancellationToken).ConfigureAwait(false);
+          }
+
+      The proposed test awaits ReturnAsync to completion and then asserts that Rent returns a reset context. Write review.md. Focus on concrete correctness and whether the test exercises the risky interleaving. Do not edit source or access GitHub.
+    constraints: *review_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../src/EFCore/Internal/DbContextPool.cs
+          dest: src/EFCore/Internal/DbContextPool.cs
+        - src: ../../../../src/EFCore/Internal/IDbContextPoolable.cs
+          dest: src/EFCore/Internal/IDbContextPoolable.cs
+        - src: ../../../../src/EFCore/DbContext.cs
+          dest: src/EFCore/DbContext.cs
+        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
+          dest: test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
+    rubric:
+      - The review identifies that enqueueing before reset completes allows a concurrent renter to observe or use stale or concurrently resetting context state.
+      - It requires enqueueing only after ResetStateAsync completes and explains why the proposed await-then-rent test cannot expose the race.
+      - It proposes a focused interleaving test that blocks reset while another operation attempts to rent the same context.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*(race|concurren))(?=[\s\S]*(stale|resetting|ResetStateAsync))(?=[\s\S]*(block|interleav|rent))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: catch-untrusted-scaffolding-comment-injection
+    prompt: |-
+      Before reviewing, use the available repository skill that applies to this task. Inspect the staged threat model, scaffolding guidance, generator template, helper, and tests. Review a proposed change that replaces CSharpHelper.XmlComment's split over all C# line terminators with `comment.Split(Environment.NewLine)` and changes `XmlComment_handles_all_line_terminators` to cover only CRLF. Write review.md. Do not edit source or access GitHub.
+    constraints: *review_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../.agents/skills/scaffolding/SKILL.md
+          dest: .agents/skills/scaffolding/SKILL.md
+        - src: ../../../../docs/threat_model.md
+          dest: docs/threat_model.md
+        - src: ../../../../src/EFCore.Design/Design/Internal/CSharpHelper.cs
+          dest: src/EFCore.Design/Design/Internal/CSharpHelper.cs
+        - src: ../../../../src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.tt
+          dest: src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.tt
+        - src: ../../../../test/EFCore.Design.Tests/Design/Internal/CSharpHelperTest.cs
+          dest: test/EFCore.Design.Tests/Design/Internal/CSharpHelperTest.cs
+    rubric:
+      - The review activates the security reference and traces attacker-controlled database comments through XmlComment into generated C#.
+      - It explains that another C# line terminator can end the generated single-line comment without receiving a new `///` prefix, allowing injected source and violating the threat-model scaffolding guarantee.
+      - It requires restoring all line-terminator handling and an adversarial test that proves generated source remains inert and compilable.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*(untrusted|malicious|attacker))(?=[\s\S]*(line terminator|u2028|u2029|u0085))(?=[\s\S]*(inject|generated code|generated C#))(?=[\s\S]*threat model)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: review-breaking-dbset-public-api
+    prompt: |-
+      Before reviewing, use the available repository skill that applies to this task. Inspect the staged DbSet and DbContext Find/FindAsync API families. Review a proposed replacement of this DbSet<TEntity> member:
+
+          public virtual ValueTask<TEntity?> FindAsync(
+              object?[]? keyValues,
+              CancellationToken cancellationToken)
+
+      with:
+
+          public virtual ValueTask<TEntity?> FindAsync(
+              IEnumerable<object?> keyValues,
+              CancellationToken cancellationToken = default)
+
+      Write review.md. Review the supported API shape and compatibility. Do not edit source or access GitHub.
+    constraints: *review_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../src/EFCore/DbSet.cs
+          dest: src/EFCore/DbSet.cs
+        - src: ../../../../src/EFCore/DbContext.cs
+          dest: src/EFCore/DbContext.cs
+    rubric:
+      - The review applies supported API analysis and identifies source, binary, and virtual-override compatibility consequences of replacing the shipped signature.
+      - It identifies that retaining the proposal as an additive overload would still change existing one-argument IEnumerable calls after recompilation because the optional token changes overload selection and sequence interpretation.
+      - It recommends preserving the existing member, requires demonstrated user need before considering a revised additive overload, and checks consistency with the staged Find/FindAsync family.
+      - If it recommends an additive overload, it also requires XML documentation and focused behavioral coverage.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*(FindAsync|DbSet))(?=[\s\S]*(breaking|compatib|preserve|retain|keep))(?=[\s\S]*(virtual|override|compiled caller|MissingMethodException))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: accept-documentation-only-change
+    prompt: |-
+      Before reviewing, use the available repository skill that applies to this task. Inspect DbContext and review a proposed XML documentation-only correction that changes the visible link text `Changing tracking` to `Change tracking` while preserving the existing `https://aka.ms/efcore-docs-change-tracking` href. No signature or implementation changes are proposed. Write review.md. Do not edit source or access GitHub.
+    constraints: *review_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../src/EFCore/DbContext.cs
+          dest: src/EFCore/DbContext.cs
+    rubric:
+      - The review reports no findings because the change corrects a documentation typo without changing API shape or implementation.
+      - It does not invent a need for new behavioral tests.
+      - It does not load the API or security review reference for this documentation-only change.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)no findings
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+scoring:
+  weights:
+    file-matches: 0.18
+    prompt: 0.72
+    token-budget: 0.1
+  threshold: 0.8

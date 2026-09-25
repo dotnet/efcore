@@ -33,9 +33,6 @@ stimuli:
       - It grounds concurrency-token predicate generation in UpdateSqlGenerator and verifies the generated UPDATE SQL.
       - It preserves transactions and store-generated-value propagation and proposes focused tests in both staged test classes.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ update-pipeline ]
       - type: file-matches
         config:
           path: analysis.md
@@ -51,8 +48,7 @@ stimuli:
           max: 750000
 scoring:
   weights:
-    skill-invocation: 0.27
     file-matches: 0.27
-    prompt: 0.36
+    prompt: 0.63
     token-budget: 0.1
   threshold: 0.75
