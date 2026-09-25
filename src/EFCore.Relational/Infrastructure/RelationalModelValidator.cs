@@ -2398,7 +2398,8 @@ public class RelationalModelValidator(
                         entityType.DisplayName(), fragment.StoreObject.DisplayName()));
             }
 
-            foreach (var foreignKey in entityType.FindRowInternalForeignKeys(fragment.StoreObject))
+            var rowInternalForeignKeys = entityType.FindRowInternalForeignKeys(fragment.StoreObject).ToList();
+            foreach (var foreignKey in rowInternalForeignKeys)
             {
                 var principalMainFragment = StoreObjectIdentifier.Create(
                     foreignKey.PrincipalEntityType, fragment.StoreObject.StoreObjectType)!.Value;
@@ -2411,6 +2412,16 @@ public class RelationalModelValidator(
                             foreignKey.PrincipalEntityType.DisplayName(),
                             principalMainFragment.DisplayName()));
                 }
+            }
+
+            if (fragment.IsOptional
+                && rowInternalForeignKeys.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.EntitySplittingOptionalFragmentSharedTable(
+                        entityType.DisplayName(),
+                        fragment.StoreObject.DisplayName(),
+                        rowInternalForeignKeys[0].PrincipalEntityType.DisplayName()));
             }
 
             var propertiesFound = false;
@@ -2432,6 +2443,14 @@ public class RelationalModelValidator(
                 if (!property.IsPrimaryKey())
                 {
                     propertiesFound = true;
+
+                    if (fragment.IsOptional
+                        && !property.IsColumnNullable(fragment.StoreObject))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.EntitySplittingNonNullablePropertyOnOptionalFragment(
+                                entityType.DisplayName(), fragment.StoreObject.DisplayName(), property.Name));
+                    }
                 }
             }
 

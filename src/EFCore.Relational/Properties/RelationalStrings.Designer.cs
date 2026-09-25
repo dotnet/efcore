@@ -760,6 +760,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, storeObject, requiredDependentConfig);
 
         /// <summary>
+        ///     Entity type '{entityType}' has an optional split mapping for '{storeObject}', but the non-nullable property '{property}' is mapped to it. All non-key properties mapped to an optional split fragment must be configured as nullable for '{storeObject}'.
+        /// </summary>
+        public static string EntitySplittingNonNullablePropertyOnOptionalFragment(object? entityType, object? storeObject, object? property)
+            => string.Format(
+                GetString("EntitySplittingNonNullablePropertyOnOptionalFragment", nameof(entityType), nameof(storeObject), nameof(property)),
+                entityType, storeObject, property);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has an optional split mapping for '{storeObject}', but that store object is also shared with entity type '{principalEntityType}' via table splitting. Combining an optional split fragment with table sharing on the same store object is not supported.
+        /// </summary>
+        public static string EntitySplittingOptionalFragmentSharedTable(object? entityType, object? storeObject, object? principalEntityType)
+            => string.Format(
+                GetString("EntitySplittingOptionalFragmentSharedTable", nameof(entityType), nameof(storeObject), nameof(principalEntityType)),
+                entityType, storeObject, principalEntityType);
+
+        /// <summary>
         ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.
         /// </summary>
         public static string EntitySplittingUnmappedMainFragment(object? entityType, object? storeObject, object? storeObjectType)
@@ -894,6 +910,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ExecuteUpdateDeleteOnEntityNotMappedToTable", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     'ExecuteUpdate' is being used to set the property '{entityType}.{property}', which is mapped to the optional entity-splitting fragment '{storeObject}'. Since the row for an optional fragment isn't guaranteed to exist, 'ExecuteUpdate' on properties mapped to one is not supported. Use 'SaveChanges' instead.
+        /// </summary>
+        public static string ExecuteUpdateOnOptionalEntitySplittingFragment(object? entityType, object? property, object? storeObject)
+            => string.Format(
+                GetString("ExecuteUpdateOnOptionalEntitySplittingFragment", nameof(entityType), nameof(property), nameof(storeObject)),
+                entityType, property, storeObject);
 
         /// <summary>
         ///     'ExecuteUpdate' is being used over type '{structuralType}' which is mapped to JSON; 'ExecuteUpdate' on JSON is not supported.
@@ -3381,6 +3405,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The optionality of the entity-splitting fragment '{storeObject}' for entity type '{entityType}' changed to '{optionality}' since the last migration. This may be a purely behavioral change with no corresponding schema change; review the generated migration to confirm it reflects the intended change.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogEntitySplittingFragmentOptionalityChangedWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogEntitySplittingFragmentOptionalityChangedWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogEntitySplittingFragmentOptionalityChangedWarning,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning,
+                            _resourceManager.GetString("LogEntitySplittingFragmentOptionalityChangedWarning")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
         }
 
         /// <summary>

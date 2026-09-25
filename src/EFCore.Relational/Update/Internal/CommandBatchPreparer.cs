@@ -123,6 +123,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 continue;
             }
 
+            if (modificationCommand.EntityState == EntityState.Added
+                && modificationCommand is ModificationCommand { IsOptionalSplitFragment: true }
+                && modificationCommand.ColumnModifications.Where(m => !m.IsKey).All(m => m.Value is null))
+            {
+                continue;
+            }
+
+            if (modificationCommand.EntityState == EntityState.Deleted
+                && modificationCommand is ModificationCommand { IsOptionalSplitFragmentRowAssumedAbsent: true })
+            {
+                continue;
+            }
+
             if (!batch.TryAddCommand(modificationCommand))
             {
                 if (batch.ModificationCommands.Count == 1

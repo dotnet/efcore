@@ -51,7 +51,8 @@ internal partial class DbContextOptimizeCommand
             _suffix!.Value() ?? "",
             !_noScaffold!.HasValue(),
             _precompileQueries!.HasValue(),
-            _nativeAot!.HasValue());
+            _nativeAot!.HasValue(),
+            _langVersion!.Value());
 
         if (result != null)
         {

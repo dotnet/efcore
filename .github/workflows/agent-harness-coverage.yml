@@ -1,0 +1,72 @@
+# Validates that every repository-owned instruction, skill, agent, agentic
+# workflow, and prompt has a well-formed EF Core-grounded Vally evaluation.
+# MCPs and plugins are excluded.
+
+name: Agent Harness Coverage
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Detect harness on target branch
+        id: harness
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git cat-file -e "$BASE_SHA:eng/harness-evaluation" 2>/dev/null \
+            && echo "exists=true" >> "$GITHUB_OUTPUT" \
+            || true
+
+      - name: Harness not applicable
+        if: steps.harness.outputs.exists != 'true'
+        run: echo "No eval harness exists on the target branch."
+
+      - name: Restore repository SDK
+        if: steps.harness.outputs.exists == 'true'
+        shell: bash
+        run: |
+          ./restore.sh
+          . ./activate.sh
+          echo "DOTNET_ROOT=$PWD/.dotnet" >> "$GITHUB_ENV"
+          echo "$PWD/.dotnet" >> "$GITHUB_PATH"
+
+      - name: Set up Node.js
+        if: steps.harness.outputs.exists == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 22.12
+          cache: npm
+          cache-dependency-path: eng/harness-evaluation/package-lock.json
+
+      - name: Install evaluation tools
+        if: steps.harness.outputs.exists == 'true'
+        working-directory: eng/harness-evaluation
+        run: npm ci
+
+      - name: Audit evaluation dependencies
+        if: steps.harness.outputs.exists == 'true'
+        working-directory: eng/harness-evaluation
+        run: npm audit --audit-level=moderate
+
+      - name: Test evaluation harness
+        if: steps.harness.outputs.exists == 'true'
+        working-directory: eng/harness-evaluation
+        run: npm test
+
+      - name: Validate customization coverage and lint skills and evaluations
+        if: steps.harness.outputs.exists == 'true'
+        working-directory: eng/harness-evaluation
+        run: npm run lint
