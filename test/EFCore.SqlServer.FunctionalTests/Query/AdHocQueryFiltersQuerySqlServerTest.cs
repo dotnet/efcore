@@ -506,9 +506,9 @@ WHERE [e].[IsDraft] = CAST(0 AS bit)
         AssertSql();
     }
 
-    public override async Task Non_compiled_query_with_EF_Constant_in_query_filter_over_context_property()
+    public override async Task Query_filter_with_EF_Constant_over_context_property()
     {
-        await base.Non_compiled_query_with_EF_Constant_in_query_filter_over_context_property();
+        await base.Query_filter_with_EF_Constant_over_context_property();
 
         AssertSql(
             """
@@ -519,9 +519,9 @@ ORDER BY [e].[Id]
 """);
     }
 
-    public override async Task Non_compiled_query_with_EF_Parameter_in_query_filter_over_context_property()
+    public override async Task Query_filter_with_EF_Parameter_over_context_property()
     {
-        await base.Non_compiled_query_with_EF_Parameter_in_query_filter_over_context_property();
+        await base.Query_filter_with_EF_Parameter_over_context_property();
 
         AssertSql(
             """
@@ -534,16 +534,16 @@ ORDER BY [e].[Id]
 """);
     }
 
-    public override async Task Non_compiled_query_with_EF_Constant_literal_in_query_filter_throws()
+    public override async Task Query_filter_with_EF_Constant_literal_throws()
     {
-        await base.Non_compiled_query_with_EF_Constant_literal_in_query_filter_throws();
+        await base.Query_filter_with_EF_Constant_literal_throws();
 
         AssertSql();
     }
 
-    public override async Task Non_compiled_query_with_EF_Parameter_literal_in_query_filter_throws()
+    public override async Task Query_filter_with_EF_Parameter_literal_throws()
     {
-        await base.Non_compiled_query_with_EF_Parameter_literal_in_query_filter_throws();
+        await base.Query_filter_with_EF_Parameter_literal_throws();
 
         AssertSql();
     }

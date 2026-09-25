@@ -867,7 +867,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     #region 38151
 
     [Fact]
-    public virtual async Task Non_compiled_query_with_EF_Constant_in_query_filter_over_context_property()
+    public virtual async Task Query_filter_with_EF_Constant_over_context_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context38151_Constant>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateDbContext();
@@ -878,7 +878,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     }
 
     [Fact]
-    public virtual async Task Non_compiled_query_with_EF_Constant_literal_in_query_filter_throws()
+    public virtual async Task Query_filter_with_EF_Constant_literal_throws()
     {
         var contextFactory = await InitializeNonSharedTest<Context38151_ConstantLiteral>();
         using var context = contextFactory.CreateDbContext();
@@ -902,7 +902,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     }
 
     [Fact]
-    public virtual async Task Non_compiled_query_with_EF_Parameter_in_query_filter_over_context_property()
+    public virtual async Task Query_filter_with_EF_Parameter_over_context_property()
     {
         var contextFactory = await InitializeNonSharedTest<Context38151_Parameter>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateDbContext();
@@ -913,7 +913,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     }
 
     [Fact]
-    public virtual async Task Non_compiled_query_with_EF_Parameter_literal_in_query_filter_throws()
+    public virtual async Task Query_filter_with_EF_Parameter_literal_throws()
     {
         var contextFactory = await InitializeNonSharedTest<Context38151_ParameterLiteral>();
         using var context = contextFactory.CreateDbContext();
