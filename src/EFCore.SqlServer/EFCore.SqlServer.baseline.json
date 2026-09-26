@@ -425,7 +425,7 @@
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder ConfigureSqlEngine(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> ConfigureSqlEngine<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> ConfigureSqlEngine<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseAzureSql(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null);"
@@ -440,16 +440,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseAzureSql(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseAzureSynapse(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null);"
@@ -464,16 +464,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseAzureSynapse(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseSqlServer(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null);"
@@ -488,16 +488,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseSqlServer(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         }
       ]
     },
@@ -960,7 +960,7 @@
           "Member": "static double? VarianceSample(this Microsoft.EntityFrameworkCore.DbFunctions _, System.Collections.Generic.IEnumerable<decimal> values);"
         },
         {
-          "Member": "static double VectorDistance<T>(this Microsoft.EntityFrameworkCore.DbFunctions _, string distanceMetric, Microsoft.Data.SqlTypes.SqlVector<T> vector1, Microsoft.Data.SqlTypes.SqlVector<T> vector2);"
+          "Member": "static double VectorDistance<T>(this Microsoft.EntityFrameworkCore.DbFunctions _, string distanceMetric, Microsoft.Data.SqlTypes.SqlVector<T> vector1, Microsoft.Data.SqlTypes.SqlVector<T> vector2) where T : unmanaged;"
         }
       ]
     },
@@ -968,19 +968,19 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqlServerDbSetExtensions",
       "Methods": [
         {
-          "Member": "static System.Linq.IQueryable<TEntity> TemporalAll<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source);"
+          "Member": "static System.Linq.IQueryable<TEntity> TemporalAll<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source) where TEntity : class;"
         },
         {
-          "Member": "static System.Linq.IQueryable<TEntity> TemporalAsOf<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.DateTime utcPointInTime);"
+          "Member": "static System.Linq.IQueryable<TEntity> TemporalAsOf<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.DateTime utcPointInTime) where TEntity : class;"
         },
         {
-          "Member": "static System.Linq.IQueryable<TEntity> TemporalBetween<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.DateTime utcFrom, System.DateTime utcTo);"
+          "Member": "static System.Linq.IQueryable<TEntity> TemporalBetween<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.DateTime utcFrom, System.DateTime utcTo) where TEntity : class;"
         },
         {
-          "Member": "static System.Linq.IQueryable<TEntity> TemporalContainedIn<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.DateTime utcFrom, System.DateTime utcTo);"
+          "Member": "static System.Linq.IQueryable<TEntity> TemporalContainedIn<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.DateTime utcFrom, System.DateTime utcTo) where TEntity : class;"
         },
         {
-          "Member": "static System.Linq.IQueryable<TEntity> TemporalFromTo<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.DateTime utcFrom, System.DateTime utcTo);"
+          "Member": "static System.Linq.IQueryable<TEntity> TemporalFromTo<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.DateTime utcFrom, System.DateTime utcTo) where TEntity : class;"
         }
       ]
     },
@@ -1025,7 +1025,7 @@
           "Member": "static bool CanUseSqlOutputClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlOutputClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SqlServerFullTextIndexBuilder<TEntity> HasFullTextIndex<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Linq.Expressions.Expression<System.Func<TEntity, object?>> indexExpression);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SqlServerFullTextIndexBuilder<TEntity> HasFullTextIndex<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Linq.Expressions.Expression<System.Func<TEntity, object?>> indexExpression) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SqlServerFullTextIndexBuilder HasFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, params string[] propertyNames);"
@@ -1037,7 +1037,7 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasPeriodStart(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? propertyName, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SqlServerVectorIndexBuilder<TEntity> HasVectorIndex<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Linq.Expressions.Expression<System.Func<TEntity, object?>> indexExpression, string? name = null);",
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SqlServerVectorIndexBuilder<TEntity> HasVectorIndex<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Linq.Expressions.Expression<System.Func<TEntity, object?>> indexExpression, string? name = null) where TEntity : class;",
           "Stage": "Experimental"
         },
         {
@@ -1049,7 +1049,7 @@
           "Stage": "Obsolete"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> IsMemoryOptimized<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, bool memoryOptimized = true);",
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> IsMemoryOptimized<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, bool memoryOptimized = true) where TEntity : class;",
           "Stage": "Obsolete"
         },
         {
@@ -1057,7 +1057,7 @@
           "Stage": "Obsolete"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TEntity, TRelatedEntity> IsMemoryOptimized<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder, bool memoryOptimized = true);",
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TEntity, TRelatedEntity> IsMemoryOptimized<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder, bool memoryOptimized = true) where TEntity : class where TRelatedEntity : class;",
           "Stage": "Obsolete"
         },
         {
@@ -2536,13 +2536,13 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqlServerQueryableExtensions",
       "Methods": [
         {
-          "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.Query.FullTextSearchResult<TKey>> ContainsTable<T, TKey>(this Microsoft.EntityFrameworkCore.DbSet<T> source, string searchCondition, System.Linq.Expressions.Expression<System.Func<T, object>>? columnSelector = null, string? languageTerm = null, int? topN = null);"
+          "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.Query.FullTextSearchResult<TKey>> ContainsTable<T, TKey>(this Microsoft.EntityFrameworkCore.DbSet<T> source, string searchCondition, System.Linq.Expressions.Expression<System.Func<T, object>>? columnSelector = null, string? languageTerm = null, int? topN = null) where T : class;"
         },
         {
-          "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.Query.FullTextSearchResult<TKey>> FreeTextTable<T, TKey>(this Microsoft.EntityFrameworkCore.DbSet<T> source, string freeText, System.Linq.Expressions.Expression<System.Func<T, object>>? columnSelector = null, string? languageTerm = null, int? topN = null);"
+          "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.Query.FullTextSearchResult<TKey>> FreeTextTable<T, TKey>(this Microsoft.EntityFrameworkCore.DbSet<T> source, string freeText, System.Linq.Expressions.Expression<System.Func<T, object>>? columnSelector = null, string? languageTerm = null, int? topN = null) where T : class;"
         },
         {
-          "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.VectorSearchResult<T>> VectorSearch<T, TVector>(this Microsoft.EntityFrameworkCore.DbSet<T> source, System.Linq.Expressions.Expression<System.Func<T, TVector>> vectorPropertySelector, TVector similarTo, string metric);",
+          "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.VectorSearchResult<T>> VectorSearch<T, TVector>(this Microsoft.EntityFrameworkCore.DbSet<T> source, System.Linq.Expressions.Expression<System.Func<T, TVector>> vectorPropertySelector, TVector similarTo, string metric) where T : class where TVector : unmanaged;",
           "Stage": "Experimental"
         },
         {
@@ -2599,10 +2599,10 @@
       "Type": "static class Microsoft.Extensions.DependencyInjection.SqlServerServiceCollectionExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddAzureSql<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddAzureSql<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddAzureSynapse<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddAzureSynapse<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
           "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkAzureSql(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
@@ -2614,7 +2614,7 @@
           "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServer(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
         },
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddSqlServer<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddSqlServer<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         }
       ]
     },
@@ -2641,13 +2641,13 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder IsMemoryOptimized(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder tableBuilder, bool memoryOptimized = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> IsMemoryOptimized<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool memoryOptimized = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> IsMemoryOptimized<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool memoryOptimized = true) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder IsMemoryOptimized(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder tableBuilder, bool memoryOptimized = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IsMemoryOptimized<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool memoryOptimized = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IsMemoryOptimized<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool memoryOptimized = true) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder IsTemporal(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder tableBuilder, bool temporal = true);"
@@ -2656,10 +2656,10 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder IsTemporal(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder tableBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity> IsTemporal<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool temporal = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity> IsTemporal<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool temporal = true) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> IsTemporal<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> IsTemporal<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder IsTemporal(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder tableBuilder, bool temporal = true);"
@@ -2668,28 +2668,28 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder IsTemporal(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder tableBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> IsTemporal<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool temporal = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> IsTemporal<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool temporal = true) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IsTemporal<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IsTemporal<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder UseSqlOutputClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder tableBuilder, bool useSqlOutputClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> UseSqlOutputClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool useSqlOutputClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> UseSqlOutputClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool useSqlOutputClause = true) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder UseSqlOutputClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder tableBuilder, bool useSqlOutputClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> UseSqlOutputClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> tableBuilder, bool useSqlOutputClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> UseSqlOutputClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> tableBuilder, bool useSqlOutputClause = true) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder UseSqlOutputClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder tableBuilder, bool useSqlOutputClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> UseSqlOutputClause<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool useSqlOutputClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> UseSqlOutputClause<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool useSqlOutputClause = true) where TOwnerEntity : class where TDependentEntity : class;"
         }
       ]
     },

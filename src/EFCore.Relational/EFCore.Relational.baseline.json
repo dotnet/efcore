@@ -2445,7 +2445,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.EFExtensions",
       "Methods": [
         {
-          "Member": "static TSource MultipleParameters<TSource>(TSource argument);"
+          "Member": "static TSource MultipleParameters<TSource>(TSource argument) where TSource : notnull, System.Collections.IEnumerable;"
         }
       ]
     },
@@ -2461,7 +2461,7 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.EFExtensions.<G>$E875929AFAAB9F9D41CDDE4E1FF47548",
       "Methods": [
         {
-          "Member": "static TSource MultipleParameters<TSource>(TSource argument);"
+          "Member": "static TSource MultipleParameters<TSource>(TSource argument) where TSource : System.Collections.IEnumerable;"
         }
       ]
     },
@@ -9943,19 +9943,19 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder HasColumnType(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder complexCollectionBuilder, string? columnType);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> HasColumnType<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> complexCollectionBuilder, string? columnType);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> HasColumnType<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> complexCollectionBuilder, string? columnType) where TComplex : notnull;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder HasJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder complexCollectionBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> HasJsonPropertyName<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> complexCollectionBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> HasJsonPropertyName<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> complexCollectionBuilder, string? name) where TComplex : notnull;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder ToJson(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder complexCollectionBuilder, string? jsonColumnName = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> ToJson<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> complexCollectionBuilder, string? jsonColumnName = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> ToJson<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> complexCollectionBuilder, string? jsonColumnName = null) where TComplex : notnull;"
         }
       ]
     },
@@ -9977,19 +9977,19 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder HasColumnType(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder complexPropertyBuilder, string? columnType);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> HasColumnType<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> complexPropertyBuilder, string? columnType);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> HasColumnType<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> complexPropertyBuilder, string? columnType) where TComplex : notnull;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder HasJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder complexPropertyBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> HasJsonPropertyName<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> complexPropertyBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> HasJsonPropertyName<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> complexPropertyBuilder, string? name) where TComplex : notnull;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder ToJson(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder complexPropertyBuilder, string? jsonColumnName = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> ToJson<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> complexPropertyBuilder, string? jsonColumnName = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> ToJson<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> complexPropertyBuilder, string? jsonColumnName = null) where TComplex : class;"
         }
       ]
     },
@@ -10986,13 +10986,13 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder DeleteUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder DeleteUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder> buildAction);"
@@ -11004,13 +11004,13 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder DeleteUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> DeleteUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> DeleteUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> DeleteUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> DeleteUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> DeleteUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> DeleteUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionStoredProcedureBuilder? DeleteUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool fromDataAnnotation = false);"
@@ -11027,11 +11027,11 @@
           "Stage": "Obsolete"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? sql);",
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? sql) where TEntity : class;",
           "Stage": "Obsolete"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string sql, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CheckConstraintBuilder> buildAction);",
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string sql, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CheckConstraintBuilder> buildAction) where TEntity : class;",
           "Stage": "Obsolete"
         },
         {
@@ -11039,7 +11039,7 @@
           "Stage": "Obsolete"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? sql);",
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? sql) where TOwnerEntity : class where TDependentEntity : class;",
           "Stage": "Obsolete"
         },
         {
@@ -11047,7 +11047,7 @@
           "Stage": "Obsolete"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string sql, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CheckConstraintBuilder> buildAction);",
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string sql, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CheckConstraintBuilder> buildAction) where TOwnerEntity : class where TDependentEntity : class;",
           "Stage": "Obsolete"
         },
         {
@@ -11058,7 +11058,7 @@
           "Stage": "Obsolete"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> HasComment<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? comment);",
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> HasComment<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? comment) where TEntity : class;",
           "Stage": "Obsolete"
         },
         {
@@ -11077,13 +11077,13 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder InsertUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder InsertUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder> buildAction);"
@@ -11095,13 +11095,13 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder InsertUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> InsertUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> InsertUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> InsertUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> InsertUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> InsertUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> InsertUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionStoredProcedureBuilder? InsertUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool fromDataAnnotation = false);"
@@ -11110,49 +11110,49 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder SplitToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> SplitToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> SplitToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder SplitToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> SplitToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> SplitToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder SplitToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder SplitToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder SplitToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitViewBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> SplitToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitViewBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> SplitToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitViewBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder SplitToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitViewBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> SplitToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitViewBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> SplitToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.SplitViewBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder SplitToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitViewBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder SplitToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitViewBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToFunction(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string? name);"
@@ -11167,16 +11167,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToFunction(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, System.Reflection.MethodInfo function, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableValuedFunctionBuilder> configureFunction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToFunction<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToFunction<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToFunction<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Reflection.MethodInfo? function);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToFunction<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Reflection.MethodInfo? function) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToFunction<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableValuedFunctionBuilder<TEntity>> configureFunction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToFunction<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableValuedFunctionBuilder<TEntity>> configureFunction) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToFunction<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Reflection.MethodInfo function, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableValuedFunctionBuilder<TEntity>> configureFunction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToFunction<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Reflection.MethodInfo function, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableValuedFunctionBuilder<TEntity>> configureFunction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToFunction(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string? name);"
@@ -11191,16 +11191,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToFunction(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, System.Reflection.MethodInfo function, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableValuedFunctionBuilder> configureFunction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToFunction<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToFunction<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string? name) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToFunction<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Reflection.MethodInfo? function);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToFunction<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Reflection.MethodInfo? function) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToFunction<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>> configureFunction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToFunction<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>> configureFunction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToFunction<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Reflection.MethodInfo function, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>> configureFunction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToFunction<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Reflection.MethodInfo function, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>> configureFunction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? ToFunction(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
@@ -11215,7 +11215,7 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToSqlQuery(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string query);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToSqlQuery<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string query);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToSqlQuery<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string query) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? ToSqlQuery(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
@@ -11230,13 +11230,13 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, string? schema);"
@@ -11245,10 +11245,10 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToTable<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string? name);"
@@ -11257,16 +11257,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string? name) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, string? schema);"
@@ -11275,10 +11275,10 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? ToTable(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
@@ -11290,49 +11290,49 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string? name, string? schema);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name, string? schema);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name, string? schema) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ViewBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ViewBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ViewBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ViewBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ViewBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToView<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ViewBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string? name) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string? name, string? schema);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string? name, string? schema);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string? name, string? schema) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationViewBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationViewBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? ToView(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
@@ -11353,13 +11353,13 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder UpdateUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity>> buildAction) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder UpdateUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder> buildAction);"
@@ -11371,13 +11371,13 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder UpdateUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder> buildAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> UpdateUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> UpdateUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> UpdateUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> UpdateUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> UpdateUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> UpdateUsingStoredProcedure<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder, string name, string? schema, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>> buildAction) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionStoredProcedureBuilder? UpdateUsingStoredProcedure(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool fromDataAnnotation = false);"
@@ -11389,19 +11389,19 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder UseTpcMappingStrategy(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder UseTphMappingStrategy(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UseTphMappingStrategy<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UseTphMappingStrategy<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder UseTptMappingStrategy(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UseTptMappingStrategy<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> UseTptMappingStrategy<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder) where TEntity : class;"
         }
       ]
     },
@@ -12089,7 +12089,7 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "static System.Linq.Expressions.Expression QuoteOrNull<T>(T? expression);",
+          "Member": "static System.Linq.Expressions.Expression QuoteOrNull<T>(T? expression) where T : Microsoft.EntityFrameworkCore.Query.IRelationalQuotableExpression;",
           "Stage": "Experimental"
         },
         {
@@ -12119,19 +12119,19 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder ExcludeForeignKeyFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder referenceCollectionBuilder, bool excluded = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> ExcludeForeignKeyFromMigrations<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder, bool excluded = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> ExcludeForeignKeyFromMigrations<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder, bool excluded = true) where TEntity : class where TRelatedEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder ExcludeForeignKeyFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder referenceReferenceBuilder, bool excluded = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> ExcludeForeignKeyFromMigrations<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder, bool excluded = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> ExcludeForeignKeyFromMigrations<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder, bool excluded = true) where TEntity : class where TRelatedEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder ExcludeForeignKeyFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder ownershipBuilder, bool excluded = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ExcludeForeignKeyFromMigrations<TEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder, bool excluded = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ExcludeForeignKeyFromMigrations<TEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder, bool excluded = true) where TEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? ExcludeForeignKeyFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, bool? excluded, bool fromDataAnnotation = false);"
@@ -12140,19 +12140,19 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder referenceCollectionBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder, string? name) where TEntity : class where TRelatedEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder referenceReferenceBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder, string? name) where TEntity : class where TRelatedEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder ownershipBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> HasConstraintName<TEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> HasConstraintName<TEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder, string? name) where TEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, string? name, bool fromDataAnnotation = false);"
@@ -13567,7 +13567,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.RelationalOwnedNavigationBuilderExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasColumnType<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder, string? columnType);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasColumnType<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder, string? columnType) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder HasColumnType(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder builder, string? columnType);"
@@ -13576,16 +13576,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder HasJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder navigationBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TSource, TTarget> HasJsonPropertyName<TSource, TTarget>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TSource, TTarget> navigationBuilder, string? name);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TSource, TTarget> HasJsonPropertyName<TSource, TTarget>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TSource, TTarget> navigationBuilder, string? name) where TSource : class where TTarget : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToJson(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder builder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder, string? jsonColumnName);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder, string? jsonColumnName) where TOwnerEntity : class where TDependentEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToJson(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder builder, string? jsonColumnName);"
@@ -14303,23 +14303,23 @@
       "Type": "static class Microsoft.EntityFrameworkCore.RelationalQueryableExtensions",
       "Methods": [
         {
-          "Member": "static System.Linq.IQueryable<TEntity> AsSingleQuery<TEntity>(this System.Linq.IQueryable<TEntity> source);"
+          "Member": "static System.Linq.IQueryable<TEntity> AsSingleQuery<TEntity>(this System.Linq.IQueryable<TEntity> source) where TEntity : class;"
         },
         {
-          "Member": "static System.Linq.IQueryable<TEntity> AsSplitQuery<TEntity>(this System.Linq.IQueryable<TEntity> source);"
+          "Member": "static System.Linq.IQueryable<TEntity> AsSplitQuery<TEntity>(this System.Linq.IQueryable<TEntity> source) where TEntity : class;"
         },
         {
           "Member": "static System.Data.Common.DbCommand CreateDbCommand(this System.Linq.IQueryable source);"
         },
         {
-          "Member": "static System.Linq.IQueryable<TEntity> FromSql<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.FormattableString sql);"
+          "Member": "static System.Linq.IQueryable<TEntity> FromSql<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.FormattableString sql) where TEntity : class;"
         },
         {
-          "Member": "static System.Linq.IQueryable<TEntity> FromSqlInterpolated<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.FormattableString sql);",
+          "Member": "static System.Linq.IQueryable<TEntity> FromSqlInterpolated<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.FormattableString sql) where TEntity : class;",
           "Stage": "Obsolete"
         },
         {
-          "Member": "static System.Linq.IQueryable<TEntity> FromSqlRaw<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, string sql, params object?[] parameters);"
+          "Member": "static System.Linq.IQueryable<TEntity> FromSqlRaw<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, string sql, params object?[] parameters) where TEntity : class;"
         }
       ]
     },
@@ -18051,13 +18051,13 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression) where TDerivedEntity : class, TEntity;"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureParameterBuilder> buildAction);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureParameterBuilder> buildAction);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureParameterBuilder> buildAction) where TDerivedEntity : class, TEntity;"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasParameter(string propertyName);"
@@ -18069,13 +18069,13 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasParameter<TProperty>(System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression) where TDerivedEntity : class, TEntity;"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasParameter<TProperty>(System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureParameterBuilder> buildAction);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureParameterBuilder> buildAction);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureParameterBuilder> buildAction) where TDerivedEntity : class, TEntity;"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasResultColumn(string propertyName);"
@@ -18087,13 +18087,13 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression) where TDerivedEntity : class, TEntity;"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureResultColumnBuilder> buildAction);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureResultColumnBuilder> buildAction);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(System.Linq.Expressions.Expression<System.Func<TDerivedEntity, TProperty>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureResultColumnBuilder> buildAction) where TDerivedEntity : class, TEntity;"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.StoredProcedureBuilder<TEntity> HasRowsAffectedParameter();"

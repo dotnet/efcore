@@ -94,16 +94,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         }
       ]
     },
@@ -377,7 +377,7 @@
           "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlite(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
         },
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddSqlite<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddSqlite<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         }
       ]
     },
@@ -404,19 +404,19 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder tableBuilder, bool useSqlReturningClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> UseSqlReturningClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> UseSqlReturningClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool useSqlReturningClause = true) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder tableBuilder, bool useSqlReturningClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> UseSqlReturningClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> UseSqlReturningClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> tableBuilder, bool useSqlReturningClause = true) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder tableBuilder, bool useSqlReturningClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> UseSqlReturningClause<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> UseSqlReturningClause<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool useSqlReturningClause = true) where TOwnerEntity : class where TDependentEntity : class;"
         }
       ]
     },
