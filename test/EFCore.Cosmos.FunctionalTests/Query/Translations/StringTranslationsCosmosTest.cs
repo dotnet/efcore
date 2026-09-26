@@ -164,6 +164,18 @@ WHERE (INDEX_OF(c["String"], "e") != -1)
 """);
     }
 
+    public override async Task IndexOf_Char_with_non_ASCII_char()
+    {
+        await base.IndexOf_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["String"], "ş") = -1)
+""");
+    }
+
     public override async Task IndexOf_with_empty_string()
     {
         await base.IndexOf_with_empty_string();
@@ -287,6 +299,18 @@ WHERE (REPLACE(c["String"], "Sea", "Rea") = "Reattle")
 SELECT VALUE c
 FROM root c
 WHERE (REPLACE(c["String"], "S", "R") = "Reattle")
+""");
+    }
+
+    public override async Task Replace_Char_with_non_ASCII_char()
+    {
+        await base.Replace_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (REPLACE(c["String"], "ş", "x") = c["String"])
 """);
     }
 

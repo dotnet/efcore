@@ -148,10 +148,8 @@ public class SqlServerStringMethodTranslator(
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, oldValue, newValue);
 
         instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
-        oldValue = sqlExpressionFactory.ApplyTypeMapping(
-            oldValue, oldValue.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
-        newValue = sqlExpressionFactory.ApplyTypeMapping(
-            newValue, newValue.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+        oldValue = ApplyCharOrStringTypeMapping(oldValue, stringTypeMapping);
+        newValue = ApplyCharOrStringTypeMapping(newValue, stringTypeMapping);
 
         return sqlExpressionFactory.Function(
             "REPLACE",
@@ -209,8 +207,7 @@ public class SqlServerStringMethodTranslator(
     {
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)
             ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping!;
-        searchExpression = sqlExpressionFactory.ApplyTypeMapping(
-            searchExpression, searchExpression.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+        searchExpression = ApplyCharOrStringTypeMapping(searchExpression, stringTypeMapping);
 
         instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
@@ -274,6 +271,19 @@ public class SqlServerStringMethodTranslator(
 
         return sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
     }
+
+    private SqlExpression ApplyCharOrStringTypeMapping(SqlExpression expression, RelationalTypeMapping? stringTypeMapping)
+        => expression switch
+        {
+            // A char constant is inlined as a string literal with the string's type mapping (e.g. N'x'). CharTypeMapping's literal
+            // has no N prefix, so a non-ASCII char would be best-fit mapped to the database's code page before the comparison
+            // (e.g. 'ş' becomes 's'), returning wrong rows or replacing the wrong character.
+            SqlConstantExpression { Value: char charValue }
+                => sqlExpressionFactory.Constant(charValue.ToString(), stringTypeMapping),
+            { Type: var type } when type == typeof(char)
+                => sqlExpressionFactory.ApplyTypeMapping(expression, CharTypeMapping.Default),
+            _ => sqlExpressionFactory.ApplyTypeMapping(expression, stringTypeMapping)
+        };
 
     private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
     {

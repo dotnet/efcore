@@ -95,6 +95,10 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
             : AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('e') != -1));
 
     [Fact]
+    public virtual Task IndexOf_Char_with_non_ASCII_char()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('ş') == -1));
+
+    [Fact]
     public virtual Task IndexOf_with_empty_string()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf(string.Empty) == 0),
@@ -195,6 +199,10 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [Fact]
     public virtual Task Replace_Char()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace('S', 'R') == "Reattle"));
+
+    [Fact]
+    public virtual Task Replace_Char_with_non_ASCII_char()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace('ş', 'x') == b.String));
 
     [Fact]
     public virtual Task Replace_with_empty_string()
