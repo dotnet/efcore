@@ -2904,6 +2904,46 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key,
             elementAsserter: (e, a) => AssertGrouping(e, a));
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_nullable_value_type_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => e.ReportsTo),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_nullable_cast_over_optional_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => (uint?)e.Manager!.EmployeeID),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_anonymous_key_with_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => new { e.ReportsTo }),
+            elementSorter: e => e.Key.ReportsTo,
+            elementAsserter: (e, a) => AssertGrouping(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_composite_key_with_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => new { e.ReportsTo, e.Country }),
+            elementSorter: e => (e.Key.ReportsTo, e.Key.Country),
+            elementAsserter: (e, a) => AssertGrouping(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_nullable_value_type_key_as_object(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => (object?)e.ReportsTo),
+            elementSorter: e => (uint?)e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a));
+
     #endregion
 
     #region GroupByWithoutAggregate
@@ -3122,6 +3162,38 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 .GroupBy(p => p.Customer)
                 .SelectMany(g => g),
             elementSorter: g => g.Order));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_value_type_key_Select_ToList(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => e.ReportsTo).Select(g => new { g.Key, Employees = g.ToList() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertCollection(e.Employees, a.Employees);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_value_type_key_Select_element_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => e.ReportsTo).Select(g => g.Select(e => e.EmployeeID).ToList()),
+            elementSorter: e => e.Min(),
+            elementAsserter: (e, a) => AssertCollection(e, a));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_value_type_key_with_element_selector_Select_ToList(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => e.ReportsTo, e => e.EmployeeID).Select(g => new { g.Key, Ids = g.ToList() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertCollection(e.Ids, a.Ids);
+            });
 
     #endregion
 

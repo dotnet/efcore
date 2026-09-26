@@ -78,6 +78,31 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
             () => base.Final_GroupBy_TagWith(async),
             InMemoryStrings.NonComposedGroupByNotSupported);
 
+    public override Task Final_GroupBy_nullable_value_type_key(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Final_GroupBy_nullable_value_type_key(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
+
+    public override Task Final_GroupBy_nullable_cast_over_optional_navigation(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Final_GroupBy_nullable_cast_over_optional_navigation(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
+
+    public override Task Final_GroupBy_anonymous_key_with_nullable_value_type(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Final_GroupBy_anonymous_key_with_nullable_value_type(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
+
+    public override Task Final_GroupBy_composite_key_with_nullable_value_type(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Final_GroupBy_composite_key_with_nullable_value_type(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
+
+    public override Task Final_GroupBy_nullable_value_type_key_as_object(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Final_GroupBy_nullable_value_type_key_as_object(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
+
     // The in-memory provider doesn't implement joining on a client-evaluated GroupBy result
     // (InMemoryQueryExpression.AddJoin throws NotImplementedException); unrelated to the fold under test.
     [Theory(Skip = "Issue#31209")]
