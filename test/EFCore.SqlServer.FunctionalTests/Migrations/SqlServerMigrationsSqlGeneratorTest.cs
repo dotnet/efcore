@@ -1038,6 +1038,75 @@ ALTER SCHEMA [hr] TRANSFER [dbo].[People];
 """);
     }
 
+    [Fact] // Issue #38601
+    public virtual void RenameTableOperation_temporal_table_moved_into_model_default_schema()
+    {
+        Generate(
+            modelBuilder =>
+            {
+                modelBuilder.HasDefaultSchema("dbo");
+                modelBuilder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                        e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                        e.HasKey("Id");
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(ttb =>
+                            {
+                                ttb.UseHistoryTable("CustomersHistory");
+                                ttb.HasPeriodStart("PeriodStart");
+                                ttb.HasPeriodEnd("PeriodEnd");
+                            }));
+                    });
+            },
+            new EnsureSchemaOperation { Name = "dbo" },
+            new RenameTableOperation
+            {
+                Name = "Customers",
+                Schema = null,
+                NewName = "Customers",
+                NewSchema = "dbo",
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalHistoryTableSchema] = null,
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+            },
+            new AlterTableOperation
+            {
+                Name = "Customers",
+                Schema = "dbo",
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalHistoryTableSchema] = "dbo",
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd",
+                OldTable =
+                {
+                    [SqlServerAnnotationNames.IsTemporal] = true,
+                    [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                    [SqlServerAnnotationNames.TemporalHistoryTableSchema] = null,
+                    [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                    [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+                }
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [dbo].[Customers] SET (SYSTEM_VERSIONING = OFF)
+
+GO
+
+ALTER SCHEMA [dbo] TRANSFER [Customers];
+GO
+
+ALTER TABLE [dbo].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[CustomersHistory]))
+""");
+    }
+
     [Fact]
     public virtual void RenameIndexOperations_throws_when_no_table()
     {
