@@ -66,12 +66,19 @@ public class SqliteSubqueryToJoinRewriter(ISqlExpressionFactory sqlExpressionFac
 
             var projectionMap = inner.Projection.ToDictionary(p => p.Alias, p => p.Expression);
             var inliner = new AliasInliningVisitor(inner.Alias!, projectionMap);
+            var joinPredicate = (SqlExpression)inliner.Visit(join.JoinPredicate);
+
+            // SqlNullabilityProcessor leaves a join predicate that is a single top-level equality uncompensated, because in LINQ
+            // equijoins null doesn't match null. Once the filter is AND-ed onto it, the equality is no longer top-level and gets
+            // the regular null compensation, so NULL keys would start matching each other; keep such subqueries as they are.
+            if (IsEqualityBetweenNullableExpressions(joinPredicate))
+            {
+                continue;
+            }
 
             // The subquery's WHERE moves onto the join condition; both the existing join key and the filter are remapped from the
             // subquery alias onto the underlying table's columns.
-            var newJoinPredicate = sqlExpressionFactory.AndAlso(
-                (SqlExpression)inliner.Visit(join.JoinPredicate),
-                (SqlExpression)inliner.Visit(inner.Predicate!));
+            var newJoinPredicate = sqlExpressionFactory.AndAlso(joinPredicate, (SqlExpression)inliner.Visit(inner.Predicate!));
 
             newTables ??= [.. select.Tables];
             newTables[i] = join is InnerJoinExpression
@@ -100,6 +107,19 @@ public class SqliteSubqueryToJoinRewriter(ISqlExpressionFactory sqlExpressionFac
             (SqlExpression?)outerInliner.Visit(select.Offset),
             (SqlExpression?)outerInliner.Visit(select.Limit));
     }
+
+    private static bool IsEqualityBetweenNullableExpressions(SqlExpression predicate)
+        => predicate is SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: var left, Right: var right }
+            && MayBeNull(left)
+            && MayBeNull(right);
+
+    private static bool MayBeNull(SqlExpression expression)
+        => expression switch
+        {
+            ColumnExpression column => column.IsNullable,
+            SqlConstantExpression constant => constant.Value is null,
+            _ => true
+        };
 
     // An "IS NOT NULL" check is a SqlUnaryExpression with a NotEqual operator; a predicate built only from these (AND-ed together)
     // is an entity-existence test rather than a value filter.

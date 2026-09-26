@@ -539,6 +539,39 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             elementSorter: e => (e.Id1, e.Id2));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_uses_database_semantics_with_filtered_inner(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  join e2 in ss.Set<NullSemanticsEntity2>().Where(e => e.BoolA) on e1.NullableIntA equals e2.NullableIntB
+                  select new
+                  {
+                      Id1 = e1.Id,
+                      Id2 = e2.Id,
+                      e1.NullableIntA,
+                      e2.NullableIntB
+                  },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_uses_database_semantics_with_filtered_inner(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .LeftJoin(
+                    ss.Set<NullSemanticsEntity2>().Where(e => e.BoolA),
+                    e1 => e1.NullableIntA,
+                    e2 => e2.NullableIntB,
+                    (e1, e2) => new
+                    {
+                        Id1 = e1.Id,
+                        Id2 = e2 == null ? null : (int?)e2.Id,
+                        e1.NullableIntA,
+                        NullableIntB = e2 == null ? null : e2.NullableIntB
+                    }),
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_uses_csharp_semantics_for_anon_objects(bool async)
         => AssertQuery(
             async,

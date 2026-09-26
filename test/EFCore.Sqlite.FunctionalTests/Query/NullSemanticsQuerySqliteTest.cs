@@ -1645,6 +1645,38 @@ INNER JOIN "Entities2" AS "e0" ON "e"."NullableIntA" = "e0"."NullableIntB"
 """);
     }
 
+    public override async Task Join_uses_database_semantics_with_filtered_inner(bool async)
+    {
+        await base.Join_uses_database_semantics_with_filtered_inner(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e1"."Id" AS "Id2", "e"."NullableIntA", "e1"."NullableIntB"
+FROM "Entities1" AS "e"
+INNER JOIN (
+    SELECT "e0"."Id", "e0"."NullableIntB"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."BoolA"
+) AS "e1" ON "e"."NullableIntA" = "e1"."NullableIntB"
+""");
+    }
+
+    public override async Task Left_join_uses_database_semantics_with_filtered_inner(bool async)
+    {
+        await base.Left_join_uses_database_semantics_with_filtered_inner(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e1"."Id" AS "Id2", "e"."NullableIntA", "e1"."NullableIntB"
+FROM "Entities1" AS "e"
+LEFT JOIN (
+    SELECT "e0"."Id", "e0"."NullableIntB"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."BoolA"
+) AS "e1" ON "e"."NullableIntA" = "e1"."NullableIntB"
+""");
+    }
+
     public override async Task Join_uses_csharp_semantics_for_anon_objects(bool async)
     {
         await base.Join_uses_csharp_semantics_for_anon_objects(async);
