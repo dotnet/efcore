@@ -717,8 +717,8 @@ FROM [Orders] AS [o]
         AssertSql(
             """
 SELECT CASE
-    WHEN [o].[OrderID] % 2 <> 0 THEN [o].[OrderID]
-    ELSE -[o].[OrderID]
+    WHEN [o].[OrderID] % 2 = 0 THEN -[o].[OrderID]
+    ELSE [o].[OrderID]
 END
 FROM [Orders] AS [o]
 """);
