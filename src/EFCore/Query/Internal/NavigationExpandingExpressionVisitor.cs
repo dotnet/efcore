@@ -612,6 +612,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
                         return ProcessExecuteUpdate(source, genericMethod, methodCallExpression.Arguments[1]);
 
+                    // The source (arg 0) is expanded; the remaining arguments are [NotParameterized] data/selectors handled later
+                    // during translation.
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteMerge)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteMergeMethodInfo:
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteMergeReturning)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteMergeReturningMethodInfo:
+                        return ProcessUnknownMethod(methodCallExpression);
+
                     case nameof(Queryable.GroupBy)
                         when genericMethod == QueryableMethods.GroupByWithKeySelector:
                         return ProcessGroupBy(

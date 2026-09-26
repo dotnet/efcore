@@ -196,6 +196,52 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                                     innerException);
                             }
                         }
+
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteMerge)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteMergeMethodInfo:
+                    {
+                        try
+                        {
+                            return TranslateExecuteMerge(
+                                shapedQueryExpression,
+                                UnwrapMergeSource(methodCallExpression.Arguments[1]),
+                                DecodeMergeMatches(methodCallExpression.Arguments[2]),
+                                DecodeMergeSetters(methodCallExpression.Arguments[3]),
+                                DecodeMergeSetters(methodCallExpression.Arguments[4]),
+                                returningSelector: null);
+                        }
+                        catch (Exception innerException)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                innerException);
+                        }
+                    }
+
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteMergeReturning)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteMergeReturningMethodInfo:
+                    {
+                        var returningArgument = methodCallExpression.Arguments[5];
+                        var returningSelector = returningArgument is UnaryExpression { NodeType: ExpressionType.Quote, Operand: var operand }
+                            ? (LambdaExpression)operand
+                            : (LambdaExpression)returningArgument;
+                        try
+                        {
+                            return TranslateExecuteMerge(
+                                shapedQueryExpression,
+                                UnwrapMergeSource(methodCallExpression.Arguments[1]),
+                                DecodeMergeMatches(methodCallExpression.Arguments[2]),
+                                DecodeMergeSetters(methodCallExpression.Arguments[3]),
+                                DecodeMergeSetters(methodCallExpression.Arguments[4]),
+                                returningSelector);
+                        }
+                        catch (Exception innerException)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                innerException);
+                        }
+                    }
                 }
             }
         }
@@ -1181,6 +1227,88 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
     ///     call, i.e. a pair of property and value selectors.
     /// </summary>
     public sealed record ExecuteUpdateSetter(LambdaExpression PropertySelector, Expression ValueExpression);
+
+    /// <summary>
+    ///     Translates an ExecuteMerge / ExecuteMergeReturning operator over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query identifying the target table.</param>
+    /// <param name="sourceRows">A constant holding the source rows to merge.</param>
+    /// <param name="matches">The match (conflict) selectors; empty means match on the target's primary key.</param>
+    /// <param name="whenMatchedSetters">The update setters for matched rows, or <see langword="null" /> to leave matched rows unchanged.</param>
+    /// <param name="whenNotMatchedSetters">The insert setters for unmatched rows, or <see langword="null" /> to insert all mapped columns.</param>
+    /// <param name="returningSelector">A projection over each affected row, or <see langword="null" /> when no results are returned.</param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual Expression TranslateExecuteMerge(
+        ShapedQueryExpression source,
+        ConstantExpression sourceRows,
+        IReadOnlyList<ExecuteMergeMatch> matches,
+        IReadOnlyList<ExecuteUpdateSetter>? whenMatchedSetters,
+        IReadOnlyList<ExecuteUpdateSetter>? whenNotMatchedSetters,
+        LambdaExpression? returningSelector)
+        => throw new InvalidOperationException(
+            CoreStrings.ExecuteQueriesNotSupported(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteMerge), nameof(EntityFrameworkQueryableExtensions.ExecuteMergeAsync)));
+
+    /// <summary>
+    ///     Represents a single match (conflict-target) column pair in an ExecuteMerge call.
+    /// </summary>
+    public sealed record ExecuteMergeMatch(LambdaExpression TargetKeySelector, LambdaExpression SourceKeySelector);
+
+    private static ConstantExpression UnwrapMergeSource(Expression argument)
+    {
+        while (argument is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.Quote, Operand: var operand })
+        {
+            argument = operand;
+        }
+
+        return (ConstantExpression)argument;
+    }
+
+    private static IReadOnlyList<ExecuteMergeMatch> DecodeMergeMatches(Expression argument)
+    {
+        // An empty Match list (default to PK) funcletizes to a constant empty array.
+        if (argument is not NewArrayExpression newArray)
+        {
+            return [];
+        }
+
+        var matches = new ExecuteMergeMatch[newArray.Expressions.Count];
+        for (var i = 0; i < matches.Length; i++)
+        {
+            var @new = (NewExpression)newArray.Expressions[i];
+            matches[i] = new ExecuteMergeMatch((LambdaExpression)@new.Arguments[0], (LambdaExpression)@new.Arguments[1]);
+        }
+
+        return matches;
+    }
+
+    private static IReadOnlyList<ExecuteUpdateSetter>? DecodeMergeSetters(Expression argument)
+    {
+        // A null constant means the WhenMatched/WhenNotMatched clause was omitted.
+        if (argument is not NewArrayExpression newArray)
+        {
+            return null;
+        }
+
+        var setters = new ExecuteUpdateSetter[newArray.Expressions.Count];
+        for (var i = 0; i < setters.Length; i++)
+        {
+            var @new = (NewExpression)newArray.Expressions[i];
+            var propertySelector = (LambdaExpression)@new.Arguments[0];
+            var valueSelector = @new.Arguments[1];
+
+            // Bare value-type constants get a cast-to-object Convert (see MergeSettersBuilder); remove it here.
+            if (valueSelector is UnaryExpression { NodeType: ExpressionType.Convert, Operand: var unwrappedValueSelector }
+                && valueSelector.Type == typeof(object))
+            {
+                valueSelector = unwrappedValueSelector;
+            }
+
+            setters[i] = new ExecuteUpdateSetter(propertySelector, valueSelector);
+        }
+
+        return setters;
+    }
 
     #endregion ExecuteUpdate/ExecuteDelete
 }

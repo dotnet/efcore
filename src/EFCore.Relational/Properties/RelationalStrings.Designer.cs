@@ -828,6 +828,72 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 tableName);
 
         /// <summary>
+        ///     Invalid property selector '{selector}' in ExecuteMerge.
+        /// </summary>
+        public static string ExecuteMergeInvalidPropertySelector(object? selector)
+            => string.Format(
+                GetString("ExecuteMergeInvalidPropertySelector", nameof(selector)),
+                selector);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has no primary key to match on in ExecuteMerge.
+        /// </summary>
+        public static string ExecuteMergeNoPrimaryKey(object? entityType)
+            => string.Format(
+                GetString("ExecuteMergeNoPrimaryKey", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     ExecuteMerge is not supported by the current database provider.
+        /// </summary>
+        public static string ExecuteMergeNotSupportedByProvider
+            => GetString("ExecuteMergeNotSupportedByProvider");
+
+        /// <summary>
+        ///     ExecuteMerge is only supported on a simple, unfiltered DbSet target.
+        /// </summary>
+        public static string ExecuteMergeOnComplexQuery
+            => GetString("ExecuteMergeOnComplexQuery");
+
+        /// <summary>
+        ///     ExecuteMerge is only supported when the target maps to a single entity type.
+        /// </summary>
+        public static string ExecuteMergeOnNonEntityType
+            => GetString("ExecuteMergeOnNonEntityType");
+
+        /// <summary>
+        ///     The property '{property}' was not found on entity type '{entityType}' in ExecuteMerge.
+        /// </summary>
+        public static string ExecuteMergePropertyNotFound(object? property, object? entityType)
+            => string.Format(
+                GetString("ExecuteMergePropertyNotFound", nameof(property), nameof(entityType)),
+                property, entityType);
+
+        /// <summary>
+        ///     The property '{property}' is not mapped to a column on table '{table}'.
+        /// </summary>
+        public static string ExecuteMergePropertyNotMapped(object? property, object? table)
+            => string.Format(
+                GetString("ExecuteMergePropertyNotMapped", nameof(property), nameof(table)),
+                property, table);
+
+        /// <summary>
+        ///     Unsupported expression '{expression}' in an ExecuteMerge WhenMatched value.
+        /// </summary>
+        public static string ExecuteMergeUnsupportedExpression(object? expression)
+            => string.Format(
+                GetString("ExecuteMergeUnsupportedExpression", nameof(expression)),
+                expression);
+
+        /// <summary>
+        ///     Unsupported operator '{nodeType}' in an ExecuteMerge WhenMatched value.
+        /// </summary>
+        public static string ExecuteMergeUnsupportedOperator(object? nodeType)
+            => string.Format(
+                GetString("ExecuteMergeUnsupportedOperator", nameof(nodeType)),
+                nodeType);
+
+        /// <summary>
         ///     The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting are not supported.
         /// </summary>
         public static string ExecuteOperationOnEntitySplitting(object? operation, object? entityType)
