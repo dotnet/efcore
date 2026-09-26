@@ -278,14 +278,28 @@ public class SqlServerStringMethodTranslator(
     private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
     {
         SqlExpression? charactersToTrim = null;
-        if (arguments.Count > 0 && arguments[0] is SqlConstantExpression { Value: var charactersToTrimValue })
+        if (arguments.Count > 0)
         {
-            charactersToTrim = charactersToTrimValue switch
+            switch (arguments[0])
             {
-                char singleChar => sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping),
-                char[] charArray => sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping),
-                _ => throw new UnreachableException("Invalid parameter type for string.TrimStart/TrimEnd")
-            };
+                case SqlConstantExpression { Value: char singleChar }:
+                    charactersToTrim = sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping);
+                    break;
+
+                case SqlConstantExpression { Value: char[] charArray }:
+                    charactersToTrim = sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping);
+                    break;
+
+                case { Type: var argumentType } when argumentType == typeof(char):
+                    // A non-constant char (e.g. a parameter) can be passed to LTRIM/RTRIM directly
+                    charactersToTrim = sqlExpressionFactory.ApplyTypeMapping(arguments[0], CharTypeMapping.Default);
+                    break;
+
+                default:
+                    // A non-constant char[] can't be translated; returning null triggers client evaluation
+                    // or a translation failure instead of silently dropping the argument.
+                    return null;
+            }
         }
 
         return sqlExpressionFactory.Function(

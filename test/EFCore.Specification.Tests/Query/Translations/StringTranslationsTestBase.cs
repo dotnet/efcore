@@ -554,6 +554,22 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task TrimStart_with_char_array_argument()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(new[] { 'S', 'e' }) == "attle"));
 
+    [Fact]
+    public virtual Task TrimStart_with_char_parameter()
+    {
+        var trimChar = 'S';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChar) == "eattle"));
+    }
+
+    [Fact]
+    public virtual Task TrimStart_with_char_array_parameter()
+    {
+        var trimChars = new[] { 'S', 'e' };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChars) == "attle"));
+    }
+
     #endregion TrimStart
 
     #region TrimEnd
@@ -569,6 +585,22 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [Fact]
     public virtual Task TrimEnd_with_char_array_argument()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(new[] { 'l', 'e' }) == "Seatt"));
+
+    [Fact]
+    public virtual Task TrimEnd_with_char_parameter()
+    {
+        var trimChar = 'e';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChar) == "Seattl"));
+    }
+
+    [Fact]
+    public virtual Task TrimEnd_with_char_array_parameter()
+    {
+        var trimChars = new[] { 'l', 'e' };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChars) == "Seatt"));
+    }
 
     #endregion TrimEnd
 

@@ -791,6 +791,20 @@ WHERE (LTRIM(c["String"]) = "Boston  ")
         AssertSql();
     }
 
+    public override async Task TrimStart_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_array_parameter);
+
+        AssertSql();
+    }
+
     #endregion TrimStart
 
     #region TrimEnd
@@ -819,6 +833,20 @@ WHERE (RTRIM(c["String"]) = "  Boston")
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(base.TrimEnd_with_char_array_argument);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_array_parameter);
 
         AssertSql();
     }
