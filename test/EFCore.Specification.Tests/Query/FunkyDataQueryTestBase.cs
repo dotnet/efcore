@@ -243,6 +243,69 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_starts_with_on_argument_with_wildcard_char_constant(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.StartsWith('%')).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith('%')) == true).Select(c => c.FirstName));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.StartsWith('_')).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith('_')) == true).Select(c => c.FirstName));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.StartsWith('[')).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith('[')) == true).Select(c => c.FirstName));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.StartsWith('B')).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith('B')) == true).Select(c => c.FirstName));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName!.StartsWith('_')).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith('_')) != true).Select(c => c.FirstName));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_starts_with_on_argument_with_wildcard_char_parameter(bool async)
+    {
+        var prm1 = '%';
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.StartsWith(prm1)).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith(prm1)) == true).Select(c => c.FirstName));
+
+        var prm2 = '_';
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.StartsWith(prm2)).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith(prm2)) == true).Select(c => c.FirstName));
+
+        var prm3 = '[';
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.StartsWith(prm3)).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith(prm3)) == true).Select(c => c.FirstName));
+
+        var prm4 = 'B';
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.StartsWith(prm4)).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith(prm4)) == true).Select(c => c.FirstName));
+
+        var prm5 = '_';
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName!.StartsWith(prm5)).Select(c => c.FirstName),
+            ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName!.MaybeScalar(x => x.StartsWith(prm5)) != true).Select(c => c.FirstName));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_starts_with_on_argument_with_bracket(bool async)
     {
         await AssertQuery(
