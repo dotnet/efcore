@@ -433,6 +433,33 @@
   <data name="ExecuteDeleteOnTableSplitting" xml:space="preserve">
     <value>The operation 'ExecuteDelete' is being applied on the table '{tableName}' which contains data for multiple entity types. Applying this delete operation will also delete data for other entity type(s), hence it is not supported.</value>
   </data>
+  <data name="ExecuteMergeInvalidPropertySelector" xml:space="preserve">
+    <value>Invalid property selector '{selector}' in ExecuteMerge.</value>
+  </data>
+  <data name="ExecuteMergeNoPrimaryKey" xml:space="preserve">
+    <value>The entity type '{entityType}' has no primary key to match on in ExecuteMerge.</value>
+  </data>
+  <data name="ExecuteMergeNotSupportedByProvider" xml:space="preserve">
+    <value>ExecuteMerge is not supported by the current database provider.</value>
+  </data>
+  <data name="ExecuteMergeOnComplexQuery" xml:space="preserve">
+    <value>ExecuteMerge is only supported on a simple, unfiltered DbSet target.</value>
+  </data>
+  <data name="ExecuteMergeOnNonEntityType" xml:space="preserve">
+    <value>ExecuteMerge is only supported when the target maps to a single entity type.</value>
+  </data>
+  <data name="ExecuteMergePropertyNotFound" xml:space="preserve">
+    <value>The property '{property}' was not found on entity type '{entityType}' in ExecuteMerge.</value>
+  </data>
+  <data name="ExecuteMergePropertyNotMapped" xml:space="preserve">
+    <value>The property '{property}' is not mapped to a column on table '{table}'.</value>
+  </data>
+  <data name="ExecuteMergeUnsupportedExpression" xml:space="preserve">
+    <value>Unsupported expression '{expression}' in an ExecuteMerge WhenMatched value.</value>
+  </data>
+  <data name="ExecuteMergeUnsupportedOperator" xml:space="preserve">
+    <value>Unsupported operator '{nodeType}' in an ExecuteMerge WhenMatched value.</value>
+  </data>
   <data name="ExecuteOperationOnEntitySplitting" xml:space="preserve">
     <value>The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting are not supported.</value>
   </data>

@@ -3629,4 +3629,203 @@ public static class EntityFrameworkQueryableExtensions
             .Single(m => m.Name == nameof(ExecuteUpdate) && m.GetParameters()[1].ParameterType == typeof(IReadOnlyList<ITuple>));
 
     #endregion
+
+    #region ExecuteMerge
+
+    /// <summary>
+    ///     Merges the given <paramref name="source" /> rows into the target table, inserting rows that do not match an existing target
+    ///     row and updating those that do (an "upsert"). This is an experimental API.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TTarget">The type of the target entity.</typeparam>
+    /// <typeparam name="TSource">The type of the source rows.</typeparam>
+    /// <param name="target">The target query identifying the table to merge into.</param>
+    /// <param name="source">The source rows to merge.</param>
+    /// <param name="buildMerge">A callback configuring the match columns and the matched/not-matched actions.</param>
+    /// <returns>The total number of rows inserted or updated in the database.</returns>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    public static int ExecuteMerge<TTarget, TSource>(
+        this IQueryable<TTarget> target,
+        IEnumerable<TSource> source,
+        Action<MergeBuilder<TTarget, TSource>> buildMerge)
+    {
+        var builder = new MergeBuilder<TTarget, TSource>();
+        buildMerge(builder);
+
+        return target.Provider.Execute<int>(
+            Expression.Call(
+                ExecuteMergeMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource)),
+                target.Expression,
+                Expression.Constant(source, typeof(IEnumerable<TSource>)),
+                builder.BuildMatchExpression(),
+                builder.BuildWhenMatchedExpression(),
+                builder.BuildWhenNotMatchedExpression()));
+    }
+
+    /// <summary>
+    ///     Asynchronously merges the given <paramref name="source" /> rows into the target table, inserting rows that do not match an
+    ///     existing target row and updating those that do (an "upsert"). This is an experimental API.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TTarget">The type of the target entity.</typeparam>
+    /// <typeparam name="TSource">The type of the source rows.</typeparam>
+    /// <param name="target">The target query identifying the table to merge into.</param>
+    /// <param name="source">The source rows to merge.</param>
+    /// <param name="buildMerge">A callback configuring the match columns and the matched/not-matched actions.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>The total number of rows inserted or updated in the database.</returns>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    public static Task<int> ExecuteMergeAsync<TTarget, TSource>(
+        this IQueryable<TTarget> target,
+        IEnumerable<TSource> source,
+        Action<MergeBuilder<TTarget, TSource>> buildMerge,
+        CancellationToken cancellationToken = default)
+    {
+        var builder = new MergeBuilder<TTarget, TSource>();
+        buildMerge(builder);
+
+        return target.Provider is IAsyncQueryProvider provider
+            ? provider.ExecuteAsync<Task<int>>(
+                Expression.Call(
+                    ExecuteMergeMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource)),
+                    target.Expression,
+                    Expression.Constant(source, typeof(IEnumerable<TSource>)),
+                    builder.BuildMatchExpression(),
+                    builder.BuildWhenMatchedExpression(),
+                    builder.BuildWhenNotMatchedExpression()),
+                cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+    }
+
+    /// <summary>
+    ///     Merges the given <paramref name="source" /> rows into the target table (see <c>ExecuteMerge</c>), returning a projection over
+    ///     each affected row. This is an experimental API.
+    /// </summary>
+    /// <typeparam name="TTarget">The type of the target entity.</typeparam>
+    /// <typeparam name="TSource">The type of the source rows.</typeparam>
+    /// <typeparam name="TResult">The type of the projected result.</typeparam>
+    /// <param name="target">The target query identifying the table to merge into.</param>
+    /// <param name="source">The source rows to merge.</param>
+    /// <param name="buildMerge">A callback configuring the match columns and the matched/not-matched actions.</param>
+    /// <param name="returning">A projection over each affected target row.</param>
+    /// <returns>A sequence of projected results, one per affected row.</returns>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    public static IEnumerable<TResult> ExecuteMergeReturning<TTarget, TSource, TResult>(
+        this IQueryable<TTarget> target,
+        IEnumerable<TSource> source,
+        Action<MergeBuilder<TTarget, TSource>> buildMerge,
+        Expression<Func<TTarget, TResult>> returning)
+    {
+        var builder = new MergeBuilder<TTarget, TSource>();
+        buildMerge(builder);
+
+        return target.Provider.Execute<IEnumerable<TResult>>(
+            Expression.Call(
+                ExecuteMergeReturningMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource), typeof(TResult)),
+                target.Expression,
+                Expression.Constant(source, typeof(IEnumerable<TSource>)),
+                builder.BuildMatchExpression(),
+                builder.BuildWhenMatchedExpression(),
+                builder.BuildWhenNotMatchedExpression(),
+                Expression.Quote(returning)));
+    }
+
+    /// <summary>
+    ///     Asynchronously merges the given <paramref name="source" /> rows into the target table (see <c>ExecuteMergeAsync</c>),
+    ///     streaming a projection over each affected row. This is an experimental API.
+    /// </summary>
+    /// <typeparam name="TTarget">The type of the target entity.</typeparam>
+    /// <typeparam name="TSource">The type of the source rows.</typeparam>
+    /// <typeparam name="TResult">The type of the projected result.</typeparam>
+    /// <param name="target">The target query identifying the table to merge into.</param>
+    /// <param name="source">The source rows to merge.</param>
+    /// <param name="buildMerge">A callback configuring the match columns and the matched/not-matched actions.</param>
+    /// <param name="returning">A projection over each affected target row.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>An asynchronous sequence of projected results, one per affected row.</returns>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    public static IAsyncEnumerable<TResult> ExecuteMergeReturningAsync<TTarget, TSource, TResult>(
+        this IQueryable<TTarget> target,
+        IEnumerable<TSource> source,
+        Action<MergeBuilder<TTarget, TSource>> buildMerge,
+        Expression<Func<TTarget, TResult>> returning,
+        CancellationToken cancellationToken = default)
+    {
+        var builder = new MergeBuilder<TTarget, TSource>();
+        buildMerge(builder);
+
+        return target.Provider is IAsyncQueryProvider provider
+            ? provider.ExecuteAsync<IAsyncEnumerable<TResult>>(
+                Expression.Call(
+                    ExecuteMergeReturningMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource), typeof(TResult)),
+                    target.Expression,
+                    Expression.Constant(source, typeof(IEnumerable<TSource>)),
+                    builder.BuildMatchExpression(),
+                    builder.BuildWhenMatchedExpression(),
+                    builder.BuildWhenNotMatchedExpression(),
+                    Expression.Quote(returning)),
+                cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+    }
+
+    private static int ExecuteMerge<TTarget, TSource>(
+        this IQueryable<TTarget> target,
+        [NotParameterized] IEnumerable<TSource> source,
+        [NotParameterized] IReadOnlyList<ITuple> matchSelectors,
+        [NotParameterized] IReadOnlyList<ITuple>? whenMatchedSetters,
+        [NotParameterized] IReadOnlyList<ITuple>? whenNotMatchedSetters)
+        => throw new UnreachableException("Can't call this overload directly");
+
+    private static IEnumerable<TResult> ExecuteMergeReturning<TTarget, TSource, TResult>(
+        this IQueryable<TTarget> target,
+        [NotParameterized] IEnumerable<TSource> source,
+        [NotParameterized] IReadOnlyList<ITuple> matchSelectors,
+        [NotParameterized] IReadOnlyList<ITuple>? whenMatchedSetters,
+        [NotParameterized] IReadOnlyList<ITuple>? whenNotMatchedSetters,
+        [NotParameterized] Expression<Func<TTarget, TResult>> returning)
+        => throw new UnreachableException("Can't call this overload directly");
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static readonly MethodInfo ExecuteMergeMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+            .Single(m => m.Name == nameof(ExecuteMerge) && m.GetParameters().Length == 5);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static readonly MethodInfo ExecuteMergeReturningMethodInfo
+        = typeof(EntityFrameworkQueryableExtensions)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+            .Single(m => m.Name == nameof(ExecuteMergeReturning) && m.GetParameters().Length == 6);
+
+    #endregion
 }
