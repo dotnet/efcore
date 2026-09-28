@@ -857,6 +857,88 @@ CREATE TABLE "Products" (
     }
 
     [Fact]
+    public async Task NextResultAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1; " + InfiniteQuery;
+
+        using var reader = await command.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync());
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+        var task = reader.NextResultAsync(cts.Token);
+
+        var ex = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
+        Assert.Equal(cts.Token, ex.CancellationToken);
+        Assert.True(task.IsCanceled);
+        Assert.True(reader.IsClosed);
+
+        command.CommandText = "SELECT 1;";
+        Assert.Equal(1L, await command.ExecuteScalarAsync());
+    }
+
+    [Fact]
+    public async Task NextResultAsync_does_not_run_later_statements_when_canceled_between_statements()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Log (Value);");
+        using var cts = new CancellationTokenSource();
+        connection.CreateFunction(
+            "cancel", () =>
+            {
+                cts.Cancel();
+                return 1;
+            });
+
+        // Cancel() doesn't interrupt, so the statement calling cancel() completes and only the check before the
+        // next statement can stop the batch
+        using var command = new NonInterruptingCommand
+        {
+            Connection = connection,
+            CommandText = "SELECT 1; INSERT INTO Log VALUES (cancel()); CREATE TABLE Data (Value);"
+        };
+
+        using var reader = await command.ExecuteReaderAsync();
+        var task = reader.NextResultAsync(cts.Token);
+
+        var ex = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
+        Assert.Equal(cts.Token, ex.CancellationToken);
+        Assert.True(task.IsCanceled);
+        Assert.True(reader.IsClosed);
+        Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT count(*) FROM Log;"));
+        Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT count(*) FROM sqlite_master WHERE name = 'Data';"));
+    }
+
+    [Fact]
+    public async Task NextResultAsync_throws_when_already_canceled()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1; CREATE TABLE Data (Value);";
+
+        using var reader = await command.ExecuteReaderAsync();
+        var task = reader.NextResultAsync(new CancellationToken(canceled: true));
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
+        Assert.True(task.IsCanceled);
+        Assert.False(reader.IsClosed);
+
+        Assert.False(await reader.NextResultAsync());
+        Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT count(*) FROM sqlite_master WHERE name = 'Data';"));
+    }
+
+    private class NonInterruptingCommand : SqliteCommand
+    {
+        public override void Cancel()
+        {
+        }
+    }
+
+    [Fact]
     public void ExecuteReader_supports_SequentialAccess()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
