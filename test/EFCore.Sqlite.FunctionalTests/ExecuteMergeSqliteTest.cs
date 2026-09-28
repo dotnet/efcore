@@ -395,6 +395,44 @@ public class ExecuteMergeSqliteTest
             RelationalStrings.ExecuteMergePropertyNotFound("Nonexistent", nameof(Blog)), exception.InnerException!.Message);
     }
 
+    [Fact]
+    public void ExecuteMerge_default_insert_reads_same_named_members_from_dto_source()
+    {
+        using var context = CreateContext();
+
+        context.Blogs.Add(new Blog { Id = 1, Name = "original" });
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        // Source rows are a DTO (BlogRow), not the target entity. The default insert must read the same-named members off the DTO.
+        var affected = context.Blogs.ExecuteMerge(
+            new BlogRow[] { new() { Id = 1, Name = "ignored" }, new() { Id = 2, Name = "inserted", Note = "hi" } },
+            merge => { });
+
+        Assert.Equal(1, affected);
+        var blogs = context.Blogs.OrderBy(b => b.Id).ToList();
+        Assert.Equal(2, blogs.Count);
+        Assert.Equal("original", blogs[0].Name);
+        Assert.Equal("inserted", blogs[1].Name);
+        Assert.Equal("hi", blogs[1].Note);
+    }
+
+    [Fact]
+    public void ExecuteMerge_default_insert_missing_source_member_throws()
+    {
+        using var context = CreateContext();
+
+        // The DTO has Id and Note but no Name member, so the default insert can't populate the Name column.
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Blogs.ExecuteMerge(
+                new BlogWithoutName[] { new() { Id = 1, Note = "x" } },
+                merge => { }));
+
+        Assert.Equal(
+            RelationalStrings.ExecuteMergePropertyNotFound(nameof(Blog.Name), nameof(BlogWithoutName)),
+            exception.InnerException!.Message);
+    }
+
     private static MergeContext CreateContext()
     {
         var connection = new SqliteConnection("DataSource=:memory:");
@@ -445,6 +483,19 @@ public class ExecuteMergeSqliteTest
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
+        public string? Note { get; set; }
+    }
+
+    private class BlogRow
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string? Note { get; set; }
+    }
+
+    private class BlogWithoutName
+    {
+        public int Id { get; set; }
         public string? Note { get; set; }
     }
 

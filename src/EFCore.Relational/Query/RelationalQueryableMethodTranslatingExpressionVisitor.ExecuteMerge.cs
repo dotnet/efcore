@@ -105,6 +105,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         // insert setters. Insert value selectors are over the source row only, so they can be evaluated client-side against the
         // (constant) source rows.
         var insertProperties = ResolveInsertProperties(entityType, table, whenNotMatchedSetters);
+        var sourceType = sourceRows.Type.TryGetSequenceType() ?? typeof(object);
         var insertColumns = new string[insertProperties.Count];
         var valueGetters = new Func<object?, object?>?[insertProperties.Count];
         var fixedValues = new SqlExpression?[insertProperties.Count];
@@ -139,9 +140,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     valueGetters[i] = sourceGetter;
                     break;
 
+                // Read the same-named member off the source row. The source type may differ from the target entity (e.g. a DTO), so
+                // we can't use the target property's getter here — build the accessor against the actual source type instead.
                 case null:
-                    var getter = property.GetGetter();
-                    valueGetters[i] = row => getter.GetClrValue(row!);
+                    valueGetters[i] = CompileSourceMemberGetter(sourceType, property.Name);
                     break;
 
                 default:
@@ -424,6 +426,25 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
 
         return names;
+    }
+
+    private static Func<object?, object?> CompileSourceMemberGetter(Type sourceType, string memberName)
+    {
+        var member = (MemberInfo?)sourceType.GetProperty(memberName) ?? sourceType.GetField(memberName);
+        if (member is null)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.ExecuteMergePropertyNotFound(memberName, sourceType.DisplayName(fullName: false)));
+        }
+
+        var parameter = Expression.Parameter(typeof(object), "row");
+        Expression body = Expression.MakeMemberAccess(Expression.Convert(parameter, sourceType), member);
+        if (body.Type != typeof(object))
+        {
+            body = Expression.Convert(body, typeof(object));
+        }
+
+        return (Func<object?, object?>)Expression.Lambda(typeof(Func<object?, object?>), body, parameter).Compile();
     }
 
     private static Func<object?, object?>[] CompileKeyMemberGetters(LambdaExpression selector)

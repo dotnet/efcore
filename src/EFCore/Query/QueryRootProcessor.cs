@@ -50,12 +50,14 @@ public class QueryRootProcessor : ExpressionVisitor
             // The element type doesn't have to be directly mappable; we allow unknown CLR types in order to support value convertors
             // (the precise type mapping - with the value converter - will be inferred later based on LINQ operators composed on the root).
             // However, we do exclude element CLR types which are associated to entity types in our model, since Contains over entity
-            // collections isn't yet supported (#30712).
+            // collections isn't yet supported (#30712). We also exclude [NotParameterized] arguments: these are guaranteed by the caller
+            // to survive as a plain ConstantExpression (e.g. ExecuteMerge's source rows, evaluated client-side rather than translated).
             var visitedArgument = parameterType.IsGenericType
                 && (parameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
                     || parameterType.GetGenericTypeDefinition() == typeof(IQueryable<>))
                 && parameterType.GetGenericArguments()[0] is var elementClrType
                 && !_queryCompilationContext.Model.FindEntityTypes(elementClrType).Any()
+                && parameters[i].GetCustomAttribute<NotParameterizedAttribute>() is null
                     ? VisitQueryRootCandidate(argument, elementClrType)
                     : Visit(argument);
 
