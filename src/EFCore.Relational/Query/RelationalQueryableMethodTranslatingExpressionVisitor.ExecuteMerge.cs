@@ -28,7 +28,49 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             throw new InvalidOperationException(RelationalStrings.ExecuteMergeOnNonEntityType);
         }
 
+        switch (entityType.GetMappingStrategy())
+        {
+            case RelationalAnnotationNames.TptMappingStrategy:
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteOperationOnTPT(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteMerge), entityType.DisplayName()));
+
+            // Note that we do allow TPC if the target is a leaf type
+            case RelationalAnnotationNames.TpcMappingStrategy when entityType.GetDirectlyDerivedTypes().Any():
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteOperationOnTPC(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteMerge), entityType.DisplayName()));
+        }
+
+        // TPH with more than one type in the hierarchy isn't supported: entityType.GetProperties() below only returns this type's own
+        // (inherited) properties, so a default insert can't populate the discriminator or sibling types' columns correctly.
+        if (entityType.FindDiscriminatorProperty() != null)
+        {
+            throw new InvalidOperationException(RelationalStrings.ExecuteMergeOnTph(entityType.DisplayName()));
+        }
+
+        // Find the table model that maps to the entity type; there must be exactly one (e.g. no entity splitting).
+        switch (entityType.GetTableMappings().ToList())
+        {
+            case []:
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(entityType.DisplayName()));
+            case [_]:
+                break;
+            default:
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteOperationOnEntitySplitting(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteMerge), entityType.DisplayName()));
+        }
+
         var table = targetTable.Table;
+
+        // Table splitting: other, unrelated entity types mapped to the same table would have required columns this merge doesn't know
+        // to populate.
+        if (AreOtherNonOwnedEntityTypesInTheTable(entityType.GetRootType(), table))
+        {
+            throw new InvalidOperationException(RelationalStrings.ExecuteMergeOnTableSplitting(table.SchemaQualifiedName));
+        }
 
         // Determine the conflict (match) columns and, for each, how to read its value from a source row. No Match() call => default to
         // the primary key, matched by the same-named source member. The conflict-column value must come from the source-side selector of

@@ -16679,6 +16679,12 @@
           "Member": "static string ExecuteMergeNoPrimaryKey(object? entityType);"
         },
         {
+          "Member": "static string ExecuteMergeOnTableSplitting(object? tableName);"
+        },
+        {
+          "Member": "static string ExecuteMergeOnTph(object? entityType);"
+        },
+        {
           "Member": "static string ExecuteMergePropertyNotFound(object? property, object? entityType);"
         },
         {

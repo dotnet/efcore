@@ -442,6 +442,12 @@
   <data name="ExecuteMergeOnNonEntityType" xml:space="preserve">
     <value>ExecuteMerge is only supported when the target maps to a single entity type.</value>
   </data>
+  <data name="ExecuteMergeOnTableSplitting" xml:space="preserve">
+    <value>The operation 'ExecuteMerge' is being applied on the table '{tableName}' which contains data for multiple entity types. ExecuteMerge on tables shared with other entity types (table splitting) is not supported.</value>
+  </data>
+  <data name="ExecuteMergeOnTph" xml:space="preserve">
+    <value>ExecuteMerge is not supported on entity type '{entityType}', which is using the TPH mapping strategy in a hierarchy with more than one type.</value>
+  </data>
   <data name="ExecuteMergePropertyNotFound" xml:space="preserve">
     <value>The property '{property}' was not found on entity type '{entityType}' in ExecuteMerge.</value>
   </data>
@@ -455,7 +461,7 @@
     <value>Unsupported operator '{nodeType}' in an ExecuteMerge WhenMatched value.</value>
   </data>
   <data name="ExecuteOperationOnEntitySplitting" xml:space="preserve">
-    <value>The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting are not supported.</value>
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate'/'ExecuteMerge' operations on entity types using entity splitting are not supported.</value>
   </data>
   <data name="ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator" xml:space="preserve">
     <value>The operation '{operation}' cannot be performed on keyless entity type '{entityType}', since it contains an operator not natively supported by the database provider.</value>
@@ -464,10 +470,10 @@
     <value>'{operation}' used over owned type '{entityType}' which is mapped to JSON; '{operation}' on JSON-mapped owned entities is not supported. Consider mapping your type as a complex type instead.</value>
   </data>
   <data name="ExecuteOperationOnTPC" xml:space="preserve">
-    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.</value>
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate'/'ExecuteMerge' operations on entity types participating in TPC hierarchies is only supported for leaf types.</value>
   </data>
   <data name="ExecuteOperationOnTPT" xml:space="preserve">
-    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate' operations on hierarchies mapped as TPT are not supported.</value>
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate'/'ExecuteMerge' operations on hierarchies mapped as TPT are not supported.</value>
   </data>
   <data name="ExecuteOperationWithUnsupportedOperatorInSqlGeneration" xml:space="preserve">
     <value>The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, file an issue at https://aka.ms/efcorefeedback.</value>
@@ -479,7 +485,7 @@
     <value>'ExecuteUpdate' cannot currently set a property in a JSON column to a regular, non-JSON column; see https://github.com/dotnet/efcore/issues/36688.</value>
   </data>
   <data name="ExecuteUpdateDeleteOnEntityNotMappedToTable" xml:space="preserve">
-    <value>'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
+    <value>'ExecuteUpdate', 'ExecuteDelete' or 'ExecuteMerge' was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
   </data>
   <data name="ExecuteUpdateOverJsonIsNotSupported" xml:space="preserve">
     <value>'ExecuteUpdate' is being used over type '{structuralType}' which is mapped to JSON; 'ExecuteUpdate' on JSON is not supported.</value>

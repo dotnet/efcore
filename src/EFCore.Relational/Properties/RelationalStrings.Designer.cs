@@ -862,6 +862,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ExecuteMergeOnNonEntityType");
 
         /// <summary>
+        ///     The operation 'ExecuteMerge' is being applied on the table '{tableName}' which contains data for multiple entity types. ExecuteMerge on tables shared with other entity types (table splitting) is not supported.
+        /// </summary>
+        public static string ExecuteMergeOnTableSplitting(object? tableName)
+            => string.Format(
+                GetString("ExecuteMergeOnTableSplitting", nameof(tableName)),
+                tableName);
+
+        /// <summary>
+        ///     ExecuteMerge is not supported on entity type '{entityType}', which is using the TPH mapping strategy in a hierarchy with more than one type.
+        /// </summary>
+        public static string ExecuteMergeOnTph(object? entityType)
+            => string.Format(
+                GetString("ExecuteMergeOnTph", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     The property '{property}' was not found on entity type '{entityType}' in ExecuteMerge.
         /// </summary>
         public static string ExecuteMergePropertyNotFound(object? property, object? entityType)
@@ -894,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType);
 
         /// <summary>
-        ///     The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting are not supported.
+        ///     The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate'/'ExecuteMerge' operations on entity types using entity splitting are not supported.
         /// </summary>
         public static string ExecuteOperationOnEntitySplitting(object? operation, object? entityType)
             => string.Format(
@@ -918,7 +934,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation, entityType);
 
         /// <summary>
-        ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.
+        ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate'/'ExecuteMerge' operations on entity types participating in TPC hierarchies is only supported for leaf types.
         /// </summary>
         public static string ExecuteOperationOnTPC(object? operation, object? entityType)
             => string.Format(
@@ -926,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation, entityType);
 
         /// <summary>
-        ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate' operations on hierarchies mapped as TPT are not supported.
+        ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate'/'ExecuteMerge' operations on hierarchies mapped as TPT are not supported.
         /// </summary>
         public static string ExecuteOperationOnTPT(object? operation, object? entityType)
             => string.Format(
@@ -954,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn");
 
         /// <summary>
-        ///     'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.
+        ///     'ExecuteUpdate', 'ExecuteDelete' or 'ExecuteMerge' was called on entity type '{entityType}', but that entity type is not mapped to a table.
         /// </summary>
         public static string ExecuteUpdateDeleteOnEntityNotMappedToTable(object? entityType)
             => string.Format(
