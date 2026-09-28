@@ -19,18 +19,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<Microsoft.EntityFrameworkCore.HierarchyId>",
-      "Methods": [
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.HierarchyId FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, Microsoft.EntityFrameworkCore.HierarchyId value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter Instance { get; }"
         }
@@ -38,18 +27,7 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<Microsoft.SqlServer.Types.SqlHierarchyId>",
-      "Methods": [
-        {
-          "Member": "override Microsoft.SqlServer.Types.SqlHierarchyId FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
-        },
-        {
-          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, Microsoft.SqlServer.Types.SqlHierarchyId value);"
-        }
-      ],
       "Properties": [
-        {
-          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
-        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter Instance { get; }"
         }

@@ -6,9 +6,6 @@
       "Methods": [
         {
           "Member": "DefiningQueryRewritingConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "override void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
         }
       ]
     },
@@ -28,9 +25,6 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet Build();"
-        },
-        {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet CreateConventionSet();"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder CreateModelBuilder();"
@@ -61,15 +55,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder EnableNullChecks(bool nullChecksEnabled = true);"
-        },
-        {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
-          "Member": "override int GetHashCode();"
-        },
-        {
-          "Member": "override string? ToString();"
         }
       ],
       "Properties": [
