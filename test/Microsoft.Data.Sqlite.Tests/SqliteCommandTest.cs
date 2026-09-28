@@ -716,9 +716,145 @@ CREATE TABLE "Products" (
         Assert.False(hasResult);
     }
 
+    private const string InfiniteQuery = "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c) SELECT count(*) FROM c;";
+
     [Fact]
-    public void Cancel_does_nothing()
+    public void Cancel_does_nothing_when_no_connection()
         => new SqliteCommand().Cancel();
+
+    [Fact]
+    public void Cancel_does_nothing_when_not_executing()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1;";
+
+        command.Cancel();
+
+        Assert.Equal(1L, command.ExecuteScalar());
+    }
+
+    [Fact]
+    public async Task Cancel_interrupts_running_command()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = InfiniteQuery;
+
+        var task = Task.Run(() => command.ExecuteScalar());
+
+        // Cancel is a no-op if called before the statement starts running, so keep calling it
+        while (!task.IsCompleted)
+        {
+            command.Cancel();
+            await Task.Delay(50);
+        }
+
+        var ex = await Assert.ThrowsAsync<SqliteException>(() => task);
+        Assert.Equal(SQLITE_INTERRUPT, ex.SqliteErrorCode);
+
+        command.CommandText = "SELECT 1;";
+        Assert.Equal(1L, command.ExecuteScalar());
+    }
+
+    [Fact]
+    public async Task ExecuteScalarAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = InfiniteQuery;
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+        var task = command.ExecuteScalarAsync(cts.Token);
+
+        var ex = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => task);
+        Assert.Equal(cts.Token, ex.CancellationToken);
+        Assert.True(task.IsCanceled);
+
+        command.CommandText = "SELECT 1;";
+        Assert.Equal(1L, await command.ExecuteScalarAsync());
+    }
+
+    [Fact]
+    public async Task ExecuteNonQueryAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = InfiniteQuery;
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => command.ExecuteNonQueryAsync(cts.Token));
+    }
+
+    [Fact]
+    public async Task ExecuteReaderAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = InfiniteQuery;
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => command.ExecuteReaderAsync(cts.Token));
+
+        Assert.Null(command.DataReader);
+    }
+
+    [Fact]
+    public async Task ExecuteNonQueryAsync_does_not_run_remaining_statements_when_canceled()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        using var cts = new CancellationTokenSource();
+        connection.CreateFunction(
+            "cancel", () =>
+            {
+                cts.Cancel();
+                return 1;
+            });
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT cancel(); CREATE TABLE Data (Value);";
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => command.ExecuteNonQueryAsync(cts.Token));
+
+        command.CommandText = "SELECT count(*) FROM sqlite_master WHERE name = 'Data';";
+        Assert.Equal(0L, command.ExecuteScalar());
+    }
+
+    [Fact]
+    public async Task ExecuteNonQueryAsync_throws_when_already_canceled()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "CREATE TABLE Data (Value);";
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => command.ExecuteNonQueryAsync(new CancellationToken(canceled: true)));
+
+        command.CommandText = "SELECT count(*) FROM sqlite_master WHERE name = 'Data';";
+        Assert.Equal(0L, command.ExecuteScalar());
+    }
+
+    [Fact]
+    public async Task ReadAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c) "
+            + "SELECT 1 UNION ALL SELECT count(*) FROM c;";
+
+        using var reader = await command.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync());
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => reader.ReadAsync(cts.Token));
+    }
 
     [Fact]
     public void ExecuteReader_supports_SequentialAccess()
