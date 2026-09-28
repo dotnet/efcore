@@ -309,6 +309,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInt == null || !ints.Contains(c.NullableInt!.Value)));
     }
 
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_nullable_ints_Contains_int()
+    {
+        var nullableInts = new int?[] { 10, 999 };
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
+    }
+
     internal class ReadOnlyCollectionWithContains<T>(params T[] items) : IReadOnlyCollection<T>
     {
         public int Count => items.Length;
@@ -317,15 +326,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         public IEnumerator<T> GetEnumerator() => items.AsEnumerable().GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_of_nullable_ints_Contains_int()
-    {
-        var nullableInts = new int?[] { 10, 999 };
-
-        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.Int)));
-        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
     }
 
     [ConditionalFact]
