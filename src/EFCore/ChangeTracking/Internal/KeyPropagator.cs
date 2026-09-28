@@ -165,20 +165,12 @@ public class KeyPropagator : IKeyPropagator
     }
 
     private ValueGenerator? TryGetValueGenerator(IProperty? generationProperty, ITypeBase? typeBase)
-    {
-        if (generationProperty == null)
-        {
-            return null;
-        }
-
-        if (!_valueGeneratorSelector.TrySelect(generationProperty, typeBase!, out var valueGenerator))
-        {
-            throw new NotSupportedException(
-                CoreStrings.NoValueGenerator(
-                    generationProperty.Name, generationProperty.DeclaringType.DisplayName(),
-                    generationProperty.ClrType.ShortDisplayName()));
-        }
-
-        return valueGenerator!;
-    }
+        => generationProperty == null
+            ? null
+            : !_valueGeneratorSelector.TrySelect(generationProperty, typeBase!, out var valueGenerator)
+                ? throw new NotSupportedException(
+                    CoreStrings.NoValueGenerator(
+                        generationProperty.Name, generationProperty.DeclaringType.DisplayName(),
+                        generationProperty.ClrType.ShortDisplayName()))
+                : valueGenerator!;
 }

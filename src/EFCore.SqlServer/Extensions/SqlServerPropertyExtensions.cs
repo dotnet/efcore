@@ -33,12 +33,9 @@ public static class SqlServerPropertyExtensions
     public static string? GetHiLoSequenceName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceName);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceName(storeObject);
+        return annotation != null
+            ? (string?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceName(storeObject));
     }
 
     /// <summary>
@@ -92,12 +89,9 @@ public static class SqlServerPropertyExtensions
     public static string? GetHiLoSequenceSchema(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceSchema(storeObject);
+        return annotation != null
+            ? (string?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceSchema(storeObject));
     }
 
     /// <summary>
@@ -205,12 +199,9 @@ public static class SqlServerPropertyExtensions
     public static string? GetSequenceName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.SequenceName);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetSequenceName(storeObject);
+        return annotation != null
+            ? (string?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetSequenceName(storeObject));
     }
 
     /// <summary>
@@ -264,12 +255,9 @@ public static class SqlServerPropertyExtensions
     public static string? GetSequenceSchema(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.SequenceSchema);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetSequenceSchema(storeObject);
+        return annotation != null
+            ? (string?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetSequenceSchema(storeObject));
     }
 
     /// <summary>
@@ -704,16 +692,13 @@ public static class SqlServerPropertyExtensions
 
         var defaultValueGenerationStrategy = GetDefaultValueGenerationStrategy(property);
 
-        if (property.ValueGenerated != ValueGenerated.OnAdd
+        return property.ValueGenerated != ValueGenerated.OnAdd
             || property.IsForeignKey()
             || property.TryGetDefaultValue(out _)
             || (defaultValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence && property.GetDefaultValueSql() != null)
-            || property.GetComputedColumnSql() != null)
-        {
-            return SqlServerValueGenerationStrategy.None;
-        }
-
-        return defaultValueGenerationStrategy;
+            || property.GetComputedColumnSql() != null
+                ? SqlServerValueGenerationStrategy.None
+                : defaultValueGenerationStrategy;
     }
 
     /// <summary>
@@ -728,7 +713,7 @@ public static class SqlServerPropertyExtensions
     public static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
         this IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject)
-        => GetValueGenerationStrategy(property, storeObject, null);
+        => property.GetValueGenerationStrategy(storeObject, null);
 
     internal static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
         this IReadOnlyProperty property,
@@ -807,16 +792,13 @@ public static class SqlServerPropertyExtensions
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
         var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
-        if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
-            && IsCompatibleWithValueGeneration(property))
-        {
-            return modelStrategy.Value;
-        }
-
-        return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+        return modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property)
-                ? SqlServerValueGenerationStrategy.IdentityColumn
-                : SqlServerValueGenerationStrategy.None;
+                ? modelStrategy.Value
+                : modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && IsCompatibleWithValueGeneration(property)
+                    ? SqlServerValueGenerationStrategy.IdentityColumn
+                    : SqlServerValueGenerationStrategy.None;
     }
 
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(
@@ -825,18 +807,15 @@ public static class SqlServerPropertyExtensions
         ITypeMappingSource? typeMappingSource)
     {
         var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
-        if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
-            && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
-        {
-            return modelStrategy.Value;
-        }
-
-        return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+        return modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource)
-                ? property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
-                    ? SqlServerValueGenerationStrategy.Sequence
-                    : SqlServerValueGenerationStrategy.IdentityColumn
-                : SqlServerValueGenerationStrategy.None;
+                ? modelStrategy.Value
+                : modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource)
+                    ? property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                        ? SqlServerValueGenerationStrategy.Sequence
+                        : SqlServerValueGenerationStrategy.IdentityColumn
+                    : SqlServerValueGenerationStrategy.None;
     }
 
     /// <summary>
@@ -1050,4 +1029,55 @@ public static class SqlServerPropertyExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for whether the property's column is sparse.</returns>
     public static ConfigurationSource? GetIsSparseConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(SqlServerAnnotationNames.Sparse)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether the property's column is defined with the SQL Server <c>HIDDEN</c> flag,
+    ///     which excludes the column from <c>SELECT *</c> results.
+    /// </summary>
+    /// <remarks>
+    ///     This applies to columns defined with <c>GENERATED ALWAYS AS</c>, including SQL Server temporal table
+    ///     period columns. The default for temporal period columns is <see langword="true" />; for other columns
+    ///     this annotation has no effect unless the column is generated.
+    /// </remarks>
+    /// <param name="property">The property.</param>
+    /// <returns>
+    ///     <see langword="true" /> if the property's column is hidden. Defaults to <see langword="true" /> when not
+    ///     explicitly configured, since temporal period columns are hidden by default.
+    /// </returns>
+    public static bool IsHidden(this IReadOnlyProperty property)
+        => (property is RuntimeProperty)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)property[SqlServerAnnotationNames.IsHidden] ?? true;
+
+    /// <summary>
+    ///     Sets a value indicating whether the property's column is defined with the SQL Server <c>HIDDEN</c> flag.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="hidden">The value to set; <see langword="null" /> to remove the explicit configuration.</param>
+    public static void SetIsHidden(this IMutableProperty property, bool? hidden)
+        => property.SetOrRemoveAnnotation(SqlServerAnnotationNames.IsHidden, hidden);
+
+    /// <summary>
+    ///     Sets a value indicating whether the property's column is defined with the SQL Server <c>HIDDEN</c> flag.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="hidden">The value to set; <see langword="null" /> to remove the explicit configuration.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? SetIsHidden(
+        this IConventionProperty property,
+        bool? hidden,
+        bool fromDataAnnotation = false)
+        => (bool?)property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.IsHidden,
+            hidden,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for whether the property's column is hidden.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for whether the property's column is hidden.</returns>
+    public static ConfigurationSource? GetIsHiddenConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(SqlServerAnnotationNames.IsHidden)?.GetConfigurationSource();
 }

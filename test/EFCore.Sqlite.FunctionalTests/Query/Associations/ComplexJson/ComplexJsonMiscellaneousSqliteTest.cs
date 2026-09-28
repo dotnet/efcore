@@ -4,4 +4,9 @@
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexJson;
 
 public class ComplexJsonMiscellaneousSqliteTest(ComplexJsonSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-    : ComplexJsonMiscellaneousRelationalTestBase<ComplexJsonSqliteFixture>(fixture, testOutputHelper);
+    : ComplexJsonMiscellaneousRelationalTestBase<ComplexJsonSqliteFixture>(fixture, testOutputHelper)
+{
+    // TODO: #34627
+    public override Task FromSql_on_root()
+        => Assert.ThrowsAnyAsync<Exception>(base.FromSql_on_root);
+}

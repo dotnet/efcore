@@ -11,14 +11,14 @@ public class ModelCodeGeneratorTestFixture : IDisposable
         Directory.CreateDirectory(templatesDir);
 
         using (var input = typeof(ModelCodeGeneratorTestBase).Assembly.GetManifestResourceStream(
-                   "Microsoft.EntityFrameworkCore.Resources.CSharpDbContextGenerator.tt"))
+               "Microsoft.EntityFrameworkCore.Resources.CSharpDbContextGenerator.tt")!)
         using (var output = File.Create(Path.Combine(templatesDir, "DbContext.t4")))
         {
             input.CopyTo(output);
         }
 
         using (var input = typeof(ModelCodeGeneratorTestBase).Assembly.GetManifestResourceStream(
-                   "Microsoft.EntityFrameworkCore.Resources.CSharpEntityTypeGenerator.tt"))
+               "Microsoft.EntityFrameworkCore.Resources.CSharpEntityTypeGenerator.tt")!)
         using (var output = File.Create(Path.Combine(templatesDir, "EntityType.t4")))
         {
             input.CopyTo(output);

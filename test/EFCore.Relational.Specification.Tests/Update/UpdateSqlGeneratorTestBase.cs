@@ -7,11 +7,9 @@ using Microsoft.EntityFrameworkCore.Update.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class UpdateSqlGeneratorTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendDeleteOperation_creates_full_delete_command_text()
     {
         var stringBuilder = new StringBuilder();
@@ -24,7 +22,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendDeleteOperation_creates_full_delete_command_text_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check()
     {
         var stringBuilder = new StringBuilder();
@@ -38,7 +36,7 @@ public abstract class UpdateSqlGeneratorTestBase
     protected abstract void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(
         StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendInsertOperation_insert_if_store_generated_columns_exist()
     {
         var stringBuilder = new StringBuilder();
@@ -51,7 +49,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendInsertOperation_insert_if_store_generated_columns_exist_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void
         AppendInsertOperation_appends_insert_and_select_rowcount_if_no_store_generated_columns_exist_or_conditions_exist()
     {
@@ -89,7 +87,7 @@ public abstract class UpdateSqlGeneratorTestBase
             stringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendInsertOperation_for_store_generated_columns_but_no_identity()
     {
         var stringBuilder = new StringBuilder();
@@ -102,7 +100,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendInsertOperation_for_store_generated_columns_but_no_identity_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendInsertOperation_for_only_identity()
     {
         var stringBuilder = new StringBuilder();
@@ -115,7 +113,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendInsertOperation_for_only_identity_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendInsertOperation_for_all_store_generated_columns()
     {
         var stringBuilder = new StringBuilder();
@@ -128,7 +126,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendInsertOperation_for_all_store_generated_columns_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendInsertOperation_for_only_single_identity_columns()
     {
         var stringBuilder = new StringBuilder();
@@ -141,7 +139,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendInsertOperation_for_only_single_identity_columns_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendUpdateOperation_if_store_generated_columns_exist()
     {
         var stringBuilder = new StringBuilder();
@@ -154,7 +152,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendUpdateOperation_if_store_generated_columns_exist_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendUpdateOperation_if_store_generated_columns_dont_exist()
     {
         var stringBuilder = new StringBuilder();
@@ -167,7 +165,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendUpdateOperation_if_store_generated_columns_dont_exist_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendUpdateOperation_appends_where_for_concurrency_token()
     {
         var stringBuilder = new StringBuilder();
@@ -180,7 +178,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendUpdateOperation_appends_where_for_concurrency_token_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AppendUpdateOperation_for_computed_property()
     {
         var stringBuilder = new StringBuilder();
@@ -193,7 +191,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract void AppendUpdateOperation_for_computed_property_verification(StringBuilder stringBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence()
     {
         var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("sequence" + CloseDelimiter + "; --", null);
@@ -203,7 +201,7 @@ public abstract class UpdateSqlGeneratorTestBase
             statement);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void GenerateNextSequenceValueOperation_correctly_handles_schemas()
     {
         var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("mysequence", "dbo");
@@ -247,11 +245,11 @@ public abstract class UpdateSqlGeneratorTestBase
         var generator = new ParameterNameGenerator();
 
         var duckType = entry.EntityType;
-        var idProperty = duckType.FindProperty(nameof(Duck.Id));
-        var nameProperty = duckType.FindProperty(nameof(Duck.Name));
-        var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
-        var computedProperty = duckType.FindProperty(nameof(Duck.Computed));
-        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+        var idProperty = duckType.FindProperty(nameof(Duck.Id))!;
+        var nameProperty = duckType.FindProperty(nameof(Duck.Name))!;
+        var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks))!;
+        var computedProperty = duckType.FindProperty(nameof(Duck.Computed))!;
+        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken))!;
 
         var columnModifications = new[]
         {
@@ -289,11 +287,11 @@ public abstract class UpdateSqlGeneratorTestBase
         var generator = new ParameterNameGenerator();
 
         var duckType = entry.EntityType;
-        var idProperty = duckType.FindProperty(nameof(Duck.Id));
-        var nameProperty = duckType.FindProperty(nameof(Duck.Name));
-        var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
-        var computedProperty = duckType.FindProperty(nameof(Duck.Computed));
-        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+        var idProperty = duckType.FindProperty(nameof(Duck.Id))!;
+        var nameProperty = duckType.FindProperty(nameof(Duck.Name))!;
+        var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks))!;
+        var computedProperty = duckType.FindProperty(nameof(Duck.Computed))!;
+        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken))!;
 
         var columnModifications = new[]
         {
@@ -325,8 +323,8 @@ public abstract class UpdateSqlGeneratorTestBase
         var generator = new ParameterNameGenerator();
 
         var duckType = entry.EntityType;
-        var idProperty = duckType.FindProperty(nameof(Duck.Id));
-        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
+        var idProperty = duckType.FindProperty(nameof(Duck.Id))!;
+        var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken))!;
 
         var columnModifications = new[]
         {
@@ -353,10 +351,10 @@ public abstract class UpdateSqlGeneratorTestBase
     protected class Duck
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int Quacks { get; set; }
         public Guid Computed { get; set; }
-        public byte[] ConcurrencyToken { get; set; }
+        public byte[]? ConcurrencyToken { get; set; }
     }
 
     private IModificationCommand CreateModificationCommand(

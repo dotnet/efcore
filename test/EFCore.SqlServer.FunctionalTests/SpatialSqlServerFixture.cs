@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SpatialSqlServerFixture : SpatialFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory

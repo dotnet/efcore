@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class ManyToManySplitQuerySqliteFixture : ManyToManyQuerySqliteFixture
 {
     protected override string StoreName

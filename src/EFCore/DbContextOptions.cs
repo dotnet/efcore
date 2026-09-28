@@ -75,12 +75,8 @@ public abstract class DbContextOptions : IDbContextOptions
         where TExtension : class, IDbContextOptionsExtension
     {
         var extension = FindExtension<TExtension>();
-        if (extension == null)
-        {
-            throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).ShortDisplayName()));
-        }
-
-        return extension;
+        return extension
+            ?? throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).ShortDisplayName()));
     }
 
     /// <summary>
@@ -91,6 +87,15 @@ public abstract class DbContextOptions : IDbContextOptions
     /// <param name="extension">The extension to be added.</param>
     /// <returns>The new options instance with the given extension added.</returns>
     public abstract DbContextOptions WithExtension<TExtension>(TExtension extension)
+        where TExtension : class, IDbContextOptionsExtension;
+
+    /// <summary>
+    ///     Removes the given extension from the underlying options and creates a new
+    ///     <see cref="DbContextOptions" /> with the extension removed.
+    /// </summary>
+    /// <typeparam name="TExtension">The type of extension to be removed.</typeparam>
+    /// <returns>The new options instance with the extension removed.</returns>
+    public abstract DbContextOptions WithoutExtension<TExtension>()
         where TExtension : class, IDbContextOptionsExtension;
 
     /// <summary>

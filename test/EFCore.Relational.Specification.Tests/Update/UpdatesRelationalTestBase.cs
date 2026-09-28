@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
@@ -6,12 +6,10 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : UpdatesTestBase<TFixture>(fixture)
     where TFixture : UpdatesRelationalTestBase<TFixture>.UpdatesRelationalFixture
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task SaveChanges_works_for_entities_also_mapped_to_view()
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -45,7 +43,7 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                 Assert.Equal("Pear Cobler", viewProduct.Name);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task SaveChanges_throws_for_entities_only_mapped_to_view()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -64,7 +62,7 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Save_with_shared_foreign_key()
     {
         Guid productId = default;
@@ -82,7 +80,7 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                 var product = (await context.ProductWithBytes.FindAsync(productId))!;
                 var category = new SpecialCategory { PrincipalId = 777 };
                 var productCategory = new ProductCategory { Category = category };
-                product.ProductCategories = new List<ProductCategory> { productCategory };
+                product.ProductCategories = [productCategory];
 
                 await context.SaveChangesAsync();
 
@@ -101,14 +99,15 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_use_shared_columns_with_conversion()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 var person = new Person("1", null)
                 {
-                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini"
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
+                    Country = "Eswatini"
                 };
 
                 context.Add(person);
@@ -137,7 +136,7 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                 Assert.Equal("42100", person.ZipCode);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Swap_filtered_unique_index_values()
     {
         var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -174,7 +173,7 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
             });
     }
 
-    [ConditionalFact] // Issue #33023
+    [Fact] // Issue #33023
     public virtual Task Swap_computed_unique_index_values()
     {
         var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -211,7 +210,7 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_non_indexed_values()
     {
         var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -260,7 +259,31 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
             });
     }
 
-    [ConditionalFact]
+    [Theory, InlineData(false), InlineData(true)] // Issue #37525
+    public virtual async Task Can_save_owned_entity_with_default_values_in_TPH_with_shared_columns(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entity = new CrunchyNougat { Name = "Test" };
+                context.Add(entity);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var entity = await context.Set<CrunchyNougat>().SingleAsync();
+                Assert.Null(entity.Filling);
+                entity.Filling = new NougatFilling();
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var entity = await context.Set<CrunchyNougat>().SingleAsync();
+                Assert.NotNull(entity.Filling);
+                Assert.Equal(NougatFillingKind.Unknown, entity.Filling.Kind);
+                Assert.False(entity.Filling.IsFresh);
+            });
+
+    [Fact]
     public abstract void Identifiers_are_generated_correctly();
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -281,9 +304,9 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<ProductViewTable>().HasBaseType((string)null).ToTable("ProductView");
-            modelBuilder.Entity<ProductTableWithView>().HasBaseType((string)null).ToView("ProductView").ToTable("ProductTable");
-            modelBuilder.Entity<ProductTableView>().HasBaseType((string)null).ToView("ProductTable");
+            modelBuilder.Entity<ProductViewTable>().HasBaseType((string?)null).ToTable("ProductView");
+            modelBuilder.Entity<ProductTableWithView>().HasBaseType((string?)null).ToView("ProductView").ToTable("ProductTable");
+            modelBuilder.Entity<ProductTableView>().HasBaseType((string?)null).ToView("ProductTable");
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique();
 
@@ -300,6 +323,19 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                     .Property(p => p.ZipCode)
                     .HasColumnName("ZipCode");
             });
+
+            modelBuilder.Entity<CrunchyNougat>(b => b.OwnsOne(
+                e => e.Filling, ob =>
+                {
+                    ob.Property(o => o.Kind).HasColumnName("FillingKind");
+                    ob.Property(o => o.IsFresh).HasColumnName("FillingIsFresh");
+                }));
+            modelBuilder.Entity<SoftNougat>(b => b.OwnsOne(
+                e => e.Filling, ob =>
+                {
+                    ob.Property(o => o.Kind).HasColumnName("FillingKind");
+                    ob.Property(o => o.IsFresh).HasColumnName("FillingIsFresh");
+                }));
 
             modelBuilder
                 .Entity<

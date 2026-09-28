@@ -15,5 +15,5 @@ public class TransactionHistoryArchive
     public int ReferenceOrderID { get; set; }
     public int ReferenceOrderLineID { get; set; }
     public DateTime TransactionDate { get; set; }
-    public string TransactionType { get; set; }
+    public string TransactionType { get; set; } = null!;
 }

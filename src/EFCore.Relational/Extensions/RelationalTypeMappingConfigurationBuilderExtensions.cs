@@ -48,7 +48,7 @@ public static class RelationalTypeMappingConfigurationBuilderExtensions
     public static TypeMappingConfigurationBuilder<TScalar> HasColumnType<TScalar>(
         this TypeMappingConfigurationBuilder<TScalar> scalarBuilder,
         string typeName)
-        => (TypeMappingConfigurationBuilder<TScalar>)HasColumnType((TypeMappingConfigurationBuilder)scalarBuilder, typeName);
+        => (TypeMappingConfigurationBuilder<TScalar>)((TypeMappingConfigurationBuilder)scalarBuilder).HasColumnType(typeName);
 
     /// <summary>
     ///     Configures the scalar as capable of storing only fixed-length data, such as strings.
@@ -81,5 +81,5 @@ public static class RelationalTypeMappingConfigurationBuilderExtensions
     public static TypeMappingConfigurationBuilder<TScalar> IsFixedLength<TScalar>(
         this TypeMappingConfigurationBuilder<TScalar> scalarBuilder,
         bool fixedLength = true)
-        => (TypeMappingConfigurationBuilder<TScalar>)IsFixedLength((TypeMappingConfigurationBuilder)scalarBuilder, fixedLength);
+        => (TypeMappingConfigurationBuilder<TScalar>)((TypeMappingConfigurationBuilder)scalarBuilder).IsFixedLength(fixedLength);
 }

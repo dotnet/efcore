@@ -8,7 +8,7 @@ public abstract class DesignTimeProviderServicesTest
     protected abstract Assembly GetRuntimeAssembly();
     protected abstract Type GetDesignTimeServicesType();
 
-    [ConditionalFact]
+    [Fact]
     public void Ensure_assembly_identity_matches()
     {
         var runtimeAssembly = GetRuntimeAssembly();

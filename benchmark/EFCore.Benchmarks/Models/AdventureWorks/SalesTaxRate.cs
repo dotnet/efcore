@@ -9,7 +9,7 @@ public class SalesTaxRate
 {
     public int SalesTaxRateID { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
@@ -17,5 +17,5 @@ public class SalesTaxRate
     public decimal TaxRate { get; set; }
     public byte TaxType { get; set; }
 
-    public virtual StateProvince StateProvince { get; set; }
+    public virtual StateProvince StateProvince { get; set; } = null!;
 }

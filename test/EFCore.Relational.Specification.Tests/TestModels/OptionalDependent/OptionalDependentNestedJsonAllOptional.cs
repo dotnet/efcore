@@ -3,10 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
-#nullable disable
-
 public class OptionalDependentNestedJsonAllOptional
 {
-    public string OpNested1 { get; set; }
+    public string? OpNested1 { get; set; }
     public int? OpNested2 { get; set; }
 }

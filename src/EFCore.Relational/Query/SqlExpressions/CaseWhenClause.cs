@@ -39,8 +39,8 @@ public class CaseWhenClause
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is CaseWhenClause caseWhenClause
-                && Equals(caseWhenClause));
+                || (obj is CaseWhenClause caseWhenClause
+                    && Equals(caseWhenClause)));
 
     private bool Equals(CaseWhenClause caseWhenClause)
         => Test.Equals(caseWhenClause.Test)

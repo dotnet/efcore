@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
 [DisplayName(nameof(SimpleQueryTests))]
 public abstract class SimpleQueryTests
 {
-    private OrdersContextBase _context;
+    private OrdersContextBase _context = null!;
 
     protected abstract OrdersFixtureBase CreateFixture();
 

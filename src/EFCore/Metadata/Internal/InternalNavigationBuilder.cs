@@ -174,33 +174,24 @@ public class InternalNavigationBuilder :
             || CanSetIsRequired(required, configurationSource))
         {
             var foreignKey = Metadata.ForeignKey;
-            if (foreignKey.IsUnique)
-            {
-                if (foreignKey.GetPrincipalEndConfigurationSource() == null)
-                {
-                    throw new InvalidOperationException(
+            return foreignKey.IsUnique
+                ? foreignKey.GetPrincipalEndConfigurationSource() == null
+                    ? throw new InvalidOperationException(
                         CoreStrings.AmbiguousEndRequiredDependentNavigation(
                             Metadata.DeclaringEntityType.DisplayName(),
                             Metadata.Name,
-                            foreignKey.Properties.Format()));
-                }
-
-                return Metadata.IsOnDependent
+                            foreignKey.Properties.Format()))
+                    : Metadata.IsOnDependent
+                        ? foreignKey.Builder.IsRequired(required, configurationSource)!
+                            .Metadata.DependentToPrincipal!.Builder
+                        : foreignKey.Builder.IsRequiredDependent(required, configurationSource)!
+                            .Metadata.PrincipalToDependent!.Builder
+                : Metadata.IsOnDependent
                     ? foreignKey.Builder.IsRequired(required, configurationSource)!
                         .Metadata.DependentToPrincipal!.Builder
-                    : foreignKey.Builder.IsRequiredDependent(required, configurationSource)!
-                        .Metadata.PrincipalToDependent!.Builder;
-            }
-
-            if (Metadata.IsOnDependent)
-            {
-                return foreignKey.Builder.IsRequired(required, configurationSource)!
-                    .Metadata.DependentToPrincipal!.Builder;
-            }
-
-            throw new InvalidOperationException(
-                CoreStrings.NonUniqueRequiredDependentNavigation(
-                    foreignKey.PrincipalEntityType.DisplayName(), Metadata.Name));
+                    : throw new InvalidOperationException(
+                        CoreStrings.NonUniqueRequiredDependentNavigation(
+                            foreignKey.PrincipalEntityType.DisplayName(), Metadata.Name));
         }
 
         return null;

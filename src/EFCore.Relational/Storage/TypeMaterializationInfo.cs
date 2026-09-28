@@ -78,8 +78,8 @@ public class TypeMaterializationInfo
     public override bool Equals(object? obj)
         => obj is not null
             && (ReferenceEquals(this, obj)
-                || obj.GetType() == GetType()
-                && Equals((TypeMaterializationInfo)obj));
+                || (obj.GetType() == GetType()
+                    && Equals((TypeMaterializationInfo)obj)));
 
     /// <summary>
     ///     Serves as the default hash function.

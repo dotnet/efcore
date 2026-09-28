@@ -10,7 +10,7 @@ public class GlobalDatabaseTest
 {
     private static readonly InMemoryDatabaseRoot _databaseRoot = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Different_stores_are_used_when_options_force_different_internal_service_provider()
     {
         using (var context = new BooFooContext(
@@ -32,7 +32,7 @@ public class GlobalDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AddDbContext_does_not_force_different_internal_service_provider()
     {
         using (var context = new BooFooContext(
@@ -50,12 +50,12 @@ public class GlobalDatabaseTest
 
         using var scope = serviceProvider.CreateScope();
         {
-            var context = scope.ServiceProvider.GetService<BooFooContext>();
+            var context = scope.ServiceProvider.GetService<BooFooContext>()!;
             Assert.NotEmpty(context.Foos.ToList());
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Global_store_can_be_used_when_options_force_different_internal_service_provider()
     {
         using (var context = new BooFooContext(
@@ -79,7 +79,7 @@ public class GlobalDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Owned_types_are_found_correctly_with_database_root()
     {
         var options = new DbContextOptionsBuilder()
@@ -115,7 +115,7 @@ public class GlobalDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Global_store_can_be_used_when_AddDbContext_force_different_internal_service_provider()
     {
         using (var context = new BooFooContext(
@@ -136,12 +136,12 @@ public class GlobalDatabaseTest
 
         using var scope = serviceProvider.CreateScope();
         {
-            var context = scope.ServiceProvider.GetService<BooFooContext>();
+            var context = scope.ServiceProvider.GetService<BooFooContext>()!;
             Assert.Equal(1, context.Boos.Count());
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EnableNullChecks_forces_different_internal_service_provider()
     {
         using var context1 = new ChangeNullabilityChecksContext(enableNullChecks: true);
@@ -160,7 +160,7 @@ public class GlobalDatabaseTest
                     b => b.EnableNullChecks(_enableNullChecks));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_changing_nullability_checks_in_OnConfiguring_when_UseInternalServiceProvider()
     {
         using (var context = new ChangeNullabilityChecksCacheContext(false))
@@ -210,26 +210,26 @@ public class GlobalDatabaseTest
             });
         }
 
-        public DbSet<Foo> Foos { get; set; }
-        public DbSet<Boo> Boos { get; set; }
+        public DbSet<Foo> Foos { get; set; } = null!;
+        public DbSet<Boo> Boos { get; set; } = null!;
     }
 
     private class Foo
     {
         public int Id { get; set; }
-        public Goo Goo1 { get; set; }
-        public Goo Goo2 { get; set; }
+        public Goo? Goo1 { get; set; }
+        public Goo? Goo2 { get; set; }
     }
 
     private class Boo
     {
         public int Id { get; set; }
-        public Goo Goo1 { get; set; }
-        public Goo Goo2 { get; set; }
+        public Goo? Goo1 { get; set; }
+        public Goo? Goo2 { get; set; }
     }
 
     private class Goo
     {
-        public string Goop { get; set; }
+        public string? Goop { get; set; }
     }
 }

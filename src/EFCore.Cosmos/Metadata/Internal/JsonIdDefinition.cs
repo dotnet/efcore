@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 /// </summary>
 public class JsonIdDefinition : IJsonIdDefinition
 {
+    private static readonly bool _escapeIllegalIdCharacters =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.EscapeIllegalCosmosIdCharacters", out var enabled) && enabled;
+
     private readonly IProperty? _discriminatorProperty;
     private readonly object? _discriminatorValue;
 
@@ -160,15 +163,27 @@ public class JsonIdDefinition : IJsonIdDefinition
         var startingIndex = builder.Length;
         builder = builder.Append(stringValue);
 
-        return singleValue
-            ? builder
-            : builder
-                // We need this to avoid collisions with the value separator, but only when the key has multiple values.
-                .Replace("|", "^|", startingIndex, builder.Length - startingIndex)
-                // These are invalid characters, see https://docs.microsoft.com/dotnet/api/microsoft.azure.documents.resource.id
+        if (singleValue)
+        {
+            return builder;
+        }
+
+        // We need this to avoid collisions with the value separator, but only when the key has multiple values.
+        builder.Replace("|", "^|", startingIndex, builder.Length - startingIndex);
+
+        if (_escapeIllegalIdCharacters)
+        {
+            // These are invalid characters in Cosmos 'id' values, see
+            // https://docs.microsoft.com/dotnet/api/microsoft.azure.documents.resource.id
+            // Escaping them is opt-in via the 'Microsoft.EntityFrameworkCore.EscapeIllegalIdCharacters' AppContext switch
+            // because the escapes can produce ambiguous 'id' values that collide across distinct keys if they contained the '^' character.
+            builder
                 .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)
                 .Replace("\\", "^5C", startingIndex, builder.Length - startingIndex)
                 .Replace("?", "^3F", startingIndex, builder.Length - startingIndex)
                 .Replace("#", "^23", startingIndex, builder.Length - startingIndex);
+        }
+
+        return builder;
     }
 }

@@ -17,5 +17,5 @@ public interface ITableBasedExpression
     /// <summary>
     ///     The <see cref="ITableBase" /> associated with given table source, if any.
     /// </summary>
-    ITableBase? Table { get; }
+    public ITableBase? Table { get; }
 }

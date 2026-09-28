@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 [Table("ProductModel", Schema = "SalesLT")]
 public class ProductModel
 {
@@ -17,8 +15,8 @@ public class ProductModel
     }
 
     public int ProductModelID { get; set; }
-    public string Name { get; set; }
-    public string CatalogDescription { get; set; }
+    public string? Name { get; set; }
+    public string? CatalogDescription { get; set; }
     public DateTime ModifiedDate { get; set; }
     public Guid rowguid { get; set; }
 

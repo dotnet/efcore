@@ -29,7 +29,8 @@ public abstract class OwnedTableSplittingProjectionRelationalTestBase<TFixture>
             queryTrackingBehavior,
             () => AssertQuery(
                 ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
-                ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection ?? new List<NestedAssociateType>()),
+                ss => ss.Set<RootEntity>().OrderBy(e => e.Id)
+                    .Select(x => x.OptionalAssociate!.NestedCollection ?? new List<NestedAssociateType>()),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
                 queryTrackingBehavior: queryTrackingBehavior));

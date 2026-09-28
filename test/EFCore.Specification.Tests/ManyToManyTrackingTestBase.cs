@@ -7,15 +7,13 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ManyToManyTrackingTestBase<TFixture>.ManyToManyTrackingFixtureBase
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_with_navs(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -88,7 +86,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityCompositeKey>().Where(e => keys.Contains(e.Key1)).Include(e => e.LeafSkipFull);
+                var queryable = context.Set<EntityCompositeKey>().Where(e => keys!.Contains(e.Key1)).Include(e => e.LeafSkipFull);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -101,7 +99,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityLeaf> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityLeaf> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
@@ -134,7 +132,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_composite_with_navs()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -226,7 +224,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities, 24, 8, 39 - 4);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             List<EntityCompositeKey> leftEntities,
             List<EntityLeaf> rightEntities,
@@ -284,13 +282,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.LeafSkipFull?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.CompositeKeySkipFull);
+                        Assert.Contains(left, right.CompositeKeySkipFull!);
                         count++;
                     }
 
                     if (right.CompositeKeySkipFull?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.LeafSkipFull);
+                        Assert.Contains(right, left.LeafSkipFull!);
                         count++;
                     }
                 }
@@ -301,7 +299,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_composite_with_navs()
     {
         var key1 = 0;
@@ -459,10 +457,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_shared_with_navs(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -535,7 +533,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityCompositeKey>().Where(e => keys.Contains(e.Key1)).Include(e => e.RootSkipShared);
+                var queryable = context.Set<EntityCompositeKey>().Where(e => keys!.Contains(e.Key1)).Include(e => e.RootSkipShared);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -548,7 +546,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityRoot> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityRoot> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
@@ -568,10 +566,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_composite_shared_with_navs()
     {
-        List<int> rootKeys = null;
+        List<int> rootKeys = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -684,9 +682,9 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
             Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
 
-            Assert.Contains(leftEntities[0].RootSkipShared, e => context.Entry(e).Property(e => e.Id).CurrentValue == rootKeys[0]);
-            Assert.Contains(leftEntities[0].RootSkipShared, e => context.Entry(e).Property(e => e.Id).CurrentValue == rootKeys[1]);
-            Assert.Contains(leftEntities[0].RootSkipShared, e => context.Entry(e).Property(e => e.Id).CurrentValue == rootKeys[2]);
+            Assert.Contains(leftEntities[0].RootSkipShared, e => context.Entry(e).Property(e => e.Id).CurrentValue == rootKeys![0]);
+            Assert.Contains(leftEntities[0].RootSkipShared, e => context.Entry(e).Property(e => e.Id).CurrentValue == rootKeys![1]);
+            Assert.Contains(leftEntities[0].RootSkipShared, e => context.Entry(e).Property(e => e.Id).CurrentValue == rootKeys![2]);
 
             Assert.Contains(rightEntities[0].CompositeKeySkipShared, e => e.Key2 == "Z7711");
             Assert.Contains(rightEntities[0].CompositeKeySkipShared, e => e.Key2 == "Z7712");
@@ -696,7 +694,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             Assert.DoesNotContain(rightEntities[1].CompositeKeySkipShared, e => e.Key2 == "8_2");
 
             Assert.DoesNotContain(leftEntities[2].RootSkipShared, e => e.Name == "Branch 6");
-            Assert.Contains(leftEntities[2].RootSkipShared, e => context.Entry(e).Property(e => e.Id).CurrentValue == rootKeys[3]);
+            Assert.Contains(leftEntities[2].RootSkipShared, e => context.Entry(e).Property(e => e.Id).CurrentValue == rootKeys![3]);
 
             Assert.DoesNotContain(rightEntities[3].CompositeKeySkipShared, e => e.Key2 == "8_5");
             Assert.Contains(rightEntities[3].CompositeKeySkipShared, e => e.Key2 == "Z7714");
@@ -714,13 +712,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.RootSkipShared?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.CompositeKeySkipShared);
+                        Assert.Contains(left, right.CompositeKeySkipShared!);
                         count++;
                     }
 
                     if (right.CompositeKeySkipShared?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.RootSkipShared);
+                        Assert.Contains(right, left.RootSkipShared!);
                         count++;
                     }
                 }
@@ -731,7 +729,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_composite_shared_with_navs()
     {
         var key1 = 0;
@@ -839,10 +837,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_additional_pk_with_navs(bool async)
     {
-        List<string> keys = null;
+        List<string> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -927,7 +925,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityCompositeKey>().Where(e => keys.Contains(e.Key2)).Include(e => e.ThreeSkipFull);
+                var queryable = context.Set<EntityCompositeKey>().Where(e => keys!.Contains(e.Key2)).Include(e => e.ThreeSkipFull);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -940,7 +938,11 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities, postSave: true);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityThree> rightEntities, bool postSave)
+        static void ValidateFixup(
+            DbContext context,
+            IList<EntityCompositeKey> leftEntities,
+            IList<EntityThree> rightEntities,
+            bool postSave)
         {
             var entries = context.ChangeTracker.Entries();
             Assert.Equal(11, entries.Count());
@@ -979,10 +981,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_composite_additional_pk_with_navs()
     {
-        List<int> threeIds = null;
+        List<int> threeIds = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1098,9 +1100,9 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             Assert.Equal(joinCount, context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Count());
             Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
 
-            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds[0]);
-            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds[1]);
-            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds[2]);
+            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds![0]);
+            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds![1]);
+            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds![2]);
 
             Assert.Contains(rightEntities[0].CompositeKeySkipFull, e => e.Key2 == "Z7711");
             Assert.Contains(rightEntities[0].CompositeKeySkipFull, e => e.Key2 == "Z7712");
@@ -1110,7 +1112,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             Assert.DoesNotContain(rightEntities[1].CompositeKeySkipFull, e => e.Key2 == "9_2");
 
             Assert.DoesNotContain(leftEntities[3].ThreeSkipFull, e => e.Name == "EntityThree 23");
-            Assert.Contains(leftEntities[3].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds[3]);
+            Assert.Contains(leftEntities[3].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds![3]);
 
             Assert.DoesNotContain(rightEntities[2].CompositeKeySkipFull, e => e.Key2 == "6_1");
             Assert.Contains(rightEntities[2].CompositeKeySkipFull, e => e.Key2 == "Z7714");
@@ -1143,13 +1145,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.ThreeSkipFull?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.CompositeKeySkipFull);
+                        Assert.Contains(left, right.CompositeKeySkipFull!);
                         count++;
                     }
 
                     if (right.CompositeKeySkipFull?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.ThreeSkipFull);
+                        Assert.Contains(right, left.ThreeSkipFull!);
                         count++;
                     }
                 }
@@ -1160,7 +1162,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_composite_additional_pk_with_navs()
     {
         var threeId = 0;
@@ -1306,11 +1308,11 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_shared(bool async)
     {
-        List<int> leftKeys = null;
-        List<int> rightKeys = null;
+        List<int> leftKeys = null!;
+        List<int> rightKeys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1370,7 +1372,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             async context =>
             {
                 var queryable = context.Set<EntityTwo>()
-                    .Where(e => leftKeys.Contains(e.Id) || rightKeys.Contains(e.Id))
+                    .Where(e => leftKeys!.Contains(e.Id) || rightKeys!.Contains(e.Id))
                     .Include(e => e.SelfSkipSharedLeft);
 
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
@@ -1378,20 +1380,20 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
 
                 var leftEntities = context.ChangeTracker.Entries<EntityTwo>()
                     .Select(e => e.Entity)
-                    .Where(e => leftKeys.Contains(e.Id))
+                    .Where(e => leftKeys!.Contains(e.Id))
                     .OrderBy(e => e.Name)
                     .ToList();
 
                 var rightEntities = context.ChangeTracker.Entries<EntityTwo>()
                     .Select(e => e.Entity)
-                    .Where(e => rightKeys.Contains(e.Id))
+                    .Where(e => rightKeys!.Contains(e.Id))
                     .OrderBy(e => e.Name)
                     .ToList();
 
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityTwo> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityTwo> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(6, context.ChangeTracker.Entries<EntityTwo>().Count());
@@ -1410,10 +1412,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_self()
     {
-        List<int> ids = null;
+        List<int> ids = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1515,22 +1517,22 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
             Assert.Equal(count + joinCount, context.ChangeTracker.Entries().Count());
 
-            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[0]);
-            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[1]);
-            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[2]);
+            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![0]);
+            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![1]);
+            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![2]);
 
-            Assert.Contains(rightEntities[0].SelfSkipSharedLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[4]);
-            Assert.Contains(rightEntities[0].SelfSkipSharedLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[5]);
-            Assert.Contains(rightEntities[0].SelfSkipSharedLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[6]);
+            Assert.Contains(rightEntities[0].SelfSkipSharedLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![4]);
+            Assert.Contains(rightEntities[0].SelfSkipSharedLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![5]);
+            Assert.Contains(rightEntities[0].SelfSkipSharedLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![6]);
 
             Assert.DoesNotContain(leftEntities[0].SelfSkipSharedRight, e => e.Name == "EntityTwo 9");
             Assert.DoesNotContain(rightEntities[1].SelfSkipSharedLeft, e => e.Name == "EntityTwo 1");
 
             Assert.DoesNotContain(leftEntities[4].SelfSkipSharedRight, e => e.Name == "EntityTwo 18");
-            Assert.Contains(leftEntities[4].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[3]);
+            Assert.Contains(leftEntities[4].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![3]);
 
             Assert.DoesNotContain(rightEntities[5].SelfSkipSharedLeft, e => e.Name == "EntityTwo 12");
-            Assert.Contains(rightEntities[5].SelfSkipSharedLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[7]);
+            Assert.Contains(rightEntities[5].SelfSkipSharedLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![7]);
 
             var allLeft = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
             var allRight = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
@@ -1545,13 +1547,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.SelfSkipSharedRight?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.SelfSkipSharedLeft);
+                        Assert.Contains(left, right.SelfSkipSharedLeft!);
                         joins++;
                     }
 
                     if (right.SelfSkipSharedLeft?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.SelfSkipSharedRight);
+                        Assert.Contains(right, left.SelfSkipSharedRight!);
                         joins++;
                     }
                 }
@@ -1562,10 +1564,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_navs(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1623,7 +1625,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityTwo>().Where(e => keys.Contains(e.Id)).Include(e => e.ThreeSkipFull);
+                var queryable = context.Set<EntityTwo>().Where(e => keys!.Contains(e.Id)).Include(e => e.ThreeSkipFull);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -1633,7 +1635,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityThree> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityThree> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
@@ -1663,7 +1665,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_with_navs()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -1747,7 +1749,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities, 24, 24, 60 - 4);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             List<EntityTwo> leftEntities,
             List<EntityThree> rightEntities,
@@ -1801,13 +1803,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.ThreeSkipFull?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.TwoSkipFull);
+                        Assert.Contains(left, right.TwoSkipFull!);
                         count++;
                     }
 
                     if (right.TwoSkipFull?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.ThreeSkipFull);
+                        Assert.Contains(right, left.ThreeSkipFull!);
                         count++;
                     }
                 }
@@ -1818,10 +1820,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_inheritance(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1879,7 +1881,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityOne>().Where(e => keys.Contains(e.Id)).Include(e => e.BranchSkip);
+                var queryable = context.Set<EntityOne>().Where(e => keys!.Contains(e.Id)).Include(e => e.BranchSkip);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -1889,7 +1891,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityBranch> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityBranch> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -1909,7 +1911,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_with_inheritance()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -1993,7 +1995,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities, 24, 14, 55 - 4);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             List<EntityOne> leftEntities,
             List<EntityBranch> rightEntities,
@@ -2036,13 +2038,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.BranchSkip?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.OneSkip);
+                        Assert.Contains(left, right.OneSkip!);
                         count++;
                     }
 
                     if (right.OneSkip?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.BranchSkip);
+                        Assert.Contains(right, left.BranchSkip!);
                         count++;
                     }
                 }
@@ -2053,11 +2055,11 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_with_payload(bool async)
     {
-        List<int> leftKeys = null;
-        List<int> rightKeys = null;
+        List<int> leftKeys = null!;
+        List<int> rightKeys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -2117,7 +2119,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             async context =>
             {
                 var queryable = context.Set<EntityOne>()
-                    .Where(e => leftKeys.Contains(e.Id) || rightKeys.Contains(e.Id))
+                    .Where(e => leftKeys!.Contains(e.Id) || rightKeys!.Contains(e.Id))
                     .Include(e => e.SelfSkipPayloadLeft);
 
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
@@ -2125,13 +2127,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
 
                 var leftEntities = context.ChangeTracker.Entries<EntityOne>()
                     .Select(e => e.Entity)
-                    .Where(e => leftKeys.Contains(e.Id))
+                    .Where(e => leftKeys!.Contains(e.Id))
                     .OrderBy(e => e.Name)
                     .ToList();
 
                 var rightEntities = context.ChangeTracker.Entries<EntityOne>()
                     .Select(e => e.Entity)
-                    .Where(e => rightKeys.Contains(e.Id))
+                    .Where(e => rightKeys!.Contains(e.Id))
                     .OrderBy(e => e.Name)
                     .ToList();
 
@@ -2177,10 +2179,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_self_with_payload()
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -2294,22 +2296,22 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             Assert.Equal(joinCount, context.ChangeTracker.Entries<JoinOneSelfPayload>().Count());
             Assert.Equal(count + joinCount, context.ChangeTracker.Entries().Count());
 
-            Assert.Contains(leftEntities[0].SelfSkipPayloadRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[0]);
-            Assert.Contains(leftEntities[0].SelfSkipPayloadRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[1]);
-            Assert.Contains(leftEntities[0].SelfSkipPayloadRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[2]);
+            Assert.Contains(leftEntities[0].SelfSkipPayloadRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![0]);
+            Assert.Contains(leftEntities[0].SelfSkipPayloadRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![1]);
+            Assert.Contains(leftEntities[0].SelfSkipPayloadRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![2]);
 
-            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[4]);
-            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[5]);
-            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[6]);
+            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![4]);
+            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![5]);
+            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![6]);
 
             Assert.DoesNotContain(leftEntities[7].SelfSkipPayloadRight, e => e.Name == "EntityOne 6");
             Assert.DoesNotContain(rightEntities[11].SelfSkipPayloadLeft, e => e.Name == "EntityOne 13");
 
             Assert.DoesNotContain(leftEntities[4].SelfSkipPayloadRight, e => e.Name == "EntityOne 2");
-            Assert.Contains(leftEntities[4].SelfSkipPayloadRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[3]);
+            Assert.Contains(leftEntities[4].SelfSkipPayloadRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![3]);
 
             Assert.DoesNotContain(rightEntities[4].SelfSkipPayloadLeft, e => e.Name == "EntityOne 6");
-            Assert.Contains(rightEntities[4].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[7]);
+            Assert.Contains(rightEntities[4].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![7]);
 
             var joinEntries = context.ChangeTracker.Entries<JoinOneSelfPayload>().ToList();
             foreach (var joinEntry in joinEntries)
@@ -2320,7 +2322,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 Assert.Contains(joinEntity, joinEntity.Left.JoinSelfPayloadLeft);
                 Assert.Contains(joinEntity, joinEntity.Right.JoinSelfPayloadRight);
 
-                if (joinEntity.LeftId == keys[5]
+                if (joinEntity.LeftId == keys![5]
                     && joinEntity.RightId == 1)
                 {
                     Assert.Equal(postSave ? EntityState.Unchanged : EntityState.Added, joinEntry.State);
@@ -2349,13 +2351,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.SelfSkipPayloadRight?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.SelfSkipPayloadLeft);
+                        Assert.Contains(left, right.SelfSkipPayloadLeft!);
                         joins++;
                     }
 
                     if (right.SelfSkipPayloadLeft?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.SelfSkipPayloadRight);
+                        Assert.Contains(right, left.SelfSkipPayloadRight!);
                         joins++;
                     }
                 }
@@ -2366,10 +2368,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared_with_payload(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -2427,7 +2429,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityOne>().Where(e => keys.Contains(e.Id)).Include(e => e.ThreeSkipPayloadFullShared);
+                var queryable = context.Set<EntityOne>().Where(e => keys!.Contains(e.Id)).Include(e => e.ThreeSkipPayloadFullShared);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -2467,7 +2469,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_shared_with_payload()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -2573,7 +2575,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         static int GetEntityThreeId(ManyToManyContext context, string name)
             => context.Entry(context.EntityThrees.Local.Single(e => e.Name == name)).Property(e => e.Id).CurrentValue;
 
-        void ValidateFixup(
+        static void ValidateFixup(
             ManyToManyContext context,
             List<EntityOne> leftEntities,
             List<EntityThree> rightEntities,
@@ -2643,13 +2645,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.ThreeSkipPayloadFullShared?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.OneSkipPayloadFullShared);
+                        Assert.Contains(left, right.OneSkipPayloadFullShared!);
                         count++;
                     }
 
                     if (right.OneSkipPayloadFullShared?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.ThreeSkipPayloadFullShared);
+                        Assert.Contains(right, left.ThreeSkipPayloadFullShared!);
                         count++;
                     }
                 }
@@ -2660,10 +2662,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -2721,7 +2723,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityOne>().Where(e => keys.Contains(e.Id)).Include(e => e.TwoSkipShared);
+                var queryable = context.Set<EntityOne>().Where(e => keys!.Contains(e.Id)).Include(e => e.TwoSkipShared);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -2731,7 +2733,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -2751,7 +2753,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_shared()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -2843,7 +2845,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities, 24, 24, 49);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             List<EntityOne> leftEntities,
             List<EntityTwo> rightEntities,
@@ -2886,13 +2888,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.TwoSkipShared?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.OneSkipShared);
+                        Assert.Contains(left, right.OneSkipShared!);
                         count++;
                     }
 
                     if (right.OneSkipShared?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.TwoSkipShared);
+                        Assert.Contains(right, left.TwoSkipShared!);
                         count++;
                     }
                 }
@@ -2903,10 +2905,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_payload(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -2964,7 +2966,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityOne>().Where(e => keys.Contains(e.Id)).Include(e => e.ThreeSkipPayloadFull);
+                var queryable = context.Set<EntityOne>().Where(e => keys!.Contains(e.Id)).Include(e => e.ThreeSkipPayloadFull);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -3009,7 +3011,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_with_payload()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -3114,7 +3116,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         static int GetEntityThreeId(ManyToManyContext context, string name)
             => context.Entry(context.EntityThrees.Local.Single(e => e.Name == name)).Property(e => e.Id).CurrentValue;
 
-        void ValidateFixup(
+        static void ValidateFixup(
             ManyToManyContext context,
             List<EntityOne> leftEntities,
             List<EntityThree> rightEntities,
@@ -3188,13 +3190,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.ThreeSkipPayloadFull?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.OneSkipPayloadFull);
+                        Assert.Contains(left, right.OneSkipPayloadFull!);
                         count++;
                     }
 
                     if (right.OneSkipPayloadFull?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.ThreeSkipPayloadFull);
+                        Assert.Contains(right, left.ThreeSkipPayloadFull!);
                         count++;
                     }
                 }
@@ -3205,7 +3207,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_with_navs()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -3329,10 +3331,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -3390,7 +3392,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<EntityOne>().Where(e => keys.Contains(e.Id)).Include(e => e.TwoSkip);
+                var queryable = context.Set<EntityOne>().Where(e => keys!.Contains(e.Id)).Include(e => e.TwoSkip);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -3400,7 +3402,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -3420,7 +3422,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Can_insert_many_to_many_with_suspected_dangling_join(
@@ -3428,7 +3430,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         bool useTrackGraph,
         bool useDetectChanges)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -3488,17 +3490,15 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                     }),
                 };
 
-                var extra = context.Set<JoinOneToTwoExtra>().CreateInstance((e, p) =>
-                {
-                    e.JoinEntities = new ObservableCollection<JoinOneToTwo>
+                var extra = context.Set<JoinOneToTwoExtra>().CreateInstance((e, p) => e.JoinEntities =
+                    new ObservableCollection<JoinOneToTwo>
                     {
                         joinEntities[0],
                         joinEntities[1],
                         joinEntities[2],
                         joinEntities[3],
                         joinEntities[4],
-                    };
-                });
+                    });
 
                 rightEntities[0].Extra = extra;
                 rightEntities[1].Extra = extra;
@@ -3551,7 +3551,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             async context =>
             {
                 var queryable = context.Set<EntityOne>()
-                    .Where(e => keys.Contains(e.Id))
+                    .Where(e => keys!.Contains(e.Id))
                     .Include(e => e.TwoSkip)
                     .ThenInclude(e => e.Extra);
 
@@ -3564,7 +3564,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
         {
             Assert.Equal(12, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -3594,12 +3594,12 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Can_insert_many_to_many_with_dangling_join(bool async, bool useTrackGraph, bool useDetectChanges)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -3681,7 +3681,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             async context =>
             {
                 var queryable = context.Set<EntityOne>()
-                    .Where(e => keys.Contains(e.Id))
+                    .Where(e => keys!.Contains(e.Id))
                     .Include(e => e.TwoSkip)
                     .ThenInclude(e => e.Extra);
 
@@ -3694,7 +3694,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+        static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -3723,11 +3723,11 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many()
     {
-        List<int> oneIds = null;
-        List<int> twoIds = null;
+        List<int> oneIds = null!;
+        List<int> twoIds = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -3837,22 +3837,22 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             Assert.Equal(joinCount, context.ChangeTracker.Entries<JoinOneToTwo>().Count());
             Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
 
-            Assert.Contains(leftEntities[0].TwoSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == twoIds[0]);
-            Assert.Contains(leftEntities[0].TwoSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == twoIds[1]);
-            Assert.Contains(leftEntities[0].TwoSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == twoIds[2]);
+            Assert.Contains(leftEntities[0].TwoSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == twoIds![0]);
+            Assert.Contains(leftEntities[0].TwoSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == twoIds![1]);
+            Assert.Contains(leftEntities[0].TwoSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == twoIds![2]);
 
-            Assert.Contains(rightEntities[0].OneSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == oneIds[0]);
-            Assert.Contains(rightEntities[0].OneSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == oneIds[1]);
-            Assert.Contains(rightEntities[0].OneSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == oneIds[2]);
+            Assert.Contains(rightEntities[0].OneSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == oneIds![0]);
+            Assert.Contains(rightEntities[0].OneSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == oneIds![1]);
+            Assert.Contains(rightEntities[0].OneSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == oneIds![2]);
 
             Assert.DoesNotContain(leftEntities[1].TwoSkip, e => e.Name == "EntityTwo 1");
             Assert.DoesNotContain(rightEntities[1].OneSkip, e => e.Name == "EntityOne 1");
 
             Assert.DoesNotContain(leftEntities[2].TwoSkip, e => e.Name == "EntityTwo 1");
-            Assert.Contains(leftEntities[2].TwoSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == twoIds[3]);
+            Assert.Contains(leftEntities[2].TwoSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == twoIds![3]);
 
             Assert.DoesNotContain(rightEntities[2].OneSkip, e => e.Name == "EntityOne 1");
-            Assert.Contains(rightEntities[2].OneSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == oneIds[3]);
+            Assert.Contains(rightEntities[2].OneSkip, e => context.Entry(e).Property(e => e.Id).CurrentValue == oneIds![3]);
 
             var allLeft = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
             var allRight = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
@@ -3867,13 +3867,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 {
                     if (left.TwoSkip?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.OneSkip);
+                        Assert.Contains(left, right.OneSkip!);
                         count++;
                     }
 
                     if (right.OneSkip?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.TwoSkip);
+                        Assert.Contains(right, left.TwoSkip!);
                         count++;
                     }
                 }
@@ -3884,7 +3884,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many()
     {
         var oneId = 0;
@@ -3975,10 +3975,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_fully_by_convention(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -4032,7 +4032,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<ImplicitManyToManyA>().Where(e => keys.Contains(e.Id)).Include(e => e.Bs);
+                var queryable = context.Set<ImplicitManyToManyA>().Where(e => keys!.Contains(e.Id)).Include(e => e.Bs);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -4055,7 +4055,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 Assert.Single(rightEntities[2].As);
             });
 
-        void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
+        static void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyA>().Count());
@@ -4075,7 +4075,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_fully_by_convention_generated_keys(bool async)
     {
         await ExecuteWithStrategyInTransactionAsync(
@@ -4151,7 +4151,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 Assert.Single(rightEntities[2].Lefts);
             });
 
-        void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
+        static void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysLeft>().Count());
@@ -4171,7 +4171,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
+    [Theory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Can_Attach_or_Update_a_many_to_many_with_mixed_set_and_unset_keys(bool useUpdate, bool async)
     {
         var existingLeftId = -1;
@@ -4302,7 +4302,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 Assert.Single(rightEntities[2].Lefts);
             });
 
-        void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
+        static void ValidateFixup(DbContext context, IList<GeneratedKeysLeft> leftEntities, IList<GeneratedKeysRight> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<GeneratedKeysLeft>().Count());
@@ -4322,10 +4322,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Initial_tracking_uses_skip_navigations(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -4373,7 +4373,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             },
             async context =>
             {
-                var queryable = context.Set<ImplicitManyToManyA>().Where(e => keys.Contains(e.Id)).Include(e => e.Bs);
+                var queryable = context.Set<ImplicitManyToManyA>().Where(e => keys!.Contains(e.Id)).Include(e => e.Bs);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -4385,7 +4385,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
+        static void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
         {
             Assert.Equal(9, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyA>().Count());
@@ -4405,7 +4405,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(new[] { 1, 2, 3 }), InlineData(new[] { 2, 1, 3 }), InlineData(new[] { 3, 1, 2 }),
+    [Theory, InlineData(new[] { 1, 2, 3 }), InlineData(new[] { 2, 1, 3 }), InlineData(new[] { 3, 1, 2 }),
      InlineData(new[] { 3, 2, 1 }), InlineData(new[] { 1, 3, 2 }), InlineData(new[] { 2, 3, 1 })]
     public virtual void Can_load_entities_in_any_order(int[] order)
     {
@@ -4438,13 +4438,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             {
                 if (left.TwoSkip?.Contains(right) == true)
                 {
-                    Assert.Contains(left, right.OneSkip);
+                    Assert.Contains(left, right.OneSkip!);
                     joinCount++;
                 }
 
                 if (right.OneSkip?.Contains(left) == true)
                 {
-                    Assert.Contains(right, left.TwoSkip);
+                    Assert.Contains(right, left.TwoSkip!);
                     joinCount++;
                 }
             }
@@ -4454,7 +4454,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         Assert.Equal(112, (joinCount / 2) + deleted);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_insert_update_delete_shared_type_entity_type()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -4496,7 +4496,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                         .AnyAsync(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_insert_update_delete_proxyable_shared_type_entity_type()
     {
         var id = 0;
@@ -4514,12 +4514,12 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
 
                 await context.SaveChangesAsync();
 
-                id = (int)entity["Id"];
+                id = (int)entity["Id"]!;
             }, async context =>
             {
-                var entity = await context.Set<ProxyableSharedType>("PST").SingleAsync(e => (int)e["Id"] == id);
+                var entity = await context.Set<ProxyableSharedType>("PST").SingleAsync(e => (int)e["Id"]! == id);
 
-                Assert.Equal("NewlyAdded", (string)entity["Payload"]);
+                Assert.Equal("NewlyAdded", (string)entity["Payload"]!);
 
                 entity["Payload"] = "AlreadyUpdated";
 
@@ -4531,19 +4531,19 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                 await context.SaveChangesAsync();
             }, async context =>
             {
-                var entity = await context.Set<ProxyableSharedType>("PST").SingleAsync(e => (int)e["Id"] == id);
+                var entity = await context.Set<ProxyableSharedType>("PST").SingleAsync(e => (int)e["Id"]! == id);
 
-                Assert.Equal("AlreadyUpdated", (string)entity["Payload"]);
+                Assert.Equal("AlreadyUpdated", (string)entity["Payload"]!);
 
                 context.Set<ProxyableSharedType>("PST").Remove(entity);
 
                 await context.SaveChangesAsync();
 
-                Assert.False(await context.Set<ProxyableSharedType>("PST").AnyAsync(e => (int)e["Id"] == id));
+                Assert.False(await context.Set<ProxyableSharedType>("PST").AnyAsync(e => (int)e["Id"]! == id));
             });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_navs_by_join_entity(bool async)
     {
         await ExecuteWithStrategyInTransactionAsync(
@@ -4640,7 +4640,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             async context =>
             {
                 var queryable = context.Set<EntityTwo>()
-                    .Where(e => e.Name.StartsWith("Z"))
+                    .Where(e => e.Name!.StartsWith("Z"))
                     .OrderBy(e => e.Name)
                     .Include(e => e.ThreeSkipFull);
 
@@ -4678,7 +4678,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(false, true, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(false, true, false, false),
      InlineData(true, false, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(false, true, true, false), InlineData(true, false, true, false), InlineData(true, true, true, false),
      InlineData(false, false, true, true), InlineData(false, true, true, true), InlineData(true, false, true, true),
@@ -4781,7 +4781,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public virtual Task Can_add_and_remove_a_new_relationship_self(bool modifyLeft, bool modifyRight, bool useJoin)
@@ -4864,7 +4864,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(false, true, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(false, true, false, false),
      InlineData(true, false, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(false, true, true, false), InlineData(true, false, true, false), InlineData(true, true, true, false),
      InlineData(false, false, true, true), InlineData(false, true, true, true), InlineData(true, false, true, true),
@@ -5005,7 +5005,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(false, true, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(false, true, false, false),
      InlineData(true, false, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(false, true, true, false), InlineData(true, false, true, false), InlineData(true, true, true, false),
      InlineData(false, false, true, true), InlineData(false, true, true, true), InlineData(true, false, true, true),
@@ -5146,7 +5146,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public virtual Task Can_add_and_remove_a_new_relationship_with_inheritance(bool modifyLeft, bool modifyRight, bool useJoin)
@@ -5235,7 +5235,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public virtual Task Can_add_and_remove_a_new_relationship_shared_with_payload(bool modifyLeft, bool modifyRight, bool useJoin)
@@ -5322,7 +5322,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public virtual Task Can_add_and_remove_a_new_relationship_shared(bool modifyLeft, bool modifyRight, bool useJoin)
@@ -5405,7 +5405,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(false, true, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(false, true, false, false),
      InlineData(true, false, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(false, true, true, false), InlineData(true, false, true, false), InlineData(true, true, true, false),
      InlineData(false, false, true, true), InlineData(false, true, true, true), InlineData(true, false, true, true),
@@ -5516,7 +5516,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public virtual async Task Can_replace_dependent_with_many_to_many(bool createNewCollection, bool async)
     {
         var principalKey = 0;
@@ -5654,20 +5654,20 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
 
                             if (navigation.IsCollection)
                             {
-                                var currentCollection = ((IEnumerable<object>)current)?.ToList();
-                                var snapshotCollection = ((IEnumerable<object>)snapshot)?.ToList();
+                                var currentCollection = ((IEnumerable<object>)current!)?.ToList();
+                                var snapshotCollection = ((IEnumerable<object>)snapshot!)?.ToList();
 
                                 if (snapshot == null)
                                 {
-                                    Assert.True(current == null || !currentCollection.Any());
+                                    Assert.True(current == null || !currentCollection!.Any());
                                 }
                                 else if (current == null)
                                 {
-                                    Assert.True(snapshot == null || !snapshotCollection.Any());
+                                    Assert.True(snapshot == null || !snapshotCollection!.Any());
                                 }
                                 else
                                 {
-                                    Assert.Equal(snapshotCollection.Count, currentCollection.Count);
+                                    Assert.Equal(snapshotCollection!.Count, currentCollection!.Count);
 
                                     foreach (var related in snapshotCollection)
                                     {
@@ -5697,9 +5697,9 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<ManyToManyContext, Task> testOperation,
-        Func<ManyToManyContext, Task> nestedTestOperation1 = null,
-        Func<ManyToManyContext, Task> nestedTestOperation2 = null,
-        Func<ManyToManyContext, Task> nestedTestOperation3 = null)
+        Func<ManyToManyContext, Task>? nestedTestOperation1 = null,
+        Func<ManyToManyContext, Task>? nestedTestOperation2 = null,
+        Func<ManyToManyContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);

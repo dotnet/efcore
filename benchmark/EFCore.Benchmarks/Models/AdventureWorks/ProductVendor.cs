@@ -17,9 +17,9 @@ public class ProductVendor
     public DateTime ModifiedDate { get; set; }
     public int? OnOrderQty { get; set; }
     public decimal StandardPrice { get; set; }
-    public string UnitMeasureCode { get; set; }
+    public string UnitMeasureCode { get; set; } = null!;
 
-    public virtual Vendor BusinessEntity { get; set; }
-    public virtual Product Product { get; set; }
-    public virtual UnitMeasure UnitMeasureCodeNavigation { get; set; }
+    public virtual Vendor BusinessEntity { get; set; } = null!;
+    public virtual Product Product { get; set; } = null!;
+    public virtual UnitMeasure UnitMeasureCodeNavigation { get; set; } = null!;
 }

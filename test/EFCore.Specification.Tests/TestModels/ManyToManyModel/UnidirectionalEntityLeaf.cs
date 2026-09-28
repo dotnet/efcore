@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class UnidirectionalEntityLeaf : UnidirectionalEntityBranch
 {
     public virtual bool? IsGreen { get; set; }
 
-    public virtual ICollection<UnidirectionalEntityCompositeKey> CompositeKeySkipFull { get; set; }
-    public virtual ICollection<UnidirectionalJoinCompositeKeyToLeaf> JoinCompositeKeyFull { get; set; }
+    public virtual ICollection<UnidirectionalEntityCompositeKey> CompositeKeySkipFull { get; set; } = null!;
+    public virtual ICollection<UnidirectionalJoinCompositeKeyToLeaf> JoinCompositeKeyFull { get; set; } = null!;
 }

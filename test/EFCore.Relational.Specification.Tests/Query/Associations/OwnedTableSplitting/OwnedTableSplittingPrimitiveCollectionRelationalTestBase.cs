@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedTableSplitting;
 
-public abstract class OwnedTableSplittingPrimitiveCollectionRelationalTestBase<TFixture> : OwnedNavigationsPrimitiveCollectionTestBase<TFixture>
+public abstract class
+    OwnedTableSplittingPrimitiveCollectionRelationalTestBase<TFixture> : OwnedNavigationsPrimitiveCollectionTestBase<TFixture>
     where TFixture : OwnedTableSplittingRelationalFixtureBase, new()
 {
     public OwnedTableSplittingPrimitiveCollectionRelationalTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)

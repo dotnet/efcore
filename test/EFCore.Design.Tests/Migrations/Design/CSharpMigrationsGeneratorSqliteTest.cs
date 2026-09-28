@@ -25,124 +25,102 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
-namespace RootNamespace
+namespace RootNamespace;
+
+[DbContext(typeof(DbContext))]
+partial class Snapshot : ModelSnapshot
 {
-    [DbContext(typeof(DbContext))]
-    partial class Snapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasDefaultSchema("DefaultSchema");
+        modelBuilder.HasDefaultSchema("DefaultSchema");
 
 {{code}}
 #pragma warning restore 612, 618
-        }
     }
 }
 
 """;
 
-    [ConditionalFact]
+    [Fact]
     public void Autoincrement_annotation_is_replaced_by_extension_method_call_in_snapshot()
-    {
-        Test(
-            builder =>
-            {
-                builder.Entity<EntityWithAutoincrement>(e =>
-                {
-                    e.Property(p => p.Id).UseAutoincrement();
-                });
-            },
-            AddBoilerPlate("""
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
-                            {
-                                b.Property<int>("Id")
-                                    .ValueGeneratedOnAdd()
-                                    .HasColumnType("INTEGER");
+        => Test(
+            builder => builder.Entity<EntityWithAutoincrement>(e => e.Property(p => p.Id).UseAutoincrement()),
+            AddBoilerPlate(
+                """
+                    modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
+                        {
+                            var id = b.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
 
-                                SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
+                            SqlitePropertyBuilderExtensions.UseAutoincrement(id);
 
-                                b.HasKey("Id");
+                            b.HasKey("Id");
 
-                                b.ToTable("EntityWithAutoincrement", "DefaultSchema");
-                            });
+                            b.ToTable("EntityWithAutoincrement", "DefaultSchema");
+                        });
             """),
             model =>
             {
                 var entity = model.FindEntityType(typeof(EntityWithAutoincrement));
                 var property = entity!.FindProperty("Id");
-                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
+                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
             });
-    }
 
-    [ConditionalFact]
+    [Fact]
     public void Autoincrement_works_with_value_converter_to_int()
-    {
-        Test(
-            builder =>
-            {
-                builder.Entity<EntityWithConverterPk>(e =>
-                {
-                    e.Property(p => p.Id).HasConversion<int>().UseAutoincrement();
-                });
-            },
-            AddBoilerPlate("""
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithConverterPk", b =>
-                            {
-                                b.Property<int>("Id")
-                                    .ValueGeneratedOnAdd()
-                                    .HasColumnType("INTEGER");
+        => Test(
+            builder => builder.Entity<EntityWithConverterPk>(e => e.Property(p => p.Id).HasConversion<int>().UseAutoincrement()),
+            AddBoilerPlate(
+                """
+                    modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithConverterPk", b =>
+                        {
+                            var id = b.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
 
-                                SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
+                            SqlitePropertyBuilderExtensions.UseAutoincrement(id);
 
-                                b.HasKey("Id");
+                            b.HasKey("Id");
 
-                                b.ToTable("EntityWithConverterPk", "DefaultSchema");
-                            });
+                            b.ToTable("EntityWithConverterPk", "DefaultSchema");
+                        });
             """),
             model =>
             {
                 var entity = model.FindEntityType(typeof(EntityWithConverterPk));
                 var property = entity!.FindProperty("Id");
-                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
+                Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
             });
-    }
 
-    [ConditionalFact]
+    [Fact]
     public void No_autoincrement_annotation_generated_for_non_autoincrement_property()
-    {
-        Test(
-            builder =>
-            {
-                builder.Entity<EntityWithAutoincrement>(e =>
-                {
-                    e.Property(p => p.Id).ValueGeneratedNever();
-                });
-            },
-            AddBoilerPlate("""
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
-                            {
-                                b.Property<int>("Id")
-                                    .HasColumnType("INTEGER");
+        => Test(
+            builder => builder.Entity<EntityWithAutoincrement>(e => e.Property(p => p.Id).ValueGeneratedNever()),
+            AddBoilerPlate(
+                """
+                    modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
+                        {
+                            b.Property<int>("Id")
+                                .HasColumnType("INTEGER");
 
-                                b.HasKey("Id");
+                            b.HasKey("Id");
 
-                                b.ToTable("EntityWithAutoincrement", "DefaultSchema");
-                            });
+                            b.ToTable("EntityWithAutoincrement", "DefaultSchema");
+                        });
             """, usingMetadata: false),
             model =>
             {
                 var entity = model.FindEntityType(typeof(EntityWithAutoincrement));
                 var property = entity!.FindProperty("Id");
-                Assert.Equal(SqliteValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
+                Assert.Equal(SqliteValueGenerationStrategy.None, SqlitePropertyExtensions.GetValueGenerationStrategy(property!));
             });
-    }
 
     protected override TestHelpers TestHelpers
         => SqliteTestHelpers.Instance;
 
-    protected override SqliteTestHelpers.TestModelBuilder CreateConventionalModelBuilder()
+    protected override TestHelpers.TestModelBuilder CreateConventionalModelBuilder()
         => TestHelpers.CreateConventionBuilder(
             addServices: SqliteNetTopologySuiteServiceCollectionExtensions.AddEntityFrameworkSqliteNetTopologySuite);
 
@@ -160,7 +138,6 @@ namespace RootNamespace
 
         var generator = new CSharpMigrationsGenerator(
             new MigrationsCodeGeneratorDependencies(
-                sqliteTypeMappingSource,
                 sqliteAnnotationCodeGenerator),
             new CSharpMigrationsGeneratorDependencies(
                 codeHelper,
@@ -175,14 +152,14 @@ namespace RootNamespace
     }
 
     protected override ICollection<BuildReference> GetReferences()
-        => new List<BuildReference>
-        {
+        =>
+        [
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests")
-        };
+        ];
 
     protected override IServiceCollection GetServices()
         => new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite();

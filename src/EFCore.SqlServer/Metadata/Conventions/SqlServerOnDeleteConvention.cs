@@ -51,12 +51,9 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
     protected override DeleteBehavior GetTargetDeleteBehavior(IConventionForeignKey foreignKey)
     {
         var deleteBehavior = base.GetTargetDeleteBehavior(foreignKey);
-        if (deleteBehavior != DeleteBehavior.Cascade)
-        {
-            return deleteBehavior;
-        }
-
-        return ProcessSkipNavigations(foreignKey.GetReferencingSkipNavigations()) ?? deleteBehavior;
+        return deleteBehavior != DeleteBehavior.Cascade
+            ? deleteBehavior
+            : ProcessSkipNavigations(foreignKey.GetReferencingSkipNavigations()) ?? deleteBehavior;
     }
 
     private DeleteBehavior? ProcessSkipNavigations(IEnumerable<IConventionSkipNavigation> skipNavigations)

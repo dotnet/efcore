@@ -15,7 +15,8 @@ public abstract class OwnedNavigationsStructuralEqualityTestBase<TFixture>(TFixt
 
     public override Task Two_nested_associates()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
+            ss => ss.Set<RootEntity>()
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
             ss => ss.Set<RootEntity>().Where(e => false), // Owned entities are never equal
             assertEmpty: true);
 
@@ -27,11 +28,11 @@ public abstract class OwnedNavigationsStructuralEqualityTestBase<TFixture>(TFixt
 
     // #36400
     public override Task Nested_associate_with_inline()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_associate_with_inline());
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Nested_associate_with_inline);
 
     // #36400
     public override Task Nested_associate_with_parameter()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_associate_with_parameter());
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Nested_associate_with_parameter);
 
     public override Task Two_nested_collections()
         => AssertQuery(
@@ -41,9 +42,9 @@ public abstract class OwnedNavigationsStructuralEqualityTestBase<TFixture>(TFixt
 
     // #36400
     public override Task Nested_collection_with_inline()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_collection_with_inline());
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Nested_collection_with_inline);
 
     // #36400
     public override Task Nested_collection_with_parameter()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_collection_with_parameter());
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Nested_collection_with_parameter);
 }

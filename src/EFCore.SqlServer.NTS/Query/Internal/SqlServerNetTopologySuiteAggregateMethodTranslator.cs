@@ -88,7 +88,7 @@ public class SqlServerNetTopologySuiteAggregateMethodTranslator : IAggregateMeth
         if (source.Predicate != null)
         {
             sqlExpression = _sqlExpressionFactory.Case(
-                new List<CaseWhenClause> { new(source.Predicate, sqlExpression) },
+                [new CaseWhenClause(source.Predicate, sqlExpression)],
                 elseResult: null);
         }
 

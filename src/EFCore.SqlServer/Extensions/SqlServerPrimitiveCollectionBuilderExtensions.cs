@@ -49,7 +49,7 @@ public static class SqlServerPrimitiveCollectionBuilderExtensions
     public static PrimitiveCollectionBuilder<TProperty> IsSparse<TProperty>(
         this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         bool sparse = true)
-        => (PrimitiveCollectionBuilder<TProperty>)IsSparse((PrimitiveCollectionBuilder)primitiveCollectionBuilder, sparse);
+        => (PrimitiveCollectionBuilder<TProperty>)((PrimitiveCollectionBuilder)primitiveCollectionBuilder).IsSparse(sparse);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -89,8 +89,8 @@ public static class SqlServerPrimitiveCollectionBuilderExtensions
         this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         object? value,
         string defaultConstraintName)
-        => (PrimitiveCollectionBuilder<TProperty>)HasDefaultValue(
-            (PrimitiveCollectionBuilder)primitiveCollectionBuilder, value, defaultConstraintName);
+        => (PrimitiveCollectionBuilder<TProperty>)((PrimitiveCollectionBuilder)primitiveCollectionBuilder).HasDefaultValue(
+            value, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -130,6 +130,6 @@ public static class SqlServerPrimitiveCollectionBuilderExtensions
         this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? sql,
         string defaultConstraintName)
-        => (PrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql(
-            (PrimitiveCollectionBuilder)primitiveCollectionBuilder, sql, defaultConstraintName);
+        => (PrimitiveCollectionBuilder<TProperty>)((PrimitiveCollectionBuilder)primitiveCollectionBuilder).HasDefaultValueSql(
+            sql, defaultConstraintName);
 }

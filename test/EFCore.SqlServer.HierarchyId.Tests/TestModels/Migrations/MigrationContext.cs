@@ -14,13 +14,11 @@ internal abstract class MigrationContext<TEntity1, TEntity2> : DbContext
     protected Type ModelType1 { get; } = typeof(TEntity1);
     protected Type ModelType2 { get; } = typeof(TEntity2);
 
-    private Type _thisType;
-
     protected Type ThisType
-        => _thisType ??= GetType();
+        => field ??= GetType();
 
-    public DbSet<TEntity1> TestModels { get; set; }
-    public DbSet<TEntity2> ConvertedTestModels { get; set; }
+    public DbSet<TEntity1> TestModels { get; set; } = null!;
+    public DbSet<TEntity2> ConvertedTestModels { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options
@@ -44,6 +42,6 @@ internal abstract class MigrationContext<TEntity1, TEntity2> : DbContext
         model.RemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
     }
 
-    public abstract string GetExpectedMigrationCode(string migrationName, string rootNamespace);
-    public abstract string GetExpectedSnapshotCode(string rootNamespace);
+    public abstract string GetExpectedMigrationCode(string migrationId, string rootNamespace);
+    public abstract string GetExpectedSnapshotCode(string rootNamespace, string migrationId);
 }

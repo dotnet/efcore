@@ -42,24 +42,19 @@ public class SqlServerGeometryCollectionMethodTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.IsGenericMethod
+        => method.IsGenericMethod
             && method.GetGenericMethodDefinition() == EnumerableMethods.ElementAt
             && method.ReturnType == typeof(Geometry)
             && arguments is [var collection, var index]
-            && _typeMappingSource.FindMapping(typeof(Geometry), collection.TypeMapping!.StoreType) is { } geometryTypeMapping)
-        {
-            return _sqlExpressionFactory.Function(
-                collection,
-                "STGeometryN",
-                [_sqlExpressionFactory.Add(index, _sqlExpressionFactory.Constant(1))],
-                nullable: true,
-                instancePropagatesNullability: true,
-                argumentsPropagateNullability: Statics.FalseArrays[1],
-                method.ReturnType,
-                geometryTypeMapping);
-        }
-
-        return null;
-    }
+            && _typeMappingSource.FindMapping(typeof(Geometry), collection.TypeMapping!.StoreType) is { } geometryTypeMapping
+                ? _sqlExpressionFactory.Function(
+                    collection,
+                    "STGeometryN",
+                    [_sqlExpressionFactory.Add(index, _sqlExpressionFactory.Constant(1))],
+                    nullable: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: Statics.FalseArrays[1],
+                    method.ReturnType,
+                    geometryTypeMapping)
+                : null;
 }

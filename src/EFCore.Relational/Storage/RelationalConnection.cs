@@ -575,14 +575,9 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     /// <returns>A Task representing the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
-    {
-        if (CurrentTransaction == null)
-        {
-            throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
-        }
-
-        return CurrentTransaction.CommitAsync(cancellationToken);
-    }
+        => CurrentTransaction == null
+            ? throw new InvalidOperationException(RelationalStrings.NoActiveTransaction)
+            : CurrentTransaction.CommitAsync(cancellationToken);
 
     /// <summary>
     ///     Discards all changes made to the database in the current transaction.
@@ -604,14 +599,9 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     /// <returns>A Task representing the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
-    {
-        if (CurrentTransaction == null)
-        {
-            throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
-        }
-
-        return CurrentTransaction.RollbackAsync(cancellationToken);
-    }
+        => CurrentTransaction == null
+            ? throw new InvalidOperationException(RelationalStrings.NoActiveTransaction)
+            : CurrentTransaction.RollbackAsync(cancellationToken);
 
     /// <summary>
     ///     Opens the connection to the database.
@@ -692,6 +682,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
             {
                 ambientTransaction.TransactionCompleted -= HandleTransactionCompleted;
             }
+
             _resetting = false;
         }
 
@@ -1002,8 +993,8 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
 
     private bool ShouldClose()
         => (_openedCount == 0
-                || _openedCount > 0
-                && --_openedCount == 0)
+                || (_openedCount > 0
+                    && --_openedCount == 0))
             && _openedInternally;
 
     void IResettableService.ResetState()
@@ -1039,9 +1030,6 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         ClearTransactions(clearAmbient: true);
 
         _commandTimeout = _defaultCommandTimeout;
-
-        _openedCount = 0;
-        _openedInternally = false;
 
         if (_connectionOwned
             && _connection is not null)

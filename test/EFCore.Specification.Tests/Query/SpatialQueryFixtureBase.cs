@@ -7,28 +7,23 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialContext>, IQueryFixtureBase
+public abstract class SpatialQueryFixtureBase : QueryFixtureBase<SpatialContext>
 {
-    private GeometryFactory _geometryFactory;
+    private GeometryFactory _geometryFactory = null!;
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => new SpatialData(GeometryFactory);
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
     {
-        { typeof(PointEntity), e => ((PointEntity)e)?.Id },
-        { typeof(LineStringEntity), e => ((LineStringEntity)e)?.Id },
-        { typeof(PolygonEntity), e => ((PolygonEntity)e)?.Id },
-        { typeof(MultiLineStringEntity), e => ((MultiLineStringEntity)e)?.Id },
-        { typeof(GeoPointEntity), e => ((GeoPointEntity)e)?.Id },
+        { typeof(PointEntity), e => ((PointEntity?)e)?.Id },
+        { typeof(LineStringEntity), e => ((LineStringEntity?)e)?.Id },
+        { typeof(PolygonEntity), e => ((PolygonEntity?)e)?.Id },
+        { typeof(MultiLineStringEntity), e => ((MultiLineStringEntity?)e)?.Id },
+        { typeof(GeoPointEntity), e => ((GeoPointEntity?)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
     {
         {
             typeof(PointEntity), (e, a) =>
@@ -37,7 +32,7 @@ public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialCo
 
                 if (a != null)
                 {
-                    var ee = (PointEntity)e;
+                    var ee = (PointEntity)e!;
                     var aa = (PointEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -56,7 +51,7 @@ public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialCo
 
                 if (a != null)
                 {
-                    var ee = (LineStringEntity)e;
+                    var ee = (LineStringEntity)e!;
                     var aa = (LineStringEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -71,7 +66,7 @@ public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialCo
 
                 if (a != null)
                 {
-                    var ee = (PolygonEntity)e;
+                    var ee = (PolygonEntity)e!;
                     var aa = (PolygonEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -86,18 +81,18 @@ public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialCo
 
                 if (a != null)
                 {
-                    var ee = (MultiLineStringEntity)e;
+                    var ee = (MultiLineStringEntity)e!;
                     var aa = (MultiLineStringEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
                     Assert.Equal(ee.MultiLineString != null, aa.MultiLineString != null);
                     if (ee.MultiLineString != null)
                     {
-                        Assert.Equal(ee.MultiLineString.Count, aa.MultiLineString.Count);
-                        Assert.Equal(ee.MultiLineString.Area, aa.MultiLineString.Area);
+                        Assert.Equal(ee.MultiLineString.Count, aa.MultiLineString!.Count);
+                        Assert.Equal(ee.MultiLineString.Area, aa.MultiLineString!.Area);
                         for (var i = 0; i < ee.MultiLineString.Count; i++)
                         {
-                            Assert.Equal(ee.MultiLineString[i], aa.MultiLineString[i], GeometryComparer.Instance);
+                            Assert.Equal(ee.MultiLineString[i], aa.MultiLineString![i], GeometryComparer.Instance);
                         }
                     }
                 }
@@ -110,7 +105,7 @@ public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialCo
 
                 if (a != null)
                 {
-                    var ee = (GeoPointEntity)e;
+                    var ee = (GeoPointEntity)e!;
                     var aa = (GeoPointEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);

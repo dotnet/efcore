@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public class DateOnlyTypeMapping : RelationalTypeMapping
+public class DateOnlyTypeMapping : RelationalTypeMapping<DateOnly>
 {
     private const string DateOnlyFormatConst = @"{0:yyyy-MM-dd}";
 

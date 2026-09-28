@@ -31,104 +31,156 @@ public class SqlServerDateTimeMemberTranslator(
     {
         var declaringType = member.DeclaringType;
 
-        if (declaringType != typeof(DateTime) && declaringType != typeof(DateTimeOffset))
-        {
-            return null;
-        }
+        return declaringType != typeof(DateTime) && declaringType != typeof(DateTimeOffset)
+            ? null
+            : member.Name switch
+            {
+                nameof(DateTime.Year) => DatePart("year"),
+                nameof(DateTime.Month) => DatePart("month"),
+                nameof(DateTime.DayOfYear) => DatePart("dayofyear"),
+                nameof(DateTime.Day) => DatePart("day"),
+                nameof(DateTime.Hour) => DatePart("hour"),
+                nameof(DateTime.Minute) => DatePart("minute"),
+                nameof(DateTime.Second) => DatePart("second"),
+                nameof(DateTime.Millisecond) => DatePart("millisecond"),
+                nameof(DateTime.Microsecond) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
+                nameof(DateTime.Nanosecond) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
 
-        return member.Name switch
-        {
-            nameof(DateTime.Year) => DatePart("year"),
-            nameof(DateTime.Month) => DatePart("month"),
-            nameof(DateTime.DayOfYear) => DatePart("dayofyear"),
-            nameof(DateTime.Day) => DatePart("day"),
-            nameof(DateTime.Hour) => DatePart("hour"),
-            nameof(DateTime.Minute) => DatePart("minute"),
-            nameof(DateTime.Second) => DatePart("second"),
-            nameof(DateTime.Millisecond) => DatePart("millisecond"),
-            nameof(DateTime.Microsecond) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
-            nameof(DateTime.Nanosecond) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
+                nameof(DateTime.Date)
+                    => sqlExpressionFactory.Function(
+                        "CONVERT",
+                        [sqlExpressionFactory.Fragment("date"), instance!],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseTrue,
+                        returnType,
+                        declaringType == typeof(DateTime)
+                            ? instance!.TypeMapping
+                            : typeMappingSource.FindMapping(typeof(DateTime))),
 
-            nameof(DateTime.Date)
-                => sqlExpressionFactory.Function(
-                    "CONVERT",
-                    [sqlExpressionFactory.Fragment("date"), instance!],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.FalseTrue,
-                    returnType,
-                    declaringType == typeof(DateTime)
-                        ? instance!.TypeMapping
-                        : typeMappingSource.FindMapping(typeof(DateTime))),
+                nameof(DateTime.TimeOfDay)
+                    => sqlExpressionFactory.Function(
+                        "CONVERT",
+                        [sqlExpressionFactory.Fragment("time"), instance!],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseTrue,
+                        returnType),
 
-            nameof(DateTime.TimeOfDay)
-                => sqlExpressionFactory.Function(
-                    "CONVERT",
-                    [sqlExpressionFactory.Fragment("time"), instance!],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.FalseTrue,
-                    returnType),
+                nameof(DateTimeOffset.DateTime)
+                    when declaringType == typeof(DateTimeOffset)
+                    && instance!.TypeMapping is { StoreTypeNameBase: "datetimeoffset" }
+                    => sqlExpressionFactory.Function(
+                        "CONVERT",
+                        [sqlExpressionFactory.Fragment("datetime2"), instance!],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseTrue,
+                        returnType,
+                        typeMappingSource.FindMapping(typeof(DateTime))),
 
-            nameof(DateTime.Now)
-                when declaringType == typeof(DateTime)
-                => sqlExpressionFactory.Function(
-                    "GETDATE",
-                    arguments: [],
-                    nullable: false,
-                    argumentsPropagateNullability: [],
-                    typeof(DateTime),
-                    typeMappingSource.FindMapping("datetime")),
+                nameof(DateTimeOffset.UtcDateTime)
+                    when declaringType == typeof(DateTimeOffset)
+                    && instance!.TypeMapping is { StoreTypeNameBase: "datetimeoffset" }
+                    => sqlExpressionFactory.Function(
+                        "CONVERT",
+                        [
+                            sqlExpressionFactory.Fragment("datetime2"),
+                            new AtTimeZoneExpression(
+                                instance!,
+                                sqlExpressionFactory.ApplyTypeMapping(
+                                    sqlExpressionFactory.Constant("UTC"),
+                                    typeMappingSource.FindMapping("varchar")),
+                                typeof(DateTimeOffset),
+                                instance!.TypeMapping)
+                        ],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseTrue,
+                        returnType,
+                        typeMappingSource.FindMapping(typeof(DateTime))),
 
-            nameof(DateTimeOffset.Now)
-                when declaringType == typeof(DateTimeOffset)
-                => sqlExpressionFactory.Function(
-                    "SYSDATETIMEOFFSET",
-                    arguments: [],
-                    nullable: false,
-                    argumentsPropagateNullability: [],
-                    typeof(DateTimeOffset),
-                    typeMappingSource.FindMapping("datetimeoffset")),
+                nameof(DateTimeOffset.LocalDateTime)
+                    when declaringType == typeof(DateTimeOffset)
+                    && instance!.TypeMapping is { StoreTypeNameBase: "datetimeoffset" }
+                    => sqlExpressionFactory.Function(
+                        "CONVERT",
+                        [
+                            sqlExpressionFactory.Fragment("datetime2"),
+                            new AtTimeZoneExpression(
+                                instance!,
+                                sqlExpressionFactory.Function(
+                                    "CURRENT_TIMEZONE_ID",
+                                    arguments: [],
+                                    nullable: false,
+                                    argumentsPropagateNullability: [],
+                                    typeof(string),
+                                    typeMappingSource.FindMapping("varchar")),
+                                typeof(DateTimeOffset),
+                                instance!.TypeMapping)
+                        ],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseTrue,
+                        returnType,
+                        typeMappingSource.FindMapping(typeof(DateTime))),
 
-            nameof(DateTime.UtcNow)
-                when declaringType == typeof(DateTime)
-                => sqlExpressionFactory.Function(
-                    "GETUTCDATE",
-                    arguments: [],
-                    nullable: false,
-                    argumentsPropagateNullability: [],
-                    typeof(DateTime),
-                    typeMappingSource.FindMapping("datetime")),
-
-            nameof(DateTimeOffset.UtcNow)
-                when declaringType == typeof(DateTimeOffset)
-                => sqlExpressionFactory.Convert(
-                    sqlExpressionFactory.Function(
-                        "SYSUTCDATETIME",
+                nameof(DateTime.Now)
+                    when declaringType == typeof(DateTime)
+                    => sqlExpressionFactory.Function(
+                        "GETDATE",
                         arguments: [],
                         nullable: false,
                         argumentsPropagateNullability: [],
                         typeof(DateTime),
-                        typeMappingSource.FindMapping("datetime2")),
-                    typeof(DateTimeOffset),
-                    typeMappingSource.FindMapping("datetimeoffset")),
+                        typeMappingSource.FindMapping("datetime")),
 
-            nameof(DateTime.Today)
-                => sqlExpressionFactory.Function(
-                    "CONVERT",
-                    [
-                        sqlExpressionFactory.Fragment("date"),
+                nameof(DateTimeOffset.Now)
+                    when declaringType == typeof(DateTimeOffset)
+                    => sqlExpressionFactory.Function(
+                        "SYSDATETIMEOFFSET",
+                        arguments: [],
+                        nullable: false,
+                        argumentsPropagateNullability: [],
+                        typeof(DateTimeOffset),
+                        typeMappingSource.FindMapping("datetimeoffset")),
+
+                nameof(DateTime.UtcNow)
+                    when declaringType == typeof(DateTime)
+                    => sqlExpressionFactory.Function(
+                        "GETUTCDATE",
+                        arguments: [],
+                        nullable: false,
+                        argumentsPropagateNullability: [],
+                        typeof(DateTime),
+                        typeMappingSource.FindMapping("datetime")),
+
+                nameof(DateTimeOffset.UtcNow)
+                    when declaringType == typeof(DateTimeOffset)
+                    => sqlExpressionFactory.Convert(
                         sqlExpressionFactory.Function(
-                            "GETDATE",
+                            "SYSUTCDATETIME",
                             arguments: [],
                             nullable: false,
                             argumentsPropagateNullability: [],
-                            typeof(DateTime))
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.FalseTrue,
-                    returnType),
+                            typeof(DateTime),
+                            typeMappingSource.FindMapping("datetime2")),
+                        typeof(DateTimeOffset),
+                        typeMappingSource.FindMapping("datetimeoffset")),
 
-            _ => null
-        };
+                nameof(DateTime.Today)
+                    => sqlExpressionFactory.Function(
+                        "CONVERT",
+                        [
+                            sqlExpressionFactory.Fragment("date"),
+                            sqlExpressionFactory.Function(
+                                "GETDATE",
+                                arguments: [],
+                                nullable: false,
+                                argumentsPropagateNullability: [],
+                                typeof(DateTime))
+                        ],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseTrue,
+                        returnType),
+
+                _ => null
+            };
 
         SqlExpression DatePart(string part)
             => sqlExpressionFactory.Function(

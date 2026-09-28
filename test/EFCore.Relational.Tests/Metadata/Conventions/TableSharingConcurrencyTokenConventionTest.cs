@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class TableSharingConcurrencyTokenConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_created_on_the_base_type()
     {
         var modelBuilder = GetModelBuilder();
@@ -25,15 +25,15 @@ public class TableSharingConcurrencyTokenConventionTest
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
-        var animal = model.FindEntityType(typeof(Animal));
-        var concurrencyProperty = animal.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
+        var animal = model.FindEntityType(typeof(Animal))!;
+        var concurrencyProperty = animal.FindProperty("_TableSharingConcurrencyTokenConvention_Version")!;
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
         Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_not_created_for_TPT()
     {
         var modelBuilder = GetModelBuilder();
@@ -49,11 +49,11 @@ public class TableSharingConcurrencyTokenConventionTest
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
-        var person = model.FindEntityType(typeof(Person));
+        var person = model.FindEntityType(typeof(Person))!;
         Assert.DoesNotContain(person.GetProperties(), p => p.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_created_for_TPT_same_table()
     {
         var modelBuilder = GetModelBuilder();
@@ -69,11 +69,11 @@ public class TableSharingConcurrencyTokenConventionTest
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
-        var person = model.FindEntityType(typeof(Person));
+        var person = model.FindEntityType(typeof(Person))!;
         Assert.Contains(person.GetProperties(), p => p.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_not_created_for_TPH()
     {
         var modelBuilder = GetModelBuilder();
@@ -86,11 +86,11 @@ public class TableSharingConcurrencyTokenConventionTest
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
-        var person = model.FindEntityType(typeof(Animal));
+        var person = model.FindEntityType(typeof(Animal))!;
         Assert.DoesNotContain(person.GetProperties(), p => p.IsConcurrencyToken);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_properties_are_created_on_the_base()
     {
         var modelBuilder = GetModelBuilder();
@@ -110,28 +110,28 @@ public class TableSharingConcurrencyTokenConventionTest
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
-        var animal = model.FindEntityType(typeof(Animal));
-        var concurrencyProperty = animal.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
+        var animal = model.FindEntityType(typeof(Animal))!;
+        var concurrencyProperty = animal.FindProperty("_TableSharingConcurrencyTokenConvention_Version")!;
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
         Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnUpdate, concurrencyProperty.ValueGenerated);
 
-        var cat = model.FindEntityType(typeof(Cat));
+        var cat = model.FindEntityType(typeof(Cat))!;
         Assert.DoesNotContain(cat.GetDeclaredProperties(), p => p.Name == "_TableSharingConcurrencyTokenConvention_Version");
 
-        var animalHouse = model.FindEntityType(typeof(AnimalHouse));
-        concurrencyProperty = animalHouse.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
+        var animalHouse = model.FindEntityType(typeof(AnimalHouse))!;
+        concurrencyProperty = animalHouse.FindProperty("_TableSharingConcurrencyTokenConvention_Version")!;
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
         Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnUpdate, concurrencyProperty.ValueGenerated);
 
-        var theMovie = model.FindEntityType(typeof(TheMovie));
+        var theMovie = model.FindEntityType(typeof(TheMovie))!;
         Assert.DoesNotContain(theMovie.GetDeclaredProperties(), p => p.Name == "_TableSharingConcurrencyTokenConvention_Version");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_created_on_the_sharing_type()
     {
         var modelBuilder = GetModelBuilder();
@@ -144,15 +144,15 @@ public class TableSharingConcurrencyTokenConventionTest
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
-        var personEntityType = model.FindEntityType(typeof(Person));
-        var concurrencyProperty = personEntityType.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
+        var personEntityType = model.FindEntityType(typeof(Person))!;
+        var concurrencyProperty = personEntityType.FindProperty("_TableSharingConcurrencyTokenConvention_Version")!;
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
         Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_created_on_the_sharing_type_with_complex_property()
     {
         var modelBuilder = GetModelBuilder();
@@ -169,18 +169,18 @@ public class TableSharingConcurrencyTokenConventionTest
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
-        var personEntityType = model.FindEntityType(typeof(Person));
-        var concurrencyProperty = personEntityType.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
+        var personEntityType = model.FindEntityType(typeof(Person))!;
+        var concurrencyProperty = personEntityType.FindProperty("_TableSharingConcurrencyTokenConvention_Version")!;
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
         Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
 
-        var animalEntityType = model.FindEntityType(typeof(Animal));
+        var animalEntityType = model.FindEntityType(typeof(Animal))!;
         Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Concurrency_token_property_is_not_created_on_the_sharing_when_on_complex_property()
     {
         var modelBuilder = GetModelBuilder();
@@ -198,11 +198,11 @@ public class TableSharingConcurrencyTokenConventionTest
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
-        var animalEntityType = model.FindEntityType(typeof(Animal));
+        var animalEntityType = model.FindEntityType(typeof(Animal))!;
         Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Missing_concurrency_token_property_is_not_created_for_json_mapped_entity()
     {
         var modelBuilder = GetModelBuilder();
@@ -214,14 +214,12 @@ public class TableSharingConcurrencyTokenConventionTest
             b.HasDiscriminator<string>("Type")
                 .HasValue<DerivedEntity>(nameof(DerivedEntity));
         });
-        modelBuilder.Entity<DerivedEntity>(b =>
-        {
-            b.OwnsOne(x => x.Owned, ob =>
+        modelBuilder.Entity<DerivedEntity>(b => b.OwnsOne(
+            x => x.Owned, ob =>
             {
                 ob.ToJson();
                 ob.Property(o => o.Description).HasMaxLength(200).IsRequired();
-            });
-        });
+            }));
 
         var model = modelBuilder.Model;
         model.FinalizeModel();
@@ -254,18 +252,18 @@ public class TableSharingConcurrencyTokenConventionTest
     protected class Animal
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public Person FavoritePerson { get; set; }
-        public AnimalHouse Dwelling { get; set; }
+        public Person FavoritePerson { get; set; } = null!;
+        public AnimalHouse Dwelling { get; set; } = null!;
     }
 
     protected class Cat : Animal
     {
-        public string Breed { get; set; }
+        public string Breed { get; set; } = null!;
 
         [NotMapped]
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
 
         public int Identity { get; set; }
     }
@@ -283,11 +281,11 @@ public class TableSharingConcurrencyTokenConventionTest
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string FavoriteBreed { get; set; }
+        public string Name { get; set; } = null!;
+        public string FavoriteBreed { get; set; } = null!;
     }
 
-    private ModelBuilder GetModelBuilder(DbContext dbContext = null)
+    private ModelBuilder GetModelBuilder(DbContext? dbContext = null)
     {
         var conventionSet = new ConventionSet();
 

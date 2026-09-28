@@ -77,7 +77,7 @@ public interface ITable : ITableBase
     /// <summary>
     ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
     /// </summary>
-    new IColumn? FindColumn(IProperty property);
+    new IColumn? FindColumn(IPropertyBase propertyBase);
 
     /// <summary>
     ///     <para>

@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ApiChief</AssemblyName>
+    <RootNamespace>ApiChief</RootNamespace>
+    <Description>Tool to help with .NET API management activities</Description>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="ICSharpCode.Decompiler" />
+  </ItemGroup>
+</Project>

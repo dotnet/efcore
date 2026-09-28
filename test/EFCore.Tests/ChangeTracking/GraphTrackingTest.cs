@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class GraphTrackingTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_add_aggregate()
     {
         using var context = new AggregateContext();
@@ -25,7 +25,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(comments1[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_one_to_one_aggregate()
     {
         using var context = new AggregateContext();
@@ -38,7 +38,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_aggregate()
     {
         using var context = new AggregateContext();
@@ -72,7 +72,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Unchanged, context.Entry(comments1[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_one_to_one_aggregate()
     {
         using var context = new AggregateContext();
@@ -85,7 +85,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Unchanged, context.Entry(category.Statistics).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Attaching_aggregate_with_no_key_set_adds_it_instead()
     {
         using var context = new AggregateContext();
@@ -105,7 +105,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(comments1[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Attaching_one_to_one_aggregate_with_no_key_set_adds_it_instead()
     {
         using var context = new AggregateContext();
@@ -118,7 +118,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Dependents_with_no_key_set_are_added()
     {
         using var context = new AggregateContext();
@@ -147,7 +147,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(comments1[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void One_to_one_dependents_with_no_key_set_are_added()
     {
         using var context = new AggregateContext();
@@ -160,7 +160,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(category.Statistics).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_aggregate_with_linked_aggregate_also_added()
     {
         using var context = new AggregateContext();
@@ -205,7 +205,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(reminders[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_aggregate_with_other_linked_aggregate_also_attached()
     {
         using var context = new AggregateContext();
@@ -254,7 +254,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Added, context.Entry(reminders[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_aggregate_with_linked_aggregate_also_attached()
     {
         using var context = new AggregateContext();
@@ -339,7 +339,7 @@ public class GraphTrackingTest
         Assert.Equal(EntityState.Unchanged, context.Entry(reminders[1]).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_two_aggregates_linked_down_the_tree()
     {
         using var context = new AggregateContext();
@@ -391,10 +391,10 @@ public class GraphTrackingTest
                 .UseInMemoryDatabase(nameof(AggregateContext))
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<Comment> Comments { get; set; }
-        public DbSet<Author> Authors { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
+        public DbSet<Author> Authors { get; set; } = null!;
     }
 
     private class BlogCategoryStatistics
@@ -402,16 +402,16 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int? BlogCategoryId { get; set; }
-        public BlogCategory BlogCategory { get; set; }
+        public BlogCategory BlogCategory { get; set; } = null!;
     }
 
     private class BlogCategory
     {
         public int Id { get; set; }
 
-        public BlogCategoryStatistics Statistics { get; set; }
+        public BlogCategoryStatistics Statistics { get; set; } = null!;
 
-        public ICollection<Blog> Blogs { get; set; }
+        public ICollection<Blog> Blogs { get; set; } = null!;
     }
 
     private class Blog
@@ -419,12 +419,12 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int? BlogCategoryId { get; set; }
-        public BlogCategory BlogCategory { get; set; }
+        public BlogCategory BlogCategory { get; set; } = null!;
 
         public int? AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author Author { get; set; } = null!;
 
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<Post> Posts { get; set; } = null!;
     }
 
     private class Post
@@ -432,12 +432,12 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int? AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author Author { get; set; } = null!;
 
         public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
 
-        public ICollection<Comment> Comments { get; set; }
+        public ICollection<Comment> Comments { get; set; } = null!;
     }
 
     private class Comment
@@ -445,20 +445,20 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int? AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author Author { get; set; } = null!;
 
         public int PostId { get; set; }
-        public Post Post { get; set; }
+        public Post Post { get; set; } = null!;
     }
 
     private class Author
     {
         public int Id { get; set; }
 
-        public ICollection<Blog> Blogs { get; set; }
-        public ICollection<Post> Posts { get; set; }
-        public ICollection<Comment> Comments { get; set; }
-        public ICollection<Reminder> Reminders { get; set; }
+        public ICollection<Blog> Blogs { get; set; } = null!;
+        public ICollection<Post> Posts { get; set; } = null!;
+        public ICollection<Comment> Comments { get; set; } = null!;
+        public ICollection<Reminder> Reminders { get; set; } = null!;
     }
 
     private class Reminder
@@ -466,6 +466,6 @@ public class GraphTrackingTest
         public int Id { get; set; }
 
         public int AuthorId { get; set; }
-        public Author Author { get; set; }
+        public Author Author { get; set; } = null!;
     }
 }

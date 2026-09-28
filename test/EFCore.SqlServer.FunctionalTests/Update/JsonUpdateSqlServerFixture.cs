@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public class JsonUpdateSqlServerFixture : JsonUpdateFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -30,6 +28,8 @@ public class JsonUpdateSqlServerFixture : JsonUpdateFixtureBase
             b.Ignore(e => e.TestNullableEnumWithIntConverterCollectionCollection);
             b.Ignore(e => e.TestNullableInt32CollectionCollection);
             b.Ignore(e => e.TestNullableEnumCollectionCollection);
+
+            b.Navigation(e => e.Reference).IsRequired(false);
 
             b.OwnsOne(
                 e => e.Reference, b =>

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class SqliteBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_set_srid()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -23,7 +23,7 @@ public class SqliteBuilderExtensionsTest
         Assert.Equal(1, property.GetSrid());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_srid_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -41,7 +41,7 @@ public class SqliteBuilderExtensionsTest
         Assert.Equal(1, property.GetSrid());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_srid_convention()
     {
         var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
@@ -61,7 +61,7 @@ public class SqliteBuilderExtensionsTest
 
     #region UseSqlReturningClause
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_UseSqlReturningClause()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -84,7 +84,7 @@ public class SqliteBuilderExtensionsTest
         Assert.True(entityType.IsSqlReturningClauseUsed());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_UseSqlReturningClause_with_table_name_and_one_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -113,7 +113,7 @@ public class SqliteBuilderExtensionsTest
         Assert.True(entityType.IsSqlReturningClauseUsed());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_UseSqlReturningClause_with_table_name_and_two_tables()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -148,7 +148,7 @@ public class SqliteBuilderExtensionsTest
         Assert.True(entityType.IsSqlReturningClauseUsed());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_UseSqlReturningClause_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();

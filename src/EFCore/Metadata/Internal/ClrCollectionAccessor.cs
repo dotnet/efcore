@@ -90,16 +90,11 @@ public class ClrCollectionAccessor<TStructural, TCollection, TElement> : IClrCol
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object Create()
-    {
-        if (_createCollection == null)
-        {
-            throw new InvalidOperationException(
+        => _createCollection == null
+            ? throw new InvalidOperationException(
                 CoreStrings.NavigationCannotCreateType(
-                    _propertyName, typeof(TStructural).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
-        }
-
-        return _createCollection();
-    }
+                    _propertyName, typeof(TStructural).ShortDisplayName(), typeof(TCollection).ShortDisplayName()))
+            : (object)_createCollection();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -149,18 +144,15 @@ public class ClrCollectionAccessor<TStructural, TCollection, TElement> : IClrCol
         var enumerable = _getCollection!((TStructural)instance);
         var collection = enumerable as ICollection<TElement>;
 
-        if (enumerable != null
-            && collection == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NavigationBadType(
-                    _propertyName,
-                    typeof(TStructural).ShortDisplayName(),
-                    enumerable.GetType().ShortDisplayName(),
-                    typeof(TElement).ShortDisplayName()));
-        }
-
-        return collection;
+        return enumerable != null
+            && collection == null
+                ? throw new InvalidOperationException(
+                    CoreStrings.NavigationBadType(
+                        _propertyName,
+                        typeof(TStructural).ShortDisplayName(),
+                        enumerable.GetType().ShortDisplayName(),
+                        typeof(TElement).ShortDisplayName()))
+                : collection;
     }
 
     /// <summary>

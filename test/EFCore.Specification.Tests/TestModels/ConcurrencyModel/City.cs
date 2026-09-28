@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public interface ICity
 {
     public string Name { get; set; }
@@ -24,7 +22,7 @@ public class City : ICity
     public int Id { get; set; }
 
     [Required]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 }
 
 public class CityTpt : ICity
@@ -39,7 +37,7 @@ public class CityTpt : ICity
     public int Id { get; set; }
 
     [Required]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 }
 
 public class CityTpc : ICity
@@ -54,5 +52,5 @@ public class CityTpc : ICity
     public int Id { get; set; }
 
     [Required]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 }

@@ -124,6 +124,33 @@ namespace Microsoft.EntityFrameworkCore {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Avoid using &apos;ToAsyncEnumerable&apos; on an &apos;IQueryable&apos;..
+        /// </summary>
+        public static string ToAsyncEnumerableOnQueryableTitle {
+            get {
+                return ResourceManager.GetString("ToAsyncEnumerableOnQueryableTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Calling &apos;ToAsyncEnumerable&apos; on an &apos;IQueryable&apos; iterates the source synchronously. Use &apos;AsAsyncEnumerable&apos; instead to iterate the database query asynchronously, or suppress this warning if the &apos;IQueryable&apos; is not an EF Core query..
+        /// </summary>
+        public static string ToAsyncEnumerableOnQueryableMessageFormat {
+            get {
+                return ResourceManager.GetString("ToAsyncEnumerableOnQueryableMessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use &apos;AsAsyncEnumerable&apos; to iterate the query asynchronously..
+        /// </summary>
+        public static string ToAsyncEnumerableOnQueryableCodeActionTitle {
+            get {
+                return ResourceManager.GetString("ToAsyncEnumerableOnQueryableCodeActionTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to DbSet properties on DbContext subclasses are automatically populated by the DbContext constructor..
         /// </summary>
         public static string UninitializedDbSetWarningSuppressionJustification {

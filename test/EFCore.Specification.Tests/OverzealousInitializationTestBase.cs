@@ -5,12 +5,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : OverzealousInitializationTestBase<TFixture>.OverzealousInitializationFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Fixup_ignores_eagerly_initialized_reference_navs()
     {
         using var context = CreateContext();
@@ -49,7 +47,7 @@ public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixtu
         public Album()
         {
             Artist = new Artist();
-            Tracks = new List<Track>();
+            Tracks = [];
         }
     }
 
@@ -58,7 +56,7 @@ public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixtu
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public class Track
@@ -101,7 +99,7 @@ public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixtu
                     {
                         Id = i,
                         Artist = _artists[(i - 1) % 3],
-                        Tracks = new List<Track> { new() { Id = i * 2 }, new() { Id = i * 2 + 1 } }
+                        Tracks = [new Track { Id = i * 2 }, new Track { Id = (i * 2) + 1 }]
                     });
             }
 

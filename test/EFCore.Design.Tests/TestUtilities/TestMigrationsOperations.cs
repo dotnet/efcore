@@ -10,7 +10,7 @@ public class TestMigrationsOperations(
     Assembly assembly,
     Assembly startupAssembly,
     string projectDir,
-    string rootNamespace,
-    string language,
+    string? rootNamespace,
+    string? language,
     bool nullable,
-    string[] args) : MigrationsOperations(reporter, assembly, startupAssembly, projectDir, rootNamespace, language, nullable, args);
+    string[]? args) : MigrationsOperations(reporter, assembly, startupAssembly, projectDir, rootNamespace, language, nullable, args);

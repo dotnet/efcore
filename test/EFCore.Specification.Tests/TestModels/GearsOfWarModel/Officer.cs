@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 public class Officer : Gear
 {
     public Officer()
-        => Reports = new List<Gear>();
+        => Reports = [];
 
     // 1 - many self reference
     public virtual ICollection<Gear> Reports { get; set; }

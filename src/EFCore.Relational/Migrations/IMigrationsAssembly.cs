@@ -52,4 +52,10 @@ public interface IMigrationsAssembly
     /// <param name="activeProvider">The name of the current database provider.</param>
     /// <returns>The migration instance.</returns>
     Migration CreateMigration(TypeInfo migrationClass, string activeProvider);
+
+    /// <summary>
+    ///     Adds migrations from an additional assembly to be included when finding migrations.
+    /// </summary>
+    /// <param name="additionalMigrationsAssembly">The assembly containing additional migrations.</param>
+    void AddMigrations(Assembly additionalMigrationsAssembly);
 }

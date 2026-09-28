@@ -8,7 +8,7 @@ public class EnumToNumberConverterTest
     private static readonly ValueConverter<Beatles, int> _enumToNumber
         = new EnumToNumberConverter<Beatles, int>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_numbers()
     {
         var converter = _enumToNumber.ConvertToProviderExpression.Compile();
@@ -21,7 +21,7 @@ public class EnumToNumberConverterTest
         Assert.Equal(0, converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_numbers_object()
     {
         var converter = _enumToNumber.ConvertToProvider;
@@ -35,7 +35,7 @@ public class EnumToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_numbers_to_enums()
     {
         var converter = _enumToNumber.ConvertFromProviderExpression.Compile();
@@ -48,7 +48,7 @@ public class EnumToNumberConverterTest
         Assert.Equal(default, converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_numbers_to_enums_object()
     {
         var converter = _enumToNumber.ConvertFromProvider;
@@ -62,14 +62,14 @@ public class EnumToNumberConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ordering_preserved_for_enums_to_numbers()
         => ValueConverterTest.OrderingTest(_enumToNumber, Beatles.Ringo, Beatles.George, Beatles.Paul, Beatles.John);
 
     private static readonly ValueConverter<Beatles, double> _enumToDouble
         = new EnumToNumberConverter<Beatles, double>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_doubles()
     {
         var converter = _enumToDouble.ConvertToProviderExpression.Compile();
@@ -82,7 +82,7 @@ public class EnumToNumberConverterTest
         Assert.Equal(0, converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_doubles_to_enums()
     {
         var converter = _enumToDouble.ConvertFromProviderExpression.Compile();
@@ -98,7 +98,7 @@ public class EnumToNumberConverterTest
     private static readonly ValueConverter<Beatles, decimal> _enumToDecimal
         = new EnumToNumberConverter<Beatles, decimal>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_decimals()
     {
         var converter = _enumToDecimal.ConvertToProviderExpression.Compile();
@@ -111,7 +111,7 @@ public class EnumToNumberConverterTest
         Assert.Equal(0, converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_decimals_to_enums()
     {
         var converter = _enumToDecimal.ConvertFromProviderExpression.Compile();
@@ -127,7 +127,7 @@ public class EnumToNumberConverterTest
     private static readonly ValueConverter<Beatles, float> _enumToFloat
         = new EnumToNumberConverter<Beatles, float>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_floats()
     {
         var converter = _enumToFloat.ConvertToProviderExpression.Compile();
@@ -140,7 +140,7 @@ public class EnumToNumberConverterTest
         Assert.Equal(0, converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_floats_to_enums()
     {
         var converter = _enumToFloat.ConvertFromProviderExpression.Compile();
@@ -156,7 +156,7 @@ public class EnumToNumberConverterTest
     private static readonly ValueConverter<Beatles, byte> _enumToByte
         = new EnumToNumberConverter<Beatles, byte>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_bytes()
     {
         var converter = _enumToByte.ConvertToProviderExpression.Compile();
@@ -168,7 +168,7 @@ public class EnumToNumberConverterTest
         Assert.Equal(0, converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_enums()
     {
         var converter = _enumToByte.ConvertFromProviderExpression.Compile();
@@ -183,7 +183,7 @@ public class EnumToNumberConverterTest
     private static readonly ValueConverter<Beatles, sbyte> _enumToSByte
         = new EnumToNumberConverter<Beatles, sbyte>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_sbytes()
     {
         var converter = _enumToSByte.ConvertToProviderExpression.Compile();
@@ -196,7 +196,7 @@ public class EnumToNumberConverterTest
         Assert.Equal(0, converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_sbytes_to_enums()
     {
         var converter = _enumToSByte.ConvertFromProviderExpression.Compile();
@@ -212,7 +212,7 @@ public class EnumToNumberConverterTest
     private static readonly ValueConverter<Beatles, long> _enumToLong
         = new EnumToNumberConverter<Beatles, long>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_longs()
     {
         var converter = _enumToLong.ConvertToProviderExpression.Compile();
@@ -225,7 +225,7 @@ public class EnumToNumberConverterTest
         Assert.Equal(0, converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_longs_to_enums()
     {
         var converter = _enumToLong.ConvertFromProviderExpression.Compile();
@@ -241,7 +241,7 @@ public class EnumToNumberConverterTest
     private static readonly ValueConverter<Beatles, ulong> _enumToULong
         = new EnumToNumberConverter<Beatles, ulong>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_ulongs()
     {
         var converter = _enumToULong.ConvertToProviderExpression.Compile();
@@ -253,7 +253,7 @@ public class EnumToNumberConverterTest
         Assert.Equal((ulong)0, converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ulongs_to_enums()
     {
         var converter = _enumToULong.ConvertFromProviderExpression.Compile();
