@@ -208,9 +208,6 @@ public class SqliteCommand : DbCommand
     /// <value>The data reader currently being used by the command.</value>
     protected internal virtual SqliteDataReader? DataReader { get; set; }
 
-    /// <summary>
-    ///     Gets the token of the asynchronous operation currently executing on this command, if any.
-    /// </summary>
     internal CancellationToken CancellationToken
         => _cancellationToken;
 
@@ -405,10 +402,11 @@ public class SqliteCommand : DbCommand
     public new virtual Task<SqliteDataReader> ExecuteReaderAsync(
         CommandBehavior behavior,
         CancellationToken cancellationToken)
-        => ExecuteWithCancellationAsync(
-            static state => state.Command.ExecuteReader(state.Behavior),
-            (Command: this, Behavior: behavior),
-            cancellationToken);
+        => Task.FromResult(
+            ExecuteWithCancellation(
+                static state => state.Command.ExecuteReader(state.Behavior),
+                (Command: this, Behavior: behavior),
+                cancellationToken));
 
     /// <summary>
     ///     Executes the <see cref="CommandText" /> asynchronously against the database and returns a data reader.
@@ -459,7 +457,7 @@ public class SqliteCommand : DbCommand
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
     public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
-        => ExecuteWithCancellationAsync(static command => command.ExecuteNonQuery(), this, cancellationToken);
+        => Task.FromResult(ExecuteWithCancellation(static command => command.ExecuteNonQuery(), this, cancellationToken));
 
     /// <summary>
     ///     Executes the <see cref="CommandText" /> against the database and returns the result.
@@ -500,7 +498,7 @@ public class SqliteCommand : DbCommand
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
     public override Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken)
-        => ExecuteWithCancellationAsync(static command => command.ExecuteScalar(), this, cancellationToken);
+        => Task.FromResult(ExecuteWithCancellation(static command => command.ExecuteScalar(), this, cancellationToken));
 
     /// <summary>
     ///     Attempts to cancel the execution of the command by interrupting the connection.
@@ -520,35 +518,28 @@ public class SqliteCommand : DbCommand
         }
     }
 
-    internal Task<TResult> ExecuteWithCancellationAsync<TState, TResult>(
+    internal TResult ExecuteWithCancellation<TState, TResult>(
         Func<TState, TResult> operation,
         TState state,
         CancellationToken cancellationToken)
     {
-        if (cancellationToken.IsCancellationRequested)
-        {
-            return Task.FromException<TResult>(new OperationCanceledException(cancellationToken));
-        }
+        cancellationToken.ThrowIfCancellationRequested();
 
         var previousCancellationToken = _cancellationToken;
         _cancellationToken = cancellationToken;
-        var registration = cancellationToken.Register(static command => ((SqliteCommand)command!).Cancel(), this);
+
+        // Disposing waits for a concurrently running callback, so the connection isn't interrupted after this returns
+        using var registration = cancellationToken.Register(static command => ((SqliteCommand)command!).Cancel(), this);
         try
         {
-            return Task.FromResult(operation(state));
+            return operation(state);
         }
         catch (SqliteException ex) when (ex.SqliteErrorCode == SQLITE_INTERRUPT && cancellationToken.IsCancellationRequested)
         {
-            return Task.FromException<TResult>(new OperationCanceledException(ex.Message, ex, cancellationToken));
-        }
-        catch (Exception ex)
-        {
-            return Task.FromException<TResult>(ex);
+            throw new OperationCanceledException(ex.Message, ex, cancellationToken);
         }
         finally
         {
-            // Waits for a concurrently running callback, so the connection isn't interrupted after this returns
-            registration.Dispose();
             _cancellationToken = previousCancellationToken;
         }
     }

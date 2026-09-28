@@ -138,7 +138,7 @@ public class SqliteDataReader : DbDataReader
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
     public override Task<bool> ReadAsync(CancellationToken cancellationToken)
-        => _command.ExecuteWithCancellationAsync(static reader => reader.Read(), this, cancellationToken);
+        => Task.FromResult(_command.ExecuteWithCancellation(static reader => reader.Read(), this, cancellationToken));
 
     /// <summary>
     ///     Advances to the next result set for batched statements.
@@ -153,7 +153,7 @@ public class SqliteDataReader : DbDataReader
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/batching">Batching</seealso>
     public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
-        => _command.ExecuteWithCancellationAsync(static reader => reader.NextResult(), this, cancellationToken);
+        => Task.FromResult(_command.ExecuteWithCancellation(static reader => reader.NextResult(), this, cancellationToken));
 
     /// <summary>
     ///     Advances to the next result set for batched statements.

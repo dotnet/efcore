@@ -15,6 +15,8 @@ namespace Microsoft.Data.Sqlite;
 
 public class SqliteCommandTest
 {
+    private const string InfiniteQuery = "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c) SELECT count(*) FROM c;";
+
     [Theory, InlineData(true), InlineData(false)]
     public async Task Correct_error_code_is_returned_when_parameter_is_too_long(bool async) // Issue #27597
     {
@@ -716,8 +718,6 @@ CREATE TABLE "Products" (
         Assert.False(hasResult);
     }
 
-    private const string InfiniteQuery = "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c) SELECT count(*) FROM c;";
-
     [Fact]
     public void Cancel_does_nothing_when_no_connection()
         => new SqliteCommand().Cancel();
@@ -768,9 +768,7 @@ CREATE TABLE "Products" (
         command.CommandText = InfiniteQuery;
         using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
 
-        var task = command.ExecuteScalarAsync(cts.Token);
-
-        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => task);
+        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => command.ExecuteScalarAsync(cts.Token));
         Assert.Equal(cts.Token, ex.CancellationToken);
         Assert.Equal(SQLITE_INTERRUPT, Assert.IsType<SqliteException>(ex.InnerException).SqliteErrorCode);
 
@@ -868,9 +866,7 @@ CREATE TABLE "Products" (
         Assert.True(await reader.ReadAsync());
 
         using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
-        var task = reader.NextResultAsync(cts.Token);
-
-        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => task);
+        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => reader.NextResultAsync(cts.Token));
         Assert.Equal(cts.Token, ex.CancellationToken);
         Assert.Equal(SQLITE_INTERRUPT, Assert.IsType<SqliteException>(ex.InnerException).SqliteErrorCode);
         Assert.True(reader.IsClosed);
@@ -902,9 +898,7 @@ CREATE TABLE "Products" (
         };
 
         using var reader = await command.ExecuteReaderAsync();
-        var task = reader.NextResultAsync(cts.Token);
-
-        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => task);
+        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => reader.NextResultAsync(cts.Token));
         Assert.Equal(cts.Token, ex.CancellationToken);
         Assert.True(reader.IsClosed);
         Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT count(*) FROM Log;"));
@@ -920,9 +914,7 @@ CREATE TABLE "Products" (
         command.CommandText = "SELECT 1; CREATE TABLE Data (Value);";
 
         using var reader = await command.ExecuteReaderAsync();
-        var task = reader.NextResultAsync(new CancellationToken(canceled: true));
-
-        await Assert.ThrowsAsync<OperationCanceledException>(() => task);
+        await Assert.ThrowsAsync<OperationCanceledException>(() => reader.NextResultAsync(new CancellationToken(canceled: true)));
         Assert.False(reader.IsClosed);
 
         Assert.False(await reader.NextResultAsync());
