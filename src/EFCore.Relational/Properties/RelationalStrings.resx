@@ -436,6 +436,9 @@
   <data name="ExecuteMergeNotSupportedByProvider" xml:space="preserve">
     <value>ExecuteMerge is not supported by the current database provider.</value>
   </data>
+  <data name="ExecuteMergeNotSupportedInPrecompiledQueries" xml:space="preserve">
+    <value>ExecuteMerge is not supported in precompiled queries.</value>
+  </data>
   <data name="ExecuteMergeOnComplexQuery" xml:space="preserve">
     <value>ExecuteMerge is only supported on a simple, unfiltered DbSet target.</value>
   </data>

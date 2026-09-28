@@ -850,6 +850,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ExecuteMergeNotSupportedByProvider");
 
         /// <summary>
+        ///     ExecuteMerge is not supported in precompiled queries.
+        /// </summary>
+        public static string ExecuteMergeNotSupportedInPrecompiledQueries
+            => GetString("ExecuteMergeNotSupportedInPrecompiledQueries");
+
+        /// <summary>
         ///     ExecuteMerge is only supported on a simple, unfiltered DbSet target.
         /// </summary>
         public static string ExecuteMergeOnComplexQuery

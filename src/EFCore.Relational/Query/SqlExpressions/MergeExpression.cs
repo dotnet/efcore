@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     </para>
 /// </summary>
 [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
-public sealed class MergeExpression : Expression, IPrintableExpression
+public sealed class MergeExpression : Expression, IRelationalQuotableExpression, IPrintableExpression
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="MergeExpression" /> class.
@@ -173,6 +173,10 @@ public sealed class MergeExpression : Expression, IPrintableExpression
                 Tags)
             : this;
     }
+
+    /// <inheritdoc />
+    public Expression Quote()
+        => throw new NotSupportedException(RelationalStrings.ExecuteMergeNotSupportedInPrecompiledQueries);
 
     /// <inheritdoc />
     public void Print(ExpressionPrinter expressionPrinter)
