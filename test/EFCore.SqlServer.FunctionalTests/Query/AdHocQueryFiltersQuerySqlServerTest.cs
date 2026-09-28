@@ -929,6 +929,58 @@ GROUP BY [o].[GroupId]
 """);
     }
 
+    public override async Task Repeated_single_result_subquery_read_through_required_navigation_with_query_filter(bool async)
+    {
+        await base.Repeated_single_result_subquery_read_through_required_navigation_with_query_filter(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [d0].[GroupId]
+    FROM [Dependents] AS [d0]
+    WHERE [d0].[GroupId] <= [d].[GroupId]
+    ORDER BY [d0].[GroupId] DESC) AS [GroupId], (
+    SELECT TOP(1) [p0].[Value]
+    FROM [Dependents] AS [d1]
+    INNER JOIN (
+        SELECT [p].[Id], [p].[Value]
+        FROM [Principals] AS [p]
+        WHERE [p].[Filtered] = CAST(0 AS bit)
+    ) AS [p0] ON [d1].[PrincipalId] = [p0].[Id]
+    WHERE [d1].[GroupId] <= [d].[GroupId]
+    ORDER BY [d1].[GroupId] DESC) AS [Value]
+FROM [Dependents] AS [d]
+ORDER BY [d].[GroupId]
+""");
+    }
+
+    public override async Task Single_result_subquery_null_check_preserves_filtered_projection(bool async)
+    {
+        await base.Single_result_subquery_null_check_preserves_filtered_projection(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [d0].[GroupId]
+    FROM [Dependents] AS [d0]
+    WHERE [d0].[GroupId] = [d].[GroupId]
+    ORDER BY [d0].[Id]) AS [GroupId], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Dependents] AS [d1]
+        INNER JOIN (
+            SELECT [p0].[Id]
+            FROM [Principals] AS [p0]
+            WHERE [p0].[Filtered] = CAST(0 AS bit)
+        ) AS [p] ON [d1].[PrincipalId] = [p].[Id]
+        WHERE [d1].[GroupId] = [d].[GroupId]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasPrincipal]
+FROM [Dependents] AS [d]
+ORDER BY [d].[GroupId]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

@@ -167,6 +167,16 @@ public class QueryCompilationContext
         => false;
 
     /// <summary>
+    ///     A value indicating whether the provider can translate a correlated <c>SelectMany</c> over <c>DefaultIfEmpty()</c> that can't
+    ///     be converted to a regular join, e.g. with <c>OUTER APPLY</c> or <c>LATERAL</c>. Query rewrites that may produce one, such as
+    ///     lifting a single-result subquery read more than once in a projection into a single join, are only applied when this is
+    ///     <see langword="true" />. Default value is <see langword="false" />.
+    /// </summary>
+    [Experimental(EFDiagnostics.ProviderExperimentalApi)]
+    public virtual bool SupportsOuterApply
+        => false;
+
+    /// <summary>
     ///     Creates the query executor func which gives results for this query.
     /// </summary>
     /// <typeparam name="TResult">The result type of this query.</typeparam>
