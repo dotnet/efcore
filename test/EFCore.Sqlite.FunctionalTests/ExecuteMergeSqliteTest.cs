@@ -185,6 +185,32 @@ public class ExecuteMergeSqliteTest
     }
 
     [Fact]
+    public void ExecuteMerge_when_not_matched_setters_omit_match_column_still_use_it_for_insert()
+    {
+        using var context = CreateContext();
+
+        context.Accounts.Add(new Account { Id = 1, ExternalId = 1, Balance = 10 });
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        // WhenNotMatched sets ExternalId and Balance but not Id; the conflict column (Id, matched via ExternalId) must still be
+        // populated on insert from the match's source key selector, otherwise the new row would be inserted with an unrelated
+        // auto-assigned Id instead of ExternalId, and would never actually conflict with a subsequent merge on the same ExternalId.
+        var affected = context.Accounts.ExecuteMerge(
+            [new Account { Id = 999, ExternalId = 777, Balance = 50 }],
+            merge => merge
+                .Match(t => t.Id, s => s.ExternalId)
+                .WhenNotMatched(insert => insert
+                    .SetProperty(t => t.ExternalId, s => s.ExternalId)
+                    .SetProperty(t => t.Balance, s => s.Balance)));
+
+        Assert.Equal(1, affected);
+        var inserted = context.Accounts.Single(a => a.Id != 1);
+        Assert.Equal(777, inserted.Id);
+        Assert.Equal(50, inserted.Balance);
+    }
+
+    [Fact]
     public void ExecuteMerge_default_insert_skips_computed_columns()
     {
         using var context = CreateContext();
@@ -348,6 +374,21 @@ public class ExecuteMergeSqliteTest
 
         var exception = Assert.Throws<InvalidOperationException>(
             () => context.Blogs.Where(b => b.Id > 0).ExecuteMerge(
+                [new Blog { Id = 1, Name = "x" }],
+                merge => { }));
+
+        Assert.Equal(RelationalStrings.ExecuteMergeOnComplexQuery, exception.InnerException!.Message);
+    }
+
+    [Fact]
+    public void ExecuteMerge_on_target_with_take_throws()
+    {
+        using var context = CreateContext();
+
+        // Take() isn't reflected anywhere in the generated MERGE (which always targets the whole table), so it must be rejected
+        // rather than silently ignored.
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Blogs.Take(1).ExecuteMerge(
                 [new Blog { Id = 1, Name = "x" }],
                 merge => { }));
 
