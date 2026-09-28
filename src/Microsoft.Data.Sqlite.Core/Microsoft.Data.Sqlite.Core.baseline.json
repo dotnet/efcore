@@ -112,6 +112,9 @@
           "Member": "override int ExecuteNonQuery();"
         },
         {
+          "Member": "override System.Threading.Tasks.Task<int> ExecuteNonQueryAsync(System.Threading.CancellationToken cancellationToken);"
+        },
+        {
           "Member": "virtual Microsoft.Data.Sqlite.SqliteDataReader ExecuteReader();"
         },
         {
@@ -131,6 +134,9 @@
         },
         {
           "Member": "override object? ExecuteScalar();"
+        },
+        {
+          "Member": "override System.Threading.Tasks.Task<object?> ExecuteScalarAsync(System.Threading.CancellationToken cancellationToken);"
         },
         {
           "Member": "override void Prepare();"
@@ -697,7 +703,13 @@
           "Member": "override bool NextResult();"
         },
         {
+          "Member": "override System.Threading.Tasks.Task<bool> NextResultAsync(System.Threading.CancellationToken cancellationToken);"
+        },
+        {
           "Member": "override bool Read();"
+        },
+        {
+          "Member": "override System.Threading.Tasks.Task<bool> ReadAsync(System.Threading.CancellationToken cancellationToken);"
         }
       ],
       "Properties": [
