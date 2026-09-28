@@ -3693,6 +3693,12 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The total number of rows inserted or updated in the database.</returns>
     [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    [DynamicDependency(
+        "ExecuteMerge``2(System.Linq.IQueryable{``0},System.Collections.Generic.IEnumerable{``1},"
+        + "System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple},"
+        + "System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple},"
+        + "System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple})",
+        typeof(EntityFrameworkQueryableExtensions))]
     public static Task<int> ExecuteMergeAsync<TTarget, TSource>(
         this IQueryable<TTarget> target,
         IEnumerable<TSource> source,
@@ -3762,6 +3768,13 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>An asynchronous sequence of projected results, one per affected row.</returns>
     [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    [DynamicDependency(
+        "ExecuteMergeReturning``3(System.Linq.IQueryable{``0},System.Collections.Generic.IEnumerable{``1},"
+        + "System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple},"
+        + "System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple},"
+        + "System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple},"
+        + "System.Linq.Expressions.Expression{System.Func{``0,``2}})",
+        typeof(EntityFrameworkQueryableExtensions))]
     public static IAsyncEnumerable<TResult> ExecuteMergeReturningAsync<TTarget, TSource, TResult>(
         this IQueryable<TTarget> target,
         IEnumerable<TSource> source,
