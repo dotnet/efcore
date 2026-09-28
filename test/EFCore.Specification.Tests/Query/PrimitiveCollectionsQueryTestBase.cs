@@ -318,16 +318,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
     }
 
-    internal class ReadOnlyCollectionWithContains<T>(params T[] items) : IReadOnlyCollection<T>
-    {
-        public int Count => items.Length;
-
-        public bool Contains(T item) => items.Contains(item);
-
-        public IEnumerator<T> GetEnumerator() => items.AsEnumerable().GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
     [ConditionalFact]
     public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int()
     {
@@ -1851,4 +1841,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 }
             };
     }
+}
+
+// Keep it outside so it does not inherit the TFixture.
+internal class ReadOnlyCollectionWithContains<T>(params T[] items) : IReadOnlyCollection<T>
+{
+    public int Count => items.Length;
+
+    public bool Contains(T item) => items.Contains(item);
+
+    public IEnumerator<T> GetEnumerator() => items.AsEnumerable().GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
