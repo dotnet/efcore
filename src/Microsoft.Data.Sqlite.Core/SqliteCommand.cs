@@ -527,7 +527,7 @@ public class SqliteCommand : DbCommand
     {
         if (cancellationToken.IsCancellationRequested)
         {
-            return Task.FromCanceled<TResult>(cancellationToken);
+            return Task.FromException<TResult>(new OperationCanceledException(cancellationToken));
         }
 
         var previousCancellationToken = _cancellationToken;
@@ -539,11 +539,7 @@ public class SqliteCommand : DbCommand
         }
         catch (SqliteException ex) when (ex.SqliteErrorCode == SQLITE_INTERRUPT && cancellationToken.IsCancellationRequested)
         {
-            return Task.FromCanceled<TResult>(cancellationToken);
-        }
-        catch (OperationCanceledException ex) when (ex.CancellationToken == cancellationToken)
-        {
-            return Task.FromCanceled<TResult>(cancellationToken);
+            return Task.FromException<TResult>(new OperationCanceledException(ex.Message, ex, cancellationToken));
         }
         catch (Exception ex)
         {
