@@ -91,13 +91,7 @@ stages:
                 displayName: Test API Baselines
                 condition: succeeded()
               - powershell: |
-                  $files = Get-ChildItem -Path 'artifacts\coverage' -Filter '*.cobertura.xml' -ErrorAction SilentlyContinue
-                  if ($files) {
-                    $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-                    dotnet tool update --global dotnet-coverage
-                    if ($LASTEXITCODE -ne 0) { dotnet tool install --global dotnet-coverage }
-                    dotnet-coverage merge -o 'artifacts\coverage\coverage.cobertura.xml' -f cobertura $files.FullName
-                  }
+                  . ./eng/merge-coverage.ps1 -CoverageDirectory artifacts/coverage -OutputFile artifacts/coverage/coverage.cobertura.xml
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
@@ -136,13 +130,7 @@ stages:
                   /p:Projects="$(Build.SourcesDirectory)/test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.SqlServer.HierarchyId.Tests/EFCore.SqlServer.HierarchyId.Tests.csproj;$(Build.SourcesDirectory)/test/EFCore.CrossStore.FunctionalTests/EFCore.CrossStore.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.OData.FunctionalTests/EFCore.OData.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.AspNet.SqlServer.FunctionalTests/EFCore.AspNet.SqlServer.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.VisualBasic.FunctionalTests/EFCore.VisualBasic.FunctionalTests.vbproj;$(Build.SourcesDirectory)/test/EFCore.FSharp.FunctionalTests/EFCore.FSharp.FunctionalTests.fsproj"
                 displayName: Test SQL Server
               - powershell: |
-                  $files = Get-ChildItem -Path 'artifacts\coverage' -Filter '*.cobertura.xml' -ErrorAction SilentlyContinue
-                  if ($files) {
-                    $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-                    dotnet tool update --global dotnet-coverage
-                    if ($LASTEXITCODE -ne 0) { dotnet tool install --global dotnet-coverage }
-                    dotnet-coverage merge -o 'artifacts\coverage\coverage.cobertura.xml' -f cobertura $files.FullName
-                  }
+                  . ./eng/merge-coverage.ps1 -CoverageDirectory artifacts/coverage -OutputFile artifacts/coverage/coverage.cobertura.xml
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
@@ -177,15 +165,7 @@ stages:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
                 name: Build
-              - bash: |
-                  shopt -s nullglob
-                  files=(artifacts/coverage/*.cobertura.xml)
-                  if [ ${#files[@]} -gt 0 ]; then
-                    export DOTNET_ROOT="$(Build.SourcesDirectory)/.dotnet"
-                    export PATH="$DOTNET_ROOT:$PATH:$HOME/.dotnet/tools"
-                    dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
-                    dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
-                  fi
+              - pwsh: . ./eng/merge-coverage.ps1 -CoverageDirectory artifacts/coverage -OutputFile artifacts/coverage/coverage.cobertura.xml
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
@@ -221,14 +201,7 @@ stages:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__AuthToken: $(_CosmosToken)
                 name: Build
-              - bash: |
-                  shopt -s nullglob
-                  files=(artifacts/coverage/*.cobertura.xml)
-                  if [ ${#files[@]} -gt 0 ]; then
-                    export PATH="$PATH:$HOME/.dotnet/tools"
-                    dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
-                    dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
-                  fi
+              - pwsh: . ./eng/merge-coverage.ps1 -CoverageDirectory artifacts/coverage -OutputFile artifacts/coverage/coverage.cobertura.xml
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
