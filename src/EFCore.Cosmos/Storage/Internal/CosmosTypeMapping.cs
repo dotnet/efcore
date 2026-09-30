@@ -87,7 +87,24 @@ public class CosmosTypeMapping : CoreTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlParameter CreateParameter(string name, object? value)
-        => new SqlValueParameter(name, ConvertToProviderValue(value));
+        {
+                value = NormalizeValue(value);
+
+    using var stream = new MemoryStream();
+    using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
+    {
+        if (value is not null || JsonValueReaderWriter!.HandlesNullWrites)
+        {
+            JsonValueReaderWriter!.ToJson(writer, value!);
+        }
+        else
+        {
+            writer.WriteNullValue();
+        }
+    }
+
+    return new SqlRawJsonParameter(name, stream.ToArray());
+        }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
