@@ -60,20 +60,22 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
 
         // Find the table model that maps to the entity type; there must be exactly one (e.g. no entity splitting).
-        switch (entityType.GetTableMappings().ToList())
+        var table = entityType.GetTableMappings().ToList() switch
         {
-            case []:
-                throw new InvalidOperationException(
-                    RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(entityType.DisplayName()));
-            case [_]:
-                break;
-            default:
-                throw new InvalidOperationException(
-                    RelationalStrings.ExecuteOperationOnEntitySplitting(
-                        nameof(EntityFrameworkQueryableExtensions.ExecuteMerge), entityType.DisplayName()));
-        }
+            [] => throw new InvalidOperationException(
+                RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(entityType.DisplayName())),
+            [var singleTableMapping] => singleTableMapping.Table,
+            _ => throw new InvalidOperationException(
+                RelationalStrings.ExecuteOperationOnEntitySplitting(
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteMerge), entityType.DisplayName()))
+        };
 
-        var table = targetTable.Table;
+        // If the entity is also mapped to a view, the query refers to the view (translation assumes we're querying); target the
+        // mutable table instead, as ExecuteDelete does.
+        if (targetTable.Table != table)
+        {
+            targetTable = new TableExpression(targetTable.Alias, table);
+        }
 
         // Table splitting: other, unrelated entity types mapped to the same table would have required columns this merge doesn't know
         // to populate.

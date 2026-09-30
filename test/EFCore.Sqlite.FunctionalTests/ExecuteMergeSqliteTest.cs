@@ -502,6 +502,19 @@ public class ExecuteMergeSqliteTest
     }
 
     [Fact]
+    public void ExecuteMerge_on_entity_mapped_to_table_and_view_targets_table()
+    {
+        using var context = CreateContext();
+        context.Database.ExecuteSqlRaw(@"CREATE VIEW ""WidgetsView"" AS SELECT * FROM ""Widgets""");
+
+        // Queries on Widget go through the view, but the merge must write to the table.
+        var affected = context.Set<Widget>().ExecuteMerge([new Widget { Id = 1, Name = "a" }], merge => { });
+
+        Assert.Equal(1, affected);
+        Assert.Equal("a", context.Set<Widget>().Single().Name);
+    }
+
+    [Fact]
     public void ExecuteMerge_on_entity_with_owned_type_throws()
     {
         using var context = CreateContext();
@@ -647,6 +660,12 @@ public class ExecuteMergeSqliteTest
                     b.Property(e => e.Id).ValueGeneratedNever();
                     b.ComplexProperty(e => e.Size);
                 });
+            modelBuilder.Entity<Widget>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.ToTable("Widgets").ToView("WidgetsView");
+                });
         }
     }
 
@@ -722,5 +741,11 @@ public class ExecuteMergeSqliteTest
     private class ParcelSize
     {
         public int Weight { get; set; }
+    }
+
+    private class Widget
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
     }
 }
