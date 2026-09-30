@@ -27,7 +27,10 @@ public sealed class MergeUpdateSettersBuilder<TTarget, TSource> : MergeSettersBu
     /// </summary>
     /// <typeparam name="TProperty">The type of the property.</typeparam>
     /// <param name="propertyExpression">A target property access expression.</param>
-    /// <param name="valueExpression">A value expression referencing the existing target row and the incoming source row.</param>
+    /// <param name="valueExpression">
+    ///     A value expression referencing the existing target row and the incoming source row. A source member can only be referenced
+    ///     when its value is inserted unchanged into a target column.
+    /// </param>
     /// <returns>The same instance so that multiple calls can be chained.</returns>
     public MergeUpdateSettersBuilder<TTarget, TSource> SetProperty<TProperty>(
         Expression<Func<TTarget, TProperty>> propertyExpression,

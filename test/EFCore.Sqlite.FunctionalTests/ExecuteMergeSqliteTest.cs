@@ -249,14 +249,58 @@ public class ExecuteMergeSqliteTest
                 .WhenMatched(u => u.SetProperty(t => t.Name, (t, s) => s.Name))
                 .WhenNotMatched(insert => insert
                     .SetProperty(t => t.Id, s => s.Id)
-                    .SetProperty(t => t.Name, s => "INS-" + s.Name)));
+                    .SetProperty(t => t.Name, s => s.Name)
+                    .SetProperty(t => t.Note, "INS")));
 
         Assert.Equal(2, affected);
         var blogs = context.Blogs.OrderBy(b => b.Id).ToList();
-        // The WhenMatched source row is SQLite's "excluded" pseudo-row, i.e. the values that would have been inserted (after the
-        // WhenNotMatched setters run). So s.Name for the matched row is "INS-updated", not the raw source "updated".
-        Assert.Equal("INS-updated", blogs[0].Name);
-        Assert.Equal("INS-new", blogs[1].Name);
+        Assert.Equal("updated", blogs[0].Name);
+        Assert.Null(blogs[0].Note);
+        Assert.Equal("new", blogs[1].Name);
+        Assert.Equal("INS", blogs[1].Note);
+    }
+
+    [Fact]
+    public void ExecuteMerge_when_matched_source_member_not_inserted_unchanged_throws()
+    {
+        using var context = CreateContext();
+
+        // WhenMatched can only read source values through the inserted row, and Name is inserted as "INS-" + s.Name, so the raw
+        // s.Name isn't available.
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Blogs.ExecuteMerge(
+                [new Blog { Id = 1, Name = "x" }],
+                merge => merge
+                    .WhenMatched(u => u.SetProperty(t => t.Name, (t, s) => s.Name))
+                    .WhenNotMatched(insert => insert
+                        .SetProperty(t => t.Id, s => s.Id)
+                        .SetProperty(t => t.Name, s => "INS-" + s.Name))));
+
+        Assert.Equal(RelationalStrings.ExecuteMergeSourceMemberNotInserted("s.Name"), exception.InnerException!.Message);
+    }
+
+    [Fact]
+    public void ExecuteMerge_when_matched_reads_dto_only_source_member()
+    {
+        using var context = CreateContext();
+
+        context.Blogs.Add(new Blog { Id = 1, Name = "old" });
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        // Title only exists on the DTO; since it's inserted unchanged into Name, WhenMatched can reference it.
+        var affected = context.Blogs.ExecuteMerge(
+            new BlogImport[] { new() { Id = 1, Title = "updated" }, new() { Id = 2, Title = "new" } },
+            merge => merge
+                .WhenMatched(u => u.SetProperty(t => t.Name, (t, s) => s.Title))
+                .WhenNotMatched(insert => insert
+                    .SetProperty(t => t.Id, s => s.Id)
+                    .SetProperty(t => t.Name, s => s.Title)));
+
+        Assert.Equal(2, affected);
+        var blogs = context.Blogs.OrderBy(b => b.Id).ToList();
+        Assert.Equal("updated", blogs[0].Name);
+        Assert.Equal("new", blogs[1].Name);
     }
 
     [Fact]
@@ -280,6 +324,21 @@ public class ExecuteMergeSqliteTest
         var visits = context.Visits.OrderBy(v => v.UserId).ToList();
         Assert.Equal(8, visits[0].Visits);
         Assert.Equal(7, visits[1].Visits);
+    }
+
+    [Fact]
+    public void ExecuteMerge_duplicate_match_column_throws()
+    {
+        using var context = CreateContext();
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Accounts.ExecuteMerge(
+                [new Account { Id = 1, ExternalId = 1, Balance = 10 }],
+                merge => merge
+                    .Match(t => t.Id, s => s.Id)
+                    .Match(t => t.Id, s => s.ExternalId)));
+
+        Assert.Equal(RelationalStrings.ExecuteMergeDuplicateMatchColumn(nameof(Account.Id)), exception.InnerException!.Message);
     }
 
     [Fact]
@@ -350,6 +409,20 @@ public class ExecuteMergeSqliteTest
 
         Assert.Single(notes);
         Assert.Null(notes[0]);
+    }
+
+    [Fact]
+    public void ExecuteMergeReturning_selector_without_target_columns_throws()
+    {
+        using var context = CreateContext();
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Blogs.ExecuteMergeReturning(
+                [new Blog { Id = 1, Name = "x" }],
+                merge => { },
+                t => 1));
+
+        Assert.Equal(RelationalStrings.ExecuteMergeReturningUnsupportedSelector("t => 1"), exception.InnerException!.Message);
     }
 
     [Fact]
@@ -538,6 +611,12 @@ public class ExecuteMergeSqliteTest
     {
         public int Id { get; set; }
         public string? Note { get; set; }
+    }
+
+    private class BlogImport
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
     }
 
     private class Keyless

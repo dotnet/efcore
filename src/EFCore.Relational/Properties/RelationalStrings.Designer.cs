@@ -828,6 +828,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 tableName);
 
         /// <summary>
+        ///     The column '{column}' is matched more than once in ExecuteMerge.
+        /// </summary>
+        public static string ExecuteMergeDuplicateMatchColumn(object? column)
+            => string.Format(
+                GetString("ExecuteMergeDuplicateMatchColumn", nameof(column)),
+                column);
+
+        /// <summary>
         ///     Invalid property selector '{selector}' in ExecuteMerge.
         /// </summary>
         public static string ExecuteMergeInvalidPropertySelector(object? selector)
@@ -844,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     ExecuteMerge is not supported by the current database provider.
+        ///     ExecuteMerge and ExecuteMergeReturning are not supported by the current database provider.
         /// </summary>
         public static string ExecuteMergeNotSupportedByProvider
             => GetString("ExecuteMergeNotSupportedByProvider");
@@ -900,7 +908,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, table);
 
         /// <summary>
-        ///     Unsupported expression '{expression}' in an ExecuteMerge WhenMatched value.
+        ///     The ExecuteMergeReturning selector '{selector}' is not supported. The selector must project one or more properties of the target entity, e.g. 't =&gt; t.Id'.
+        /// </summary>
+        public static string ExecuteMergeReturningUnsupportedSelector(object? selector)
+            => string.Format(
+                GetString("ExecuteMergeReturningUnsupportedSelector", nameof(selector)),
+                selector);
+
+        /// <summary>
+        ///     The source member '{member}' is referenced in an ExecuteMerge WhenMatched value, but is not inserted unchanged into any target column. WhenMatched can only reference source members whose values are inserted as-is.
+        /// </summary>
+        public static string ExecuteMergeSourceMemberNotInserted(object? member)
+            => string.Format(
+                GetString("ExecuteMergeSourceMemberNotInserted", nameof(member)),
+                member);
+
+        /// <summary>
+        ///     Unsupported expression '{expression}' in an ExecuteMerge setter value.
         /// </summary>
         public static string ExecuteMergeUnsupportedExpression(object? expression)
             => string.Format(

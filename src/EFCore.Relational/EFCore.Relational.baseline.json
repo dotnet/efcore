@@ -16673,6 +16673,9 @@
           "Member": "static string ExecuteDeleteOnTableSplitting(object? tableName);"
         },
         {
+          "Member": "static string ExecuteMergeDuplicateMatchColumn(object? column);"
+        },
+        {
           "Member": "static string ExecuteMergeInvalidPropertySelector(object? selector);"
         },
         {
@@ -16689,6 +16692,12 @@
         },
         {
           "Member": "static string ExecuteMergePropertyNotMapped(object? property, object? table);"
+        },
+        {
+          "Member": "static string ExecuteMergeReturningUnsupportedSelector(object? selector);"
+        },
+        {
+          "Member": "static string ExecuteMergeSourceMemberNotInserted(object? member);"
         },
         {
           "Member": "static string ExecuteMergeUnsupportedExpression(object? expression);"
@@ -17277,6 +17286,9 @@
         },
         {
           "Member": "static string ExecuteMergeNotSupportedByProvider { get; }"
+        },
+        {
+          "Member": "static string ExecuteMergeNotSupportedInPrecompiledQueries { get; }"
         },
         {
           "Member": "static string ExecuteMergeOnComplexQuery { get; }"

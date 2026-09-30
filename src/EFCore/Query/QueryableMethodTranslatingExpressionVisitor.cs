@@ -1246,8 +1246,12 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
         IReadOnlyList<ExecuteUpdateSetter>? whenNotMatchedSetters,
         LambdaExpression? returningSelector)
         => throw new InvalidOperationException(
-            CoreStrings.ExecuteQueriesNotSupported(
-                nameof(EntityFrameworkQueryableExtensions.ExecuteMerge), nameof(EntityFrameworkQueryableExtensions.ExecuteMergeAsync)));
+            returningSelector is null
+                ? CoreStrings.ExecuteQueriesNotSupported(
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteMerge), nameof(EntityFrameworkQueryableExtensions.ExecuteMergeAsync))
+                : CoreStrings.ExecuteQueriesNotSupported(
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteMergeReturning),
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteMergeReturningAsync)));
 
     /// <summary>
     ///     Represents a single match (conflict-target) column pair in an ExecuteMerge call.
