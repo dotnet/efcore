@@ -16682,6 +16682,9 @@
           "Member": "static string ExecuteMergeNoPrimaryKey(object? entityType);"
         },
         {
+          "Member": "static string ExecuteMergeOnComplexProperties(object? entityType);"
+        },
+        {
           "Member": "static string ExecuteMergeOnTableSplitting(object? tableName);"
         },
         {

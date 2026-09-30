@@ -82,6 +82,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             throw new InvalidOperationException(RelationalStrings.ExecuteMergeOnTableSplitting(table.SchemaQualifiedName));
         }
 
+        // Complex property columns can't be populated by the insert, which only sees the entity type's own properties. (Owned types
+        // don't get here: their auto-included navigations fail the single entity type check above.)
+        if (entityType.GetComplexProperties().Any())
+        {
+            throw new InvalidOperationException(RelationalStrings.ExecuteMergeOnComplexProperties(entityType.DisplayName()));
+        }
+
         // Determine the conflict (match) columns and, for each, how to read its value from a source row. No Match() call => default to
         // the primary key, matched by the same-named source member. The conflict-column value must come from the source-side selector of
         // the match, not the same-named source member, so that Match(t => t.Id, s => s.ExternalId) actually matches on ExternalId.

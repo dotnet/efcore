@@ -342,6 +342,25 @@ public class ExecuteMergeSqliteTest
     }
 
     [Fact]
+    public void ExecuteMerge_with_empty_when_matched_leaves_matched_rows_unchanged()
+    {
+        using var context = CreateContext();
+
+        context.Blogs.Add(new Blog { Id = 1, Name = "original" });
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        var affected = context.Blogs.ExecuteMerge(
+            [new Blog { Id = 1, Name = "ignored" }, new Blog { Id = 2, Name = "inserted" }],
+            merge => merge.WhenMatched(_ => { }));
+
+        Assert.Equal(1, affected);
+        var blogs = context.Blogs.OrderBy(b => b.Id).ToList();
+        Assert.Equal("original", blogs[0].Name);
+        Assert.Equal("inserted", blogs[1].Name);
+    }
+
+    [Fact]
     public void ExecuteMerge_when_matched_with_constant_value()
     {
         using var context = CreateContext();
@@ -483,6 +502,32 @@ public class ExecuteMergeSqliteTest
     }
 
     [Fact]
+    public void ExecuteMerge_on_entity_with_owned_type_throws()
+    {
+        using var context = CreateContext();
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Set<Order>().ExecuteMerge(
+                [new Order { Id = 1, ShipTo = new OrderAddress { City = "x" } }],
+                merge => { }));
+
+        Assert.Equal(RelationalStrings.ExecuteMergeOnNonEntityType, exception.InnerException!.Message);
+    }
+
+    [Fact]
+    public void ExecuteMerge_on_entity_with_complex_property_throws()
+    {
+        using var context = CreateContext();
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Set<Parcel>().ExecuteMerge(
+                [new Parcel { Id = 1, Size = new ParcelSize { Weight = 5 } }],
+                merge => { }));
+
+        Assert.Equal(RelationalStrings.ExecuteMergeOnComplexProperties(nameof(Parcel)), exception.InnerException!.Message);
+    }
+
+    [Fact]
     public void ExecuteMerge_when_matched_unsupported_expression_throws()
     {
         using var context = CreateContext();
@@ -590,6 +635,18 @@ public class ExecuteMergeSqliteTest
                     b.Property(e => e.Tax).HasComputedColumnSql(@"""Price"" / 10");
                 });
             modelBuilder.Entity<Keyless>(b => b.HasNoKey().ToTable("Keyless"));
+            modelBuilder.Entity<Order>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.OwnsOne(e => e.ShipTo);
+                });
+            modelBuilder.Entity<Parcel>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.ComplexProperty(e => e.Size);
+                });
         }
     }
 
@@ -643,5 +700,27 @@ public class ExecuteMergeSqliteTest
         public int Id { get; set; }
         public int Price { get; set; }
         public int Tax { get; set; }
+    }
+
+    private class Order
+    {
+        public int Id { get; set; }
+        public OrderAddress ShipTo { get; set; } = null!;
+    }
+
+    private class OrderAddress
+    {
+        public string City { get; set; } = null!;
+    }
+
+    private class Parcel
+    {
+        public int Id { get; set; }
+        public ParcelSize Size { get; set; } = null!;
+    }
+
+    private class ParcelSize
+    {
+        public int Weight { get; set; }
     }
 }

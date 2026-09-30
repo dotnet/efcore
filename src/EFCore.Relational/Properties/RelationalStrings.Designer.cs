@@ -864,6 +864,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ExecuteMergeNotSupportedInPrecompiledQueries");
 
         /// <summary>
+        ///     ExecuteMerge is not supported on entity type '{entityType}', which has complex properties.
+        /// </summary>
+        public static string ExecuteMergeOnComplexProperties(object? entityType)
+            => string.Format(
+                GetString("ExecuteMergeOnComplexProperties", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     ExecuteMerge is only supported on a simple, unfiltered DbSet target.
         /// </summary>
         public static string ExecuteMergeOnComplexQuery

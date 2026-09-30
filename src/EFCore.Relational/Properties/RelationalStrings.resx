@@ -442,6 +442,9 @@
   <data name="ExecuteMergeNotSupportedInPrecompiledQueries" xml:space="preserve">
     <value>ExecuteMerge is not supported in precompiled queries.</value>
   </data>
+  <data name="ExecuteMergeOnComplexProperties" xml:space="preserve">
+    <value>ExecuteMerge is not supported on entity type '{entityType}', which has complex properties.</value>
+  </data>
   <data name="ExecuteMergeOnComplexQuery" xml:space="preserve">
     <value>ExecuteMerge is only supported on a simple, unfiltered DbSet target.</value>
   </data>
