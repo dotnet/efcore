@@ -7672,7 +7672,7 @@
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IRelationalQuotableExpression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
       "Methods": [
         {
           "Member": "MergeExpression(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpression table, System.Collections.Generic.IReadOnlyList<string> insertColumns, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.RowValueExpression> sourceRows, System.Collections.Generic.IReadOnlyList<string> conflictColumns, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter>? updateSetters, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.ProjectionExpression>? returning, System.Linq.Expressions.LambdaExpression? returningShaper = null);"
@@ -7688,6 +7688,9 @@
         },
         {
           "Member": "void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
+        },
+        {
+          "Member": "System.Linq.Expressions.Expression Quote();"
         },
         {
           "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
