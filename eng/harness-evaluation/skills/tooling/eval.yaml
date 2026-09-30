@@ -33,9 +33,6 @@ stimuli:
       - It identifies focused CLI/operation tests and does not conflate dotnet-ef with PMC or EFCore.Tasks.
       - The option has clear help/default/forwarding behavior and preserves public command compatibility.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ tooling ]
       - type: file-matches
         config:
           path: tooling-plan.md
@@ -51,8 +48,7 @@ stimuli:
           max: 750000
 scoring:
   weights:
-    skill-invocation: 0.27
     file-matches: 0.27
-    prompt: 0.36
+    prompt: 0.63
     token-budget: 0.1
   threshold: 0.75

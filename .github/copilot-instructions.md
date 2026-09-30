@@ -1,46 +1,46 @@
 # Entity Framework Core - GitHub Copilot Instructions
 
-This document provides guidance for working with code in the Entity Framework Core project.
+Read implementations and usages before changing behavior; similarly named components often differ between the core, relational, and provider layers. If intent remains unclear, do not infer it from names alone.
 
-If you are not sure, do not guess, just tell that you don't know or ask clarifying questions. Don't just copy code that follows the same pattern in a different context. Don't rely just on names to guess its function, evaluate the code based on the implementation and usage.
+## Build and test
 
-## Code Style
+The repository bootstraps its pinned preview .NET SDK into `.dotnet`. On Windows, use `.\restore.cmd` followed by `. .\activate.ps1`. On Linux/macOS, use `./restore.sh` followed by `. ./activate.sh`.
 
-- Follow the [.NET coding guidelines](https://github.com/dotnet/runtime/blob/main/docs/coding-guidelines/coding-style.md) unless explicitly overridden below
-- Use the rules defined in the .editorconfig file in the root of the repository for any ambiguous cases
-- Write code that is clean, maintainable, and easy to understand
-- Favor readability over brevity, but keep methods focused and concise
-- **Prefer minimal comments** - The code should be self-explanatory. Add comments sparingly and only to explain *why* a non-intuitive solution was necessary, not *what* the code does. Comments are appropriate for complex logic, public APIs, or domain-specific implementations where context would otherwise be unclear. Use `Check.DebugAssert` instead of a comment if possible.
+.\build.{cmd|sh} restores and builds the solution; .\test.{cmd|sh} builds and runs the full test suite.
 
-## Environment Setup
-- **ALWAYS** run `restore.cmd` (Windows) or `. ./restore.sh` (Linux/Mac) first to restore dependencies
-- **ALWAYS** run `. .\activate.ps1` (PowerShell) or `. ./activate.sh` (Bash) to set up the development environment with correct SDK versions before building or running the tests
+Tests use Microsoft.Testing.Platform with xUnit.
 
-## Dependency and Version Management
+```powershell
+dotnet test .\test\EFCore.Tests\EFCore.Tests.csproj -- --filter-method "*ModelBuilderTest.Some_test"
+```
 
-- **NEVER** hardcode package versions in `.csproj` files
-- Use `eng/Versions.props` and `Directory.Packages.props` for NuGet package version management
+`test\Directory.Build.props` adds `--filter-not-trait category=failing --ignore-exit-code 8`. Do not add `--no-build` unless the test assembly was built immediately beforehand.
 
-## Testing
+SQL Server functional tests use LocalDB on Windows or `Test__SqlServer__DefaultConnection`. Cosmos tests use `Test__Cosmos__DefaultConnection` or start the configured emulator/container. Tests requiring unavailable services may skip.
 
-- Put provider-independent behavior in specification tests. Override those tests when a provider needs to add specific assertions such as `AssertSql` for providers that produce SQL.
-- `NonSharedModelTestBase` supports both the tests that share a model as well as those that do not.
-- Set `EF_TEST_REWRITE_BASELINES=1` to rewrite SQL and compiled-model baselines.
-- Tests execute using MTP, call `dotnet exec <test-dll> --filter-method '<pattern>' --filter-not-trait category=failing --ignore-exit-code 8` for focused runs.
-- Do not add `--no-build` unless the test assembly was built in the immediately preceding step.
+Set `EF_TEST_REWRITE_BASELINES=1` to rewrite SQL and compiled-model baselines. Public API changes require running `.\test\EFCore.ApiBaseline.Tests\EFCore.ApiBaseline.Tests.csproj`.
 
-## Implementation Guidelines
+## Architecture overview
 
-- Write code that is secure by default. Avoid exposing potentially private or sensitive data
-- Make code NativeAOT compatible when possible. This means avoiding dynamic code generation, reflection, and other features that are not compatible with NativeAOT. If not possible, mark the code with an appropriate annotation or throw an exception
-- After implementing a fix, review the surrounding code for similar patterns that might need the same change
-- Be mindful of performance implications, especially for database operations
-- Avoid breaking public APIs. If you need to break a public API, add a new API instead and mark the old one as obsolete. Use `ObsoleteAttribute` with the message pointing to the new API
-- If a public API is changed, run EFCore.ApiBaseline.Tests
-- All types should be public by default, but types in `.Internal` namespaces or annotated with `[EntityFrameworkInternal]` require a specific XML doc comment on ALL members.
-- **ALL** user-facing error messages must use string resources from the `.resx` (and the generated `.Designer.cs`) file corresponding to the project
-- Call `ConfigureAwait(false)` on awaited asynchronous calls to avoid deadlocks
+- `src\EFCore.Abstractions` contains minimal contracts; `src\EFCore` contains provider-independent functionality.
+- `src\EFCore.Relational` adds the shared functionality for relational providers.
+- `src\Microsoft.Data.Sqlite.Core` is a standalone ADO.NET provider.
+- `src\EFCore.Design` implements design-time functionality. `src\dotnet-ef` is the CLI front end wrapping `src\ef`; `EFCore.Tools` is the Package Manager Console integration; `EFCore.Tasks` supplies MSBuild integration.
 
-## Agent Skills
+## Repository conventions
 
-Skill files in `.agents/skills/` provide domain-specific knowledge so that agents don't need repetitive instructions from the user. Keep skills updated: when you discover non-obvious patterns, key files, or recurring review feedback during a session, distill the insight into the relevant `SKILL.md`. Additions must be concise, broadly useful, and stable — avoid task-specific details, speculation, and statements that contradict existing content. Remove or correct stale information rather than appending conflicting rules.
+- Put provider-independent behavior in core or relational specification tests, then override new virtual tests in inheriting provider classes, adding specific assertions such as `AssertSql` for providers that produce SQL. Preserve existing `Check_all_tests_overridden` guards, but do not add one to a provider class that intentionally overrides only a subset of tests.
+- Prefer existing test infrastructure: `TestHelpers` for services/models, `NonSharedModelTestBase` for both the tests that share a model as well as those that do not.
+- Preserve public API and binary compatibility. Prefer overloads over changing shipped signatures. If you need to break a public API, add a new API instead and mark the old one as obsolete. Use `ObsoleteAttribute` with the message pointing to the new API
+- Types are public by default. Types under `.Internal` or marked `[EntityFrameworkInternal]` must use the repository's internal-API XML documentation pattern on all members and they don't need to preserve compatibility.
+- User-facing messages come from the owning project's `.resx` resource and generated `*Strings.Designer.cs`.
+- Configure asynchronous calls using `ConfigureAwait(false)`. Avoid reflection or runtime code generation where NativeAOT-compatible alternatives exist; otherwise use the established annotations/guards.
+- Package versions belong in `eng\Versions.props` or `Directory.Packages.props`, never inline in project files.
+- Do not edit `eng\common`; it is mirrored from dotnet/arcade and overwritten by automation.
+- Follow `.editorconfig` for formatting.
+- `bool` parameters should not begin with "is" or "are".
+- Prefer minimal comments; use `Check.DebugAssert` when the intent is an invariant rather than explanatory prose.
+
+## Domain guidance
+
+Skill files in `.agents\skills\<area>\SKILL.md` provide domain-specific knowledge. Keep skills updated: when you discover non-obvious patterns or recurring review feedback during a session, distill the insight into the relevant `SKILL.md`. Additions must be concise, broadly useful, and stable. Avoid task-specific details, speculation, and statements that contradict existing content. Remove or correct stale information rather than appending conflicting rules.

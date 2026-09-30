@@ -119,6 +119,7 @@ jobs:
             };
             const fromBranch = pull.head.repo?.id === pull.base.repo.id;
             const automatic = context.eventName === 'pull_request_target'
+              && !pull.draft
               && !['synchronize', 'closed'].includes(context.payload.action);
             const canUseSecrets = mergedIntoDefault || (isBot(author)
               ? fromBranch && (manual || automatic)
@@ -640,6 +641,7 @@ jobs:
             const marker = `<!-- agent-harness-eval:${process.env.COMPONENT} -->`;
             const passed = process.env.EVAL_OUTCOME === 'success';
             let details = '_No complete Vally comparison was produced._';
+            let gateDetails = '';
             let gradeBreakdown = '';
             let model = '';
             let reportGenerationFailed = false;
@@ -664,19 +666,19 @@ jobs:
                 }
                 const comparison = comparisons[0];
                 const summary = comparison?.summary;
-                const tokens = summary?.metricDeltas?.find(metric => metric.metric === 'totalTokens');
                 if (comparison?.type !== 'comparison' ||
                     !Number.isFinite(summary?.meanScore) ||
                     !Number.isFinite(summary?.wins) ||
                     !Number.isFinite(summary?.ties) ||
-                    !Number.isFinite(summary?.losses) ||
-                    !Number.isFinite(tokens?.mean)) {
-                  throw new Error('comparison summary or token metrics are incomplete');
+                    !Number.isFinite(summary?.losses)) {
+                  throw new Error('comparison summary is incomplete');
                 }
-                const tokenDelta = `${tokens.mean >= 0 ? '+' : ''}${Math.round(tokens.mean).toLocaleString()}`;
-                details = `Quality score (treatment relative to control): **${summary.meanScore.toFixed(2)}** ` +
-                  `(${summary.wins} wins, ${summary.ties} ties, ${summary.losses} losses)\n\n` +
-                  `Mean token delta: **${tokenDelta} tokens** per paired trial.`;
+                const qualityScore = summary.meanScore.toFixed(2);
+                const formattedQualityScore = summary.meanScore === 0
+                  ? `**${qualityScore}**`
+                  : `$\\color{${summary.meanScore > 0 ? 'green' : 'red'}}{\\mathbf{${qualityScore}}}$`;
+                details = `Quality score (treatment relative to control): ${formattedQualityScore} ` +
+                  `(${summary.wins} wins, ${summary.ties} ties, ${summary.losses} losses).`;
               }
             } catch (error) {
               reportGenerationFailed = true;
@@ -684,13 +686,44 @@ jobs:
             }
 
             try {
-              const treatmentFiles = findFiles(process.env.RESULT_ROOT, 'results.jsonl')
-                .filter(file => path.basename(path.dirname(file)) === 'treatment');
-              if (treatmentFiles.length !== 1) {
-                throw new Error(`expected one treatment results file, found ${treatmentFiles.length}`);
+              const validationPath = path.join(process.env.RESULT_ROOT, 'validation.json');
+              if (fs.existsSync(validationPath)) {
+                const validation = JSON.parse(fs.readFileSync(validationPath, 'utf8'));
+                if (validation?.type !== 'harness-validation' ||
+                    typeof validation?.quality?.passed !== 'boolean' ||
+                    typeof validation?.activation?.required !== 'boolean' ||
+                    typeof validation?.activation?.passed !== 'boolean') {
+                  throw new Error('validation summary is incomplete');
+                }
+
+                const formatGate = passed => passed ? '✅ passed' : '❌ failed';
+                const gates = [
+                  `Treatment quality threshold: **${formatGate(validation.quality.passed)}**`,
+                ];
+                if (validation.activation.required) {
+                  const skill = validation.activation.skill ? ` \`${validation.activation.skill}\`` : '';
+                  gates.push(`Required skill activation${skill}: **${formatGate(validation.activation.passed)}**` +
+                    (validation.activation.passed ? '' : ' — the target skill was not invoked in every treatment trial.'));
+                }
+                gateDetails = '\n' + gates.join('\n');
+              }
+            } catch (error) {
+              reportGenerationFailed = true;
+              core.warning(`Could not parse treatment validation: ${error.message}`);
+            }
+
+            try {
+              const resultFiles = findFiles(process.env.RESULT_ROOT, 'results.jsonl');
+              const treatmentFiles = resultFiles.filter(file => path.basename(path.dirname(file)) === 'treatment');
+              const controlFiles = resultFiles.filter(file => path.basename(path.dirname(file)) === 'control');
+              if (treatmentFiles.length !== 1 || controlFiles.length !== 1) {
+                throw new Error(
+                  `expected one control and one treatment results file, found ${controlFiles.length} control and ${treatmentFiles.length} treatment`);
               }
 
               const treatmentTrials = readRecords(treatmentFiles[0])
+                .filter(record => record.type === 'trial-result');
+              const controlTrials = readRecords(controlFiles[0])
                 .filter(record => record.type === 'trial-result');
               const models = [...new Set(treatmentTrials.map(trial => trial.model).filter(Boolean))];
               if (treatmentTrials.length > 0 && models.length !== 1) {
@@ -705,11 +738,14 @@ jobs:
                   trials: 0,
                   successful: 0,
                   scores: [],
+                  treatmentTokens: [],
                   graders: new Map(),
                 };
                 summary.trials++;
                 if (trial.status === 'success') summary.successful++;
                 if (Number.isFinite(trial.gradeResult?.score)) summary.scores.push(trial.gradeResult.score);
+                const totalTokens = trial.trajectory?.metrics?.tokenUsage?.totalTokens;
+                if (Number.isFinite(totalTokens)) summary.treatmentTokens.push(totalTokens);
                 for (const grade of trial.gradeResult?.details ?? []) {
                   const grader = grade.name ?? grade.graderType ?? 'unknown';
                   const count = summary.graders.get(grader) ?? { passed: 0, total: 0 };
@@ -721,18 +757,41 @@ jobs:
               }
 
               if (byStimulus.size > 0) {
+                const controlTokens = new Map();
+                for (const trial of controlTrials) {
+                  const stimulus = trial.stimulus ?? trial.gradeResult?.stimulusName ?? 'unknown';
+                  const totalTokens = trial.trajectory?.metrics?.tokenUsage?.totalTokens;
+                  if (!Number.isFinite(totalTokens)) continue;
+                  const values = controlTokens.get(stimulus) ?? [];
+                  values.push(totalTokens);
+                  controlTokens.set(stimulus, values);
+                }
+                const mean = values => values.length > 0
+                  ? values.reduce((sum, value) => sum + value, 0) / values.length
+                  : Number.NaN;
+                const formatTokenDelta = value => {
+                  if (!Number.isFinite(value)) return 'N/A';
+                  const tokenDelta = `${value >= 0 ? '+' : ''}${Math.round(value).toLocaleString()}`;
+                  if (value === 0) return `**${tokenDelta} tokens**`;
+                  const tokenDeltaValue = tokenDelta.replaceAll(',', '{,}');
+                  return `$\\color{${value < 0 ? 'green' : 'red'}}{\\mathbf{${tokenDeltaValue}\\ tokens}}$`;
+                };
                 const rows = [...byStimulus.entries()].map(([stimulus, summary]) => {
                   const meanScore = summary.scores.length > 0
                     ? (summary.scores.reduce((sum, score) => sum + score, 0) / summary.scores.length).toFixed(2)
                     : 'N/A';
+                  const meanTreatmentTokens = mean(summary.treatmentTokens);
+                  const meanControlTokens = mean(controlTokens.get(stimulus) ?? []);
+                  const tokenDelta = meanTreatmentTokens - meanControlTokens;
                   const graders = [...summary.graders.entries()]
                     .map(([grader, count]) => `${escapeCell(grader)}: ${count.passed}/${count.total}`)
                     .join('<br>');
-                  return `| ${escapeCell(stimulus)} | ${summary.successful}/${summary.trials} | ${meanScore} | ${graders} |`;
+                  return `| ${escapeCell(stimulus)} | ${summary.successful}/${summary.trials} | ${meanScore} | ` +
+                    `${formatTokenDelta(tokenDelta)} | ${graders} |`;
                 });
                 gradeBreakdown = '\n\n#### Treatment grades by stimulus\n\n' +
-                  '| Stimulus | Successful trials | Mean score | Grader passes |\n' +
-                  '| --- | ---: | ---: | --- |\n' + rows.join('\n');
+                  '| Stimulus | Successful trials | Mean score | Token delta | Grader passes |\n' +
+                  '| --- | ---: | ---: | ---: | --- |\n' + rows.join('\n');
               }
             } catch (error) {
               reportGenerationFailed = true;
@@ -772,7 +831,7 @@ jobs:
                   for (const comment of comments) {
                     if (comment.user?.login !== 'github-actions[bot]' ||
                         !comment.body?.startsWith(marker) ||
-                        !/Status: \*\*(passed|failed)\*\*/.test(comment.body)) continue;
+                        !/Status: \*\*(?:✅ passed|❌ failed)\*\*/.test(comment.body)) continue;
                     if (!previous || Date.parse(comment.updated_at) > Date.parse(previous.comment.updated_at)) {
                       previous = { comment, pullNumber: pull.number };
                     }
@@ -793,11 +852,12 @@ jobs:
               ? `[Download Vally reports](${process.env.ARTIFACT_URL}) · `
               : '';
             const status = reportGenerationFailed ? 'error' : passed ? 'passed' : 'failed';
+            const formattedStatus = status === 'passed' ? '✅ passed' : status === 'failed' ? '❌ failed' : status;
             const report = reportGenerationFailed
               ? 'An error occurred while generating the evaluation report.'
               : `${model ? `Model: **\`${model}\`**\n\n` : ''}${details}${gradeBreakdown}${baseline}`;
             const body = `${marker}\n### Agent evaluation: \`${process.env.COMPONENT}\`\n\n` +
-              `Status: **${status}** for \`${process.env.HEAD_SHA}\`\n\n` +
+              `Status: **${formattedStatus}** for \`${process.env.HEAD_SHA}\`${gateDetails}\n\n` +
               `${report}\n\n` +
               `${artifactLink}[View workflow run](${runUrl})`;
             const comments = await github.paginate(github.rest.issues.listComments, {

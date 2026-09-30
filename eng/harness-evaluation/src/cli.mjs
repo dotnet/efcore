@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFile, rm } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { parse } from 'yaml';
 import {
@@ -11,6 +11,7 @@ import {
   validateComponentId,
   validateInventory,
   validateOutputRoot,
+  variantInvokedSkill,
   variantPassed,
 } from './harness.mjs';
 
@@ -113,8 +114,24 @@ async function evaluate(args) {
   const treatmentResults = join(experimentDirectory, 'treatment', 'results.jsonl');
   const experimentPlan = join(experimentDirectory, 'plan-snapshot.json');
   const treatmentSpec = parse(await readFile(evalPath, 'utf8'));
-  const treatmentPass = !requirePass || await variantPassed(treatmentResults, evalPath, experimentPlan);
-  if (!treatmentPass) {
+  const qualityPass = await variantPassed(treatmentResults, evalPath, experimentPlan);
+  const activationPass = component.kind !== 'skill'
+    || await variantInvokedSkill(treatmentResults, component.id);
+  await writeFile(join(outputRoot, 'validation.json'), `${JSON.stringify({
+    type: 'harness-validation',
+    component: component.id,
+    quality: { passed: qualityPass },
+    activation: {
+      required: component.kind === 'skill',
+      skill: component.kind === 'skill' ? component.id : null,
+      passed: activationPass,
+    },
+  }, null, 2)}\n`);
+  const treatmentPass = !requirePass || (qualityPass && activationPass);
+  if (component.kind === 'skill' && !activationPass) {
+    console.error(`Treatment '${componentId}' did not invoke the target skill in every trial.`);
+  }
+  if (requirePass && !qualityPass) {
     console.error(`Treatment '${componentId}' did not meet its committed scoring threshold.`);
   }
 
