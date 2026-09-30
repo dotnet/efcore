@@ -340,6 +340,12 @@ jobs:
         with:
           sparse-checkout: eng/
 
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        with:
+          dotnet-version: latest
+          dotnet-quality: ga
+
       - name: Download coverage artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
@@ -347,9 +353,9 @@ jobs:
           path: artifacts/coverage
 
       - name: Merge coverage reports
-        continue-on-error: true
         shell: pwsh
-        run: . ./eng/merge-coverage.ps1 -CoverageDirectory artifacts/coverage -OutputFile artifacts/coverage/coverage.cobertura.xml
+        working-directory: ${{ runner.temp }}
+        run: . ${{ github.workspace }}/eng/merge-coverage.ps1 -CoverageDirectory ${{ github.workspace }}/artifacts/coverage -OutputFile ${{ github.workspace }}/artifacts/coverage/coverage.cobertura.xml
 
       - name: Upload coverage report
         if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && hashFiles('artifacts/coverage/coverage.cobertura.xml') != ''
@@ -358,4 +364,4 @@ jobs:
           file: artifacts/coverage/coverage.cobertura.xml
           language: C#
           label: code-coverage
-          fail-on-error: false
+          fail-on-error: true
