@@ -98,7 +98,7 @@ WHERE (POWER(LENGTH(c["id"]), 2) = 25)
 
                 AssertSql(
                     """
-@arg='1996-07-04T00:00:00'
+@arg='1996-07-04T00:00:00.0000000'
 
 SELECT VALUE c
 FROM root c
