@@ -5,7 +5,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqlServerHierarchyIdDbContextOptionsBuilderExtensions",
       "Methods": [
         {
-          "Member": "static T UseHierarchyId<T>(this T optionsBuilder);"
+          "Member": "static T UseHierarchyId<T>(this T optionsBuilder) where T : Microsoft.EntityFrameworkCore.Infrastructure.SqlEngineDbContextOptionsBuilderBase<T>;"
         }
       ]
     },

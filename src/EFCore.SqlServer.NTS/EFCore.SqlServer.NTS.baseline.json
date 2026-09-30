@@ -13,7 +13,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions",
       "Methods": [
         {
-          "Member": "static T UseNetTopologySuite<T>(this T optionsBuilder);"
+          "Member": "static T UseNetTopologySuite<T>(this T optionsBuilder) where T : Microsoft.EntityFrameworkCore.Infrastructure.SqlEngineDbContextOptionsBuilderBase<T>;"
         }
       ]
     },
