@@ -33,16 +33,16 @@
           "Member": "static TEntity CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbContext context, System.Action<TEntity>? configureEntity, params object[] constructorArguments);"
         },
         {
-          "Member": "static TEntity CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> set, params object[] constructorArguments);"
+          "Member": "static TEntity CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> set, params object[] constructorArguments) where TEntity : class;"
         },
         {
-          "Member": "static TEntity CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> set, System.Action<TEntity>? configureEntity, params object[] constructorArguments);"
+          "Member": "static TEntity CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> set, System.Action<TEntity>? configureEntity, params object[] constructorArguments) where TEntity : class;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseChangeTrackingProxies(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, bool useChangeTrackingProxies = true, bool checkEquality = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseChangeTrackingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, bool useChangeTrackingProxies = true, bool checkEquality = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseChangeTrackingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, bool useChangeTrackingProxies = true, bool checkEquality = true) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseLazyLoadingProxies(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, bool useLazyLoadingProxies = true);"
@@ -51,10 +51,10 @@
           "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseLazyLoadingProxies(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, bool useLazyLoadingProxies = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, bool useLazyLoadingProxies = true) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction) where TContext : Microsoft.EntityFrameworkCore.DbContext;"
         }
       ]
     },

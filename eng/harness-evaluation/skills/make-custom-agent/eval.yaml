@@ -36,10 +36,6 @@ stimuli:
       - Its responsibilities and allowed tools are specifically tied to EF Core ApiChief baseline review.
       - It remains read-only, avoids secrets and internal URLs, and does not duplicate root repository instructions.
     graders:
-      - type: skill-invocation
-        config:
-          required:
-            - make-custom-agent
       - type: file-matches
         config:
           path: .github/agents/efcore-api-review.agent.md
@@ -61,8 +57,7 @@ stimuli:
           max: 1000000
 scoring:
   weights:
-    skill-invocation: 0.25
     file-matches: 0.4
-    prompt: 0.25
+    prompt: 0.5
     token-budget: 0.1
   threshold: 0.75

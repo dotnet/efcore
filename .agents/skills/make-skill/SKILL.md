@@ -93,7 +93,7 @@ Include these recommended sections, following this file's structure:
 
 ### Step 7: Author and validate the harness evaluation
 
-Create `eng/harness-evaluation/skills/<skill-name>/eval.yaml` and follow the authoring and validation rules in `eng/harness-evaluation/README.md`. The eval must require exact invocation of `<skill-name>` and meaningfully distinguish the skilled treatment from the unskilled control.
+Create `eng/harness-evaluation/skills/<skill-name>/eval.yaml` and follow the authoring and validation rules in `eng/harness-evaluation/README.md`. Do not add a `skill-invocation` grader; the runner separately requires exact invocation of `<skill-name>` in every treatment trial so control and treatment share the same quality score. The eval must meaningfully distinguish the skilled treatment from the unskilled control.
 
 Also verify:
 

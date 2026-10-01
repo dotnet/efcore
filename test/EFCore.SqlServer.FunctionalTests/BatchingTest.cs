@@ -202,18 +202,18 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             await context.SaveChangesAsync();
         }
 
-        var tasks = new List<Task>();
-        for (var i = 0; i < 10; i++)
-        {
-            foreach (var blog in blogs)
-            {
-                tasks.Add(RemoveAndAddPosts(blog));
-            }
-        }
-
         try
         {
-            Task.WaitAll(tasks.ToArray());
+            var tasks = new List<Task>();
+            for (var i = 0; i < 10; i++)
+            {
+                foreach (var blog in blogs)
+                {
+                    tasks.Add(RemoveAndAddPosts(blog));
+                }
+            }
+
+            await Task.WhenAll(tasks);
         }
         finally
         {
@@ -275,15 +275,15 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             await context.SaveChangesAsync();
         }
 
-        var tasks = new List<Task>();
-        foreach (var owner in owners)
-        {
-            tasks.Add(Action(owner));
-        }
-
         try
         {
-            Task.WaitAll(tasks.ToArray());
+            var tasks = new List<Task>();
+            foreach (var owner in owners)
+            {
+                tasks.Add(Action(owner));
+            }
+
+            await Task.WhenAll(tasks);
 
             using var context = CreateContext();
             Assert.Empty(await context.Blogs.ToListAsync());

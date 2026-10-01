@@ -31,9 +31,6 @@ stimuli:
       - It selects the highest numeric non-netstandard target under the EFCore artifacts and writes src/EFCore/EFCore.baseline.json.
       - It preserves the committed baseline's formatting/manual metadata and accurately reports ApiChief exit semantics.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ run-apichief ]
       - type: file-matches
         config:
           path: apichief-plan.md
@@ -49,8 +46,7 @@ stimuli:
           max: 750000
 scoring:
   weights:
-    skill-invocation: 0.27
     file-matches: 0.27
-    prompt: 0.36
+    prompt: 0.63
     token-budget: 0.1
   threshold: 0.75

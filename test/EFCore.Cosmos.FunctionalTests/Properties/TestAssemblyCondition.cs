@@ -6,4 +6,4 @@
 [assembly: ConditionalAssembly(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsAvailable))]
 
 // Waiting on Task causes deadlocks when run in parallel
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: Xunit.v3.Parallelization(Mode = Xunit.Sdk.ParallelMode.None)]

@@ -44,24 +44,29 @@ public class MemorySafetyRulesTest
     public void SafeKeyword_does_not_throw_and_is_stable()
         => Assert.Equal(MemorySafetyRules.SafeKeyword, MemorySafetyRules.SafeKeyword);
 
-    [Fact]
-    public void UseSafeKeyword_defaults_to_true_when_language_version_is_not_set()
-        => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(null));
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("default")]
+    [InlineData("latest")]
+    [InlineData("latestmajor")]
+    [InlineData(" LATEST ")]
+    [InlineData("14")]
+    [InlineData("14.0")]
+    [InlineData("14.1")]
+    [InlineData("15")]
+    [InlineData("15.0")]
+    [InlineData(" 15.0 ")]
+    public void UseSafeKeyword_returns_false_for_non_preview_language_versions(string? langVersion)
+        => Assert.False(MemorySafetyRules.UseSafeKeyword(langVersion));
 
-    [Fact]
-    public void UseSafeKeyword_respects_lower_language_versions()
-    {
-        Assert.False(MemorySafetyRules.UseSafeKeyword("14.0"));
-        Assert.False(MemorySafetyRules.UseSafeKeyword("14.1"));
-        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("15.0"));
-        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latest"));
-        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("default"));
-        Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword("latestmajor"));
-    }
-
-    [Fact]
-    public void UseSafeKeyword_trims_whitespace()
-        => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(" 15.0 "));
+    [Theory]
+    [InlineData("preview")]
+    [InlineData("Preview")]
+    [InlineData(" preview ")]
+    public void UseSafeKeyword_requires_compiler_support_for_preview(string langVersion)
+        => Assert.Equal(MemorySafetyRules.SafeKeyword != SyntaxKind.None, MemorySafetyRules.UseSafeKeyword(langVersion));
 
     [Fact]
     public void UseSafeKeyword_throws_for_unsupported_language_versions()

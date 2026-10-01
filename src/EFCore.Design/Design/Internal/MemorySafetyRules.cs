@@ -57,30 +57,26 @@ internal static class MemorySafetyRules
     {
         if (string.IsNullOrWhiteSpace(langVersion))
         {
-            return SafeKeyword != SyntaxKind.None;
+            return false;
         }
 
         var normalized = langVersion.Trim();
 
-        if (normalized.Equals("default", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("latest", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("latestmajor", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("preview", StringComparison.OrdinalIgnoreCase))
+        // Recognizing the keyword doesn't enable the preview-only memory safety rules.
+        if (normalized.Equals("preview", StringComparison.OrdinalIgnoreCase))
         {
             return SafeKeyword != SyntaxKind.None;
         }
 
-        if (Version.TryParse(normalized, out var version))
+        if (normalized.Equals("default", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("latest", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("latestmajor", StringComparison.OrdinalIgnoreCase)
+            || Version.TryParse(normalized, out _)
+            || int.TryParse(normalized, out _))
         {
-            return SafeKeyword != SyntaxKind.None && version.Major > 14;
-        }
-
-        if (int.TryParse(normalized, out var major))
-        {
-            return SafeKeyword != SyntaxKind.None && major > 14;
+            return false;
         }
 
         throw new ArgumentException(DesignStrings.InvalidCSharpLanguageVersion(langVersion), nameof(langVersion));
     }
 }
-

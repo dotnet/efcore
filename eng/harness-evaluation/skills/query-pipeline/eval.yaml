@@ -31,9 +31,6 @@ stimuli:
       - It preserves the specification test's LINQ/result semantics and rejects client-side evaluation as a fix.
       - It requires the provider override to call the base test and verify captured SQL with AssertSql or ToQueryString as appropriate.
     graders:
-      - type: skill-invocation
-        config:
-          required: [ query-pipeline ]
       - type: file-matches
         config:
           path: analysis.md
@@ -49,8 +46,7 @@ stimuli:
           max: 750000
 scoring:
   weights:
-    skill-invocation: 0.27
     file-matches: 0.27
-    prompt: 0.36
+    prompt: 0.63
     token-budget: 0.1
   threshold: 0.75

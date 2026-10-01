@@ -1,5 +1,5 @@
 name: copilot-instructions
-description: Evaluates repository-wide Copilot guidance for EF Core internal APIs and provider test hierarchies.
+description: Evaluates repository-wide Copilot guidance for EF Core implementation conventions and provider test hierarchies.
 type: capability
 defaults:
   runs: ${RUNS=5}
@@ -12,41 +12,9 @@ agent_environment:
     - src: ../../../../.github/copilot-instructions.md
       dest: .github/copilot-instructions.md
 stimuli:
-  - name: review-an-internal-public-api-change
-    prompt: |-
-      Inspect src/EFCore/Metadata/Internal/EntityType.cs. A proposed change adds a new public virtual member in this internal namespace; the member activates a CLR type through reflection and awaits a callback. Write api-review.md listing every repository-wide implementation, documentation, compatibility, and validation requirement that must be satisfied before accepting the change. Ground the review by naming at least two relevant existing members or annotations found in the staged file. Do not edit source.
-    constraints:
-      max_turns: 50
-      max_tokens: 1000000
-      max_duration: 10m
-    agent_environment:
-      files:
-        - src: ../../../../src/EFCore/Metadata/Internal/EntityType.cs
-          dest: src/EFCore/Metadata/Internal/EntityType.cs
-    rubric:
-      - The review requires the standard EF Core internal-API warning XML documentation on the public member.
-      - It addresses NativeAOT compatibility by avoiding reflection or requiring the appropriate annotations or exception.
-      - It requires ConfigureAwait(false) on the awaited callback and EFCore.ApiBaseline.Tests for the public API change.
-      - The advice names at least two relevant members or annotations from the staged EntityType implementation rather than giving generic library guidance.
-    graders:
-      - type: file-matches
-        config:
-          path: api-review.md
-          pattern: (?=[\s\S]*internal API)(?=[\s\S]*(NativeAOT|RequiresDynamicCode|DynamicallyAccessedMembers))(?=[\s\S]*ConfigureAwait\(false\))(?=[\s\S]*EFCore\.ApiBaseline\.Tests)[\s\S]+
-      - type: prompt
-        config:
-          scoring: binary
-          threshold: 1.0
-          evidence:
-            - trajectory
-            - repo
-          output_delivery: workspace
-      - type: token-budget
-        config:
-          max: 1000000
   - name: add-a-query-test-through-provider-hierarchies
     prompt: |-
-      Inspect test/EFCore.Specification.Tests/Query/QueryTestBase.cs, test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs, test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs, and test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs. Write test-plan.md for adding a new Where_with_parameterized_limit case through this hierarchy, including result assertions, provider overrides, SQL baselines, and focused commands to validate it. Include `restore.cmd` and dot-sourced `activate.ps1` setup, then use `dotnet exec` on each built provider test DLL with `--filter-method`, `--filter-not-trait category=failing`, and `--ignore-exit-code 8`. Do not put `--no-build` on test commands. Do not edit source.
+      Inspect test/EFCore.Specification.Tests/Query/QueryTestBase.cs, test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs, test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs, and test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs. Review a proposal that adds Where_with_parameterized_limit only to the SQL Server class, puts AssertSql in the specification base, copies a separate test into SQLite, and adds a test override that only calls base. Write test-plan.md with the corrected implementation and focused validation plan. Do not edit source.
     constraints:
       max_turns: 40
       max_tokens: 750000
@@ -62,14 +30,14 @@ stimuli:
         - src: ../../../../test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs
           dest: test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs
     rubric:
-      - The plan puts provider-independent behavior in the specification test and identifies every relevant staged provider override.
-      - Provider overrides call the base test and use AssertSql only where SQL is produced.
-      - The commands follow this repository's restore, activation, and focused Microsoft Testing Platform conventions without stale --no-build usage.
+      - The plan moves provider-independent behavior and result assertions into the specification base rather than duplicating tests, and identifies both staged provider overrides.
+      - SQL Server and SQLite overrides call the base test before their own AssertSql baselines; the existing SQL Server Check_all_tests_overridden guard remains covered without adding an exhaustive guard to the intentionally selective SQLite class.
+      - The commands restore and activate the repository SDK, then build or run focused tests for each provider without relying on stale --no-build output.
     graders:
       - type: file-matches
         config:
           path: test-plan.md
-          pattern: (?=[\s\S]*Where_with_parameterized_limit)(?=[\s\S]*restore\.cmd)(?=[\s\S]*activate\.ps1)(?=[\s\S]*base)(?=[\s\S]*AssertSql)(?=[\s\S]*dotnet exec)(?=[\s\S]*--filter-method)(?=[\s\S]*--filter-not-trait category=failing)(?=[\s\S]*--ignore-exit-code 8)[\s\S]+
+          pattern: (?i)(?=[\s\S]*Where_with_parameterized_limit)(?=[\s\S]*(NorthwindWhereQueryTestBase|specification base))(?=[\s\S]*AssertSql)(?=[\s\S]*SqlServer)(?=[\s\S]*Sqlite)[\s\S]+
       - type: prompt
         config:
           scoring: binary
@@ -79,9 +47,78 @@ stimuli:
       - type: token-budget
         config:
           max: 750000
+  - name: plan-a-provider-independent-async-api
+    prompt: |-
+      Inspect src/EFCore/DbContext.cs, src/EFCore/Properties/CoreStrings.resx and src/EFCore/EFCore.csproj. Review a proposal for a DbContext async API used by all providers: it is placed in EFCore.Relational, takes `bool isEnabled`, activates a CLR Type with reflection, awaits a callback normally, throws a hard-coded English error, hand-edits CoreStrings.Designer.cs, adds an inline package version to EFCore.csproj, and puts its build hook under eng/common. Write implementation-plan.md with the corrected implementation and focused validation plan. Do not edit source.
+    constraints:
+      max_turns: 50
+      max_tokens: 1000000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore/DbContext.cs
+          dest: src/EFCore/DbContext.cs
+        - src: ../../../../src/EFCore/Properties/CoreStrings.resx
+          dest: src/EFCore/Properties/CoreStrings.resx
+        - src: ../../../../src/EFCore/EFCore.csproj
+          dest: src/EFCore/EFCore.csproj
+    rubric:
+      - The plan places provider-independent behavior in EFCore, renames the bool parameter without an is/are prefix, and preserves public API compatibility with complete XML documentation.
+      - It avoids reflection/runtime generation where possible or applies appropriate NativeAOT annotations, and requires ConfigureAwait(false) on the callback.
+      - It adds the error to CoreStrings.resx, regenerates rather than hand-edits the designer, and centralizes the package version in eng/Versions.props or Directory.Packages.props.
+      - It places repository build logic outside mirrored eng/common and includes focused behavior plus EFCore.ApiBaseline.Tests validation.
+    graders:
+      - type: file-matches
+        config:
+          path: implementation-plan.md
+          pattern: (?i)(?=[\s\S]*DbContext)(?=[\s\S]*CoreStrings\.resx)(?=[\s\S]*ConfigureAwait\(false\))(?=[\s\S]*EFCore\.ApiBaseline\.Tests)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: design-a-nonshared-provider-query-regression
+    prompt: |-
+      Inspect test/EFCore.Specification.Tests/NonSharedModelTestBase.cs, test/EFCore.Specification.Tests/Query/AdHocMiscellaneousQueryTestBase.cs, test/EFCore.SqlServer.FunctionalTests/Query/AdHocMiscellaneousQuerySqlServerTest.cs, and test/EFCore.Sqlite.FunctionalTests/Query/AdHocMiscellaneousQuerySqliteTest.cs. Review a regression-test proposal that needs a dynamically configured model and runs for SQL Server and SQLite. It creates a standalone xUnit class with two tests, builds services and models manually, and copies the full tests into both providers. Write regression-plan.md with the corrected implementation and focused validation plan. Do not edit source.
+    constraints:
+      max_turns: 60
+      max_tokens: 1200000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../test/EFCore.Specification.Tests/NonSharedModelTestBase.cs
+          dest: test/EFCore.Specification.Tests/NonSharedModelTestBase.cs
+        - src: ../../../../test/EFCore.Specification.Tests/Query/AdHocMiscellaneousQueryTestBase.cs
+          dest: test/EFCore.Specification.Tests/Query/AdHocMiscellaneousQueryTestBase.cs
+        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/AdHocMiscellaneousQuerySqlServerTest.cs
+          dest: test/EFCore.SqlServer.FunctionalTests/Query/AdHocMiscellaneousQuerySqlServerTest.cs
+        - src: ../../../../test/EFCore.Sqlite.FunctionalTests/Query/AdHocMiscellaneousQuerySqliteTest.cs
+          dest: test/EFCore.Sqlite.FunctionalTests/Query/AdHocMiscellaneousQuerySqliteTest.cs
+    rubric:
+      - The plan uses NonSharedModelTestBase and its initialization/context factory infrastructure rather than manual service/model construction.
+      - Provider-independent behavior lives in the staged specification base; SQL Server and SQLite overrides call base and use provider-local AssertSql without copying behavior.
+      - The plan uses existing TestHelpers/fixture infrastructure, preserves the existing SQL Server Check_all_tests_overridden coverage without adding an exhaustive guard to the intentionally selective SQLite class, and validates both providers with repository setup and focused Microsoft Testing Platform commands.
+    graders:
+      - type: file-matches
+        config:
+          path: regression-plan.md
+          pattern: (?i)(?=[\s\S]*(NonSharedModelTestBase|InitializeNonSharedTest))(?=[\s\S]*AdHocMiscellaneousQueryTestBase)(?=[\s\S]*AssertSql)(?=[\s\S]*SqlServer)(?=[\s\S]*Sqlite)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+          output_delivery: workspace
+      - type: token-budget
+        config:
+          max: 1200000
 scoring:
   weights:
-    file-matches: 0.36
-    prompt: 0.54
+    file-matches: 0.2
+    prompt: 0.7
     token-budget: 0.1
   threshold: 0.8

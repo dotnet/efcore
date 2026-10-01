@@ -173,6 +173,157 @@ public class SqliteConnectionFactoryTest : IDisposable
         Assert.NotSame(db, connection.Handle);
     }
 
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, false)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public async Task Internal_connections_are_reused_only_after_native_transaction_completion(
+        bool async, bool dispose, bool denyRollback)
+    {
+        using var connection = new SqliteConnection(ConnectionString);
+        using var healthyConnection = new SqliteConnection(ConnectionString);
+        connection.Open();
+        healthyConnection.Open();
+        var healthyHandle = healthyConnection.Handle;
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value INTEGER); INSERT INTO Data VALUES (1);");
+
+        using var transaction = connection.BeginTransaction();
+        connection.ExecuteNonQuery("INSERT INTO Data VALUES (2);");
+        var handle = connection.Handle!;
+        var rollbackAttempts = 0;
+        Assert.Equal(
+            raw.SQLITE_OK,
+            raw.sqlite3_set_authorizer(
+                handle,
+                (_, action, first, _, _, _) =>
+                {
+                    if (action != raw.SQLITE_TRANSACTION || first != "ROLLBACK")
+                    {
+                        return raw.SQLITE_OK;
+                    }
+
+                    rollbackAttempts++;
+                    return denyRollback ? raw.SQLITE_DENY : raw.SQLITE_OK;
+                },
+                null));
+
+        if (denyRollback)
+        {
+            var exception = await Assert.ThrowsAsync<SqliteException>(CompleteTransaction);
+            Assert.Equal(raw.SQLITE_AUTH, exception.SqliteErrorCode);
+            Assert.Equal(raw.SQLITE_AUTH, exception.SqliteExtendedErrorCode);
+        }
+        else
+        {
+            await CompleteTransaction();
+        }
+
+        Assert.Null(transaction.Connection);
+        Assert.Null(connection.Transaction);
+        Assert.Equal(denyRollback ? 0 : 1, raw.sqlite3_get_autocommit(handle));
+
+        if (async)
+        {
+            await connection.DisposeAsync();
+        }
+        else
+        {
+            connection.Dispose();
+        }
+
+        Assert.Equal(ConnectionState.Closed, connection.State);
+        Assert.Equal(1, rollbackAttempts);
+        Assert.Equal(denyRollback, handle.IsClosed);
+
+        using var nextConnection = new SqliteConnection(ConnectionString);
+        nextConnection.Open();
+        Assert.Equal(!denyRollback, ReferenceEquals(handle, nextConnection.Handle));
+        Assert.Equal(1, raw.sqlite3_get_autocommit(nextConnection.Handle!));
+        Assert.Equal(1L, nextConnection.ExecuteScalar<long>("SELECT COUNT(*) FROM Data;"));
+        using (var nextTransaction = nextConnection.BeginTransaction())
+        {
+            nextConnection.ExecuteNonQuery("INSERT INTO Data VALUES (3);");
+            nextTransaction.Rollback();
+        }
+
+        // Discard only the unsettled connection, not the other connections in its pool.
+        healthyConnection.Close();
+        healthyConnection.Open();
+        Assert.Same(healthyHandle, healthyConnection.Handle);
+
+        async Task CompleteTransaction()
+        {
+            if (dispose)
+            {
+                if (async)
+                {
+                    await transaction.DisposeAsync();
+                }
+                else
+                {
+                    transaction.Dispose();
+                }
+            }
+            else if (async)
+            {
+                await transaction.RollbackAsync();
+            }
+            else
+            {
+                transaction.Rollback();
+            }
+        }
+    }
+
+    [Fact]
+    public void Internal_connections_are_reused_after_failed_native_transaction_is_rolled_back()
+    {
+        using var connection = new SqliteConnection(ConnectionString);
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
+        var handle = connection.Handle!;
+        Assert.Equal(
+            raw.SQLITE_OK,
+            raw.sqlite3_set_authorizer(
+                handle,
+                (_, action, first, _, _, _) => action == raw.SQLITE_TRANSACTION && first == "ROLLBACK"
+                    ? raw.SQLITE_DENY
+                    : raw.SQLITE_OK,
+                null));
+
+        Assert.Equal(raw.SQLITE_AUTH, Assert.Throws<SqliteException>(transaction.Rollback).SqliteErrorCode);
+        Assert.Equal(raw.SQLITE_OK, raw.sqlite3_set_authorizer(handle, (strdelegate_authorizer)null!, null));
+        connection.ExecuteNonQuery("ROLLBACK;");
+        connection.Close();
+        connection.Open();
+
+        Assert.Same(handle, connection.Handle);
+        Assert.Equal(1, raw.sqlite3_get_autocommit(connection.Handle!));
+        using var nextTransaction = connection.BeginTransaction();
+    }
+
+    [Fact]
+    public void Internal_connections_are_not_reused_with_unmanaged_native_transaction()
+    {
+        using var connection = new SqliteConnection(ConnectionString);
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value INTEGER); BEGIN; INSERT INTO Data VALUES (1);");
+        var handle = connection.Handle!;
+        connection.Close();
+        connection.Open();
+
+        Assert.True(handle.IsClosed);
+        Assert.NotSame(handle, connection.Handle);
+        Assert.Equal(1, raw.sqlite3_get_autocommit(connection.Handle!));
+        Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM Data;"));
+        using var transaction = connection.BeginTransaction();
+    }
+
     [Theory, InlineData(false), InlineData(true)]
     public void Internal_connections_are_not_reused_after_clearing_pool(bool allPools)
     {

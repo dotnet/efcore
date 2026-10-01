@@ -49,14 +49,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Restore
+      - name: Build
         if: runner.os != 'Windows'
-        run: ./restore.sh
+        run: ./build.sh
 
-      - name: Restore
+      - name: Build
         if: runner.os == 'Windows'
         shell: cmd
-        run: restore.cmd
+        run: build.cmd
 
       - name: Test
         env:

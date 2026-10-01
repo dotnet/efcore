@@ -24,6 +24,7 @@ public static class ApiBaselineTest
         var baselinePath = Path.Combine(RepoRoot, "src", projectName, $"{projectName}.baseline.json");
 
         var current = ApiModel.LoadFromAssembly(assemblyPath);
+        Assert.DoesNotContain("override ", current.ToString());
 
         if (!File.Exists(baselinePath))
         {
