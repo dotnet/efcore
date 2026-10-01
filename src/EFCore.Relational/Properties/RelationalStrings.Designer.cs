@@ -1368,6 +1368,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 elementCount, collectionIndicesCount);
 
         /// <summary>
+        ///     The number of elements ({elementCount}) must match the number of sort-order entries ({isDescendingCount}) when creating a RelationalJsonIndex.
+        /// </summary>
+        public static string JsonPathIndexElementsIsDescendingMismatch(object? elementCount, object? isDescendingCount)
+            => string.Format(
+                GetString("JsonPathIndexElementsIsDescendingMismatch", nameof(elementCount), nameof(isDescendingCount)),
+                elementCount, isDescendingCount);
+
+        /// <summary>
         ///     The index {indexProperties} on the entity type '{entityType}' cannot be configured because its properties are mapped to different JSON columns ('{firstColumn}' and '{secondColumn}'). All leaves of a JSON-path index (an index whose properties traverse a complex collection) must be contained in a single JSON column.
         /// </summary>
         public static string JsonPathIndexPropertiesInDifferentJsonColumns(object? indexProperties, object? entityType, object? firstColumn, object? secondColumn)

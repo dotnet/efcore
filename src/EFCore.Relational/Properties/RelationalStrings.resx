@@ -637,6 +637,9 @@
   <data name="JsonPathIndexElementsCollectionIndicesMismatch" xml:space="preserve">
     <value>The number of elements ({elementCount}) must match the number of collection-index entries ({collectionIndicesCount}) when creating a RelationalJsonIndex.</value>
   </data>
+  <data name="JsonPathIndexElementsIsDescendingMismatch" xml:space="preserve">
+    <value>The number of elements ({elementCount}) must match the number of sort-order entries ({isDescendingCount}) when creating a RelationalJsonIndex.</value>
+  </data>
   <data name="JsonPathIndexPropertiesInDifferentJsonColumns" xml:space="preserve">
     <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because its properties are mapped to different JSON columns ('{firstColumn}' and '{secondColumn}'). All leaves of a JSON-path index (an index whose properties traverse a complex collection) must be contained in a single JSON column.</value>
   </data>
