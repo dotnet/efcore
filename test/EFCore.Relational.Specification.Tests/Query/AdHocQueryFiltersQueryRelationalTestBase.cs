@@ -8,7 +8,7 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected void ClearLog()
+    protected override void ClearLog()
         => TestSqlLoggerFactory.Clear();
 
     protected void AssertSql(params string[] expected)
