@@ -102,7 +102,8 @@ public class MigrationsScaffolderTest
                     new RelationalAnnotationProvider(
                         new RelationalAnnotationProviderDependencies()),
                     services.GetRequiredService<IRowIdentityMapFactory>(),
-                    services.GetRequiredService<CommandBatchPreparerDependencies>()),
+                    services.GetRequiredService<CommandBatchPreparerDependencies>(),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>()),
                 idGenerator,
                 new MigrationsCodeGeneratorSelector(
                 [

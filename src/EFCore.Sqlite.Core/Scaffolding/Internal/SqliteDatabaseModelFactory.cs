@@ -469,22 +469,22 @@ ORDER BY "cid"
                     column.DefaultValue = guid;
                 }
                 else if (type == typeof(DateTime)
-                         && DateTime.TryParse(defaultValueSql, out var dateTime))
+                         && DateTime.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTime))
                 {
                     column.DefaultValue = dateTime;
                 }
                 else if (type == typeof(DateOnly)
-                         && DateOnly.TryParse(defaultValueSql, out var dateOnly))
+                         && DateOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateOnly))
                 {
                     column.DefaultValue = dateOnly;
                 }
                 else if (type == typeof(TimeOnly)
-                         && TimeOnly.TryParse(defaultValueSql, out var timeOnly))
+                         && TimeOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var timeOnly))
                 {
                     column.DefaultValue = timeOnly;
                 }
                 else if (type == typeof(DateTimeOffset)
-                         && DateTimeOffset.TryParse(defaultValueSql, out var dateTimeOffset))
+                         && DateTimeOffset.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTimeOffset))
                 {
                     column.DefaultValue = dateTimeOffset;
                 }

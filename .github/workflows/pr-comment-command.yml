@@ -1,0 +1,53 @@
+# Allows trusted contributors to trigger actions from a PR comment.
+
+name: PR Comment Command
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  dispatch:
+    if: github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch requested action
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          script: |
+            const match = context.payload.comment.body.trim().match(
+              /^\/eval(?:\s+([A-Za-z0-9][A-Za-z0-9._-]*))?$/);
+            if (!match) return;
+
+            const commenter = context.payload.comment.user.login;
+            const { data: permission } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: commenter
+            });
+            if (!['admin', 'maintain', 'write'].includes(permission.permission)) {
+              throw new Error(`${commenter} does not have permission to trigger actions.`);
+            }
+
+            const pullNumber = context.issue.number;
+            const { data: pull } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullNumber
+            });
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'agent-harness-evaluation.yml',
+              ref: context.payload.repository.default_branch,
+              inputs: {
+                pull_request: String(pullNumber),
+                commit_sha: pull.head.sha,
+                component: match[1] ?? ''
+              }
+            });

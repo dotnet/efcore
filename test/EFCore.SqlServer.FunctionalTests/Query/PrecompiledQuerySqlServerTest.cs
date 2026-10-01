@@ -421,6 +421,18 @@ ORDER BY [b].[Name]
 """);
     }
 
+    public override async Task Final_GroupBy_projecting_grouping_elements()
+    {
+        await base.Final_GroupBy_projecting_grouping_elements();
+
+        AssertSql(
+            """
+SELECT [b].[Name], [b].[Id]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+""");
+    }
+
     #endregion Regular operators
 
     #region Terminating operators

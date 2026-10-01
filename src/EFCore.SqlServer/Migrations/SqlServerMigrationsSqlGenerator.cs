@@ -2774,6 +2774,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || (operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?)
             == SqlServerValueGenerationStrategy.IdentityColumn;
 
+    // Named default constraints belong to the current table, so copied history-table operations
+    // must create or look up their own constraints rather than reuse the current table's name.
+    private static void RemoveDefaultConstraintNameAnnotation(ColumnOperation operation)
+        => operation.RemoveAnnotation(RelationalAnnotationNames.DefaultConstraintName);
+
     private static void RemoveIdentityAnnotations(ColumnOperation operation)
     {
         operation.RemoveAnnotation(SqlServerAnnotationNames.Identity);
@@ -3529,6 +3534,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             // identity columns are not allowed inside HistoryTables
                             RemoveIdentityAnnotations(addHistoryTableColumnOperation);
 
+                            RemoveDefaultConstraintNameAnnotation(addHistoryTableColumnOperation);
+
                             operations.Add(addHistoryTableColumnOperation);
                         }
                     }
@@ -3693,6 +3700,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             // identity columns are not allowed inside HistoryTables
                             RemoveIdentityAnnotations(alterHistoryTableColumn);
                             RemoveIdentityAnnotations(alterHistoryTableColumn.OldColumn);
+
+                            RemoveDefaultConstraintNameAnnotation(alterHistoryTableColumn);
+                            RemoveDefaultConstraintNameAnnotation(alterHistoryTableColumn.OldColumn);
 
                             operations.Add(alterHistoryTableColumn);
                         }

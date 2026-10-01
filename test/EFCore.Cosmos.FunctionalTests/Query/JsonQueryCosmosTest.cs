@@ -430,6 +430,10 @@ WHERE (c["$type"] = "CustomNaming")
         => base.Group_by_on_json_scalar_using_collection_indexer(async);
 
     [Theory(Skip = "issue #17313")]
+    public override Task Group_by_on_json_scalar_with_multiple_aggregates(bool async)
+        => base.Group_by_on_json_scalar_with_multiple_aggregates(async);
+
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_Skip_Take_on_json_scalar(bool async)
         => base.Group_by_Skip_Take_on_json_scalar(async);
 

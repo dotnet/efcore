@@ -670,6 +670,103 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #endregion
 
+    #region 29593
+
+    // The dependent lives in its own table, so expanding it into the grouped query would need a join added to a query that has
+    // already been grouped. It keeps the correlated subquery it translates to today.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context29593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Set<Context29593.Invoice>()
+            .GroupBy(e => e.Region)
+            .Select(g => new { g.Key, Total = g.Sum(e => e.Summary!.Amount) });
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Single(e => e.Key == "east").Total);
+        Assert.Equal(12, result.Single(e => e.Key == "west").Total);
+    }
+
+    // The dependent's main fragment shares the owner's table, so it is expanded into the grouped query; the fragment holding
+    // Tax is reached through a join that the grouped query can carry.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_on_owned_navigation_split_over_two_tables(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context29593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Set<Context29593.Order>()
+            .GroupBy(e => e.Region)
+            .Select(g => new { g.Key, Total = g.Sum(e => e.Total!.Net), Tax = g.Sum(e => e.Total!.Tax) });
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Single(e => e.Key == "east").Total);
+        Assert.Equal(30, result.Single(e => e.Key == "east").Tax);
+        Assert.Equal(12, result.Single(e => e.Key == "west").Total);
+        Assert.Equal(120, result.Single(e => e.Key == "west").Tax);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context29593(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Invoice>().OwnsOne(e => e.Summary, b => b.ToTable("Summaries"));
+            modelBuilder.Entity<Order>().OwnsOne(
+                e => e.Total, b => b.SplitToTable("OrderTotalTax", t => t.Property(p => p.Tax)));
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Invoice { Region = "east", Summary = new Summary { Amount = 1 } },
+                new Invoice { Region = "east", Summary = new Summary { Amount = 2 } },
+                new Invoice { Region = "west", Summary = new Summary { Amount = 12 } });
+
+            AddRange(
+                new Order { Region = "east", Total = new Total { Net = 1, Tax = 10 } },
+                new Order { Region = "east", Total = new Total { Net = 2, Tax = 20 } },
+                new Order { Region = "west", Total = new Total { Net = 12, Tax = 120 } });
+
+            return SaveChangesAsync();
+        }
+
+        public class Invoice
+        {
+            public int Id { get; set; }
+            public string Region { get; set; } = null!;
+            public Summary? Summary { get; set; }
+        }
+
+        public class Summary
+        {
+            public int Amount { get; set; }
+        }
+
+        public class Order
+        {
+            public int Id { get; set; }
+            public string Region { get; set; } = null!;
+            public Total? Total { get; set; }
+        }
+
+        public class Total
+        {
+            public int Net { get; set; }
+            public int Tax { get; set; }
+        }
+    }
+
+    #endregion
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder).ConfigureWarnings(c => c
             .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)

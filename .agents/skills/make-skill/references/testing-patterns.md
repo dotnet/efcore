@@ -184,16 +184,16 @@ task agent_type="general-purpose" model="{different-model}" prompt="Review the s
 
 The two approaches complement each other: writer-critic for creation/iteration, multi-model for validation.
 
-## Waza Eval Testing
+## Vally Evaluation
 
-For repeatable, quantitative skill testing, use the **waza-eval** skill. It provides:
+For repeatable, quantitative skill testing, author the repository's paired Vally eval. It provides:
 
-- **Structured eval suites** — define tasks with prompts, expected outputs, and graders
-- **Progression testing** — compare tool efficiency across skill versions from git history
-- **Session capture** — commit result transcripts as golden sessions for regression detection
-- **CI integration** — gate PRs on eval pass rates
+- **Structured eval suites** — define repository-grounded stimuli, expected outputs, and graders
+- **Unskilled controls** — compare identical tasks with and without the target skill
+- **Quality and efficiency comparison** — report judge preference and token, turn, tool-call, time, and error deltas
+- **CI integration** — require the treatment threshold and fail statistically significant regressions
 
-Use waza evals when you need to *measure* whether a skill change improved behavior. Use multi-model review (above) when you need *qualitative* structural feedback.
+Use `node eng/harness-evaluation/src/cli.mjs eval <skill-name> --workers 1 --require-pass` to measure whether a skill improves behavior with its configured trial count. Use multi-model review (above) for qualitative structural feedback.
 
 ### Regression Heuristics
 
@@ -220,6 +220,7 @@ Evals should include trigger tests (does the skill activate correctly?):
 Before shipping a skill change:
 
 - [ ] Description matches trigger tests (USE FOR phrases appear in should-trigger prompts)
+- [ ] `eng/harness-evaluation/skills/<skill-name>/eval.yaml` passes treatment/control comparison
 - [ ] Stop signals are explicit with numeric bounds
 - [ ] Domain examples present (not just tool schemas)
 - [ ] Token budget met (SKILL.md under 4K orchestrating / 15K knowledge)

@@ -30,10 +30,6 @@
 
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
-  <Import
-    Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))\AspNetCoreSettings.props"
-    Condition="'$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))' != '' " />
-
   <PropertyGroup Condition="'$(CopyrightMicrosoft)' != ''">
     <Copyright>$(CopyrightMicrosoft)</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -46,19 +42,12 @@
     <DefaultNetCoreTargetFramework>$(NetCurrent)</DefaultNetCoreTargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>preview</LangVersion>
-    <EnablePreviewFeatures Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">true</EnablePreviewFeatures>
-    <Features Condition="'$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(Features);runtime-async=on</Features>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
     <DebugType>portable</DebugType>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
     <PackageIconFullPath>$(MSBuildThisFileDirectory)logo\ef-logo.png</PackageIconFullPath>
     <PublishWindowsPdb>false</PublishWindowsPdb>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors></WarningsAsErrors>
   </PropertyGroup>
 
   <!-- HACK: Work around #15093 -->

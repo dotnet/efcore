@@ -57,6 +57,37 @@ public class InternalEntityTypeMappingFragmentBuilder :
         => configurationSource.Overrides(Metadata.GetIsTableExcludedFromMigrationsConfigurationSource())
             || Metadata.IsTableExcludedFromMigrations == excludedFromMigrations;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityTypeMappingFragmentBuilder? SetIsOptional(
+        bool? optional,
+        ConfigurationSource configurationSource)
+    {
+        if (!CanSetIsOptional(optional, configurationSource))
+        {
+            return null;
+        }
+
+        Metadata.SetIsOptional(optional, configurationSource);
+        return this;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetIsOptional(
+        bool? optional,
+        ConfigurationSource configurationSource)
+        => configurationSource.Overrides(Metadata.GetIsOptionalConfigurationSource())
+            || Metadata.IsOptional == optional;
+
     /// <inheritdoc />
     IConventionEntityTypeMappingFragment IConventionEntityTypeMappingFragmentBuilder.Metadata
     {

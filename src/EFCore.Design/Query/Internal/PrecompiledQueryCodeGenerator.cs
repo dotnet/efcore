@@ -80,7 +80,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _queryLocator.Initialize(compilation);
         _symbols = Symbols.Load(compilation);
         _g = syntaxGenerator;
-        _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g);
+        _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g, compilation.UseUpdatedMemorySafetyRules());
         _memberAccessReplacements = memberAccessReplacements;
         _liftableConstantProcessor = new LiftableConstantProcessor(null!);
         _constantReplacements.Clear();

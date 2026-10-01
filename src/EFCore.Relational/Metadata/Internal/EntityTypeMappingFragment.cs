@@ -16,10 +16,12 @@ public class EntityTypeMappingFragment :
     IConventionEntityTypeMappingFragment
 {
     private bool? _isTableExcludedFromMigrations;
+    private bool? _isOptional;
     private InternalEntityTypeMappingFragmentBuilder? _builder;
 
     private ConfigurationSource _configurationSource;
     private ConfigurationSource? _isTableExcludedFromMigrationsConfigurationSource;
+    private ConfigurationSource? _isOptionalConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -149,6 +151,14 @@ public class EntityTypeMappingFragment :
                 !.Metadata;
         }
 
+        var isOptionalConfigurationSource = detachedFragment.GetIsOptionalConfigurationSource();
+        if (isOptionalConfigurationSource != null)
+        {
+            existingFragment = ((InternalEntityTypeMappingFragmentBuilder)existingFragment.Builder).SetIsOptional(
+                    detachedFragment.IsOptional, isOptionalConfigurationSource.Value)
+                !.Metadata;
+        }
+
         return ((InternalEntityTypeMappingFragmentBuilder)existingFragment.Builder)
             .MergeAnnotationsFrom((EntityTypeMappingFragment)detachedFragment)
             .Metadata;
@@ -190,6 +200,43 @@ public class EntityTypeMappingFragment :
     /// </summary>
     public virtual ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource()
         => _isTableExcludedFromMigrationsConfigurationSource;
+
+    /// <inheritdoc />
+    public virtual bool IsOptional
+    {
+        get => _isOptional ?? false;
+        set => SetIsOptional(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool? SetIsOptional(bool? optional, ConfigurationSource configurationSource)
+    {
+        if (!configurationSource.Overrides(_isOptionalConfigurationSource))
+        {
+            return null;
+        }
+
+        _isOptional = optional;
+        _isOptionalConfigurationSource =
+            optional == null
+                ? null
+                : configurationSource.Max(_isOptionalConfigurationSource);
+        return optional;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetIsOptionalConfigurationSource()
+        => _isOptionalConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -321,10 +368,19 @@ public class EntityTypeMappingFragment :
         => SetIsTableExcludedFromMigrations(
             excluded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+    bool? IConventionEntityTypeMappingFragment.SetIsOptional(bool? optional, bool fromDataAnnotation)
+        => SetIsOptional(optional, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
     bool? IReadOnlyEntityTypeMappingFragment.IsTableExcludedFromMigrations
     {
         [DebuggerStepThrough]
         get => IsTableExcludedFromMigrations;
+    }
+
+    bool IReadOnlyEntityTypeMappingFragment.IsOptional
+    {
+        [DebuggerStepThrough]
+        get => IsOptional;
     }
 
     IConventionEntityTypeMappingFragmentBuilder IConventionEntityTypeMappingFragment.Builder
