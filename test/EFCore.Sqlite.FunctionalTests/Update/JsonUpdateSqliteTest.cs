@@ -453,6 +453,27 @@ LIMIT 2
 """);
     }
 
+    public override async Task Edit_two_properties_of_element_moved_within_json_collection_root()
+    {
+        await base.Edit_two_properties_of_element_moved_within_json_collection_root();
+
+        AssertSql(
+            """
+@p0='{"Id":0,"Name":"edit","Names":["e1_c21","e1_c22"],"Number":42,"Numbers":[-1001,0,1001],"OwnedCollectionBranch":[{"Date":"2121-01-01 00:00:00","Enum":2,"Enums":[-1,-1,2],"Fraction":"12.1","Id":95,"NullableEnum":-1,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c1_c1"},{"SomethingSomething":"e1_c2_c1_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c1_r"}},{"Date":"2122-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"12.2","Id":96,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_c2_c1"},{"SomethingSomething":"e1_c2_c2_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_c2_r"}}],"OwnedReferenceBranch":{"Date":"2120-01-01 00:00:00","Enum":-3,"Enums":[-1,-1,2],"Fraction":"12.0","Id":94,"NullableEnum":2,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[{"SomethingSomething":"e1_c2_r_c1"},{"SomethingSomething":"e1_c2_r_c2"}],"OwnedReferenceLeaf":{"SomethingSomething":"e1_c2_r_r"}}}' (Nullable = false) (Size = 991)
+@p1='1'
+
+UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[1]', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
+FROM "JsonEntitiesBasic" AS "j"
+LIMIT 2
+""");
+    }
+
     public override async Task Edit_collection_element_and_reference_at_once()
     {
         await base.Edit_collection_element_and_reference_at_once();
