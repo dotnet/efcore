@@ -4660,6 +4660,13 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "D");
                 Assert.Equal("(CONVERT([nvarchar](20),'Tea''s'))", column.DefaultValueSql);
                 Assert.Equal("Tea's", column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                var entityType = model.GetEntityTypes().Single();
+                Assert.Equal("It's", entityType.GetProperty("A").GetDefaultValue());
+                Assert.Equal("O'Brien's", entityType.GetProperty("B").GetDefaultValue());
+                Assert.Equal("'", entityType.GetProperty("C").GetDefaultValue());
+                Assert.Equal("Tea's", entityType.GetProperty("D").GetDefaultValue());
             },
             "DROP TABLE MyTable;");
 
