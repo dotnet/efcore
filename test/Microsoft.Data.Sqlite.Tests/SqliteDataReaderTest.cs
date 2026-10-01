@@ -540,6 +540,31 @@ public class SqliteDataReaderTest
         Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
     }
 
+    [Theory]
+    [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB) WITHOUT ROWID;")]
+    [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY DESC, Data BLOB);")]
+    public void GetStream_works_when_integer_pk_is_not_rowid(string createTable)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            createTable
+            + @"INSERT INTO DataTable VALUES (2, X'01020304');
+                    INSERT INTO DataTable VALUES (1, X'05060708');");
+
+        var selectCommand = connection.CreateCommand();
+        selectCommand.CommandText = "SELECT Id, Data FROM DataTable WHERE Id = 2";
+        using var reader = selectCommand.ExecuteReader();
+        Assert.True(reader.Read());
+        using var sourceStream = reader.GetStream(1);
+        Assert.IsType<MemoryStream>(sourceStream);
+        var buffer = new byte[4];
+        var bytesRead = sourceStream.Read(buffer, 0, 4);
+        Assert.Equal(4, bytesRead);
+        Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
+    }
+
     [Fact]
     public void GetStream_throws_when_closed()
         => X_throws_when_closed(r => r.GetStream(0), nameof(SqliteDataReader.GetStream));
