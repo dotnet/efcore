@@ -46,7 +46,6 @@ stimuli:
           evidence:
             - trajectory
             - repo
-          output_delivery: workspace
       - type: token-budget
         config:
           max: 2000000

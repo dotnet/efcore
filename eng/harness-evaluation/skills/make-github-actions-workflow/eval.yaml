@@ -47,7 +47,6 @@ stimuli:
             - trajectory
             - diff
             - repo
-          output_delivery: workspace
       - type: token-budget
         config:
           max: 750000

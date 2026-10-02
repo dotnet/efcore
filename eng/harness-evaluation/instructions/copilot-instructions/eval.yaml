@@ -40,7 +40,6 @@ stimuli:
           evidence:
             - trajectory
             - repo
-          output_delivery: workspace
       - type: token-budget
         config:
           max: 1000000
@@ -75,7 +74,6 @@ stimuli:
           scoring: binary
           threshold: 1.0
           evidence: [ trajectory, repo ]
-          output_delivery: workspace
       - type: token-budget
         config:
           max: 750000
