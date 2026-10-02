@@ -76,11 +76,24 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
                 VisitDelete(deleteExpression);
                 break;
 
+            case MergeExpression mergeExpression:
+                GenerateTagsHeaderComment(mergeExpression.Tags);
+                VisitMerge(mergeExpression);
+                break;
+
             default:
                 base.Visit(queryExpression);
                 break;
         }
     }
+
+    /// <summary>
+    ///     Generates SQL for a <see cref="MergeExpression" /> (an upsert). The base implementation throws; providers that support merge
+    ///     override this to emit provider-specific SQL.
+    /// </summary>
+    /// <param name="mergeExpression">The merge expression to generate SQL for.</param>
+    protected virtual void VisitMerge(MergeExpression mergeExpression)
+        => throw new InvalidOperationException(RelationalStrings.ExecuteMergeNotSupportedByProvider);
 
     /// <summary>
     ///     The default alias separator.

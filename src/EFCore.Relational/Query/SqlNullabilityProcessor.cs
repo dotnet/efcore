@@ -353,6 +353,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
             ColumnExpression columnExpression
                 => VisitColumn(columnExpression, allowOptimizedExpansion, out nullable),
+            MergeColumnReferenceExpression mergeColumnReferenceExpression
+                => VisitMergeColumnReference(mergeColumnReferenceExpression, out nullable),
             DistinctExpression distinctExpression
                 => VisitDistinct(distinctExpression, allowOptimizedExpansion, out nullable),
             ExistsExpression existsExpression
@@ -406,6 +408,20 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         out bool nullable)
         => throw new InvalidOperationException(
             RelationalStrings.UnhandledExpressionInVisitor(sqlExpression, sqlExpression.GetType(), nameof(SqlNullabilityProcessor)));
+
+    /// <summary>
+    ///     Visits a <see cref="MergeColumnReferenceExpression" /> in the update clause of a merge and computes its nullability.
+    /// </summary>
+    /// <param name="mergeColumnReferenceExpression">A merge column reference to visit.</param>
+    /// <param name="nullable">A bool value indicating whether the expression is nullable.</param>
+    /// <returns>The expression, unchanged.</returns>
+    protected virtual SqlExpression VisitMergeColumnReference(
+        MergeColumnReferenceExpression mergeColumnReferenceExpression,
+        out bool nullable)
+    {
+        nullable = true;
+        return mergeColumnReferenceExpression;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
