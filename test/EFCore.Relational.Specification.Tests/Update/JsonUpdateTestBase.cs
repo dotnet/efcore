@@ -706,8 +706,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             UseTransaction,
             async context =>
             {
-                var query = await context.JsonEntitiesBasic.ToListAsync();
-                var entity = query.Single();
+                var entity = await context.JsonEntitiesBasic.SingleAsync();
                 var movedElement = entity.OwnedCollectionRoot[1];
                 entity.OwnedCollectionRoot.Reverse();
                 movedElement.Name = "edit";
