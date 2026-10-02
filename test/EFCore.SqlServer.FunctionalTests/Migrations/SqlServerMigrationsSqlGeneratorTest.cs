@@ -784,6 +784,58 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
     }
 
     [Fact]
+    public virtual void AlterColumnOperation_change_identity_seed()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "10.0.0"),
+            new AlterColumnOperation
+            {
+                Table = "Person",
+                Name = "Id",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                [SqlServerAnnotationNames.Identity] = "100, 1",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    [SqlServerAnnotationNames.Identity] = "10, 1"
+                }
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[Person]', RESEED, 100);
+""");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_change_identity_seed_above_int_range()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "10.0.0"),
+            new AlterColumnOperation
+            {
+                Table = "Person",
+                Name = "Id",
+                ClrType = typeof(long),
+                ColumnType = "bigint",
+                [SqlServerAnnotationNames.Identity] = "3000000000, 1",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(long),
+                    ColumnType = "bigint",
+                    [SqlServerAnnotationNames.Identity] = "1, 1"
+                }
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[Person]', RESEED, 3000000000);
+""");
+    }
+
+    [Fact]
     public virtual void AlterColumnOperation_add_identity_legacy()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => Generate(
