@@ -1083,7 +1083,8 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     public virtual Task Where_compare_constructed_multi_value_not_equal(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }));
+            ss => ss.Set<Customer>().Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }),
+            ss => ss.Set<Customer>().Where(c => c.City != "London" || c.Country != "UK"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_constructed_equal(bool async)
