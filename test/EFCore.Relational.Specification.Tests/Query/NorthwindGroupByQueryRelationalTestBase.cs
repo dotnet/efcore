@@ -17,4 +17,18 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
             async,
             ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                 .Select(g => new { Orders = g.Select(e => e.OrderID).ToList(), Instance = this }));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_nullable_value_type_key_with_split_Include(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F") || c.CustomerID.StartsWith("P"))
+                .Include(c => c.Orders)
+                .AsSplitQuery()
+                .GroupBy(c => c.Orders.Max(o => o.EmployeeID)),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
+                elementSorter: c => c.CustomerID,
+                elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(c => c.Orders))));
 }

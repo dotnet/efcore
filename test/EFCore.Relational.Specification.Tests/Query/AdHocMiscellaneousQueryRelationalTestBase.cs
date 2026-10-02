@@ -2035,6 +2035,61 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region 33663
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_foreign_key_in_anonymous_key(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context33663>(seed: async c =>
+            {
+                var country = new Context33663.Country();
+                c.AddRange(
+                    new Context33663.Company { Country = country },
+                    new Context33663.Company { Country = country },
+                    new Context33663.Company());
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var group = context.Companies.GroupBy(x => new { x.CountryId });
+            var group1 = context.Companies.GroupBy(x => new { x.CountryId, x.Id });
+            var select2 = group.Select(x => new { x.Key, C = x.ToArray() });
+            var select4 = group1.Select(x => new { x.Key, C = x.ToArray() });
+
+            var groupRes = async ? await group.ToListAsync() : group.ToList();
+            var groupres1 = async ? await group1.ToListAsync() : group1.ToList();
+            var select2Res = async ? await select2.ToListAsync() : select2.ToList();
+            var select4Res = async ? await select4.ToListAsync() : select4.ToList();
+
+            Assert.Equal([1, 2], groupRes.Select(g => g.Count()).Order());
+            Assert.Single(groupRes, g => g.Key.CountryId == null);
+            Assert.Equal([1, 1, 1], groupres1.Select(g => g.Count()));
+            Assert.Equal([1, 2], select2Res.Select(g => g.C.Length).Order());
+            Assert.Single(select2Res, g => g.Key.CountryId == null);
+            Assert.Equal([1, 1, 1], select4Res.Select(g => g.C.Length));
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context33663(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Company> Companies
+                => Set<Company>();
+
+            public class Country
+            {
+                public int Id { get; set; }
+            }
+
+            public class Company
+            {
+                public int Id { get; set; }
+                public int? CountryId { get; set; }
+                public Country? Country { get; set; }
+            }
+        }
+
+        #endregion
     }
 }
 

@@ -3561,6 +3561,40 @@ ORDER BY [s0].[PickupStatusId]
 
     #endregion
 
+    #region 33663
+
+    public override async Task GroupBy_nullable_foreign_key_in_anonymous_key(bool async)
+    {
+        await base.GroupBy_nullable_foreign_key_in_anonymous_key(async);
+
+        AssertSql(
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId]
+""",
+            //
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId], [c].[Id]
+""",
+            //
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId]
+""",
+            //
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId], [c].[Id]
+""");
+    }
+
+    #endregion
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

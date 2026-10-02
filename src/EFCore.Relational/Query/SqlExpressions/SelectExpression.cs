@@ -691,14 +691,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 existingIndex = clientProjectionList.Count - 1;
                             }
 
-                            var projectionBindingExpression = sqlExpression.Type.IsNullableType()
-                                ? (Expression)new ProjectionBindingExpression(selectExpression, existingIndex, sqlExpression.Type)
-                                : Convert(
-                                    new ProjectionBindingExpression(
-                                        selectExpression, existingIndex, sqlExpression.Type.MakeNullable()),
-                                    sqlExpression.Type);
+                            // The key identifier reads the value as nullable so that a null key doesn't throw.
+                            var projectionBindingExpression = new ProjectionBindingExpression(
+                                selectExpression, existingIndex, sqlExpression.Type.MakeNullable());
                             projectionBindingMap[sqlExpression] = projectionBindingExpression;
-                            return projectionBindingExpression;
+                            return sqlExpression.Type.IsNullableType()
+                                ? projectionBindingExpression
+                                : Convert(projectionBindingExpression, sqlExpression.Type);
                         }
 
                         case NewExpression newExpression:
@@ -732,9 +731,22 @@ public sealed partial class SelectExpression : TableExpressionBase
                             return memberInitExpression.Update((NewExpression)updatedNewExpression, newBindings);
 
                         case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression:
-                            return unaryExpression.Update(
-                                AddGroupByKeySelectorToProjection(
-                                    selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand));
+                        {
+                            // Also adds the operand to projectionBindingMap, which the nullable read below comes from.
+                            var operand = AddGroupByKeySelectorToProjection(
+                                selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand);
+
+                            // A nullable or reference-type (e.g. object) key over a SQL expression with a non-nullable CLR type;
+                            // converting through the non-nullable operand would throw for a null key.
+                            if (unaryExpression is { Operand: SqlExpression sqlOperand, Method: null }
+                                && (unaryExpression.Type == sqlOperand.Type.MakeNullable() || !unaryExpression.Type.IsValueType))
+                            {
+                                var nullableRead = projectionBindingMap[sqlOperand];
+                                return nullableRead.Type == unaryExpression.Type ? nullableRead : unaryExpression.Update(nullableRead);
+                            }
+
+                            return unaryExpression.Update(operand);
+                        }
 
                         case StructuralTypeShaperExpression
                         {
