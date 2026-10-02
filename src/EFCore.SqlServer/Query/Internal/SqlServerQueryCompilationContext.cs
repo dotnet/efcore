@@ -60,4 +60,8 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
     /// <inheritdoc />
     public override bool SupportsPrecompiledQuery
         => true;
+
+    /// <inheritdoc />
+    public override bool SupportsOuterApply
+        => true;
 }

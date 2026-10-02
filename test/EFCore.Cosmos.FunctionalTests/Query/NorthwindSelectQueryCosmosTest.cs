@@ -2145,6 +2145,48 @@ FROM root c
         AssertSql();
     }
 
+    public override async Task Multiple_members_of_single_result_subquery_with_non_equi_correlation_lift_to_single_join(bool async)
+    {
+        await AssertTranslationFailed(() => base.Multiple_members_of_single_result_subquery_with_non_equi_correlation_lift_to_single_join(async));
+
+        AssertSql();
+    }
+
+    public override async Task Members_through_navigation_of_repeated_single_result_subquery_lift_to_single_join(bool async)
+    {
+        await AssertTranslationFailed(() => base.Members_through_navigation_of_repeated_single_result_subquery_lift_to_single_join(async));
+
+        AssertSql();
+    }
+
+    public override async Task Single_result_subquery_read_whole_and_null_checked_lift_to_single_join(bool async)
+    {
+        await AssertTranslationFailed(() => base.Single_result_subquery_read_whole_and_null_checked_lift_to_single_join(async));
+
+        AssertSql();
+    }
+
+    public override async Task Repeated_single_result_subqueries_that_are_not_lifted(bool async)
+    {
+        await AssertTranslationFailed(() => base.Repeated_single_result_subqueries_that_are_not_lifted(async));
+
+        AssertSql();
+    }
+
+    public override async Task Single_result_subquery_null_check_over_keyless_entity(bool async)
+    {
+        await AssertTranslationFailed(() => base.Single_result_subquery_null_check_over_keyless_entity(async));
+
+        AssertSql();
+    }
+
+    public override async Task Single_result_subquery_null_check_preserves_type_as(bool async)
+    {
+        await AssertTranslationFailed(() => base.Single_result_subquery_null_check_preserves_type_as(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

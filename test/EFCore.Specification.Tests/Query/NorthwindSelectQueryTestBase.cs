@@ -2407,4 +2407,127 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                 };
             },
             elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Multiple_members_of_single_result_subquery_with_non_equi_correlation_lift_to_single_join(bool async)
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<Order>()
+                  let previous = ss.Set<Order>()
+                      .Where(p => p.CustomerID == o.CustomerID && p.OrderDate < o.OrderDate)
+                      .OrderByDescending(p => p.OrderDate)
+                      .ThenBy(p => p.OrderID)
+                      .FirstOrDefault()
+                  select new
+                  {
+                      o.OrderID,
+                      PreviousOrderID = (int?)previous!.OrderID,
+                      PreviousOrderDate = previous!.OrderDate
+                  },
+            ss => from o in ss.Set<Order>()
+                  let previous = ss.Set<Order>()
+                      .Where(p => p.CustomerID == o.CustomerID && p.OrderDate < o.OrderDate)
+                      .OrderByDescending(p => p.OrderDate)
+                      .ThenBy(p => p.OrderID)
+                      .FirstOrDefault()
+                  select new
+                  {
+                      o.OrderID,
+                      PreviousOrderID = previous.MaybeScalar(x => x!.OrderID),
+                      PreviousOrderDate = previous.MaybeScalar(x => x!.OrderDate)
+                  },
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Members_through_navigation_of_repeated_single_result_subquery_lift_to_single_join(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(o => new
+            {
+                o.OrderID,
+                o.OrderDetails.OrderBy(d => d.ProductID).FirstOrDefault()!.Product.ProductName,
+                o.OrderDetails.OrderBy(d => d.ProductID).FirstOrDefault()!.Product.SupplierID
+            }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Single_result_subquery_read_whole_and_null_checked_lift_to_single_join(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                Latest = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault(),
+                Summary = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault() == null
+                    ? null
+                    : new
+                    {
+                        c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault()!.OrderID,
+                        c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault()!.OrderDate
+                    }
+            }),
+            elementSorter: e => e.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.CustomerID, a.CustomerID);
+                AssertEqual(e.Latest, a.Latest);
+                AssertEqual(e.Summary, a.Summary);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Single_result_subquery_null_check_over_keyless_entity(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                City = ss.Set<CustomerQuery>().Where(q => q.CompanyName == c.CompanyName && q.City == "London")
+                    .OrderBy(q => q.CompanyName).Select(q => q.City).FirstOrDefault(),
+                CityAgain = ss.Set<CustomerQuery>().Where(q => q.CompanyName == c.CompanyName && q.City == "London")
+                    .OrderBy(q => q.CompanyName).Select(q => q.City).FirstOrDefault(),
+                Exists = ss.Set<CustomerQuery>().Where(q => q.CompanyName == c.CompanyName && q.City == "London")
+                    .OrderBy(q => q.CompanyName).Select(q => new { q.City }).FirstOrDefault() != null
+            }),
+            elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Single_result_subquery_null_check_preserves_type_as(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                OrderDate = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderDate).FirstOrDefault(),
+                IsCloneable = (c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() as ICloneable) != null,
+                IsNotCloneable = (c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() as ICloneable) == null
+            }),
+            elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Repeated_single_result_subqueries_that_are_not_lifted(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                FirstOrderID = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault(),
+                FirstOrderIDAgain = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault(),
+                Suffixed = c.Orders.OrderBy(o => o.OrderDate).Select(o => o.CustomerID + "!").FirstOrDefault(),
+                SuffixedAgain = c.Orders.OrderBy(o => o.OrderDate).Select(o => o.CustomerID + "!").FirstOrDefault(),
+                HasOrders = c.Orders.OrderBy(o => o.EmployeeID).FirstOrDefault() != null,
+                HasNoOrders = c.Orders.OrderBy(o => o.EmployeeID).FirstOrDefault() == null,
+                LaterOrders = c.Orders.Count(o => c.Orders
+                        .Where(o2 => o2.OrderID > o.OrderID)
+                        .OrderBy(o2 => o2.OrderID)
+                        .Select(o2 => o2.OrderDate)
+                        .FirstOrDefault()
+                    > new DateTime(1998, 1, 1)
+                    || c.Orders
+                        .Where(o2 => o2.OrderID > o.OrderID)
+                        .OrderBy(o2 => o2.OrderID)
+                        .Select(o2 => o2.OrderDate)
+                        .FirstOrDefault()
+                    == null)
+            }),
+            elementSorter: e => e.CustomerID);
 }
