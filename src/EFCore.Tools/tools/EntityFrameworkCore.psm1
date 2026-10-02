@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 
 #
 # Add-Migration
@@ -1318,23 +1318,45 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         }
         finally
         {
+            $restorationErrors = @()
             foreach ($item in $projectsToRevert)
             {
-                try
+                $restored = $false
+                for ($attempt = 1; $attempt -le 2; $attempt++)
                 {
-                    if (![string]::IsNullOrEmpty($item.OriginalValue))
+                    try
                     {
-                        SetCpsProperty $item.Project 'PublishAot' $item.OriginalValue
+                        if (![string]::IsNullOrEmpty($item.OriginalValue))
+                        {
+                            SetCpsProperty $item.Project 'PublishAot' $item.OriginalValue
+                        }
+                        else
+                        {
+                            SetCpsProperty $item.Project 'PublishAot' $null
+                        }
+
+                        $restored = $true
+                        break
                     }
-                    else
+                    catch
                     {
-                        SetCpsProperty $item.Project 'PublishAot' $null
+                        if ($attempt -eq 1)
+                        {
+                            Start-Sleep -Milliseconds 100
+                        }
+                        else
+                        {
+                            $msg = "Unable to restore original PublishAot property on project '$($item.Project.ProjectName)'. Please verify PublishAot in your project file. Error: $_"
+                            Write-Warning $msg
+                            $restorationErrors += $msg
+                        }
                     }
                 }
-                catch
-                {
-                    Write-Verbose "Unable to restore PublishAot on project '$($item.Project.ProjectName)': $_"
-                }
+            }
+
+            if ($restorationErrors.Count -gt 0)
+            {
+                Write-Verbose ($restorationErrors -join "`n")
             }
         }
     }
