@@ -229,6 +229,13 @@ public class SqlServerModelValidator(
         ValidateIndexIncludeProperties(index);
         ValidateFullTextIndex(index);
         ValidateVectorIndex(index);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        if (index.IsJsonIndex())
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        {
+            ValidateUnsupportedJsonIndexOptions(index);
+        }
     }
 
     /// <summary>
@@ -422,6 +429,29 @@ public class SqlServerModelValidator(
                         index.DeclaringEntityType.DisplayName(),
                         propertyBase.Name));
             }
+        }
+    }
+
+    private static void ValidateUnsupportedJsonIndexOptions(IIndex index)
+    {
+        var option = index switch
+        {
+            { IsUnique: true } => nameof(index.IsUnique),
+            { IsDescending: not null } => nameof(index.IsDescending),
+            _ when index.GetFilter() is not null => "Filter",
+            _ when index.IsClustered() is true => "IsClustered",
+            _ when index.GetIncludeProperties()?.Count > 0 => "IncludeProperties",
+            _ when index.IsCreatedOnline() is true => "IsCreatedOnline",
+            _ when index.GetSortInTempDb() is true => "SortInTempDb",
+            _ when index.GetDataCompression() is not null => "DataCompression",
+            _ => null
+        };
+
+        if (option is not null)
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.JsonIndexUnsupportedOption(
+                    index.DisplayName(), index.DeclaringEntityType.DisplayName(), option));
         }
     }
 

@@ -711,6 +711,88 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public required string Street { get; set; }
     }
 
+    [Theory]
+    [InlineData("IsUnique")]
+    [InlineData("IsDescending")]
+    [InlineData("Filter")]
+    [InlineData("IsClustered")]
+    [InlineData("IncludeProperties")]
+    [InlineData("IsCreatedOnline")]
+    [InlineData("SortInTempDb")]
+    [InlineData("DataCompression")]
+    public void Json_index_with_unsupported_option_throws(string option)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.ComplexProperty(e => e.Address, cb => cb.ToJson());
+            var indexBuilder = b.HasIndex("Address.City");
+
+            switch (option)
+            {
+                case "IsUnique":
+                    indexBuilder.IsUnique();
+                    break;
+                case "IsDescending":
+                    indexBuilder.IsDescending();
+                    break;
+                case "Filter":
+                    indexBuilder.HasFilter("[Id] > 0");
+                    break;
+                case "IsClustered":
+                    indexBuilder.IsClustered();
+                    break;
+                case "IncludeProperties":
+                    indexBuilder.IncludeProperties("Id");
+                    break;
+                case "IsCreatedOnline":
+                    indexBuilder.IsCreatedOnline();
+                    break;
+                case "SortInTempDb":
+                    indexBuilder.SortInTempDb();
+                    break;
+                case "DataCompression":
+                    indexBuilder.Metadata.SetDataCompression(DataCompressionType.Page);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        });
+
+        VerifyError(
+            SqlServerStrings.JsonIndexUnsupportedOption(
+                "{'City'}", nameof(EntityWithIncludedComplexJson), option),
+            modelBuilder);
+    }
+
+    [Theory]
+    [InlineData("FillFactor")]
+    [InlineData("NonClustered")]
+    [InlineData("NoIncludeProperties")]
+    [InlineData("CreatedOffline")]
+    [InlineData("SortInTempDbDisabled")]
+    public void Json_index_with_supported_option_passes(string option)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.ComplexProperty(e => e.Address, cb => cb.ToJson());
+            var indexBuilder = b.HasIndex("Address.City");
+
+            _ = option switch
+            {
+                "FillFactor" => indexBuilder.HasFillFactor(80),
+                "NonClustered" => indexBuilder.IsClustered(false),
+                "NoIncludeProperties" => indexBuilder.IncludeProperties(),
+                "CreatedOffline" => indexBuilder.IsCreatedOnline(false),
+                "SortInTempDbDisabled" => indexBuilder.SortInTempDb(false),
+                _ => throw new InvalidOperationException()
+            };
+        });
+
+        Validate(modelBuilder);
+    }
+
     [Fact]
     public virtual void Detects_incompatible_memory_optimized_shared_table()
     {

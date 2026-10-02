@@ -314,6 +314,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table);
 
         /// <summary>
+        ///     JSON index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on JSON indexes.
+        /// </summary>
+        public static string JsonIndexUnsupportedOption(object? index, object? entityType, object? option)
+            => string.Format(
+                GetString("JsonIndexUnsupportedOption", nameof(index), nameof(entityType), nameof(option)),
+                index, entityType, option);
+
+        /// <summary>
         ///     A non-constant array index or property name was used when navigating inside a JSON document, but EF Core's SQL Server compatibility level is set to {compatibilityLevel}; this is only supported with compatibility level 140 (SQL Server 2017) or higher.
         /// </summary>
         public static string JsonValuePathExpressionsNotSupported(object? compatibilityLevel)

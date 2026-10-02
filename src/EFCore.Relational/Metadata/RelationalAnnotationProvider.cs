@@ -133,7 +133,7 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
             elements[i] = FindJsonElement(modelIndex.Properties[i], tableIndex.Table);
         }
 
-        return new RelationalJsonIndex(elements, modelIndex.CollectionIndices);
+        return new RelationalJsonIndex(elements, modelIndex.CollectionIndices, modelIndex.IsDescending);
     }
 
     /// <summary>
