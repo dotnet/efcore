@@ -496,11 +496,11 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
                 Assert.Single(unsafeAccessors),
                 ignoreLineEndingDifferences: true));
 
-//         => AssertExpression(
-//             New(typeof(BlogWithRequiredProperties).GetConstructor([])!),
-//             """
-// Activator.CreateInstance<LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties>()
-// """);
+    //         => AssertExpression(
+    //             New(typeof(BlogWithRequiredProperties).GetConstructor([])!),
+    //             """
+    // Activator.CreateInstance<LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties>()
+    // """);
 
     [Fact]
     public void Instantiation_with_required_properties_and_non_parameterless_constructor()
@@ -1180,6 +1180,439 @@ f1 = bool (int i) =>
 """);
 
     [Fact]
+    public void Block_variable_with_invalid_identifier_name_is_sanitized()
+    {
+        var i = Parameter(typeof(int), "1!not valid;");
+
+        AssertStatement(
+            Block(variables: [i], Assign(i, Constant(3))),
+            """
+{
+    var _1_not_valid_ = 3;
+}
+""");
+    }
+
+    [Theory]
+    [InlineData("class")]
+    [InlineData("int")]
+    [InlineData("__arglist")]
+    public void Variable_named_like_a_reserved_keyword_is_sanitized(string name)
+    {
+        var i = Parameter(typeof(int), name);
+
+        AssertStatement(
+            Block(variables: [i], Assign(i, Constant(3))),
+            $$"""
+{
+    var _{{name}} = 3;
+}
+""");
+    }
+
+    [Theory]
+    [InlineData("var")]
+    [InlineData("async")]
+    [InlineData("value")]
+    public void Variable_whose_name_is_not_a_reserved_keyword_is_not_renamed(string name)
+    {
+        // Contextual keywords are valid identifiers here, and "value" is what generated property setters name their parameter;
+        // renaming either would change generated code that compiles today (every compiled model, in the case of "value")
+        var i = Parameter(typeof(int), name);
+
+        AssertStatement(
+            Block(variables: [i], Assign(i, Constant(3))),
+            $$"""
+{
+    var {{name}} = 3;
+}
+""");
+    }
+
+    [Fact]
+    public void Lambda_parameter_with_invalid_identifier_name_is_sanitized()
+    {
+        var i = Parameter(typeof(int), "1!not valid;");
+
+        AssertExpression(
+            Lambda<Func<int, int>>(Add(i, Constant(1)), i),
+            "int (int _1_not_valid_) => _1_not_valid_ + 1");
+    }
+
+    [Fact]
+    public void Lambda_parameter_whose_sanitized_name_collides_with_an_outer_variable_is_uniquified()
+    {
+        var f = Parameter(typeof(Func<int, int>), "f");
+        var outer = Parameter(typeof(int), "_1_not_valid_");
+        var inner = Parameter(typeof(int), "1!not valid;");
+
+        // Same raw name would be intentional shadowing; a collision created by sanitization alone must not rebind the outer variable
+        AssertStatement(
+            Block(
+                variables: [outer],
+                Assign(outer, Constant(8)),
+                Assign(f, Lambda<Func<int, int>>(Add(inner, outer), inner))),
+            """
+{
+    var _1_not_valid_ = 8;
+    f = int (int _1_not_valid_0) => _1_not_valid_0 + _1_not_valid_;
+}
+""");
+    }
+
+    [Fact]
+    public void Lambda_parameter_whose_sanitized_name_collides_with_a_lifted_variable_is_uniquified()
+    {
+        var f = Parameter(typeof(Func<int, int>), "f");
+        var lifted = Parameter(typeof(int), "_1_not_valid_");
+        var inner = Parameter(typeof(int), "1!not valid;");
+
+        // The lifted variable lives in the lifted state rather than the stack frame while the lambda is translated, and ends up
+        // declared in the lambda body next to the parameter, so a collision would not even compile
+        AssertStatement(
+            Block(
+                variables: [f],
+                Assign(
+                    f,
+                    Block(
+                        variables: [lifted],
+                        Assign(lifted, Constant(8)),
+                        Lambda<Func<int, int>>(Add(inner, lifted), inner)))),
+            """
+{
+    var f = int (int _1_not_valid_0) =>
+    {
+        var _1_not_valid_ = 8;
+        return _1_not_valid_0 + _1_not_valid_;
+    };
+}
+""");
+    }
+
+    [Fact]
+    public void Lambda_parameter_with_the_same_name_as_a_lifted_variable_is_uniquified()
+    {
+        var f = Parameter(typeof(Func<int, int>), "f");
+        var lifted = Parameter(typeof(int), "i");
+        var inner = Parameter(typeof(int), "i");
+
+        // The lifted variable is declared in the lambda body next to the parameter, so the same name would not compile (CS0136)
+        // even though the original names match exactly
+        AssertStatement(
+            Block(
+                variables: [f],
+                Assign(
+                    f,
+                    Block(
+                        variables: [lifted],
+                        Assign(lifted, Constant(8)),
+                        Lambda<Func<int, int>>(Add(inner, lifted), inner)))),
+            """
+{
+    var f = int (int i0) =>
+    {
+        var i = 8;
+        return i0 + i;
+    };
+}
+""");
+    }
+
+    [Fact]
+    public void Scope_state_is_restored_when_a_translation_fails()
+    {
+        var (translator, _) = CreateTranslator();
+        var e = Parameter(typeof(InvalidOperationException), "e");
+        var i = Parameter(typeof(int), "i");
+        var x = Parameter(typeof(int), "x");
+
+        // RuntimeVariables is not supported, so this throws after a catch scope and a block scope were entered and after the
+        // invocation argument was lifted into a local named "x"
+        Assert.Throws<NotSupportedException>(
+            () => translator.TranslateStatement(
+                TryCatch(
+                    Call(FooMethod),
+                    Catch(
+                        e,
+                        Block(
+                            variables: [i],
+                            Assign(i, Invoke(Lambda<Func<int, int>>(x, x), Call(FooMethod))),
+                            RuntimeVariables(e),
+                            Constant(1)))),
+                constantReplacements: null,
+                new HashSet<string>(),
+                new HashSet<MethodDeclarationSyntax>()));
+
+        // The translator is reused across queries, so the next translation must see neither the abandoned scopes nor the lifted name
+        var result = translator.TranslateStatement(
+            Block(variables: [x], Assign(x, Constant(1))),
+            constantReplacements: null,
+            new HashSet<string>(),
+            new HashSet<MethodDeclarationSyntax>());
+
+        Assert.Equal(
+            """
+{
+    var x = 1;
+}
+""",
+            result.NormalizeWhitespace().ToFullString(),
+            ignoreLineEndingDifferences: true);
+    }
+
+    [Fact]
+    public void Generated_local_does_not_take_the_name_of_a_captured_variable()
+    {
+        var captured = Parameter(typeof(int), "x");
+        var lambdaParameter = Parameter(typeof(int), "x");
+        var i = Parameter(typeof(int), "i");
+
+        // The capture is emitted before the invocation lifts its argument into a local, so the local is the one that has to move
+        AssertStatement(
+            Block(
+                variables: [i],
+                Call(ReturnsIntWithParamMethod, captured),
+                Assign(
+                    i,
+                    Invoke(Lambda<Func<int, int>>(Add(lambdaParameter, Constant(1)), lambdaParameter), Call(FooMethod)))),
+            """
+{
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(x);
+    var x0 = LinqToCSharpSyntaxTranslatorTest.Foo();
+    var i = x0 + 1;
+}
+""");
+    }
+
+    [Fact]
+    public void Lambda_parameter_whose_sanitized_name_collides_with_a_captured_variable_is_uniquified()
+    {
+        var captured = Parameter(typeof(int), "_1_not_valid_");
+        var inner = Parameter(typeof(int), "1!not valid;");
+
+        // A captured variable is a local of the enclosing generated method, which a lambda parameter may not shadow
+        AssertStatement(
+            Block(Lambda<Func<int, int>>(Add(inner, captured), inner)),
+            """
+{
+    _ = (int (int _1_not_valid_0) => _1_not_valid_0 + _1_not_valid_);
+}
+""");
+    }
+
+    [Fact]
+    public void Block_variable_whose_sanitized_name_collides_with_a_captured_variable_is_uniquified()
+    {
+        var captured = Parameter(typeof(int), "_1_not_valid_");
+        var i = Parameter(typeof(int), "1!not valid;");
+
+        AssertStatement(
+            Block(variables: [i], Assign(i, Constant(1)), Call(ReturnsIntWithParamMethod, Add(i, captured))),
+            """
+{
+    var _1_not_valid_0 = 1;
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(_1_not_valid_0 + _1_not_valid_);
+}
+""");
+    }
+
+    [Fact]
+    public void Generated_local_does_not_take_the_name_of_a_captured_variable_referenced_later()
+    {
+        var f = Parameter(typeof(Func<int, int>), "f");
+        var captured = Parameter(typeof(int), "x");
+        var lambdaParameter = Parameter(typeof(int), "x");
+
+        // The capture is referenced after the invocation lifts its argument, so the name has to be reserved before translating
+        AssertStatement(
+            Block(
+                Assign(f, Invoke(Lambda<Func<int, Func<int, int>>>(Lambda<Func<int, int>>(lambdaParameter, lambdaParameter), lambdaParameter), Call(FooMethod))),
+                Call(ReturnsIntWithParamMethod, captured)),
+            """
+{
+    f = int (int x00) =>
+    {
+        var x0 = LinqToCSharpSyntaxTranslatorTest.Foo();
+        return x00;
+    };
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(x);
+}
+""");
+    }
+
+    [Fact]
+    public void Captured_variable_with_the_name_of_a_constant_replacement_is_emitted_as_is()
+    {
+        var captured = Parameter(typeof(int), "constant");
+
+        // Constant replacements are declared by the generated code that calls into the translated expression, so a captured
+        // variable naming one of them is the intended reference rather than a collision
+        AssertStatement(
+            Block(Call(ReturnsIntWithParamMethod, captured)),
+            """
+{
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(constant);
+}
+""",
+            constantReplacements: new Dictionary<object, string> { { new object(), "constant" } });
+    }
+
+    [Fact]
+    public void Variable_name_with_a_formatting_character_is_sanitized()
+    {
+        // U+200C is a Unicode formatting character: valid inside a C# identifier, but ignored when identifiers are compared, so
+        // these two names would declare the same local twice
+        var plain = Parameter(typeof(int), "ab");
+        var formatted = Parameter(typeof(int), "a\u200Cb");
+
+        AssertStatement(
+            Block(variables: [plain, formatted], Assign(plain, Constant(1)), Assign(formatted, Constant(2))),
+            """
+{
+    var ab = 1;
+    var a_b = 2;
+}
+""");
+    }
+
+    [Fact]
+    public void Generated_name_equal_to_a_captured_variable_up_to_formatting_characters_is_uniquified()
+    {
+        var captured = Parameter(typeof(int), "a\u200Cb");
+        var generated = Parameter(typeof(int), "ab");
+
+        // The captured variable is the caller's and is emitted as it is; the generated local must not become the same identifier
+        AssertStatement(
+            Block(variables: [generated], Assign(generated, Constant(1)), Call(ReturnsIntWithParamMethod, captured)),
+            $$"""
+{
+    var ab0 = 1;
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(a{{"\u200C"}}b);
+}
+""");
+    }
+
+    [Fact]
+    public void Type_whose_simple_name_is_a_constant_replacement_is_fully_qualified()
+        // The constant replacements are declared in the scope the translation is emitted into, so a type referred to by that simple
+        // name would resolve to the declaration instead of the type
+        => AssertExpression(
+            Property(null, typeof(System.Text.Encoding), nameof(System.Text.Encoding.UTF8)),
+            "global::System.Text.Encoding.UTF8",
+            constantReplacements: new Dictionary<object, string> { { new object(), "Encoding" } });
+
+    [Fact]
+    public void Generic_type_whose_simple_name_is_a_constant_replacement_is_fully_qualified()
+        => AssertExpression(
+            New(typeof(List<int>)),
+            "new global::System.Collections.Generic.List<int>()",
+            constantReplacements: new Dictionary<object, string> { { new object(), "List" } });
+
+    [Fact]
+    public void Type_whose_simple_name_is_a_captured_variable_is_fully_qualified()
+    {
+        var captured = Parameter(typeof(int), "Encoding");
+        var utf8 = Parameter(typeof(System.Text.Encoding), "utf8");
+
+        // The captured variable is emitted under its own name, so within this scope that name is the caller's variable, not the type
+        AssertStatement(
+            Block(
+                variables: [utf8],
+                Assign(utf8, Property(null, typeof(System.Text.Encoding), nameof(System.Text.Encoding.UTF8))),
+                Call(ReturnsIntWithParamMethod, captured)),
+            """
+{
+    var utf8 = global::System.Text.Encoding.UTF8;
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(Encoding);
+}
+""");
+    }
+
+    [Fact]
+    public void Type_whose_simple_name_is_a_lambda_parameter_is_fully_qualified()
+    {
+        var encoding = Parameter(typeof(int), "Encoding");
+        var f = Parameter(typeof(Func<int, int>), "f");
+
+        AssertStatement(
+            Block(
+                Assign(
+                    f, Lambda<Func<int, int>>(
+                        Property(
+                            Property(null, typeof(System.Text.Encoding), nameof(System.Text.Encoding.UTF8)),
+                            nameof(System.Text.Encoding.CodePage)),
+                        encoding))),
+            """
+{
+    f = int (int Encoding) => global::System.Text.Encoding.UTF8.CodePage;
+}
+""");
+    }
+
+    [Fact]
+    public void Nested_type_whose_declaring_type_name_is_a_constant_replacement_is_fully_qualified()
+        // The nested type is written through its declaring type, which is what the name in scope would capture
+        => AssertExpression(
+            New(typeof(Blog)),
+            "new global::Microsoft.EntityFrameworkCore.Query.LinqToCSharpSyntaxTranslatorTest.Blog()",
+            constantReplacements: new Dictionary<object, string> { { new object(), nameof(LinqToCSharpSyntaxTranslatorTest) } });
+
+    [Fact]
+    public void Type_whose_simple_name_is_a_variable_in_scope_is_fully_qualified()
+    {
+        var encoding = Parameter(typeof(int), "Encoding");
+        var utf8 = Parameter(typeof(System.Text.Encoding), "utf8");
+
+        AssertStatement(
+            Block(
+                variables: [encoding, utf8],
+                Assign(encoding, Constant(1)),
+                Assign(utf8, Property(null, typeof(System.Text.Encoding), nameof(System.Text.Encoding.UTF8)))),
+            """
+{
+    var Encoding = 1;
+    var utf8 = global::System.Text.Encoding.UTF8;
+}
+""");
+    }
+
+    [Fact]
+    public void Catch_variable_already_declared_by_an_enclosing_block_throws()
+    {
+        var (translator, _) = CreateTranslator();
+        var e = Parameter(typeof(InvalidOperationException), "e");
+
+        // The same ParameterExpression declared twice would silently become two unrelated C# locals
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => translator.TranslateStatement(
+                Block(variables: [e], TryCatch(Call(FooMethod), Catch(e, Call(BarMethod)))),
+                constantReplacements: null,
+                new HashSet<string>(),
+                new HashSet<MethodDeclarationSyntax>()));
+
+        Assert.Contains("'e'", exception.Message);
+    }
+
+    [Fact]
+    public void Catch_variable_with_invalid_identifier_name_is_sanitized()
+    {
+        var e = Parameter(typeof(InvalidOperationException), "1!not valid;");
+
+        AssertStatement(
+            TryCatch(Call(FooMethod), Catch(e, Throw(e, typeof(int)))),
+            """
+try
+{
+    LinqToCSharpSyntaxTranslatorTest.Foo();
+}
+catch (InvalidOperationException _1_not_valid_)
+{
+    throw _1_not_valid_;
+}
+""");
+    }
+
+    [Fact]
     public void Lift_block_in_assignment_context()
     {
         var i = Parameter(typeof(int), "i");
@@ -1689,6 +2122,25 @@ new List<int>()
 {
     goto label1;
     label1:
+        LinqToCSharpSyntaxTranslatorTest.Foo();
+}
+""");
+    }
+
+    [Fact]
+    public void Label_with_invalid_identifier_name_is_sanitized()
+    {
+        var labelTarget = Label("1!not valid;");
+
+        AssertStatement(
+            Block(
+                Goto(labelTarget),
+                Label(labelTarget),
+                Call(FooMethod)),
+            """
+{
+    goto _1_not_valid_;
+    _1_not_valid_:
         LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 """);

@@ -89,6 +89,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     private bool _onLastLambdaLine;
 
     private readonly HashSet<ParameterExpression> _capturedVariables = [];
+    private readonly HashSet<string> _capturedVariableNames = [];
+    private IReadOnlySet<string>? _declaredNames;
     private ISet<string> _collectedNamespaces = null!;
     private readonly Dictionary<MethodBase, MethodDeclarationSyntax> _methodUnsafeAccessors = [];
     private readonly Dictionary<(FieldInfo Field, bool ForWrite), MethodDeclarationSyntax> _fieldUnsafeAccessors = [];
@@ -128,8 +130,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         Expression node,
         IReadOnlyDictionary<object, string>? constantReplacements,
         ISet<string> collectedNamespaces,
-        ISet<MethodDeclarationSyntax> unsafeAccessors)
-        => TranslateCore(node, constantReplacements, collectedNamespaces, unsafeAccessors, statementContext: true);
+        ISet<MethodDeclarationSyntax> unsafeAccessors,
+        IReadOnlySet<string>? declaredNames = null)
+        => TranslateCore(node, constantReplacements, declaredNames, collectedNamespaces, unsafeAccessors, statementContext: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -141,8 +144,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         Expression node,
         IReadOnlyDictionary<object, string>? constantReplacements,
         ISet<string> collectedNamespaces,
-        ISet<MethodDeclarationSyntax> unsafeAccessors)
-        => TranslateCore(node, constantReplacements, collectedNamespaces, unsafeAccessors, statementContext: false);
+        ISet<MethodDeclarationSyntax> unsafeAccessors,
+        IReadOnlySet<string>? declaredNames = null)
+        => TranslateCore(node, constantReplacements, declaredNames, collectedNamespaces, unsafeAccessors, statementContext: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -153,12 +157,20 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     protected virtual SyntaxNode TranslateCore(
         Expression node,
         IReadOnlyDictionary<object, string>? constantReplacements,
+        IReadOnlySet<string>? declaredNames,
         ISet<string> collectedNamespaces,
         ISet<MethodDeclarationSyntax> unsafeAccessors,
         bool statementContext)
     {
         _capturedVariables.Clear();
+        // Names the expression references without declaring belong to the caller and are emitted as-is, so nothing generated here
+        // may take one of them; collecting them up front means a name chosen later cannot rebind an earlier reference.
+        _capturedVariableNames.Clear();
+        FreeVariableNameCollector.Collect(node, _capturedVariableNames);
         _constantReplacements = constantReplacements;
+        // Other names the caller declares in the scope the result is emitted into, such as the fields for the runtime constants when
+        // one of their initializers is being translated; treated like the constant replacement names below.
+        _declaredNames = declaredNames;
         _collectedNamespaces = collectedNamespaces;
         _unnamedParameterCounter = 0;
         _context = statementContext ? ExpressionContext.Statement : ExpressionContext.Expression;
@@ -177,32 +189,61 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             }
         }
 
-        try
+        if (declaredNames != null)
         {
-            Visit(node);
-        }
-        finally
-        {
-            if (constantReplacements != null)
+            foreach (var name in declaredNames)
             {
-                foreach (var name in constantReplacements.Values)
-                {
-                    rootFrame.VariableNames.Remove(name);
-                }
+                rootFrame.VariableNames.Add(name);
             }
         }
 
-        if (_liftedState.Statements.Count > 0
-            && _context == ExpressionContext.Expression)
+        try
         {
-            throw new NotSupportedException("Lifted expressions remaining at top-level in expression context");
-        }
+            try
+            {
+                Visit(node);
+            }
+            finally
+            {
+                if (constantReplacements != null)
+                {
+                    foreach (var name in constantReplacements.Values)
+                    {
+                        rootFrame.VariableNames.Remove(name);
+                    }
+                }
 
-        Check.DebugAssert(_stack.Count == 1, "_parameterStack.Count == 1");
-        Check.DebugAssert(_stack.Peek().Variables.Count == 0, "_stack.Peek().Parameters.Count == 0");
-        Check.DebugAssert(_stack.Peek().VariableNames.Count == 0, "_stack.Peek().ParameterNames.Count == 0");
-        Check.DebugAssert(_stack.Peek().Labels.Count == 0);
-        Check.DebugAssert(_stack.Peek().UniqueLabelNames.Count == 0);
+                if (declaredNames != null)
+                {
+                    foreach (var name in declaredNames)
+                    {
+                        rootFrame.VariableNames.Remove(name);
+                    }
+                }
+            }
+
+            if (_liftedState.Statements.Count > 0
+                && _context == ExpressionContext.Expression)
+            {
+                throw new NotSupportedException("Lifted expressions remaining at top-level in expression context");
+            }
+
+            Check.DebugAssert(_stack.Count == 1, "_parameterStack.Count == 1");
+            Check.DebugAssert(_stack.Peek().Variables.Count == 0, "_stack.Peek().Parameters.Count == 0");
+            Check.DebugAssert(_stack.Peek().VariableNames.Count == 0, "_stack.Peek().ParameterNames.Count == 0");
+            Check.DebugAssert(_stack.Peek().Labels.Count == 0);
+            Check.DebugAssert(_stack.Peek().UniqueLabelNames.Count == 0);
+        }
+        catch
+        {
+            // The translator is reused for later translations (PrecompiledQueryCodeGenerator records a failed query and moves on to
+            // the next one), so the scopes and lifted statements a failed translation left behind must not leak into them
+            _stack.Clear();
+            _stack.Push(new StackFrame([], [], [], []));
+            _liftedState = new LiftedState();
+
+            throw;
+        }
 
         foreach (var unsafeAccessor in _fieldUnsafeAccessors.Values.Concat(_methodUnsafeAccessors.Values))
         {
@@ -765,8 +806,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
                 var (_, _, labels, uniqueLabelNames) = stackFrame;
 
-                // Generate names for unnamed label targets and uniquify (all label names)
-                identifier = label.Target.Name ?? "unnamedLabel";
+                // Generate names for unnamed label targets, sanitize named ones, and uniquify (all label names)
+                identifier = label.Target.Name is null ? "unnamedLabel" : SanitizeIdentifierName(label.Target.Name);
                 var identifierBase = identifier;
                 for (var i = 0; uniqueLabelNames.Contains(identifier); i++)
                 {
@@ -795,6 +836,33 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     /// </summary>
     protected virtual SyntaxNode TranslateCatchBlock(CatchBlock catchBlock, bool noType = false)
     {
+        if (catchBlock.Variable is { Name: null })
+        {
+            throw new NotSupportedException("TranslateCatchBlock: unnamed parameter as catch variable");
+        }
+
+        var catchDeclaration = noType
+            ? null
+            : CatchDeclaration(Generate(catchBlock.Test));
+
+        // The catch variable gets its own scope, so that its declaration and the references to it agree on the (sanitized) name
+        var stackFrame = PushNewStackFrame();
+
+        if (catchBlock.Variable is not null)
+        {
+            Check.DebugAssert(catchDeclaration is not null);
+
+            var name = UniquifyVariableName(catchBlock.Variable.Name!);
+            if (!stackFrame.Variables.TryAdd(catchBlock.Variable, name))
+            {
+                throw new InvalidOperationException(
+                    DesignStrings.SameParameterExpressionDeclaredAsVariableInNestedBlocks(catchBlock.Variable.Name));
+            }
+
+            stackFrame.VariableNames.Add(name);
+            catchDeclaration = catchDeclaration.WithIdentifier(Identifier(name));
+        }
+
         var translatedBody = Translate(catchBlock.Body) switch
         {
             BlockSyntax b => b,
@@ -803,26 +871,12 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        var catchDeclaration = noType
-            ? null
-            : CatchDeclaration(Generate(catchBlock.Test));
+        var filter = catchBlock.Filter is null ? null : CatchFilterClause(Translate<ExpressionSyntax>(catchBlock.Filter));
 
-        if (catchBlock.Variable is not null)
-        {
-            Check.DebugAssert(catchDeclaration is not null);
+        var popped = _stack.Pop();
+        Check.DebugAssert(popped.Equals(stackFrame));
 
-            if (catchBlock.Variable.Name is null)
-            {
-                throw new NotSupportedException("TranslateCatchBlock: unnamed parameter as catch variable");
-            }
-
-            catchDeclaration = catchDeclaration.WithIdentifier(Identifier(catchBlock.Variable.Name));
-        }
-
-        return CatchClause(
-            catchDeclaration,
-            catchBlock.Filter is null ? null : CatchFilterClause(Translate<ExpressionSyntax>(catchBlock.Filter)),
-            translatedBody);
+        return CatchClause(catchDeclaration, filter, translatedBody);
     }
 
     /// <inheritdoc />
@@ -1262,6 +1316,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 var parameter = Expression.Parameter(argument.Type, name);
                 _liftedState.Statements.Add(GenerateVarDeclaration(name, Translate<ExpressionSyntax>(argument)));
                 _liftedState.VariableNames.Add(name);
+                // The body references this parameter in place of the lambda's; registering it means those references resolve to
+                // the lifted local by identity rather than by its name happening to match
+                _liftedState.Variables[parameter] = name;
                 arguments[i] = parameter;
             }
 
@@ -1487,6 +1544,12 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             return true;
         }
 
+        if (IsNameInScope(type.Name))
+        {
+            result = GloballyQualified(type.Namespace, IdentifierName(type.Name));
+            return true;
+        }
+
         if (type.Namespace != null)
         {
             _collectedNamespaces.Add(type.Namespace);
@@ -1500,13 +1563,19 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             var offset = type.DeclaringType != null ? type.DeclaringType.GetGenericArguments().Length : 0;
 
             var genericPartIndex = type.Name.IndexOf('`');
+            var simpleName = genericPartIndex <= 0 ? type.Name : type.Name[..genericPartIndex];
             SimpleNameSyntax nameSyntax = genericPartIndex <= 0
                 ? IdentifierName(type.Name)
                 : GenericName(
-                    Identifier(type.Name[..genericPartIndex]),
+                    Identifier(simpleName),
                     TypeArgumentList(SeparatedList(genericArguments.Skip(offset).Take(length - offset))));
             if (type.DeclaringType == null)
             {
+                if (IsNameInScope(simpleName))
+                {
+                    return GloballyQualified(type.Namespace, nameSyntax);
+                }
+
                 AddNamespace(type);
 
                 return nameSyntax;
@@ -1529,13 +1598,27 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         var stackFrame = PushNewStackFrame();
 
         var localUnnamedParameterCounter = 0;
+        var lambdaParameterNames = new HashSet<string>();
         foreach (var parameter in lambda.Parameters)
         {
-            var name = parameter.Name ?? ("unnamed" + (++localUnnamedParameterCounter));
+            var name = parameter.Name is null
+                ? "unnamed" + (++localUnnamedParameterCounter)
+                : SanitizeIdentifierName(parameter.Name);
 
-            if (_constantReplacements?.Values.Contains(name) == true)
+            // A parameter that already had the same name as a variable in scope keeps shadowing it, as before
+            // (Variable_with_same_name_in_lambda_does_not_get_renamed). What must not happen is a collision that sanitization
+            // itself creates, or one with a lifted variable, whose declaration is emitted inside the lambda body: either would
+            // rebind references to that variable. The same goes for the caller's own declarations and for captured variables,
+            // which the lambda body refers to by name.
+            if (IsCallerDeclaredName(name)
+                || !lambdaParameterNames.Add(name)
+                || _liftedState.VariableNames.Contains(name)
+                || _capturedVariableNames.Contains(name)
+                || (stackFrame.VariableNames.Contains(name)
+                    && !stackFrame.Variables.Any(v => v.Value == name && v.Key.Name == parameter.Name)))
             {
                 name = UniquifyVariableName(name);
+                lambdaParameterNames.Add(name);
             }
 
             stackFrame.Variables[parameter] = name;
@@ -2199,6 +2282,19 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             throw new NotSupportedException("Unnamed captured variable");
         }
 
+        // Since the name is emitted as-is, anything we generated under that same name would capture the reference instead. That
+        // includes generated locals, which exist in these scopes by name only. Constant replacement names are excluded: they are
+        // the caller's own declarations, and referencing them is exactly what a captured variable of that name means to do.
+        var comparableName = WithoutFormattingCharacters(parameter.Name);
+        if ((_stack.Peek().VariableNames.Contains(comparableName) || _liftedState.VariableNames.Contains(comparableName))
+            && !IsCallerDeclaredName(comparableName))
+        {
+            throw new NotSupportedException(
+                $"Captured variable '{parameter.Name}' is shadowed by a variable generated for the translated expression");
+        }
+
+        _capturedVariableNames.Add(comparableName);
+
         Result = IdentifierName(parameter.Name);
         return parameter;
     }
@@ -2822,27 +2918,185 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             ? name
             : _liftedState.Variables[parameter];
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [return: NotNullIfNotNull(nameof(name))]
+    public static string? SanitizeIdentifierName(string? name)
+    {
+        if (name == null)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "_";
+        }
+
+        // Formatting characters (Unicode category Cf, such as a zero-width joiner) are valid inside an identifier but ignored when
+        // identifiers are compared, so two names that differ only by one would declare the same identifier twice. They become
+        // underscores like any other unusable character, so comparing sanitized names as strings is exact.
+        var result = new string(
+            [.. name.Select(c => SyntaxFacts.IsIdentifierPartCharacter(c) && !IsFormattingCharacter(c) ? c : '_')]);
+
+        // Reserved keywords are lexically valid identifiers; prefix them so that generated identifiers never need to be verbatim
+        // (@class). Contextual keywords such as var or async are valid identifiers where generated names are used, so they are kept.
+        if (!SyntaxFacts.IsValidIdentifier(result) || SyntaxFacts.GetKeywordKind(result) != SyntaxKind.None)
+        {
+            result = "_" + result;
+        }
+
+        Check.DebugAssert(SyntaxFacts.IsValidIdentifier(result));
+
+        return result;
+    }
+
+    // A type is referred to by its simple name unless that name is in use in the scope the code is emitted into, as a name the
+    // caller declares or as a variable, where the simple name would resolve to that declaration instead of the type. The type is
+    // then written out fully qualified. Any identifier can name a type, so no naming convention on the caller's side can rule
+    // this out; qualifying the reference can.
+    private bool IsNameInScope(string name)
+        => IsCallerDeclaredName(name)
+            || _capturedVariableNames.Contains(name)
+            || _liftedState.VariableNames.Contains(name)
+            || _stack.Any(frame => frame.VariableNames.Contains(name));
+
+    private static NameSyntax GloballyQualified(string? @namespace, SimpleNameSyntax name)
+    {
+        var globalAlias = IdentifierName(Token(SyntaxKind.GlobalKeyword));
+        if (string.IsNullOrEmpty(@namespace))
+        {
+            return AliasQualifiedName(globalAlias, name);
+        }
+
+        var parts = @namespace.Split('.');
+        NameSyntax qualified = AliasQualifiedName(globalAlias, IdentifierName(parts[0]));
+        for (var i = 1; i < parts.Length; i++)
+        {
+            qualified = QualifiedName(qualified, IdentifierName(parts[i]));
+        }
+
+        return QualifiedName(qualified, name);
+    }
+
+    private static bool IsFormattingCharacter(char c)
+        => CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.Format;
+
+    // A captured variable's name is emitted as the caller wrote it, formatting characters included, since the reference has to match
+    // the caller's declaration. For comparing it against names generated here, which never contain one, it is recorded without them.
+    private static string WithoutFormattingCharacters(string name)
+        => name.Any(IsFormattingCharacter) ? new string([.. name.Where(c => !IsFormattingCharacter(c))]) : name;
+
+    // The names the caller declares in the scope the translation is emitted into: the constant replacements and whatever else it
+    // says is declared there. References to them are the caller's business; nothing generated here may take one of them.
+    private bool IsCallerDeclaredName(string name)
+        => ConstantReplacementsContain(name) || _declaredNames?.Contains(name) == true;
+
+    private bool ConstantReplacementsContain(string name)
+        => _constantReplacements is BidirectionalDictionary<object, string> bidirectionalDictionary
+            ? bidirectionalDictionary.ContainsValue(name)
+            : _constantReplacements?.Values.Contains(name) == true;
+
     private string UniquifyVariableName(string? name)
     {
         var isUnnamed = name is null;
-        name ??= "unnamed";
+        // Expression tree variable names are arbitrary strings (e.g. derived from JSON property names) and must become valid identifiers.
+        name = name is null ? "unnamed" : SanitizeIdentifierName(name);
 
         var parameterNames = _stack.Peek().VariableNames;
 
-        Func<string, bool> constantReplacementsContainsName =
-            _constantReplacements is BidirectionalDictionary<object, string> bidirectionalDictionary
-                ? bidirectionalDictionary.ContainsValue
-                : n => _constantReplacements?.Values.Contains(n) == true;
-
         var baseName = name;
         for (var j = isUnnamed ? _unnamedParameterCounter++ : 0;
-             parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name) || constantReplacementsContainsName(name);
+             parameterNames.Contains(name)
+             || _liftedState.VariableNames.Contains(name)
+             || IsCallerDeclaredName(name)
+             // A captured variable already emitted under this name would be rebound by a local we declare now
+             || _capturedVariableNames.Contains(name);
              j++)
         {
             name = baseName + j;
         }
 
         return name;
+    }
+
+    /// <summary>
+    ///     Collects the names of the variables an expression references without declaring, which belong to the code the translation
+    ///     is emitted into.
+    /// </summary>
+    private sealed class FreeVariableNameCollector(HashSet<string> names) : ExpressionVisitor
+    {
+        private readonly Dictionary<ParameterExpression, int> _declared = new(ReferenceEqualityComparer.Instance);
+
+        public static void Collect(Expression node, HashSet<string> names)
+            => new FreeVariableNameCollector(names).Visit(node);
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            if (node.Name is not null && !_declared.ContainsKey(node))
+            {
+                names.Add(WithoutFormattingCharacters(node.Name));
+            }
+
+            return node;
+        }
+
+        protected override Expression VisitBlock(BlockExpression node)
+        {
+            Declare(node.Variables);
+            base.VisitBlock(node);
+            Undeclare(node.Variables);
+
+            return node;
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            Declare(node.Parameters);
+            base.VisitLambda(node);
+            Undeclare(node.Parameters);
+
+            return node;
+        }
+
+        protected override CatchBlock VisitCatchBlock(CatchBlock node)
+        {
+            ParameterExpression[] variable = node.Variable is null ? [] : [node.Variable];
+
+            Declare(variable);
+            base.VisitCatchBlock(node);
+            Undeclare(variable);
+
+            return node;
+        }
+
+        private void Declare(IReadOnlyList<ParameterExpression> variables)
+        {
+            foreach (var variable in variables)
+            {
+                _declared[variable] = _declared.TryGetValue(variable, out var count) ? count + 1 : 1;
+            }
+        }
+
+        private void Undeclare(IReadOnlyList<ParameterExpression> variables)
+        {
+            foreach (var variable in variables)
+            {
+                var count = _declared[variable];
+                if (count == 1)
+                {
+                    _declared.Remove(variable);
+                }
+                else
+                {
+                    _declared[variable] = count - 1;
+                }
+            }
+        }
     }
 
     private static LocalDeclarationStatementSyntax GenerateVarDeclaration(string variableIdentifier, ExpressionSyntax initializer)
