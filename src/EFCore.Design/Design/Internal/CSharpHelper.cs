@@ -364,9 +364,9 @@ public class CSharpHelper : ICSharpHelper
                 .Replace("\n", @"\n")
                 .Replace("\r", @"\r")
                 .Replace("\"", "\\\"")
-                .Replace(((char)0x2028).ToString(), "\\u2028")
-                .Replace(((char)0x2029).ToString(), "\\u2029")
-                .Replace(((char)0x0085).ToString(), "\\u0085")
+                .Replace("\u2028", "\\u2028")
+                .Replace("\u2029", "\\u2029")
+                .Replace("\u0085", "\\u0085")
                 .Insert(0, '"')
                 .Append('"')
                 .ToString()
@@ -405,9 +405,9 @@ public class CSharpHelper : ICSharpHelper
                 '\n' => @"\n",
                 '\r' => @"\r",
                 '\'' => @"\'",
-                (char)0x2028 => "\\u2028",
-                (char)0x2029 => "\\u2029",
-                (char)0x0085 => "\\u0085",
+                '\u2028' => "\\u2028",
+                '\u2029' => "\\u2029",
+                '\u0085' => "\\u0085",
                 _ => value.ToString()
             }
             + "\'";

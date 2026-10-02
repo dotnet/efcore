@@ -93,7 +93,7 @@ public class CSharpHelperTest
     }
 
     [Fact]
-    public void Literal_escapes_unicode_line_and_paragraph_separators_in_char()
+    public void Literal_escapes_unicode_newline_characters_in_char()
     {
         Assert.Equal("'\\u2028'", new CSharpHelper(TypeMappingSource).Literal((char)0x2028));
         Assert.Equal("'\\u2029'", new CSharpHelper(TypeMappingSource).Literal((char)0x2029));
