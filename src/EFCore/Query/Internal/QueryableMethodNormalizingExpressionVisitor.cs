@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 {
+    private static readonly bool UseOldBehavior37081 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37081", out var enabled) && enabled;
+
     private readonly QueryCompilationContext _queryCompilationContext;
     private readonly bool _isEfConstantSupported;
     private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor = new();
@@ -170,9 +173,11 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedExpression = TryConvertEnumerableToQueryable(methodCallExpression);
         }
 
-        if (method.DeclaringType is { IsGenericType: true }
-            && method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
-            && method.Name == nameof(ICollection<>.Contains))
+        if (method.Name == nameof(ICollection<>.Contains)
+            && method.DeclaringType is { IsGenericType: true }
+            && (method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
+                || !UseOldBehavior37081
+                && method.DeclaringType.TryGetElementType(typeof(IReadOnlyCollection<>)) is not null))
         {
             visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
         }
