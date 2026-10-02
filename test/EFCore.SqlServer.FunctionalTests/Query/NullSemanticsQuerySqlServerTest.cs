@@ -2710,6 +2710,86 @@ INNER JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB]
 """);
     }
 
+    public override async Task Join_uses_database_semantics_with_filtered_inner(bool async)
+    {
+        await base.Join_uses_database_semantics_with_filtered_inner(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2], [e].[NullableIntA], [e1].[NullableIntB]
+FROM [Entities1] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[NullableIntB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON [e].[NullableIntA] = [e1].[NullableIntB]
+""");
+    }
+
+    public override async Task Left_join_uses_database_semantics_with_filtered_inner(bool async)
+    {
+        await base.Left_join_uses_database_semantics_with_filtered_inner(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2], [e].[NullableIntA], [e1].[NullableIntB]
+FROM [Entities1] AS [e]
+LEFT JOIN (
+    SELECT [e0].[Id], [e0].[NullableIntB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON [e].[NullableIntA] = [e1].[NullableIntB]
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_non_nullable_computed_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_non_nullable_computed_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2]
+FROM [Entities1] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[IntB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON [e].[IntA] + 1 = [e1].[IntB] + 1
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_non_nullable_function_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_non_nullable_function_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2]
+FROM [Entities1] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[StringB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON CAST(LEN([e].[StringA]) AS int) = CAST(LEN([e1].[StringB]) AS int)
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_nullable_computed_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_nullable_computed_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2]
+FROM [Entities1] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[NullableIntB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON [e].[NullableIntA] + 1 = [e1].[NullableIntB] + 1
+""");
+    }
+
     public override async Task Join_uses_csharp_semantics_for_anon_objects(bool async)
     {
         await base.Join_uses_csharp_semantics_for_anon_objects(async);
