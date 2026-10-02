@@ -1,7 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ApiChief.Processing;
 using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.CSharp.OutputVisitor;
@@ -114,9 +116,61 @@ internal static class Formatter
         using var writer = new StringWriter();
         ambience.ConvertSymbol(method, new TextWriterTokenWriter(writer), BaselineFormatting);
 
-        return writer.ToString()
-             .WithSpaceBetweenParameters()
-             .WithNumbersWithoutLiterals();
+        var methodString = writer.ToString()
+            .WithSpaceBetweenParameters()
+            .WithNumbersWithoutLiterals();
+
+        return method.TypeParameters.Aggregate(
+            methodString,
+            (signature, typeParameter) =>
+            {
+                var constraints = new List<string>();
+
+                if (typeParameter.HasUnmanagedConstraint)
+                {
+                    constraints.Add("unmanaged");
+                }
+                else if (typeParameter.HasValueTypeConstraint)
+                {
+                    constraints.Add("struct");
+                }
+                else if (typeParameter.HasReferenceTypeConstraint)
+                {
+                    constraints.Add(typeParameter.NullabilityConstraint == Nullability.Nullable ? "class?" : "class");
+                }
+                else if (typeParameter.NullabilityConstraint == Nullability.NotNullable)
+                {
+                    constraints.Add("notnull");
+                }
+
+                constraints.AddRange(
+                    typeParameter.TypeConstraints
+                        .Select(constraint => ambience.ConvertType(constraint.Type))
+                        .Where(constraint => constraint is not ("object" or "System.ValueType")));
+
+                if (typeParameter.HasDefaultConstructorConstraint
+                    && !typeParameter.HasValueTypeConstraint
+                    && !typeParameter.HasUnmanagedConstraint)
+                {
+                    constraints.Add("new()");
+                }
+
+                if (typeParameter.AllowsRefLikeType)
+                {
+                    constraints.Add("allows ref struct");
+                }
+
+                if (constraints.Count == 0)
+                {
+                    return signature;
+                }
+
+                var constraintClause = $" where {typeParameter.Name} : {string.Join(", ", constraints)}";
+
+                return signature.EndsWith(';')
+                    ? signature[..^1] + constraintClause + ";"
+                    : signature + constraintClause;
+            });
     }
 
     public static string FieldToString(IField field)

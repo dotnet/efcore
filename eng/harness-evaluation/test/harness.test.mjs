@@ -11,6 +11,7 @@ import {
   validateEval,
   validateInventory,
   validateOutputRoot,
+  variantInvokedSkill,
   variantPassed,
 } from '../src/harness.mjs';
 
@@ -33,13 +34,38 @@ async function makeRepo() {
   await writeFile(join(root, '.github/copilot-instructions.md'), '# Instructions\n');
   await writeFile(join(root, 'src/EFCore/Anchor.cs'), 'class Anchor {}\n');
 
-  await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), evalYaml('example', `      - type: skill-invocation\n        config:\n          required: [example]`));
+  await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), evalYaml('example'));
   await writeFile(
     join(root, 'eng/harness-evaluation/instructions/copilot-instructions/eval.yaml'),
     evalYaml('copilot-instructions', undefined, `agent_environment:\n  files:\n    - src: ../../../../.github/copilot-instructions.md\n      dest: .github/copilot-instructions.md\n`),
   );
 
   return root;
+}
+
+async function writeSkillInvocationTrial(root, invokedSkill = 'example', eventType = 'skill.invoked') {
+  const variantRoot = join(root, 'treatment');
+  const trialDirectory = join(variantRoot, 'example', 'inspect-anchor', 'mock', '0');
+  const trialId = 'example::treatment::mock::inspect-anchor::trial-0';
+  await mkdir(trialDirectory, { recursive: true });
+  await writeFile(join(variantRoot, 'results.jsonl'), `${JSON.stringify({
+    type: 'trial-result',
+    itemId: trialId,
+    evalName: 'example',
+    stimulus: 'inspect-anchor',
+    status: 'success',
+  })}\n`);
+  await writeFile(join(trialDirectory, 'metadata.json'), `${JSON.stringify({
+    evalName: 'example',
+    variant: 'treatment',
+    stimulusName: 'inspect-anchor',
+    trialId,
+  })}\n`);
+  await writeFile(join(trialDirectory, 'events.jsonl'), `${JSON.stringify({
+    type: eventType,
+    data: { name: invokedSkill },
+  })}\n`);
+  return join(variantRoot, 'results.jsonl');
 }
 
 test('inventory accepts complete repository customization coverage', async () => {
@@ -210,7 +236,7 @@ test('inventory requires eval names to match component ids', async () => {
   const root = await makeRepo();
   try {
     const evalPath = join(root, 'eng/harness-evaluation/skills/example/eval.yaml');
-    await writeFile(evalPath, evalYaml('other', `      - type: skill-invocation\n        config:\n          required: [example]`));
+    await writeFile(evalPath, evalYaml('other'));
     const result = await validateInventory(root);
     assert.match(result.errors.join('\n'), /example: eval name 'other' must match component id 'example'/);
   } finally {
@@ -218,12 +244,15 @@ test('inventory requires eval names to match component ids', async () => {
   }
 });
 
-test('inventory requires exact target activation graders', async () => {
+test('inventory rejects skill invocation from shared variant scoring', async () => {
   const root = await makeRepo();
   try {
-    await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), evalYaml('example'));
+    await writeFile(
+      join(root, 'eng/harness-evaluation/skills/example/eval.yaml'),
+      evalYaml('example', `      - type: skill-invocation\n        config:\n          required: [example]`),
+    );
     const result = await validateInventory(root);
-    assert.match(result.errors.join('\n'), /skill eval must require exact activation of 'example'/);
+    assert.match(result.errors.join('\n'), /skill-invocation grader must not be used in shared control\/treatment scoring/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -233,7 +262,7 @@ test('inventory requires an isolated root treatment environment', async () => {
   const root = await makeRepo();
   try {
     const evalPath = join(root, 'eng/harness-evaluation/skills/example/eval.yaml');
-    const grader = `      - type: skill-invocation\n        config:\n          required: [example]`;
+    const grader = `      - type: output-contains\n        config:\n          substring: Anchor`;
     await writeFile(evalPath, evalYaml('example', grader, ''));
     let result = await validateInventory(root);
     assert.match(result.errors.join('\n'), /eval root agent_environment must declare the evaluated customization/);
@@ -417,6 +446,41 @@ test('treatment verdict uses the eval scoring threshold', async () => {
       gradeResult: { passed: true, score: 0.7 },
     })}\n`);
     assert.equal(await variantPassed(resultsPath, evalPath, planPath), false);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('treatment activation gate accepts the exact target skill', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'efcore-agent-activation-'));
+  try {
+    const resultsPath = await writeSkillInvocationTrial(root);
+    assert.equal(await variantInvokedSkill(resultsPath, 'example'), true);
+
+    await writeFile(
+      join(root, 'treatment/example/inspect-anchor/mock/0/events.jsonl'),
+      `${JSON.stringify({ type: 'skill_activation', data: { name: 'example' } })}\n`,
+    );
+    assert.equal(await variantInvokedSkill(resultsPath, 'example'), true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('treatment activation gate fails closed for wrong or missing evidence', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'efcore-agent-activation-'));
+  try {
+    const resultsPath = await writeSkillInvocationTrial(root, 'other');
+    assert.equal(await variantInvokedSkill(resultsPath, 'example'), false);
+
+    await rm(join(root, 'treatment/example/inspect-anchor/mock/0/events.jsonl'));
+    assert.equal(await variantInvokedSkill(resultsPath, 'example'), false);
+
+    await writeFile(join(root, 'treatment/example/inspect-anchor/mock/0/events.jsonl'), '{invalid json}\n');
+    assert.equal(await variantInvokedSkill(resultsPath, 'example'), false);
+
+    await rm(join(root, 'treatment/example/inspect-anchor/mock/0/metadata.json'));
+    assert.equal(await variantInvokedSkill(resultsPath, 'example'), false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
