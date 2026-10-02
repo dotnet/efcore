@@ -45,6 +45,18 @@ public abstract class MiscellaneousOperatorTranslationsTestBase<TFixture>(TFixtu
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => (x.String == "Seattle" ? null : x.String) == "London"));
 
     [Fact]
+    public virtual async Task Conditional_uncoalesce_is_null()
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => (x.Int == 8 ? null : (int?)x.Int) == null));
+
+    [Fact]
+    public virtual async Task Conditional_uncoalesce_is_not_null_with_nullable_column()
+        => await AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(x => (x.Int == 8 ? null : x.Int) != null));
+
+    [Fact]
+    public virtual async Task Conditional_uncoalesce_with_coalesce()
+        => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => ((x.Int == 0 ? null : (int?)x.Int) ?? -1) < 0));
+
+    [Fact]
     public virtual async Task Coalesce()
         => await AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(b => (b.String ?? "Unknown") == "Seattle"));
 }
