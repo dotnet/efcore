@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using CharTypeMapping = Microsoft.EntityFrameworkCore.Storage.CharTypeMapping;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 // ReSharper disable once CheckNamespace
@@ -148,8 +147,8 @@ public class SqlServerStringMethodTranslator(
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, oldValue, newValue);
 
         instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
-        oldValue = ApplyCharOrStringTypeMapping(oldValue, stringTypeMapping);
-        newValue = ApplyCharOrStringTypeMapping(newValue, stringTypeMapping);
+        oldValue = ApplyStringTypeMapping(oldValue, stringTypeMapping);
+        newValue = ApplyStringTypeMapping(newValue, stringTypeMapping);
 
         return sqlExpressionFactory.Function(
             "REPLACE",
@@ -207,7 +206,7 @@ public class SqlServerStringMethodTranslator(
     {
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)
             ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping!;
-        searchExpression = ApplyCharOrStringTypeMapping(searchExpression, stringTypeMapping);
+        searchExpression = ApplyStringTypeMapping(searchExpression, stringTypeMapping);
 
         instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
@@ -272,7 +271,8 @@ public class SqlServerStringMethodTranslator(
         return sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
     }
 
-    private SqlExpression ApplyCharOrStringTypeMapping(SqlExpression expression, RelationalTypeMapping? stringTypeMapping)
+    // SQL Server has no char type, so char arguments are translated with the string type mapping instead of CharTypeMapping
+    private SqlExpression ApplyStringTypeMapping(SqlExpression expression, RelationalTypeMapping? stringTypeMapping)
         => expression switch
         {
             // A char constant is inlined as a string literal with the string's type mapping (e.g. N'x'). CharTypeMapping's literal
@@ -280,8 +280,10 @@ public class SqlServerStringMethodTranslator(
             // (e.g. 'ş' becomes 's'), returning wrong rows or replacing the wrong character.
             SqlConstantExpression { Value: char charValue }
                 => sqlExpressionFactory.Constant(charValue.ToString(), stringTypeMapping),
-            { Type: var type } when type == typeof(char)
-                => sqlExpressionFactory.ApplyTypeMapping(expression, CharTypeMapping.Default),
+            // A non-constant char (e.g. a parameter) is sent as a one-character string
+            { Type: var type } when type == typeof(char) && stringTypeMapping is not null
+                => sqlExpressionFactory.ApplyTypeMapping(
+                    expression, (RelationalTypeMapping)stringTypeMapping.WithComposedConverter(new CharToStringConverter())),
             _ => sqlExpressionFactory.ApplyTypeMapping(expression, stringTypeMapping)
         };
 
