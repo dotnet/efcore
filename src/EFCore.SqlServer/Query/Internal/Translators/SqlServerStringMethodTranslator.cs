@@ -291,8 +291,12 @@ public class SqlServerStringMethodTranslator(
                     break;
 
                 case { Type: var argumentType } when argumentType == typeof(char):
-                    // A non-constant char (e.g. a parameter) can be passed to LTRIM/RTRIM directly
-                    charactersToTrim = sqlExpressionFactory.ApplyTypeMapping(arguments[0], CharTypeMapping.Default);
+                    // SQL Server has no char type, so a non-constant char (e.g. a parameter) is sent as a one-character string by
+                    // composing a converter on the instance's string type mapping. Applying the string type mapping directly would
+                    // send the value as nvarchar(max), which LTRIM/RTRIM don't accept for the characters argument.
+                    var stringTypeMapping = instance.TypeMapping ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping!;
+                    charactersToTrim = sqlExpressionFactory.ApplyTypeMapping(
+                        arguments[0], (RelationalTypeMapping)stringTypeMapping.WithComposedConverter(new CharToStringConverter()));
                     break;
 
                 default:

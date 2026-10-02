@@ -798,6 +798,13 @@ WHERE (LTRIM(c["String"]) = "Boston  ")
         AssertSql();
     }
 
+    public override async Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
     public override async Task TrimStart_with_char_array_parameter()
     {
         await AssertTranslationFailed(base.TrimStart_with_char_array_parameter);
@@ -840,6 +847,13 @@ WHERE (RTRIM(c["String"]) = "  Boston")
     public override async Task TrimEnd_with_char_parameter()
     {
         await AssertTranslationFailed(base.TrimEnd_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_non_ASCII_char_parameter);
 
         AssertSql();
     }

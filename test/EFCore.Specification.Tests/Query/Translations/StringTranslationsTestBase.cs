@@ -563,6 +563,14 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     }
 
     [Fact]
+    public virtual Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        var trimChar = 'ş';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChar) == c.String));
+    }
+
+    [Fact]
     public virtual Task TrimStart_with_char_array_parameter()
     {
         var trimChars = new[] { 'S', 'e' };
@@ -592,6 +600,14 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         var trimChar = 'e';
 
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChar) == "Seattl"));
+    }
+
+    [Fact]
+    public virtual Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        var trimChar = 'ş';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChar) == c.String));
     }
 
     [Fact]

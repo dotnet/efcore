@@ -874,7 +874,7 @@ WHERE LTRIM([b].[String], N'Se') = N'attle'
 
             AssertSql(
                 """
-@trimChar='S' (Size = 1) (DbType = String)
+@trimChar='S' (Nullable = false) (Size = 1)
 
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
@@ -884,6 +884,27 @@ WHERE LTRIM([b].[String], @trimChar) = N'eattle'
         else
         {
             await AssertTranslationFailed(base.TrimStart_with_char_parameter);
+        }
+    }
+
+    public override async Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.TrimStart_with_non_ASCII_char_parameter();
+
+            AssertSql(
+                """
+@trimChar='ş' (Nullable = false) (Size = 1)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE LTRIM([b].[String], @trimChar) = [b].[String]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.TrimStart_with_non_ASCII_char_parameter);
         }
     }
 
@@ -956,7 +977,7 @@ WHERE RTRIM([b].[String], N'le') = N'Seatt'
 
             AssertSql(
                 """
-@trimChar='e' (Size = 1) (DbType = String)
+@trimChar='e' (Nullable = false) (Size = 1)
 
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
@@ -966,6 +987,27 @@ WHERE RTRIM([b].[String], @trimChar) = N'Seattl'
         else
         {
             await AssertTranslationFailed(base.TrimEnd_with_char_parameter);
+        }
+    }
+
+    public override async Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.TrimEnd_with_non_ASCII_char_parameter();
+
+            AssertSql(
+                """
+@trimChar='ş' (Nullable = false) (Size = 1)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE RTRIM([b].[String], @trimChar) = [b].[String]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.TrimEnd_with_non_ASCII_char_parameter);
         }
     }
 
