@@ -116,7 +116,7 @@ WHERE (((c["String"] = "Seattle") ? null : c["String"]) = "London")
             """
 SELECT VALUE c
 FROM root c
-WHERE (((c["Int"] = 8) ? null : c["Int"]) = null)
+WHERE ((c["Int"] = 8) OR (c["Int"] = null))
 """);
     }
 
