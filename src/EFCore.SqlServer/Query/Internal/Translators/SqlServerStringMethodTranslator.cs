@@ -278,14 +278,32 @@ public class SqlServerStringMethodTranslator(
     private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
     {
         SqlExpression? charactersToTrim = null;
-        if (arguments.Count > 0 && arguments[0] is SqlConstantExpression { Value: var charactersToTrimValue })
+        if (arguments.Count > 0)
         {
-            charactersToTrim = charactersToTrimValue switch
+            switch (arguments[0])
             {
-                char singleChar => sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping),
-                char[] charArray => sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping),
-                _ => throw new UnreachableException("Invalid parameter type for string.TrimStart/TrimEnd")
-            };
+                case SqlConstantExpression { Value: char singleChar }:
+                    charactersToTrim = sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping);
+                    break;
+
+                case SqlConstantExpression { Value: char[] charArray }:
+                    charactersToTrim = sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping);
+                    break;
+
+                case { Type: var argumentType } when argumentType == typeof(char):
+                    // SQL Server has no char type, so a non-constant char (e.g. a parameter) is sent as a one-character string by
+                    // composing a converter on the instance's string type mapping. Applying the string type mapping directly would
+                    // send the value as nvarchar(max), which LTRIM/RTRIM don't accept for the characters argument.
+                    var stringTypeMapping = instance.TypeMapping ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping!;
+                    charactersToTrim = sqlExpressionFactory.ApplyTypeMapping(
+                        arguments[0], (RelationalTypeMapping)stringTypeMapping.WithComposedConverter(new CharToStringConverter()));
+                    break;
+
+                default:
+                    // A non-constant char[] can't be translated; returning null triggers client evaluation
+                    // or a translation failure instead of silently dropping the argument.
+                    return null;
+            }
         }
 
         return sqlExpressionFactory.Function(
