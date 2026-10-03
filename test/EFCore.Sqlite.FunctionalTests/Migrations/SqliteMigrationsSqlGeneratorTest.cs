@@ -16,7 +16,7 @@ public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase
         .OptionsBuilder).Options)
 {
     [Fact]
-    public virtual void Create_unique_json_index_over_complex_property_member()
+    public virtual void Create_json_index_over_complex_property_member()
     {
         var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
         var modelBuilder = TestHelpers.CreateConventionBuilder(services);
@@ -37,7 +37,7 @@ public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase
 
         AssertSql(
             """
-CREATE UNIQUE INDEX "IX_Blogs_Details_Slug" ON "Blogs" ("Details" ->> 'Slug');
+CREATE INDEX "IX_Blogs_Details_Slug" ON "Blogs" ("Details" ->> 'Slug');
 """);
 
         static void BuildModel(ModelBuilder modelBuilder)
@@ -52,7 +52,7 @@ CREATE UNIQUE INDEX "IX_Blogs_Details_Slug" ON "Blogs" ("Details" ->> 'Slug');
                             cb.Property(i => i.Slug);
                             cb.Property(i => i.Owner);
                         });
-                    e.HasIndex(b => b.Details.Slug).IsUnique();
+                    e.HasIndex(b => b.Details.Slug);
                 });
     }
 

@@ -2127,7 +2127,7 @@ ALTER TABLE [People] ALTER COLUMN [Settings] json NOT NULL;
     }
 
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
-    public virtual void Create_unique_json_index_over_complex_property_member()
+    public virtual void Create_json_index_over_complex_property_member()
     {
         var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
         var modelBuilder = TestHelpers.CreateConventionBuilder(services);
@@ -2165,7 +2165,7 @@ CREATE JSON INDEX [IX_Blogs_Details_Slug] ON [Blogs]([Details]) FOR (N'$.Slug');
                             cb.Property(i => i.Slug);
                             cb.Property(i => i.Owner);
                         });
-                    e.HasIndex(b => b.Details.Slug).IsUnique();
+                    e.HasIndex(b => b.Details.Slug);
                 });
     }
 
