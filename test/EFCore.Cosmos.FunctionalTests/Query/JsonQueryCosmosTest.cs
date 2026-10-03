@@ -1439,7 +1439,7 @@ WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != "0003-02
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00.0000000"))
 """);
             });
 

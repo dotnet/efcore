@@ -1487,7 +1487,7 @@ FROM root c
                     """
 SELECT VALUE c
 FROM root c
-WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDate"] > "1998-01-01T00:00:00"))
+WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDate"] > "1998-01-01T00:00:00.0000000"))
 """);
             });
 
