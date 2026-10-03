@@ -334,7 +334,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             Check.DebugAssert(IsIdentity(operation.OldColumn), "Unsupported column change to identity");
 
-            var oldSeed = 1;
+            var oldSeed = 1L;
             if (TryParseIdentitySeedIncrement(operation, out var newSeed, out _)
                 && (operation.OldColumn[SqlServerAnnotationNames.Identity] is null
                     || TryParseIdentitySeedIncrement(operation.OldColumn, out oldSeed, out _))
@@ -345,7 +345,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
 
                 builder
-                    .Append($"DBCC CHECKIDENT({table}, RESEED, {newSeed})")
+                    .Append($"DBCC CHECKIDENT({table}, RESEED, {newSeed.ToString(CultureInfo.InvariantCulture)})")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }
@@ -2790,12 +2790,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
     }
 
-    private static bool TryParseIdentitySeedIncrement(ColumnOperation operation, out int seed, out int increment)
+    private static bool TryParseIdentitySeedIncrement(ColumnOperation operation, out long seed, out long increment)
     {
+        // The seed is a long (see UseIdentityColumn), so a bigint identity column can have a seed above the int range
         if (operation[SqlServerAnnotationNames.Identity] is string seedIncrement
             && seedIncrement.Split(",") is [var seedString, var incrementString]
-            && int.TryParse(seedString, out var seedParsed)
-            && int.TryParse(incrementString, out var incrementParsed))
+            && long.TryParse(seedString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seedParsed)
+            && long.TryParse(incrementString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var incrementParsed))
         {
             (seed, increment) = (seedParsed, incrementParsed);
             return true;
