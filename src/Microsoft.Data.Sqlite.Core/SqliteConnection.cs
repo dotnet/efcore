@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
@@ -311,7 +311,8 @@ public partial class SqliteConnection : DbConnection
             {
                 foreach (var item in _functions)
                 {
-                    rc = sqlite3_create_function(Handle, item.Key.name, item.Key.arity, item.Value.state, item.Value.func);
+                    rc = sqlite3_create_function(
+                        Handle, item.Key.name, item.Key.arity, item.Value.flags, item.Value.state, item.Value.func);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
                 }
             }
@@ -321,7 +322,13 @@ public partial class SqliteConnection : DbConnection
                 foreach (var item in _aggregates)
                 {
                     rc = sqlite3_create_function(
-                        Handle, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
+                        Handle,
+                        item.Key.name,
+                        item.Key.arity,
+                        item.Value.flags,
+                        item.Value.state,
+                        item.Value.func_step,
+                        item.Value.func_final);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
                 }
             }
