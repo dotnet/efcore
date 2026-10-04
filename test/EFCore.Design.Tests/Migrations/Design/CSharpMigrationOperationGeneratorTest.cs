@@ -617,6 +617,9 @@ mb.AlterColumn<int>(
                 Assert.Null(o.ComputedColumnSql);
                 Assert.Equal("My Comment 2", o.Comment);
                 Assert.Equal("Some Collation 2", o.Collation);
+                Assert.Equal("Id", o.OldColumn.Name);
+                Assert.Equal("dbo", o.OldColumn.Schema);
+                Assert.Equal("Post", o.OldColumn.Table);
                 Assert.Equal(typeof(string), o.OldColumn.ClrType);
                 Assert.Equal("string", o.OldColumn.ColumnType);
                 Assert.False(o.OldColumn.IsUnicode);

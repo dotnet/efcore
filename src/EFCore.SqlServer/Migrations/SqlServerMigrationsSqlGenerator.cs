@@ -3016,7 +3016,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         static bool CanSkipAlterColumnOperation(ColumnOperation column, ColumnOperation oldColumn)
             => ColumnPropertiesAreTheSame(column, oldColumn) && AnnotationsAreTheSame(column, oldColumn);
 
-        // don't compare name, table or schema - they are not being set in the model differ (since they should always be the same)
+        // don't compare name, table or schema - they are always the same for the old and the new column
         static bool ColumnPropertiesAreTheSame(ColumnOperation column, ColumnOperation oldColumn)
             => column.ClrType == oldColumn.ClrType
                 && column.Collation == oldColumn.Collation

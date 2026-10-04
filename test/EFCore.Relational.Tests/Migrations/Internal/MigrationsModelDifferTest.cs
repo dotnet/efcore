@@ -2845,6 +2845,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.True(operation.IsNullable);
                 Assert.Null(operation.DefaultValue);
                 Assert.Equal("CreateBisonName()", operation.DefaultValueSql);
+                Assert.Equal("dbo", operation.OldColumn.Schema);
+                Assert.Equal("Bison", operation.OldColumn.Table);
+                Assert.Equal("Name", operation.OldColumn.Name);
+                Assert.False(operation.OldColumn.IsNullable);
             });
 
     [Fact]

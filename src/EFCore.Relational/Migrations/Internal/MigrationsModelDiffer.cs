@@ -1144,7 +1144,13 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 Schema = table.Schema,
                 Table = table.Name,
                 Name = target.Name,
-                IsDestructiveChange = isDestructiveChange
+                IsDestructiveChange = isDestructiveChange,
+                OldColumn =
+                {
+                    Schema = table.Schema,
+                    Table = table.Name,
+                    Name = target.Name
+                }
             };
 
             InitializeColumnHelper(alterColumnOperation, target, inline: !source.IsNullable);

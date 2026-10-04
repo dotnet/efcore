@@ -462,6 +462,9 @@ public class MigrationBuilder
             IsStored = stored,
             OldColumn = new AddColumnOperation
             {
+                Schema = schema,
+                Table = table,
+                Name = name,
                 ClrType = oldClrType ?? typeof(T),
                 ColumnType = oldType,
                 IsUnicode = oldUnicode,
