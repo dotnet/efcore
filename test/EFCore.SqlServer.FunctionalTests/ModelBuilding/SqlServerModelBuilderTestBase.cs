@@ -495,6 +495,40 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Null(index.GetFilter());
         }
 
+        [Fact] // #32689
+        public void Index_convention_does_not_set_filter_for_unique_index_on_required_property_in_TPT()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<DetailsBase>().ToTable("DetailsBase");
+            modelBuilder.Entity<CustomerDetails>(b =>
+            {
+                b.ToTable("CustomerDetails");
+                b.HasIndex(e => e.CustomerId).IsUnique();
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var index = model.FindEntityType(typeof(CustomerDetails))!.GetDeclaredIndexes().Single();
+            Assert.Null(index.GetFilter());
+        }
+
+        [Fact] // #32689
+        public void Index_convention_does_not_set_filter_for_unique_index_on_required_property_in_TPC()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<CustomerDetails>()
+                .HasIndex(e => e.CustomerId)
+                .IsUnique();
+            modelBuilder.Entity<DetailsBase>().UseTpcMappingStrategy();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var index = model.FindEntityType(typeof(CustomerDetails))!.GetDeclaredIndexes().Single();
+            Assert.Null(index.GetFilter());
+        }
+
         [Fact]
         public virtual void Can_override_TPC_with_TPH()
         {
