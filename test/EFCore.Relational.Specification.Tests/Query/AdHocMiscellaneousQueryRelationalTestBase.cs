@@ -2090,6 +2090,75 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region 30233
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30233>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context30233.Entity { Id = 1, Group = 1, LongValue = 5, DecimalValue = 1.5m },
+                    new Context30233.Entity { Id = 2, Group = 1 },
+                    new Context30233.Entity { Id = 3, Group = 2, LongValue = 3, DecimalValue = 2.5m });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Set<Context30233.Entity>()
+                .GroupBy(e => e.Group)
+                .Select(g => new
+                {
+                    g.Key,
+                    SumLong = g.Sum(e => e.LongValue),
+                    SumDecimal = g.Sum(e => e.DecimalValue)
+                })
+                .OrderBy(x => x.Key);
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Collection(
+                result,
+                r =>
+                {
+                    Assert.Equal(5, r.SumLong);
+                    Assert.Equal(1.5m, r.SumDecimal);
+                },
+                r =>
+                {
+                    Assert.Equal(3, r.SumLong);
+                    Assert.Equal(2.5m, r.SumDecimal);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context30233(DbContextOptions options) : DbContext(options)
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Entity>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.LongValue).HasConversion<LongConverter>();
+                    b.Property(e => e.DecimalValue).HasConversion<DecimalConverter>().HasPrecision(18, 2);
+                });
+
+            public class Entity
+            {
+                public int Id { get; set; }
+                public int Group { get; set; }
+                public long? LongValue { get; set; }
+                public decimal? DecimalValue { get; set; }
+            }
+
+            public class LongConverter() : ValueConverter<long?, long>(v => v ?? 0L, v => v == 0L ? null : v, convertsNulls: true);
+
+            public class DecimalConverter() : ValueConverter<decimal?, decimal>(v => v ?? 0m, v => v == 0m ? null : v, convertsNulls: true);
+        }
+
+        #endregion
     }
 }
 

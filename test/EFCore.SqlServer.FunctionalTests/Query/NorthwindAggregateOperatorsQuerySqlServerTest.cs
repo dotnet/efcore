@@ -1065,7 +1065,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09), 0.0)
+SELECT ISNULL(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -1076,7 +1076,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0), 0.0)
+SELECT ISNULL(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -1220,7 +1220,7 @@ CROSS JOIN (
 
         AssertSql(
             """
-SELECT CAST(COALESCE(SUM([o].[Discount]), 0.0E0) AS real)
+SELECT CAST(ISNULL(SUM([o].[Discount]), 0.0E0) AS real)
 FROM [Order Details] AS [o]
 WHERE [o].[ProductID] = 1
 """);
@@ -1233,7 +1233,7 @@ WHERE [o].[ProductID] = 1
         AssertSql(
             """
 SELECT [o].[OrderID], (
-    SELECT CAST(COALESCE(SUM([o0].[Discount]), 0.0E0) AS real)
+    SELECT CAST(ISNULL(SUM([o0].[Discount]), 0.0E0) AS real)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
 FROM [Orders] AS [o]
@@ -3234,7 +3234,7 @@ WHERE [c].[CustomerID] LIKE N'F%' AND (
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint))
+SELECT ISNULL(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint))
 FROM [Orders] AS [o]
 """);
     }
@@ -3477,7 +3477,7 @@ ORDER BY [c].[CustomerID] DESC
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
+SELECT ISNULL(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
