@@ -6071,30 +6071,35 @@ DROP TABLE PrincipalTable;");
         var compatibilityLevel = Fixture.TestStore.ExecuteScalar<byte>(
             "SELECT [compatibility_level] FROM [sys].[databases] WHERE [name] = DB_NAME();");
 
-        Test(
-            [
-                "ALTER DATABASE CURRENT SET COMPATIBILITY_LEVEL = 160;",
-                "CREATE TABLE [dbo].[VectorTable] (vector VECTOR(3))"
-            ],
-            tables: [],
-            schemas: [],
-            (dbModel, scaffoldingFactory) =>
-            {
-                var table = Assert.Single(dbModel.Tables);
-                var column = Assert.Single(table.Columns);
-                Assert.Equal("vector", column.Name);
-                Assert.Equal("vector(3)", column.StoreType);
+        // Restore the level even if the setup fails, since the fixture database is shared with the other tests.
+        try
+        {
+            Test(
+                [
+                    "ALTER DATABASE CURRENT SET COMPATIBILITY_LEVEL = 160;",
+                    "CREATE TABLE [dbo].[VectorTable] (vector VECTOR(3))"
+                ],
+                tables: [],
+                schemas: [],
+                (dbModel, scaffoldingFactory) =>
+                {
+                    var table = Assert.Single(dbModel.Tables);
+                    var column = Assert.Single(table.Columns);
+                    Assert.Equal("vector", column.Name);
+                    Assert.Equal("vector(3)", column.StoreType);
 
-                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
-                var entityType = Assert.Single(model.GetEntityTypes());
-                var property = Assert.Single(entityType.GetProperties());
-                Assert.Equal("Vector", property.Name);
-                Assert.True(property.GetTypeMapping() is SqlServerVectorTypeMapping { Size: 3 });
-            },
-            $"""
-DROP TABLE [dbo].[VectorTable];
-ALTER DATABASE CURRENT SET COMPATIBILITY_LEVEL = {compatibilityLevel};
-""");
+                    var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                    var entityType = Assert.Single(model.GetEntityTypes());
+                    var property = Assert.Single(entityType.GetProperties());
+                    Assert.Equal("Vector", property.Name);
+                    Assert.True(property.GetTypeMapping() is SqlServerVectorTypeMapping { Size: 3 });
+                },
+                "DROP TABLE IF EXISTS [dbo].[VectorTable];");
+        }
+        finally
+        {
+            Fixture.TestStore.ExecuteNonQuery($"ALTER DATABASE CURRENT SET COMPATIBILITY_LEVEL = {compatibilityLevel};");
+        }
     }
 
     #endregion
