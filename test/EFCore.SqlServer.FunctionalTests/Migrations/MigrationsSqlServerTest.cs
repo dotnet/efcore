@@ -4887,10 +4887,10 @@ CREATE TABLE [Contacts] (
     [Name] nvarchar(max) NULL,
     [Number] int NULL,
     [MyComplex_Prop] nvarchar(max) NULL,
-    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
-    [MyComplex_MyNestedComplex_Foo] int NULL,
-    [MyComplex_Nested_Bar] datetime2 NULL,
     [MyComplex_Nested_Foo] int NULL,
+    [MyComplex_Nested_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
     [NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
 );
@@ -4907,10 +4907,10 @@ CREATE TABLE [Suppliers] (
     [Id] int NOT NULL IDENTITY,
     [Number] int NOT NULL,
     [MyComplex_Prop] nvarchar(max) NULL,
-    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
-    [MyComplex_MyNestedComplex_Foo] int NULL,
-    [MyComplex_Nested_Bar] datetime2 NULL,
     [MyComplex_Nested_Foo] int NULL,
+    [MyComplex_Nested_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
     [NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Suppliers] PRIMARY KEY ([Id])
 );
