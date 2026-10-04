@@ -156,7 +156,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public TimeOnly TimeOnly { get; set; }
     }
 
-    [Theory, InlineData("0001-01-01T00:00:00.0000000", """{{"Prop":"0001-01-01T00:00:00.0000000"}"""),
+    [Theory, InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00.0000000"}"""),
      InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}"""),
      InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
     public virtual Task Can_read_write_DateTime_JSON_values(string value, string json)
