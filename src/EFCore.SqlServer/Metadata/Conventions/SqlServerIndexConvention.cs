@@ -94,12 +94,13 @@ public class SqlServerIndexConvention :
         }
 
         // Whether the columns of derived types are nullable depends on the mapping strategy, which is only known
-        // for sure once the discriminator is removed for TPT and TPC hierarchies.
+        // for sure once the discriminator is removed for TPT and TPC hierarchies. Regenerate existing filters too, since
+        // the set of nullable columns may have shrunk; a filter configured explicitly is still not overridden.
         foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
-                SetIndexFilter(index.Builder);
+                SetIndexFilter(index.Builder, regenerate: true);
             }
         }
     }
@@ -179,19 +180,19 @@ public class SqlServerIndexConvention :
         {
             foreach (var index in propertyBuilder.Metadata.GetContainingIndexes())
             {
-                SetIndexFilter(index.Builder, columnNameChanged: true);
+                SetIndexFilter(index.Builder, regenerate: true);
             }
         }
     }
 
-    private void SetIndexFilter(IConventionIndexBuilder indexBuilder, bool columnNameChanged = false)
+    private void SetIndexFilter(IConventionIndexBuilder indexBuilder, bool regenerate = false)
     {
         var index = indexBuilder.Metadata;
         if (index.IsUnique
             && index.IsClustered() != true
             && GetNullableColumns(index) is { Count: > 0 } nullableColumns)
         {
-            if (columnNameChanged
+            if (regenerate
                 || index.GetFilter() == null)
             {
                 indexBuilder.HasFilter(CreateIndexFilter(nullableColumns));
