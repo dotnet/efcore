@@ -1913,6 +1913,52 @@ public sealed partial class SelectExpression : TableExpressionBase
             new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
     }
 
+    // Replaces the grouping with the first row of each group, keeping the rows numbered 1 by
+    // ROW_NUMBER() OVER(PARTITION BY <grouping terms> ORDER BY <orderings>); this is the filter AddJoin builds for a group's
+    // element, applied to the source rows directly. `projection` is an expression over the grouping terms (such as the key
+    // selector), returned remapped to the new columns.
+    // Internal infrastructure: only called from RelationalQueryableMethodTranslatingExpressionVisitor.
+    internal Expression ApplyFirstRowPerGroup(
+        Expression projection,
+        IReadOnlyList<OrderingExpression> orderings,
+        ISqlExpressionFactory sqlExpressionFactory)
+    {
+        Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
+        Check.DebugAssert(
+            Limit == null && Offset == null && !IsDistinct && Having == null,
+            "Grouped SelectExpression has state over the groups.");
+
+        var partitions = _groupBy.ToList();
+        _groupBy.Clear();
+
+        // The rows are identified by the identifier from before the grouping again, as in ApplyProjection for a final GroupBy.
+        if (_preGroupByIdentifier is not null)
+        {
+            _identifier.Clear();
+            _identifier.AddRange(_preGroupByIdentifier);
+            _preGroupByIdentifier = null;
+        }
+
+        var one = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1));
+        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), one.TypeMapping);
+        var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+        var subquery = (SelectExpression)_tables[0];
+        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
+        ApplyPredicate(sqlExpressionFactory.LessThanOrEqual(rowNumberColumn, one));
+
+        return sqlRemappingVisitor.Visit(projection);
+    }
+
+    // ROW_NUMBER() needs an ordering; without one, the rows are numbered by the identifier, or in no particular order.
+    private static List<OrderingExpression> GetRowNumberOrderings(
+        IReadOnlyList<OrderingExpression> orderings,
+        IReadOnlyList<(ColumnExpression Column, ValueComparer Comparer)> identifier)
+        => orderings.Count > 0
+            ? orderings.ToList()
+            : identifier.Count > 0
+                ? identifier.Select(e => new OrderingExpression(e.Column, true)).ToList()
+                : [new OrderingExpression(new SqlFragmentExpression("(SELECT 1)", typeof(int)), true)];
+
     private static void PopulateGroupByTerms(
         Expression keySelector,
         List<SqlExpression> groupByTerms,
@@ -3225,14 +3271,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var partitions = new List<SqlExpression>();
                             GetPartitions(innerSelect, joinPredicate, partitions);
-                            var orderings = innerSelect.Orderings.Count > 0
-                                ? innerSelect.Orderings
-                                : innerSelect._identifier.Count > 0
-                                    ? innerSelect._identifier.Select(e => new OrderingExpression(e.Column, true))
-                                    : [new OrderingExpression(new SqlFragmentExpression("(SELECT 1)", typeof(int)), true)];
-
                             var rowNumberExpression = new RowNumberExpression(
-                                partitions, orderings.ToList(), (limit ?? offset)!.TypeMapping);
+                                partitions, GetRowNumberOrderings(innerSelect.Orderings, innerSelect._identifier),
+                                (limit ?? offset)!.TypeMapping);
                             innerSelect.ClearOrdering();
 
                             joinPredicate = innerSelect.PushdownIntoSubqueryInternal().Remap(joinPredicate);

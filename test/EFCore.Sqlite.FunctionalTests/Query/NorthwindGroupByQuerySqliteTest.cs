@@ -55,6 +55,12 @@ GROUP BY "o"."CustomerID"
     public override Task Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(bool async)
         => AssertApplyNotSupported(() => base.Select_uncorrelated_collection_with_groupby_works(async));
 
+    public override Task SelectMany_correlated_GroupBy_Select_First_ordered(bool async)
+        => AssertApplyNotSupported(() => base.SelectMany_correlated_GroupBy_Select_First_ordered(async));
+
+    public override Task GroupBy_composite_key_member_in_projected_First_ordered(bool async)
+        => AssertApplyNotSupported(() => base.GroupBy_composite_key_member_in_projected_First_ordered(async));
+
     public override Task AsEnumerable_in_subquery_for_GroupBy(bool async)
         => AssertApplyNotSupported(() => base.AsEnumerable_in_subquery_for_GroupBy(async));
 

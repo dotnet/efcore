@@ -164,4 +164,11 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
     [Theory(Skip = "Issue#31209")]
     public override Task GroupBy_Select_Entire_Entity_Join(bool async)
         => base.GroupBy_Select_Entire_Entity_Join(async);
+
+    [Theory(Skip = "Issue#31209")]
+    public override Task GroupBy_Select_First_ordered_composed(bool async)
+        => base.GroupBy_Select_First_ordered_composed(async);
+
+    public override Task SelectMany_correlated_GroupBy_Select_First_ordered(bool async)
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_correlated_GroupBy_Select_First_ordered(async));
 }

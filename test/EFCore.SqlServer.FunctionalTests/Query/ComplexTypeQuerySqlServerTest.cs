@@ -1185,20 +1185,12 @@ GROUP BY [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullNa
 
         AssertSql(
             """
-SELECT [c3].[Id], [c3].[Name], [c3].[BillingAddress_AddressLine1], [c3].[BillingAddress_AddressLine2], [c3].[BillingAddress_Tags], [c3].[BillingAddress_ZipCode], [c3].[BillingAddress_Country_Code], [c3].[BillingAddress_Country_FullName], [c3].[OptionalAddress_AddressLine1], [c3].[OptionalAddress_AddressLine2], [c3].[OptionalAddress_Tags], [c3].[OptionalAddress_ZipCode], [c3].[OptionalAddress_Country_Code], [c3].[OptionalAddress_Country_FullName], [c3].[ShippingAddress_AddressLine1], [c3].[ShippingAddress_AddressLine2], [c3].[ShippingAddress_Tags], [c3].[ShippingAddress_ZipCode], [c3].[ShippingAddress_Country_Code], [c3].[ShippingAddress_Country_FullName]
+SELECT [c0].[Id], [c0].[Name], [c0].[BillingAddress_AddressLine1], [c0].[BillingAddress_AddressLine2], [c0].[BillingAddress_Tags], [c0].[BillingAddress_ZipCode], [c0].[BillingAddress_Country_Code], [c0].[BillingAddress_Country_FullName], [c0].[OptionalAddress_AddressLine1], [c0].[OptionalAddress_AddressLine2], [c0].[OptionalAddress_Tags], [c0].[OptionalAddress_ZipCode], [c0].[OptionalAddress_Country_Code], [c0].[OptionalAddress_Country_FullName], [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_Tags], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
 FROM (
-    SELECT [c].[Id]
+    SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[OptionalAddress_AddressLine1], [c].[OptionalAddress_AddressLine2], [c].[OptionalAddress_Tags], [c].[OptionalAddress_ZipCode], [c].[OptionalAddress_Country_Code], [c].[OptionalAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName], ROW_NUMBER() OVER(PARTITION BY [c].[Id] ORDER BY [c].[Id]) AS [row]
     FROM [Customer] AS [c]
-    GROUP BY [c].[Id]
-) AS [c1]
-LEFT JOIN (
-    SELECT [c2].[Id], [c2].[Name], [c2].[BillingAddress_AddressLine1], [c2].[BillingAddress_AddressLine2], [c2].[BillingAddress_Tags], [c2].[BillingAddress_ZipCode], [c2].[BillingAddress_Country_Code], [c2].[BillingAddress_Country_FullName], [c2].[OptionalAddress_AddressLine1], [c2].[OptionalAddress_AddressLine2], [c2].[OptionalAddress_Tags], [c2].[OptionalAddress_ZipCode], [c2].[OptionalAddress_Country_Code], [c2].[OptionalAddress_Country_FullName], [c2].[ShippingAddress_AddressLine1], [c2].[ShippingAddress_AddressLine2], [c2].[ShippingAddress_Tags], [c2].[ShippingAddress_ZipCode], [c2].[ShippingAddress_Country_Code], [c2].[ShippingAddress_Country_FullName]
-    FROM (
-        SELECT [c0].[Id], [c0].[Name], [c0].[BillingAddress_AddressLine1], [c0].[BillingAddress_AddressLine2], [c0].[BillingAddress_Tags], [c0].[BillingAddress_ZipCode], [c0].[BillingAddress_Country_Code], [c0].[BillingAddress_Country_FullName], [c0].[OptionalAddress_AddressLine1], [c0].[OptionalAddress_AddressLine2], [c0].[OptionalAddress_Tags], [c0].[OptionalAddress_ZipCode], [c0].[OptionalAddress_Country_Code], [c0].[OptionalAddress_Country_FullName], [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_Tags], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName], ROW_NUMBER() OVER(PARTITION BY [c0].[Id] ORDER BY [c0].[Id]) AS [row]
-        FROM [Customer] AS [c0]
-    ) AS [c2]
-    WHERE [c2].[row] <= 1
-) AS [c3] ON [c1].[Id] = [c3].[Id]
+) AS [c0]
+WHERE [c0].[row] <= 1
 """);
     }
 

@@ -3330,31 +3330,18 @@ ORDER BY [s].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s1].[PickupStatusId], [s3].[pickupStatusId], [s3].[Count], [s3].[marker], [s3].[c]
+SELECT [s0].[PickupStatusId] AS [key], [s0].[pickupStatusId0] AS [pickupStatusId], [s0].[Count], [s0].[marker]
 FROM (
-    SELECT [s].[PickupStatusId]
+    SELECT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[Count], [r0].[marker], ROW_NUMBER() OVER(PARTITION BY [s].[PickupStatusId] ORDER BY [s].[PickupStatusId], [r0].[pickupStatusId]) AS [row]
     FROM [Statuses] AS [s]
     LEFT JOIN (
-        SELECT [r].[PickupStatusId] AS [pickupStatusId]
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
         FROM [Requests] AS [r]
         GROUP BY [r].[PickupStatusId]
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
-    GROUP BY [s].[PickupStatusId]
-) AS [s1]
-LEFT JOIN (
-    SELECT [s2].[pickupStatusId], [s2].[Count], [s2].[marker], [s2].[c], [s2].[PickupStatusId0]
-    FROM (
-        SELECT [r1].[pickupStatusId], [r1].[Count], [r1].[marker], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[pickupStatusId]) AS [row]
-        FROM [Statuses] AS [s0]
-        LEFT JOIN (
-            SELECT [r2].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
-            FROM [Requests] AS [r2]
-            GROUP BY [r2].[PickupStatusId]
-        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[pickupStatusId]
-    ) AS [s2]
-    WHERE [s2].[row] <= 1
-) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
-ORDER BY [s1].[PickupStatusId]
+) AS [s0]
+WHERE [s0].[row] <= 1
+ORDER BY [s0].[PickupStatusId]
 """);
     }
 
@@ -3366,31 +3353,18 @@ ORDER BY [s1].[PickupStatusId]
         // client-side-only nesting, so it changes no SQL. This test exists to exercise the nested-node rekey path.
         AssertSql(
             """
-SELECT [s1].[PickupStatusId], [s3].[pickupStatusId], [s3].[Count], [s3].[marker], [s3].[c]
+SELECT [s0].[PickupStatusId] AS [key], [s0].[pickupStatusId0] AS [pickupStatusId], [s0].[Count], [s0].[marker]
 FROM (
-    SELECT [s].[PickupStatusId]
+    SELECT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[Count], [r0].[marker], ROW_NUMBER() OVER(PARTITION BY [s].[PickupStatusId] ORDER BY [s].[PickupStatusId], [r0].[pickupStatusId]) AS [row]
     FROM [Statuses] AS [s]
     LEFT JOIN (
-        SELECT [r].[PickupStatusId] AS [pickupStatusId]
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
         FROM [Requests] AS [r]
         GROUP BY [r].[PickupStatusId]
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
-    GROUP BY [s].[PickupStatusId]
-) AS [s1]
-LEFT JOIN (
-    SELECT [s2].[pickupStatusId], [s2].[Count], [s2].[marker], [s2].[c], [s2].[PickupStatusId0]
-    FROM (
-        SELECT [r1].[pickupStatusId], [r1].[Count], [r1].[marker], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[pickupStatusId]) AS [row]
-        FROM [Statuses] AS [s0]
-        LEFT JOIN (
-            SELECT [r2].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
-            FROM [Requests] AS [r2]
-            GROUP BY [r2].[PickupStatusId]
-        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[pickupStatusId]
-    ) AS [s2]
-    WHERE [s2].[row] <= 1
-) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
-ORDER BY [s1].[PickupStatusId]
+) AS [s0]
+WHERE [s0].[row] <= 1
+ORDER BY [s0].[PickupStatusId]
 """);
     }
 
@@ -3400,31 +3374,18 @@ ORDER BY [s1].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s1].[PickupStatusId], [s3].[PickupStatusId], [s3].[Count], [s3].[marker], [s3].[c]
+SELECT [s0].[PickupStatusId] AS [key], [s0].[PickupStatusId0] AS [PickupStatusId], [s0].[Count], [s0].[marker]
 FROM (
-    SELECT [s].[PickupStatusId]
+    SELECT [s].[PickupStatusId], [r0].[PickupStatusId] AS [PickupStatusId0], [r0].[Count], [r0].[marker], ROW_NUMBER() OVER(PARTITION BY [s].[PickupStatusId] ORDER BY [s].[PickupStatusId], [r0].[PickupStatusId]) AS [row]
     FROM [Statuses] AS [s]
     LEFT JOIN (
-        SELECT [r].[PickupStatusId]
+        SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
         FROM [Requests] AS [r]
         GROUP BY [r].[PickupStatusId]
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
-    GROUP BY [s].[PickupStatusId]
-) AS [s1]
-LEFT JOIN (
-    SELECT [s2].[PickupStatusId], [s2].[Count], [s2].[marker], [s2].[c], [s2].[PickupStatusId0]
-    FROM (
-        SELECT [r1].[PickupStatusId], [r1].[Count], [r1].[marker], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[PickupStatusId]) AS [row]
-        FROM [Statuses] AS [s0]
-        LEFT JOIN (
-            SELECT [r2].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
-            FROM [Requests] AS [r2]
-            GROUP BY [r2].[PickupStatusId]
-        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[PickupStatusId]
-    ) AS [s2]
-    WHERE [s2].[row] <= 1
-) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
-ORDER BY [s1].[PickupStatusId]
+) AS [s0]
+WHERE [s0].[row] <= 1
+ORDER BY [s0].[PickupStatusId]
 """);
     }
 
@@ -3434,31 +3395,18 @@ ORDER BY [s1].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s1].[PickupStatusId], [s3].[PickupStatusId], [s3].[Count], [s3].[marker], [s3].[c]
+SELECT [s0].[PickupStatusId] AS [key], [s0].[PickupStatusId0] AS [PickupStatusId], [s0].[Count], [s0].[marker]
 FROM (
-    SELECT [s].[PickupStatusId]
+    SELECT [s].[PickupStatusId], [r0].[PickupStatusId] AS [PickupStatusId0], [r0].[Count], [r0].[marker], ROW_NUMBER() OVER(PARTITION BY [s].[PickupStatusId] ORDER BY [s].[PickupStatusId], [r0].[PickupStatusId]) AS [row]
     FROM [Statuses] AS [s]
     LEFT JOIN (
-        SELECT [r].[PickupStatusId]
+        SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
         FROM [Requests] AS [r]
         GROUP BY [r].[PickupStatusId]
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
-    GROUP BY [s].[PickupStatusId]
-) AS [s1]
-LEFT JOIN (
-    SELECT [s2].[PickupStatusId], [s2].[Count], [s2].[marker], [s2].[c], [s2].[PickupStatusId0]
-    FROM (
-        SELECT [r1].[PickupStatusId], [r1].[Count], [r1].[marker], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[PickupStatusId]) AS [row]
-        FROM [Statuses] AS [s0]
-        LEFT JOIN (
-            SELECT [r2].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
-            FROM [Requests] AS [r2]
-            GROUP BY [r2].[PickupStatusId]
-        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[PickupStatusId]
-    ) AS [s2]
-    WHERE [s2].[row] <= 1
-) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
-ORDER BY [s1].[PickupStatusId]
+) AS [s0]
+WHERE [s0].[row] <= 1
+ORDER BY [s0].[PickupStatusId]
 """);
     }
 
@@ -3590,6 +3538,68 @@ ORDER BY [c].[CountryId]
 SELECT [c].[CountryId], [c].[Id]
 FROM [Companies] AS [c]
 ORDER BY [c].[CountryId], [c].[Id]
+""");
+    }
+
+    #endregion
+
+    #region 29240
+
+    public override async Task GroupBy_nullable_key_Select_First_ordered_by_date(bool async)
+    {
+        await base.GroupBy_nullable_key_Select_First_ordered_by_date(async);
+
+        AssertSql(
+            """
+SELECT [c0].[Id], [c0].[CreationDateTime], [c0].[GroupId]
+FROM (
+    SELECT [c].[Id], [c].[CreationDateTime], [c].[GroupId], ROW_NUMBER() OVER(PARTITION BY [c].[GroupId] ORDER BY [c].[CreationDateTime] DESC) AS [row]
+    FROM [Categories] AS [c]
+) AS [c0]
+WHERE [c0].[row] <= 1
+""");
+    }
+
+    public override async Task GroupBy_nullable_key_Select_First_ordered_with_owned_types(bool async)
+    {
+        await base.GroupBy_nullable_key_Select_First_ordered_with_owned_types(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Id], [p0].[GroupId], [p0].[Rank], [p0].[c], [p0].[Details_Description]
+FROM (
+    SELECT [p].[Id], [p].[GroupId], [p].[Rank], [p].[Tags] AS [c], ROW_NUMBER() OVER(PARTITION BY [p].[GroupId] ORDER BY [p].[Rank] DESC) AS [row], [p].[Details_Description]
+    FROM [Products] AS [p]
+) AS [p0]
+WHERE [p0].[row] <= 1
+""");
+    }
+
+    public override async Task GroupBy_Select_First_ordered_with_owned_types_then_DefaultIfEmpty(bool async)
+    {
+        await base.GroupBy_Select_First_ordered_with_owned_types_then_DefaultIfEmpty(async);
+
+        AssertSql(
+            """
+SELECT [p3].[Id], [p3].[GroupId], [p3].[Rank], [p3].[c], [p3].[Details_Description]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [p].[GroupId]
+    FROM [Products] AS [p]
+    WHERE [p].[Rank] > 1
+    GROUP BY [p].[GroupId]
+) AS [p1] ON 1 = 1
+LEFT JOIN (
+    SELECT [p2].[Id], [p2].[GroupId], [p2].[Rank], [p2].[c] AS [c], [p2].[Details_Description]
+    FROM (
+        SELECT [p0].[Id], [p0].[GroupId], [p0].[Rank], [p0].[Tags] AS [c], [p0].[Details_Description], ROW_NUMBER() OVER(PARTITION BY [p0].[GroupId] ORDER BY [p0].[Rank] DESC) AS [row]
+        FROM [Products] AS [p0]
+        WHERE [p0].[Rank] > 1
+    ) AS [p2]
+    WHERE [p2].[row] <= 1
+) AS [p3] ON [p1].[GroupId] = [p3].[GroupId]
 """);
     }
 

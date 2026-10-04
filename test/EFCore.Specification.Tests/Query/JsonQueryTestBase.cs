@@ -1578,7 +1578,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>()
                 .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.OrderBy(x => x.Id).Skip(1).Take(5)));
 
-    [Theory(Skip = "issue #29287"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(bool async)
         => AssertQuery(
             async,

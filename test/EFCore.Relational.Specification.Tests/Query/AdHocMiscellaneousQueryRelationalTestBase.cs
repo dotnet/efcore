@@ -2090,6 +2090,140 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region 29240
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_key_Select_First_ordered_by_date(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context29240.Category { GroupId = 1, CreationDateTime = new DateTime(2022, 1, 1) },
+                    new Context29240.Category { GroupId = 1, CreationDateTime = new DateTime(2022, 1, 2) },
+                    new Context29240.Category { CreationDateTime = new DateTime(2022, 1, 3) },
+                    new Context29240.Category { CreationDateTime = new DateTime(2022, 1, 4) });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Categories
+                .GroupBy(c => c.GroupId)
+                .Select(g => g.OrderByDescending(c => c.CreationDateTime).First());
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.All(result, Assert.NotNull);
+            Assert.Equal([new DateTime(2022, 1, 2), new DateTime(2022, 1, 4)], result.Select(c => c.CreationDateTime).Order());
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_key_Select_First_ordered_with_owned_types(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context29240.Product
+                    {
+                        GroupId = 1, Rank = 1, Details = new() { Description = "a" }, Tags = [new() { Name = "x" }]
+                    },
+                    new Context29240.Product
+                    {
+                        GroupId = 1, Rank = 2, Details = new() { Description = "b" }, Tags = [new() { Name = "y" }, new() { Name = "z" }]
+                    },
+                    new Context29240.Product { Rank = 3, Details = new() { Description = "c" }, Tags = [] },
+                    new Context29240.Product { Rank = 4, Details = new() { Description = "d" }, Tags = [new() { Name = "w" }] });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Products
+                .GroupBy(p => p.GroupId)
+                .Select(g => g.OrderByDescending(p => p.Rank).First());
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(p => p.Rank),
+                p =>
+                {
+                    Assert.Equal(2, p.Rank);
+                    Assert.Equal("b", p.Details.Description);
+                    Assert.Equal(["y", "z"], p.Tags.Select(t => t.Name));
+                },
+                p =>
+                {
+                    Assert.Equal(4, p.Rank);
+                    Assert.Equal("d", p.Details.Description);
+                    Assert.Equal(["w"], p.Tags.Select(t => t.Name));
+                });
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_Select_First_ordered_with_owned_types_then_DefaultIfEmpty(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.Add(new Context29240.Product { GroupId = 1, Rank = 1, Details = new() { Description = "a" }, Tags = [] });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Products
+                .Where(p => p.Rank > 1)
+                .GroupBy(p => p.GroupId)
+                .Select(g => g.OrderByDescending(p => p.Rank).First())
+                .DefaultIfEmpty();
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Null(Assert.Single(result));
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context29240(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Category> Categories
+                => Set<Category>();
+
+            public DbSet<Product> Products
+                => Set<Product>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Product>(b =>
+                {
+                    b.OwnsOne(p => p.Details);
+                    b.ComplexCollection(p => p.Tags, t => t.ToJson());
+                });
+
+            public class Category
+            {
+                public int Id { get; set; }
+                public int? GroupId { get; set; }
+                public DateTime CreationDateTime { get; set; }
+            }
+
+            public class Product
+            {
+                public int Id { get; set; }
+                public int? GroupId { get; set; }
+                public int Rank { get; set; }
+                public ProductDetails Details { get; set; } = null!;
+                public List<Tag> Tags { get; set; } = null!;
+            }
+
+            public class ProductDetails
+            {
+                public string? Description { get; set; }
+            }
+
+            public class Tag
+            {
+                public string? Name { get; set; }
+            }
+        }
+
+        #endregion
     }
 }
 
