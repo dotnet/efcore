@@ -433,6 +433,21 @@ ORDER BY [b].[Name]
 """);
     }
 
+    public override async Task GroupBy_Select_first_grouping_element()
+    {
+        await base.GroupBy_Select_first_grouping_element();
+
+        AssertSql(
+            """
+SELECT [b0].[Id], [b0].[Name], [b0].[c]
+FROM (
+    SELECT [b].[Id], [b].[Name], [b].[Json] AS [c], ROW_NUMBER() OVER(PARTITION BY [b].[Name] ORDER BY [b].[Id]) AS [row]
+    FROM [Blogs] AS [b]
+) AS [b0]
+WHERE [b0].[row] <= 1
+""");
+    }
+
     #endregion Regular operators
 
     #region Terminating operators

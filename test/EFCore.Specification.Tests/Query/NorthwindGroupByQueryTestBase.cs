@@ -3279,6 +3279,150 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 AssertCollection(e.List, a.List);
             });
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_key_Select_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Region)
+                .Select(g => g.OrderBy(c => c.CustomerID).First()));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_value_type_key_Select_FirstOrDefault_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>()
+                .GroupBy(e => e.ReportsTo)
+                .Select(g => g.OrderByDescending(e => e.EmployeeID).FirstOrDefault()));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_key_Select_Key_and_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Region)
+                .Select(g => new { g.Key, Customer = g.OrderBy(c => c.City).ThenBy(c => c.CustomerID).First() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertEqual(e.Customer, a.Customer);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_key_Select_LastOrDefault_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Region)
+                .Select(g => g.OrderBy(c => c.CustomerID).LastOrDefault()));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_key_Select_MaxBy(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>()
+                .GroupBy(e => e.ReportsTo)
+                .Select(g => g.MaxBy(e => e.EmployeeID)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_key_Select_projected_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Region)
+                .Select(g => g.OrderBy(c => c.CustomerID).Select(c => new { c.CustomerID, c.City }).First()),
+            elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_key_with_element_selector_Select_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>()
+                .GroupBy(e => e.ReportsTo, e => new { e.EmployeeID, e.City })
+                .Select(g => g.OrderBy(e => e.EmployeeID).First()),
+            elementSorter: e => e.EmployeeID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_key_with_result_selector_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>()
+                .GroupBy(e => e.ReportsTo, (key, employees) => new { key, Employee = employees.OrderBy(e => e.EmployeeID).First() }),
+            elementSorter: e => e.key,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.key, a.key);
+                AssertEqual(e.Employee, a.Employee);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_navigation_key_Select_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer!.Region)
+                .Select(g => g.OrderBy(o => o.OrderID).First()));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_composite_key_Select_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => new { c.Country, c.Region })
+                .Select(g => new { g.Key.Country, g.Key.Region, Customer = g.OrderBy(c => c.CustomerID).First() }),
+            elementSorter: e => (e.Country, e.Region),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Country, a.Country);
+                AssertEqual(e.Region, a.Region);
+                AssertEqual(e.Customer, a.Customer);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_First_ordered_with_aggregate_in_inline_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, Order = g.OrderBy(o => o.OrderID).First(), HasTwo = new[] { g.Count(), 0 }.Contains(2) }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertEqual(e.Order, a.Order);
+                AssertEqual(e.HasTwo, a.HasTwo);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_composite_key_member_in_projected_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new { o.CustomerID, o.EmployeeID })
+                .Select(g => g.OrderBy(o => o.OrderID).Select(o => new { o.OrderID, g.Key.EmployeeID }).First()),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_correlated_GroupBy_Select_First_ordered(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .SelectMany(c => c.Orders.GroupBy(o => o.EmployeeID).Select(g => g.OrderBy(o => o.OrderID).First())));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_First_ordered_composed(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => g.OrderByDescending(o => o.OrderDate).ThenBy(o => o.OrderID).First())
+                .Where(o => o.EmployeeID == 4)
+                .OrderBy(o => o.OrderID)
+                .Take(5),
+            assertOrder: true);
+
     #endregion
 
     #region GroupByEntityType
