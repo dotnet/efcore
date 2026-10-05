@@ -56,7 +56,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Tooling dependencies">
-    <ICSharpCodeDecompilerVersion>11.0.0.9375</ICSharpCodeDecompilerVersion>
+    <ICSharpCodeDecompilerVersion>11.1.0.9782</ICSharpCodeDecompilerVersion>
     <SystemCommandLineVersion>2.0.12</SystemCommandLineVersion>
   </PropertyGroup>
 
