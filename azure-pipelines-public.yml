@@ -95,10 +95,11 @@ stages:
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
+              - task: PublishPipelineArtifact@1
+                displayName: Upload code coverage
                 inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                  targetPath: artifacts/coverage/coverage.cobertura.xml
+                  artifact: Coverage_$(Agent.JobName)_$(System.JobAttempt)
                 condition: always()
                 continueOnError: true
               - task: PublishBuildArtifacts@1
@@ -134,10 +135,11 @@ stages:
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
+              - task: PublishPipelineArtifact@1
+                displayName: Upload code coverage
                 inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                  targetPath: artifacts/coverage/coverage.cobertura.xml
+                  artifact: Coverage_$(Agent.JobName)_$(System.JobAttempt)
                 condition: always()
                 continueOnError: true
               - task: PublishBuildArtifacts@1
@@ -169,10 +171,11 @@ stages:
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
+              - task: PublishPipelineArtifact@1
+                displayName: Upload code coverage
                 inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                  targetPath: artifacts/coverage/coverage.cobertura.xml
+                  artifact: Coverage_$(Agent.JobName)_$(System.JobAttempt)
                 condition: always()
                 continueOnError: true
               - task: PublishBuildArtifacts@1
@@ -205,10 +208,11 @@ stages:
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
+              - task: PublishPipelineArtifact@1
+                displayName: Upload code coverage
                 inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+                  targetPath: artifacts/coverage/coverage.cobertura.xml
+                  artifact: Coverage_$(Agent.JobName)_$(System.JobAttempt)
                 condition: always()
                 continueOnError: true
               - task: PublishBuildArtifacts@1
@@ -526,6 +530,30 @@ stages:
       HelixWindowsArm64Result: $[ stageDependencies.build.Helix_Windows_Arm64.result ]
       HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
     steps:
+      - task: DownloadPipelineArtifact@2
+        displayName: Download code coverage
+        inputs:
+          buildType: current
+          patterns: '**/*.cobertura.xml'
+          targetPath: artifacts/coverage/jobs
+        condition: always()
+        continueOnError: true
+      - script: eng\common\dotnet.cmd --info
+        displayName: Ensure .NET SDK is installed
+        condition: always()
+        continueOnError: true
+      - pwsh: . ./eng/merge-coverage.ps1 -CoverageDirectory artifacts/coverage/jobs -OutputFile artifacts/coverage/coverage.cobertura.xml
+        displayName: Merge code coverage reports
+        condition: always()
+        continueOnError: true
+      - task: PublishCodeCoverageResults@2
+        displayName: Publish code coverage
+        inputs:
+          summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+          pathToSources: $(Build.SourcesDirectory)
+          failIfCoverageEmpty: true
+        condition: always()
+        continueOnError: true
       - pwsh: |
           $jobResults = @{
             Windows = "$(WindowsResult)"
