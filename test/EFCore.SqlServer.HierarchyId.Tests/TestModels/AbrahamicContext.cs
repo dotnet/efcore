@@ -9,8 +9,8 @@ internal class AbrahamicContext : DbContext
 {
     private readonly TestSqlLoggerFactory _loggerFactory = new();
 
-    public DbSet<Patriarch> Patriarchy { get; set; }
-    public DbSet<ConvertedPatriarch> ConvertedPatriarchy { get; set; }
+    public DbSet<Patriarch> Patriarchy { get; set; } = null!;
+    public DbSet<ConvertedPatriarch> ConvertedPatriarchy { get; set; } = null!;
 
     public string Sql
         => _loggerFactory.Sql;
@@ -49,7 +49,7 @@ internal class AbrahamicContext : DbContext
         modelBuilder.Entity<ConvertedPatriarch>(b =>
         {
             b.Property(e => e.HierarchyId)
-                .HasConversion(v => HierarchyId.Parse(v), v => v.ToString());
+                .HasConversion(v => HierarchyId.Parse(v!), v => v.ToString());
 
             b.HasData(
                 new ConvertedPatriarch

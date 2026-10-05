@@ -18,7 +18,8 @@ public abstract class ComplexJsonSetOperationsRelationalTestBase<TFixture> : Com
     public override async Task Over_associate_collection_projected(QueryTrackingBehavior queryTrackingBehavior)
     {
         // #33485, #34849 (fails in the same way with regular navigations, not just complex JSON)
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Over_associate_collection_projected(queryTrackingBehavior));
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Over_associate_collection_projected(queryTrackingBehavior));
 
         Assert.Equal(
             RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,

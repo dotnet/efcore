@@ -91,7 +91,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
 
                     if (!foundMappedProperty)
                     {
-                        entityTypesMissingConcurrencyColumn ??= new Dictionary<IConventionEntityType, IReadOnlyProperty>();
+                        entityTypesMissingConcurrencyColumn ??= [];
 
                         // store the concurrency token property to be used later as a template
                         entityTypesMissingConcurrencyColumn.Add(entityType, readOnlyProperties.First());
@@ -194,7 +194,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                     continue;
                 }
 
-                concurrencyColumns ??= new Dictionary<string, List<IReadOnlyProperty>>();
+                concurrencyColumns ??= [];
                 if (!concurrencyColumns.TryGetValue(columnName, out var properties))
                 {
                     properties = [];

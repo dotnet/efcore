@@ -5,14 +5,12 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
-#nullable disable
-
-[SqlServerCondition(SqlServerCondition.IsAzureSql)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
 public class SqlAzureBatchingTest(BatchingSqlAzureFixture fixture) : IClassFixture<BatchingSqlAzureFixture>
 {
     public BatchingSqlAzureFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory, InlineData(1), InlineData(10), InlineData(100), InlineData(1000)]
+    [Theory, InlineData(1), InlineData(10), InlineData(100), InlineData(1000)]
     public void AddWithBatchSize(int batchSize)
     {
         using var context = Fixture.CreateContext(batchSize);
@@ -28,7 +26,7 @@ public class SqlAzureBatchingTest(BatchingSqlAzureFixture fixture) : IClassFixtu
                             new Product
                             {
                                 Name = uuid,
-                                ProductNumber = uuid.Substring(0, 25),
+                                ProductNumber = uuid[..25],
                                 Weight = 1000,
                                 SellStartDate = DateTime.Now
                             });

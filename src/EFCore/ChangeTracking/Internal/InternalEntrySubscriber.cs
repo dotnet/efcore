@@ -202,29 +202,19 @@ public class InternalEntrySubscriber : IInternalEntrySubscriber
         InternalEntityEntry entry,
         IEntityType entityType,
         ChangeTrackingStrategy changeTrackingStrategy)
-    {
-        if (entry.Entity is not INotifyPropertyChanged changed)
-        {
-            throw new InvalidOperationException(
+        => entry.Entity is not INotifyPropertyChanged changed
+            ? throw new InvalidOperationException(
                 CoreStrings.ChangeTrackingInterfaceMissing(
-                    entityType.DisplayName(), changeTrackingStrategy, nameof(INotifyPropertyChanged)));
-        }
-
-        return changed;
-    }
+                    entityType.DisplayName(), changeTrackingStrategy, nameof(INotifyPropertyChanged)))
+            : changed;
 
     private static INotifyPropertyChanging AsINotifyPropertyChanging(
         InternalEntityEntry entry,
         IEntityType entityType,
         ChangeTrackingStrategy changeTrackingStrategy)
-    {
-        if (entry.Entity is not INotifyPropertyChanging changing)
-        {
-            throw new InvalidOperationException(
+        => entry.Entity is not INotifyPropertyChanging changing
+            ? throw new InvalidOperationException(
                 CoreStrings.ChangeTrackingInterfaceMissing(
-                    entityType.DisplayName(), changeTrackingStrategy, nameof(INotifyPropertyChanging)));
-        }
-
-        return changing;
-    }
+                    entityType.DisplayName(), changeTrackingStrategy, nameof(INotifyPropertyChanging)))
+            : changing;
 }

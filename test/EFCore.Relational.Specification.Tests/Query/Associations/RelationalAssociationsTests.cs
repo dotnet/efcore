@@ -6,9 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations;
 public class RelationalAssociationsTests
 {
     internal static async Task FromSql_on_root<TFixture>(QueryTestBase<TFixture> queryTestBase, TFixture fixture)
-        where TFixture : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase, new()
+        where TFixture : class, IQueryFixtureBase, new()
     {
-        using var context = fixture.CreateContext();
+        using var context = fixture.GetContextCreator()();
         var tableName = context.Model.FindEntityType(typeof(RootEntity))?.GetTableName()
             ?? throw new UnreachableException("Couldn't find relational table name for RootEntity");
         var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();

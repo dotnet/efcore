@@ -231,13 +231,10 @@ public class InternalDbFunctionBuilder : AnnotatableBuilder<DbFunction, IConvent
     public virtual InternalDbFunctionParameterBuilder HasParameter(string name, ConfigurationSource configurationSource)
     {
         var parameter = Metadata.FindParameter(name);
-        if (parameter == null)
-        {
-            throw new ArgumentException(
-                RelationalStrings.DbFunctionInvalidParameterName(Metadata.MethodInfo?.DisplayName(), name));
-        }
-
-        return parameter.Builder;
+        return parameter == null
+            ? throw new ArgumentException(
+                RelationalStrings.DbFunctionInvalidParameterName(Metadata.MethodInfo?.DisplayName(), name))
+            : parameter.Builder;
     }
 
     IConventionDbFunction IConventionDbFunctionBuilder.Metadata

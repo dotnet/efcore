@@ -1,18 +1,16 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new();
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_non_existing_navigation(bool async)
         => Assert.Contains(
             CoreStrings.InvalidIncludeExpression("Property(o, \"ArcticMonkeys\")"),
@@ -173,9 +171,8 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
                 var parameterExpression = fromQuote.Parameters[0];
 
                 var path = GetPath(fromQuote.Body);
-                if (path != null && !path.Contains("."))
-                {
-                    return Expression.Call(
+                return path != null && !path.Contains(".")
+                    ? Expression.Call(
                         methodCallExpression.Method,
                         Visit(arguments[0]),
                         Expression.Quote(
@@ -185,14 +182,12 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
                                     _propertyMethod.MakeGenericMethod(genericArguments[propertyTypeIndex]),
                                     parameterExpression,
                                     Expression.Constant(path)),
-                                parameterExpression)));
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
+                                parameterExpression)))
+                    : base.VisitMethodCall(methodCallExpression);
             }
         }
 
-        private static string GetPath(Expression expression)
+        private static string? GetPath(Expression? expression)
             => expression switch
             {
                 MemberExpression { Expression: ParameterExpression } memberExpression

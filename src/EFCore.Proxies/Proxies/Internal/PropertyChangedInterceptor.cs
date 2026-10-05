@@ -95,14 +95,9 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
             var oldValue = property.GetGetter().GetClrValueUsingContainingEntity(invocation.Proxy);
 
             invocation.Proceed();
-
             if (!(comparer?.Equals(oldValue, newValue) ?? Equals(oldValue, newValue)))
             {
                 NotifyPropertyChanged(property.Name, invocation.Proxy);
-            }
-            else
-            {
-                invocation.Proceed();
             }
         }
         else

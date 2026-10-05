@@ -12,19 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteQuerySqlGenerator : QuerySqlGenerator
+public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : QuerySqlGenerator(dependencies)
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -45,6 +34,10 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
             case JsonEachExpression jsonEachExpression:
                 GenerateJsonEach(jsonEachExpression);
+                return extensionExpression;
+
+            case SqliteAggregateFunctionExpression aggregateFunctionExpression:
+                GenerateAggregateFunction(aggregateFunctionExpression);
                 return extensionExpression;
 
             default:
@@ -185,6 +178,40 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         Visit(regexpExpression.Pattern);
     }
 
+    private void GenerateAggregateFunction(SqliteAggregateFunctionExpression aggregateFunctionExpression)
+    {
+        Sql.Append(aggregateFunctionExpression.Name).Append("(");
+
+        for (var i = 0; i < aggregateFunctionExpression.Arguments.Count; i++)
+        {
+            if (i > 0)
+            {
+                Sql.Append(", ");
+            }
+
+            Visit(aggregateFunctionExpression.Arguments[i]);
+        }
+
+        // Unlike SQL Server's "WITHIN GROUP (ORDER BY ...)", SQLite renders the ordering inside the function
+        // parentheses: group_concat(value, separator ORDER BY ...). Supported since SQLite 3.44.0.
+        if (aggregateFunctionExpression.Orderings.Count > 0)
+        {
+            Sql.Append(" ORDER BY ");
+
+            for (var i = 0; i < aggregateFunctionExpression.Orderings.Count; i++)
+            {
+                if (i > 0)
+                {
+                    Sql.Append(", ");
+                }
+
+                Visit(aggregateFunctionExpression.Orderings[i]);
+            }
+        }
+
+        Sql.Append(")");
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -200,7 +227,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         // expression type for it.
         Sql.Append("json_each(");
 
-        Visit(jsonEachExpression.JsonExpression);
+        Visit(jsonEachExpression.Json);
 
         var path = jsonEachExpression.Path;
 

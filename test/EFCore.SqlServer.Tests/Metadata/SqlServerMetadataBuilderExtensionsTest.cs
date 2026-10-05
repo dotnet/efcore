@@ -11,7 +11,7 @@ public class SqlServerMetadataBuilderExtensionsTest
     private IConventionModelBuilder CreateBuilder()
         => new InternalModelBuilder(new Model());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_model_value_generation_strategy()
     {
         var builder = CreateBuilder();
@@ -39,7 +39,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetValueGenerationStrategyConfigurationSource());
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.IdentityColumn),
+    [Theory, InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.IdentityColumn),
      InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.SequenceHiLo),
      InlineData(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerValueGenerationStrategy.Sequence),
      InlineData(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerValueGenerationStrategy.SequenceHiLo),
@@ -72,7 +72,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.Sequence), InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
+    [Theory, InlineData(SqlServerValueGenerationStrategy.Sequence), InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void Seed_and_increment_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
         var builder = CreateBuilder();
@@ -106,7 +106,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
+    [Theory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
      InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void Sequence_and_schema_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
@@ -130,7 +130,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, builder.Metadata.GetValueGenerationStrategy());
         AssertFacets("Sequence", null);
 
-        void AssertFacets(string sequenceSuffix, string schema)
+        void AssertFacets(string sequenceSuffix, string? schema)
         {
             Assert.Equal(1, builder.Metadata.GetIdentitySeed());
             Assert.Equal(1, builder.Metadata.GetIdentityIncrement());
@@ -141,7 +141,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn), InlineData(SqlServerValueGenerationStrategy.Sequence)]
+    [Theory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn), InlineData(SqlServerValueGenerationStrategy.Sequence)]
     public void HiLo_sequence_and_schema_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
         var builder = CreateBuilder();
@@ -163,7 +163,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, builder.Metadata.GetValueGenerationStrategy());
         AssertFacets("EntityFrameworkHiLoSequence", null);
 
-        void AssertFacets(string sequence, string schema)
+        void AssertFacets(string sequence, string? schema)
         {
             Assert.Equal(1, builder.Metadata.GetIdentitySeed());
             Assert.Equal(1, builder.Metadata.GetIdentityIncrement());
@@ -174,7 +174,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_model_max_size()
     {
         var builder = CreateBuilder();
@@ -199,7 +199,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetDatabaseMaxSizeConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_model_service_tier()
     {
         var builder = CreateBuilder();
@@ -224,7 +224,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetServiceTierSqlConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_model_performance_level()
     {
         var builder = CreateBuilder();
@@ -249,10 +249,10 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetPerformanceLevelSqlConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_change_entity_type_IsMemoryOptimized()
     {
-        var typeBuilder = CreateBuilder().Entity(typeof(Splot));
+        var typeBuilder = CreateBuilder().Entity(typeof(Splot))!;
 
         Assert.Null(typeBuilder.Metadata.GetIsMemoryOptimizedConfigurationSource());
 
@@ -273,10 +273,10 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(typeBuilder.Metadata.GetIsMemoryOptimizedConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_change_entity_type_UseSqlOutputClause()
     {
-        var typeBuilder = CreateBuilder().Entity(typeof(Splot));
+        var typeBuilder = CreateBuilder().Entity(typeof(Splot))!;
 
         Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
 
@@ -317,12 +317,12 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_property()
     {
         var propertyBuilder = CreateBuilder()
-            .Entity(typeof(Splot))
-            .Property(typeof(int), "Id");
+            .Entity(typeof(Splot))!
+            .Property(typeof(int), "Id")!;
 
         Assert.Null(propertyBuilder.Metadata.GetHiLoSequenceNameConfigurationSource());
 
@@ -342,13 +342,13 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(propertyBuilder.Metadata.GetHiLoSequenceNameConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_key()
     {
         var modelBuilder = CreateBuilder();
-        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot));
-        var idProperty = entityTypeBuilder.Property(typeof(string), "Id").Metadata;
-        var keyBuilder = entityTypeBuilder.HasKey([idProperty]);
+        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot))!;
+        var idProperty = entityTypeBuilder.Property(typeof(string), "Id")!.Metadata;
+        var keyBuilder = entityTypeBuilder.HasKey([idProperty])!;
 
         Assert.Null(keyBuilder.Metadata.GetIsClusteredConfigurationSource());
 
@@ -368,13 +368,13 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(keyBuilder.Metadata.GetIsClusteredConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_index()
     {
         var modelBuilder = CreateBuilder();
-        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot));
-        var idProperty = entityTypeBuilder.Property(typeof(int), "Id").Metadata;
-        var indexBuilder = entityTypeBuilder.HasIndex([idProperty]);
+        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot))!;
+        var idProperty = entityTypeBuilder.Property(typeof(int), "Id")!.Metadata;
+        var indexBuilder = entityTypeBuilder.HasIndex([idProperty])!;
 
         Assert.Null(indexBuilder.Metadata.GetIsClusteredConfigurationSource());
 
@@ -394,14 +394,14 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Equal(ConfigurationSource.DataAnnotation, indexBuilder.Metadata.GetIsClusteredConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_relationship()
     {
         var modelBuilder = CreateBuilder();
-        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot));
-        var idProperty = entityTypeBuilder.Property(typeof(int), "Id").Metadata;
-        var key = entityTypeBuilder.HasKey([idProperty]).Metadata;
-        var relationshipBuilder = entityTypeBuilder.HasRelationship(entityTypeBuilder.Metadata, key);
+        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot))!;
+        var idProperty = entityTypeBuilder.Property(typeof(int), "Id")!.Metadata;
+        var key = entityTypeBuilder.HasKey([idProperty])!.Metadata;
+        var relationshipBuilder = entityTypeBuilder.HasRelationship(entityTypeBuilder.Metadata, key)!;
 
         Assert.NotNull(relationshipBuilder.HasConstraintName("Splew"));
         Assert.Equal("Splew", relationshipBuilder.Metadata.GetConstraintName());

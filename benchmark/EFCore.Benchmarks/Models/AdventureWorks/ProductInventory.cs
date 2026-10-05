@@ -15,8 +15,8 @@ public class ProductInventory
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-    public string Shelf { get; set; }
+    public string Shelf { get; set; } = null!;
 
-    public virtual Location Location { get; set; }
-    public virtual Product Product { get; set; }
+    public virtual Location Location { get; set; } = null!;
+    public virtual Product Product { get; set; } = null!;
 }

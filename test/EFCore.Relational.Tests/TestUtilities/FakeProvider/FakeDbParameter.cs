@@ -2,14 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 public class FakeDbParameter : DbParameter
 {
-    public override string ParameterName { get; set; }
+    [AllowNull]
+    public override string ParameterName { get; set; } = null!;
 
-    public override object Value { get; set; }
+    public override object? Value { get; set; }
 
     public override ParameterDirection Direction { get; set; }
 
@@ -21,6 +23,7 @@ public class FakeDbParameter : DbParameter
 
     public override int Size { get; set; }
 
+    [AllowNull]
     public override string SourceColumn
     {
         get => throw new NotImplementedException();

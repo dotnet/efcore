@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner;
 
-#nullable disable
-
 public static class EntityExtensions
 {
     public static SessionResponse MapSessionResponse(this Session session)
@@ -17,10 +15,10 @@ public static class EntityExtensions
             StartTime = session.StartTime,
             EndTime = session.EndTime,
             Speakers = session.SessionSpeakers?
-                .Select(ss => new ConferenceDTO.Speaker { Id = ss.SpeakerId, Name = ss.Speaker.Name })
+                .Select(ss => new ConferenceDTO.Speaker { Id = ss.SpeakerId, Name = ss.Speaker!.Name })
                 .ToList(),
             TrackId = session.TrackId,
-            Track = new ConferenceDTO.Track { Id = session?.TrackId ?? 0, Name = session.Track?.Name },
+            Track = new ConferenceDTO.Track { Id = session.TrackId ?? 0, Name = session.Track?.Name },
             Abstract = session.Abstract
         };
 
@@ -54,6 +52,6 @@ public static class EntityExtensions
                         StartTime = sa.Session.StartTime,
                         EndTime = sa.Session.EndTime
                     })
-                .ToList()
+                    .ToList()
         };
 }

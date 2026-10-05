@@ -105,7 +105,7 @@ public class SourceExpression : Expression, IAccessExpression, IPrintableExpress
     public virtual SourceExpression Update(Expression containerExpression)
         => ReferenceEquals(containerExpression, Expression)
             ? this
-            : new SourceExpression(containerExpression, Alias);
+            : new SourceExpression(containerExpression, Alias, WithIn);
 
     /// <summary>
     ///     Returns whether the given expression type can appear directly within a source expression.

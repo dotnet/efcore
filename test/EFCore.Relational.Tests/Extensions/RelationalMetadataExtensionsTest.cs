@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class RelationalMetadataExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_fixed_length()
     {
         var modelBuilder = new ModelBuilder();
@@ -30,7 +30,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(property.IsFixedLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_index_filter()
     {
         var modelBuilder = new ModelBuilder();
@@ -48,7 +48,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal("[Id] % 3 = 0", index.GetFilter());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_column_name()
     {
         var modelBuilder = new ModelBuilder();
@@ -70,7 +70,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal("Name", property.GetColumnName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_table_name()
     {
         var modelBuilder = new ModelBuilder();
@@ -91,7 +91,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(entityType.GetTableName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_schema_name_on_entity_type()
     {
         var modelBuilder = new ModelBuilder();
@@ -111,7 +111,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(entityType.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Gets_model_schema_if_schema_on_entity_type_not_set()
     {
         var modelBuilder = new ModelBuilder();
@@ -131,7 +131,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(entityType.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_view_schema_name_on_entity_type()
     {
         var modelBuilder = new ModelBuilder();
@@ -171,7 +171,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(entityType.GetViewSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_column_type()
     {
         var modelBuilder = new ModelBuilder();
@@ -192,7 +192,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(property.GetColumnType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_column_default_expression()
     {
         var modelBuilder = new ModelBuilder();
@@ -213,7 +213,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(property.GetDefaultValueSql());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_column_computed_expression()
     {
         var modelBuilder = new ModelBuilder();
@@ -234,7 +234,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(property.GetComputedColumnSql());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_column_default_value()
     {
         var modelBuilder = new ModelBuilder();
@@ -257,7 +257,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal(Guid.Empty, property.GetDefaultValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_column_default_value_of_enum_type()
     {
         var modelBuilder = new ModelBuilder();
@@ -271,7 +271,7 @@ public class RelationalMetadataExtensionsTest
 
         property.SetDefaultValue(MyEnum.Mon);
 
-        Assert.Equal(typeof(MyEnum), property.GetDefaultValue().GetType());
+        Assert.Equal(typeof(MyEnum), property.GetDefaultValue()!.GetType());
         Assert.Equal(MyEnum.Mon, property.GetDefaultValue());
 
         property.SetDefaultValue(null);
@@ -279,7 +279,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(property.GetDefaultValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_setting_column_default_value_of_wrong_type()
     {
         var modelBuilder = new ModelBuilder();
@@ -299,7 +299,7 @@ public class RelationalMetadataExtensionsTest
             Assert.Throws<InvalidOperationException>(() => property.SetDefaultValue(guid)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_column_key_name()
     {
         var modelBuilder = new ModelBuilder();
@@ -320,7 +320,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal("PK_Customer", key.GetName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_column_foreign_key_name()
     {
         var modelBuilder = new ModelBuilder();
@@ -347,7 +347,38 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void Can_get_and_set_foreign_key_excluded_from_migrations()
+    {
+        var modelBuilder = new ModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasKey(e => e.Id);
+
+        var foreignKey = modelBuilder
+            .Entity<Order>()
+            .HasOne<Customer>()
+            .WithOne()
+            .HasForeignKey<Order>(e => e.CustomerId)
+            .Metadata;
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+
+        foreignKey.SetIsExcludedFromMigrations(true);
+
+        Assert.True(foreignKey.IsExcludedFromMigrations());
+
+        foreignKey.SetIsExcludedFromMigrations(false);
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+
+        foreignKey.SetIsExcludedFromMigrations(null);
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+    }
+
+    [Fact]
     public void Can_get_and_set_index_name()
     {
         var modelBuilder = new ModelBuilder();
@@ -368,7 +399,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal("IX_Customer_Id", index.GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_discriminator()
     {
         var modelBuilder = new ModelBuilder();
@@ -390,7 +421,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(entityType.FindDiscriminatorProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_schema_name_on_model()
     {
         var modelBuilder = new ModelBuilder();
@@ -407,10 +438,10 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(model.GetDefaultSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_dbfunction()
     {
-        var testMethod = typeof(RelationalMetadataExtensionsTest).GetTypeInfo().GetDeclaredMethod(nameof(MethodA));
+        var testMethod = typeof(RelationalMetadataExtensionsTest).GetTypeInfo().GetDeclaredMethod(nameof(MethodA))!;
 
         var modelBuilder = new ModelBuilder();
         var model = modelBuilder.Model;
@@ -432,7 +463,7 @@ public class RelationalMetadataExtensionsTest
     public static int MethodA(string a, int b)
         => throw new NotImplementedException();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_sequence()
     {
         var modelBuilder = new ModelBuilder();
@@ -442,7 +473,7 @@ public class RelationalMetadataExtensionsTest
 
         var sequence = model.AddSequence("Foo");
 
-        Assert.Equal("Foo", model.FindSequence("Foo").Name);
+        Assert.Equal("Foo", model.FindSequence("Foo")!.Name);
 
         Assert.Equal("Foo", sequence.Name);
         Assert.Null(sequence.Schema);
@@ -475,7 +506,7 @@ public class RelationalMetadataExtensionsTest
         Assert.False(((IConventionSequence)sequence).IsInModel);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_sequence_with_schema_name()
     {
         var modelBuilder = new ModelBuilder();
@@ -485,8 +516,8 @@ public class RelationalMetadataExtensionsTest
 
         var sequence = model.AddSequence("Foo", "Smoo");
 
-        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
-        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
+        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo")!.Name);
+        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo")!.Name);
 
         Assert.Equal("Foo", sequence.Name);
         Assert.Equal("Smoo", sequence.Schema);
@@ -513,7 +544,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Same(typeof(int), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_is_in_model_schema_if_schema_not_specified()
     {
         var modelBuilder = new ModelBuilder();
@@ -535,7 +566,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_same_sequence_if_schema_not_specified_explicitly()
     {
         var modelBuilder = new ModelBuilder();
@@ -574,7 +605,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Same(typeof(int), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_multiple_sequences()
     {
         var modelBuilder = new ModelBuilder();
@@ -590,7 +621,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Contains(sequences, s => s.Name == "Golomb");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AddCheckConstraint_with_duplicate_names_throws_exception()
     {
         var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
@@ -604,7 +635,7 @@ public class RelationalMetadataExtensionsTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RemoveCheckConstraint_returns_constraint_when_constraint_exists()
     {
         var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
@@ -615,7 +646,7 @@ public class RelationalMetadataExtensionsTest
         Assert.Same(constraint, entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RemoveCheckConstraint_returns_null_when_constraint_is_missing()
     {
         var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
@@ -637,7 +668,7 @@ public class RelationalMetadataExtensionsTest
     private class Customer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public Guid AlternateId { get; set; }
         public MyEnum? EnumValue { get; set; }
     }
@@ -648,6 +679,6 @@ public class RelationalMetadataExtensionsTest
     {
         public int OrderId { get; set; }
         public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 }

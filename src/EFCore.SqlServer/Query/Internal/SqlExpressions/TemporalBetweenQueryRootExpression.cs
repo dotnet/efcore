@@ -84,8 +84,8 @@ public class TemporalBetweenQueryRootExpression : TemporalRangeQueryRootExpressi
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TemporalBetweenQueryRootExpression queryRootExpression
-                && Equals(queryRootExpression));
+                || (obj is TemporalBetweenQueryRootExpression queryRootExpression
+                    && Equals(queryRootExpression)));
 
     private bool Equals(TemporalBetweenQueryRootExpression queryRootExpression)
         => base.Equals(queryRootExpression);

@@ -16,8 +16,9 @@ public class ComplexTableSplittingBulkUpdateSqlServerTest(
 
         AssertSql(
             """
-@deletableEntity_Name='?' (Size = 4000)
+@deletableEntity_Name='Root3_With_different_values' (Size = 4000)
 
+SET NOCOUNT OFF;
 DELETE FROM [r]
 FROM [RootEntity] AS [r]
 WHERE [r].[Name] = @deletableEntity_Name
@@ -48,8 +49,9 @@ WHERE [r].[Name] = @deletableEntity_Name
 
         AssertExecuteUpdateSql(
             """
-@p='?' (Size = 4000)
+@p='foo_updated' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_String] = @p
 FROM [RootEntity] AS [r]
@@ -62,6 +64,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_String] = N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }'
 FROM [RootEntity] AS [r]
@@ -75,8 +78,9 @@ WHERE [r].[RequiredAssociate_String] = N'{ this may/look:like JSON but it [isn''
 
         AssertExecuteUpdateSql(
             """
-@p='?' (Size = 4000)
+@p='foo_updated' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_RequiredNestedAssociate_String] = @p
 FROM [RootEntity] AS [r]
@@ -89,8 +93,9 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@p='?' (Size = 4000)
+@p='foo_updated' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_String] = @p
 FROM [RootEntity] AS [r]
@@ -121,17 +126,18 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p_Id='?' (DbType = Int32)
-@complex_type_p_Int='?' (DbType = Int32)
-@complex_type_p_Ints='?' (Size = 4000)
-@complex_type_p_Name='?' (Size = 4000)
-@complex_type_p_String='?' (Size = 4000)
-@complex_type_p_RequiredNestedAssociate_Id='?' (DbType = Int32)
-@complex_type_p_RequiredNestedAssociate_Int='?' (DbType = Int32)
-@complex_type_p_RequiredNestedAssociate_Ints='?' (Size = 4000)
-@complex_type_p_RequiredNestedAssociate_Name='?' (Size = 4000)
-@complex_type_p_RequiredNestedAssociate_String='?' (Size = 4000)
+@complex_type_p_Id='1000' (Nullable = true)
+@complex_type_p_Int='80' (Nullable = true)
+@complex_type_p_Ints='[1,2,3]' (Size = 4000)
+@complex_type_p_Name='Updated associate name' (Size = 4000)
+@complex_type_p_String='Updated nested string' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_Id='1000' (Nullable = true)
+@complex_type_p_RequiredNestedAssociate_Int='80' (Nullable = true)
+@complex_type_p_RequiredNestedAssociate_Ints='[1,2,3]' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_Name='Updated nested name' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_String='Updated nested string' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_Id] = @complex_type_p_Id,
     [r].[RequiredAssociate_Int] = @complex_type_p_Int,
@@ -158,12 +164,13 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p_Id='?' (DbType = Int32)
-@complex_type_p_Int='?' (DbType = Int32)
-@complex_type_p_Ints='?' (Size = 4000)
-@complex_type_p_Name='?' (Size = 4000)
-@complex_type_p_String='?' (Size = 4000)
+@complex_type_p_Id='1000' (Nullable = true)
+@complex_type_p_Int='80' (Nullable = true)
+@complex_type_p_Ints='[1,2,4]' (Size = 4000)
+@complex_type_p_Name='Updated nested name' (Size = 4000)
+@complex_type_p_String='Updated nested string' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_RequiredNestedAssociate_Id] = @complex_type_p_Id,
     [r].[RequiredAssociate_RequiredNestedAssociate_Int] = @complex_type_p_Int,
@@ -180,22 +187,23 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[OptionalAssociate_Id] = [r].[RequiredAssociate_Id],
     [r].[OptionalAssociate_Int] = [r].[RequiredAssociate_Int],
     [r].[OptionalAssociate_Ints] = [r].[RequiredAssociate_Ints],
     [r].[OptionalAssociate_Name] = [r].[RequiredAssociate_Name],
     [r].[OptionalAssociate_String] = [r].[RequiredAssociate_String],
-    [r].[OptionalAssociate_OptionalNestedAssociate_Id] = [r].[OptionalAssociate_OptionalNestedAssociate_Id],
-    [r].[OptionalAssociate_OptionalNestedAssociate_Int] = [r].[OptionalAssociate_OptionalNestedAssociate_Int],
-    [r].[OptionalAssociate_OptionalNestedAssociate_Ints] = [r].[OptionalAssociate_OptionalNestedAssociate_Ints],
-    [r].[OptionalAssociate_OptionalNestedAssociate_Name] = [r].[OptionalAssociate_OptionalNestedAssociate_Name],
-    [r].[OptionalAssociate_OptionalNestedAssociate_String] = [r].[OptionalAssociate_OptionalNestedAssociate_String],
-    [r].[OptionalAssociate_RequiredNestedAssociate_Id] = [r].[OptionalAssociate_RequiredNestedAssociate_Id],
-    [r].[OptionalAssociate_RequiredNestedAssociate_Int] = [r].[OptionalAssociate_RequiredNestedAssociate_Int],
-    [r].[OptionalAssociate_RequiredNestedAssociate_Ints] = [r].[OptionalAssociate_RequiredNestedAssociate_Ints],
-    [r].[OptionalAssociate_RequiredNestedAssociate_Name] = [r].[OptionalAssociate_RequiredNestedAssociate_Name],
-    [r].[OptionalAssociate_RequiredNestedAssociate_String] = [r].[OptionalAssociate_RequiredNestedAssociate_String]
+    [r].[OptionalAssociate_OptionalNestedAssociate_Id] = [r].[RequiredAssociate_OptionalNestedAssociate_Id],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Int] = [r].[RequiredAssociate_OptionalNestedAssociate_Int],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Ints] = [r].[RequiredAssociate_OptionalNestedAssociate_Ints],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Name] = [r].[RequiredAssociate_OptionalNestedAssociate_Name],
+    [r].[OptionalAssociate_OptionalNestedAssociate_String] = [r].[RequiredAssociate_OptionalNestedAssociate_String],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Id] = [r].[RequiredAssociate_RequiredNestedAssociate_Id],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Int] = [r].[RequiredAssociate_RequiredNestedAssociate_Int],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Ints] = [r].[RequiredAssociate_RequiredNestedAssociate_Ints],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Name] = [r].[RequiredAssociate_RequiredNestedAssociate_Name],
+    [r].[OptionalAssociate_RequiredNestedAssociate_String] = [r].[RequiredAssociate_RequiredNestedAssociate_String]
 FROM [RootEntity] AS [r]
 """);
     }
@@ -206,6 +214,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_OptionalNestedAssociate_Id] = [r].[RequiredAssociate_RequiredNestedAssociate_Id],
     [r].[RequiredAssociate_OptionalNestedAssociate_Int] = [r].[RequiredAssociate_RequiredNestedAssociate_Int],
@@ -222,17 +231,18 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p_Id='?' (DbType = Int32)
-@complex_type_p_Int='?' (DbType = Int32)
-@complex_type_p_Ints='?' (Size = 4000)
-@complex_type_p_Name='?' (Size = 4000)
-@complex_type_p_String='?' (Size = 4000)
-@complex_type_p_RequiredNestedAssociate_Id='?' (DbType = Int32)
-@complex_type_p_RequiredNestedAssociate_Int='?' (DbType = Int32)
-@complex_type_p_RequiredNestedAssociate_Ints='?' (Size = 4000)
-@complex_type_p_RequiredNestedAssociate_Name='?' (Size = 4000)
-@complex_type_p_RequiredNestedAssociate_String='?' (Size = 4000)
+@complex_type_p_Id='1000' (Nullable = true)
+@complex_type_p_Int='70' (Nullable = true)
+@complex_type_p_Ints='[1,2,4]' (Size = 4000)
+@complex_type_p_Name='Updated associate name' (Size = 4000)
+@complex_type_p_String='Updated associate string' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_Id='1000' (Nullable = true)
+@complex_type_p_RequiredNestedAssociate_Int='80' (Nullable = true)
+@complex_type_p_RequiredNestedAssociate_Ints='[1,2,4]' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_Name='Updated nested name' (Size = 4000)
+@complex_type_p_RequiredNestedAssociate_String='Updated nested string' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_Id] = @complex_type_p_Id,
     [r].[RequiredAssociate_Int] = @complex_type_p_Int,
@@ -259,6 +269,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_Id] = 1000,
     [r].[RequiredAssociate_Int] = 70,
@@ -285,6 +296,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_RequiredNestedAssociate_Id] = 1000,
     [r].[RequiredAssociate_RequiredNestedAssociate_Int] = 80,
@@ -301,6 +313,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[OptionalAssociate_Id] = NULL,
     [r].[OptionalAssociate_Int] = NULL,
@@ -327,6 +340,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[OptionalAssociate_Id] = NULL,
     [r].[OptionalAssociate_Int] = NULL,
@@ -353,6 +367,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[OptionalAssociate_Id] = NULL,
     [r].[OptionalAssociate_Int] = NULL,
@@ -436,6 +451,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_Ints] = N'[1,2,4]'
 FROM [RootEntity] AS [r]
@@ -448,8 +464,9 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@ints='?' (Size = 4000)
+@ints='[1,2,4]' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_Ints] = @ints
 FROM [RootEntity] AS [r]
@@ -462,6 +479,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_OptionalNestedAssociate_Ints] = [r].[RequiredAssociate_RequiredNestedAssociate_Ints]
 FROM [RootEntity] AS [r]
@@ -474,8 +492,9 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@p='?' (DbType = Int32)
+@p='99'
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_Ints] = JSON_MODIFY([r].[RequiredAssociate_Ints], '$[1]', @p)
 FROM [RootEntity] AS [r]
@@ -495,9 +514,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
-@p='?' (Size = 4000)
-@p1='?' (DbType = Int32)
+@p='foo_updated' (Size = 4000)
+@p1='20'
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_String] = @p,
     [r].[RequiredAssociate_Int] = @p1
@@ -511,8 +531,9 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@p='?' (Size = 4000)
+@p='foo_updated' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[Name] = [r].[Name] + N'Modified',
     [r].[RequiredAssociate_String] = [r].[OptionalAssociate_String],
@@ -528,8 +549,9 @@ WHERE [r].[OptionalAssociate_Id] IS NOT NULL
 
         AssertExecuteUpdateSql(
             """
-@p='?' (Size = 4000)
+@p='foo_updated' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[RequiredAssociate_String] = [r].[OptionalAssociate_String],
     [r].[OptionalAssociate_String] = @p
@@ -540,7 +562,7 @@ WHERE [r].[OptionalAssociate_Id] IS NOT NULL
 
     #endregion Multiple updates
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

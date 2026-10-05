@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalGeometryTypeMappingTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Comparer_uses_exact_comparison()
     {
         var geometry1 = new GeometryCollection([new Point(1, 2), new Point(3, 4)]);
@@ -32,7 +32,7 @@ public class RelationalGeometryTypeMappingTest
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
             => new FakeRelationalGeometryTypeMapping<TGeometry>(parameters);
 
-        protected override Type WktReaderType { get; }
+        protected override Type WktReaderType { get; } = null!;
 
         protected override string AsText(object value)
             => throw new NotImplementedException();

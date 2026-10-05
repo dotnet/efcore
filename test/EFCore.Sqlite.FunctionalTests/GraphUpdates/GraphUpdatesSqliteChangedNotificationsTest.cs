@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class GraphUpdatesSqliteChangedNotificationsTest(GraphUpdatesSqliteChangedNotificationsTest.SqliteFixture fixture)
     : GraphUpdatesSqliteTestBase<GraphUpdatesSqliteChangedNotificationsTest.SqliteFixture>(fixture)
 {

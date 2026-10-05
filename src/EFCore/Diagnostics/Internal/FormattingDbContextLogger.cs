@@ -56,7 +56,8 @@ public class FormattingDbContextLogger : IDbContextLogger
 
             if ((_options & DbContextLoggerOptions.LocalTime) != 0)
             {
-                messageBuilder.Append(DateTime.Now.ToShortDateString()).Append(DateTime.Now.ToString(" HH:mm:ss.fff "));
+                var now = DateTime.Now;
+                messageBuilder.Append(now.ToShortDateString()).Append(now.ToString(" HH:mm:ss.fff "));
             }
 
             if ((_options & DbContextLoggerOptions.UtcTime) != 0)
@@ -81,16 +82,12 @@ public class FormattingDbContextLogger : IDbContextLogger
             const string padding = "      ";
             var preambleLength = messageBuilder.Length;
 
-            if (_options == DbContextLoggerOptions.SingleLine) // Single line ONLY
-            {
-                message = messageBuilder
+            message = _options == DbContextLoggerOptions.SingleLine
+                ? messageBuilder
                     .Append(message)
                     .Replace(Environment.NewLine, "")
-                    .ToString();
-            }
-            else
-            {
-                message = (_options & DbContextLoggerOptions.SingleLine) != 0
+                    .ToString()
+                : (_options & DbContextLoggerOptions.SingleLine) != 0
                     ? messageBuilder
                         .Append("-> ")
                         .Append(message)
@@ -102,7 +99,6 @@ public class FormattingDbContextLogger : IDbContextLogger
                         .Replace(
                             Environment.NewLine, Environment.NewLine + padding, preambleLength, messageBuilder.Length - preambleLength)
                         .ToString();
-            }
         }
 
         _sink(message);

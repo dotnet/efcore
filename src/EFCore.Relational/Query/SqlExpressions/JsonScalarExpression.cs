@@ -97,10 +97,7 @@ public class JsonScalarExpression : SqlExpression
                 }
             }
 
-            if (newPath is not null)
-            {
-                newPath[i] = newSegment;
-            }
+            newPath?[i] = newSegment;
         }
 
         // TODO Call update: Issue#28887
@@ -148,6 +145,7 @@ public class JsonScalarExpression : SqlExpression
     /// <inheritdoc />
     public override bool Equals(object? obj)
         => obj is JsonScalarExpression jsonScalarExpression
+            && base.Equals(jsonScalarExpression)
             && Json.Equals(jsonScalarExpression.Json)
             && Path.SequenceEqual(jsonScalarExpression.Path);
 

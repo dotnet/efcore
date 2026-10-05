@@ -25,7 +25,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
         Selector = selector;
         IsDistinct = false;
         Predicate = null;
-        Orderings = new List<OrderingExpression>();
+        Orderings = [];
     }
 
     private EnumerableExpression(
@@ -180,8 +180,8 @@ public class EnumerableExpression : Expression, IPrintableExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is EnumerableExpression enumerableExpression
-                && Equals(enumerableExpression));
+                || (obj is EnumerableExpression enumerableExpression
+                    && Equals(enumerableExpression)));
 
     private bool Equals(EnumerableExpression enumerableExpression)
         => IsDistinct == enumerableExpression.IsDistinct

@@ -5,13 +5,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture fixture)
     : StoreGeneratedFixupRelationalTestBase<
         StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public Task Temp_values_are_replaced_on_save()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {

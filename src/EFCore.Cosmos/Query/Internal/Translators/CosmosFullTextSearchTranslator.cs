@@ -24,55 +24,54 @@ public class CosmosFullTextSearchTranslator(ISqlExpressionFactory sqlExpressionF
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (method.DeclaringType != typeof(CosmosDbFunctionsExtensions))
-        {
-            return null;
-        }
-
-        return method.Name switch
-        {
-            nameof(CosmosDbFunctionsExtensions.FullTextContains) when arguments is [_, var property, var keyword]
-                => sqlExpressionFactory.Function(
-                    "FullTextContains",
-                    [property, keyword],
-                    typeof(bool),
-                    typeMappingSource.FindMapping(typeof(bool))),
-
-            nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) or nameof(CosmosDbFunctionsExtensions.FullTextContainsAll)
-                when arguments is [_, SqlExpression property, var keywords]
-                => GetKeywords(keywords) is IEnumerable<SqlExpression> values
-                    ? sqlExpressionFactory.Function(
-                        method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) ? "FullTextContainsAny" : "FullTextContainsAll",
-                        [property, .. values],
+        return method.DeclaringType != typeof(CosmosDbFunctionsExtensions)
+            ? null
+            : method.Name switch
+            {
+                nameof(CosmosDbFunctionsExtensions.FullTextContains) when arguments is [_, var property, var keyword]
+                    => sqlExpressionFactory.Function(
+                        "FullTextContains",
+                        [property, keyword],
                         typeof(bool),
-                        typeMappingSource.FindMapping(typeof(bool)))
-                    : null,
+                        typeMappingSource.FindMapping(typeof(bool))),
 
-            nameof(CosmosDbFunctionsExtensions.FullTextScore) when arguments is [_, SqlExpression property, var keywords]
-                => GetKeywords(keywords) is IEnumerable<SqlExpression> values
-                    ? sqlExpressionFactory.ScoringFunction(
-                        "FullTextScore",
-                        [property, .. values],
+                nameof(CosmosDbFunctionsExtensions.FullTextContainsAny) or nameof(CosmosDbFunctionsExtensions.FullTextContainsAll)
+                    when arguments is [_, SqlExpression property, var keywords]
+                    => GetKeywords(keywords) is IEnumerable<SqlExpression> values
+                        ? sqlExpressionFactory.Function(
+                            method.Name == nameof(CosmosDbFunctionsExtensions.FullTextContainsAny)
+                                ? "FullTextContainsAny"
+                                : "FullTextContainsAll",
+                            [property, .. values],
+                            typeof(bool),
+                            typeMappingSource.FindMapping(typeof(bool)))
+                        : null,
+
+                nameof(CosmosDbFunctionsExtensions.FullTextScore) when arguments is [_, SqlExpression property, var keywords]
+                    => GetKeywords(keywords) is IEnumerable<SqlExpression> values
+                        ? sqlExpressionFactory.ScoringFunction(
+                            "FullTextScore",
+                            [property, .. values],
+                            typeof(double),
+                            typeMappingSource.FindMapping(typeof(double)))
+                        : null,
+
+                nameof(CosmosDbFunctionsExtensions.Rrf) when arguments is [_, ArrayConstantExpression functions]
+                    => sqlExpressionFactory.ScoringFunction(
+                        "RRF",
+                        functions.Items,
                         typeof(double),
-                        typeMappingSource.FindMapping(typeof(double)))
-                    : null,
+                        typeMappingSource.FindMapping(typeof(double))),
 
-            nameof(CosmosDbFunctionsExtensions.Rrf) when arguments is [_, ArrayConstantExpression functions]
-                => sqlExpressionFactory.ScoringFunction(
-                    "RRF",
-                    functions.Items,
-                    typeof(double),
-                    typeMappingSource.FindMapping(typeof(double))),
+                nameof(CosmosDbFunctionsExtensions.Rrf) when arguments is [_, ArrayConstantExpression functions, var weights]
+                    => sqlExpressionFactory.ScoringFunction(
+                        "RRF",
+                        [.. functions.Items, weights],
+                        typeof(double),
+                        typeMappingSource.FindMapping(typeof(double))),
 
-            nameof(CosmosDbFunctionsExtensions.Rrf) when arguments is [_, ArrayConstantExpression functions, var weights]
-                => sqlExpressionFactory.ScoringFunction(
-                    "RRF",
-                    [.. functions.Items, weights],
-                    typeof(double),
-                    typeMappingSource.FindMapping(typeof(double))),
-
-            _ => throw new UnreachableException()
-        };
+                _ => throw new UnreachableException()
+            };
 
         IEnumerable<SqlExpression>? GetKeywords(Expression inputExpression)
             => inputExpression switch

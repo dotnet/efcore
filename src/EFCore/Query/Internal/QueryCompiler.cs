@@ -156,8 +156,7 @@ public class QueryCompiler : IQueryCompiler
         Expression query,
         Dictionary<string, object?> parameters,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-        bool compiledQuery = false,
-        bool generateContextAccessors = false)
+        bool compiledQuery = false)
         => new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, logger)
             .ExtractParameters(query, parameters, parameterize: !compiledQuery, clearParameterizedValues: true);
 }

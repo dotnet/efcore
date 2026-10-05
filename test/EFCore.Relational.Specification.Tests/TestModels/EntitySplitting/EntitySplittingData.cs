@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
-#nullable disable
-
 public class EntitySplittingData : ISetSource
 {
     public static readonly EntitySplittingData Instance = new();
@@ -52,17 +50,11 @@ public class EntitySplittingData : ISetSource
             return (IQueryable<TEntity>)_baseEntities.OfType<MiddleEntity>().AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(SiblingEntity))
-        {
-            return (IQueryable<TEntity>)_baseEntities.OfType<SiblingEntity>().AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(LeafEntity))
-        {
-            return (IQueryable<TEntity>)_baseEntities.OfType<LeafEntity>().AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(SiblingEntity)
+            ? (IQueryable<TEntity>)_baseEntities.OfType<SiblingEntity>().AsQueryable()
+            : typeof(TEntity) == typeof(LeafEntity)
+                ? (IQueryable<TEntity>)_baseEntities.OfType<LeafEntity>().AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     private static EntityOne[] CreateEntityOnes()
@@ -193,20 +185,20 @@ public class EntitySplittingData : ISetSource
         {
             _entityOnes[i].OwnedReference = new OwnedReference
             {
-                OwnedIntValue1 = i * 10 + 1,
-                OwnedIntValue2 = i * 10 + 2,
-                OwnedIntValue3 = i * 10 + 3,
-                OwnedIntValue4 = i * 10 + 4,
+                OwnedIntValue1 = (i * 10) + 1,
+                OwnedIntValue2 = (i * 10) + 2,
+                OwnedIntValue3 = (i * 10) + 3,
+                OwnedIntValue4 = (i * 10) + 4,
                 OwnedStringValue1 = "O" + i + "1",
                 OwnedStringValue2 = "O" + i + "2",
                 OwnedStringValue3 = "O" + i + "3",
                 OwnedStringValue4 = "O" + i + "4",
                 OwnedNestedReference = new OwnedNestedReference
                 {
-                    OwnedNestedIntValue1 = i * 100 + 1,
-                    OwnedNestedIntValue2 = i * 100 + 2,
-                    OwnedNestedIntValue3 = i * 100 + 3,
-                    OwnedNestedIntValue4 = i * 100 + 4,
+                    OwnedNestedIntValue1 = (i * 100) + 1,
+                    OwnedNestedIntValue2 = (i * 100) + 2,
+                    OwnedNestedIntValue3 = (i * 100) + 3,
+                    OwnedNestedIntValue4 = (i * 100) + 4,
                     OwnedNestedStringValue1 = "ON" + i + "1",
                     OwnedNestedStringValue2 = "ON" + i + "2",
                     OwnedNestedStringValue3 = "ON" + i + "3",
@@ -219,11 +211,11 @@ public class EntitySplittingData : ISetSource
                 _entityOnes[i].OwnedCollection.Add(
                     new OwnedCollection
                     {
-                        Id = i * 100 + j,
-                        OwnedIntValue1 = i * 10 + 1,
-                        OwnedIntValue2 = i * 10 + 2,
-                        OwnedIntValue3 = i * 10 + 3,
-                        OwnedIntValue4 = i * 10 + 4,
+                        Id = (i * 100) + j,
+                        OwnedIntValue1 = (i * 10) + 1,
+                        OwnedIntValue2 = (i * 10) + 2,
+                        OwnedIntValue3 = (i * 10) + 3,
+                        OwnedIntValue4 = (i * 10) + 4,
                         OwnedStringValue1 = "O" + i + "1",
                         OwnedStringValue2 = "O" + i + "2",
                         OwnedStringValue3 = "O" + i + "3",
@@ -236,20 +228,20 @@ public class EntitySplittingData : ISetSource
         {
             _baseEntities[i].OwnedReference = new OwnedReference
             {
-                OwnedIntValue1 = i * 10 + 1,
-                OwnedIntValue2 = i * 10 + 2,
-                OwnedIntValue3 = i * 10 + 3,
-                OwnedIntValue4 = i * 10 + 4,
+                OwnedIntValue1 = (i * 10) + 1,
+                OwnedIntValue2 = (i * 10) + 2,
+                OwnedIntValue3 = (i * 10) + 3,
+                OwnedIntValue4 = (i * 10) + 4,
                 OwnedStringValue1 = "O" + i + "1",
                 OwnedStringValue2 = "O" + i + "2",
                 OwnedStringValue3 = "O" + i + "3",
                 OwnedStringValue4 = "O" + i + "4",
                 OwnedNestedReference = new OwnedNestedReference
                 {
-                    OwnedNestedIntValue1 = i * 100 + 1,
-                    OwnedNestedIntValue2 = i * 100 + 2,
-                    OwnedNestedIntValue3 = i * 100 + 3,
-                    OwnedNestedIntValue4 = i * 100 + 4,
+                    OwnedNestedIntValue1 = (i * 100) + 1,
+                    OwnedNestedIntValue2 = (i * 100) + 2,
+                    OwnedNestedIntValue3 = (i * 100) + 3,
+                    OwnedNestedIntValue4 = (i * 100) + 4,
                     OwnedNestedStringValue1 = "ON" + i + "1",
                     OwnedNestedStringValue2 = "ON" + i + "2",
                     OwnedNestedStringValue3 = "ON" + i + "3",
@@ -262,11 +254,11 @@ public class EntitySplittingData : ISetSource
                 _baseEntities[i].OwnedCollection.Add(
                     new OwnedCollection
                     {
-                        Id = i * 100 + j,
-                        OwnedIntValue1 = i * 10 + 1,
-                        OwnedIntValue2 = i * 10 + 2,
-                        OwnedIntValue3 = i * 10 + 3,
-                        OwnedIntValue4 = i * 10 + 4,
+                        Id = (i * 100) + j,
+                        OwnedIntValue1 = (i * 10) + 1,
+                        OwnedIntValue2 = (i * 10) + 2,
+                        OwnedIntValue3 = (i * 10) + 3,
+                        OwnedIntValue4 = (i * 10) + 4,
                         OwnedStringValue1 = "O" + i + "1",
                         OwnedStringValue2 = "O" + i + "2",
                         OwnedStringValue3 = "O" + i + "3",

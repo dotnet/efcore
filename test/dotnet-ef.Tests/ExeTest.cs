@@ -11,14 +11,14 @@ public class ExeTest
         var result = ToArguments(
         [
             "",
-                "Good",
-                "Good\\",
-                "Needs quotes",
-                "Needs escaping\\",
-                "Needs escaping\\\\",
-                "Needs \"escaping\"",
-                "Needs \\\"escaping\"",
-                "Needs escaping\\\\too"
+            "Good",
+            "Good\\",
+            "Needs quotes",
+            "Needs escaping\\",
+            "Needs escaping\\\\",
+            "Needs \"escaping\"",
+            "Needs \\\"escaping\"",
+            "Needs escaping\\\\too"
         ]);
 
         Assert.Equal(

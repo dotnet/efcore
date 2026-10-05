@@ -6,14 +6,12 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : SpatialFixtureBase, new()
 {
     protected virtual TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Values_are_copied_into_change_tracker()
     {
         using var db = Fixture.CreateContext();
@@ -22,10 +20,10 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
 
         entity.Point.X = 1;
 
-        Assert.Equal(0, db.Entry(entity).Property(e => e.Point).OriginalValue.X);
+        Assert.Equal(0, db.Entry(entity).Property(e => e.Point).OriginalValue!.X);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Values_arent_compared_by_reference()
     {
         using var db = Fixture.CreateContext();
@@ -37,7 +35,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
         Assert.False(db.Entry(entity).Property(e => e.Point).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
         Point CreatePoint(double y = 2.2)
@@ -71,8 +69,8 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 Assert.Equal(CreatePoint(), fromStore1.Point);
                 Assert.Equal(CreatePolygon(), fromStore2.Polygon);
 
-                fromStore1.Point.Y = 22.2;
-                fromStore2.Polygon.Coordinates[1].Y = 22.2;
+                fromStore1.Point!.Y = 22.2;
+                fromStore2.Polygon!.Coordinates[1].Y = 22.2;
 
                 context.Entry(fromStore2).State = EntityState.Unchanged;
 
@@ -87,7 +85,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Translators_handle_static_members()
     {
         using var db = Fixture.CreateContext();
@@ -103,7 +101,7 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
          }).FirstOrDefault();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_roundtrip_Z_and_M()
     {
         using var db = Fixture.CreateContext();
@@ -114,18 +112,18 @@ public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixtur
         Assert.NotNull(entity.Point);
         Assert.True(double.IsNaN(entity.Point.Z));
         Assert.True(double.IsNaN(entity.Point.M));
-        Assert.Equal(0, entity.PointZ.Z);
+        Assert.Equal(0, entity.PointZ!.Z);
         Assert.True(double.IsNaN(entity.PointZ.M));
-        Assert.True(double.IsNaN(entity.PointM.Z));
+        Assert.True(double.IsNaN(entity.PointM!.Z));
         Assert.Equal(0, entity.PointM.M);
-        Assert.Equal(0, entity.PointZM.Z);
+        Assert.Equal(0, entity.PointZM!.Z);
         Assert.Equal(0, entity.PointZM.M);
     }
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<SpatialContext, Task> testOperation,
-        Func<SpatialContext, Task> nestedTestOperation1 = null,
-        Func<SpatialContext, Task> nestedTestOperation2 = null)
+        Func<SpatialContext, Task>? nestedTestOperation1 = null,
+        Func<SpatialContext, Task>? nestedTestOperation2 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2);

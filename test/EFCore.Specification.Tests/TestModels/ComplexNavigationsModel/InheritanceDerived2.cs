@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
-#nullable disable
-
 public class InheritanceDerived2 : InheritanceBase1
 {
-    public InheritanceLeaf1 ReferenceSameType { get; set; }
-    public InheritanceLeaf2 ReferenceDifferentType { get; set; }
-    public List<InheritanceLeaf1> CollectionSameType { get; set; }
-    public List<InheritanceLeaf2> CollectionDifferentType { get; set; }
+    public InheritanceLeaf1? ReferenceSameType { get; set; }
+    public InheritanceLeaf2? ReferenceDifferentType { get; set; }
+    public List<InheritanceLeaf1> CollectionSameType { get; set; } = null!;
+    public List<InheritanceLeaf2> CollectionDifferentType { get; set; } = null!;
 }

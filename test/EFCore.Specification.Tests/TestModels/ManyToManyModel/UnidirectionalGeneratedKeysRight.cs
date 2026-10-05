@@ -5,12 +5,10 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class UnidirectionalGeneratedKeysRight
 {
     public virtual int Id { get; set; }
-    public virtual string Name { get; set; }
+    public virtual string? Name { get; set; }
 
     public virtual ICollection<UnidirectionalGeneratedKeysLeft> Lefts { get; } =
         new ObservableCollection<UnidirectionalGeneratedKeysLeft>();

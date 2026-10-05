@@ -15,9 +15,9 @@ public class Currency
         CurrencyRateNavigation = new HashSet<CurrencyRate>();
     }
 
-    public string CurrencyCode { get; set; }
+    public string CurrencyCode { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<CountryRegionCurrency> CountryRegionCurrency { get; set; }
     public virtual ICollection<CurrencyRate> CurrencyRate { get; set; }

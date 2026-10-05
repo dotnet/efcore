@@ -1,7 +1,6 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
 // ReSharper disable MergeConditionalExpression
@@ -13,7 +12,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 {
     #region Bug9849
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_throw_when_empty_9849()
     {
         await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
@@ -25,7 +24,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_throw_when_empty_9849_2()
     {
         await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
@@ -39,7 +38,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_throw_when_empty_9849_3()
     {
         await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
@@ -53,7 +52,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_throw_when_empty_9849_4()
     {
         await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
@@ -67,7 +66,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_throw_when_empty_9849_5()
     {
         await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
@@ -83,7 +82,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_throw_when_empty_9849_6()
     {
         await using (await CreateScratchAsync<DatabaseContext>(_ => Task.CompletedTask, "9849"))
@@ -120,10 +119,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<VehicleInspection> VehicleInspections { get; set; }
+        public DbSet<VehicleInspection> VehicleInspections { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Motor> Motors { get; set; }
+        public DbSet<Motor> Motors { get; set; } = null!;
     }
 
     private class VehicleInspection
@@ -136,14 +135,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public long Id { get; set; }
         public long VehicleInspectionId { get; set; }
-        public VehicleInspection Inspection { get; set; }
+        public VehicleInspection Inspection { get; set; } = null!;
     }
 
     #endregion
 
     #region Bug3595
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task GroupBy_with_uninitialized_datetime_projection_3595()
     {
         await using (await CreateScratchAsync<Context3595>(Seed3595, "3595"))
@@ -196,20 +195,20 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         public int Id { get; set; }
 
         public int QuestionId { get; set; }
-        public Question3595 Question { get; set; }
+        public Question3595 Question { get; set; } = null!;
 
         public int ExamId { get; set; }
-        public Exam3595 Exam { get; set; }
+        public Exam3595 Exam { get; set; } = null!;
     }
 
     private class Context3595 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Exam3595> Exams { get; set; }
-        public DbSet<Question3595> Questions { get; set; }
+        public DbSet<Exam3595> Exams { get; set; } = null!;
+        public DbSet<Question3595> Questions { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<ExamQuestion3595> ExamQuestions { get; set; }
+        public DbSet<ExamQuestion3595> ExamQuestions { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -221,7 +220,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Bug3101
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_simple_coalesce1()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -238,7 +237,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_simple_coalesce2()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -256,7 +255,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_simple_coalesce3()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -275,7 +274,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_complex_coalesce1()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -293,7 +292,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_complex_coalesce2()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -311,7 +310,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_nested_coalesce1()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -322,14 +321,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                             on eVersion.RootEntityId equals eRoot.Id
                             into RootEntities
                         from eRootJoined in RootEntities.DefaultIfEmpty()
-                        select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
+                        select new { One = 1, Coalesce = eRootJoined ?? eVersion ?? eRootJoined };
 
             var result = query.ToList();
             Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_nested_coalesce2()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -344,7 +343,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                         {
                             One = eRootJoined,
                             Two = 2,
-                            Coalesce = eRootJoined ?? (eVersion ?? eRootJoined)
+                            Coalesce = eRootJoined ?? eVersion ?? eRootJoined
                         };
 
             var result = query.ToList();
@@ -352,7 +351,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_conditional()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -372,7 +371,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro3101_coalesce_tracking()
     {
         await using (await CreateScratchAsync<MyContext3101>(Seed3101, "3101"))
@@ -421,10 +420,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext3101 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Entity3101> Entities { get; set; }
+        public DbSet<Entity3101> Entities { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Child3101> Children { get; set; }
+        public DbSet<Child3101> Children { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -441,22 +440,22 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         public int? RootEntityId { get; set; }
 
-        public Entity3101 RootEntity { get; set; }
+        public Entity3101? RootEntity { get; set; }
 
-        public ICollection<Child3101> Children { get; set; } = new Collection<Child3101>();
+        public ICollection<Child3101> Children { get; set; } = [];
     }
 
     private class Child3101
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     #endregion
 
     #region Bug5456
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro5456_include_group_join_is_per_query_context()
     {
         await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
@@ -472,7 +471,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro5456_include_group_join_is_per_query_context_async()
     {
         await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
@@ -486,7 +485,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             Task.WaitAll(tasks.ToArray());
         }
 
-        async Task Action()
+        static async Task Action()
         {
             using var ctx = new MyContext5456();
             var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
@@ -495,7 +494,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context()
     {
         await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
@@ -511,7 +510,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro5456_multiple_include_group_join_is_per_query_context_async()
     {
         await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
@@ -525,7 +524,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             Task.WaitAll(tasks.ToArray());
         }
 
-        async Task Action()
+        static async Task Action()
         {
             using var ctx = new MyContext5456();
             var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments)
@@ -535,7 +534,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro5456_multi_level_include_group_join_is_per_query_context()
     {
         await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
@@ -551,7 +550,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repro5456_multi_level_include_group_join_is_per_query_context_async()
     {
         await using (await CreateScratchAsync<MyContext5456>(Seed5456, "5456"))
@@ -565,7 +564,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             Task.WaitAll(tasks.ToArray());
         }
 
-        async Task Action()
+        static async Task Action()
         {
             using var ctx = new MyContext5456();
             var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author)
@@ -593,12 +592,12 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext5456 : DbContext
     {
-        public DbSet<Blog5456> Blogs { get; set; }
+        public DbSet<Blog5456> Blogs { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Post5456> Posts { get; set; }
-        public DbSet<Comment5456> Comments { get; set; }
-        public DbSet<Author5456> Authors { get; set; }
+        public DbSet<Post5456> Posts { get; set; } = null!;
+        public DbSet<Comment5456> Comments { get; set; } = null!;
+        public DbSet<Author5456> Authors { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -612,34 +611,34 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Blog5456
     {
         public int Id { get; set; }
-        public List<Post5456> Posts { get; set; }
-        public Author5456 Author { get; set; }
+        public List<Post5456> Posts { get; set; } = null!;
+        public Author5456 Author { get; set; } = null!;
     }
 
     private class Author5456
     {
         public int Id { get; set; }
-        public List<Blog5456> Blogs { get; set; }
+        public List<Blog5456> Blogs { get; set; } = null!;
     }
 
     private class Post5456
     {
         public int Id { get; set; }
-        public Blog5456 Blog { get; set; }
-        public List<Comment5456> Comments { get; set; }
+        public Blog5456 Blog { get; set; } = null!;
+        public List<Comment5456> Comments { get; set; } = null!;
     }
 
     private class Comment5456
     {
         public int Id { get; set; }
-        public Post5456 Blog { get; set; }
+        public Post5456 Blog { get; set; } = null!;
     }
 
     #endregion
 
     #region Bug8282
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Entity_passed_to_DTO_constructor_works()
     {
         await using (await CreateScratchAsync<MyContext8282>(_ => Task.CompletedTask, "8282"))
@@ -654,7 +653,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext8282 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Entity8282> Entity { get; set; }
+        public DbSet<Entity8282> Entity { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -676,7 +675,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue21803
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_enumerable_navigation_backed_by_collection()
     {
         await using (await CreateScratchAsync<MyContext21803>(Seed21803, "21803"))
@@ -714,12 +713,12 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class OtherEntity21803
     {
         public int Id { get; private set; }
-        public AppEntity21803 AppEntity { get; set; }
+        public AppEntity21803 AppEntity { get; set; } = null!;
     }
 
     private class MyContext21803 : DbContext
     {
-        public DbSet<AppEntity21803> Entities { get; set; }
+        public DbSet<AppEntity21803> Entities { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -731,7 +730,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue20729
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Multiple_owned_references_at_same_level_maintains_valueBuffer_positions()
     {
         await using (await CreateScratchAsync<MyContext20729>(Seed20729, "20729"))
@@ -740,13 +739,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
             var query = context.Set<Owner20729>()
                 .Select(dtoOwner => new
-                    {
-                        dtoOwner.Id,
-                        Owned2 = dtoOwner.Owned2 == null
+                {
+                    dtoOwner.Id,
+                    Owned2 = dtoOwner.Owned2 == null
                             ? null
                             : new { Other = dtoOwner.Owned2.Other == null ? null : new { dtoOwner.Owned2.Other.Id } },
-                        Owned1 = dtoOwner.Owned1 == null ? null : new { dtoOwner.Owned1.Value }
-                    }
+                    Owned1 = dtoOwner.Owned1 == null ? null : new { dtoOwner.Owned1.Value }
+                }
                 ).ToList();
 
             var owner = Assert.Single(query);
@@ -760,7 +759,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         context.Owners.Add(
             new Owner20729
             {
-                Owned1 = new Owned120729(), Owned2 = new Owned220729(),
+                Owned1 = new Owned120729(),
+                Owned2 = new Owned220729(),
             });
 
         return context.SaveChangesAsync();
@@ -769,8 +769,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Owner20729
     {
         public int Id { get; set; }
-        public Owned120729 Owned1 { get; set; }
-        public Owned220729 Owned2 { get; set; }
+        public Owned120729? Owned1 { get; set; }
+        public Owned220729? Owned2 { get; set; }
     }
 
     [Owned]
@@ -784,7 +784,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Owned220729
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public Other20729 Other { get; set; }
+        public Other20729? Other { get; set; }
     }
 
     private class Other20729
@@ -796,7 +796,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext20729 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Owner20729> Owners { get; set; }
+        public DbSet<Owner20729> Owners { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -808,7 +808,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue23285
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_reference_on_base_with_hierarchy()
     {
         await using (await CreateScratchAsync<MyContext23285>(Seed23285, "23285"))
@@ -832,14 +832,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [Owned]
     private class OwnedClass23285
     {
-        public string A { get; set; }
-        public string B { get; set; }
+        public string? A { get; set; }
+        public string? B { get; set; }
     }
 
     private class Root23285
     {
         public int Id { get; set; }
-        public OwnedClass23285 OwnedProp { get; set; }
+        public OwnedClass23285? OwnedProp { get; set; }
     }
 
     private class ChildA23285 : Root23285
@@ -855,7 +855,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext23285 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Root23285> Table { get; set; }
+        public DbSet<Root23285> Table { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -873,7 +873,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue23687
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_reference_with_composite_key()
     {
         await using (await CreateScratchAsync<MyContext23687>(Seed23687, "23687"))
@@ -904,8 +904,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [Owned]
     private class OwnedClass23687
     {
-        public string A { get; set; }
-        public string B { get; set; }
+        public string A { get; set; } = null!;
+        public string B { get; set; } = null!;
     }
 
     [PrimaryKey(nameof(Id1), nameof(Id2))]
@@ -913,13 +913,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id1 { get; set; }
         public int Id2 { get; set; }
-        public OwnedClass23687 OwnedProp { get; set; }
+        public OwnedClass23687 OwnedProp { get; set; } = null!;
     }
 
     private class MyContext23687 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Root23687> Table { get; set; }
+        public DbSet<Root23687> Table { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -934,7 +934,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue23593
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Join_with_enum_as_key_selector()
     {
         await using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
@@ -950,7 +950,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Join_with_enum_inside_anonymous_type_as_key_selector()
     {
         await using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
@@ -966,7 +966,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Join_with_enum_inside_anonymous_type_with_other_property_as_key_selector()
     {
         await using (await CreateScratchAsync<MyContext23593>(Seed23593, "23593"))
@@ -1012,10 +1012,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext23593 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<StatusMap23593> StatusMaps { get; set; }
+        public DbSet<StatusMap23593> StatusMaps { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<StatusMapEvent23593> StatusMapEvents { get; set; }
+        public DbSet<StatusMapEvent23593> StatusMapEvents { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1027,14 +1027,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue23926
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Left_join_with_entity_with_enum_discriminator()
     {
         await using (await CreateScratchAsync<MyContext23926>(Seed23926, "23926"))
         {
             using var context = new MyContext23926();
 
-            var query = context.History.Select(e => e.User.Name).ToList();
+            var query = context.History.Select(e => e.User!.Name).ToList();
 
             Assert.Equal(query, new[] { "UserA", "DerivedUserB", null });
         }
@@ -1053,14 +1053,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
         public int? UserId { get; set; }
-        public User23926 User { get; set; }
+        public User23926? User { get; set; }
     }
 
     private class User23926
     {
         public int Id { get; set; }
         public UserTypes23926 Type { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private enum UserTypes23926
@@ -1071,13 +1071,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class DerivedUser23926 : User23926
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 
     private class MyContext23926 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<History23926> History { get; set; }
+        public DbSet<History23926> History { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1094,7 +1094,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue18435
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Shared_owned_property_on_multiple_level_in_Select()
     {
         await using (await CreateScratchAsync<MyContext18435>(Seed18435, "18435"))
@@ -1111,7 +1111,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                     D = x.Child.Owned.Second
                 }).FirstOrDefault();
 
-            Assert.Equal("test", result.Value);
+            Assert.Equal("test", result!.Value);
             Assert.Equal(2, result.A);
             Assert.Equal(4, result.B);
             Assert.Equal(1, result.C);
@@ -1148,16 +1148,16 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class RootEntity18435
     {
         public int Id { get; set; }
-        public string Value { get; set; }
-        public TestOwned18435 Owned { get; set; }
-        public ChildEntity18435 Child { get; set; }
+        public string Value { get; set; } = null!;
+        public TestOwned18435 Owned { get; set; } = null!;
+        public ChildEntity18435 Child { get; set; } = null!;
     }
 
     private class ChildEntity18435
     {
         public int Id { get; set; }
-        public string Value { get; set; }
-        public TestOwned18435 Owned { get; set; }
+        public string? Value { get; set; }
+        public TestOwned18435 Owned { get; set; } = null!;
     }
 
     [Owned]
@@ -1165,13 +1165,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int First { get; set; }
         public int Second { get; set; }
-        public string AnotherValueType { get; set; }
+        public string AnotherValueType { get; set; } = null!;
     }
 
     private class MyContext18435 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<RootEntity18435> TestEntities { get; set; }
+        public DbSet<RootEntity18435> TestEntities { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1183,7 +1183,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue19425
 
-    [ConditionalFact(Skip = "Issue#19425")]
+    [Fact]
     public virtual async Task Non_nullable_cast_in_null_check()
     {
         await using (await CreateScratchAsync<MyContext19425>(Seed19425, "19425"))
@@ -1219,7 +1219,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext19425 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<FooTable19425> FooTable { get; set; }
+        public DbSet<FooTable19425> FooTable { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1231,7 +1231,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue19667
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Property_access_on_nullable_converted_scalar_type()
     {
         await using (await CreateScratchAsync<MyContext19667>(Seed19667, "19667"))
@@ -1240,7 +1240,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
             var query = context.Entities.OrderByDescending(e => e.Id).FirstOrDefault(p => p.Type.Date.Year == 2020);
 
-            Assert.Equal(2, query.Id);
+            Assert.Equal(2, query!.Id);
         }
     }
 
@@ -1256,7 +1256,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public MyType19667 Type { get; set; }
+        public MyType19667 Type { get; set; } = null!;
     }
 
     [Owned]
@@ -1268,7 +1268,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext19667 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<MyEntity19667> Entities { get; set; }
+        public DbSet<MyEntity19667> Entities { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1280,7 +1280,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue20359
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Changing_order_of_projection_in_anonymous_type_works()
     {
         await using (await CreateScratchAsync<MyContext20359>(Seed20359, "20359"))
@@ -1293,10 +1293,11 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             var result2 = (from r in context.Root
                            select new
                            {
-                               r.A.Sub.AValue, r.B.BValue,
+                               r.A.Sub.AValue,
+                               r.B.BValue,
                            }).FirstOrDefault();
 
-            Assert.Equal(result1.BValue, result2.BValue);
+            Assert.Equal(result1!.BValue, result2!.BValue);
         }
     }
 
@@ -1304,7 +1305,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         var root = new Root20359
         {
-            A = new A20359 { Sub = new ASubClass20359 { AValue = "A Value" } }, B = new B20359 { BValue = "B Value" }
+            A = new A20359 { Sub = new ASubClass20359 { AValue = "A Value" } },
+            B = new B20359 { BValue = "B Value" }
         };
 
         context.Add(root);
@@ -1316,31 +1318,31 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public ASubClass20359 Sub { get; set; }
+        public ASubClass20359 Sub { get; set; } = null!;
     }
 
     private class ASubClass20359
     {
-        public string AValue { get; set; }
+        public string AValue { get; set; } = null!;
     }
 
     private class B20359
     {
-        public string BValue { get; set; }
+        public string BValue { get; set; } = null!;
     }
 
     private class Root20359
     {
         public int Id { get; set; }
 
-        public A20359 A { get; set; }
-        public B20359 B { get; set; }
+        public A20359 A { get; set; } = null!;
+        public B20359 B { get; set; } = null!;
     }
 
     private class MyContext20359 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Root20359> Root { get; set; }
+        public DbSet<Root20359> Root { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1349,15 +1351,9 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<A20359>(builder =>
-            {
-                builder.OwnsOne(x => x.Sub);
-            });
+            modelBuilder.Entity<A20359>(builder => builder.OwnsOne(x => x.Sub));
 
-            modelBuilder.Entity<Root20359>(builder =>
-            {
-                builder.OwnsOne(x => x.B);
-            });
+            modelBuilder.Entity<Root20359>(builder => builder.OwnsOne(x => x.B));
         }
     }
 
@@ -1365,7 +1361,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue23360
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Union_with_different_property_name_using_same_anonymous_type()
     {
         await using (await CreateScratchAsync<MyContext23360>(Seed23360, "23360"))
@@ -1376,14 +1372,16 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                 .Select(u => new CommonSelectType23360
                 {
                     // 1. FirstName, 2. LastName
-                    FirstName = u.Forename, LastName = u.Surname,
+                    FirstName = u.Forename,
+                    LastName = u.Surname,
                 });
 
             var customerQuery = context.Customer
                 .Select(c => new CommonSelectType23360
                 {
                     // 1. LastName, 2. FirstName
-                    LastName = c.FamilyName, FirstName = c.GivenName,
+                    LastName = c.FamilyName,
+                    FirstName = c.GivenName,
                 });
 
             var result = userQuery.Union(customerQuery).ToList();
@@ -1400,13 +1398,15 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         context.User.Add(
             new User23360
             {
-                Forename = "Peter", Surname = "Smith",
+                Forename = "Peter",
+                Surname = "Smith",
             });
 
         context.Customer.Add(
             new Customer23360
             {
-                GivenName = "John", FamilyName = "Doe",
+                GivenName = "John",
+                FamilyName = "Doe",
             });
 
         return context.SaveChangesAsync();
@@ -1417,8 +1417,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         [Key]
         public int Key { get; set; }
 
-        public string Forename { get; set; }
-        public string Surname { get; set; }
+        public string Forename { get; set; } = null!;
+        public string Surname { get; set; } = null!;
     }
 
     private class Customer23360
@@ -1426,20 +1426,20 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         [Key]
         public int Key { get; set; }
 
-        public string GivenName { get; set; }
-        public string FamilyName { get; set; }
+        public string GivenName { get; set; } = null!;
+        public string FamilyName { get; set; } = null!;
     }
 
     private class CommonSelectType23360
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
     }
 
     private class MyContext23360 : DbContext
     {
-        public virtual DbSet<User23360> User { get; set; }
-        public virtual DbSet<Customer23360> Customer { get; set; }
+        public virtual DbSet<User23360> User { get; set; } = null!;
+        public virtual DbSet<Customer23360> Customer { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1451,7 +1451,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue18394
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Ordering_of_collection_result_is_correct()
     {
         await using (await CreateScratchAsync<MyContext18394>(Seed18394, "18394"))
@@ -1474,7 +1474,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                 })
                 .FirstOrDefault();
 
-            Assert.Equal("TestText", myA.PropertyB.PropertyCList.First().SomeText);
+            Assert.Equal("TestText", myA!.PropertyB!.PropertyCList.First().SomeText);
         }
     }
 
@@ -1490,7 +1490,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public BDto18394 PropertyB { get; set; }
+        public BDto18394? PropertyB { get; set; }
 
         public int PropertyBId { get; set; }
     }
@@ -1499,7 +1499,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public List<CDto18394> PropertyCList { get; set; }
+        public List<CDto18394> PropertyCList { get; set; } = null!;
     }
 
     private class CDto18394
@@ -1508,14 +1508,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         public int CId { get; set; }
 
-        public string SomeText { get; set; }
+        public string SomeText { get; set; } = null!;
     }
 
     private class A18394
     {
         public int Id { get; set; }
 
-        public B18394 PropertyB { get; set; }
+        public B18394? PropertyB { get; set; }
 
         public int PropertyBId { get; set; }
     }
@@ -1524,7 +1524,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         public int Id { get; set; }
 
-        public List<C18394> PropertyCList { get; set; }
+        public List<C18394> PropertyCList { get; set; } = null!;
     }
 
     private class C18394
@@ -1533,17 +1533,17 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         public int BId { get; set; }
 
-        public string SomeText { get; set; }
+        public string SomeText { get; set; } = null!;
 
-        public B18394 B { get; set; }
+        public B18394 B { get; set; } = null!;
     }
 
     private class MyContext18394 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<A18394> As { get; set; }
-        public DbSet<B18394> Bs { get; set; }
-        public DbSet<C18394> Cs { get; set; }
+        public DbSet<A18394> As { get; set; } = null!;
+        public DbSet<B18394> Bs { get; set; } = null!;
+        public DbSet<C18394> Cs { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1555,7 +1555,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     #region Issue23934
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_entity_indexes_are_maintained_properly()
     {
         await using (await CreateScratchAsync<MyContext23934>(Seed23934, "23934"))
@@ -1590,15 +1590,15 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class Outer23934
     {
         public Guid Id { get; set; }
-        public OwnedClass23934 OwnedProp { get; set; }
+        public OwnedClass23934 OwnedProp { get; set; } = null!;
         public Guid InnerId { get; set; }
-        public Inner23934 Inner { get; set; }
+        public Inner23934 Inner { get; set; } = null!;
     }
 
     private class Inner23934
     {
         public Guid Id { get; set; }
-        public OwnedClass23934 OwnedProp { get; set; }
+        public OwnedClass23934 OwnedProp { get; set; } = null!;
     }
 
     [Owned]
@@ -1610,10 +1610,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext23934 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Outer23934> Outers { get; set; }
+        public DbSet<Outer23934> Outers { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Inner23934> Inners { get; set; }
+        public DbSet<Inner23934> Inners { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

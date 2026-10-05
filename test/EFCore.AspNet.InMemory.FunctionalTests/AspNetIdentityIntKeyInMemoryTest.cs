@@ -18,9 +18,9 @@ public class AspNetIdentityIntKeyInMemoryTest(AspNetIdentityIntKeyInMemoryTest.A
 
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>, Task> testOperation,
-        Func<IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>, Task> nestedTestOperation1 = null,
-        Func<IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>, Task> nestedTestOperation2 = null,
-        Func<IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>, Task> nestedTestOperation3 = null)
+        Func<IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>, Task>? nestedTestOperation1 = null,
+        Func<IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>, Task>? nestedTestOperation2 = null,
+        Func<IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>, Task>? nestedTestOperation3 = null)
     {
         await base.ExecuteWithStrategyInTransactionAsync(
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);

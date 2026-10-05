@@ -1,11 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Update;
-
-#nullable disable
 
 public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryContext>
 {
@@ -15,12 +16,17 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Name).IsRequired(false);
         modelBuilder.Entity<JsonEntityBasic>().OwnsOne(
             x => x.OwnedReferenceRoot, b =>
             {
+                b.Property(x => x.Name).IsRequired(false);
                 b.ToJson();
                 b.WithOwner(x => x.Owner);
                 b.OwnsOne(
@@ -45,6 +51,7 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
         modelBuilder.Entity<JsonEntityBasic>().OwnsMany(
             x => x.OwnedCollectionRoot, b =>
             {
+                b.Property(x => x.Name).IsRequired(false);
                 b.OwnsOne(
                     x => x.OwnedReferenceBranch, bb =>
                     {
@@ -66,6 +73,7 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
         modelBuilder.Entity<JsonEntityInheritanceBase>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityInheritanceBase>(b =>
         {
+            b.Property(x => x.Name).IsRequired(false);
             b.OwnsOne(
                 x => x.ReferenceOnBase, bb =>
                 {
@@ -110,7 +118,29 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
         modelBuilder.Ignore<JsonEntityCustomNaming>();
         modelBuilder.Ignore<JsonEntitySingleOwned>();
 
-        modelBuilder.Entity<JsonEntityAllTypes>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityAllTypes>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.TestBooleanCollection).IsRequired(false);
+            b.Property(x => x.TestCharacterCollection).IsRequired(false);
+            b.Property(x => x.TestDateTimeCollection).IsRequired(false);
+            b.Property(x => x.TestDateTimeOffsetCollection).IsRequired(false);
+            b.Property(x => x.TestDecimalCollection).IsRequired(false);
+            b.Property(x => x.TestDefaultStringCollection).IsRequired(false);
+            b.Property(x => x.TestDoubleCollection).IsRequired(false);
+            b.Property(x => x.TestEnumCollection).IsRequired(false);
+            b.Property(x => x.TestEnumWithIntConverterCollection).IsRequired(false);
+            b.Property(x => x.TestInt16Collection).IsRequired(false);
+            b.Property(x => x.TestInt32Collection).IsRequired(false);
+            b.Property(x => x.TestInt64Collection).IsRequired(false);
+            b.Property(x => x.TestMaxLengthStringCollection).IsRequired(false);
+            b.Property(x => x.TestSignedByteCollection).IsRequired(false);
+            b.Property(x => x.TestSingleCollection).IsRequired(false);
+            b.Property(x => x.TestTimeSpanCollection).IsRequired(false);
+            b.Property(x => x.TestUnsignedInt16Collection).IsRequired(false);
+            b.Property(x => x.TestUnsignedInt32Collection).IsRequired(false);
+            b.Property(x => x.TestUnsignedInt64Collection).IsRequired(false);
+        });
         modelBuilder.Entity<JsonEntityAllTypes>().OwnsOne(
             x => x.Reference, b =>
             {
@@ -178,17 +208,17 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
                 b.Property(x => x.BoolConvertedToStringYN).HasConversion(new BoolToStringConverter("N", "Y"));
                 b.Property(x => x.IntZeroOneConvertedToBool).HasConversion(
                     new ValueConverter<int, bool>(
-                        x => x == 0 ? false : true,
+                        x => x != 0,
                         x => x == false ? 0 : 1));
 
                 b.Property(x => x.StringTrueFalseConvertedToBool).HasConversion(
                     new ValueConverter<string, bool>(
-                        x => x == "True" ? true : false,
+                        x => x == "True",
                         x => x == true ? "True" : "False"));
 
                 b.Property(x => x.StringYNConvertedToBool).HasConversion(
                     new ValueConverter<string, bool>(
-                        x => x == "Y" ? true : false,
+                        x => x == "Y",
                         x => x == true ? "Y" : "N"));
             });
 

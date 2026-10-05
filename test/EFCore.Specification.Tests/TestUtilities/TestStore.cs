@@ -59,22 +59,44 @@ public abstract class TestStore(string name, bool shared) : IAsyncDisposable
     protected virtual async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
         using var context = createContext();
-        if (clean != null)
+        var firstAttempt = true;
+        var strategy = context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
         {
-            await clean(context);
-        }
+            if (!firstAttempt)
+            {
+                // The previous attempt may have left tracked entities; reset before retrying.
+                context.ChangeTracker.Clear();
+            }
 
-        await CleanAsync(context);
+            if (firstAttempt || !SupportsTransactions)
+            {
+                if (clean != null)
+                {
+                    await clean(context);
+                }
 
-        if (seed != null)
-        {
-            await seed(context);
-        }
+                await CleanAsync(context);
+            }
+
+            firstAttempt = false;
+            if (seed != null)
+            {
+                await seed(context);
+            }
+        });
     }
+
+    /// <summary>
+    ///     Indicates whether the store supports transactions, so that a failed multi-statement seed leaves no
+    ///     partially-committed data behind. When <see langword="false" />, the store is cleaned before each seed retry.
+    /// </summary>
+    public virtual bool SupportsTransactions
+        => true;
 
     public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
 
-    public virtual Task CleanAsync(DbContext context)
+    public virtual Task CleanAsync(DbContext context, bool createTables = true)
         => Task.CompletedTask;
 
     protected virtual DbContext CreateDefaultContext()

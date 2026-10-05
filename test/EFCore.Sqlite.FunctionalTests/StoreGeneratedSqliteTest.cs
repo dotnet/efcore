@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class StoreGeneratedSqliteTest(StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture fixture)
     : StoreGeneratedTestBase<StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture>(fixture)
 {
@@ -12,7 +10,7 @@ public class StoreGeneratedSqliteTest(StoreGeneratedSqliteTest.StoreGeneratedSql
         // Computed columns not supported
         => Task.CompletedTask;
 
-    [ConditionalFact]
+    [Fact]
     public Task Identity_key_works_when_not_aliasing_rowid()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -132,6 +130,6 @@ public class StoreGeneratedSqliteTest(StoreGeneratedSqliteTest.StoreGeneratedSql
 
     private class Zach
     {
-        public byte[] Id { get; set; }
+        public byte[] Id { get; set; } = null!;
     }
 }

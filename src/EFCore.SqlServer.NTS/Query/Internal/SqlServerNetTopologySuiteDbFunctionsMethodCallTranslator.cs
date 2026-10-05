@@ -45,10 +45,8 @@ public class SqlServerNetTopologySuiteDbFunctionsMethodCallTranslator : IMethodC
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.Equals(CurveToLineMethodInfo))
-        {
-            return _sqlExpressionFactory.Function(
+        => method.Equals(CurveToLineMethodInfo)
+            ? _sqlExpressionFactory.Function(
                 arguments[1],
                 "STCurveToLine",
                 [],
@@ -56,9 +54,6 @@ public class SqlServerNetTopologySuiteDbFunctionsMethodCallTranslator : IMethodC
                 instancePropagatesNullability: true,
                 argumentsPropagateNullability: [],
                 typeof(Geometry),
-                arguments[1].TypeMapping);
-        }
-
-        return null;
-    }
+                arguments[1].TypeMapping)
+            : null;
 }

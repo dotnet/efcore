@@ -9,7 +9,7 @@ public class EndToEndInMemoryTest(InMemoryFixture fixture) : IClassFixture<InMem
 {
     protected InMemoryFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_different_entity_types_end_to_end()
     {
         Can_add_update_delete_end_to_end<Private>();

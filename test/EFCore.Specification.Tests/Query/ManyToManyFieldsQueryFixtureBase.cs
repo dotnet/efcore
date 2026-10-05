@@ -5,19 +5,14 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<ManyToManyContext>, IQueryFixtureBase
+public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyToManyContext>
 {
     protected override string StoreName
         => "ManyToManyQueryTest";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
+    private ManyToManyData _data = null!;
 
-    private ManyToManyData _data;
-
-    public ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
     {
         if (_data == null)
         {
@@ -30,18 +25,18 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
         return _data;
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
-        { typeof(EntityOne), e => ((EntityOne)e)?.Id },
-        { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
-        { typeof(EntityThree), e => ((EntityThree)e)?.Id },
-        { typeof(EntityCompositeKey), e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3) },
-        { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
-        { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
-        { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
+        { typeof(EntityOne), e => ((EntityOne)e).Id },
+        { typeof(EntityTwo), e => ((EntityTwo)e).Id },
+        { typeof(EntityThree), e => ((EntityThree)e).Id },
+        { typeof(EntityCompositeKey), e => (((EntityCompositeKey)e).Key1, ((EntityCompositeKey)e).Key2, ((EntityCompositeKey)e).Key3) },
+        { typeof(EntityRoot), e => ((EntityRoot)e).Id },
+        { typeof(EntityBranch), e => ((EntityBranch)e).Id },
+        { typeof(EntityLeaf), e => ((EntityLeaf)e).Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(EntityOne), (e, a) =>
@@ -50,7 +45,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
 
                 if (a != null)
                 {
-                    var ee = (EntityOne)e;
+                    var ee = (EntityOne)e!;
                     var aa = (EntityOne)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -65,7 +60,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
 
                 if (a != null)
                 {
-                    var ee = (EntityTwo)e;
+                    var ee = (EntityTwo)e!;
                     var aa = (EntityTwo)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -80,7 +75,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
 
                 if (a != null)
                 {
-                    var ee = (EntityThree)e;
+                    var ee = (EntityThree)e!;
                     var aa = (EntityThree)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -95,7 +90,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
 
                 if (a != null)
                 {
-                    var ee = (EntityCompositeKey)e;
+                    var ee = (EntityCompositeKey)e!;
                     var aa = (EntityCompositeKey)a;
 
                     Assert.Equal(ee.Key1, aa.Key1);
@@ -112,7 +107,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
 
                 if (a != null)
                 {
-                    var ee = (EntityRoot)e;
+                    var ee = (EntityRoot)e!;
                     var aa = (EntityRoot)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -127,7 +122,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
 
                 if (a != null)
                 {
-                    var ee = (EntityBranch)e;
+                    var ee = (EntityBranch)e!;
                     var aa = (EntityBranch)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -143,7 +138,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
 
                 if (a != null)
                 {
-                    var ee = (EntityLeaf)e;
+                    var ee = (EntityLeaf)e!;
                     var aa = (EntityLeaf)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -230,15 +225,9 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
             b.Property(e => e.Name);
         });
 
-        modelBuilder.Entity<EntityBranch>(b =>
-        {
-            b.Property(e => e.Number);
-        });
+        modelBuilder.Entity<EntityBranch>(b => b.Property(e => e.Number));
 
-        modelBuilder.Entity<EntityLeaf>(b =>
-        {
-            b.Property(e => e.IsGreen);
-        });
+        modelBuilder.Entity<EntityLeaf>(b => b.Property(e => e.IsGreen));
 
         modelBuilder.Entity<EntityOne>()
             .HasMany(e => e.Collection)

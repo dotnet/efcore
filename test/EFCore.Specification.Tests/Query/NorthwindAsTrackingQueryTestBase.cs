@@ -11,7 +11,7 @@ public abstract class NorthwindAsTrackingQueryTestBase<TFixture>(TFixture fixtur
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Entity_added_to_state_manager(bool useParam)
     {
         using var context = CreateContext();
@@ -23,7 +23,7 @@ public abstract class NorthwindAsTrackingQueryTestBase<TFixture>(TFixture fixtur
         Assert.Equal(91, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Applied_to_body_clause()
     {
         using var context = CreateContext();
@@ -39,7 +39,7 @@ public abstract class NorthwindAsTrackingQueryTestBase<TFixture>(TFixture fixtur
         Assert.Equal(6, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Applied_to_multiple_body_clauses()
     {
         using var context = CreateContext();
@@ -54,7 +54,7 @@ public abstract class NorthwindAsTrackingQueryTestBase<TFixture>(TFixture fixtur
         Assert.Equal(919, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Applied_to_body_clause_with_projection()
     {
         using var context = CreateContext();
@@ -76,7 +76,7 @@ public abstract class NorthwindAsTrackingQueryTestBase<TFixture>(TFixture fixtur
         Assert.Equal(7, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Applied_to_projection()
     {
         using var context = CreateContext();

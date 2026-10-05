@@ -81,7 +81,7 @@ public class CompiledModelScaffolder : ICompiledModelScaffolder
             }
             else
             {
-                File.WriteAllText(fullPath, file.Code, Encoding.UTF8);
+                File.WriteAllText(fullPath, file.Code, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                 savedFiles.Add(fullPath);
             }
         }

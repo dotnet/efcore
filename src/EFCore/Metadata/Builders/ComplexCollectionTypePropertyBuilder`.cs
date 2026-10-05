@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///         and it is not designed to be directly constructed in your application code.
 ///     </para>
 ///     <para>
-///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling complex types and relationships</see> for more information and
+///         See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and
 ///         examples.
 ///     </para>
 /// </remarks>
@@ -455,9 +455,9 @@ public class ComplexCollectionTypePropertyBuilder<TProperty> : ComplexCollection
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual ComplexCollectionTypePropertyBuilder<TProperty> HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer>()
+    TComparer>()
         where TComparer : ValueComparer
         => (ComplexCollectionTypePropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer>();
 
@@ -471,11 +471,11 @@ public class ComplexCollectionTypePropertyBuilder<TProperty> : ComplexCollection
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual ComplexCollectionTypePropertyBuilder<TProperty> HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer,
+    TComparer,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TProviderComparer>()
+    TProviderComparer>()
         where TComparer : ValueComparer
         where TProviderComparer : ValueComparer
         => (ComplexCollectionTypePropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer, TProviderComparer>();

@@ -1,14 +1,12 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesSqlServerTestBase<TFixture>.GraphUpdatesSqlServerFixtureBase, new()
 {
-    [ConditionalFact] // Issue #32638
+    [Fact] // Issue #32638
     public virtual void Key_and_index_properties_use_appropriate_comparer()
     {
         var parent = new StringKeyAndIndexParent
@@ -61,72 +59,61 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
 
     protected class StringKeyAndIndexParent : NotifyingEntity
     {
-        private string _id;
-        private string _alternateId;
-        private string _uniqueIndex;
-        private string _index;
-        private StringKeyAndIndexChild _child;
-
         public string Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get => field!;
+            set => SetWithNotify(value, ref field);
         }
 
         public string AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get => field!;
+            set => SetWithNotify(value, ref field);
         }
 
-        public string Index
+        public string? Index
         {
-            get => _index;
-            set => SetWithNotify(value, ref _index);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public string UniqueIndex
+        public string? UniqueIndex
         {
-            get => _uniqueIndex;
-            set => SetWithNotify(value, ref _uniqueIndex);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public StringKeyAndIndexChild Child
+        public StringKeyAndIndexChild? Child
         {
-            get => _child;
-            set => SetWithNotify(value, ref _child);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class StringKeyAndIndexChild : NotifyingEntity
     {
-        private string _id;
-        private string _parentId;
-        private int _foo;
-        private StringKeyAndIndexParent _parent;
-
         public string Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get => field!;
+            set => SetWithNotify(value, ref field);
         }
 
-        public string ParentId
+        public string? ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int Foo
         {
-            get => _foo;
-            set => SetWithNotify(value, ref _foo);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public StringKeyAndIndexParent Parent
+        public StringKeyAndIndexParent? Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
@@ -175,28 +162,124 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
             modelBuilder.Entity<SomethingOfCategoryA>().Property<int>("CategoryId").HasDefaultValue(1);
             modelBuilder.Entity<SomethingOfCategoryB>().Property(e => e.CategoryId).HasDefaultValue(2);
 
-            modelBuilder.Entity<StringKeyAndIndexParent>(b =>
-            {
-                b.HasOne(e => e.Child)
-                    .WithOne(e => e.Parent)
-                    .HasForeignKey<StringKeyAndIndexChild>(e => e.ParentId)
-                    .HasPrincipalKey<StringKeyAndIndexParent>(e => e.AlternateId);
-            });
+            modelBuilder.Entity<StringKeyAndIndexParent>(b => b.HasOne(e => e.Child)
+                .WithOne(e => e.Parent)
+                .HasForeignKey<StringKeyAndIndexChild>(e => e.ParentId)
+                .HasPrincipalKey<StringKeyAndIndexParent>(e => e.AlternateId));
 
-            modelBuilder.Entity<CompositeKeyWith<int>>(b =>
-            {
-                b.Property(e => e.PrimaryGroup).HasDefaultValue(1).HasSentinel(1);
-            });
+            modelBuilder.Entity<CompositeKeyWith<int>>(b => b.Property(e => e.PrimaryGroup).HasDefaultValue(1).HasSentinel(1));
 
-            modelBuilder.Entity<CompositeKeyWith<bool>>(b =>
-            {
-                b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
-            });
+            modelBuilder.Entity<CompositeKeyWith<bool>>(b => b.Property(e => e.PrimaryGroup).HasDefaultValue(true));
 
-            modelBuilder.Entity<CompositeKeyWith<bool?>>(b =>
+            modelBuilder.Entity<CompositeKeyWith<bool?>>(b => b.Property(e => e.PrimaryGroup).HasDefaultValue(true));
+
+            modelBuilder.Entity<ParentWithSetDefault>(b => b.Property(e => e.Id).ValueGeneratedNever());
+
+            modelBuilder.Entity<ChildWithSetDefault>(b =>
             {
-                b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
+                b.Property(e => e.ParentId).HasDefaultValue(667).HasSentinel(667);
+                b.HasOne(e => e.Parent)
+                    .WithMany(e => e.Children)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetDefault);
             });
         }
     }
+
+    protected class ParentWithSetDefault : NotifyingEntity
+    {
+        private ICollection<ChildWithSetDefault> _children = new ObservableHashSet<ChildWithSetDefault>();
+
+        public int Id
+        {
+            get;
+            set => SetWithNotify(value, ref field);
+        }
+
+        public virtual ICollection<ChildWithSetDefault> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class ChildWithSetDefault : NotifyingEntity
+    {
+        private ParentWithSetDefault _parent = null!;
+
+        public int Id
+        {
+            get;
+            set => SetWithNotify(value, ref field);
+        }
+
+        public int ParentId
+        {
+            get;
+            set => SetWithNotify(value, ref field);
+        }
+
+        public virtual ParentWithSetDefault Parent
+        {
+            get => _parent;
+            set => SetWithNotify(value, ref _parent);
+        }
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task SetDefault_with_default_value_sets_FK_to_default_on_delete(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                // Create a "default" parent that orphaned children will reference
+                var defaultParent = new ParentWithSetDefault { Id = 667 };
+                // Create the actual parent with a different Id
+                var parent = new ParentWithSetDefault { Id = 1 };
+                var child = new ChildWithSetDefault { ParentId = 1, Parent = parent };
+                parent.Children.Add(child);
+
+                if (async)
+                {
+                    await context.AddRangeAsync(defaultParent, parent);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.AddRange(defaultParent, parent);
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var parent = async
+                    ? await context.Set<ParentWithSetDefault>().Include(e => e.Children).SingleAsync(e => e.Id == 1)
+                    : context.Set<ParentWithSetDefault>().Include(e => e.Children).Single(e => e.Id == 1);
+
+                var child = parent.Children.Single();
+                Assert.Equal(1, child.ParentId);
+
+                context.Remove(parent);
+
+                Assert.Equal(EntityState.Deleted, context.Entry(parent).State);
+                Assert.Equal(EntityState.Modified, context.Entry(child).State);
+                Assert.Equal(667, child.ParentId); // FK should be set to default value (the default parent)
+                Assert.Null(child.Parent);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var child = async
+                    ? await context.Set<ChildWithSetDefault>().SingleAsync()
+                    : context.Set<ChildWithSetDefault>().Single();
+
+                Assert.Equal(667, child.ParentId); // Verify FK was persisted with default value
+            });
 }

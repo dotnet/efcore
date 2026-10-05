@@ -5,12 +5,11 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public static class PrincipalDerivedUnsafeAccessors<TDependent>
+    where TDependent : class
 {
-    public static class PrincipalDerivedUnsafeAccessors<TDependent>
-        where TDependent : class
-    {
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Dependent>k__BackingField")]
-        public static extern ref TDependent Dependent(CompiledModelTestBase.PrincipalDerived<TDependent> @this);
-    }
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Dependent>k__BackingField")]
+    public static extern ref TDependent Dependent(CompiledModelTestBase.PrincipalDerived<TDependent> @this);
 }

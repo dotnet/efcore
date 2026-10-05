@@ -3,18 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonOwnedRoot
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public int Number { get; set; }
-    public string[] Names { get; set; }
-    public int[] Numbers { get; set; }
+    public string[]? Names { get; set; }
+    public int[]? Numbers { get; set; }
 
-    public JsonOwnedBranch OwnedReferenceBranch { get; set; }
-    public List<JsonOwnedBranch> OwnedCollectionBranch { get; set; }
+    public JsonOwnedBranch? OwnedReferenceBranch { get; set; }
+    public List<JsonOwnedBranch> OwnedCollectionBranch { get; set; } = null!;
 
-    public JsonEntityBasic Owner { get; set; }
+    public JsonEntityBasic Owner { get; set; } = null!;
 }

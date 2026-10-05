@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///     Represents a complex property of a structural type.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 public class RuntimeComplexProperty : RuntimePropertyBase, IRuntimeComplexProperty
 {

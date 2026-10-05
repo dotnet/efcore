@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerStructuralJsonTypeMapping : JsonTypeMapping
+public class SqlServerStructuralJsonTypeMapping : StructuralJsonTypeMapping
 {
     private static readonly MethodInfo CreateUtf8StreamMethod
         = typeof(SqlServerStructuralJsonTypeMapping).GetMethod(nameof(CreateUtf8Stream), [typeof(string)])!;
@@ -73,9 +73,15 @@ public class SqlServerStructuralJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static MemoryStream CreateUtf8Stream(string json)
-        => json == ""
-            ? throw new InvalidOperationException(RelationalStrings.JsonEmptyString)
-            : new MemoryStream(Encoding.UTF8.GetBytes(json));
+    {
+        if (json == "")
+        {
+            throw new InvalidOperationException(RelationalStrings.JsonEmptyString);
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(json);
+        return new MemoryStream(bytes, index: 0, bytes.Length, writable: false, publiclyVisible: true);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -113,7 +119,13 @@ public class SqlServerStructuralJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => $"'{EscapeSqlLiteral((string)value)}'";
+        => StoreTypeNameBase switch
+        {
+            "json" => $"CAST('{EscapeSqlLiteral((string)value)}' AS json)",
+            "nvarchar" => $"'{EscapeSqlLiteral((string)value)}'",
+
+            _ => throw new UnreachableException()
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

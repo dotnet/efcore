@@ -11,6 +11,6 @@ public class ProductModelIllustration
     public int IllustrationID { get; set; }
     public DateTime ModifiedDate { get; set; }
 
-    public virtual Illustration Illustration { get; set; }
-    public virtual ProductModel ProductModel { get; set; }
+    public virtual Illustration Illustration { get; set; } = null!;
+    public virtual ProductModel ProductModel { get; set; } = null!;
 }

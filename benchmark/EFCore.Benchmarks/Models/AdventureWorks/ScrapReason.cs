@@ -13,7 +13,7 @@ public class ScrapReason
 
     public short ScrapReasonID { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<WorkOrder> WorkOrder { get; set; }
 }

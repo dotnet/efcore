@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class ReferenceEntryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference()
     {
         using var context = new FreezerContext();
@@ -16,7 +16,7 @@ public class ReferenceEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Reference("Garcia").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference_generic()
     {
         using var context = new FreezerContext();
@@ -27,7 +27,7 @@ public class ReferenceEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Reference(e => e.Garcia).EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata()
     {
         using var context = new FreezerContext();
@@ -37,7 +37,7 @@ public class ReferenceEntryTest
         Assert.Equal("Garcia", context.Entry(entity).Reference("Garcia").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_generic()
     {
         using var context = new FreezerContext();
@@ -47,7 +47,7 @@ public class ReferenceEntryTest
         Assert.Equal("Garcia", context.Entry(entity).Reference(e => e.Garcia).Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value()
     {
         using var context = new FreezerContext();
@@ -65,7 +65,7 @@ public class ReferenceEntryTest
         Assert.Same(chunky, cherry.Monkeys.Single());
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(cherry, reference.CurrentValue);
-        Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
+        Assert.Same(reference.TargetEntry!.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
 
         reference.CurrentValue = null;
 
@@ -76,7 +76,7 @@ public class ReferenceEntryTest
         Assert.Null(reference.TargetEntry);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_generic()
     {
         using var context = new FreezerContext();
@@ -94,7 +94,7 @@ public class ReferenceEntryTest
         Assert.Same(chunky, cherry.Monkeys.Single());
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(cherry, reference.CurrentValue);
-        Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
+        Assert.Same(reference.TargetEntry!.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
 
         reference.CurrentValue = null;
 
@@ -105,7 +105,7 @@ public class ReferenceEntryTest
         Assert.Null(reference.TargetEntry);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_not_tracked()
     {
         using var context = new FreezerContext();
@@ -131,7 +131,7 @@ public class ReferenceEntryTest
         Assert.Null(reference.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_not_tracked_generic()
     {
         using var context = new FreezerContext();
@@ -157,7 +157,7 @@ public class ReferenceEntryTest
         Assert.Null(reference.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_start_tracking()
     {
         using var context = new FreezerContext();
@@ -176,7 +176,7 @@ public class ReferenceEntryTest
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(cherry, reference.CurrentValue);
 
-        Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
+        Assert.Same(reference.TargetEntry!.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
         Assert.Equal(EntityState.Added, context.Entry(cherry).State);
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
 
@@ -192,7 +192,7 @@ public class ReferenceEntryTest
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_start_tracking_generic()
     {
         using var context = new FreezerContext();
@@ -211,7 +211,7 @@ public class ReferenceEntryTest
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(cherry, reference.CurrentValue);
 
-        Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
+        Assert.Same(reference.TargetEntry!.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
         Assert.Equal(EntityState.Added, context.Entry(cherry).State);
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
 
@@ -227,7 +227,7 @@ public class ReferenceEntryTest
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_attached()
     {
         using var context = new FreezerContext();
@@ -262,7 +262,7 @@ public class ReferenceEntryTest
         Assert.True(context.Entry(chunky).Property(e => e.GarciaId).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_generic_attached()
     {
         using var context = new FreezerContext();
@@ -297,7 +297,7 @@ public class ReferenceEntryTest
         Assert.True(context.Entry(chunky).Property(e => e.GarciaId).IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_tracks_state_of_FK_property()
     {
         using var context = new FreezerContext();
@@ -320,7 +320,7 @@ public class ReferenceEntryTest
         Assert.False(reference.IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_can_set_fk_to_modified()
     {
         using var context = new FreezerContext();
@@ -346,7 +346,7 @@ public class ReferenceEntryTest
         Assert.Equal(EntityState.Unchanged, entityEntry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_can_reject_changes_to_an_fk()
     {
         using var context = new FreezerContext();
@@ -377,7 +377,7 @@ public class ReferenceEntryTest
         Assert.Equal(EntityState.Unchanged, entityEntry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_tracks_state_of_FK_property_principal()
     {
         using var context = new FreezerContext();
@@ -399,7 +399,7 @@ public class ReferenceEntryTest
         Assert.False(reference.IsModified);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Added), InlineData(EntityState.Added, EntityState.Added),
+    [Theory, InlineData(EntityState.Detached, EntityState.Added), InlineData(EntityState.Added, EntityState.Added),
      InlineData(EntityState.Modified, EntityState.Added), InlineData(EntityState.Deleted, EntityState.Added),
      InlineData(EntityState.Unchanged, EntityState.Added), InlineData(EntityState.Detached, EntityState.Deleted),
      InlineData(EntityState.Added, EntityState.Deleted), InlineData(EntityState.Modified, EntityState.Deleted),
@@ -432,7 +432,7 @@ public class ReferenceEntryTest
         Assert.Equal(dependentState, context.Entry(half).State);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Unchanged), InlineData(EntityState.Added, EntityState.Unchanged),
+    [Theory, InlineData(EntityState.Detached, EntityState.Unchanged), InlineData(EntityState.Added, EntityState.Unchanged),
      InlineData(EntityState.Modified, EntityState.Unchanged), InlineData(EntityState.Deleted, EntityState.Unchanged),
      InlineData(EntityState.Unchanged, EntityState.Unchanged)]
     public void IsModified_can_set_fk_to_modified_principal_with_Unchanged_dependent(
@@ -463,7 +463,7 @@ public class ReferenceEntryTest
         Assert.Equal(dependentState, context.Entry(half).State);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Modified), InlineData(EntityState.Added, EntityState.Modified),
+    [Theory, InlineData(EntityState.Detached, EntityState.Modified), InlineData(EntityState.Added, EntityState.Modified),
      InlineData(EntityState.Modified, EntityState.Modified), InlineData(EntityState.Deleted, EntityState.Modified),
      InlineData(EntityState.Unchanged, EntityState.Modified)]
     public void IsModified_can_set_fk_to_modified_principal_with_Modified_dependent(
@@ -502,9 +502,9 @@ public class ReferenceEntryTest
         public int Id { get; set; }
 
         public int? GarciaId { get; set; }
-        public Cherry Garcia { get; set; }
+        public Cherry Garcia { get; set; } = null!;
 
-        public Half Baked { get; set; }
+        public Half Baked { get; set; } = null!;
     }
 
     private class Half
@@ -514,7 +514,7 @@ public class ReferenceEntryTest
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public int? MonkeyId { get; set; }
-        public Chunky Monkey { get; set; }
+        public Chunky Monkey { get; set; } = null!;
     }
 
     private class Cherry
@@ -522,7 +522,7 @@ public class ReferenceEntryTest
         public int Garcia { get; set; }
         public int Id { get; set; }
 
-        public ICollection<Chunky> Monkeys { get; set; }
+        public ICollection<Chunky> Monkeys { get; set; } = null!;
     }
 
     private class FreezerContext : DbContext
@@ -532,7 +532,7 @@ public class ReferenceEntryTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FreezerContext));
 
-        public DbSet<Chunky> Icecream { get; set; }
+        public DbSet<Chunky> Icecream { get; set; } = null!;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

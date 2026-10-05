@@ -22,17 +22,17 @@ public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsiste
         public override HashSet<MethodInfo> VirtualMethodExceptions { get; } =
         [
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper)
-                .GetProperty(nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.FormatProvider)).GetMethod,
+                .GetProperty(nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.FormatProvider))!.GetMethod!,
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper)
-                .GetProperty(nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.FormatProvider)).SetMethod,
+                .GetProperty(nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.FormatProvider))!.SetMethod!,
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper).GetMethod(
-                nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.ToStringWithCulture)),
+                nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.ToStringWithCulture))!,
             typeof(CSharpDbContextGeneratorBase.ToStringInstanceHelper)
-                .GetProperty(nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.FormatProvider)).GetMethod,
+                .GetProperty(nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.FormatProvider))!.GetMethod!,
             typeof(CSharpDbContextGeneratorBase.ToStringInstanceHelper)
-                .GetProperty(nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.FormatProvider)).SetMethod,
+                .GetProperty(nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.FormatProvider))!.SetMethod!,
             typeof(CSharpDbContextGeneratorBase.ToStringInstanceHelper).GetMethod(
-                nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.ToStringWithCulture))
+                nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.ToStringWithCulture))!
         ];
     }
 }

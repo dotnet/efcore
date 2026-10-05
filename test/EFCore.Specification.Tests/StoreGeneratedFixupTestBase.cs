@@ -1,13 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable StaticMemberInGenericType
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
-
-#nullable disable
 
 public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : StoreGeneratedFixupTestBase<TFixture>.StoreGeneratedFixupFixtureBase, new()
@@ -17,7 +18,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
 
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_FK_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -40,7 +41,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_FK_not_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -55,7 +56,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -76,7 +77,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -98,7 +99,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -120,7 +121,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -134,7 +135,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -147,7 +148,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_FK_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -170,7 +171,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_FK_not_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -184,7 +185,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -205,7 +206,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -227,7 +228,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -249,7 +250,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -263,7 +264,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -311,7 +312,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_prin_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -332,7 +333,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_prin_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -353,7 +354,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_prin_uni_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -375,7 +376,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_prin_uni_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -389,7 +390,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_prin_uni_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -411,7 +412,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_prin_uni_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -458,7 +459,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_dep_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -479,7 +480,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_dep_uni_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -501,7 +502,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -514,7 +515,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_dep_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -535,7 +536,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_dep_uni_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -557,7 +558,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -603,7 +604,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_many_no_navs_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -624,7 +625,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_many_no_navs_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -670,7 +671,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_FK_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -693,7 +694,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_FK_not_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -707,7 +708,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -728,7 +729,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -750,7 +751,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -772,7 +773,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -786,7 +787,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -799,7 +800,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_FK_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -822,7 +823,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_FK_not_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -836,7 +837,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -857,7 +858,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -879,7 +880,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -901,7 +902,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -915,7 +916,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -963,7 +964,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_prin_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -984,7 +985,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_prin_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1005,7 +1006,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_prin_uni_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1027,7 +1028,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_prin_uni_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1041,7 +1042,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_prin_uni_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1063,7 +1064,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1110,7 +1111,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_dep_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1131,7 +1132,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_dep_uni_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1153,7 +1154,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1166,7 +1167,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_dep_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1187,7 +1188,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_dep_uni_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1209,7 +1210,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1257,7 +1258,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_then_principal_one_to_one_no_navs_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1278,7 +1279,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, principal, dependent);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_then_dependent_one_to_one_no_navs_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -1324,7 +1325,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_FK_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1369,7 +1370,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_FK_not_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1416,7 +1417,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1466,7 +1467,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1517,7 +1518,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1561,7 +1562,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1606,7 +1607,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1652,7 +1653,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_FK_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1697,7 +1698,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_FK_not_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1744,7 +1745,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1785,7 +1786,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1829,7 +1830,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1871,7 +1872,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1913,7 +1914,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1951,7 +1952,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_prin_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -1999,7 +2000,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_prin_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2038,7 +2039,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_prin_uni_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2087,7 +2088,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_prin_uni_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2130,7 +2131,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_prin_uni_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2172,7 +2173,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_prin_uni_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2216,7 +2217,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_dep_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2264,7 +2265,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_dep_uni_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2306,7 +2307,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2350,7 +2351,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_dep_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2389,7 +2390,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_dep_uni_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2429,7 +2430,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2465,7 +2466,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_many_no_navs_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2511,7 +2512,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_many_no_navs_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2548,7 +2549,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_FK_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2593,7 +2594,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_FK_not_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2640,7 +2641,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2690,7 +2691,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2741,7 +2742,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2785,7 +2786,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2830,7 +2831,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2876,7 +2877,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_FK_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2921,7 +2922,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_FK_not_set_both_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -2968,7 +2969,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3009,7 +3010,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3053,7 +3054,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3095,7 +3096,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3141,7 +3142,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3179,7 +3180,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_prin_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3227,7 +3228,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_prin_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3266,7 +3267,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_prin_uni_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3315,7 +3316,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_prin_uni_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3358,7 +3359,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_prin_uni_FK_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3400,7 +3401,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3444,7 +3445,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_dep_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3492,7 +3493,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_dep_uni_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3534,7 +3535,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3578,7 +3579,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_dep_uni_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3617,7 +3618,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_dep_uni_FK_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3657,7 +3658,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3693,7 +3694,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_dependent_but_not_principal_one_to_one_no_navs_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3739,7 +3740,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_principal_but_not_dependent_one_to_one_no_navs_FK_set_no_navs_set()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3776,7 +3777,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
                 });
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_overlapping_graph_from_level()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -3792,7 +3793,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, game, level, item);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_overlapping_graph_from_game()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -3809,7 +3810,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, game, level, item);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_overlapping_graph_from_item()
         => ExecuteWithStrategyInTransactionAsync(context =>
         {
@@ -3824,7 +3825,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             return AssertFixupAndSaveAsync(context, game, level, item);
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Temporary_value_equals_database_generated_value()
     {
         using var context = CreateContext();
@@ -3832,7 +3833,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         entry.Property(g => g.Id).IsTemporary = true;
         var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
         internalEntry.PrepareToSave();
-        internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
+        internalEntry.SetProperty(entry.Metadata.FindProperty("Id")!, Guid77, false);
         internalEntry.AcceptChanges();
 
         Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
@@ -3885,7 +3886,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Remove_overlapping_principal()
     {
         using var context = CreateContext();
@@ -3906,7 +3907,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         Assert.Empty(level.Actors);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Multi_level_add_replace_and_save()
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -3959,7 +3960,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
 
         var expectedState = tempKeys ? EntityState.Added : EntityState.Unchanged;
 
-        if (context.Database.ProviderName.EndsWith("InMemory", StringComparison.OrdinalIgnoreCase))
+        if (context.Database.ProviderName!.EndsWith("InMemory", StringComparison.OrdinalIgnoreCase))
         {
             tempKeys = false;
         }
@@ -3998,28 +3999,28 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
     protected class FirstLevel
     {
         public int Id { get; set; }
-        public IList<SecondLevel> SecondLevels { get; set; }
+        public IList<SecondLevel> SecondLevels { get; set; } = null!;
     }
 
     private static void AddData(FirstLevel first)
-        => first.SecondLevels = new List<SecondLevel>
-        {
-            new() { ThirdLevels = new List<ThirdLevel> { new(), new() } }, new() { ThirdLevels = new List<ThirdLevel> { new(), new() } }
-        };
+        => first.SecondLevels =
+        [
+            new() { ThirdLevels = [new(), new()] }, new() { ThirdLevels = [new(), new()] }
+        ];
 
     protected class SecondLevel
     {
         public int Id { get; set; }
         public int FirstLevelId { get; set; }
-        public FirstLevel FirstLevel { get; set; }
-        public IList<ThirdLevel> ThirdLevels { get; set; }
+        public FirstLevel FirstLevel { get; set; } = null!;
+        public IList<ThirdLevel> ThirdLevels { get; set; } = null!;
     }
 
     protected class ThirdLevel
     {
         public int Id { get; set; }
         public int SecondLevelId { get; set; }
-        public SecondLevel SecondLevel { get; set; }
+        public SecondLevel SecondLevel { get; set; } = null!;
     }
 
     protected class Parent
@@ -4027,7 +4028,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public Child Child { get; set; }
+        public Child Child { get; set; } = null!;
     }
 
     protected class Child
@@ -4038,7 +4039,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int ParentId1 { get; set; }
         public Guid ParentId2 { get; set; }
 
-        public Parent Parent { get; set; }
+        public Parent Parent { get; set; } = null!;
     }
 
     protected class ParentPN
@@ -4047,7 +4048,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public Guid Id2 { get; set; }
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public ChildPN Child { get; set; }
+        public ChildPN Child { get; set; } = null!;
     }
 
     protected class ChildPN
@@ -4074,7 +4075,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public Guid ParentId2 { get; set; }
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public ParentDN Parent { get; set; }
+        public ParentDN Parent { get; set; } = null!;
     }
 
     protected class ParentNN
@@ -4107,7 +4108,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public Guid CategoryId2 { get; set; }
 
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public CategoryDN Category { get; set; }
+        public CategoryDN Category { get; set; } = null!;
     }
 
     protected class CategoryPN
@@ -4115,7 +4116,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ICollection<ProductPN> Products { get; } = new List<ProductPN>();
+        public ICollection<ProductPN> Products { get; } = [];
     }
 
     protected class ProductPN
@@ -4147,7 +4148,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ICollection<Product> Products { get; } = new List<Product>();
+        public ICollection<Product> Products { get; } = [];
     }
 
     protected class Product
@@ -4157,17 +4158,17 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
 
         public int CategoryId1 { get; set; }
         public Guid CategoryId2 { get; set; }
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
     }
 
     protected class Level
     {
         public virtual int Id { get; set; }
         public virtual Guid GameId { get; set; }
-        public virtual Game Game { get; set; }
+        public virtual Game Game { get; set; } = null!;
 
-        public virtual ICollection<Item> Items { get; } = new List<Item>();
-        public virtual ICollection<Actor> Actors { get; } = new List<Actor>();
+        public virtual ICollection<Item> Items { get; } = [];
+        public virtual ICollection<Actor> Actors { get; } = [];
     }
 
     protected abstract class GameEntity
@@ -4175,10 +4176,10 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int Id { get; set; }
 
         public Guid GameId { get; set; }
-        public Game Game { get; set; }
+        public Game Game { get; set; } = null!;
 
         public int LevelId { get; set; }
-        public Level Level { get; set; }
+        public Level Level { get; set; } = null!;
     }
 
     protected class Item : GameEntity;
@@ -4189,11 +4190,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
     {
         public virtual Guid Id { get; set; }
 
-        public virtual ICollection<Item> Items { get; set; } = new List<Item>();
+        public virtual ICollection<Item> Items { get; set; } = [];
 
-        public virtual ICollection<Actor> Actors { get; set; } = new List<Actor>();
+        public virtual ICollection<Actor> Actors { get; set; } = [];
 
-        public virtual ICollection<Level> Levels { get; set; } = new List<Level>();
+        public virtual ICollection<Level> Levels { get; set; } = [];
     }
 
     protected class TestTemp
@@ -4330,21 +4331,15 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
 
             modelBuilder.Entity<GameEntity>();
 
-            modelBuilder.Entity<Item>(eb =>
-            {
-                eb.HasOne(i => i.Level)
-                    .WithMany(l => l.Items)
-                    .HasForeignKey(i => new { i.GameId, i.LevelId })
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
+            modelBuilder.Entity<Item>(eb => eb.HasOne(i => i.Level)
+                .WithMany(l => l.Items)
+                .HasForeignKey(i => new { i.GameId, i.LevelId })
+                .OnDelete(DeleteBehavior.Restrict));
 
-            modelBuilder.Entity<Actor>(eb =>
-            {
-                eb.HasOne(i => i.Level)
-                    .WithMany(l => l.Actors)
-                    .HasForeignKey(i => new { i.GameId, i.LevelId })
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
+            modelBuilder.Entity<Actor>(eb => eb.HasOne(i => i.Level)
+                .WithMany(l => l.Actors)
+                .HasForeignKey(i => new { i.GameId, i.LevelId })
+                .OnDelete(DeleteBehavior.Restrict));
 
             modelBuilder
                 .Entity<FirstLevel>()

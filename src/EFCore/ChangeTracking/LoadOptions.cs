@@ -15,7 +15,7 @@ public enum LoadOptions
     ///     </para>
     ///     <para>
     ///         If the entity is tracked, then entities with the same primary key value are not replaced
-    ///         by new entities or overwritten with new data from the database. If the entity entity represented by this entry is not
+    ///         by new entities or overwritten with new data from the database. If the entity represented by this entry is not
     ///         tracked and the collection already contains entities, then calling this method will result in duplicate
     ///         instances in the collection or inverse collection for any entities with the same key value.
     ///         Use <see cref="ForceIdentityResolution" /> to avoid getting these duplicates.

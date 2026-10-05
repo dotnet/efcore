@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Utilities;
 
 internal static class HashHelpers
@@ -93,7 +91,7 @@ internal static class HashHelpers
 
         //outside of our predefined table.
         //compute the hard way.
-        for (var i = (min | 1); i < int.MaxValue; i += 2)
+        for (var i = min | 1; i < int.MaxValue; i += 2)
         {
             if (IsPrime(i) && ((i - 1) % HashPrime != 0))
             {

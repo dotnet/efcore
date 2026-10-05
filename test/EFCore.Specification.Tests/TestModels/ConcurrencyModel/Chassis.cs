@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public class Chassis
 {
     public class ChassisProxy(
@@ -18,8 +16,8 @@ public class Chassis
         public bool InitializedCalled { get; set; }
     }
 
-    private readonly ILazyLoader _loader;
-    private Team _team;
+    private readonly ILazyLoader _loader = null!;
+    private Team? _team;
 
     public Chassis()
     {
@@ -38,11 +36,11 @@ public class Chassis
     }
 
     public int TeamId { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual Team Team
     {
-        get => _loader.Load(this, ref _team);
+        get => _loader.Load(this, ref _team)!;
         set => _team = value;
     }
 }
