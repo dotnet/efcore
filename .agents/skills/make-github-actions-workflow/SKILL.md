@@ -167,7 +167,7 @@ A hidden marker identifies the workflow's comment but does not establish ownersh
 
 ```javascript
 const marker = '<!-- validate-pr-target-branch -->';
-const { data: comments } = await github.rest.issues.listComments({
+const comments = await github.paginate(github.rest.issues.listComments, {
   owner: context.repo.owner,
   repo: context.repo.repo,
   issue_number: prNumber,

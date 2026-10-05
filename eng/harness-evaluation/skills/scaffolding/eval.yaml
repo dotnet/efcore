@@ -28,8 +28,8 @@ stimuli:
           dest: test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
     rubric:
       - >-
-        The analysis identifies that LEFT JOIN plus a null filter is not equivalent when an object has multiple extended-property rows: a non-matching row survives even if another row has the excluded property.
-      - It proposes a non-correlated anti-set equivalent such as `object_id NOT IN (SELECT major_id ... WHERE the full extended-property predicate)`.
+        The analysis recognizes that a LEFT JOIN containing the full excluded-property predicate in `ON`, followed by `ep.major_id IS NULL`, preserves anti-semi semantics when `major_id` is non-null; unrelated property rows do not join.
+      - It verifies that the complete minor-id, class, and property-name predicates remain in `ON`, or proposes an equivalent non-correlated anti-set such as `NOT IN`.
       - It updates the schema-reader and database-creator occurrences plus their SQL baselines, and adds/identifies coverage with multiple extended properties on one object.
     graders:
       - type: file-matches

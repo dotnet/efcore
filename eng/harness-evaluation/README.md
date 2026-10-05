@@ -98,7 +98,7 @@ The runner defaults to one active trial per component. GitHub Actions paralleliz
 
 Before accepting a new or materially changed eval, inspect both arms and `comparison.jsonl`. A control that consistently matches or beats the treatment means the eval is not discriminating enough.
 
-Repository skills must demonstrate comparative value, not merely pass their treatment rubric. If a skill consistently fails five-run comparison evals and can't be reasonably improved, remove both the skill directory rather than lowering thresholds, weights, or semantic requirements. Move its paired eval stimuli to `eng\harness-evaluation\instructions\copilot-instructions\`.
+Repository skills must demonstrate comparative value, not merely pass their treatment rubric. If a skill consistently fails five-run comparison evals and can't be reasonably improved, remove both the skill directory and its paired eval rather than lowering thresholds, weights, or semantic requirements. Move its paired eval stimuli to `eng\harness-evaluation\instructions\copilot-instructions\`.
 
 ## Adding components
 
