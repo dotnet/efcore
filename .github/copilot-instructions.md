@@ -29,12 +29,14 @@ Set `EF_TEST_REWRITE_BASELINES=1` to rewrite SQL and compiled-model baselines. P
 
 ## Repository conventions
 
-- Put provider-independent behavior in core or relational specification tests, then override new virtual tests in inheriting provider classes, adding specific assertions such as `AssertSql` for providers that produce SQL. Preserve existing `Check_all_tests_overridden` guards, but do not add one to a provider class that intentionally overrides only a subset of tests.
+- Put provider-independent behavior in core or relational specification tests, then override new virtual tests in inheriting provider classes, adding specific assertions such as `AssertSql` for providers that produce SQL. Preserve existing `Check_all_tests_overridden` guards. A new guard may be added only if it doesn't force many redundant overrides.
 - Prefer existing test infrastructure: `TestHelpers` for services/models, `NonSharedModelTestBase` for both the tests that share a model as well as those that do not.
+- Group specification tests by a cohesive query or model trait. Do not create a generic bucket merely because tests use custom models; choose a trait-specific base such as owned-entity queries so the suite remains navigable as regressions accumulate.
 - Preserve public API and binary compatibility. Prefer overloads over changing shipped signatures. If you need to break a public API, add a new API instead and mark the old one as obsolete. Use `ObsoleteAttribute` with the message pointing to the new API
 - Types are public by default. Types under `.Internal` or marked `[EntityFrameworkInternal]` must use the repository's internal-API XML documentation pattern on all members and they don't need to preserve compatibility.
 - User-facing messages come from the owning project's `.resx` resource and generated `*Strings.Designer.cs`.
-- Configure asynchronous calls using `ConfigureAwait(false)`. Avoid reflection or runtime code generation where NativeAOT-compatible alternatives exist; otherwise use the established annotations/guards.
+- Configure asynchronous calls using `ConfigureAwait(false)`.
+- For APIs that activate or construct types, plan NativeAOT-safe activation explicitly; prefer strongly typed factories or generic construction over reflection. When reflection or runtime generation is unavoidable, use the established annotations and guards.
 - Package versions belong in `eng\Versions.props` or `Directory.Packages.props`, never inline in project files.
 - Do not edit `eng\common`; it is mirrored from dotnet/arcade and overwritten by automation.
 - Follow `.editorconfig` for formatting.

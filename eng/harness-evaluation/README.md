@@ -23,6 +23,7 @@ Every stimulus must:
 3. Use stimulus-level `agent_environment.files` when repository inputs are needed. `src` is relative to the eval file; `dest` is relative to the isolated workspace.
 4. Add a `token-budget` grader to every stimulus and define its weight in `scoring.weights`.
 5. Use deterministic graders where possible and a narrow `prompt` rubric only for semantic quality.
+6. Present a realistic task without disclosing its solution. Prompts may name input files, proposed code or diffs, fixed artifact IDs, and required output paths, but must not state the expected diagnosis, owning symbol or stage, implementation mechanism, or regression-test design. Do not tell the agent to invoke the evaluated skill; treatment activation is runner-owned. Keep expected facts in the rubric and grade observable output that the prompt did not supply.
 
 The runner passes declared input files from the evaluated commit to Vally, which validates and stages them in an isolated workspace. Inputs are optional.
 
@@ -96,6 +97,8 @@ Project only the fields needed for diagnosis. Do not dump complete `results.json
 The runner defaults to one active trial per component. GitHub Actions parallelizes separate component jobs, so increasing Vally workers would multiply concurrent Copilot sessions and can cause session destruction or rate limiting.
 
 Before accepting a new or materially changed eval, inspect both arms and `comparison.jsonl`. A control that consistently matches or beats the treatment means the eval is not discriminating enough.
+
+Repository skills must demonstrate comparative value, not merely pass their treatment rubric. If a skill consistently fails five-run comparison evals and can't be reasonably improved, remove both the skill directory rather than lowering thresholds, weights, or semantic requirements. Move its paired eval stimuli to `eng\harness-evaluation\instructions\copilot-instructions\`.
 
 ## Adding components
 

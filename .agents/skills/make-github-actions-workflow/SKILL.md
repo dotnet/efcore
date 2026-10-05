@@ -106,6 +106,15 @@ Add conditions to avoid unnecessary runs:
 - Early `return` in scripts for PR author, draft status, etc.
 - Idempotency checks (e.g., hidden HTML comments as tags to prevent duplicate actions)
 
+For `pull_request_target` policy workflows that react to `opened`, `edited`, and `reopened`:
+
+- On `edited`, return unless `context.payload.changes?.base` is present; title or body edits must not reapply a target-branch policy.
+- Check permissions for `context.actor`, not only the PR author. A maintainer may edit or reopen an external PR, and that action must use the maintainer's authority.
+- For `opened`, the actor and author are the same, so perform one permission lookup and reuse it for policy and labeling decisions.
+- Exclude automation when either the actor or author is a bot.
+- Encode the prohibited branch class directly (for example, `release/*`) instead of requiring a single allowed branch such as `main`.
+- If permission lookup fails, stop without taking a destructive action; unknown access is not evidence that the contributor is external.
+
 ### Step 5: Validate
 
 After creating the workflow:
@@ -152,19 +161,37 @@ const { data: permissions } = await github.rest.repos.getCollaboratorPermissionL
 const hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
 ```
 
-### Preventing Duplicate Comments (SHA Tag Pattern)
+### Updating Bot-Owned Comments Idempotently
+
+A hidden marker identifies the workflow's comment but does not establish ownership: contributors can place the same marker in their own comments. Match the marker only on a bot-authored comment, then update that comment or create a new one. Preserve the workflow's pinned action SHA and never execute code from a pull-request fork in a `pull_request_target` job.
 
 ```javascript
-const shaTag = `<!-- tag: ${headSha} -->`;
+const marker = '<!-- validate-pr-target-branch -->';
 const { data: comments } = await github.rest.issues.listComments({
   owner: context.repo.owner,
   repo: context.repo.repo,
   issue_number: prNumber,
   per_page: 100
 });
-if (comments.some(c => c.body?.includes(shaTag))) {
-  console.log('Already processed');
-  return;
+
+const body = `${marker}\nComment text`;
+const existing = comments.find(comment =>
+  comment.user?.type === 'Bot' && comment.body?.includes(marker));
+
+if (existing) {
+  await github.rest.issues.updateComment({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    comment_id: existing.id,
+    body
+  });
+} else {
+  await github.rest.issues.createComment({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: prNumber,
+    body
+  });
 }
 ```
 

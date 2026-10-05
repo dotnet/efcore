@@ -1,9 +1,9 @@
 name: make-skill
-description: Evaluates skill authoring from EF Core context-pooling implementation details.
+description: Evaluates correction of an inaccurate EF Core skill and its paired harness evaluation.
 type: capability
 defaults:
   runs: ${RUNS=5}
-  timeout: 20m
+  timeout: 15m
   model: ${MODEL=gpt-5.6-sol}
   judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
   executor: copilot-sdk
@@ -11,37 +11,46 @@ agent_environment:
   skills:
     - ../../../../.agents/skills/make-skill
 stimuli:
-  - name: create-context-pool-diagnostics-skill
-    prompt: >-
-      Before creating files, use the available repository skill that applies to this task. Inspect src/EFCore/Internal/DbContextPool.cs and test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs. Create a background-only agent skill with the fixed ID `context-pooling` at `.agents/skills/context-pooling/SKILL.md`, together with its Vally eval at `eng/harness-evaluation/skills/context-pooling/eval.yaml`. Derive its workflow, pitfalls, and validation steps from the staged implementation and tests rather than generic pooling advice.
+  - name: repair-savechanges-pipeline-skill
+    prompt: |-
+      Inspect the staged SaveChanges implementation. Create corrected replacements for this proposed background skill at `.agents/skills/savechanges-pipeline/SKILL.md` and its paired evaluation at `eng/harness-evaluation/skills/savechanges-pipeline/eval.yaml`:
+
+          ---
+          name: SaveChanges Pipeline
+          description: Information about EF Core.
+          user-invocable: true
+          ---
+
+          DbContext.SaveChanges always calls DetectChanges. BatchExecutor always opens a new transaction, then StateManager always calls AcceptAllChanges. The relevant implementation files contain thousands of lines; tests are under test/.
+
+      The proposed eval places the skill and all source fixtures together in its root environment, tells every stimulus to invoke the skill, checks only that `analysis.md` exists, and has no token budget or scoring threshold. Do not copy generic repository guidance into the corrected skill.
     constraints:
-      max_turns: 60
-      max_tokens: 1500000
-      max_duration: 20m
+      max_turns: 50
+      max_tokens: 750000
+      max_duration: 15m
     agent_environment:
       files:
-        - src: ../../../../src/EFCore/Internal/DbContextPool.cs
-          dest: src/EFCore/Internal/DbContextPool.cs
-        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
-          dest: test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
+        - src: ../../../../src/EFCore/DbContext.cs
+          dest: src/EFCore/DbContext.cs
+        - src: ../../../../src/EFCore/ChangeTracking/Internal/StateManager.cs
+          dest: src/EFCore/ChangeTracking/Internal/StateManager.cs
+        - src: ../../../../src/EFCore.Relational/Update/Internal/BatchExecutor.cs
+          dest: src/EFCore.Relational/Update/Internal/BatchExecutor.cs
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
-        - src: ../../../../eng/harness-evaluation/README.md
-          dest: eng/harness-evaluation/README.md
     rubric:
-      - The created `.agents/skills/context-pooling/SKILL.md` has `context-pooling` as its matching name/frontmatter and is explicitly non-user-invocable.
-      - Its workflow cites concrete DbContextPool reset, lease, or lifetime behavior visible in the staged source and tests.
-      - It contains observable validation steps, relevant pitfalls, and no duplicated generic repository instructions.
-      - The matching `eng/harness-evaluation/skills/context-pooling/eval.yaml` declares `context-pooling` as its name and target skill, bounded resources, token grading, deterministic output checks where possible, a focused semantic rubric, and a committed scoring threshold; activation is left to the treatment-only runner gate.
+      - The corrected skill has matching `savechanges-pipeline` frontmatter, is non-user-invocable, removes volatile inventories, and contains stable behavioral guidance rather than generic repository rules.
+      - It states that DbContext uses `TryDetectChanges`, StateManager accepts changes only when `acceptAllChangesOnSuccess` is true, and BatchExecutor conditionally creates transactions or savepoints based on existing transaction state and `AutoTransactionBehavior`.
+      - The paired eval root targets only `savechanges-pipeline`; source fixtures are stimulus-local, prompts do not instruct activation or reveal expected answers, and grading includes deterministic, semantic, token-budget, bounded-resource, and threshold checks.
     graders:
       - type: file-matches
         config:
-          path: .agents/skills/context-pooling/SKILL.md
-          pattern: '(?m)^---(?=[\s\S]*^name:\s*context-pooling\s*$)(?=[\s\S]*^user-invocable:\s*false\s*$)[\s\S]*DbContextPool'
+          path: .agents/skills/savechanges-pipeline/SKILL.md
+          pattern: '(?im)(?=^---[\s\S]*^name:\s*savechanges-pipeline\s*$)(?=[\s\S]*^user-invocable:\s*false\s*$)(?=[\s\S]*TryDetectChanges)(?=[\s\S]*acceptAllChangesOnSuccess)(?=[\s\S]*AutoTransactionBehavior)(?=[\s\S]*savepoint)[\s\S]+'
       - type: file-matches
         config:
-          path: eng/harness-evaluation/skills/context-pooling/eval.yaml
-          pattern: '(?m)(?=[\s\S]*^name:\s*context-pooling\s*$)(?=[\s\S]*runs:)(?=[\s\S]*^agent_environment:\s*$\r?\n\s+skills:\s*$\r?\n\s+-\s+\.\./\.\./\.\./\.\./\.agents/skills/context-pooling\s*$)(?=[\s\S]*token-budget)(?=[\s\S]*scoring:)(?=[\s\S]*threshold:)[\s\S]+'
+          path: eng/harness-evaluation/skills/savechanges-pipeline/eval.yaml
+          pattern: '(?m)(?=[\s\S]*^name:\s*savechanges-pipeline\s*$)(?=[\s\S]*^agent_environment:\s*$)(?=[\s\S]*\.agents/skills/savechanges-pipeline)(?=[\s\S]*^stimuli:\s*$)(?=[\s\S]*token-budget)(?=[\s\S]*scoring:)(?=[\s\S]*threshold:)[\s\S]+'
       - type: prompt
         config:
           scoring: binary
@@ -51,7 +60,7 @@ stimuli:
             - repo
       - type: token-budget
         config:
-          max: 1500000
+          max: 750000
 scoring:
   weights:
     file-matches: 0.36

@@ -3,7 +3,7 @@ description: Evaluates dotnet-ef tooling guidance against the EF Core command im
 type: capability
 defaults:
   runs: ${RUNS=5}
-  timeout: 5m
+  timeout: 10m
   model: ${MODEL=gpt-5.6-sol}
   judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
   executor: copilot-sdk
@@ -13,30 +13,36 @@ agent_environment:
 stimuli:
   - name: thread-a-migrations-add-option
     prompt: |-
-      Before analyzing files, use the available repository skill that applies to this task. Inspect src/dotnet-ef/RootCommand.cs, src/ef/Commands/MigrationsAddCommand.cs, test/dotnet-ef.Tests/CommandsTest.cs, and test/ef.Tests/CommandsTest.cs. Write tooling-plan.md for adding a --suppress-summary option to dotnet ef migrations add, tracing the value from parsing through the design-time operation host and identifying focused tests. Specify its help text, default and forwarding behavior, preserve public command compatibility, and keep the dotnet-ef path distinct from PMC and EFCore.Tasks. Do not edit source.
+      Inspect the staged command implementation and tests. Add a `--suppress-summary` option to `dotnet ef migrations add`. Without the option, behavior remains unchanged; with it, a successful command omits the final completion message. Write tooling-plan.md identifying the implementation and focused test changes. Do not edit source.
     constraints: &short_constraints
       max_turns: 40
-      max_tokens: 750000
-      max_duration: 5m
+      max_tokens: 1000000
+      max_duration: 10m
     agent_environment:
       files:
         - src: ../../../../src/dotnet-ef/RootCommand.cs
           dest: src/dotnet-ef/RootCommand.cs
+        - src: ../../../../src/ef/Commands/MigrationsAddCommand.Configure.cs
+          dest: src/ef/Commands/MigrationsAddCommand.Configure.cs
         - src: ../../../../src/ef/Commands/MigrationsAddCommand.cs
           dest: src/ef/Commands/MigrationsAddCommand.cs
+        - src: ../../../../src/ef/IOperationExecutor.cs
+          dest: src/ef/IOperationExecutor.cs
+        - src: ../../../../src/ef/Properties/Resources.resx
+          dest: src/ef/Properties/Resources.resx
         - src: ../../../../test/dotnet-ef.Tests/CommandsTest.cs
           dest: test/dotnet-ef.Tests/CommandsTest.cs
         - src: ../../../../test/ef.Tests/CommandsTest.cs
           dest: test/ef.Tests/CommandsTest.cs
     rubric:
-      - The plan is grounded in the staged command types and traces build, dotnet exec ef.dll, and OperationExecutor boundaries.
-      - It identifies focused CLI/operation tests and does not conflate dotnet-ef with PMC or EFCore.Tasks.
-      - The option has clear help/default/forwarding behavior and preserves public command compatibility.
+      - The plan configures the resource-backed option in MigrationsAddCommand.Configure and guards the local `Reporter.WriteInformation(Resources.MigrationsAddCompleted)` call in Execute, with the current output as the default.
+      - It explains that RootCommand forwards command arguments to ef.dll but `IOperationExecutor.AddMigration` remains unchanged because the design-time operation does not consume presentation behavior.
+      - It identifies focused inner-command parsing/output tests and does not change PMC or EFCore.Tasks.
     graders:
       - type: file-matches
         config:
           path: tooling-plan.md
-          pattern: suppress-summary[\s\S]*(OperationExecutor|ef\.dll)
+          pattern: (?i)(?=[\s\S]*suppress-summary)(?=[\s\S]*(MigrationsAddCompleted|Reporter\.WriteInformation))(?=[\s\S]*(IOperationExecutor|OperationExecutor))(?=[\s\S]*(unchanged|not forward|does not (?:need|require|change)))[\s\S]+
       - type: prompt
         config:
           scoring: binary
@@ -44,7 +50,7 @@ stimuli:
           evidence: [ trajectory, repo ]
       - type: token-budget
         config:
-          max: 750000
+          max: 1000000
 scoring:
   weights:
     file-matches: 0.27

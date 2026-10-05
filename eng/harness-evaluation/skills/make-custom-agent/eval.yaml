@@ -13,10 +13,10 @@ agent_environment:
 stimuli:
   - name: create-an-efcore-api-review-agent
     prompt: >-
-      Before creating files, use the available repository skill that applies to this task. Inspect .github/workflows/api-review-baselines.yml, src/EFCore/EFCore.baseline.json, and .github/copilot-instructions.md.
-      Create a read-only declarative custom agent named efcore-api-review at .github/agents/efcore-api-review.agent.md that reviews EF Core ApiChief baseline deltas, explains compatibility impact, and points reviewers to evidence from the staged workflow and baseline.
-      Also create its paired harness evaluation at eng/harness-evaluation/agents/efcore-api-review/eval.yaml following eng/harness-evaluation/README.md. Do not create a skill or duplicate the root instructions.
-    constraints:
+      Inspect .github/workflows/api-review-baselines.yml, src/EFCore/EFCore.baseline.json, and .github/copilot-instructions.md.
+      Create `efcore-api-review` at `.github/agents/efcore-api-review.agent.md` to review EF Core ApiChief baseline deltas, explain compatibility impact, and point reviewers to evidence from the staged workflow and baseline without modifying the workspace or GitHub.
+      Also create its paired evaluation at `eng/harness-evaluation/agents/efcore-api-review/eval.yaml`. Do not create a skill or duplicate the root instructions.
+    constraints: &authoring_constraints
       max_turns: 50
       max_tokens: 1000000
       max_duration: 10m
@@ -28,8 +28,6 @@ stimuli:
           dest: src/EFCore/EFCore.baseline.json
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
-        - src: ../../../../eng/harness-evaluation/README.md
-          dest: eng/harness-evaluation/README.md
     rubric:
       - The output is .github/agents/efcore-api-review.agent.md with valid frontmatter whose name is efcore-api-review.
       - The output includes eng/harness-evaluation/agents/efcore-api-review/eval.yaml with a matching eval name and the required harness structure.
@@ -39,7 +37,7 @@ stimuli:
       - type: file-matches
         config:
           path: .github/agents/efcore-api-review.agent.md
-          pattern: '(?m)^---[\s\S]*^name:\s*["'']?efcore-api-review["'']?\s*$[\s\S]*^description:'
+          pattern: '(?im)(?=^---[\s\S]*^name:\s*["'']?efcore-api-review["'']?\s*$)(?=[\s\S]*^description:)(?=[\s\S]*(ApiChief|API baseline))(?=[\s\S]*compatib)[\s\S]+'
       - type: file-matches
         config:
           path: eng/harness-evaluation/agents/efcore-api-review/eval.yaml
@@ -51,6 +49,43 @@ stimuli:
           evidence:
             - trajectory
             - repo
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: review-read-only-agent-boundaries
+    prompt: |-
+      Inspect the staged API review workflow and root instructions. Review this proposal for `.github/agents/efcore-api-review.agent.md` and write agent-review.md; do not create or edit the agent.
+
+          ---
+          name: efcore-api-review
+          description: Reviews EF Core API changes.
+          tools: ['*']
+          ---
+
+          Check out the requested PR branch, regenerate or edit API baselines as needed, run commands, and post an APPROVE or REQUEST_CHANGES review with your findings.
+
+      The proposal's paired eval declares both the agent file and `.github/copilot-instructions.md` in its root `agent_environment.files`, and every stimulus begins by telling the agent to invoke `efcore-api-review`.
+    constraints: *authoring_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/workflows/api-review-baselines.yml
+          dest: .github/workflows/api-review-baselines.yml
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+    rubric:
+      - The review keeps this as a declarative agent but restricts its tools and behavior to read-only repository evidence; it forbids branch mutation, baseline edits, command execution, and APPROVE/REQUEST_CHANGES events.
+      - It requires a discovery description that says when to use the agent and domain instructions grounded in ApiChief baseline compatibility review without copying root instructions.
+      - The paired eval root contains only the agent file, its prompts are solution-neutral and do not instruct activation, and it includes bounded deterministic, semantic, and token grading with a committed threshold.
+    graders:
+      - type: file-matches
+        config:
+          path: agent-review.md
+          pattern: (?i)(?=[\s\S]*(declarative|\.github/agents))(?=[\s\S]*(read[ -]?only|restrict.*tools))(?=[\s\S]*(APPROVE|REQUEST_CHANGES))(?=[\s\S]*(root agent_environment|only the agent|single.*file))(?=[\s\S]*(activation|invoke))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence: [ trajectory, repo ]
       - type: token-budget
         config:
           max: 1000000

@@ -12,18 +12,18 @@ agent_environment:
     - ../../../../.agents/skills/migrations
 stimuli:
   - name: diagnose-an-upgrade-only-spurious-diff
-    prompt: >-
-      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore.Relational/Migrations/Internal/MigrationsModelDiffer.cs and test/EFCore.Design.Tests/Migrations/Design/SnapshotModelProcessorTest.cs. An older snapshot lacks newly introduced metadata and now produces a migration with no user model change. Write analysis.md identifying the compatibility boundary, how absence should be interpreted, how snapshot property-bag CLR types affect the analysis, and the focused no-diff or round-trip test to add to the staged test file. The proposed test must use a concrete older ModelSnapshot class as the source, process it through SnapshotModelProcessor with resetVersion, compare it with the equivalent current design-time model, and assert that no migration operations are produced. In the old snapshot code, use the staged type-based `ComplexProperty(typeof(Dictionary<string, object>), ...)` property-bag form and omit `IsRequired()`, `IsRequired(false)`, and every other API that would explicitly configure the missing nullability metadata.
-    constraints:
-      max_turns: 80
-      max_tokens: 2000000
+    prompt: |-
+      Inspect the staged upgrade-report.txt and snapshot-harness.cs. Write analysis.md with the root cause, compatibility behavior, and focused regression test. Do not edit source.
+    constraints: &migration_constraints
+      max_turns: 45
+      max_tokens: 700000
       max_duration: 15m
     agent_environment:
       files:
-        - src: ../../../../src/EFCore.Relational/Migrations/Internal/MigrationsModelDiffer.cs
-          dest: src/EFCore.Relational/Migrations/Internal/MigrationsModelDiffer.cs
-        - src: ../../../../test/EFCore.Design.Tests/Migrations/Design/SnapshotModelProcessorTest.cs
-          dest: test/EFCore.Design.Tests/Migrations/Design/SnapshotModelProcessorTest.cs
+        - src: fixtures/upgrade-report.txt
+          dest: upgrade-report.txt
+        - src: fixtures/snapshot-harness.cs
+          dest: snapshot-harness.cs
     rubric:
       - The analysis is grounded in MigrationsModelDiffer and distinguishes old snapshot compatibility from runtime modeling.
       - It accounts for property-bag snapshot CLR types and treats missing new metadata as the previous default where appropriate.
@@ -32,7 +32,7 @@ stimuli:
       - type: file-matches
         config:
           path: analysis.md
-          pattern: (SnapshotModelProcessor|snapshot)[\s\S]*(property.bag|Dictionary<string, object>)
+          pattern: (?i)(?=[\s\S]*SnapshotModelProcessor)(?=[\s\S]*(property[ -]?bag|Dictionary<string,\s*object>))(?=[\s\S]*(ModelSnapshot|AssertSameSnapshot))(?=[\s\S]*(GetDifferences|empty diff|no migration operations))[\s\S]+
       - type: prompt
         config:
           scoring: binary
@@ -42,7 +42,38 @@ stimuli:
             - repo
       - type: token-budget
         config:
-          max: 2000000
+          max: 700000
+  - name: review-legacy-snapshot-compatibility-patch
+    prompt: |-
+      Review the staged proposal.diff and write review.md with findings and focused validation. Do not edit source or access GitHub.
+    constraints: *migration_constraints
+    agent_environment:
+      files:
+        - src: fixtures/legacy-snapshot-compatibility/SnapshotModelProcessor.cs
+          dest: src/EFCore.Design/Migrations/Internal/SnapshotModelProcessor.cs
+        - src: fixtures/legacy-snapshot-compatibility/Migrator.cs
+          dest: src/EFCore.Relational/Migrations/Internal/Migrator.cs
+        - src: fixtures/legacy-snapshot-compatibility/SnapshotModelProcessorTest.cs
+          dest: test/EFCore.Design.Tests/Migrations/Design/SnapshotModelProcessorTest.cs
+    rubric:
+      - The review rejects duplicating snapshot normalization in Migrator and keeps this compatibility behavior in the design-time SnapshotModelProcessor path.
+      - It narrows the version gate to EF Core 8.x and 9.x, which could emit complex-property snapshots, and uses the IMutableComplexProperty IsNullable setter without a concrete ComplexProperty cast or configuration-source check.
+      - Focused coverage includes 8.x and 9.x affected snapshots, the first unaffected 10.x snapshot, and nested complex properties.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*SnapshotModelProcessor)(?=[\s\S]*Migrator)(?=[\s\S]*(revert|remove|do not|should not))(?=[\s\S]*8\.(?:x|0))(?=[\s\S]*9\.(?:x|0))(?=[\s\S]*(IMutableComplexProperty|\.IsNullable))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - repo
+      - type: token-budget
+        config:
+          max: 700000
 scoring:
   weights:
     file-matches: 0.27

@@ -207,7 +207,16 @@ Key considerations:
 - Use the [GitHub Copilot Extensions documentation](https://docs.github.com/en/copilot/building-copilot-extensions/about-building-copilot-extensions) for the full integration guide
 - For VS Code-specific features (editor access, file trees, command buttons), prefer an extension-based participant instead
 
-### Step 7: Validate
+### Step 7: Author the harness evaluation
+
+Create `eng/harness-evaluation/agents/<agent-id>/eval.yaml` and follow `eng/harness-evaluation/README.md`.
+
+- Declare only the agent file in the eval's root `agent_environment.files`; the experiment removes it from the control.
+- Use realistic stimuli that exercise behavior distinctive to the agent without stating the expected diagnosis or implementation in the prompt.
+- Combine deterministic output checks, a focused semantic rubric, bounded resources, token grading, and a committed scoring threshold.
+- Keep the eval name and directory-derived component ID identical to the agent ID.
+
+### Step 8: Validate
 
 After creating or modifying an agent, verify:
 
@@ -220,6 +229,7 @@ After creating or modifying an agent, verify:
 - [ ] Agent does not duplicate functionality of built-in agents (`@workspace`, `@vscode`, `@terminal`)
 - [ ] Handoff agent names match existing agents
 - [ ] Agent instructions don't include secrets, tokens, or internal URLs
+- [ ] The paired harness eval targets only this agent and is meant to meaningfully distinguish treatment from control
 
 ## Common Pitfalls
 

@@ -13,7 +13,7 @@ agent_environment:
 stimuli:
   - name: extend-the-release-target-validation-workflow
     prompt: >-
-      Inspect .github/workflows/validate-pr-target-branch.yml and .github/workflows/label-and-milestone-issues.yml, and inspect .github/CONTRIBUTING.md for contributor context. Modify the staged validate-pr-target-branch.yml so an invalid external PR targeting a release branch also receives one idempotent explanatory comment. Preserve its existing policy, keep the pull_request_target path safe, preserve the existing immutable actions/github-script SHA reference, and do not execute or check out fork code. Use a stable hidden HTML marker and verify the matching comment's bot author before updating the existing bot comment across reruns.
+      Inspect .github/workflows/validate-pr-target-branch.yml and .github/workflows/label-and-milestone-issues.yml, and inspect .github/CONTRIBUTING.md for contributor context. Modify the staged validate-pr-target-branch.yml so an invalid external PR targeting a release branch receives an explanatory comment. Reruns must leave exactly one workflow-owned comment and must never edit a contributor-authored comment. Preserve its existing policy and immutable action reference, and do not execute or check out fork code.
     constraints: &short_constraints
       max_turns: 40
       max_tokens: 750000
@@ -34,7 +34,37 @@ stimuli:
       - type: file-matches
         config:
           path: .github/workflows/validate-pr-target-branch.yml
-          pattern: (?=[\s\S]*actions/github-script@)(?=[\s\S]*<!--)(?=[\s\S]*(user\?*\.login|\[bot\]))(?=[\s\S]*(updateComment|existing))[\s\S]+
+          pattern: (?i)(?![\s\S]*actions/checkout)(?=[\s\S]*actions/github-script@[0-9a-f]{40})(?=[\s\S]*<!--)(?=[\s\S]*(user\?*\.(?:type|login)|\[bot\]))(?=[\s\S]*updateComment)(?=[\s\S]*createComment)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - diff
+            - repo
+      - type: token-budget
+        config:
+          max: 750000
+  - name: create-external-pr-target-policy-workflow
+    prompt: |-
+      Inspect `.github/CONTRIBUTING.md` and the staged workflow for repository conventions. Create `.github/workflows/validate-external-pr-target.yml` to close and explain external pull requests that target servicing branches, while labeling newly opened external contributions. Maintainers must be able to edit or reopen pull requests without being incorrectly blocked, and automation accounts must be ignored. Do not check out or execute pull-request code.
+    constraints: *short_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/CONTRIBUTING.md
+          dest: .github/CONTRIBUTING.md
+        - src: ../../../../.github/workflows/label-and-milestone-issues.yml
+          dest: .github/workflows/label-and-milestone-issues.yml
+    rubric:
+      - The pull_request_target workflow handles opened, edited, and reopened events; edited events act only when the base changed, and the prohibited policy is scoped to release/* rather than requiring main.
+      - Permission is checked once for `context.actor` and reused for branch closure and opened-event labeling; both the actor and PR author are excluded when they are bots.
+      - Permissions are explicit and minimal, the action reference is an immutable SHA, no contributor code is checked out or executed, and API lookup failures avoid false-positive closure.
+    graders:
+      - type: file-matches
+        config:
+          path: .github/workflows/validate-external-pr-target.yml
+          pattern: (?i)(?![\s\S]*actions/checkout)(?=[\s\S]*pull_request_target)(?=[\s\S]*opened)(?=[\s\S]*edited)(?=[\s\S]*reopened)(?=[\s\S]*changes\?*\.base)(?=[\s\S]*context\.actor)(?=[\s\S]*release/)(?=[\s\S]*community-contribution)[\s\S]+
       - type: prompt
         config:
           scoring: binary

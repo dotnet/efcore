@@ -1,5 +1,5 @@
 name: copilot-instructions
-description: Evaluates repository-wide Copilot guidance for EF Core implementation conventions and provider test hierarchies.
+description: Evaluates repository-wide Copilot guidance for EF Core implementation conventions, provider test hierarchies, and query-pipeline review.
 type: capability
 defaults:
   runs: ${RUNS=5}
@@ -12,32 +12,28 @@ agent_environment:
     - src: ../../../../.github/copilot-instructions.md
       dest: .github/copilot-instructions.md
 stimuli:
-  - name: add-a-query-test-through-provider-hierarchies
+  - name: move-provider-query-regression-to-specifications
     prompt: |-
-      Inspect test/EFCore.Specification.Tests/Query/QueryTestBase.cs, test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs, test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs, and test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs. Review a proposal that adds Where_with_parameterized_limit only to the SQL Server class, puts AssertSql in the specification base, copies a separate test into SQLite, and adds a test override that only calls base. Write test-plan.md with the corrected implementation and focused validation plan. Do not edit source.
+      Inspect test/EFCore.Specification.Tests/Query/NorthwindMiscellaneousQueryTestBase.cs and test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs. A proposed fix for nullable-to-non-nullable conversion adds `Convert_to_nullable_on_nullable_value_is_ignored` only to the SQL Server class, where it executes the LINQ query and asserts the result. Write test-plan.md reviewing the test placement and validation. Do not edit source.
     constraints:
       max_turns: 40
       max_tokens: 750000
       max_duration: 5m
     agent_environment:
       files:
-        - src: ../../../../test/EFCore.Specification.Tests/Query/QueryTestBase.cs
-          dest: test/EFCore.Specification.Tests/Query/QueryTestBase.cs
-        - src: ../../../../test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs
-          dest: test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs
-        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs
-          dest: test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs
-        - src: ../../../../test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs
-          dest: test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs
+        - src: ../../../../test/EFCore.Specification.Tests/Query/NorthwindMiscellaneousQueryTestBase.cs
+          dest: test/EFCore.Specification.Tests/Query/NorthwindMiscellaneousQueryTestBase.cs
+        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
+          dest: test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
     rubric:
-      - The plan moves provider-independent behavior and result assertions into the specification base rather than duplicating tests, and identifies both staged provider overrides.
-      - SQL Server and SQLite overrides call the base test before their own AssertSql baselines; the existing SQL Server Check_all_tests_overridden guard remains covered without adding an exhaustive guard to the intentionally selective SQLite class.
-      - The commands restore and activate the repository SDK, then build or run focused tests for each provider without relying on stale --no-build output.
+      - The plan moves the LINQ query and result assertion into a virtual test on NorthwindMiscellaneousQueryTestBase so all applicable providers inherit the behavior.
+      - The SQL Server override calls the base test and contains only its provider SQL baseline through AssertSql.
+      - The validation runs the shared behavior and SQL Server baseline with focused Microsoft Testing Platform filters and does not rely on stale --no-build output.
     graders:
       - type: file-matches
         config:
           path: test-plan.md
-          pattern: (?i)(?=[\s\S]*Where_with_parameterized_limit)(?=[\s\S]*(NorthwindWhereQueryTestBase|specification base))(?=[\s\S]*AssertSql)(?=[\s\S]*SqlServer)(?=[\s\S]*Sqlite)[\s\S]+
+          pattern: (?i)(?=[\s\S]*NorthwindMiscellaneousQueryTestBase)(?=[\s\S]*AssertSql)(?=[\s\S]*(shared|specification|provider.independent))[\s\S]+
       - type: prompt
         config:
           scoring: binary
@@ -48,7 +44,22 @@ stimuli:
           max: 750000
   - name: plan-a-provider-independent-async-api
     prompt: |-
-      Inspect src/EFCore/DbContext.cs, src/EFCore/Properties/CoreStrings.resx and src/EFCore/EFCore.csproj. Review a proposal for a DbContext async API used by all providers: it is placed in EFCore.Relational, takes `bool isEnabled`, activates a CLR Type with reflection, awaits a callback normally, throws a hard-coded English error, hand-edits CoreStrings.Designer.cs, adds an inline package version to EFCore.csproj, and puts its build hook under eng/common. Write implementation-plan.md with the corrected implementation and focused validation plan. Do not edit source.
+      Inspect src/EFCore/DbContext.cs and src/EFCore/Properties/CoreStrings.resx. Review this proposed provider-independent DbContext member and write implementation-plan.md with the corrected API, implementation, and focused validation. Do not edit source.
+
+        public virtual async Task<object> ActivateAsync(
+          Type type,
+          bool isEnabled,
+          Func<object, Task> callback)
+        {
+          if (!isEnabled)
+          {
+            throw new InvalidOperationException("Activation is disabled.");
+          }
+
+          var instance = Activator.CreateInstance(type)!;
+          await callback(instance);
+          return instance;
+        }
     constraints:
       max_turns: 50
       max_tokens: 1000000
@@ -59,13 +70,11 @@ stimuli:
           dest: src/EFCore/DbContext.cs
         - src: ../../../../src/EFCore/Properties/CoreStrings.resx
           dest: src/EFCore/Properties/CoreStrings.resx
-        - src: ../../../../src/EFCore/EFCore.csproj
-          dest: src/EFCore/EFCore.csproj
     rubric:
-      - The plan places provider-independent behavior in EFCore, renames the bool parameter without an is/are prefix, and preserves public API compatibility with complete XML documentation.
+      - The plan places provider-independent behavior in EFCore, renames the bool parameter without an is/are prefix, treats the supplied member as an unshipped proposal whose API shape may be corrected, and includes complete XML documentation.
       - It avoids reflection/runtime generation where possible or applies appropriate NativeAOT annotations, and requires ConfigureAwait(false) on the callback.
-      - It adds the error to CoreStrings.resx, regenerates rather than hand-edits the designer, and centralizes the package version in eng/Versions.props or Directory.Packages.props.
-      - It places repository build logic outside mirrored eng/common and includes focused behavior plus EFCore.ApiBaseline.Tests validation.
+      - It adds the error to CoreStrings.resx and regenerates rather than hand-edits the designer.
+      - It includes focused enabled/disabled, activation-failure, callback, and API-baseline validation.
     graders:
       - type: file-matches
         config:
@@ -79,9 +88,9 @@ stimuli:
       - type: token-budget
         config:
           max: 1000000
-  - name: design-a-nonshared-provider-query-regression
+  - name: place-custom-model-query-regression-by-trait
     prompt: |-
-      Inspect test/EFCore.Specification.Tests/NonSharedModelTestBase.cs, test/EFCore.Specification.Tests/Query/AdHocMiscellaneousQueryTestBase.cs, test/EFCore.SqlServer.FunctionalTests/Query/AdHocMiscellaneousQuerySqlServerTest.cs, and test/EFCore.Sqlite.FunctionalTests/Query/AdHocMiscellaneousQuerySqliteTest.cs. Review a regression-test proposal that needs a dynamically configured model and runs for SQL Server and SQLite. It creates a standalone xUnit class with two tests, builds services and models manually, and copies the full tests into both providers. Write regression-plan.md with the corrected implementation and focused validation plan. Do not edit source.
+      Inspect test/EFCore.Specification.Tests/NonSharedModelTestBase.cs, test/EFCore.Specification.Tests/Query/OwnedEntityQueryTestBase.cs, test/EFCore.SqlServer.FunctionalTests/Query/OwnedEntityQuerySqlServerTest.cs, and test/EFCore.Sqlite.FunctionalTests/Query/OwnedEntityQuerySqliteTest.cs. A proposed regression test queries projections containing owned types and introduces `NonSharedModelQueryTestBase`, derived from `NonSharedModelTestBase`, with provider subclasses for SQL Server and SQLite. Write regression-plan.md reviewing the proposed hierarchy, test ownership, and focused validation. Do not edit source.
     constraints:
       max_turns: 60
       max_tokens: 1200000
@@ -90,21 +99,21 @@ stimuli:
       files:
         - src: ../../../../test/EFCore.Specification.Tests/NonSharedModelTestBase.cs
           dest: test/EFCore.Specification.Tests/NonSharedModelTestBase.cs
-        - src: ../../../../test/EFCore.Specification.Tests/Query/AdHocMiscellaneousQueryTestBase.cs
-          dest: test/EFCore.Specification.Tests/Query/AdHocMiscellaneousQueryTestBase.cs
-        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/AdHocMiscellaneousQuerySqlServerTest.cs
-          dest: test/EFCore.SqlServer.FunctionalTests/Query/AdHocMiscellaneousQuerySqlServerTest.cs
-        - src: ../../../../test/EFCore.Sqlite.FunctionalTests/Query/AdHocMiscellaneousQuerySqliteTest.cs
-          dest: test/EFCore.Sqlite.FunctionalTests/Query/AdHocMiscellaneousQuerySqliteTest.cs
+        - src: ../../../../test/EFCore.Specification.Tests/Query/OwnedEntityQueryTestBase.cs
+          dest: test/EFCore.Specification.Tests/Query/OwnedEntityQueryTestBase.cs
+        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/OwnedEntityQuerySqlServerTest.cs
+          dest: test/EFCore.SqlServer.FunctionalTests/Query/OwnedEntityQuerySqlServerTest.cs
+        - src: ../../../../test/EFCore.Sqlite.FunctionalTests/Query/OwnedEntityQuerySqliteTest.cs
+          dest: test/EFCore.Sqlite.FunctionalTests/Query/OwnedEntityQuerySqliteTest.cs
     rubric:
-      - The plan uses NonSharedModelTestBase and its initialization/context factory infrastructure rather than manual service/model construction.
-      - Provider-independent behavior lives in the staged specification base; SQL Server and SQLite overrides call base and use provider-local AssertSql without copying behavior.
-      - The plan uses existing TestHelpers/fixture infrastructure, preserves the existing SQL Server Check_all_tests_overridden coverage without adding an exhaustive guard to the intentionally selective SQLite class, and validates both providers with repository setup and focused Microsoft Testing Platform commands.
+      - The plan rejects an unbounded generic custom-model query bucket and places the regression in the cohesive OwnedEntityQueryTestBase model-trait hierarchy.
+      - The specification base derives from NonSharedModelTestBase and owns model setup plus provider-independent assertions; provider classes inherit it, with SQL baselines remaining provider-local.
+      - The plan validates the shared owned-entity test through focused provider commands and does not duplicate its behavior in provider classes.
     graders:
       - type: file-matches
         config:
           path: regression-plan.md
-          pattern: (?i)(?=[\s\S]*(NonSharedModelTestBase|InitializeNonSharedTest))(?=[\s\S]*AdHocMiscellaneousQueryTestBase)(?=[\s\S]*AssertSql)(?=[\s\S]*SqlServer)(?=[\s\S]*Sqlite)[\s\S]+
+          pattern: (?i)(?=[\s\S]*OwnedEntityQueryTestBase)(?=[\s\S]*NonSharedModelTestBase)(?=[\s\S]*(cohesive|model trait|owned entit))(?=[\s\S]*(SqlServer|SQLite))[\s\S]+
       - type: prompt
         config:
           scoring: binary
@@ -113,6 +122,84 @@ stimuli:
       - type: token-budget
         config:
           max: 1200000
+  - name: review-projection-retry-change
+    prompt: |-
+      Inspect the staged projection-retry.cs snapshot. Write analysis.md reviewing the implementation and focused validation. Do not edit source.
+    constraints: &query_review_constraints
+      max_turns: 35
+      max_tokens: 600000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: fixtures/query-pipeline/projection-retry.cs
+          dest: projection-retry.cs
+    rubric:
+      - The analysis identifies that TryTranslateToServerProjection does not assign `_rootIsTransparentIdentifier` even though the reused visitor's normal Translate entry point does, so state from a prior translation can affect gating and marker remapping.
+      - It requires initializing `_rootIsTransparentIdentifier` with IsTransparentIdentifierProjection(expression) for every retry invocation before Visit.
+      - Focused validation exercises retry after a prior transparent-identifier-rooted translation and verifies both transparent and non-transparent retry inputs.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*_rootIsTransparentIdentifier)(?=[\s\S]*TryTranslateToServerProjection)(?=[\s\S]*IsTransparentIdentifierProjection)(?=[\s\S]*(reuse|stale|previous))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 600000
+  - name: review-split-query-count-change
+    prompt: |-
+      Inspect the staged fallback-and-tests.cs snapshot. Write analysis.md reviewing the implementation and focused validation. Do not edit source.
+    constraints: *query_review_constraints
+    agent_environment:
+      files:
+        - src: fixtures/query-pipeline/fallback-and-tests.cs
+          dest: fallback-and-tests.cs
+    rubric:
+      - The analysis rejects the bare catch because it converts unexpected translation defects into a silent streaming fallback and requires fallback to handle only established unsupported-shape failures.
+      - It identifies that the static factory and mutation flags are shared process-wide across parallel InlineData rows and inheriting provider suites, and requires test-scoped or async-flow-scoped coordination.
+      - Focused validation proves expected fallback and unexpected exception propagation while running sync and async concurrency cases without cross-test state interference.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*(bare catch|catch all|unexpected.*exception))(?=[\s\S]*(static|process.wide|shared mutable))(?=[\s\S]*(parallel|AsyncLocal|test.scoped|isolat))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 600000
+  - name: review-split-query-consumers
+    prompt: |-
+      Inspect the staged split-enumerables.cs snapshot. Write analysis.md reviewing the implementation and focused validation. Do not edit source.
+    constraints: *query_review_constraints
+    agent_environment:
+      files:
+        - src: fixtures/query-pipeline/split-enumerables.cs
+          dest: split-enumerables.cs
+    rubric:
+      - The analysis identifies that both enumerable types consume SplitQueryResultCoordinator but only SplitQueryingEnumerable verifies orphaned child rows when outer enumeration completes.
+      - It requires VerifyNoOrphanedChildRows in the synchronous and asynchronous GroupBySplitQueryingEnumerable paths when the outer stream is exhausted, not merely at an individual group boundary.
+      - Focused validation covers grouped split queries with orphaned rows in both sync and async execution while preserving ordinary multi-group iteration.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*GroupBySplitQueryingEnumerable)(?=[\s\S]*VerifyNoOrphanedChildRows)(?=[\s\S]*(sync|synchronous))(?=[\s\S]*(async|asynchronous))(?=[\s\S]*(end|exhaust|outer stream))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 600000
 scoring:
   weights:
     file-matches: 0.2
