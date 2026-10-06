@@ -1,9 +1,8 @@
 <Project>
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>8.0.32</VersionPrefix>
+    <VersionPrefix>8.0.33</VersionPrefix>
     <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>
-    </PreReleaseVersionIteration>
+    <PreReleaseVersionIteration></PreReleaseVersionIteration>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
     <!--
