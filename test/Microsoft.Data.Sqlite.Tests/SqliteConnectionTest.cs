@@ -1258,6 +1258,12 @@ public class SqliteConnectionTest
     public void GetSchema_supported_join_operators_are_version_specific(string version, int expected)
         => Assert.Equal(expected, SqliteConnection.GetSupportedJoinOperators(new Version(version)));
 
+    [Theory]
+    [InlineData("3.36.0", false)]
+    [InlineData("3.37.0", true)]
+    public void GetSchema_table_list_support_is_version_specific(string version, bool expected)
+        => Assert.Equal(expected, SqliteConnection.IsTableListSupported(new Version(version)));
+
     [Fact]
     public void GetSchema_DataSourceInformation_marker_can_be_consumed()
     {

@@ -788,7 +788,8 @@ public partial class SqliteConnection : DbConnection
     ///     SQLite table, column, and index metadata is populated from the documented <c>sqlite_master</c> catalog and
     ///     table-valued <c>pragma_table_info</c> and <c>pragma_index_list</c> interfaces.
     ///     Views with unavailable dependencies and virtual tables whose modules are unavailable are omitted from the
-    ///     Columns collection.
+    ///     Columns collection. On SQLite 3.37 and later, the <c>pragma_table_list</c> interface is used to exclude
+    ///     virtual-table shadow tables; older SQLite versions use the <c>sqlite_master</c> fallback.
     /// </remarks>
     /// <seealso href="https://learn.microsoft.com/dotnet/framework/data/adonet/getschema-and-schema-collections">ADO.NET GetSchema and schema collections</seealso>
     /// <seealso href="https://learn.microsoft.com/dotnet/framework/data/adonet/common-schema-collections">ADO.NET common schema collections</seealso>
@@ -973,7 +974,7 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add("ORDINAL_POSITION", typeof(int));
 
             var schemaObjects = GetSchemaObjects();
-            var useTableList = IsTableListSupported();
+            var useTableList = IsTableListSupported(new Version(ServerVersion));
             foreach (var databaseName in GetDatabaseNames())
             {
                 using var command = CreateCommand();
@@ -1051,7 +1052,7 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add("IS_UNIQUE", typeof(bool));
             dataTable.Columns.Add("ORIGIN");
 
-            var useTableList = IsTableListSupported();
+            var useTableList = IsTableListSupported(new Version(ServerVersion));
             foreach (var databaseName in GetDatabaseNames())
             {
                 using var command = CreateCommand();
@@ -1112,7 +1113,7 @@ public partial class SqliteConnection : DbConnection
     {
         var schemaObjects = new List<(string DatabaseName, string TableName, string TableType)>();
 
-        if (IsTableListSupported())
+        if (IsTableListSupported(new Version(ServerVersion)))
         {
             using var command = CreateCommand();
             command.CommandText = "SELECT schema, name, type FROM pragma_table_list WHERE type IN ('table', 'view', 'virtual') AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\'";
@@ -1141,8 +1142,8 @@ public partial class SqliteConnection : DbConnection
         return schemaObjects;
     }
 
-    private bool IsTableListSupported()
-        => new Version(ServerVersion) >= new Version(3, 37);
+    internal static bool IsTableListSupported(Version sqliteVersion)
+        => sqliteVersion >= new Version(3, 37);
 
     private static string QuoteIdentifier(string identifier)
         => "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
