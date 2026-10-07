@@ -768,6 +768,12 @@ public partial class SqliteConnection : DbConnection
     /// <summary>
     ///     Returns schema information for the data source of this connection.
     /// </summary>
+    /// <remarks>
+    ///     Implements the common ADO.NET schema collections documented for <see cref="DbConnection.GetSchema()" />.
+    ///     The collections are provided so that Microsoft.Data.Sqlite conforms to the ADO.NET provider metadata contract.
+    /// </remarks>
+    /// <seealso href="https://learn.microsoft.com/dotnet/framework/data/adonet/getschema-and-schema-collections">ADO.NET GetSchema and schema collections</seealso>
+    /// <seealso href="https://learn.microsoft.com/dotnet/framework/data/adonet/common-schema-collections">ADO.NET common schema collections</seealso>
     /// <returns>Schema information.</returns>
     public override DataTable GetSchema()
         => GetSchema(DbMetaDataCollectionNames.MetaDataCollections);
@@ -775,6 +781,15 @@ public partial class SqliteConnection : DbConnection
     /// <summary>
     ///     Returns schema information for the data source of this connection.
     /// </summary>
+    /// <remarks>
+    ///     Implements the common ADO.NET schema collections documented for <see cref="DbConnection.GetSchema(string)" />.
+    ///     The collections are provided so that Microsoft.Data.Sqlite conforms to the ADO.NET provider metadata contract.
+    ///     SQLite table, column, and index metadata is populated from the documented <c>sqlite_master</c> catalog and
+    ///     table-valued <c>pragma_table_info</c> and <c>pragma_index_list</c> interfaces.
+    /// </remarks>
+    /// <seealso href="https://learn.microsoft.com/dotnet/framework/data/adonet/getschema-and-schema-collections">ADO.NET GetSchema and schema collections</seealso>
+    /// <seealso href="https://learn.microsoft.com/dotnet/framework/data/adonet/common-schema-collections">ADO.NET common schema collections</seealso>
+    /// <seealso href="https://sqlite.org/pragma.html">SQLite PRAGMA statements</seealso>
     /// <param name="collectionName">The name of the schema.</param>
     /// <returns>Schema information.</returns>
     public override DataTable GetSchema(string collectionName)
@@ -803,7 +818,109 @@ public partial class SqliteConnection : DbConnection
                     { DbMetaDataColumnNames.NumberOfRestrictions, typeof(int) },
                     { DbMetaDataColumnNames.NumberOfIdentifierParts, typeof(int) }
                 },
-                Rows = { { DbMetaDataCollectionNames.MetaDataCollections, 0, 0 }, { DbMetaDataCollectionNames.ReservedWords, 0, 0 } }
+                Rows =
+                {
+                    { DbMetaDataCollectionNames.DataSourceInformation, 0, 0 },
+                    { DbMetaDataCollectionNames.DataTypes, 0, 0 },
+                    { DbMetaDataCollectionNames.MetaDataCollections, 0, 0 },
+                    { DbMetaDataCollectionNames.ReservedWords, 0, 0 },
+                    { DbMetaDataCollectionNames.Restrictions, 0, 0 },
+                    { "Tables", 0, 2 },
+                    { "Columns", 0, 3 },
+                    { "Indexes", 0, 3 }
+                }
+            };
+        }
+
+        if (string.Equals(collectionName, DbMetaDataCollectionNames.DataSourceInformation, StringComparison.OrdinalIgnoreCase))
+        {
+            var dataTable = new DataTable(DbMetaDataCollectionNames.DataSourceInformation);
+            dataTable.Columns.Add(DbMetaDataColumnNames.CompositeIdentifierSeparatorPattern);
+            dataTable.Columns.Add(DbMetaDataColumnNames.DataSourceProductName);
+            dataTable.Columns.Add(DbMetaDataColumnNames.DataSourceProductVersion);
+            dataTable.Columns.Add(DbMetaDataColumnNames.DataSourceProductVersionNormalized);
+            dataTable.Columns.Add(DbMetaDataColumnNames.GroupByBehavior, typeof(int));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IdentifierCase, typeof(int));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IdentifierPattern);
+            dataTable.Columns.Add(DbMetaDataColumnNames.OrderByColumnsInSelect, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.ParameterMarkerFormat);
+            dataTable.Columns.Add(DbMetaDataColumnNames.ParameterMarkerPattern);
+            dataTable.Columns.Add(DbMetaDataColumnNames.ParameterNameMaxLength, typeof(int));
+            dataTable.Columns.Add(DbMetaDataColumnNames.ParameterNamePattern);
+            dataTable.Columns.Add(DbMetaDataColumnNames.QuotedIdentifierCase, typeof(int));
+            dataTable.Columns.Add(DbMetaDataColumnNames.QuotedIdentifierPattern);
+            dataTable.Columns.Add(DbMetaDataColumnNames.StatementSeparatorPattern);
+            dataTable.Columns.Add(DbMetaDataColumnNames.StringLiteralPattern);
+            dataTable.Columns.Add(DbMetaDataColumnNames.SupportedJoinOperators, typeof(int));
+
+            var supportedJoinOperators = GetSupportedJoinOperators(new Version(ServerVersion));
+
+            dataTable.Rows.Add(
+                "\\.",
+                "SQLite",
+                ServerVersion,
+                ServerVersion,
+                2,
+                1,
+                @"[\p{L}_\x80-\uFFFF][\p{L}\p{N}_$\x80-\uFFFF]*",
+                false,
+                "@{0}",
+                @"(\?[0-9]+|\?|[@:$][\p{L}\p{N}_\x80-\uFFFF][\p{L}\p{N}_$\x80-\uFFFF]*(?:::[\p{L}\p{N}_$\x80-\uFFFF]*)*(?:\([^\s]*\))?)",
+                DBNull.Value,
+                @"^[\p{L}\p{N}_\x80-\uFFFF][\p{L}\p{N}_$\x80-\uFFFF]*(?:::[\p{L}\p{N}_$\x80-\uFFFF]*)*(?:\([^\s]*\))?$",
+                1,
+                "^([^\"]|\"\")*$",
+                ";",
+                "'([^']|'')*'",
+                supportedJoinOperators);
+
+            return dataTable;
+        }
+
+        if (string.Equals(collectionName, DbMetaDataCollectionNames.DataTypes, StringComparison.OrdinalIgnoreCase))
+        {
+            var dataTable = new DataTable(DbMetaDataCollectionNames.DataTypes);
+            dataTable.Columns.Add(DbMetaDataColumnNames.TypeName);
+            dataTable.Columns.Add(DbMetaDataColumnNames.ProviderDbType, typeof(int));
+            dataTable.Columns.Add(DbMetaDataColumnNames.DataType);
+            dataTable.Columns.Add(DbMetaDataColumnNames.ColumnSize, typeof(long));
+            dataTable.Columns.Add(DbMetaDataColumnNames.CreateFormat);
+            dataTable.Columns.Add(DbMetaDataColumnNames.CreateParameters);
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsAutoIncrementable, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsBestMatch, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsCaseSensitive, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsConcurrencyType, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsFixedLength, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsFixedPrecisionScale, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsLiteralSupported, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsLong, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsNullable, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsSearchable, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsSearchableWithLike, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.IsUnsigned, typeof(bool));
+            dataTable.Columns.Add(DbMetaDataColumnNames.LiteralPrefix);
+            dataTable.Columns.Add(DbMetaDataColumnNames.LiteralSuffix);
+            dataTable.Columns.Add(DbMetaDataColumnNames.MaximumScale, typeof(short));
+            dataTable.Columns.Add(DbMetaDataColumnNames.MinimumScale, typeof(short));
+
+            dataTable.Rows.Add("INTEGER", 1, typeof(long).FullName, -1L, "INTEGER", null, true, true, false, false, true, false, true, false, true, true, true, false, null, null, null, null);
+            dataTable.Rows.Add("REAL", 2, typeof(double).FullName, -1L, "REAL", null, false, true, false, false, true, false, true, false, true, true, true, false, null, null, null, null);
+            dataTable.Rows.Add("TEXT", 3, typeof(string).FullName, -1L, "TEXT", null, false, true, true, false, false, false, true, true, true, true, true, false, "'", "'", null, null);
+            dataTable.Rows.Add("BLOB", 4, typeof(byte[]).FullName, -1L, "BLOB", null, false, true, false, false, false, false, true, true, true, true, true, false, "X'", "'", null, null);
+            return dataTable;
+        }
+
+        if (string.Equals(collectionName, DbMetaDataCollectionNames.Restrictions, StringComparison.OrdinalIgnoreCase))
+        {
+            return new DataTable(DbMetaDataCollectionNames.Restrictions)
+            {
+                Columns =
+                {
+                    DbMetaDataColumnNames.CollectionName,
+                    "RestrictionName",
+                    "RestrictionDefault",
+                    { "RestrictionNumber", typeof(int) }
+                }
             };
         }
 
@@ -824,8 +941,136 @@ public partial class SqliteConnection : DbConnection
             return dataTable;
         }
 
+        if (string.Equals(collectionName, "Tables", StringComparison.OrdinalIgnoreCase))
+        {
+            var dataTable = new DataTable("Tables");
+            dataTable.Columns.Add("TABLE_CATALOG");
+            dataTable.Columns.Add("TABLE_NAME");
+            dataTable.Columns.Add("TABLE_TYPE");
+
+            foreach (var (databaseName, tableName, tableType) in GetSchemaObjects())
+            {
+                dataTable.Rows.Add(databaseName, tableName, tableType);
+            }
+
+            return dataTable;
+        }
+
+        if (string.Equals(collectionName, "Columns", StringComparison.OrdinalIgnoreCase))
+        {
+            var dataTable = new DataTable("Columns");
+            dataTable.Columns.Add("TABLE_CATALOG");
+            dataTable.Columns.Add("TABLE_NAME");
+            dataTable.Columns.Add("COLUMN_NAME");
+            dataTable.Columns.Add("DATA_TYPE");
+            dataTable.Columns.Add("IS_NULLABLE", typeof(bool));
+            dataTable.Columns.Add("COLUMN_DEFAULT");
+            dataTable.Columns.Add("ORDINAL_POSITION", typeof(int));
+
+            foreach (var (databaseName, tableName, _) in GetSchemaObjects())
+            {
+                using var command = CreateCommand();
+                command.CommandText =
+                    $"SELECT name, type, [notnull], dflt_value, cid FROM " +
+                    (databaseName == "main" ? "pragma_table_info($table)" : $"{QuoteIdentifier("pragma_" + databaseName)}.pragma_table_info($table)");
+                command.Parameters.AddWithValue("$table", tableName);
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dataTable.Rows.Add(
+                        databaseName,
+                        tableName,
+                        reader.GetString(0),
+                        reader.IsDBNull(1) ? DBNull.Value : reader.GetString(1),
+                        reader.GetInt64(2) == 0,
+                        reader.IsDBNull(3) ? DBNull.Value : reader.GetString(3),
+                        reader.GetInt64(4));
+                }
+            }
+
+            return dataTable;
+        }
+
+        if (string.Equals(collectionName, "Indexes", StringComparison.OrdinalIgnoreCase))
+        {
+            var dataTable = new DataTable("Indexes");
+            dataTable.Columns.Add("TABLE_CATALOG");
+            dataTable.Columns.Add("TABLE_NAME");
+            dataTable.Columns.Add("INDEX_NAME");
+            dataTable.Columns.Add("IS_UNIQUE", typeof(bool));
+            dataTable.Columns.Add("ORIGIN");
+
+            foreach (var (databaseName, tableName, tableType) in GetSchemaObjects())
+            {
+                if (tableType != "table")
+                {
+                    continue;
+                }
+
+                using var command = CreateCommand();
+                command.CommandText =
+                    $"SELECT name, [unique], origin FROM " +
+                    (databaseName == "main" ? "pragma_index_list($table)" : $"{QuoteIdentifier("pragma_" + databaseName)}.pragma_index_list($table)");
+                command.Parameters.AddWithValue("$table", tableName);
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    dataTable.Rows.Add(
+                        databaseName,
+                        tableName,
+                        reader.GetString(0),
+                        reader.GetInt64(1) != 0,
+                        reader.IsDBNull(2) ? DBNull.Value : reader.GetString(2));
+                }
+            }
+
+            return dataTable;
+        }
+
         throw new ArgumentException(Resources.UnknownCollection(collectionName));
     }
+
+    private List<string> GetDatabaseNames()
+    {
+        using var command = CreateCommand();
+        command.CommandText = "PRAGMA database_list";
+        using var reader = command.ExecuteReader();
+
+        var databaseNames = new List<string>();
+        while (reader.Read())
+        {
+            databaseNames.Add(reader.GetString(1));
+        }
+
+        return databaseNames;
+    }
+
+    private List<(string DatabaseName, string TableName, string TableType)> GetSchemaObjects()
+    {
+        var schemaObjects = new List<(string DatabaseName, string TableName, string TableType)>();
+
+        foreach (var databaseName in GetDatabaseNames())
+        {
+            using var command = CreateCommand();
+            command.CommandText = $"SELECT name, type FROM {QuoteIdentifier(databaseName)}.sqlite_master WHERE type IN ('table', 'view')";
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                schemaObjects.Add((databaseName, reader.GetString(0), reader.GetString(1)));
+            }
+        }
+
+        return schemaObjects;
+    }
+
+    private static string QuoteIdentifier(string identifier)
+        => "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
+
+    internal static int GetSupportedJoinOperators(Version sqliteVersion)
+        => sqliteVersion >= new Version(3, 39) ? 15 : 3;
 
     private void CreateFunctionCore<TState, TResult>(
         string name,
