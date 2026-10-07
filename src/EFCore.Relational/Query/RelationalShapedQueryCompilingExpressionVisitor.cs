@@ -90,6 +90,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         {
             UpdateExpression updateExpression => GenerateNonQueryShaper(updateExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
             DeleteExpression deleteExpression => GenerateNonQueryShaper(deleteExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
+            MergeExpression { Returning: null } mergeExpression => GenerateNonQueryShaper(mergeExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
+            MergeExpression { Returning: not null } mergeExpression => GenerateMergeReturningShaper(mergeExpression.ApplyTags(_tags)),
             _ => base.VisitExtension(extensionExpression)
         };
 
@@ -103,6 +105,23 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 relationalCommandResolver,
                 Constant(_contextType),
                 Constant(commandSource),
+                Constant(_threadSafetyChecksEnabled));
+        }
+
+        Expression GenerateMergeReturningShaper(MergeExpression mergeExpression)
+        {
+            var relationalCommandResolver = CreateRelationalCommandResolverExpression(mergeExpression);
+            var resultType = mergeExpression.ReturningShaper!.ReturnType;
+
+            return Call(
+                CreateSingleQueryingEnumerableMethodInfo.MakeGenericMethod(resultType),
+                Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+                relationalCommandResolver,
+                Constant(null, typeof(IReadOnlyList<ReaderColumn?>)),
+                mergeExpression.ReturningShaper,
+                Constant(_contextType),
+                Constant(false),
+                Constant(_detailedErrorsEnabled),
                 Constant(_threadSafetyChecksEnabled));
         }
     }
