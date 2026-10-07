@@ -787,6 +787,8 @@ public partial class SqliteConnection : DbConnection
     ///     The collections are provided so that Microsoft.Data.Sqlite conforms to the ADO.NET provider metadata contract.
     ///     SQLite table, column, and index metadata is populated from the documented <c>sqlite_master</c> catalog and
     ///     table-valued <c>pragma_table_info</c> and <c>pragma_index_list</c> interfaces.
+    ///     Views with unavailable dependencies and virtual tables whose modules are unavailable are omitted from the
+    ///     Columns collection.
     /// </remarks>
     /// <seealso href="https://learn.microsoft.com/dotnet/framework/data/adonet/getschema-and-schema-collections">ADO.NET GetSchema and schema collections</seealso>
     /// <seealso href="https://learn.microsoft.com/dotnet/framework/data/adonet/common-schema-collections">ADO.NET common schema collections</seealso>
@@ -953,7 +955,7 @@ public partial class SqliteConnection : DbConnection
 
             foreach (var (databaseName, tableName, tableType) in GetSchemaObjects())
             {
-                dataTable.Rows.Add(databaseName, tableName, tableType == "table" ? "BASE TABLE" : "VIEW");
+                dataTable.Rows.Add(databaseName, tableName, tableType is "table" or "virtual" ? "BASE TABLE" : "VIEW");
             }
 
             return dataTable;
@@ -971,17 +973,26 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add("ORDINAL_POSITION", typeof(int));
 
             var schemaObjects = GetSchemaObjects();
+            var useTableList = IsTableListSupported();
             foreach (var databaseName in GetDatabaseNames())
             {
                 using var command = CreateCommand();
-                command.CommandText = $"""
-                    SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid
-                    FROM {QuoteIdentifier(databaseName)}.sqlite_master m
-                    JOIN pragma_table_info(m.name, $schema) p ON true
-                    WHERE m.type = 'table'
-                        AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
-                        AND m.sql NOT LIKE 'CREATE VIRTUAL%'
-                    """;
+                command.CommandText = useTableList
+                    ? """
+                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid
+                      FROM pragma_table_list m
+                      JOIN pragma_table_info(m.name, $schema) p ON true
+                      WHERE m.schema = $schema AND m.type = 'table'
+                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                      """
+                    : $"""
+                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid
+                      FROM {QuoteIdentifier(databaseName)}.sqlite_master m
+                      JOIN pragma_table_info(m.name, $schema) p ON true
+                      WHERE m.type = 'table'
+                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                          AND m.sql NOT LIKE 'CREATE VIRTUAL%'
+                      """;
                 command.Parameters.AddWithValue("$schema", databaseName);
 
                 using (var reader = command.ExecuteReader())
@@ -999,7 +1010,7 @@ public partial class SqliteConnection : DbConnection
                     }
                 }
 
-                foreach (var (_, tableName, tableType) in schemaObjects.Where(o => o.DatabaseName == databaseName && o.TableType == "view"))
+                foreach (var (_, tableName, tableType) in schemaObjects.Where(o => o.DatabaseName == databaseName && (o.TableType is "view" or "virtual")))
                 {
                     using var viewCommand = CreateCommand();
                     viewCommand.CommandText = "SELECT name, type, [notnull], dflt_value, cid FROM pragma_table_info($table, $schema)";
@@ -1040,17 +1051,26 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add("IS_UNIQUE", typeof(bool));
             dataTable.Columns.Add("ORIGIN");
 
+            var useTableList = IsTableListSupported();
             foreach (var databaseName in GetDatabaseNames())
             {
                 using var command = CreateCommand();
-                command.CommandText = $"""
-                    SELECT i.name, i.[unique], i.origin, m.name
-                    FROM {QuoteIdentifier(databaseName)}.sqlite_master m
-                    JOIN pragma_index_list(m.name, $schema) i ON true
-                    WHERE m.type = 'table'
-                        AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
-                        AND m.sql NOT LIKE 'CREATE VIRTUAL%'
-                    """;
+                command.CommandText = useTableList
+                    ? """
+                      SELECT i.name, i.[unique], i.origin, m.name
+                      FROM pragma_table_list m
+                      JOIN pragma_index_list(m.name, $schema) i ON true
+                      WHERE m.schema = $schema AND m.type = 'table'
+                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                      """
+                    : $"""
+                      SELECT i.name, i.[unique], i.origin, m.name
+                      FROM {QuoteIdentifier(databaseName)}.sqlite_master m
+                      JOIN pragma_index_list(m.name, $schema) i ON true
+                      WHERE m.type = 'table'
+                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                          AND m.sql NOT LIKE 'CREATE VIRTUAL%'
+                      """;
                 command.Parameters.AddWithValue("$schema", databaseName);
 
                 using (var reader = command.ExecuteReader())
@@ -1092,10 +1112,24 @@ public partial class SqliteConnection : DbConnection
     {
         var schemaObjects = new List<(string DatabaseName, string TableName, string TableType)>();
 
+        if (IsTableListSupported())
+        {
+            using var command = CreateCommand();
+            command.CommandText = "SELECT schema, name, type FROM pragma_table_list WHERE type IN ('table', 'view', 'virtual') AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\'";
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                schemaObjects.Add((reader.GetString(0), reader.GetString(1), reader.GetString(2)));
+            }
+
+            return schemaObjects;
+        }
+
         foreach (var databaseName in GetDatabaseNames())
         {
             using var command = CreateCommand();
-            command.CommandText = $"SELECT name, type FROM {QuoteIdentifier(databaseName)}.sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\'";
+            command.CommandText = $"SELECT name, CASE WHEN type = 'table' AND sql LIKE 'CREATE VIRTUAL%' THEN 'virtual' ELSE type END FROM {QuoteIdentifier(databaseName)}.sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\'";
 
             using var reader = command.ExecuteReader();
             while (reader.Read())
@@ -1106,6 +1140,9 @@ public partial class SqliteConnection : DbConnection
 
         return schemaObjects;
     }
+
+    private bool IsTableListSupported()
+        => new Version(ServerVersion) >= new Version(3, 37);
 
     private static string QuoteIdentifier(string identifier)
         => "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";

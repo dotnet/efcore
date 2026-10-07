@@ -1413,6 +1413,24 @@ public class SqliteConnectionTest
     }
 
     [Fact]
+    public void GetSchema_pragma_collections_include_virtual_tables_without_shadow_tables()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE VIRTUAL TABLE docs USING fts5(body);");
+
+        var tables = connection.GetSchema("Tables");
+        var columns = connection.GetSchema("Columns");
+        var indexes = connection.GetSchema("Indexes");
+
+        Assert.Contains(tables.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "docs");
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "docs" && (string)r["COLUMN_NAME"] == "body");
+        Assert.DoesNotContain(tables.Rows.Cast<DataRow>(), r => ((string)r["TABLE_NAME"]).StartsWith("docs_", StringComparison.Ordinal));
+        Assert.DoesNotContain(columns.Rows.Cast<DataRow>(), r => ((string)r["TABLE_NAME"]).StartsWith("docs_", StringComparison.Ordinal));
+        Assert.DoesNotContain(indexes.Rows.Cast<DataRow>(), r => ((string)r["TABLE_NAME"]).StartsWith("docs_", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void GetSchema_pragma_collections_are_empty_for_empty_database()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
