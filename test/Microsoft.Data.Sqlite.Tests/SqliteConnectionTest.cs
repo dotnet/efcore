@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 using static SQLitePCL.raw;
@@ -1229,7 +1230,7 @@ public class SqliteConnectionTest
         var row = Assert.Single(dataTable.Rows.Cast<DataRow>());
         Assert.Equal("SQLite", row[DbMetaDataColumnNames.DataSourceProductName]);
         Assert.Equal(2, row[DbMetaDataColumnNames.GroupByBehavior]);
-        Assert.Equal("@{0}", row[DbMetaDataColumnNames.ParameterMarkerFormat]);
+        Assert.Equal("{0}", row[DbMetaDataColumnNames.ParameterMarkerFormat]);
         Assert.Equal(@"(\?[0-9]+|\?|[@:$][\p{L}\p{N}_\x80-\uFFFF][\p{L}\p{N}_$\x80-\uFFFF]*(?:::[\p{L}\p{N}_$\x80-\uFFFF]*)*(?:\([^\s]*\))?)", row[DbMetaDataColumnNames.ParameterMarkerPattern]);
         Assert.Equal(DBNull.Value, row[DbMetaDataColumnNames.ParameterNameMaxLength]);
         Assert.Matches((string)row[DbMetaDataColumnNames.IdentifierPattern], "table$name");
@@ -1245,6 +1246,10 @@ public class SqliteConnectionTest
             row[DbMetaDataColumnNames.SupportedJoinOperators]);
         Assert.Matches((string)row[DbMetaDataColumnNames.QuotedIdentifierPattern], "name");
         Assert.DoesNotMatch((string)row[DbMetaDataColumnNames.QuotedIdentifierPattern], "\"name\"");
+        var version = new Version(connection.ServerVersion);
+        Assert.Equal($"{version.Major:00}.{version.Minor:000}.{version.Build:0000}", row[DbMetaDataColumnNames.DataSourceProductVersionNormalized]);
+        Assert.Equal("name''with", Regex.Match("name''with", (string)row[DbMetaDataColumnNames.QuotedIdentifierPattern]).Groups[1].Value);
+        Assert.Equal("value''with", Regex.Match("'value''with'", (string)row[DbMetaDataColumnNames.StringLiteralPattern]).Groups[1].Value);
     }
 
     [Theory]
@@ -1260,7 +1265,7 @@ public class SqliteConnectionTest
         connection.Open();
 
         var info = Assert.Single(connection.GetSchema(DbMetaDataCollectionNames.DataSourceInformation).Rows.Cast<DataRow>());
-        var marker = string.Format((string)info[DbMetaDataColumnNames.ParameterMarkerFormat], "value");
+        var marker = string.Format((string)info[DbMetaDataColumnNames.ParameterMarkerFormat], "$value");
 
         using var command = connection.CreateCommand();
         command.CommandText = $"SELECT {marker}";
@@ -1341,17 +1346,19 @@ public class SqliteConnectionTest
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
-        connection.ExecuteNonQuery("CREATE TABLE blogs (id INTEGER PRIMARY KEY, title TEXT NOT NULL); CREATE INDEX ix_blogs_title ON blogs(title);");
+        connection.ExecuteNonQuery("CREATE TABLE blogs (id INTEGER PRIMARY KEY, title TEXT NOT NULL); CREATE VIEW blog_view AS SELECT title FROM blogs; CREATE INDEX ix_blogs_title ON blogs(title);");
 
         var tables = connection.GetSchema("Tables");
         var columns = connection.GetSchema("Columns");
         var indexes = connection.GetSchema("Indexes");
 
         Assert.Contains(tables.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "blogs");
+        Assert.Equal("BASE TABLE", tables.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "blogs")["TABLE_TYPE"]);
+        Assert.Equal("VIEW", tables.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "blog_view")["TABLE_TYPE"]);
         var titleColumn = Assert.Single(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "blogs" && (string)r["COLUMN_NAME"] == "title");
-        Assert.Equal("main", titleColumn["TABLE_CATALOG"]);
+        Assert.Equal("main", titleColumn["TABLE_SCHEMA"]);
         Assert.Equal("TEXT", titleColumn["DATA_TYPE"]);
-        Assert.False(titleColumn.Field<bool>("IS_NULLABLE"));
+        Assert.Equal("NO", titleColumn["IS_NULLABLE"]);
         Assert.Equal(1, titleColumn["ORDINAL_POSITION"]);
         Assert.Contains(indexes.Rows.Cast<DataRow>(), r => (string)r["INDEX_NAME"] == "ix_blogs_title");
     }
@@ -1361,15 +1368,32 @@ public class SqliteConnectionTest
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
-        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS attached; CREATE TABLE attached.items (id INTEGER PRIMARY KEY); CREATE INDEX attached.ix_items_id ON items(id);");
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS attached; CREATE TABLE items (main_id INTEGER); CREATE INDEX ix_main_items_id ON items(main_id); CREATE TABLE attached.items (attached_id INTEGER PRIMARY KEY); CREATE INDEX attached.ix_items_id ON items(attached_id);");
 
         var tables = connection.GetSchema("Tables");
         var columns = connection.GetSchema("Columns");
         var indexes = connection.GetSchema("Indexes");
 
-        Assert.Contains(tables.Rows.Cast<DataRow>(), r => (string)r["TABLE_CATALOG"] == "attached" && (string)r["TABLE_NAME"] == "items");
-        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_CATALOG"] == "attached" && (string)r["TABLE_NAME"] == "items");
-        Assert.Contains(indexes.Rows.Cast<DataRow>(), r => (string)r["TABLE_CATALOG"] == "attached" && (string)r["INDEX_NAME"] == "ix_items_id");
+        Assert.Contains(tables.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["TABLE_NAME"] == "items");
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["TABLE_NAME"] == "items");
+        Assert.Contains(indexes.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["INDEX_NAME"] == "ix_items_id");
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["COLUMN_NAME"] == "attached_id");
+        Assert.DoesNotContain(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["COLUMN_NAME"] == "main_id");
+        Assert.DoesNotContain(indexes.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["INDEX_NAME"] == "ix_main_items_id");
+    }
+
+    [Fact]
+    public void GetSchema_pragma_collections_exclude_internal_tables()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE sequence_test (id INTEGER PRIMARY KEY AUTOINCREMENT); ANALYZE;");
+
+        foreach (var collection in new[] { "Tables", "Columns", "Indexes" })
+        {
+            Assert.DoesNotContain(connection.GetSchema(collection).Rows.Cast<DataRow>(), r =>
+                r.Table.Columns.Contains("TABLE_NAME") && ((string)r["TABLE_NAME"]).StartsWith("sqlite_", StringComparison.Ordinal));
+        }
     }
 
     [Fact]
