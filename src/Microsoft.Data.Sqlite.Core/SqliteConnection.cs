@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Data.Sqlite.Properties;
@@ -969,6 +970,7 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add("COLUMN_DEFAULT");
             dataTable.Columns.Add("ORDINAL_POSITION", typeof(int));
 
+            var schemaObjects = GetSchemaObjects();
             foreach (var databaseName in GetDatabaseNames())
             {
                 using var command = CreateCommand();
@@ -976,15 +978,14 @@ public partial class SqliteConnection : DbConnection
                     SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid
                     FROM {QuoteIdentifier(databaseName)}.sqlite_master m
                     JOIN pragma_table_info(m.name, $schema) p ON true
-                    WHERE m.type IN ('table', 'view')
-                        AND m.name NOT LIKE 'sqlite_%'
+                    WHERE m.type = 'table'
+                        AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
                         AND m.sql NOT LIKE 'CREATE VIRTUAL%'
                     """;
                 command.Parameters.AddWithValue("$schema", databaseName);
 
-                try
+                using (var reader = command.ExecuteReader())
                 {
-                    using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
                         dataTable.Rows.Add(
@@ -997,9 +998,33 @@ public partial class SqliteConnection : DbConnection
                             reader.GetInt64(5));
                     }
                 }
-                catch (SqliteException)
+
+                foreach (var (_, tableName, tableType) in schemaObjects.Where(o => o.DatabaseName == databaseName && o.TableType == "view"))
                 {
-                    // Some SQLite builds cannot inspect virtual tables whose modules are unavailable.
+                    using var viewCommand = CreateCommand();
+                    viewCommand.CommandText = "SELECT name, type, [notnull], dflt_value, cid FROM pragma_table_info($table, $schema)";
+                    viewCommand.Parameters.AddWithValue("$table", tableName);
+                    viewCommand.Parameters.AddWithValue("$schema", databaseName);
+
+                    try
+                    {
+                        using var reader = viewCommand.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            dataTable.Rows.Add(
+                                databaseName,
+                                tableName,
+                                reader.GetString(0),
+                                reader.IsDBNull(1) ? DBNull.Value : reader.GetString(1),
+                                reader.GetInt64(2) == 0 ? "YES" : "NO",
+                                reader.IsDBNull(3) ? DBNull.Value : reader.GetString(3),
+                                reader.GetInt64(4));
+                        }
+                    }
+                    catch (SqliteException)
+                    {
+                        // Ignore views whose dependencies are unavailable.
+                    }
                 }
             }
 
@@ -1023,14 +1048,13 @@ public partial class SqliteConnection : DbConnection
                     FROM {QuoteIdentifier(databaseName)}.sqlite_master m
                     JOIN pragma_index_list(m.name, $schema) i ON true
                     WHERE m.type = 'table'
-                        AND m.name NOT LIKE 'sqlite_%'
+                        AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
                         AND m.sql NOT LIKE 'CREATE VIRTUAL%'
                     """;
                 command.Parameters.AddWithValue("$schema", databaseName);
 
-                try
+                using (var reader = command.ExecuteReader())
                 {
-                    using var reader = command.ExecuteReader();
                     while (reader.Read())
                     {
                         dataTable.Rows.Add(
@@ -1040,10 +1064,6 @@ public partial class SqliteConnection : DbConnection
                             reader.GetInt64(1) != 0,
                             reader.IsDBNull(2) ? DBNull.Value : reader.GetString(2));
                     }
-                }
-                catch (SqliteException)
-                {
-                    // Some SQLite builds cannot inspect virtual tables whose modules are unavailable.
                 }
             }
 
@@ -1075,7 +1095,7 @@ public partial class SqliteConnection : DbConnection
         foreach (var databaseName in GetDatabaseNames())
         {
             using var command = CreateCommand();
-            command.CommandText = $"SELECT name, type FROM {QuoteIdentifier(databaseName)}.sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'";
+            command.CommandText = $"SELECT name, type FROM {QuoteIdentifier(databaseName)}.sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\'";
 
             using var reader = command.ExecuteReader();
             while (reader.Read())

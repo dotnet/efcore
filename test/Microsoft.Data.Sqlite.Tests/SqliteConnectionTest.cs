@@ -1387,13 +1387,29 @@ public class SqliteConnectionTest
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
-        connection.ExecuteNonQuery("CREATE TABLE sequence_test (id INTEGER PRIMARY KEY AUTOINCREMENT); ANALYZE;");
+        connection.ExecuteNonQuery("CREATE TABLE sequence_test (id INTEGER PRIMARY KEY AUTOINCREMENT); CREATE TABLE sqliteaudit (id INTEGER); CREATE INDEX sqliteaudit_ix ON sqliteaudit(id); ANALYZE;");
+
+        Assert.Contains(connection.GetSchema("Tables").Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "sqliteaudit");
+        Assert.Contains(connection.GetSchema("Columns").Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "sqliteaudit");
+        Assert.Contains(connection.GetSchema("Indexes").Rows.Cast<DataRow>(), r => (string)r["INDEX_NAME"] == "sqliteaudit_ix");
 
         foreach (var collection in new[] { "Tables", "Columns", "Indexes" })
         {
             Assert.DoesNotContain(connection.GetSchema(collection).Rows.Cast<DataRow>(), r =>
                 r.Table.Columns.Contains("TABLE_NAME") && ((string)r["TABLE_NAME"]).StartsWith("sqlite_", StringComparison.Ordinal));
         }
+    }
+
+    [Fact]
+    public void GetSchema_pragma_columns_ignore_broken_views()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE good_table (id INTEGER); CREATE VIEW broken_view AS SELECT missing FROM missing_table;");
+
+        var columns = connection.GetSchema("Columns");
+
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "good_table" && (string)r["COLUMN_NAME"] == "id");
     }
 
     [Fact]
