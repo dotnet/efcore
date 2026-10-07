@@ -111,15 +111,7 @@ internal static class Exe
                     default:
                         if (pendingBackslashes != 0)
                         {
-                            if (pendingBackslashes == 1)
-                            {
-                                builder.Append('\\');
-                            }
-                            else
-                            {
-                                builder.Append('\\', pendingBackslashes * 2);
-                            }
-
+                            builder.Append('\\', pendingBackslashes);
                             pendingBackslashes = 0;
                         }
 

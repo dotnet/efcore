@@ -351,6 +351,15 @@ public class SqliteConnectionTest
         Assert.Equal(expected, connection.ExecuteScalar<long>("PRAGMA foreign_keys;"));
     }
 
+    [Theory, InlineData("Off", 0L), InlineData("Normal", 1L), InlineData("Full", 2L), InlineData("Extra", 3L)]
+    public void Open_works_when_synchronous(string synchronous, long expected)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:;Synchronous=" + synchronous);
+        connection.Open();
+
+        Assert.Equal(expected, connection.ExecuteScalar<long>("PRAGMA synchronous;"));
+    }
+
     [Fact]
     public void Open_works_when_recursive_triggers()
     {

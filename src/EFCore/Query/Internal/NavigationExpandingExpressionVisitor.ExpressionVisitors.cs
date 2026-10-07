@@ -15,7 +15,12 @@ public partial class NavigationExpandingExpressionVisitor
     private class ExpandingExpressionVisitor(
         NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
         NavigationExpansionExpression source,
-        INavigationExpansionExtensibilityHelper extensibilityHelper)
+        INavigationExpansionExtensibilityHelper extensibilityHelper,
+        // Non-null only for the aggregate selectors of a lifted GroupBy, where dropping a source row would
+        // remove it - and possibly its whole group - from the grouping (#38965). Deliberately not carried
+        // into the nested expansions this one triggers (a joined principal's own query filter, a subquery
+        // in the selector): those keep the row-removing inner join they are defined with.
+        FilteredPrincipalRelaxation? relaxation = null)
         : ExpressionVisitor
     {
         public Expression Expand(Expression expression, bool applyIncludes = false)
@@ -351,6 +356,17 @@ public partial class NavigationExpandingExpressionVisitor
                     cachedEntityReference?.IncludePaths.Merge(pendingIncludeTree);
                 }
 
+                // A join applied for an earlier aggregate is reused here. Only a join this handling relaxed
+                // needs the guard: one that was already outer - because the model made it optional, or
+                // because the GroupBy key expanded it first - exposes its nulls to every other translation
+                // too, and guarding it here would answer differently from them.
+                if (relaxation != null
+                    && UnwrapEntityReference(expansion) is { } cachedReference
+                    && relaxation.RelaxedReferences.Contains(cachedReference))
+                {
+                    relaxation.Recorded.Add(expansion);
+                }
+
                 return expansion;
             }
 
@@ -462,10 +478,34 @@ public partial class NavigationExpandingExpressionVisitor
                 resultSelectorOuterParameter,
                 resultSelectorInnerParameter);
 
-            var innerJoin = !entityReference.IsOptional
+            // The join would remove rows unless something has already made it optional. A source this
+            // handling relaxed counts as "not already optional": the nulls further along such a chain are
+            // ones it introduced, so it owns them too.
+            var sourceRelaxedHere = relaxation?.RelaxedReferences.Contains(entityReference) == true;
+            var wouldRemoveRows = (!entityReference.IsOptional || sourceRelaxedHere)
                 && !derivedTypeConversion
                 && onDependent
                 && foreignKey.IsEffectivelyRequired();
+
+            // A required FK guarantees a matching principal row; it doesn't guarantee that row survives the
+            // principal's query filter. Where dropping the dependent row would be wrong (a lifted GroupBy
+            // aggregate, #38965), join as an outer join instead and record the principal so the aggregate
+            // reading it can exclude the row the outer join keeps.
+            var relaxed = relaxation != null
+                && wouldRemoveRows
+                && navigationExpandingExpressionVisitor.HasApplicableQueryFilters(foreignKey.PrincipalEntityType);
+
+            var innerJoin = !entityReference.IsOptional
+                && !derivedTypeConversion
+                && onDependent
+                && foreignKey.IsEffectivelyRequired()
+                && !relaxed;
+
+            if (relaxed)
+            {
+                relaxation!.Recorded.Add(innerSource.PendingSelector);
+                relaxation.RelaxedReferences.Add(innerEntityReference);
+            }
 
             if (!innerJoin)
             {

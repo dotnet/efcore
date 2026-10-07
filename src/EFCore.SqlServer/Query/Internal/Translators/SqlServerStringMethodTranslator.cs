@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using CharTypeMapping = Microsoft.EntityFrameworkCore.Storage.CharTypeMapping;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 // ReSharper disable once CheckNamespace
@@ -148,10 +147,8 @@ public class SqlServerStringMethodTranslator(
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, oldValue, newValue);
 
         instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
-        oldValue = sqlExpressionFactory.ApplyTypeMapping(
-            oldValue, oldValue.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
-        newValue = sqlExpressionFactory.ApplyTypeMapping(
-            newValue, newValue.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+        oldValue = ApplyStringTypeMapping(oldValue, stringTypeMapping);
+        newValue = ApplyStringTypeMapping(newValue, stringTypeMapping);
 
         return sqlExpressionFactory.Function(
             "REPLACE",
@@ -209,8 +206,7 @@ public class SqlServerStringMethodTranslator(
     {
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)
             ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping!;
-        searchExpression = sqlExpressionFactory.ApplyTypeMapping(
-            searchExpression, searchExpression.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+        searchExpression = ApplyStringTypeMapping(searchExpression, stringTypeMapping);
 
         instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
@@ -275,17 +271,51 @@ public class SqlServerStringMethodTranslator(
         return sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
     }
 
+    // SQL Server has no char type, so char arguments are translated with the string type mapping instead of CharTypeMapping
+    private SqlExpression ApplyStringTypeMapping(SqlExpression expression, RelationalTypeMapping? stringTypeMapping)
+        => expression switch
+        {
+            // A char constant is inlined as a string literal with the string's type mapping (e.g. N'x'). CharTypeMapping's literal
+            // has no N prefix, so a non-ASCII char would be best-fit mapped to the database's code page before the comparison
+            // (e.g. 'ş' becomes 's'), returning wrong rows or replacing the wrong character.
+            SqlConstantExpression { Value: char charValue }
+                => sqlExpressionFactory.Constant(charValue.ToString(), stringTypeMapping),
+            // A non-constant char (e.g. a parameter) is sent as a one-character string
+            { Type: var type } when type == typeof(char) && stringTypeMapping is not null
+                => sqlExpressionFactory.ApplyTypeMapping(
+                    expression, (RelationalTypeMapping)stringTypeMapping.WithComposedConverter(new CharToStringConverter())),
+            _ => sqlExpressionFactory.ApplyTypeMapping(expression, stringTypeMapping)
+        };
+
     private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
     {
         SqlExpression? charactersToTrim = null;
-        if (arguments.Count > 0 && arguments[0] is SqlConstantExpression { Value: var charactersToTrimValue })
+        if (arguments.Count > 0)
         {
-            charactersToTrim = charactersToTrimValue switch
+            switch (arguments[0])
             {
-                char singleChar => sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping),
-                char[] charArray => sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping),
-                _ => throw new UnreachableException("Invalid parameter type for string.TrimStart/TrimEnd")
-            };
+                case SqlConstantExpression { Value: char singleChar }:
+                    charactersToTrim = sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping);
+                    break;
+
+                case SqlConstantExpression { Value: char[] charArray }:
+                    charactersToTrim = sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping);
+                    break;
+
+                case { Type: var argumentType } when argumentType == typeof(char):
+                    // SQL Server has no char type, so a non-constant char (e.g. a parameter) is sent as a one-character string by
+                    // composing a converter on the instance's string type mapping. Applying the string type mapping directly would
+                    // send the value as nvarchar(max), which LTRIM/RTRIM don't accept for the characters argument.
+                    var stringTypeMapping = instance.TypeMapping ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping!;
+                    charactersToTrim = sqlExpressionFactory.ApplyTypeMapping(
+                        arguments[0], (RelationalTypeMapping)stringTypeMapping.WithComposedConverter(new CharToStringConverter()));
+                    break;
+
+                default:
+                    // A non-constant char[] can't be translated; returning null triggers client evaluation
+                    // or a translation failure instead of silently dropping the argument.
+                    return null;
+            }
         }
 
         return sqlExpressionFactory.Function(

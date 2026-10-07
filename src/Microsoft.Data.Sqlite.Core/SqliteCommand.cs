@@ -33,6 +33,7 @@ public class SqliteCommand : DbCommand
     private string _commandText = string.Empty;
     private bool _prepared;
     private int? _commandTimeout;
+    private CancellationToken _cancellationToken;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteCommand" /> class.
@@ -206,6 +207,9 @@ public class SqliteCommand : DbCommand
     /// </summary>
     /// <value>The data reader currently being used by the command.</value>
     protected internal virtual SqliteDataReader? DataReader { get; set; }
+
+    internal CancellationToken CancellationToken
+        => _cancellationToken;
 
     /// <summary>
     ///     Releases any resources used by the connection and closes it.
@@ -398,11 +402,11 @@ public class SqliteCommand : DbCommand
     public new virtual Task<SqliteDataReader> ExecuteReaderAsync(
         CommandBehavior behavior,
         CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return Task.FromResult(ExecuteReader(behavior));
-    }
+        => Task.FromResult(
+            ExecuteWithCancellation(
+                static state => state.Command.ExecuteReader(state.Behavior),
+                (Command: this, Behavior: behavior),
+                cancellationToken));
 
     /// <summary>
     ///     Executes the <see cref="CommandText" /> asynchronously against the database and returns a data reader.
@@ -430,11 +434,30 @@ public class SqliteCommand : DbCommand
             throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(ExecuteNonQuery)));
         }
 
-        var reader = ExecuteReader();
-        reader.Dispose();
+        using var reader = ExecuteReader();
+
+        // Run the remaining statements here. Disposing the reader would run them too, but it swallows their errors
+        while (reader.NextResult())
+        {
+        }
 
         return reader.RecordsAffected;
     }
+
+    /// <summary>
+    ///     Executes the <see cref="CommandText" /> asynchronously against the database.
+    /// </summary>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     A task representing the asynchronous operation. The task result contains the number of rows inserted, updated, or
+    ///     deleted. -1 for SELECT statements.
+    /// </returns>
+    /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
+    public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
+        => Task.FromResult(ExecuteWithCancellation(static command => command.ExecuteNonQuery(), this, cancellationToken));
 
     /// <summary>
     ///     Executes the <see cref="CommandText" /> against the database and returns the result.
@@ -450,16 +473,75 @@ public class SqliteCommand : DbCommand
         }
 
         using var reader = ExecuteReader();
-        return reader.Read()
+        var result = reader.Read()
             ? reader.GetValue(0)
             : null;
+
+        // Run the remaining statements here. Disposing the reader would run them too, but it swallows their errors
+        while (reader.NextResult())
+        {
+        }
+
+        return result;
     }
 
     /// <summary>
-    ///     Attempts to cancel the execution of the command. Does nothing.
+    ///     Executes the <see cref="CommandText" /> asynchronously against the database and returns the result.
     /// </summary>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>
+    ///     A task representing the asynchronous operation. The task result contains the first column of the first row of the
+    ///     results, or null if no results.
+    /// </returns>
+    /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
+    public override Task<object?> ExecuteScalarAsync(CancellationToken cancellationToken)
+        => Task.FromResult(ExecuteWithCancellation(static command => command.ExecuteScalar(), this, cancellationToken));
+
+    /// <summary>
+    ///     Attempts to cancel the execution of the command by interrupting the connection.
+    /// </summary>
+    /// <remarks>
+    ///     SQLite interrupts are connection-wide, so this also aborts any other statements that are currently running on the
+    ///     same connection. An interrupted statement throws a <see cref="SqliteException" /> with an error code of
+    ///     <c>SQLITE_INTERRUPT</c>. Calling this method when no statement is running has no effect.
+    /// </remarks>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
     public override void Cancel()
     {
+        var handle = _connection?.Handle;
+        if (handle != null)
+        {
+            sqlite3_interrupt(handle);
+        }
+    }
+
+    internal TResult ExecuteWithCancellation<TState, TResult>(
+        Func<TState, TResult> operation,
+        TState state,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var previousCancellationToken = _cancellationToken;
+        _cancellationToken = cancellationToken;
+
+        // Disposing waits for a concurrently running callback, so the connection isn't interrupted after this returns
+        using var registration = cancellationToken.Register(static command => ((SqliteCommand)command!).Cancel(), this);
+        try
+        {
+            return operation(state);
+        }
+        catch (SqliteException ex) when (ex.SqliteErrorCode == SQLITE_INTERRUPT && cancellationToken.IsCancellationRequested)
+        {
+            throw new OperationCanceledException(ex.Message, ex, cancellationToken);
+        }
+        finally
+        {
+            _cancellationToken = previousCancellationToken;
+        }
     }
 
     private IEnumerable<(sqlite3_stmt Statement, int ParamCount)> PrepareAndEnumerateStatements()
@@ -488,6 +570,7 @@ public class SqliteCommand : DbCommand
                 }
 
                 Thread.Sleep(150);
+                _cancellationToken.ThrowIfCancellationRequested();
             }
 
             totalElapsedTime += timer.Elapsed;

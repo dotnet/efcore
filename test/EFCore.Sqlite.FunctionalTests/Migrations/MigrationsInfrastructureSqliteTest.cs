@@ -3,6 +3,7 @@
 
 using System.Data;
 using Identity30.Data;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 using ModelSnapshot22;
 
@@ -302,6 +303,54 @@ COMMIT;
         {
             using var context = new BloggingContext();
             DiffSnapshot(new BloggingContextModelSnapshot22(), context);
+        }
+
+        [Fact]
+        public async Task Lock_is_released_when_migration_is_canceled_after_lock_acquired()
+        {
+            using (var db = Fixture.CreateContext())
+            {
+                await db.Database.EnsureDeletedAsync();
+            }
+
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var interceptor = new CancelAfterLockAcquiredInterceptor(cancellationTokenSource);
+            var options = new DbContextOptionsBuilder(Fixture.CreateOptions())
+                .AddInterceptors(interceptor)
+                .Options;
+
+            await using (var db = new MigrationsInfrastructureFixtureBase.MigrationsContext(options))
+            {
+                await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                    () => db.Database.MigrateAsync(cancellationTokenSource.Token));
+            }
+
+            await using var connection = new SqliteConnection(Fixture.TestStore.ConnectionString);
+            await connection.OpenAsync();
+
+            await using var command = connection.CreateCommand();
+            command.CommandText = """SELECT COUNT(*) FROM "__EFMigrationsLock";""";
+            var lockRowCount = (long)(await command.ExecuteScalarAsync())!;
+
+            Assert.Equal(0, lockRowCount);
+        }
+
+        private sealed class CancelAfterLockAcquiredInterceptor(CancellationTokenSource cancellationTokenSource)
+            : DbCommandInterceptor
+        {
+            public override ValueTask<object?> ScalarExecutedAsync(
+                DbCommand command,
+                CommandExecutedEventData eventData,
+                object? result,
+                CancellationToken cancellationToken = default)
+            {
+                if (command.CommandText.Contains("INSERT OR IGNORE INTO \"__EFMigrationsLock\""))
+                {
+                    cancellationTokenSource.Cancel();
+                }
+
+                return ValueTask.FromResult(result);
+            }
         }
 
         public class BloggingContextModelSnapshot22 : ModelSnapshot

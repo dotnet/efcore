@@ -86,6 +86,20 @@ WHERE CHARINDEX(CAST([b].[Byte] AS varbinary(max)), [b].[ByteArray]) > 0
 """);
     }
 
+    public override async Task Contains_with_parameter_above_ascii_range()
+    {
+        await base.Contains_with_parameter_above_ascii_range();
+
+        AssertSql(
+            """
+@someByte='222' (Size = 1)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CHARINDEX(CAST(@someByte AS varbinary(max)), [b].[ByteArray]) > 0
+""");
+    }
+
     public override async Task Any()
     {
         await base.Any();

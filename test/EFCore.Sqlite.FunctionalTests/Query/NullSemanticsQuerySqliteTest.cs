@@ -1645,6 +1645,78 @@ INNER JOIN "Entities2" AS "e0" ON "e"."NullableIntA" = "e0"."NullableIntB"
 """);
     }
 
+    public override async Task Join_uses_database_semantics_with_filtered_inner(bool async)
+    {
+        await base.Join_uses_database_semantics_with_filtered_inner(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e1"."Id" AS "Id2", "e"."NullableIntA", "e1"."NullableIntB"
+FROM "Entities1" AS "e"
+INNER JOIN (
+    SELECT "e0"."Id", "e0"."NullableIntB"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."BoolA"
+) AS "e1" ON "e"."NullableIntA" = "e1"."NullableIntB"
+""");
+    }
+
+    public override async Task Left_join_uses_database_semantics_with_filtered_inner(bool async)
+    {
+        await base.Left_join_uses_database_semantics_with_filtered_inner(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e1"."Id" AS "Id2", "e"."NullableIntA", "e1"."NullableIntB"
+FROM "Entities1" AS "e"
+LEFT JOIN (
+    SELECT "e0"."Id", "e0"."NullableIntB"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."BoolA"
+) AS "e1" ON "e"."NullableIntA" = "e1"."NullableIntB"
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_non_nullable_computed_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_non_nullable_computed_key(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e0"."Id" AS "Id2"
+FROM "Entities1" AS "e"
+INNER JOIN "Entities2" AS "e0" ON "e"."IntA" + 1 = "e0"."IntB" + 1 AND "e0"."BoolA"
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_non_nullable_function_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_non_nullable_function_key(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e0"."Id" AS "Id2"
+FROM "Entities1" AS "e"
+INNER JOIN "Entities2" AS "e0" ON length("e"."StringA") = length("e0"."StringB") AND "e0"."BoolA"
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_nullable_computed_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_nullable_computed_key(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e1"."Id" AS "Id2"
+FROM "Entities1" AS "e"
+INNER JOIN (
+    SELECT "e0"."Id", "e0"."NullableIntB"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."BoolA"
+) AS "e1" ON "e"."NullableIntA" + 1 = "e1"."NullableIntB" + 1
+""");
+    }
+
     public override async Task Join_uses_csharp_semantics_for_anon_objects(bool async)
     {
         await base.Join_uses_csharp_semantics_for_anon_objects(async);
@@ -1876,6 +1948,40 @@ END = 3 AND CASE
     WHEN "e"."StringB" = 'Foo' THEN 2
     WHEN "e"."StringC" = 'Foo' THEN 3
 END IS NOT NULL
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task CaseWhen_negated_nullable_comparison_projection(bool async)
+    {
+        await base.CaseWhen_negated_nullable_comparison_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN "e"."NullableIntA" <= 1 THEN 1
+    ELSE 0
+END
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task CaseWhen_negated_nullable_comparison_in_later_clause_projection(bool async)
+    {
+        await base.CaseWhen_negated_nullable_comparison_in_later_clause_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN "e"."BoolB" THEN 1
+    WHEN CASE
+        WHEN "e"."NullableIntA" <= 1 THEN 0
+        ELSE 1
+    END THEN 2
+    ELSE 3
+END
 FROM "Entities1" AS "e"
 ORDER BY "e"."Id"
 """);

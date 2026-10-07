@@ -148,6 +148,18 @@ WHERE instr("b"."String", 'e') - 1 <> -1
 """);
     }
 
+    public override async Task IndexOf_Char_with_non_ASCII_char()
+    {
+        await base.IndexOf_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."String", 'ş') - 1 = -1
+""");
+    }
+
     public override async Task IndexOf_with_empty_string()
     {
         await base.IndexOf_with_empty_string();
@@ -196,7 +208,10 @@ WHERE instr("b"."String", @pattern) - 1 = 1
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2 = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2
+END = 6
 """);
     }
 
@@ -208,7 +223,10 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1)
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2 = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2
+END = 6
 """);
     }
 
@@ -222,7 +240,10 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e') - 1) + @start = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", @start + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", @start + 1), 'e') - 1) + @start
+END = 6
 """);
     }
 
@@ -236,7 +257,26 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e')
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e') - 1) + @start = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", @start + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", @start + 1), 'e') - 1) + @start
+END = 6
+""");
+    }
+
+    [Fact]
+    public virtual async Task IndexOf_with_starting_position_returns_negative_one_when_not_found()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf("qwxz", 2) == -1));
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'qwxz') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'qwxz') - 1) + 2
+END = -1
 """);
     }
 
@@ -303,6 +343,18 @@ WHERE replace("b"."String", 'Sea', 'Rea') = 'Reattle'
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE replace("b"."String", 'S', 'R') = 'Reattle'
+""");
+    }
+
+    public override async Task Replace_Char_with_non_ASCII_char()
+    {
+        await base.Replace_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE replace("b"."String", 'ş', 'x') = "b"."String"
 """);
     }
 
@@ -818,6 +870,27 @@ WHERE ltrim("b"."String", 'Se') = 'attle'
 """);
     }
 
+    public override async Task TrimStart_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_array_parameter);
+
+        AssertSql();
+    }
+
     #endregion TrimStart
 
     #region TrimEnd
@@ -856,6 +929,27 @@ SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."D
 FROM "BasicTypesEntities" AS "b"
 WHERE rtrim("b"."String", 'le') = 'Seatt'
 """);
+    }
+
+    public override async Task TrimEnd_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_array_parameter);
+
+        AssertSql();
     }
 
     #endregion TrimEnd

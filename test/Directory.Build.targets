@@ -1,0 +1,15 @@
+<Project>
+  <Import Project="..\Directory.Build.targets" />
+
+  <!-- Workaround to run older ASP.NET tests on a new runtime -->
+  <Target Name="UpdateAspNetCoreRuntimeFrameworkVersion"
+          AfterTargets="ResolveTargetingPackAssets"
+          BeforeTargets="_GenerateRuntimeConfigurationFilesInputCache"
+          Condition="('$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)') AND
+                     ('$(PackAsTool)' != 'true')">
+    <ItemGroup>
+      <RuntimeFramework Update="Microsoft.AspNetCore.App"
+                        Version="$(MicrosoftNETCoreAppRefVersion)" />
+    </ItemGroup>
+  </Target>
+</Project>

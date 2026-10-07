@@ -1552,6 +1552,108 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [Fact]
+    public virtual void Optional_entity_splitting_fragment_with_nullable_reference_property_is_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().Property(a => a.Name).IsRequired(false);
+        modelBuilder.Entity<Animal>().SplitToTable(
+            "AnimalDetails", s =>
+            {
+                s.IsOptional();
+                s.Property(a => a.Name);
+            });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Optional_entity_splitting_fragment_with_nullable_value_type_property_is_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>().ToTable("Cats");
+        modelBuilder.Entity<Cat>().SplitToTable(
+            "CatDetails", s =>
+            {
+                s.IsOptional();
+                s.Property<int?>("OptionalIdentity");
+            });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_non_nullable_reference_property_on_optional_entity_splitting_fragment()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().Property(a => a.Name).IsRequired();
+        modelBuilder.Entity<Animal>().SplitToTable(
+            "AnimalDetails", s =>
+            {
+                s.IsOptional();
+                s.Property(a => a.Name);
+            });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingNonNullablePropertyOnOptionalFragment(
+                nameof(Animal), "AnimalDetails", nameof(Animal.Name)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_non_nullable_value_type_property_on_optional_entity_splitting_fragment()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>().ToTable("Cats");
+        modelBuilder.Entity<Cat>().SplitToTable(
+            "CatDetails", s =>
+            {
+                s.IsOptional();
+                s.Property(c => c.Identity);
+            });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingNonNullablePropertyOnOptionalFragment(
+                nameof(Cat), "CatDetails", nameof(Cat.Identity)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Entity_splitting_primary_key_remains_non_nullable_when_fragment_is_optional()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().Property(a => a.Name).IsRequired(false);
+        modelBuilder.Entity<Animal>().SplitToTable(
+            "AnimalDetails", s =>
+            {
+                s.IsOptional();
+                s.Property(a => a.Id);
+                s.Property(a => a.Name);
+            });
+
+        var model = Validate(modelBuilder);
+        var entityType = model.FindEntityType(typeof(Animal))!;
+        var storeObject = StoreObjectIdentifier.Table("AnimalDetails");
+
+        Assert.False(entityType.FindProperty(nameof(Animal.Id))!.IsColumnNullable(storeObject));
+    }
+
+    [Fact]
+    public virtual void Mixed_required_and_optional_entity_splitting_fragments_are_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>().ToTable("Cats");
+        modelBuilder.Entity<Cat>().SplitToTable("CatRequiredDetails", s => s.Property(c => c.Breed));
+        modelBuilder.Entity<Cat>().SplitToTable(
+            "CatOptionalDetails", s =>
+            {
+                s.IsOptional();
+                s.Property<string>("OptionalNotes");
+            });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
     public virtual void Detects_duplicate_columns_in_derived_types_with_different_types()
     {
         var modelBuilder = CreateConventionModelBuilder();

@@ -10,11 +10,18 @@ Manages entity states and detects changes for `SaveChanges()`.
 
 ## Core Components
 
-- `StateManager` — central engine, identity maps, tracks all entities
-- `InternalEntityEntry` — per-entity state, property flags, snapshots
-- `SnapshotFactoryFactory` subclasses build snapshot factories for change detection
+- `StateManager` — owns tracked entries, identity/reference maps, fixup, cascades, notifications, and changed counts
+- `InternalEntryBase` and derived classes — own per-entry state, flags, values, snapshots, and ordered state transitions
+- `ChangeDetector` — compares current values with baselines and reports changes through entry mutation APIs
+- `SnapshotFactoryFactory` subclasses — create passive original- and relationship-value baselines
+- `IdentityMap` — permits one active entry per key; shared identity pairs a replacement with the prior `Deleted` entry
 - `PropertyAccessorsFactory`, `ClrPropertyGetterFactory` and `ClrPropertySetterFactory` compile property accessors for efficient snapshotting and change detection
   - Ordinals in `indices` parameter specify element at each complex collection depth
+
+## Change Detection
+
+- Snapshot and notification strategies both call `SetPropertyModified()` to keep property flags and entity state consistent.
+- `SetEntityState()` validates values, updates flags and complex entries, changes state, then runs manager bookkeeping hooks.
 
 ## Testing
 

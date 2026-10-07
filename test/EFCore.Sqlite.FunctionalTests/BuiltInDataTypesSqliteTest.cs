@@ -1950,6 +1950,59 @@ ORDER BY "b"."Id", "b0"."Id"
 """);
     }
 
+    [Fact]
+    public virtual void Can_query_OrderBy_decimal_with_invalid_database_values()
+    {
+        using var context = CreateContext();
+        using var transaction = context.Database.BeginTransaction();
+
+        context.AddRange(
+            new BuiltInDataTypes { Id = 230, PartitionId = 210, TestDecimal = 2m },
+            new BuiltInDataTypes { Id = 231, PartitionId = 210, TestDecimal = 20m },
+            new BuiltInDataTypes { Id = 232, PartitionId = 210, TestDecimal = 0m },
+            new BuiltInDataTypes { Id = 233, PartitionId = 210, TestDecimal = 0m },
+            new BuiltInDataTypes { Id = 234, PartitionId = 210, TestDecimal = 0m },
+            new BuiltInDataTypes { Id = 235, PartitionId = 210, TestDecimal = 0m });
+
+        context.SaveChanges();
+
+        context.Database.ExecuteSql(
+            $"""UPDATE "BuiltInDataTypes" SET "TestDecimal" = {"1e1"} WHERE "Id" = {232}""");
+        context.Database.ExecuteSql(
+            $"""UPDATE "BuiltInDataTypes" SET "TestDecimal" = {"n/a"} WHERE "Id" = {233}""");
+        context.Database.ExecuteSql(
+            $"""UPDATE "BuiltInDataTypes" SET "TestDecimal" = {"zzz"} WHERE "Id" = {234}""");
+        context.Database.ExecuteSql(
+            $"""UPDATE "BuiltInDataTypes" SET "TestDecimal" = {"1e40"} WHERE "Id" = {235}""");
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var results = context.Set<BuiltInDataTypes>()
+            .Where(e => e.PartitionId == 210)
+            .OrderBy(e => e.TestDecimal)
+            .Select(e => e.Id)
+            .ToList();
+
+        Assert.Equal(
+            [
+                230, // 2
+                232, // 1e1 == 10
+                231, // 20
+                235, // Invalid values compare ordinally: "1e40"
+                233, // "n/a"
+                234  // "zzz"
+            ],
+            results);
+
+        AssertSql(
+            """
+SELECT "b"."Id"
+FROM "BuiltInDataTypes" AS "b"
+WHERE "b"."PartitionId" = 210
+ORDER BY "b"."TestDecimal" COLLATE "EF_DECIMAL"
+""");
+    }
+
     private void AssertTranslationFailed(Action testCode)
         => Assert.Contains(
             CoreStrings.TranslationFailed("")[21..],

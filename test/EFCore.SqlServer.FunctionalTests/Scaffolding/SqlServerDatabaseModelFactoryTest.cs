@@ -4483,6 +4483,43 @@ CREATE TABLE MyTable (
             "DROP TABLE MyTable;");
 
     [Fact]
+    public void Simple_date_literals_are_parsed_for_HasDefaultValue_with_Persian_locale()
+    {
+        var currentCulture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("fa-IR");
+            Test(
+                @"
+CREATE TABLE MyTable (
+    Id int,
+    A datetime2 DEFAULT ('1968-10-23'),
+    B date DEFAULT ('1968-10-23'),
+);",
+                [],
+                [],
+                (dbModel, scaffoldingFactory) =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    var column = columns.Single(c => c.Name == "A");
+                    Assert.Equal("('1968-10-23')", column.DefaultValueSql);
+                    Assert.Equal(new DateTime(1968, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "B");
+                    Assert.Equal("('1968-10-23')", column.DefaultValueSql);
+                    Assert.Equal(new DateOnly(1968, 10, 23), column.DefaultValue);
+                },
+                "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = currentCulture;
+        }
+    }
+
+    [Fact]
     public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4588,6 +4625,48 @@ CREATE TABLE MyTable (
 
                 var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
                 Assert.Equal(1, model.GetEntityTypes().Count());
+            },
+            "DROP TABLE MyTable;");
+
+    [Fact]
+    public void String_literals_with_escaped_quotes_are_unescaped_for_HasDefaultValue()
+        => Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A nvarchar(max) DEFAULT 'It''s',
+    B varchar(max) DEFAULT (N'O''Brien''s'),
+    C nvarchar(100) DEFAULT (''''),
+    D nvarchar(20) DEFAULT (CONVERT([nvarchar](20),('Tea''s'))),
+);",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("('It''s')", column.DefaultValueSql);
+                Assert.Equal("It's", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(N'O''Brien''s')", column.DefaultValueSql);
+                Assert.Equal("O'Brien's", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("('''')", column.DefaultValueSql);
+                Assert.Equal("'", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(CONVERT([nvarchar](20),'Tea''s'))", column.DefaultValueSql);
+                Assert.Equal("Tea's", column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                var entityType = model.GetEntityTypes().Single();
+                Assert.Equal("It's", entityType.GetProperty("A").GetDefaultValue());
+                Assert.Equal("O'Brien's", entityType.GetProperty("B").GetDefaultValue());
+                Assert.Equal("'", entityType.GetProperty("C").GetDefaultValue());
+                Assert.Equal("Tea's", entityType.GetProperty("D").GetDefaultValue());
             },
             "DROP TABLE MyTable;");
 

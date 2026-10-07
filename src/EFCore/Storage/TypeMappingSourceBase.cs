@@ -167,7 +167,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                         typeof(JsonCastValueReaderWriter<>).MakeGenericType(elementType.UnwrapNullableType()), elementReader)!;
                 }
 
-                var typeToInstantiate = FindTypeToInstantiate();
+                var typeToInstantiate = modelClrType.FindJsonCollectionTypeToInstantiate(elementType);
 
                 collectionReaderWriter = mappingInfo.JsonValueReaderWriter
                     ?? (JsonValueReaderWriter?)Activator.CreateInstance(
@@ -188,32 +188,6 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                     elementMapping.Comparer.ComposeConversion(elementType)!);
 
                 return true;
-
-                Type FindTypeToInstantiate()
-                {
-                    if (modelClrType.IsArray)
-                    {
-                        return modelClrType;
-                    }
-
-                    var listOfT = typeof(List<>).MakeGenericType(elementType);
-
-                    if (modelClrType.IsAssignableFrom(listOfT))
-                    {
-                        if (!modelClrType.IsAbstract)
-                        {
-                            var constructor = modelClrType.GetDeclaredConstructor(null);
-                            if (constructor?.IsPublic == true)
-                            {
-                                return modelClrType;
-                            }
-                        }
-
-                        return listOfT;
-                    }
-
-                    return modelClrType;
-                }
             }
         }
 
