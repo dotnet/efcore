@@ -1461,10 +1461,13 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqlServerIndexConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeBaseTypeChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IIndexAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IIndexUniquenessChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IIndexAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyNullabilityChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAnnotationChangedConvention",
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqlServerIndexConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeBaseTypeChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IDiscriminatorPropertySetConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IIndexAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IIndexUniquenessChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IIndexAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyNullabilityChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAnnotationChangedConvention",
       "Methods": [
         {
           "Member": "SqlServerIndexConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper);"
+        },
+        {
+          "Member": "virtual void ProcessDiscriminatorPropertySet(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTypeBaseBuilder structuralTypeBuilder, string? name, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string?> context);"
         },
         {
           "Member": "virtual void ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
