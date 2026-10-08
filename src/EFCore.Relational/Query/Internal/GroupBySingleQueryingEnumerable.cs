@@ -109,7 +109,10 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
     /// </summary>
     public virtual IAsyncEnumerator<IGrouping<TKey, TElement>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
-        _relationalQueryContext.CancellationToken = cancellationToken;
+        if (cancellationToken != default)
+        {
+            _relationalQueryContext.CancellationToken = cancellationToken;
+        }
 
         return new AsyncEnumerator(this);
     }
