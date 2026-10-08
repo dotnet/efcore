@@ -14196,6 +14196,9 @@
       "Properties": [
         {
           "Member": "bool SupportsNavigationExpansionJoins { get; }"
+        },
+        {
+          "Member": "bool SupportsSingleResultLifting { get; }"
         }
       ]
     },
@@ -20289,10 +20292,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.QueryTrackingBehavior QueryTrackingBehavior { get; internal set; }"
-        },
-        {
-          "Member": "virtual bool SupportsOuterApply { get; }",
-          "Stage": "Experimental"
         },
         {
           "Member": "virtual bool SupportsPrecompiledQuery { get; }",

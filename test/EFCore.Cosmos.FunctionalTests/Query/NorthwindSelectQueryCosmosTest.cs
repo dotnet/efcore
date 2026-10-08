@@ -2173,6 +2173,13 @@ FROM root c
         AssertSql();
     }
 
+    public override async Task Repeated_non_deterministic_single_result_subquery_is_not_lifted(bool async)
+    {
+        await AssertTranslationFailed(() => base.Repeated_non_deterministic_single_result_subquery_is_not_lifted(async));
+
+        AssertSql();
+    }
+
     public override async Task Single_result_subquery_null_check_over_keyless_entity(bool async)
     {
         await AssertTranslationFailed(() => base.Single_result_subquery_null_check_over_keyless_entity(async));

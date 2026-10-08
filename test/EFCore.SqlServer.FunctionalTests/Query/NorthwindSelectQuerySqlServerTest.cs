@@ -3073,6 +3073,25 @@ FROM [Customers] AS [c]
 """);
     }
 
+    public override async Task Repeated_non_deterministic_single_result_subquery_is_not_lifted(bool async)
+    {
+        await base.Repeated_non_deterministic_single_result_subquery_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND RAND() >= 0.0E0
+    ORDER BY [o].[OrderID]) AS [OrderDate], (
+    SELECT TOP(1) [o0].[EmployeeID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID] AND RAND() >= 0.0E0
+    ORDER BY [o0].[OrderID]) AS [EmployeeID]
+FROM [Customers] AS [c]
+""");
+    }
+
     public override async Task Single_result_subquery_null_check_over_keyless_entity(bool async)
     {
         await base.Single_result_subquery_null_check_over_keyless_entity(async);

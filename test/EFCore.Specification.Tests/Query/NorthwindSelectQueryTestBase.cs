@@ -2530,4 +2530,30 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
                     == null)
             }),
             elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Repeated_non_deterministic_single_result_subquery_is_not_lifted(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                OrderDate = c.Orders
+                    .Where(o => EF.Functions.Random() >= 0)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.OrderDate)
+                    .FirstOrDefault(),
+                EmployeeID = c.Orders
+                    .Where(o => EF.Functions.Random() >= 0)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.EmployeeID)
+                    .FirstOrDefault()
+            }),
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                OrderDate = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderDate).FirstOrDefault(),
+                EmployeeID = c.Orders.OrderBy(o => o.OrderID).Select(o => o.EmployeeID).FirstOrDefault()
+            }),
+            elementSorter: e => e.CustomerID);
 }

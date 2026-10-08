@@ -7,8 +7,7 @@ public partial class NavigationExpandingExpressionVisitor
 {
     private NavigationExpansionExpression LiftSingleResultSubqueries(NavigationExpansionExpression source)
     {
-        // The lifted subquery may require OUTER APPLY when its correlation cannot be converted to a regular join.
-        if (!_queryCompilationContext.SupportsOuterApply)
+        if (!_extensibilityHelper.SupportsSingleResultLifting)
         {
             return source;
         }
@@ -20,7 +19,12 @@ public partial class NavigationExpandingExpressionVisitor
         collector.Visit(selectorBody);
 
         // Existence checks alone don't justify a join: EF already translates those to EXISTS.
-        foreach (var (collection, reads) in collector.Reads.Where(e => e.Value.Count > 1 && e.Value.Exists(r => !r.IsExistenceCheck)))
+        // Non-deterministic functions (e.g. Guid.NewGuid()) are never client-evaluatable; copies calling one may pick different rows.
+        var nonEvaluatableFinder = new NonEvaluatableExpressionVisitor(_evaluatableExpressionFilter, _queryCompilationContext.Model);
+
+        foreach (var (collection, reads) in collector.Reads.Where(e => e.Value.Count > 1
+                     && e.Value.Exists(r => !r.IsExistenceCheck)
+                     && !nonEvaluatableFinder.Contains(e.Key)))
         {
             var innerParameter = Expression.Parameter(collection.Type.GetSequenceType(), "e");
             var rewrittenBody = ReplacingExpressionVisitor.Replace(
@@ -179,5 +183,25 @@ public partial class NavigationExpandingExpressionVisitor
                     },
                 _ => null
             };
+    }
+
+    private sealed class NonEvaluatableExpressionVisitor(IEvaluatableExpressionFilter filter, IModel model) : ExpressionVisitor
+    {
+        private bool _found;
+
+        public bool Contains(Expression expression)
+        {
+            _found = false;
+            Visit(expression);
+
+            return _found;
+        }
+
+        public override Expression? Visit(Expression? node)
+        {
+            _found |= node != null && !filter.IsEvaluatableExpression(node, model);
+
+            return _found ? node : base.Visit(node);
+        }
     }
 }

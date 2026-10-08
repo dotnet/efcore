@@ -52,6 +52,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private readonly HashSet<string> _parameterNames = [];
     private readonly ExpressionTreeFuncletizer _funcletizer;
     private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
+    private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
     private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
     private readonly Dictionary<QueryFiltersCacheKey, LambdaExpression> _parameterizedQueryFilterPredicateCache = [];
@@ -73,6 +74,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         _queryTranslationPreprocessor = queryTranslationPreprocessor;
         _queryCompilationContext = queryCompilationContext;
         _extensibilityHelper = extensibilityHelper;
+        _evaluatableExpressionFilter = evaluatableExpressionFilter;
         _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this, extensibilityHelper);
         _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor(queryCompilationContext.Model);
         _nullCheckRemovingExpressionVisitor = new NullCheckRemovingExpressionVisitor();
