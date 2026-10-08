@@ -14,6 +14,8 @@ user-invocable: false
 4. **Compilation**
 5. **SQL Generation**
 
+SQL simplification must preserve projection value-converter semantics: matching store types alone do not guarantee equivalent materialization.
+
 ## Validation
 
 - `ToQueryString()` shows generated SQL without executing
