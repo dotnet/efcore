@@ -2128,6 +2128,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             modelBuilder);
     }
 
+    [Fact] // #28488
+    public virtual void Passes_for_table_splitting_foreign_key_with_the_same_truncated_name_as_another_foreign_key()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Model.SetMaxIdentifierLength(9);
+        modelBuilder.Entity<Customer>();
+        var orderBuilder = modelBuilder.Entity<Order>();
+        orderBuilder.OwnsOne(o => o.OrderDetails, ob => ob.Ignore(d => d.Customer));
+        var fk = orderBuilder.HasOne(o => o.Customer).WithMany(c => c.Orders).Metadata;
+
+        var model = Validate(modelBuilder);
+
+        Assert.Equal("FK_Order~", fk.GetConstraintName());
+        var ownership = model.FindEntityType(typeof(OrderDetails))!.FindOwnership()!;
+        Assert.Equal("FK_Order~", ownership.GetConstraintName());
+        Assert.Null(ownership.GetConstraintName(StoreObjectIdentifier.Table("Order"), StoreObjectIdentifier.Table("Order")));
+    }
+
     [Fact]
     public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy()
     {

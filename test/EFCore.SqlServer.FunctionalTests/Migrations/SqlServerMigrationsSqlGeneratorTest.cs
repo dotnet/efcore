@@ -1277,6 +1277,26 @@ GO
 """);
     }
 
+    [Fact]
+    public virtual void SqlOperation_ignores_line_starting_with_go_identifier()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "SELECT" + EOL + "    ColumnA," + EOL + "    GoodColumn," + EOL + "    ColumnC" + EOL + "FROM" + EOL + "   [Table]"
+            });
+
+        AssertSql(
+            """
+SELECT
+    ColumnA,
+    GoodColumn,
+    ColumnC
+FROM
+   [Table]
+""");
+    }
+
     public override void SqlOperation()
     {
         base.SqlOperation();
