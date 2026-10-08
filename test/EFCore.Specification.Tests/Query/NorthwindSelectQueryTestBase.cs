@@ -229,6 +229,22 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
             e => e.CustomerID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_anonymous_non_numeric_constants(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                ConstantGuid = Guid.Empty,
+                ConstantDateTime = DateTime.MinValue,
+                ConstantDateOnly = DateOnly.MinValue,
+                ConstantTimeSpan = TimeSpan.Zero,
+                ConstantTimeOnly = TimeOnly.MinValue,
+                ConstantDateTimeOffset = DateTimeOffset.MinValue
+            }),
+            e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_anonymous_constant_in_expression(bool async)
         => AssertQuery(
             async,
