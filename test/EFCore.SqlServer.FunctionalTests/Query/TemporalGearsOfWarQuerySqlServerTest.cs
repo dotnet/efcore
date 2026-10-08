@@ -3431,7 +3431,7 @@ ORDER BY [g].[Nickname]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 GROUP BY [m].[CodeName]
 """);
@@ -8052,7 +8052,7 @@ WHERE [m].[Rating] IS NULL
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE [m].[CodeName] = N'Operation Foobar'
 """);

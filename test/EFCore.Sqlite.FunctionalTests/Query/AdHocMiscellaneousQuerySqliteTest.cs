@@ -934,4 +934,21 @@ ORDER BY "c"."CountryId", "c"."Id"
     }
 
     #endregion
+
+    #region 30233
+
+    public override async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
+    {
+        await base.Sum_over_property_with_value_converter_that_converts_nulls(async);
+
+        AssertSql(
+            """
+SELECT "e"."Group" AS "Key", COALESCE(SUM("e"."LongValue"), 0) AS "SumLong", COALESCE(ef_sum("e"."DecimalValue"), '0.0') AS "SumDecimal"
+FROM "Entity" AS "e"
+GROUP BY "e"."Group"
+ORDER BY "e"."Group"
+""");
+    }
+
+    #endregion
 }

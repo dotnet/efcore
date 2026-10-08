@@ -11124,7 +11124,7 @@ ORDER BY [u].[Nickname], [u].[SquadId], [w0].[IsAutomatic]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] AS [m]
 WHERE [m].[CodeName] = N'Operation Foobar'
 """);
@@ -11331,7 +11331,7 @@ FROM (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] AS [m]
 GROUP BY [m].[CodeName]
 """);

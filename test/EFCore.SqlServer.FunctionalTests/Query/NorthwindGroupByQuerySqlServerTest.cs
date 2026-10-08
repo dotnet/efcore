@@ -691,7 +691,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[EmployeeID] AS bigint)), CAST(0 AS bigint)) AS [Sum], [o].[CustomerID] AS [Key]
+SELECT ISNULL(SUM(CAST([o].[EmployeeID] AS bigint)), CAST(0 AS bigint)) AS [Sum], [o].[CustomerID] AS [Key]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2037,7 +2037,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST(1 AS bigint)), CAST(0 AS bigint))
+SELECT ISNULL(SUM(CAST(1 AS bigint)), CAST(0 AS bigint))
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -3347,7 +3347,7 @@ ORDER BY [o].[OrderDate]
 
         AssertSql(
             """
-SELECT N'TotalAmount' AS [Name], COALESCE(SUM(CAST([o0].[OrderID] AS decimal(18,2))), 0.0) AS [Value]
+SELECT N'TotalAmount' AS [Name], ISNULL(SUM(CAST([o0].[OrderID] AS decimal(18,2))), 0.0) AS [Value]
 FROM (
     SELECT [o].[OrderID], 1 AS [Key]
     FROM [Orders] AS [o]
@@ -4272,7 +4272,7 @@ GROUP BY [o0].[Key]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint)) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], ISNULL(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint)) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
