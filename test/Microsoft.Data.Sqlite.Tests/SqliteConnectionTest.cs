@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
@@ -821,6 +821,51 @@ public class SqliteConnectionTest
         connection.CreateFunction("test", (double x) => x, true);
 
         Assert.Equal(0, connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
+    }
+
+    [Fact]
+    public void CreateFunction_deterministic_param_works_when_closed()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.CreateFunction("test", (double x) => x, isDeterministic: true);
+        connection.Open();
+
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+        Assert.Equal(0, connection.ExecuteNonQuery("CREATE INDEX ValidIndex ON Data (Value) WHERE test(Value) = 0;"));
+    }
+
+    [Fact]
+    public void CreateFunction_deterministic_param_works_after_reopen()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.CreateFunction("test", (double x) => x, isDeterministic: true);
+        connection.Close();
+        connection.Open();
+
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+        Assert.Equal(0, connection.ExecuteNonQuery("CREATE INDEX ValidIndex ON Data (Value) WHERE test(Value) = 0;"));
+    }
+
+    [Fact]
+    public void CreateAggregate_deterministic_param_works_when_closed()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        if (new Version(connection.ServerVersion) < new Version(3, 30, 0))
+        {
+            // Skip. pragma_function_list doesn't report flags
+            return;
+        }
+
+        connection.CreateAggregate("test", 0L, (long a, long x) => a + x, isDeterministic: true);
+        connection.Open();
+
+        Assert.Equal(
+            (long)SQLITE_DETERMINISTIC,
+            connection.ExecuteScalar<long>(
+                $"SELECT flags & {SQLITE_DETERMINISTIC} FROM pragma_function_list WHERE name = 'test' AND type = 'a';"));
     }
 
     [Fact]
