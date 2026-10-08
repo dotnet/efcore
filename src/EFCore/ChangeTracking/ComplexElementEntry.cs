@@ -157,7 +157,7 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry Property(IProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new PropertyEntry(InternalEntry, property);
     }
@@ -173,7 +173,7 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry Property(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new PropertyEntry(InternalEntry, Metadata.ComplexType.GetProperty(propertyName));
     }
@@ -200,7 +200,7 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry ComplexProperty(IComplexProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new ComplexPropertyEntry(InternalEntry, property);
     }
@@ -217,7 +217,7 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry ComplexProperty(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ComplexPropertyEntry(InternalEntry, Metadata.ComplexType.GetComplexProperty(propertyName));
     }
@@ -243,7 +243,7 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexCollectionEntry ComplexCollection(IComplexProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new ComplexCollectionEntry(InternalEntry, property);
     }
@@ -259,7 +259,7 @@ public class ComplexElementEntry : IInfrastructure<InternalComplexEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexCollectionEntry ComplexCollection(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ComplexCollectionEntry(InternalEntry, Metadata.ComplexType.GetComplexProperty(propertyName));
     }

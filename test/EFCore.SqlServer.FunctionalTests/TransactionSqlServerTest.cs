@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlServerFixture fixture)
     : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>(fixture)
 {
@@ -31,7 +29,7 @@ public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlSer
             ? Task.CompletedTask
             : base.SaveChanges_uses_explicit_transaction_with_failure_behavior(async, autoTransactionBehavior);
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Savepoints_are_disabled_with_MARS(bool async)
     {
         await using var context = CreateContextWithConnectionString(
@@ -67,7 +65,7 @@ public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlSer
     protected override DbContext CreateContextWithConnectionString()
         => CreateContextWithConnectionString(null);
 
-    protected DbContext CreateContextWithConnectionString(string connectionString)
+    protected DbContext CreateContextWithConnectionString(string? connectionString)
     {
         var options = Fixture.AddOptions(
                 new DbContextOptionsBuilder()

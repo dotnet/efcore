@@ -85,10 +85,10 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
             var numColumns = _pendingBulkInsertCommands[0].ColumnModifications.Count;
 
             sqlLength +=
-                numColumns * 128 // column name lengths
+                (numColumns * 128) // column name lengths
                 + 128 // schema name length
                 + 128 // table name length
-                + _pendingBulkInsertCommands.Count * numColumns * 6 // column parameter placeholders
+                + (_pendingBulkInsertCommands.Count * numColumns * 6) // column parameter placeholders
                 + 300; // some extra fixed overhead
         }
 

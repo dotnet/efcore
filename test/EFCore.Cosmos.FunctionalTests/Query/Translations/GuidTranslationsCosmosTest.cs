@@ -30,7 +30,7 @@ WHERE (c["Guid"] = "df36f493-463f-4123-83f9-6b135deeb7ba")
 
         AssertSql(
             """
-@p=?
+@p='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT VALUE c
 FROM root c
@@ -52,12 +52,12 @@ FROM root c
     public override async Task NewGuid()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.NewGuid());
+        await AssertTranslationFailed(base.NewGuid);
 
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

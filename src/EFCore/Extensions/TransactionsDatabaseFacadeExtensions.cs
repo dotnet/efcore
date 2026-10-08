@@ -41,13 +41,8 @@ public static class TransactionsDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <returns>The currently enlisted transaction.</returns>
     public static Transaction? GetEnlistedTransaction(this DatabaseFacade databaseFacade)
-    {
-        if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
-            transactionManager)
-        {
-            return transactionManager.EnlistedTransaction;
-        }
-
-        throw new NotSupportedException(CoreStrings.TransactionsNotSupported);
-    }
+        => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
+            transactionManager
+                ? transactionManager.EnlistedTransaction
+                : throw new NotSupportedException(CoreStrings.TransactionsNotSupported);
 }

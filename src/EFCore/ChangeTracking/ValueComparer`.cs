@@ -3,8 +3,8 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
-using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 using static System.Linq.Expressions.Expression;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -31,11 +31,26 @@ public class ValueComparer
 <[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T> : ValueComparer, IEqualityComparer<T>
+T> : ValueComparer, IEqualityComparer<T>
 {
     private Func<T?, T?, bool>? _equals;
     private Func<T, int>? _hashCode;
     private Func<T, T>? _snapshot;
+
+    /// <summary>
+    ///     The default <see cref="ValueComparer{T}" /> for <typeparamref name="T" />, using a shallow copy for snapshots
+    ///     and not favoring <see cref="IStructuralEquatable" />.
+    /// </summary>
+    public static ValueComparer<T> Default { get; } = new(favorStructuralComparisons: false);
+
+    /// <summary>
+    ///     The default <see cref="ValueComparer{T}" /> for <typeparamref name="T" />, favoring <see cref="IStructuralEquatable" />
+    ///     when the type implements it. This is usually used when byte arrays act as keys.
+    /// </summary>
+    public static ValueComparer<T> DefaultWithStructuralComparisons { get; } =
+        (typeof(IStructuralEquatable).IsAssignableFrom(typeof(T)) || typeof(T).IsArray)
+            ? new ValueComparer<T>(favorStructuralComparisons: true)
+            : Default;
 
     /// <summary>
     ///     Creates a new <see cref="ValueComparer{T}" /> with a default comparison
@@ -181,11 +196,14 @@ public class ValueComparer
             return v => v;
         }
 
+        // Use Array.Clone() instead of Enumerable.ToArray.MakeGenericMethod to avoid runtime reflection.
+        // Array.Clone() works on any array type and is AOT-safe.
         var sourceParameter = Parameter(typeof(T), "source");
+        var cloneExpression = Call(
+            Convert(sourceParameter, typeof(Array)),
+            typeof(Array).GetMethod(nameof(Array.Clone), Type.EmptyTypes)!);
         return Lambda<Func<T, T>>(
-            Call(
-                EnumerableMethods.ToArray.MakeGenericMethod(typeof(T).GetElementType()!),
-                sourceParameter),
+            Convert(cloneExpression, typeof(T)),
             sourceParameter);
     }
 

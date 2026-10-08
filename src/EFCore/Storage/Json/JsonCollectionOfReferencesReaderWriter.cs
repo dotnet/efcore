@@ -38,7 +38,7 @@ public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElemen
         IList<TElement?> collection;
         if (IsReadOnly)
         {
-            collection = new List<TElement?>();
+            collection = [];
         }
         else if (existingObject == null)
         {
@@ -68,6 +68,7 @@ public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElemen
                 case JsonTokenType.Number:
                 case JsonTokenType.True:
                 case JsonTokenType.False:
+                case JsonTokenType.StartObject: // Collection of dictionaries
                 case JsonTokenType.StartArray:
                     collection.Add((TElement)_elementReaderWriter.FromJson(ref manager));
                     break;
@@ -78,7 +79,6 @@ public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElemen
                 case JsonTokenType.EndArray:
                     break;
                 case JsonTokenType.None: // Explicitly listing all states that we throw for
-                case JsonTokenType.StartObject:
                 case JsonTokenType.EndObject:
                 case JsonTokenType.PropertyName:
                 default:

@@ -123,7 +123,7 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     {
         if (_filters == null && newFilters.TryGetNonEnumeratedCount(out var count) && count > 1)
         {
-            _filters = new Dictionary<string, IQueryFilter>(count);
+            _filters = [with(count)];
         }
 
         foreach (var filter in newFilters)

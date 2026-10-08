@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class JsonQuerySqlServerFixture : JsonQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    protected override bool ShouldLogCategory(string logCategory)
+        => logCategory == DbLoggerCategory.Query.Name;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

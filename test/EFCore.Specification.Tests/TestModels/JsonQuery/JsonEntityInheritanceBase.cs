@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonEntityInheritanceBase
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public JsonOwnedBranch ReferenceOnBase { get; set; }
-    public List<JsonOwnedBranch> CollectionOnBase { get; set; }
+    public JsonOwnedBranch ReferenceOnBase { get; set; } = null!;
+    public List<JsonOwnedBranch> CollectionOnBase { get; set; } = null!;
 }

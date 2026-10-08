@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Disable IsAotCompatible on non-DefaultNetCoreTargetFrameworks even if explicitly enabled or else we'll get NETSDK1210 errors -->
     <IsAotCompatible Condition="'$(TargetFramework)' != '$(DefaultNetCoreTargetFramework)'"></IsAotCompatible>
-    <PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' and Exists('PACKAGE.md')">PACKAGE.md</PackageReadmeFile>
+    <PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' and Exists('README.md')">README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(PackageReadmeFile)' != ''">
@@ -36,4 +36,15 @@
       </AssemblyAttribute>
     </ItemGroup>
   </Target>
+
+  <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_ProjectReferencesWithVersions
+          Update="@(ProjectReference)"
+          Condition="'%(ProjectReference.Identity)' != '' And '%(ProjectReference.PackageVersion)' != ''">
+        <ProjectVersion>%(ProjectReference.PackageVersion)</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+
 </Project>

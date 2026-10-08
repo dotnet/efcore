@@ -10,9 +10,9 @@ public class ManyToManyTrackingInMemoryTest(ManyToManyTrackingInMemoryTest.ManyT
 {
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<ManyToManyContext, Task> testOperation,
-        Func<ManyToManyContext, Task> nestedTestOperation1 = null,
-        Func<ManyToManyContext, Task> nestedTestOperation2 = null,
-        Func<ManyToManyContext, Task> nestedTestOperation3 = null)
+        Func<ManyToManyContext, Task>? nestedTestOperation1 = null,
+        Func<ManyToManyContext, Task>? nestedTestOperation2 = null,
+        Func<ManyToManyContext, Task>? nestedTestOperation3 = null)
     {
         await base.ExecuteWithStrategyInTransactionAsync(
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);

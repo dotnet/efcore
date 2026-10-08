@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ManyToManyTrackingRelationalTestBase<TFixture>(TFixture fixture) : ManyToManyTrackingTestBase<TFixture>(fixture)
     where TFixture : ManyToManyTrackingRelationalTestBase<TFixture>.ManyToManyTrackingRelationalFixture
 {
-    [ConditionalFact]
-    public void Many_to_many_delete_behaviors_are_set()
+    [Fact]
+    public virtual void Many_to_many_delete_behaviors_are_set()
     {
         using var context = CreateContext();
         var model = context.Model;
@@ -38,7 +36,7 @@ public abstract class ManyToManyTrackingRelationalTestBase<TFixture>(TFixture fi
         }
     }
 
-    protected virtual Dictionary<string, DeleteBehavior> CustomDeleteBehaviors { get; } = new();
+    protected virtual Dictionary<string, DeleteBehavior> CustomDeleteBehaviors { get; } = [];
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

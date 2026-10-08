@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture)
 {
     protected InterceptionFixtureBase Fixture { get; } = fixture;
@@ -16,7 +14,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
     }
 
     protected class Brane
@@ -24,7 +22,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
     }
 
     public class UniverseContext(DbContextOptions options) : PoolableDbContext(options)
@@ -50,7 +48,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
     {
         var interceptor = new TInterceptor();
 
-        var context = inject ? await CreateContextAsync(null, interceptor) : await CreateContextAsync(interceptor);
+        var context = inject ? await CreateContextAsync(null!, interceptor) : await CreateContextAsync(interceptor);
 
         return (context, interceptor);
     }
@@ -63,7 +61,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
 
     public Task<UniverseContext> CreateContextAsync(
         IEnumerable<IInterceptor> appInterceptors,
-        IEnumerable<IInterceptor> injectedInterceptors = null)
+        IEnumerable<IInterceptor>? injectedInterceptors = null)
         => SeedAsync(new UniverseContext(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? [])));
 
     public virtual Task<UniverseContext> SeedAsync(UniverseContext context)
@@ -71,7 +69,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
 
     public interface ITestDiagnosticListener : IDisposable
     {
-        void AssertEventsInOrder(params string[] eventNames);
+        public void AssertEventsInOrder(params string[] eventNames);
     }
 
     public class NullDiagnosticListener : ITestDiagnosticListener
@@ -87,7 +85,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
 
     public class TestDiagnosticListener : ITestDiagnosticListener,
         IObserver<DiagnosticListener>,
-        IObserver<KeyValuePair<string, object>>
+        IObserver<KeyValuePair<string, object?>>
     {
         private readonly DbContextId _contextId;
         private readonly IDisposable _subscription;
@@ -138,7 +136,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
             }
         }
 
-        public void OnNext(KeyValuePair<string, object> value)
+        public void OnNext(KeyValuePair<string, object?> value)
         {
             var eventData = value.Value as DbContextEventData;
             if (eventData?.Context?.ContextId == _contextId)

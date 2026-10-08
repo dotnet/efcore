@@ -60,20 +60,17 @@ public class SqlServerStatisticsAggregateMethodTranslator : IAggregateMethodCall
             _ => null
         };
 
-        if (functionName is null)
-        {
-            return null;
-        }
-
-        return SqlServerExpression.AggregateFunction(
-            _sqlExpressionFactory,
-            functionName,
-            [sqlExpression],
-            source,
-            enumerableArgumentIndex: 0,
-            nullable: true,
-            argumentsPropagateNullability: Statics.FalseArrays[1],
-            typeof(double),
-            _doubleTypeMapping);
+        return functionName is null
+            ? null
+            : (SqlExpression)SqlServerExpression.AggregateFunction(
+                _sqlExpressionFactory,
+                functionName,
+                [sqlExpression],
+                source,
+                enumerableArgumentIndex: 0,
+                nullable: true,
+                argumentsPropagateNullability: Statics.FalseArrays[1],
+                typeof(double),
+                _doubleTypeMapping);
     }
 }

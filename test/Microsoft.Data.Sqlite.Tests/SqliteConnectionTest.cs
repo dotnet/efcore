@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
@@ -180,7 +180,7 @@ public class SqliteConnectionTest
     public void Open_throws_when_error()
     {
         using var connection = new SqliteConnection("Data Source=file:data.db?mode=invalidmode");
-        var ex = Assert.Throws<SqliteException>(() => connection.Open());
+        var ex = Assert.Throws<SqliteException>(connection.Open);
 
         Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
     }
@@ -238,7 +238,7 @@ public class SqliteConnectionTest
     public void Open_works_when_readwrite()
     {
         using var connection = new SqliteConnection("Data Source=readwrite.db;Mode=ReadWrite");
-        var ex = Assert.Throws<SqliteException>(() => connection.Open());
+        var ex = Assert.Throws<SqliteException>(connection.Open);
 
         Assert.Equal(SQLITE_CANTOPEN, ex.SqliteErrorCode);
     }
@@ -263,17 +263,16 @@ public class SqliteConnectionTest
 
     [Fact]
     public void Open_works_when_password()
-    {
+        =>
 #if E_SQLITE3 || WINSQLITE3
-        Open_works_when_password_unsupported();
-#elif E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
-        Open_works_when_password_supported();
+            Open_works_when_password_unsupported();
+#elif SQLITE3MC
+            Open_works_when_password_supported();
 #elif SQLITE3
-        Open_works_when_password_might_be_supported();
+            Open_works_when_password_might_be_supported();
 #else
 #error Unexpected native library
 #endif
-    }
 
     private void Open_works_when_password_unsupported()
     {
@@ -281,7 +280,7 @@ public class SqliteConnectionTest
         var stateChangeRaised = false;
         connection.StateChange += (sender, e) => stateChangeRaised = true;
 
-        var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
+        var ex = Assert.Throws<InvalidOperationException>(connection.Open);
 
         Assert.Equal(Resources.EncryptionNotSupported(GetNativeLibraryName()), ex.Message);
         Assert.False(stateChangeRaised);
@@ -300,7 +299,7 @@ public class SqliteConnectionTest
         var stateChangeRaised = false;
         connection2.StateChange += (sender, e) => stateChangeRaised = true;
 
-        var ex = Assert.Throws<SqliteException>(() => connection2.Open());
+        var ex = Assert.Throws<SqliteException>(connection2.Open);
 
         Assert.Equal(SQLITE_NOTADB, ex.SqliteErrorCode);
         Assert.False(stateChangeRaised);
@@ -313,7 +312,7 @@ public class SqliteConnectionTest
         connection.Open();
     }
 
-#if E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
+#if SQLITE3MC
     [Fact]
     public void Open_decrypts_lazily_when_no_password()
     {
@@ -449,7 +448,7 @@ public class SqliteConnectionTest
     public void Open_works_when_uri()
     {
         using var connection = new SqliteConnection("Data Source=file:readwrite.db?mode=rw");
-        var ex = Assert.Throws<SqliteException>(() => connection.Open());
+        var ex = Assert.Throws<SqliteException>(connection.Open);
 
         Assert.Equal(SQLITE_CANTOPEN, ex.SqliteErrorCode);
     }
@@ -812,7 +811,7 @@ public class SqliteConnectionTest
         connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
         connection.CreateFunction("test", (double x) => x, true);
 
-        Assert.Equal(1, connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
+        Assert.Equal(0, connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
     }
 
     [Fact]
@@ -890,15 +889,13 @@ public class SqliteConnectionTest
             (string a, string x, string y) => a + x + y,
             a => a + "Z");
 
-        using (var reader = connection.ExecuteReader("SELECT test(dummy1, dummy2), test(dummy2, dummy1) FROM dual2;"))
-        {
-            Assert.True(reader.Read());
+        using var reader = connection.ExecuteReader("SELECT test(dummy1, dummy2), test(dummy2, dummy1) FROM dual2;");
+        Assert.True(reader.Read());
 
-            Assert.Equal("AXYZ", reader.GetString(0));
-            Assert.Equal("AYXZ", reader.GetString(1));
+        Assert.Equal("AXYZ", reader.GetString(0));
+        Assert.Equal("AYXZ", reader.GetString(1));
 
-            Assert.False(reader.Read());
-        }
+        Assert.False(reader.Read());
     }
 
     [Fact]
@@ -989,7 +986,7 @@ public class SqliteConnectionTest
     {
         var connection = new SqliteConnection();
 
-        var ex = Assert.Throws<InvalidOperationException>(() => connection.BeginTransaction());
+        var ex = Assert.Throws<InvalidOperationException>(connection.BeginTransaction);
 
         Assert.Equal(Resources.CallRequiresOpenConnection("BeginTransaction"), ex.Message);
     }
@@ -1002,7 +999,7 @@ public class SqliteConnectionTest
 
         using (connection.BeginTransaction())
         {
-            var ex = Assert.Throws<InvalidOperationException>(() => connection.BeginTransaction());
+            var ex = Assert.Throws<InvalidOperationException>(connection.BeginTransaction);
 
             Assert.Equal(Resources.ParallelTransactionsNotSupported, ex.Message);
         }
@@ -1163,7 +1160,7 @@ public class SqliteConnectionTest
 
         connection.LoadExtension("unknown");
 
-        ex = Assert.Throws<SqliteException>(() => connection.Open());
+        ex = Assert.Throws<SqliteException>(connection.Open);
 
         Assert.NotEqual(extensionsDisabledError, ex.Message);
     }
@@ -1287,7 +1284,7 @@ public class SqliteConnectionTest
             var ex = Assert.Throws<InvalidOperationException>(connection.Open);
             Assert.Equal(Resources.EncryptionNotSupported(GetNativeLibraryName()), ex.Message);
             Assert.Equal(ConnectionState.Closed, connection.State);
-#elif E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
+#elif SQLITE3MC
             var ex = Assert.Throws<SqliteException>(connection.Open);
             Assert.Equal(SQLITE_NOTADB, ex.SqliteErrorCode);
             Assert.Equal(ConnectionState.Closed, connection.State);

@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
-public abstract class OwnedNavigationsPrimitiveCollectionRelationalTestBase<TFixture> : OwnedNavigationsPrimitiveCollectionTestBase<TFixture>
+public abstract class
+    OwnedNavigationsPrimitiveCollectionRelationalTestBase<TFixture> : OwnedNavigationsPrimitiveCollectionTestBase<TFixture>
     where TFixture : OwnedNavigationsRelationalFixtureBase, new()
 {
     public OwnedNavigationsPrimitiveCollectionRelationalTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)

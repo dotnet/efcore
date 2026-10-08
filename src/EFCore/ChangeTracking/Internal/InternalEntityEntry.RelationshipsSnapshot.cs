@@ -88,7 +88,7 @@ public partial class InternalEntityEntry
             var snapshot = (HashSet<object>?)_values[index];
             if (snapshot == null)
             {
-                snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                snapshot = [with(ReferenceEqualityComparer.Instance)];
                 _values[index] = snapshot;
             }
 

@@ -3,15 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public class ExpectedFilteredInclude<TEntity, TIncluded>(
     Expression<Func<TEntity, IEnumerable<TIncluded>>> include,
     string navigationPath = "",
-    Func<IEnumerable<TIncluded>, IEnumerable<TIncluded>> includeFilter = null,
+    Func<IEnumerable<TIncluded>, IEnumerable<TIncluded>>? includeFilter = null,
     bool assertOrder = false) : ExpectedInclude<TEntity>(Convert(include), navigationPath)
 {
-    public Func<IEnumerable<TIncluded>, IEnumerable<TIncluded>> IncludeFilter { get; } = includeFilter;
+    public Func<IEnumerable<TIncluded>, IEnumerable<TIncluded>> IncludeFilter { get; } = includeFilter!;
 
     public bool AssertOrder { get; } = assertOrder;
 

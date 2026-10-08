@@ -5,14 +5,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTriggersFixture fixture)
     : IClassFixture<SqlServerQueryTriggersTest.SqlServerTriggersFixture>
 {
     private SqlServerTriggersFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers_with_subqueries_run_on_insert_update_and_delete()
     {
         using var context = CreateContext();
@@ -33,7 +31,7 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
         Assert.Empty(context.Products);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers_with_subqueries_work_with_batch_operations()
     {
         using var context = CreateContext();
@@ -80,7 +78,7 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
 
     protected class QueryTriggersContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Product> Products { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Product>(eb =>
@@ -95,8 +93,8 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
     protected class Product
     {
         public virtual int Id { get; set; }
-        public virtual byte[] Version { get; set; }
-        public virtual string Name { get; set; }
+        public virtual byte[]? Version { get; set; }
+        public virtual string? Name { get; set; }
         public virtual int StoreUpdated { get; set; }
     }
 

@@ -16,13 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IReadOnlyProperty : IReadOnlyPropertyBase
 {
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IReadOnlyEntityType or IReadOnlyComplexType")]
-    IReadOnlyEntityType DeclaringEntityType
-        => (IReadOnlyEntityType)DeclaringType;
-
-    /// <summary>
     ///     Gets a value indicating whether this property can contain <see langword="null" />.
     /// </summary>
     bool IsNullable { get; }
@@ -46,18 +39,21 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     bool IsConcurrencyToken { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether this property is automatically loaded when the entity is queried from the database.
+    ///     When set to <see langword="false" />, the property value will not be read from the database and the property will be
+    ///     excluded from <c>UPDATE</c> statements unless explicitly loaded or modified.
+    /// </summary>
+    virtual bool IsAutoLoaded
+        => true;
+
+    /// <summary>
     ///     Returns the <see cref="CoreTypeMapping" /> for the given property from a finalized model.
     /// </summary>
     /// <returns>The type mapping.</returns>
     CoreTypeMapping GetTypeMapping()
     {
         var mapping = FindTypeMapping();
-        if (mapping == null)
-        {
-            throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetTypeMapping)));
-        }
-
-        return mapping;
+        return mapping ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetTypeMapping)));
     }
 
     /// <summary>
@@ -389,6 +385,11 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
             if (IsConcurrencyToken)
             {
                 builder.Append(" Concurrency");
+            }
+
+            if (!IsAutoLoaded)
+            {
+                builder.Append(" NoAutoLoad");
             }
 
             if (Sentinel != null && !Equals(Sentinel, ClrType.GetDefaultValue()))

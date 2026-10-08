@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
+using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
@@ -375,15 +375,15 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                 }
 
                 // Skip autoincrement primary key columns that are being added in this migration
-                var isAutoincrement = column.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool? == true;
+                var isAutoincrement = (column.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool?) == true;
                 var isPrimaryKey = column.Table.PrimaryKey?.Columns.Contains(column) == true;
-                
+
                 if (isAutoincrement && isPrimaryKey)
                 {
                     // Check if this column is being added in the current migration
                     var isNewColumn = migrationOperations.OfType<AddColumnOperation>()
                         .Any(op => op.Table == key.Table && op.Schema == key.Schema && op.Name == column.Name);
-                    
+
                     if (isNewColumn)
                     {
                         continue; // Skip newly added autoincrement columns
@@ -498,8 +498,8 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to build the commands.</param>
     protected override void Generate(AlterDatabaseOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
-        if (operation[SqliteAnnotationNames.InitSpatialMetaData] as bool? != true
-            || operation.OldDatabase[SqliteAnnotationNames.InitSpatialMetaData] as bool? == true)
+        if ((operation[SqliteAnnotationNames.InitSpatialMetaData] as bool?) != true
+            || (operation.OldDatabase[SqliteAnnotationNames.InitSpatialMetaData] as bool?) == true)
         {
             return;
         }
@@ -587,6 +587,92 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand();
+        }
+    }
+
+    /// <summary>
+    ///     Returns a SQL fragment for the column list of an index from a <see cref="CreateIndexOperation" />.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
+    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+    /// <param name="builder">The command builder to use to build the commands.</param>
+    protected override void GenerateIndexColumnList(
+        CreateIndexOperation operation,
+        IModel? model,
+        MigrationCommandListBuilder builder)
+    {
+        var jsonIndex = operation[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex
+            ?? model?.GetRelationalModel()
+                .FindTable(operation.Table, operation.Schema)?
+                .Indexes.FirstOrDefault(i => i.Name == operation.Name)?[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
+        if (jsonIndex is null)
+        {
+            base.GenerateIndexColumnList(operation, model, builder);
+            return;
+        }
+
+        var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+        for (var i = 0; i < jsonIndex.Elements.Count; i++)
+        {
+            if (i > 0)
+            {
+                builder.Append(", ");
+            }
+
+            var element = jsonIndex.Elements[i];
+            builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(element.ContainingColumn.Name));
+
+            var isArray = element is IRelationalJsonArray;
+            if (element.Path.Count > 0 || isArray)
+            {
+                builder.Append(" ->> ");
+
+                if (!isArray
+                    && element.Path is [{ IsArray: false, PropertyName: { } propertyName }])
+                {
+                    builder.Append(
+                        stringTypeMapping.GenerateSqlLiteral(
+                            Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName)));
+                }
+                else if (element.Path.Count == 0
+                         && isArray)
+                {
+                    builder.Append(jsonIndex.CollectionIndices![i]![0]!.Value.ToString(CultureInfo.InvariantCulture));
+                }
+                else
+                {
+                    var path = new StringBuilder("$");
+                    var collectionIndex = 0;
+                    foreach (var segment in element.Path)
+                    {
+                        if (segment.IsArray)
+                        {
+                            path.Append('[')
+                                .Append(jsonIndex.CollectionIndices?[i]?[collectionIndex++]?.ToString() ?? "*")
+                                .Append(']');
+                        }
+                        else
+                        {
+                            path.Append('.')
+                                .Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(segment.PropertyName!));
+                        }
+                    }
+
+                    if (isArray)
+                    {
+                        path.Append('[')
+                            .Append(jsonIndex.CollectionIndices![i]![collectionIndex]!.Value)
+                            .Append(']');
+                    }
+
+                    builder.Append(stringTypeMapping.GenerateSqlLiteral(path.ToString()));
+                }
+            }
+
+            if (jsonIndex.IsElementDescending(i))
+            {
+                builder.Append(" DESC");
+            }
         }
     }
 
@@ -982,7 +1068,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             builder
                 .Append(" COLLATE ")
-                .Append(operation.Collation);
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Collation));
         }
     }
 
@@ -1063,7 +1149,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
 
     private sealed class RebuildContext
     {
-        public ICollection<MigrationOperation> OperationsToReplace { get; } = new List<MigrationOperation>();
+        public ICollection<MigrationOperation> OperationsToReplace { get; } = [];
         public IDictionary<string, AddColumnOperation> AddColumnsDeferred { get; } = new Dictionary<string, AddColumnOperation>();
         public ICollection<string> DropColumnsDeferred { get; } = new HashSet<string>();
         public readonly IDictionary<string, AlterColumnOperation> AlterColumnsDeferred = new Dictionary<string, AlterColumnOperation>();
@@ -1072,6 +1158,6 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
             new Dictionary<string, RenameColumnOperation>();
 
         public ICollection<string> CreateIndexesDeferred { get; } = new HashSet<string>();
-        public ICollection<MigrationOperation> OperationsToWarnFor { get; } = new List<MigrationOperation>();
+        public ICollection<MigrationOperation> OperationsToWarnFor { get; } = [];
     }
 }

@@ -8,11 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations;
 public abstract class GuidTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task New_with_constant()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Guid == new Guid("DF36F493-463F-4123-83F9-6B135DEEB7BA")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task New_with_parameter()
     {
         var guid = "DF36F493-463F-4123-83F9-6B135DEEB7BA";
@@ -20,13 +20,13 @@ public abstract class GuidTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Guid == new Guid(guid)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task ToString_projection()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Select(b => b.Guid.ToString()),
             elementAsserter: (e, a) => Assert.Equal(e.ToLower(), a.ToLower()));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task NewGuid()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(od => Guid.NewGuid() != default));
 }

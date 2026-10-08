@@ -25,6 +25,15 @@ public class SqlServerVectorTypeMapping : RelationalTypeMapping
 
     private static readonly VectorComparer _comparerInstance = new();
 
+    private static readonly MethodInfo _createNullMethod
+        = typeof(SqlVector<float>).GetMethod(nameof(SqlVector<float>.CreateNull), [typeof(int)])!;
+
+    private static readonly ConstructorInfo _constructor
+        = typeof(SqlVector<float>).GetConstructor([typeof(ReadOnlyMemory<float>)])!;
+
+    private static readonly MethodInfo _memoryImplicitOperator
+        = typeof(ReadOnlyMemory<float>).GetMethod("op_Implicit", [typeof(float[])])!;
+
     // Note that dimensions is mandatory with SQL Server vector.
     // However, our scaffolder looks up each type mapping without the facets, to find out whether the scaffolded
     // facet happens to be the default (and therefore can be omitted). So we allow constructing a SqlServerVectorTypeMapping
@@ -115,6 +124,35 @@ public class SqlServerVectorTypeMapping : RelationalTypeMapping
 
         return builder.ToString();
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override Expression GenerateCodeLiteral(object value)
+    {
+        var vector = (SqlVector<float>)value;
+
+        return vector.IsNull
+            ? Expression.Call(_createNullMethod, Expression.Constant(vector.Length))
+            : Expression.New(
+                _constructor,
+                Expression.Convert(
+                    Expression.Constant(vector.Memory.ToArray(), typeof(float[])),
+                    typeof(ReadOnlyMemory<float>),
+                    _memoryImplicitOperator));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override object? GetDefaultProviderValue()
+        => Size is int dimensions ? new SqlVector<float>(new float[dimensions]) : null;
 
     private sealed class VectorComparer() : ValueComparer<SqlVector<float>>(
         (x, y) => CalculateEquality(x, y),

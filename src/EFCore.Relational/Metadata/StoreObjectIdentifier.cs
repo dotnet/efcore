@@ -188,12 +188,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
         }
 
         result = StringComparer.Ordinal.Compare(Name, other.Name);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        return StringComparer.Ordinal.Compare(Schema, other.Schema);
+        return result != 0 ? result : StringComparer.Ordinal.Compare(Schema, other.Schema);
     }
 
     /// <summary>

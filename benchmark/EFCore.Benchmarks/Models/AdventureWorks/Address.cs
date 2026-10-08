@@ -16,11 +16,11 @@ public class Address
     }
 
     public int AddressID { get; set; }
-    public string AddressLine1 { get; set; }
-    public string AddressLine2 { get; set; }
-    public string City { get; set; }
+    public string AddressLine1 { get; set; } = null!;
+    public string? AddressLine2 { get; set; }
+    public string City { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
-    public string PostalCode { get; set; }
+    public string PostalCode { get; set; } = null!;
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
@@ -29,5 +29,5 @@ public class Address
     public virtual ICollection<BusinessEntityAddress> BusinessEntityAddress { get; set; }
     public virtual ICollection<SalesOrderHeader> SalesOrderHeader { get; set; }
     public virtual ICollection<SalesOrderHeader> SalesOrderHeaderNavigation { get; set; }
-    public virtual StateProvince StateProvince { get; set; }
+    public virtual StateProvince StateProvince { get; set; } = null!;
 }

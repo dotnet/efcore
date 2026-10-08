@@ -15,839 +15,629 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace Scaffolding
+namespace Scaffolding;
+
+[EntityFrameworkInternal]
+public partial class IdentityUserEntityType
 {
-    [EntityFrameworkInternal]
-    public partial class IdentityUserEntityType
+    public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
-        {
-            var runtimeEntityType = model.AddEntityType(
-                "Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity.IdentityUser",
-                typeof(IdentityUser),
-                baseEntityType,
-                discriminatorProperty: "Discriminator",
-                discriminatorValue: "IdentityUser",
-                derivedTypesCount: 1,
-                propertyCount: 16,
-                keyCount: 1);
+        var runtimeEntityType = model.AddEntityType(
+            "Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity.IdentityUser",
+            typeof(IdentityUser),
+            baseEntityType,
+            discriminatorProperty: "Discriminator",
+            discriminatorValue: "IdentityUser",
+            derivedTypesCount: 1,
+            propertyCount: 16,
+            keyCount: 1);
 
-            var id = runtimeEntityType.AddProperty(
-                "Id",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
-            id.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Id(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Id(instance) == null);
-            id.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.Id(instance) = value;
-                    return instance;
-                });
-            id.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.Id(instance) = value;
-                    return instance;
-                });
-            id.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Id(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Id(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(id, 0),
-                string (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<string>(id, 0));
-            id.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: 0,
-                shadowIndex: -1,
-                relationshipIndex: 0,
-                storeGenerationIndex: -1);
-            id.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-            id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(id));
+        var id = runtimeEntityType.AddProperty(
+            "Id",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            afterSaveBehavior: PropertySaveBehavior.Throw);
+        id.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Id(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Id(instance) == null);
+        id.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.Id(instance) = value;
+                return instance;
+            });
+        id.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.Id(instance) = value;
+                return instance;
+            });
+        id.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Id(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Id(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(id, 0),
+            string (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<string>(id, 0));
+        id.SetPropertyIndexes(
+            index: 0,
+            originalValueIndex: 0,
+            shadowIndex: -1,
+            relationshipIndex: 0,
+            storeGenerationIndex: -1);
+        id.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(id));
 
-            var accessFailedCount = runtimeEntityType.AddProperty(
-                "AccessFailedCount",
-                typeof(int),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("AccessFailedCount", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<AccessFailedCount>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: 0);
-            accessFailedCount.SetGetter(
-                int (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) == 0);
-            accessFailedCount.SetSetter(
-                IdentityUser (IdentityUser instance, int value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) = value;
-                    return instance;
-                });
-            accessFailedCount.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, int value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) = value;
-                    return instance;
-                });
-            accessFailedCount.SetAccessors(
-                int (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(((IdentityUser)(entry.Entity))),
-                int (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(((IdentityUser)(entry.Entity))),
-                int (IInternalEntry entry) => entry.ReadOriginalValue<int>(accessFailedCount, 1),
-                int (IInternalEntry entry) => entry.GetCurrentValue<int>(accessFailedCount));
-            accessFailedCount.SetPropertyIndexes(
-                index: 1,
-                originalValueIndex: 1,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            accessFailedCount.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                providerValueComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                clrType: typeof(int),
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        var accessFailedCount = runtimeEntityType.AddProperty(
+            "AccessFailedCount",
+            typeof(int),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("AccessFailedCount", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<AccessFailedCount>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            sentinel: 0);
+        accessFailedCount.SetGetter(
+            int (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) == 0);
+        accessFailedCount.SetSetter(
+            IdentityUser (IdentityUser instance, int value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) = value;
+                return instance;
+            });
+        accessFailedCount.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, int value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.AccessFailedCount(instance) = value;
+                return instance;
+            });
+        accessFailedCount.SetAccessors(
+            int (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(((IdentityUser)(entry.Entity))),
+            int (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.AccessFailedCount(((IdentityUser)(entry.Entity))),
+            int (IInternalEntry entry) => entry.ReadOriginalValue<int>(accessFailedCount, 1),
+            int (IInternalEntry entry) => entry.GetCurrentValue<int>(accessFailedCount));
+        accessFailedCount.SetPropertyIndexes(
+            index: 1,
+            originalValueIndex: 1,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        accessFailedCount.TypeMapping = InMemoryTypeMapping<int>.Default.Clone(
+            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
 
-            var concurrencyStamp = runtimeEntityType.AddProperty(
-                "ConcurrencyStamp",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("ConcurrencyStamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<ConcurrencyStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            concurrencyStamp.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) == null);
-            concurrencyStamp.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) = value;
-                    return instance;
-                });
-            concurrencyStamp.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) = value;
-                    return instance;
-                });
-            concurrencyStamp.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(concurrencyStamp, 2),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(concurrencyStamp));
-            concurrencyStamp.SetPropertyIndexes(
-                index: 2,
-                originalValueIndex: 2,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            concurrencyStamp.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var concurrencyStamp = runtimeEntityType.AddProperty(
+            "ConcurrencyStamp",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("ConcurrencyStamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<ConcurrencyStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        concurrencyStamp.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) == null);
+        concurrencyStamp.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) = value;
+                return instance;
+            });
+        concurrencyStamp.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(instance) = value;
+                return instance;
+            });
+        concurrencyStamp.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.ConcurrencyStamp(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(concurrencyStamp, 2),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(concurrencyStamp));
+        concurrencyStamp.SetPropertyIndexes(
+            index: 2,
+            originalValueIndex: 2,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        concurrencyStamp.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var discriminator = runtimeEntityType.AddProperty(
-                "Discriminator",
-                typeof(string),
-                afterSaveBehavior: PropertySaveBehavior.Throw,
-                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
-            discriminator.SetAccessors(
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(discriminator, 3),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(discriminator));
-            discriminator.SetPropertyIndexes(
-                index: 3,
-                originalValueIndex: 3,
-                shadowIndex: 0,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            discriminator.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.SetAccessors(
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(discriminator, 3),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(discriminator));
+        discriminator.SetPropertyIndexes(
+            index: 3,
+            originalValueIndex: 3,
+            shadowIndex: 0,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        discriminator.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var email = runtimeEntityType.AddProperty(
-                "Email",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("Email", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<Email>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            email.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Email(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Email(instance) == null);
-            email.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.Email(instance) = value;
-                    return instance;
-                });
-            email.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.Email(instance) = value;
-                    return instance;
-                });
-            email.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Email(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Email(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(email, 4),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(email));
-            email.SetPropertyIndexes(
-                index: 4,
-                originalValueIndex: 4,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            email.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var email = runtimeEntityType.AddProperty(
+            "Email",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("Email", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<Email>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        email.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Email(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.Email(instance) == null);
+        email.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.Email(instance) = value;
+                return instance;
+            });
+        email.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.Email(instance) = value;
+                return instance;
+            });
+        email.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Email(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Email(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(email, 4),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(email));
+        email.SetPropertyIndexes(
+            index: 4,
+            originalValueIndex: 4,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        email.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var emailConfirmed = runtimeEntityType.AddProperty(
-                "EmailConfirmed",
-                typeof(bool),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("EmailConfirmed", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<EmailConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: false);
-            emailConfirmed.SetGetter(
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) == false);
-            emailConfirmed.SetSetter(
-                IdentityUser (IdentityUser instance, bool value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) = value;
-                    return instance;
-                });
-            emailConfirmed.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, bool value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) = value;
-                    return instance;
-                });
-            emailConfirmed.SetAccessors(
-                bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(((IdentityUser)(entry.Entity))),
-                bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(((IdentityUser)(entry.Entity))),
-                bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(emailConfirmed, 5),
-                bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(emailConfirmed));
-            emailConfirmed.SetPropertyIndexes(
-                index: 5,
-                originalValueIndex: 5,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            emailConfirmed.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                keyComparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                providerValueComparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                clrType: typeof(bool),
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+        var emailConfirmed = runtimeEntityType.AddProperty(
+            "EmailConfirmed",
+            typeof(bool),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("EmailConfirmed", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<EmailConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            sentinel: false);
+        emailConfirmed.SetGetter(
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) == false);
+        emailConfirmed.SetSetter(
+            IdentityUser (IdentityUser instance, bool value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) = value;
+                return instance;
+            });
+        emailConfirmed.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, bool value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.EmailConfirmed(instance) = value;
+                return instance;
+            });
+        emailConfirmed.SetAccessors(
+            bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(((IdentityUser)(entry.Entity))),
+            bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.EmailConfirmed(((IdentityUser)(entry.Entity))),
+            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(emailConfirmed, 5),
+            bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(emailConfirmed));
+        emailConfirmed.SetPropertyIndexes(
+            index: 5,
+            originalValueIndex: 5,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        emailConfirmed.TypeMapping = InMemoryTypeMapping<bool>.Default.Clone(
+            jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
 
-            var lockoutEnabled = runtimeEntityType.AddProperty(
-                "LockoutEnabled",
-                typeof(bool),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("LockoutEnabled", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: false);
-            lockoutEnabled.SetGetter(
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) == false);
-            lockoutEnabled.SetSetter(
-                IdentityUser (IdentityUser instance, bool value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) = value;
-                    return instance;
-                });
-            lockoutEnabled.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, bool value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) = value;
-                    return instance;
-                });
-            lockoutEnabled.SetAccessors(
-                bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(((IdentityUser)(entry.Entity))),
-                bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(((IdentityUser)(entry.Entity))),
-                bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(lockoutEnabled, 6),
-                bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(lockoutEnabled));
-            lockoutEnabled.SetPropertyIndexes(
-                index: 6,
-                originalValueIndex: 6,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            lockoutEnabled.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                keyComparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                providerValueComparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                clrType: typeof(bool),
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+        var lockoutEnabled = runtimeEntityType.AddProperty(
+            "LockoutEnabled",
+            typeof(bool),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("LockoutEnabled", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            sentinel: false);
+        lockoutEnabled.SetGetter(
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) == false);
+        lockoutEnabled.SetSetter(
+            IdentityUser (IdentityUser instance, bool value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) = value;
+                return instance;
+            });
+        lockoutEnabled.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, bool value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.LockoutEnabled(instance) = value;
+                return instance;
+            });
+        lockoutEnabled.SetAccessors(
+            bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(((IdentityUser)(entry.Entity))),
+            bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnabled(((IdentityUser)(entry.Entity))),
+            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(lockoutEnabled, 6),
+            bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(lockoutEnabled));
+        lockoutEnabled.SetPropertyIndexes(
+            index: 6,
+            originalValueIndex: 6,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        lockoutEnabled.TypeMapping = InMemoryTypeMapping<bool>.Default.Clone(
+            jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
 
-            var lockoutEnd = runtimeEntityType.AddProperty(
-                "LockoutEnd",
-                typeof(DateTimeOffset?),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("LockoutEnd", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnd>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            lockoutEnd.SetGetter(
-                DateTimeOffset? (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnd(instance),
-                bool (IdentityUser instance) => !(IdentityUserUnsafeAccessors<string>.LockoutEnd(instance).HasValue));
-            lockoutEnd.SetSetter(
-                IdentityUser (IdentityUser instance, DateTimeOffset? value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.LockoutEnd(instance) = value;
-                    return instance;
-                });
-            lockoutEnd.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, DateTimeOffset? value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.LockoutEnd(instance) = value;
-                    return instance;
-                });
-            lockoutEnd.SetAccessors(
-                DateTimeOffset? (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnd(((IdentityUser)(entry.Entity))),
-                DateTimeOffset? (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnd(((IdentityUser)(entry.Entity))),
-                DateTimeOffset? (IInternalEntry entry) => entry.ReadOriginalValue<DateTimeOffset?>(lockoutEnd, 7),
-                DateTimeOffset? (IInternalEntry entry) => entry.GetCurrentValue<DateTimeOffset?>(lockoutEnd));
-            lockoutEnd.SetPropertyIndexes(
-                index: 7,
-                originalValueIndex: 7,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            lockoutEnd.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<DateTimeOffset>(
-                    bool (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
-                    int (DateTimeOffset v) => ((object)v).GetHashCode(),
-                    DateTimeOffset (DateTimeOffset v) => v),
-                keyComparer: new ValueComparer<DateTimeOffset>(
-                    bool (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
-                    int (DateTimeOffset v) => ((object)v).GetHashCode(),
-                    DateTimeOffset (DateTimeOffset v) => v),
-                providerValueComparer: new ValueComparer<DateTimeOffset>(
-                    bool (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
-                    int (DateTimeOffset v) => ((object)v).GetHashCode(),
-                    DateTimeOffset (DateTimeOffset v) => v),
-                clrType: typeof(DateTimeOffset),
-                jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance);
-            lockoutEnd.SetComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.Comparer));
-            lockoutEnd.SetKeyComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.KeyComparer));
+        var lockoutEnd = runtimeEntityType.AddProperty(
+            "LockoutEnd",
+            typeof(DateTimeOffset?),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("LockoutEnd", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnd>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        lockoutEnd.SetGetter(
+            DateTimeOffset? (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.LockoutEnd(instance),
+            bool (IdentityUser instance) => !(IdentityUserUnsafeAccessors<string>.LockoutEnd(instance).HasValue));
+        lockoutEnd.SetSetter(
+            IdentityUser (IdentityUser instance, DateTimeOffset? value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.LockoutEnd(instance) = value;
+                return instance;
+            });
+        lockoutEnd.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, DateTimeOffset? value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.LockoutEnd(instance) = value;
+                return instance;
+            });
+        lockoutEnd.SetAccessors(
+            DateTimeOffset? (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnd(((IdentityUser)(entry.Entity))),
+            DateTimeOffset? (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.LockoutEnd(((IdentityUser)(entry.Entity))),
+            DateTimeOffset? (IInternalEntry entry) => entry.ReadOriginalValue<DateTimeOffset?>(lockoutEnd, 7),
+            DateTimeOffset? (IInternalEntry entry) => entry.GetCurrentValue<DateTimeOffset?>(lockoutEnd));
+        lockoutEnd.SetPropertyIndexes(
+            index: 7,
+            originalValueIndex: 7,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        lockoutEnd.TypeMapping = InMemoryTypeMapping<DateTimeOffset>.Default.Clone(
+            jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance);
+        lockoutEnd.SetComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.Comparer));
 
-            var normalizedEmail = runtimeEntityType.AddProperty(
-                "NormalizedEmail",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("NormalizedEmail", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<NormalizedEmail>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            normalizedEmail.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) == null);
-            normalizedEmail.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) = value;
-                    return instance;
-                });
-            normalizedEmail.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) = value;
-                    return instance;
-                });
-            normalizedEmail.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(normalizedEmail, 8),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(normalizedEmail));
-            normalizedEmail.SetPropertyIndexes(
-                index: 8,
-                originalValueIndex: 8,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            normalizedEmail.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var normalizedEmail = runtimeEntityType.AddProperty(
+            "NormalizedEmail",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("NormalizedEmail", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<NormalizedEmail>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        normalizedEmail.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) == null);
+        normalizedEmail.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) = value;
+                return instance;
+            });
+        normalizedEmail.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.NormalizedEmail(instance) = value;
+                return instance;
+            });
+        normalizedEmail.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedEmail(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(normalizedEmail, 8),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(normalizedEmail));
+        normalizedEmail.SetPropertyIndexes(
+            index: 8,
+            originalValueIndex: 8,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        normalizedEmail.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var normalizedUserName = runtimeEntityType.AddProperty(
-                "NormalizedUserName",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("NormalizedUserName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<NormalizedUserName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            normalizedUserName.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) == null);
-            normalizedUserName.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) = value;
-                    return instance;
-                });
-            normalizedUserName.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) = value;
-                    return instance;
-                });
-            normalizedUserName.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(normalizedUserName, 9),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(normalizedUserName));
-            normalizedUserName.SetPropertyIndexes(
-                index: 9,
-                originalValueIndex: 9,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            normalizedUserName.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var normalizedUserName = runtimeEntityType.AddProperty(
+            "NormalizedUserName",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("NormalizedUserName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<NormalizedUserName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        normalizedUserName.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) == null);
+        normalizedUserName.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) = value;
+                return instance;
+            });
+        normalizedUserName.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.NormalizedUserName(instance) = value;
+                return instance;
+            });
+        normalizedUserName.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.NormalizedUserName(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(normalizedUserName, 9),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(normalizedUserName));
+        normalizedUserName.SetPropertyIndexes(
+            index: 9,
+            originalValueIndex: 9,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        normalizedUserName.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var passwordHash = runtimeEntityType.AddProperty(
-                "PasswordHash",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("PasswordHash", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<PasswordHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            passwordHash.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PasswordHash(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PasswordHash(instance) == null);
-            passwordHash.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.PasswordHash(instance) = value;
-                    return instance;
-                });
-            passwordHash.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.PasswordHash(instance) = value;
-                    return instance;
-                });
-            passwordHash.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PasswordHash(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PasswordHash(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(passwordHash, 10),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(passwordHash));
-            passwordHash.SetPropertyIndexes(
-                index: 10,
-                originalValueIndex: 10,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            passwordHash.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var passwordHash = runtimeEntityType.AddProperty(
+            "PasswordHash",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("PasswordHash", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<PasswordHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        passwordHash.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PasswordHash(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PasswordHash(instance) == null);
+        passwordHash.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.PasswordHash(instance) = value;
+                return instance;
+            });
+        passwordHash.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.PasswordHash(instance) = value;
+                return instance;
+            });
+        passwordHash.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PasswordHash(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PasswordHash(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(passwordHash, 10),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(passwordHash));
+        passwordHash.SetPropertyIndexes(
+            index: 10,
+            originalValueIndex: 10,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        passwordHash.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var phoneNumber = runtimeEntityType.AddProperty(
-                "PhoneNumber",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("PhoneNumber", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumber>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            phoneNumber.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumber(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) == null);
-            phoneNumber.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) = value;
-                    return instance;
-                });
-            phoneNumber.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) = value;
-                    return instance;
-                });
-            phoneNumber.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumber(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumber(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(phoneNumber, 11),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(phoneNumber));
-            phoneNumber.SetPropertyIndexes(
-                index: 11,
-                originalValueIndex: 11,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            phoneNumber.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var phoneNumber = runtimeEntityType.AddProperty(
+            "PhoneNumber",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("PhoneNumber", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumber>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        phoneNumber.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumber(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) == null);
+        phoneNumber.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) = value;
+                return instance;
+            });
+        phoneNumber.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.PhoneNumber(instance) = value;
+                return instance;
+            });
+        phoneNumber.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumber(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumber(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(phoneNumber, 11),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(phoneNumber));
+        phoneNumber.SetPropertyIndexes(
+            index: 11,
+            originalValueIndex: 11,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        phoneNumber.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var phoneNumberConfirmed = runtimeEntityType.AddProperty(
-                "PhoneNumberConfirmed",
-                typeof(bool),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("PhoneNumberConfirmed", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumberConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: false);
-            phoneNumberConfirmed.SetGetter(
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) == false);
-            phoneNumberConfirmed.SetSetter(
-                IdentityUser (IdentityUser instance, bool value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) = value;
-                    return instance;
-                });
-            phoneNumberConfirmed.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, bool value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) = value;
-                    return instance;
-                });
-            phoneNumberConfirmed.SetAccessors(
-                bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(((IdentityUser)(entry.Entity))),
-                bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(((IdentityUser)(entry.Entity))),
-                bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(phoneNumberConfirmed, 12),
-                bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(phoneNumberConfirmed));
-            phoneNumberConfirmed.SetPropertyIndexes(
-                index: 12,
-                originalValueIndex: 12,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            phoneNumberConfirmed.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                keyComparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                providerValueComparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                clrType: typeof(bool),
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+        var phoneNumberConfirmed = runtimeEntityType.AddProperty(
+            "PhoneNumberConfirmed",
+            typeof(bool),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("PhoneNumberConfirmed", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumberConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            sentinel: false);
+        phoneNumberConfirmed.SetGetter(
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) == false);
+        phoneNumberConfirmed.SetSetter(
+            IdentityUser (IdentityUser instance, bool value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) = value;
+                return instance;
+            });
+        phoneNumberConfirmed.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, bool value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(instance) = value;
+                return instance;
+            });
+        phoneNumberConfirmed.SetAccessors(
+            bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(((IdentityUser)(entry.Entity))),
+            bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.PhoneNumberConfirmed(((IdentityUser)(entry.Entity))),
+            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(phoneNumberConfirmed, 12),
+            bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(phoneNumberConfirmed));
+        phoneNumberConfirmed.SetPropertyIndexes(
+            index: 12,
+            originalValueIndex: 12,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        phoneNumberConfirmed.TypeMapping = InMemoryTypeMapping<bool>.Default.Clone(
+            jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
 
-            var securityStamp = runtimeEntityType.AddProperty(
-                "SecurityStamp",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("SecurityStamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<SecurityStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            securityStamp.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.SecurityStamp(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) == null);
-            securityStamp.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) = value;
-                    return instance;
-                });
-            securityStamp.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) = value;
-                    return instance;
-                });
-            securityStamp.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.SecurityStamp(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.SecurityStamp(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(securityStamp, 13),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(securityStamp));
-            securityStamp.SetPropertyIndexes(
-                index: 13,
-                originalValueIndex: 13,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            securityStamp.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var securityStamp = runtimeEntityType.AddProperty(
+            "SecurityStamp",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("SecurityStamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<SecurityStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        securityStamp.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.SecurityStamp(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) == null);
+        securityStamp.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) = value;
+                return instance;
+            });
+        securityStamp.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.SecurityStamp(instance) = value;
+                return instance;
+            });
+        securityStamp.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.SecurityStamp(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.SecurityStamp(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(securityStamp, 13),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(securityStamp));
+        securityStamp.SetPropertyIndexes(
+            index: 13,
+            originalValueIndex: 13,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        securityStamp.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var twoFactorEnabled = runtimeEntityType.AddProperty(
-                "TwoFactorEnabled",
-                typeof(bool),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("TwoFactorEnabled", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<TwoFactorEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: false);
-            twoFactorEnabled.SetGetter(
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) == false);
-            twoFactorEnabled.SetSetter(
-                IdentityUser (IdentityUser instance, bool value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) = value;
-                    return instance;
-                });
-            twoFactorEnabled.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, bool value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) = value;
-                    return instance;
-                });
-            twoFactorEnabled.SetAccessors(
-                bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(((IdentityUser)(entry.Entity))),
-                bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(((IdentityUser)(entry.Entity))),
-                bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(twoFactorEnabled, 14),
-                bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(twoFactorEnabled));
-            twoFactorEnabled.SetPropertyIndexes(
-                index: 14,
-                originalValueIndex: 14,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            twoFactorEnabled.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                keyComparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                providerValueComparer: new ValueComparer<bool>(
-                    bool (bool v1, bool v2) => v1 == v2,
-                    int (bool v) => ((object)v).GetHashCode(),
-                    bool (bool v) => v),
-                clrType: typeof(bool),
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+        var twoFactorEnabled = runtimeEntityType.AddProperty(
+            "TwoFactorEnabled",
+            typeof(bool),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("TwoFactorEnabled", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<TwoFactorEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            sentinel: false);
+        twoFactorEnabled.SetGetter(
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) == false);
+        twoFactorEnabled.SetSetter(
+            IdentityUser (IdentityUser instance, bool value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) = value;
+                return instance;
+            });
+        twoFactorEnabled.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, bool value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(instance) = value;
+                return instance;
+            });
+        twoFactorEnabled.SetAccessors(
+            bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(((IdentityUser)(entry.Entity))),
+            bool (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.TwoFactorEnabled(((IdentityUser)(entry.Entity))),
+            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(twoFactorEnabled, 14),
+            bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(twoFactorEnabled));
+        twoFactorEnabled.SetPropertyIndexes(
+            index: 14,
+            originalValueIndex: 14,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        twoFactorEnabled.TypeMapping = InMemoryTypeMapping<bool>.Default.Clone(
+            jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
 
-            var userName = runtimeEntityType.AddProperty(
-                "UserName",
-                typeof(string),
-                propertyInfo: typeof(IdentityUser<string>).GetProperty("UserName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<UserName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            userName.SetGetter(
-                string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.UserName(instance),
-                bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.UserName(instance) == null);
-            userName.SetSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.UserName(instance) = value;
-                    return instance;
-                });
-            userName.SetMaterializationSetter(
-                IdentityUser (IdentityUser instance, string value) =>
-                {
-                    IdentityUserUnsafeAccessors<string>.UserName(instance) = value;
-                    return instance;
-                });
-            userName.SetAccessors(
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.UserName(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.UserName(((IdentityUser)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(userName, 15),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(userName));
-            userName.SetPropertyIndexes(
-                index: 15,
-                originalValueIndex: 15,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            userName.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var userName = runtimeEntityType.AddProperty(
+            "UserName",
+            typeof(string),
+            propertyInfo: typeof(IdentityUser<string>).GetProperty("UserName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(IdentityUser<string>).GetField("<UserName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        userName.SetGetter(
+            string (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.UserName(instance),
+            bool (IdentityUser instance) => IdentityUserUnsafeAccessors<string>.UserName(instance) == null);
+        userName.SetSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.UserName(instance) = value;
+                return instance;
+            });
+        userName.SetMaterializationSetter(
+            IdentityUser (IdentityUser instance, string value) =>
+            {
+                IdentityUserUnsafeAccessors<string>.UserName(instance) = value;
+                return instance;
+            });
+        userName.SetAccessors(
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.UserName(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.UserName(((IdentityUser)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(userName, 15),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(userName));
+        userName.SetPropertyIndexes(
+            index: 15,
+            originalValueIndex: 15,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        userName.TypeMapping = InMemoryTypeMapping<string>.Default.Clone(
+            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
-            var key = runtimeEntityType.AddKey(
-                new[] { id });
-            runtimeEntityType.SetPrimaryKey(key);
+        var key = runtimeEntityType.AddKey(
+            new[] { id });
+        runtimeEntityType.SetPrimaryKey(key);
 
-            return runtimeEntityType;
-        }
-
-        public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
-        {
-            var id = runtimeEntityType.FindProperty("Id");
-            var accessFailedCount = runtimeEntityType.FindProperty("AccessFailedCount");
-            var concurrencyStamp = runtimeEntityType.FindProperty("ConcurrencyStamp");
-            var discriminator = runtimeEntityType.FindProperty("Discriminator");
-            var email = runtimeEntityType.FindProperty("Email");
-            var emailConfirmed = runtimeEntityType.FindProperty("EmailConfirmed");
-            var lockoutEnabled = runtimeEntityType.FindProperty("LockoutEnabled");
-            var lockoutEnd = runtimeEntityType.FindProperty("LockoutEnd");
-            var normalizedEmail = runtimeEntityType.FindProperty("NormalizedEmail");
-            var normalizedUserName = runtimeEntityType.FindProperty("NormalizedUserName");
-            var passwordHash = runtimeEntityType.FindProperty("PasswordHash");
-            var phoneNumber = runtimeEntityType.FindProperty("PhoneNumber");
-            var phoneNumberConfirmed = runtimeEntityType.FindProperty("PhoneNumberConfirmed");
-            var securityStamp = runtimeEntityType.FindProperty("SecurityStamp");
-            var twoFactorEnabled = runtimeEntityType.FindProperty("TwoFactorEnabled");
-            var userName = runtimeEntityType.FindProperty("UserName");
-            var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<string, int>(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key));
-            runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (IInternalEntry source) =>
-                {
-                    var structuralType = ((IdentityUser)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<string, int, string, string, string, bool, bool, DateTimeOffset?, string, string, string, string, bool, string, bool, string>((source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(id))), ((ValueComparer<int>)(((IProperty)accessFailedCount).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(accessFailedCount)), (source.GetCurrentValue<string>(concurrencyStamp) == null ? null : ((ValueComparer<string>)(((IProperty)concurrencyStamp).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(concurrencyStamp))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), (source.GetCurrentValue<string>(email) == null ? null : ((ValueComparer<string>)(((IProperty)email).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(email))), ((ValueComparer<bool>)(((IProperty)emailConfirmed).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(emailConfirmed)), ((ValueComparer<bool>)(((IProperty)lockoutEnabled).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(lockoutEnabled)), (source.GetCurrentValue<DateTimeOffset?>(lockoutEnd) == null ? null : ((ValueComparer<DateTimeOffset?>)(((IProperty)lockoutEnd).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset?>(lockoutEnd))), (source.GetCurrentValue<string>(normalizedEmail) == null ? null : ((ValueComparer<string>)(((IProperty)normalizedEmail).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(normalizedEmail))), (source.GetCurrentValue<string>(normalizedUserName) == null ? null : ((ValueComparer<string>)(((IProperty)normalizedUserName).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(normalizedUserName))), (source.GetCurrentValue<string>(passwordHash) == null ? null : ((ValueComparer<string>)(((IProperty)passwordHash).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(passwordHash))), (source.GetCurrentValue<string>(phoneNumber) == null ? null : ((ValueComparer<string>)(((IProperty)phoneNumber).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(phoneNumber))), ((ValueComparer<bool>)(((IProperty)phoneNumberConfirmed).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(phoneNumberConfirmed)), (source.GetCurrentValue<string>(securityStamp) == null ? null : ((ValueComparer<string>)(((IProperty)securityStamp).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(securityStamp))), ((ValueComparer<bool>)(((IProperty)twoFactorEnabled).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(twoFactorEnabled)), (source.GetCurrentValue<string>(userName) == null ? null : ((ValueComparer<string>)(((IProperty)userName).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(userName))))));
-                });
-            runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => Snapshot.Empty);
-            runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (IInternalEntry source) => Snapshot.Empty);
-            runtimeEntityType.SetShadowValuesFactory(
-                ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null)))));
-            runtimeEntityType.SetEmptyShadowValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<string>(default(string)))));
-            runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (IInternalEntry source) =>
-                {
-                    var structuralType = ((IdentityUser)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<string>((source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(id))))));
-                });
-            runtimeEntityType.SetCounts(new PropertyCounts(
-                propertyCount: 16,
-                navigationCount: 0,
-                complexPropertyCount: 0,
-                complexCollectionCount: 0,
-                originalValueCount: 16,
-                shadowCount: 1,
-                relationshipCount: 1,
-                storeGeneratedCount: 0));
-
-            Customize(runtimeEntityType);
-        }
-
-        static partial void Customize(RuntimeEntityType runtimeEntityType);
+        return runtimeEntityType;
     }
+
+    public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
+    {
+        var id = runtimeEntityType.FindProperty("Id");
+        var accessFailedCount = runtimeEntityType.FindProperty("AccessFailedCount");
+        var concurrencyStamp = runtimeEntityType.FindProperty("ConcurrencyStamp");
+        var discriminator = runtimeEntityType.FindProperty("Discriminator");
+        var email = runtimeEntityType.FindProperty("Email");
+        var emailConfirmed = runtimeEntityType.FindProperty("EmailConfirmed");
+        var lockoutEnabled = runtimeEntityType.FindProperty("LockoutEnabled");
+        var lockoutEnd = runtimeEntityType.FindProperty("LockoutEnd");
+        var normalizedEmail = runtimeEntityType.FindProperty("NormalizedEmail");
+        var normalizedUserName = runtimeEntityType.FindProperty("NormalizedUserName");
+        var passwordHash = runtimeEntityType.FindProperty("PasswordHash");
+        var phoneNumber = runtimeEntityType.FindProperty("PhoneNumber");
+        var phoneNumberConfirmed = runtimeEntityType.FindProperty("PhoneNumberConfirmed");
+        var securityStamp = runtimeEntityType.FindProperty("SecurityStamp");
+        var twoFactorEnabled = runtimeEntityType.FindProperty("TwoFactorEnabled");
+        var userName = runtimeEntityType.FindProperty("UserName");
+        var key = runtimeEntityType.FindKey(new[] { id });
+        key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<string, int>(key));
+        key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key));
+        runtimeEntityType.SetOriginalValuesFactory(
+            ISnapshot (IInternalEntry source) =>
+            {
+                var structuralType = ((IdentityUser)(source.Entity));
+                return ((ISnapshot)(new Snapshot<string, int, string, string, string, bool, bool, DateTimeOffset?, string, string, string, string, bool, string, bool, string>((source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(id))), ((ValueComparer<int>)(((IProperty)accessFailedCount).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(accessFailedCount)), (source.GetCurrentValue<string>(concurrencyStamp) == null ? null : ((ValueComparer<string>)(((IProperty)concurrencyStamp).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(concurrencyStamp))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), (source.GetCurrentValue<string>(email) == null ? null : ((ValueComparer<string>)(((IProperty)email).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(email))), ((ValueComparer<bool>)(((IProperty)emailConfirmed).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(emailConfirmed)), ((ValueComparer<bool>)(((IProperty)lockoutEnabled).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(lockoutEnabled)), (source.GetCurrentValue<DateTimeOffset?>(lockoutEnd) == null ? null : ((ValueComparer<DateTimeOffset?>)(((IProperty)lockoutEnd).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset?>(lockoutEnd))), (source.GetCurrentValue<string>(normalizedEmail) == null ? null : ((ValueComparer<string>)(((IProperty)normalizedEmail).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(normalizedEmail))), (source.GetCurrentValue<string>(normalizedUserName) == null ? null : ((ValueComparer<string>)(((IProperty)normalizedUserName).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(normalizedUserName))), (source.GetCurrentValue<string>(passwordHash) == null ? null : ((ValueComparer<string>)(((IProperty)passwordHash).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(passwordHash))), (source.GetCurrentValue<string>(phoneNumber) == null ? null : ((ValueComparer<string>)(((IProperty)phoneNumber).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(phoneNumber))), ((ValueComparer<bool>)(((IProperty)phoneNumberConfirmed).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(phoneNumberConfirmed)), (source.GetCurrentValue<string>(securityStamp) == null ? null : ((ValueComparer<string>)(((IProperty)securityStamp).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(securityStamp))), ((ValueComparer<bool>)(((IProperty)twoFactorEnabled).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(twoFactorEnabled)), (source.GetCurrentValue<string>(userName) == null ? null : ((ValueComparer<string>)(((IProperty)userName).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(userName))))));
+            });
+        runtimeEntityType.SetStoreGeneratedValuesFactory(
+            ISnapshot () => Snapshot.Empty);
+        runtimeEntityType.SetTemporaryValuesFactory(
+            ISnapshot (IInternalEntry source) => Snapshot.Empty);
+        runtimeEntityType.SetShadowValuesFactory(
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null)))));
+        runtimeEntityType.SetEmptyShadowValuesFactory(
+            ISnapshot () => ((ISnapshot)(new Snapshot<string>(default(string)))));
+        runtimeEntityType.SetRelationshipSnapshotFactory(
+            ISnapshot (IInternalEntry source) =>
+            {
+                var structuralType = ((IdentityUser)(source.Entity));
+                return ((ISnapshot)(new Snapshot<string>((source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(id))))));
+            });
+        runtimeEntityType.SetCounts(new PropertyCounts(
+            propertyCount: 16,
+            navigationCount: 0,
+            complexPropertyCount: 0,
+            complexCollectionCount: 0,
+            originalValueCount: 16,
+            shadowCount: 1,
+            relationshipCount: 1,
+            storeGeneratedCount: 0));
+
+        Customize(runtimeEntityType);
+    }
+
+    static partial void Customize(RuntimeEntityType runtimeEntityType);
 }

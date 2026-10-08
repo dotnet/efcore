@@ -12,7 +12,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture
     where TFixture : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContextInt, CustomUserInt, CustomRoleInt, int, CustomUserClaimInt,
         CustomUserRoleInt, CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>.AspNetIdentityFixtureBase
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_navigation_properties_on_User()
     {
         var userId = 0;
@@ -192,11 +192,11 @@ public class CustomTypesIdentityContextInt(DbContextOptions options)
 
 public class CustomUserInt : IdentityUser<int>
 {
-    public string CustomTag { get; set; }
-    public virtual ICollection<CustomUserClaimInt> Claims { get; set; }
-    public virtual ICollection<CustomUserLoginInt> Logins { get; set; }
-    public virtual ICollection<CustomUserTokenInt> Tokens { get; set; }
-    public virtual ICollection<CustomUserRoleInt> UserRoles { get; set; }
+    public string? CustomTag { get; set; }
+    public virtual ICollection<CustomUserClaimInt> Claims { get; set; } = null!;
+    public virtual ICollection<CustomUserLoginInt> Logins { get; set; } = null!;
+    public virtual ICollection<CustomUserTokenInt> Tokens { get; set; } = null!;
+    public virtual ICollection<CustomUserRoleInt> UserRoles { get; set; } = null!;
 }
 
 public class CustomRoleInt : IdentityRole<int>;

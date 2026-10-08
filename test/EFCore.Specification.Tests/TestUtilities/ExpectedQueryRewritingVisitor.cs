@@ -19,7 +19,7 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
     private static readonly MethodInfo _maybeScalarNonNullableMethod;
 
     private readonly Dictionary<(Type, string), Func<object, object>> _shadowPropertyMappings =
-        shadowPropertyMappings ?? new Dictionary<(Type, string), Func<object, object>>();
+        shadowPropertyMappings ?? [];
 
     private bool _negated;
 
@@ -69,11 +69,15 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
-            && methodCallExpression.Method.IsGenericMethod
-            && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Join
-                || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin))
+            && methodCallExpression.Method.IsGenericMethod)
         {
-            return RewriteJoinGroupJoin(methodCallExpression);
+            var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+
+            if (genericMethod == QueryableMethods.Join
+                || genericMethod == QueryableMethods.GroupJoin)
+            {
+                return RewriteJoinGroupJoin(methodCallExpression);
+            }
         }
 
         if (methodCallExpression.Method.IsEFPropertyMethod())

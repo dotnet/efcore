@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CustomValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generators()
     {
         using var context = new CustomValueGeneratorContext();
@@ -55,7 +55,7 @@ public class CustomValueGeneratorTest
                 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generator_from_annotated_type()
     {
         using var context = new CustomValueGeneratorContextAnnotateType();
@@ -96,7 +96,7 @@ public class CustomValueGeneratorTest
                 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generator_from_annotated_factory()
     {
         using var context = new CustomValueGeneratorContextAnnotateFactory();
@@ -150,8 +150,8 @@ public class CustomValueGeneratorTest
     {
         public Guid Id { get; set; }
         public Guid SpecialId { get; set; }
-        public string SpecialString { get; set; }
-        public string Name { get; set; }
+        public string SpecialString { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 
     private readonly string[] _names =
@@ -238,18 +238,13 @@ public class CustomValueGeneratorTest
     private class CustomValueGeneratorFactory : ValueGeneratorFactory
     {
         public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
-        {
-            if (property.ClrType == typeof(Guid))
-            {
-                return property["SpecialGuid"] != null
+            => property.ClrType == typeof(Guid)
+                ? property["SpecialGuid"] != null
                     ? new CustomGuidValueGenerator()
-                    : new SequentialGuidValueGenerator();
-            }
-
-            return property.ClrType == typeof(string)
+                    : new SequentialGuidValueGenerator()
+                : property.ClrType == typeof(string)
                 && property.DeclaringType.ClrType == typeof(SomeEntity)
                     ? new SomeEntityStringValueGenerator()
-                    : null;
-        }
+                    : null!;
     }
 }

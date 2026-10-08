@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public static class AdventureWorksSqliteFixture
 {
     private static readonly string _baseDirectory
-        = Path.GetDirectoryName(typeof(AdventureWorksSqliteFixture).Assembly.Location);
+        = Path.GetDirectoryName(typeof(AdventureWorksSqliteFixture).Assembly.Location)!;
 
     public static string ConnectionString { get; } = $"Data Source={Path.Combine(_baseDirectory, "AdventureWorks2014.db")}";
 

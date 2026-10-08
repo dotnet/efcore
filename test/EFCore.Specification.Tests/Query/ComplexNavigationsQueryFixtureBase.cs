@@ -5,20 +5,15 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBase<ComplexNavigationsContext>, IQueryFixtureBase
+public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<ComplexNavigationsContext>
 {
     protected override string StoreName
         => "ComplexNavigations";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => ComplexNavigationsDefaultData.Instance;
 
-    public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
+    public virtual Dictionary<(Type, string), Func<object, object?>> GetShadowPropertyMappings()
     {
         var l1s = GetExpectedData().Set<Level1>().ToList();
         var l2s = GetExpectedData().Set<Level2>().ToList();
@@ -30,7 +25,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
         var il1s = GetExpectedData().Set<InheritanceLeaf1>().ToList();
         var il2s = GetExpectedData().Set<InheritanceLeaf2>().ToList();
 
-        return new Dictionary<(Type, string), Func<object, object>>
+        return new Dictionary<(Type, string), Func<object, object?>>
         {
             {
                 (typeof(Level1), "OneToOne_Optional_Self1Id"),
@@ -120,62 +115,28 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
             { (typeof(InheritanceBase1), "InheritanceBase2Id1"), e => ((InheritanceBase1)e)?.Id == 1 ? null : 1 },
             { (typeof(InheritanceBase2), "InheritanceLeaf2Id"), e => ((InheritanceBase2)e)?.Id == 1 ? 1 : null },
             {
-                (typeof(InheritanceLeaf1), "DifferentTypeReference_InheritanceDerived1Id"), e =>
+                (typeof(InheritanceLeaf1), "DifferentTypeReference_InheritanceDerived1Id"), e => (((InheritanceLeaf1)e)?.Id)switch
                 {
-                    switch (((InheritanceLeaf1)e)?.Id)
-                    {
-                        case 1:
-                            return 1;
-                        case 2:
-                            return 2;
-                        default:
-                            return null;
-                    }
+                    1 => 1, 2 => 2, _ => null,
                 }
             },
             {
-                (typeof(InheritanceLeaf1), "InheritanceDerived1Id"), e =>
+                (typeof(InheritanceLeaf1), "InheritanceDerived1Id"), e => (((InheritanceLeaf1)e)?.Id)switch
                 {
-                    switch (((InheritanceLeaf1)e)?.Id)
-                    {
-                        case 1:
-                            return 1;
-                        case 2:
-                            return 2;
-                        case 3:
-                            return 2;
-                        default:
-                            return null;
-                    }
+                    1 => 1, 2 => 2, 3 => 2, _ => null,
                 }
             },
             { (typeof(InheritanceLeaf1), "InheritanceDerived1Id1"), e => ((InheritanceLeaf1)e)?.Id == 1 ? 1 : null },
             {
-                (typeof(InheritanceLeaf1), "InheritanceDerived2Id"), e =>
+                (typeof(InheritanceLeaf1), "InheritanceDerived2Id"), e => (((InheritanceLeaf1)e)?.Id)switch
                 {
-                    switch (((InheritanceLeaf1)e)?.Id)
-                    {
-                        case 2:
-                            return 3;
-                        case 3:
-                            return 3;
-                        default:
-                            return null;
-                    }
+                    2 => 3, 3 => 3, _ => null,
                 }
             },
             {
-                (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived1Id"), e =>
+                (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived1Id"), e => (((InheritanceLeaf1)e)?.Id)switch
                 {
-                    switch (((InheritanceLeaf1)e)?.Id)
-                    {
-                        case 1:
-                            return 1;
-                        case 2:
-                            return 2;
-                        default:
-                            return null;
-                    }
+                    1 => 1, 2 => 2, _ => null,
                 }
             },
             { (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived2Id"), e => ((InheritanceLeaf1)e)?.Id == 3 ? 3 : null },
@@ -184,21 +145,21 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
         };
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
     {
-        { typeof(Level1), e => ((Level1)e)?.Id },
-        { typeof(Level2), e => ((Level2)e)?.Id },
-        { typeof(Level3), e => ((Level3)e)?.Id },
-        { typeof(Level4), e => ((Level4)e)?.Id },
-        { typeof(InheritanceBase1), e => ((InheritanceBase1)e)?.Id },
-        { typeof(InheritanceBase2), e => ((InheritanceBase2)e)?.Id },
-        { typeof(InheritanceDerived1), e => ((InheritanceDerived1)e)?.Id },
-        { typeof(InheritanceDerived2), e => ((InheritanceDerived2)e)?.Id },
-        { typeof(InheritanceLeaf1), e => ((InheritanceLeaf1)e)?.Id },
-        { typeof(InheritanceLeaf2), e => ((InheritanceLeaf2)e)?.Id }
+        { typeof(Level1), e => ((Level1?)e)?.Id },
+        { typeof(Level2), e => ((Level2?)e)?.Id },
+        { typeof(Level3), e => ((Level3?)e)?.Id },
+        { typeof(Level4), e => ((Level4?)e)?.Id },
+        { typeof(InheritanceBase1), e => ((InheritanceBase1?)e)?.Id },
+        { typeof(InheritanceBase2), e => ((InheritanceBase2?)e)?.Id },
+        { typeof(InheritanceDerived1), e => ((InheritanceDerived1?)e)?.Id },
+        { typeof(InheritanceDerived2), e => ((InheritanceDerived2?)e)?.Id },
+        { typeof(InheritanceLeaf1), e => ((InheritanceLeaf1?)e)?.Id },
+        { typeof(InheritanceLeaf2), e => ((InheritanceLeaf2?)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(Level1), (e, a) =>
@@ -207,7 +168,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (Level1)e;
+                    var ee = (Level1)e!;
                     var aa = (Level1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -223,7 +184,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (Level2)e;
+                    var ee = (Level2)e!;
                     var aa = (Level2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -241,7 +202,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (Level3)e;
+                    var ee = (Level3)e!;
                     var aa = (Level3)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -258,7 +219,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (Level4)e;
+                    var ee = (Level4)e!;
                     var aa = (Level4)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -275,7 +236,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (InheritanceBase1)e;
+                    var ee = (InheritanceBase1)e!;
                     var aa = (InheritanceBase1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -290,7 +251,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (InheritanceBase2)e;
+                    var ee = (InheritanceBase2)e!;
                     var aa = (InheritanceBase2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -305,7 +266,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (InheritanceDerived1)e;
+                    var ee = (InheritanceDerived1)e!;
                     var aa = (InheritanceDerived1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -320,7 +281,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (InheritanceDerived2)e;
+                    var ee = (InheritanceDerived2)e!;
                     var aa = (InheritanceDerived2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -335,7 +296,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (InheritanceLeaf1)e;
+                    var ee = (InheritanceLeaf1)e!;
                     var aa = (InheritanceLeaf1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -350,7 +311,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (InheritanceLeaf2)e;
+                    var ee = (InheritanceLeaf2)e!;
                     var aa = (InheritanceLeaf2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -525,17 +486,11 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
                 return (IQueryable<TEntity>)InheritanceBaseTwos.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(InheritanceLeaf1))
-            {
-                return (IQueryable<TEntity>)InheritanceLeafOnes.AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(InheritanceLeaf2))
-            {
-                return (IQueryable<TEntity>)InheritanceLeafTwos.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(InheritanceLeaf1)
+                ? (IQueryable<TEntity>)InheritanceLeafOnes.AsQueryable()
+                : typeof(TEntity) == typeof(InheritanceLeaf2)
+                    ? (IQueryable<TEntity>)InheritanceLeafTwos.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
     }
 }

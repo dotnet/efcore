@@ -6,14 +6,13 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
-{
-    public static class LazyProxiesEntity1UnsafeAccessors
-    {
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int Id(CompiledModelInMemoryTest.LazyProxiesEntity1 @this);
+namespace TestNamespace;
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ReferenceNavigation>k__BackingField")]
-        public static extern ref CompiledModelInMemoryTest.LazyProxiesEntity2 ReferenceNavigation(CompiledModelInMemoryTest.LazyProxiesEntity1 @this);
-    }
+public static class LazyProxiesEntity1UnsafeAccessors
+{
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+    public static extern ref int Id(CompiledModelInMemoryTest.LazyProxiesEntity1 @this);
+
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ReferenceNavigation>k__BackingField")]
+    public static extern ref CompiledModelInMemoryTest.LazyProxiesEntity2 ReferenceNavigation(CompiledModelInMemoryTest.LazyProxiesEntity1 @this);
 }

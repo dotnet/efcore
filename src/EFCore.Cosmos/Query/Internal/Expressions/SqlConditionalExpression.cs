@@ -96,8 +96,8 @@ public class SqlConditionalExpression(
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlConditionalExpression sqlConditionalExpression
-                && Equals(sqlConditionalExpression));
+                || (obj is SqlConditionalExpression sqlConditionalExpression
+                    && Equals(sqlConditionalExpression)));
 
     private bool Equals(SqlConditionalExpression sqlConditionalExpression)
         => base.Equals(sqlConditionalExpression)

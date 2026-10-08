@@ -8,25 +8,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class CSharpDbContextGeneratorTest : ModelCodeGeneratorTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Generates_context_with_UseHierarchyId()
         => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Entity(
-                    "Patriarch",
-                    b =>
-                    {
-                        b.Property<HierarchyId>("Id");
-                        b.HasKey("Id");
-                        b.Property<string>("Name");
-                    });
-            },
+            modelBuilder => modelBuilder.Entity(
+                "Patriarch",
+                b =>
+                {
+                    b.Property<HierarchyId>("Id");
+                    b.HasKey("Id");
+                    b.Property<string>("Name");
+                }),
             new ModelCodeGenerationOptions { UseDataAnnotations = false },
-            code =>
-            {
-                AssertFileContents(
-                    @"using System;
+            code => AssertFileContents(
+                @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,6 +52,5 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
-                    code.ContextFile);
-            });
+                code.ContextFile));
 }

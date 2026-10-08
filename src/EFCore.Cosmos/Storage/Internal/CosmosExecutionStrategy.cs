@@ -3,6 +3,7 @@
 
 using System.Globalization;
 using System.Net;
+using Azure;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -98,12 +99,16 @@ public class CosmosExecutionStrategy : ExecutionStrategy
         {
             CosmosException cosmosException => IsTransient(cosmosException.StatusCode),
             HttpException httpException => IsTransient(httpException.Response.StatusCode),
-            WebException webException => IsTransient(((HttpWebResponse)webException.Response!).StatusCode),
+            WebException webException => IsTransient((webException.Response as HttpWebResponse)?.StatusCode),
+            RequestFailedException requestFailed => IsTransient((HttpStatusCode)requestFailed.Status),
             _ => false
         };
 
-        static bool IsTransient(HttpStatusCode statusCode)
-            => statusCode is HttpStatusCode.ServiceUnavailable or HttpStatusCode.TooManyRequests or HttpStatusCode.RequestTimeout
+        static bool IsTransient(HttpStatusCode? statusCode)
+            => statusCode is null
+                or HttpStatusCode.ServiceUnavailable
+                or HttpStatusCode.TooManyRequests
+                or HttpStatusCode.RequestTimeout
                 or HttpStatusCode.Gone;
     }
 
@@ -131,19 +136,13 @@ public class CosmosExecutionStrategy : ExecutionStrategy
 
             case HttpException httpException:
             {
-                if (httpException.Response.Headers.TryGetValues("x-ms-retry-after-ms", out var values)
-                    && TryParseMsRetryAfter(values.FirstOrDefault(), out var delay))
-                {
-                    return delay;
-                }
-
-                if (httpException.Response.Headers.TryGetValues("Retry-After", out values)
-                    && TryParseRetryAfter(values.FirstOrDefault(), out delay))
-                {
-                    return delay;
-                }
-
-                return null;
+                return httpException.Response.Headers.TryGetValues("x-ms-retry-after-ms", out var values)
+                    && TryParseMsRetryAfter(values.FirstOrDefault(), out var delay)
+                        ? delay
+                        : httpException.Response.Headers.TryGetValues("Retry-After", out values)
+                        && TryParseRetryAfter(values.FirstOrDefault(), out delay)
+                            ? delay
+                            : null;
             }
 
             case WebException webException:
@@ -157,12 +156,7 @@ public class CosmosExecutionStrategy : ExecutionStrategy
                 }
 
                 delayString = response.Headers.GetValues("Retry-After")?.FirstOrDefault();
-                if (TryParseRetryAfter(delayString, out delay))
-                {
-                    return delay;
-                }
-
-                return null;
+                return TryParseRetryAfter(delayString, out delay) ? delay : null;
             }
 
             default:

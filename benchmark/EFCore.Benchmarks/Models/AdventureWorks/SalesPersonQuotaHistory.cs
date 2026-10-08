@@ -15,5 +15,5 @@ public class SalesPersonQuotaHistory
 #pragma warning restore IDE1006 // Naming Styles
     public decimal SalesQuota { get; set; }
 
-    public virtual SalesPerson BusinessEntity { get; set; }
+    public virtual SalesPerson BusinessEntity { get; set; } = null!;
 }

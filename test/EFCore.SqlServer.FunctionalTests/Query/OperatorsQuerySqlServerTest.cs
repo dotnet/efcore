@@ -1,15 +1,13 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OperatorsQuerySqlServerTest(NonSharedFixture fixture) : OperatorsQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     protected void AssertSql(params string[] expected)
@@ -153,11 +151,12 @@ WHERE N'Foo' + JSON_VALUE([o].[Owned], '$.SomeProperty') = N'FooBar'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetimeoffset_constant(bool async)
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e in ExpectedData.OperatorEntitiesDateTimeOffset
                         where e.Value.UtcDateTime == new DateTimeOffset(2000, 1, 1, 18, 0, 0, TimeSpan.Zero)
@@ -181,11 +180,12 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = '2000-01-01T18:00:00.0000000+00:00'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetimeoffset_parameter(bool async)
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var dateTime = new DateTimeOffset(2000, 1, 1, 18, 0, 0, TimeSpan.Zero);
         var timeZone = "UTC";
@@ -215,11 +215,12 @@ WHERE [o].[Value] AT TIME ZONE @timeZone = @dateTime
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetimeoffset_column(bool async)
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e1 in ExpectedData.OperatorEntitiesDateTimeOffset
                         from e2 in ExpectedData.OperatorEntitiesDateTimeOffset
@@ -247,11 +248,12 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported)),
+     MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_is_null(bool async)
     {
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateDbContext();
 
         var expected = (from e in ExpectedData.OperatorEntitiesNullableDateTimeOffset
                         where e.Value == null
@@ -259,7 +261,7 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
 
         var actual = (from e in context.Set<OperatorEntityNullableDateTimeOffset>()
 #pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                      where EF.Functions.AtTimeZone(e.Value.Value, "UTC") == null
+                    where EF.Functions.AtTimeZone(e.Value!.Value, "UTC") == null
 #pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
                       select e.Id).ToList();
 

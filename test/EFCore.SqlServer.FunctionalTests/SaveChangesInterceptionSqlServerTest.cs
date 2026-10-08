@@ -1,17 +1,15 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SaveChangesInterceptionSqlServerTestBase(
     SaveChangesInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
     : SaveChangesInterceptionTestBase(fixture)
 {
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Intercept_concurrency_with_relational_specific_data(bool async, bool inject, bool noAcceptChanges)
@@ -30,7 +28,7 @@ public abstract class SaveChangesInterceptionSqlServerTestBase(
 
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
 
-        Exception thrown = null;
+        Exception? thrown = null;
 
         try
         {
@@ -67,9 +65,9 @@ public abstract class SaveChangesInterceptionSqlServerTestBase(
 
     protected class RelationalConcurrencySaveChangesInterceptor : SaveChangesInterceptorBase
     {
-        public DbConnection Connection { get; set; }
-        public DbCommand Command { get; set; }
-        public DbDataReader DataReader { get; set; }
+        public DbConnection Connection { get; set; } = null!;
+        public DbCommand Command { get; set; } = null!;
+        public DbDataReader DataReader { get; set; } = null!;
         public Guid CommandId { get; set; }
         public Guid ConnectionId { get; set; }
 
@@ -106,9 +104,9 @@ public abstract class SaveChangesInterceptionSqlServerTestBase(
 
     protected class TestCommandInterceptor : IDbCommandInterceptor
     {
-        public DbConnection Connection { get; set; }
-        public DbCommand Command { get; set; }
-        public DbDataReader DataReader { get; set; }
+        public DbConnection Connection { get; set; } = null!;
+        public DbCommand Command { get; set; } = null!;
+        public DbDataReader DataReader { get; set; } = null!;
         public Guid CommandId { get; set; }
         public Guid ConnectionId { get; set; }
 
@@ -137,7 +135,7 @@ public abstract class SaveChangesInterceptionSqlServerTestBase(
         {
             DataReader = result;
             Command = command;
-            Connection = command.Connection;
+            Connection = command.Connection!;
             ConnectionId = eventData.ConnectionId;
             CommandId = eventData.CommandId;
         }

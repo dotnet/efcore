@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO;
 
-#nullable disable
-
 public class SearchResult
 {
     public SearchResultType Type { get; set; }
 
-    public SessionResponse Session { get; set; }
+    public SessionResponse Session { get; set; } = null!;
 
-    public SpeakerResponse Speaker { get; set; }
+    public SpeakerResponse Speaker { get; set; } = null!;
 }

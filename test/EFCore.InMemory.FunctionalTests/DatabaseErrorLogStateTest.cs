@@ -11,11 +11,11 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DatabaseErrorLogStateTest
 {
-    [ConditionalFact]
+    [Fact]
     public Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
         => SaveChanges_logs_DatabaseErrorLogState_test(async: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task SaveChanges_logs_DatabaseErrorLogState_async()
         => SaveChanges_logs_DatabaseErrorLogState_test(async: true);
 
@@ -33,49 +33,42 @@ public class DatabaseErrorLogStateTest
         context.SaveChanges();
         context.ChangeTracker.Entries().Single().State = EntityState.Added;
 
-        Exception ex;
-        if (async)
-        {
-            ex = await Assert.ThrowsAsync<ArgumentException>(() => context.SaveChangesAsync());
-        }
-        else
-        {
-            ex = Assert.Throws<ArgumentException>(() => context.SaveChanges());
-        }
-
+        var ex = async
+            ? await Assert.ThrowsAsync<ArgumentException>(() => context.SaveChangesAsync())
+            : (Exception)Assert.Throws<ArgumentException>(() => context.SaveChanges());
         Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
         Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
         Assert.EndsWith(
             ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration()
         => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToList());
 
-    [ConditionalFact]
+    [Fact]
     public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration_async()
         => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToListAsync());
 
-    [ConditionalFact]
+    [Fact]
     public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration()
         => Query_logs_DatabaseErrorLogState_test(c => c.Blogs
             .OrderBy(b => b.Name)
             .Where(b => b.Url.StartsWith("http://"))
             .ToList());
 
-    [ConditionalFact]
+    [Fact]
     public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration_async()
         => Query_logs_DatabaseErrorLogState_test(c => c.Blogs
             .OrderBy(b => b.Name)
             .Where(b => b.Url.StartsWith("http://"))
             .ToListAsync());
 
-    [ConditionalFact]
+    [Fact]
     public Task Query_logs_DatabaseErrorLogState_during_single()
         => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefault());
 
-    [ConditionalFact]
+    [Fact]
     public Task Query_logs_DatabaseErrorLogState_during_single_async()
         => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefaultAsync());
 
@@ -118,7 +111,7 @@ public class DatabaseErrorLogStateTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         public class Blog
         {
@@ -135,8 +128,8 @@ public class DatabaseErrorLogStateTest
                 }
             }
 
-            public string Url { get; set; }
-            public string Name { get; set; }
+            public string Url { get; set; } = null!;
+            public string? Name { get; set; }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -165,21 +158,22 @@ public class DatabaseErrorLogStateTest
 
         public class TestLogger : ILogger
         {
-            public IDisposable BeginScope<TState>(TState state)
+            public IDisposable? BeginScope<TState>(TState state)
+                where TState : notnull
                 => NullScope.Instance;
 
             public void Log<TState>(
                 LogLevel logLevel,
                 EventId eventId,
                 TState state,
-                Exception exception,
-                Func<TState, Exception, string> formatter)
+                Exception? exception,
+                Func<TState, Exception?, string> formatter)
             {
                 if (eventId.Id == CoreEventId.SaveChangesFailed.Id
                     || eventId.Id == CoreEventId.QueryIterationFailed.Id)
                 {
-                    LastDatabaseErrorState = (IReadOnlyList<KeyValuePair<string, object>>)state;
-                    LastDatabaseErrorException = exception;
+                    LastDatabaseErrorState = (IReadOnlyList<KeyValuePair<string, object>>)(object)state!;
+                    LastDatabaseErrorException = exception!;
                     LastDatabaseErrorFormatter = (s, e) => formatter((TState)s, e);
                 }
             }
@@ -187,9 +181,9 @@ public class DatabaseErrorLogStateTest
             public bool IsEnabled(LogLevel logLevel)
                 => true;
 
-            public IReadOnlyList<KeyValuePair<string, object>> LastDatabaseErrorState { get; private set; }
-            public Exception LastDatabaseErrorException { get; private set; }
-            public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; }
+            public IReadOnlyList<KeyValuePair<string, object>> LastDatabaseErrorState { get; private set; } = null!;
+            public Exception LastDatabaseErrorException { get; private set; } = null!;
+            public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; } = null!;
 
             private class NullScope : IDisposable
             {

@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class CommandInterceptionSqlServerTestBase(CommandInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
     : CommandInterceptionTestBase(fixture)
 {
@@ -19,7 +17,7 @@ SELECT [s].[Id], [s].[Type] FROM [Singularity] AS [s]
 """,
             await base.Intercept_query_passively(async, inject));
 
-        return null;
+        return null!;
     }
 
     protected override async Task<string> QueryMutationTest<TInterceptor>(bool async, bool inject)
@@ -30,7 +28,7 @@ SELECT [s].[Id], [s].[Type] FROM [Brane] AS [s]
 """,
             await base.QueryMutationTest<TInterceptor>(async, inject));
 
-        return null;
+        return null!;
     }
 
     public override async Task<string> Intercept_query_to_replace_execution(bool async, bool inject)
@@ -41,11 +39,11 @@ SELECT [s].[Id], [s].[Type] FROM [Singularity] AS [s]
 """,
             await base.Intercept_query_to_replace_execution(async, inject));
 
-        return null;
+        return null!;
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
-    public virtual async Task<string> Intercept_query_to_get_statistics(bool async, bool inject) // Issue #23535
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Intercept_query_to_get_statistics(bool async, bool inject) // Issue #23535
     {
         var (context, interceptor) = await CreateContextAsync<StatisticsCommandInterceptor>(inject);
         using (context)
@@ -94,8 +92,6 @@ SELECT [s].[Id], [s].[Type] FROM [Singularity] AS [s]
                 }
             }
         }
-
-        return interceptor.CommandText;
     }
 
     protected class StatisticsCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)

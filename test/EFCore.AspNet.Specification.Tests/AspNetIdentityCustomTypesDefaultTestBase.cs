@@ -13,7 +13,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
         CustomUserClaimString, CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>.
     AspNetIdentityFixtureBase
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_User_navigations()
     {
         var userId = "";
@@ -36,13 +36,10 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_Role_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var role = await context.Roles.OrderBy(e => e.NormalizedName).FirstAsync();
@@ -51,7 +48,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                 Assert.Equal(1, role.UserRoles.Count);
             });
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_User_navigations_many_to_many()
     {
         var userId = "";
@@ -71,13 +68,10 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_Role_navigations_many_to_many()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var role = await context.Roles.OrderBy(e => e.NormalizedName).FirstAsync();
@@ -85,13 +79,10 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                 Assert.Equal(1, role.Users.Count);
             });
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_UserRole_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var userRole = await context.UserRoles.OrderBy(e => e.Role.Name).FirstAsync();
@@ -100,52 +91,40 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
                 Assert.NotNull(userRole.User);
             });
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_UserClaim_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var userClaim = await context.UserClaims.OrderBy(e => e.ClaimType).ThenBy(e => e.ClaimValue).FirstAsync();
                 Assert.NotNull(userClaim.User);
             });
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_UserLogin_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var userLogin = await context.UserLogins.OrderBy(e => e.LoginProvider).FirstAsync();
                 Assert.NotNull(userLogin.User);
             });
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_RoleClaim_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var roleClaim = await context.RoleClaims.OrderBy(e => e.Role.Name).FirstAsync();
                 Assert.NotNull(roleClaim.Role);
             });
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_lazy_load_UserToken_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var userToken = await context.UserTokens.OrderBy(e => e.Name).FirstAsync();
@@ -366,15 +345,9 @@ public class CustomTypesIdentityContext(DbContextOptions options)
             b.ToTable("MyRoles");
         });
 
-        modelBuilder.Entity<CustomUserClaimString>(b =>
-        {
-            b.ToTable("MyUserClaims");
-        });
+        modelBuilder.Entity<CustomUserClaimString>(b => b.ToTable("MyUserClaims"));
 
-        modelBuilder.Entity<CustomUserLoginString>(b =>
-        {
-            b.ToTable("MyUserLogins");
-        });
+        modelBuilder.Entity<CustomUserLoginString>(b => b.ToTable("MyUserLogins"));
 
         modelBuilder.Entity<CustomUserTokenString>(b =>
         {
@@ -383,15 +356,9 @@ public class CustomTypesIdentityContext(DbContextOptions options)
             b.ToTable("MyUserTokens");
         });
 
-        modelBuilder.Entity<CustomRoleClaimString>(b =>
-        {
-            b.ToTable("MyRoleClaims");
-        });
+        modelBuilder.Entity<CustomRoleClaimString>(b => b.ToTable("MyRoleClaims"));
 
-        modelBuilder.Entity<CustomUserRoleString>(b =>
-        {
-            b.ToTable("MyUserRoles");
-        });
+        modelBuilder.Entity<CustomUserRoleString>(b => b.ToTable("MyUserRoles"));
     }
 }
 
@@ -400,14 +367,14 @@ public class CustomUserString : IdentityUser<string>
     public CustomUserString()
         => Id = Guid.NewGuid().ToString();
 
-    public string CustomTag { get; set; }
+    public string? CustomTag { get; set; }
 
-    public virtual ICollection<CustomRoleString> Roles { get; set; }
+    public virtual ICollection<CustomRoleString> Roles { get; set; } = null!;
 
-    public virtual ICollection<CustomUserClaimString> Claims { get; set; }
-    public virtual ICollection<CustomUserLoginString> Logins { get; set; }
-    public virtual ICollection<CustomUserTokenString> Tokens { get; set; }
-    public virtual ICollection<CustomUserRoleString> UserRoles { get; set; }
+    public virtual ICollection<CustomUserClaimString> Claims { get; set; } = null!;
+    public virtual ICollection<CustomUserLoginString> Logins { get; set; } = null!;
+    public virtual ICollection<CustomUserTokenString> Tokens { get; set; } = null!;
+    public virtual ICollection<CustomUserRoleString> UserRoles { get; set; } = null!;
 }
 
 public class CustomRoleString : IdentityRole<string>
@@ -415,34 +382,34 @@ public class CustomRoleString : IdentityRole<string>
     public CustomRoleString()
         => Id = Guid.NewGuid().ToString();
 
-    public virtual ICollection<CustomUserString> Users { get; set; }
+    public virtual ICollection<CustomUserString> Users { get; set; } = null!;
 
-    public virtual ICollection<CustomUserRoleString> UserRoles { get; set; }
-    public virtual ICollection<CustomRoleClaimString> RoleClaims { get; set; }
+    public virtual ICollection<CustomUserRoleString> UserRoles { get; set; } = null!;
+    public virtual ICollection<CustomRoleClaimString> RoleClaims { get; set; } = null!;
 }
 
 public class CustomUserRoleString : IdentityUserRole<string>
 {
-    public virtual CustomUserString User { get; set; }
-    public virtual CustomRoleString Role { get; set; }
+    public virtual CustomUserString User { get; set; } = null!;
+    public virtual CustomRoleString Role { get; set; } = null!;
 }
 
 public class CustomUserClaimString : IdentityUserClaim<string>
 {
-    public virtual CustomUserString User { get; set; }
+    public virtual CustomUserString User { get; set; } = null!;
 }
 
 public class CustomUserLoginString : IdentityUserLogin<string>
 {
-    public virtual CustomUserString User { get; set; }
+    public virtual CustomUserString User { get; set; } = null!;
 }
 
 public class CustomRoleClaimString : IdentityRoleClaim<string>
 {
-    public virtual CustomRoleString Role { get; set; }
+    public virtual CustomRoleString Role { get; set; } = null!;
 }
 
 public class CustomUserTokenString : IdentityUserToken<string>
 {
-    public virtual CustomUserString User { get; set; }
+    public virtual CustomUserString User { get; set; } = null!;
 }

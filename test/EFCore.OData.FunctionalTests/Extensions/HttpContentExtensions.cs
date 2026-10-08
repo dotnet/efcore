@@ -11,6 +11,6 @@ public static class HttpContentExtensions
     {
         var json = await content.ReadAsStringAsync();
 
-        return JsonConvert.DeserializeObject<T>(json);
+        return JsonConvert.DeserializeObject<T>(json)!;
     }
 }

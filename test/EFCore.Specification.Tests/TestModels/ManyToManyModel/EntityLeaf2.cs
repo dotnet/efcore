@@ -3,10 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class EntityLeaf2 : EntityBranch2
 {
     public virtual bool? IsBrown { get; set; }
-    public virtual ICollection<EntityBranch2> Branch2SkipShared { get; set; }
+    public virtual ICollection<EntityBranch2> Branch2SkipShared { get; set; } = null!;
 }

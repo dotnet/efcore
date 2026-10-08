@@ -91,7 +91,7 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
         codeOptions.ConnectionString ??= connectionString;
 
         var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
-        var modelConnectionString = (string?)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);
+        var modelConnectionString = (string?)databaseModel[ScaffoldingAnnotationNames.ConnectionString];
         if (!string.IsNullOrEmpty(modelConnectionString))
         {
             codeOptions.ConnectionString = modelConnectionString;
@@ -135,13 +135,13 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
 
         var contextPath = Path.GetFullPath(Path.Combine(outputDir, scaffoldedModel.ContextFile.Path));
         Directory.CreateDirectory(Path.GetDirectoryName(contextPath)!);
-        File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, Encoding.UTF8);
+        File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 
         var additionalFiles = new List<string>();
         foreach (var entityTypeFile in scaffoldedModel.AdditionalFiles)
         {
             var additionalFilePath = Path.Combine(outputDir, entityTypeFile.Path);
-            File.WriteAllText(additionalFilePath, entityTypeFile.Code, Encoding.UTF8);
+            File.WriteAllText(additionalFilePath, entityTypeFile.Code, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             additionalFiles.Add(additionalFilePath);
         }
 

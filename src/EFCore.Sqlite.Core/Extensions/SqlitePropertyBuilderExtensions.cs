@@ -47,7 +47,7 @@ public static class SqlitePropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder<TProperty> UseAutoincrement<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder)
-        => (PropertyBuilder<TProperty>)UseAutoincrement((PropertyBuilder)propertyBuilder);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseAutoincrement();
 
     /// <summary>
     ///     Configures the property to use SQLite AUTOINCREMENT feature to generate values for new entities,
@@ -136,7 +136,7 @@ public static class SqlitePropertyBuilderExtensions
     public static PropertyBuilder<TProperty> HasSrid<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         int srid)
-        => (PropertyBuilder<TProperty>)HasSrid((PropertyBuilder)propertyBuilder, srid);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasSrid(srid);
 
     /// <summary>
     ///     Configures the SRID of the column that the property maps to when targeting SQLite.

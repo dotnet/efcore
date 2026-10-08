@@ -5,7 +5,7 @@ description: 'Create EF Core PRs targeting servicing release branches (release/*
 
 # Servicing PRs
 
-PRs targeting `release/*` branches require a specific description format and should include a quirk (AppContext switch) when applicable.
+PRs targeting `release/*` branches require a specific description format and should include a quirk (AppContext switch) when applicable. When updating progress on a servicing PR, ensure that the description still follows the template.
 
 ## Backport Target Branch
 

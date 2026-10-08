@@ -30,21 +30,18 @@ public class SqlServerTimeSpanMemberTranslator(
     {
         var declaringType = member.DeclaringType;
 
-        if (declaringType != typeof(TimeSpan))
-        {
-            return null;
-        }
-
-        return member.Name switch
-        {
-            nameof(TimeSpan.Hours) => DatePart("hour"),
-            nameof(TimeSpan.Minutes) => DatePart("minute"),
-            nameof(TimeSpan.Seconds) => DatePart("second"),
-            nameof(TimeSpan.Milliseconds) => DatePart("millisecond"),
-            nameof(TimeSpan.Microseconds) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
-            nameof(TimeSpan.Nanoseconds) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
-            _ => null,
-        };
+        return declaringType != typeof(TimeSpan)
+            ? null
+            : member.Name switch
+            {
+                nameof(TimeSpan.Hours) => DatePart("hour"),
+                nameof(TimeSpan.Minutes) => DatePart("minute"),
+                nameof(TimeSpan.Seconds) => DatePart("second"),
+                nameof(TimeSpan.Milliseconds) => DatePart("millisecond"),
+                nameof(TimeSpan.Microseconds) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
+                nameof(TimeSpan.Nanoseconds) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
+                _ => null,
+            };
 
         SqlExpression DatePart(string part)
             => sqlExpressionFactory.Function(

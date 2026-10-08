@@ -47,7 +47,7 @@ public static class SqlitePropertyExtensions
     public static SqliteValueGenerationStrategy GetValueGenerationStrategy(
         this IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject)
-        => GetValueGenerationStrategy(property, storeObject, null);
+        => property.GetValueGenerationStrategy(storeObject, null);
 
     /// <summary>
     ///     Returns the default <see cref="SqliteValueGenerationStrategy" /> to use for the property.
@@ -80,13 +80,13 @@ public static class SqlitePropertyExtensions
         return sharedProperty != null
             ? sharedProperty.GetValueGenerationStrategy(storeObject, typeMappingSource) == SqliteValueGenerationStrategy.Autoincrement
             && storeObject.StoreObjectType == StoreObjectType.Table
-                && !property.GetContainingForeignKeys().Any(fk =>
-                    !fk.IsBaseLinking()
-                    || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
-                            is { } principal
-                        && fk.GetConstraintName(table, principal) != null))
-                    ? SqliteValueGenerationStrategy.Autoincrement
-                    : SqliteValueGenerationStrategy.None
+            && !property.GetContainingForeignKeys().Any(fk =>
+                !fk.IsBaseLinking()
+                || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
+                        is { } principal
+                    && fk.GetConstraintName(table, principal) != null))
+                ? SqliteValueGenerationStrategy.Autoincrement
+                : SqliteValueGenerationStrategy.None
             : GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
     }
 
@@ -94,17 +94,12 @@ public static class SqlitePropertyExtensions
         IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject,
         ITypeMappingSource? typeMappingSource)
-    {
-        if (storeObject.StoreObjectType != StoreObjectType.Table
+        => storeObject.StoreObjectType != StoreObjectType.Table
             || property.IsForeignKey()
             || property.ValueGenerated == ValueGenerated.Never
-            || property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        return GetDefaultValueGenerationStrategyInternal(property, property.FindRelationalTypeMapping(storeObject));
-    }
+            || property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                ? SqliteValueGenerationStrategy.None
+                : GetDefaultValueGenerationStrategyInternal(property, property.FindRelationalTypeMapping(storeObject));
 
     private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategyInternal(
         IReadOnlyProperty property,
@@ -121,16 +116,14 @@ public static class SqlitePropertyExtensions
         }
 
         var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
-        if (primaryKey is not { Properties.Count: 1 }
+        return primaryKey is not { Properties.Count: 1 }
             || primaryKey.Properties[0] != property
             || !property.ClrType.UnwrapNullableType().IsInteger()
             || (typeMapping?.Converter?.ProviderClrType
-                ?? typeMapping?.ClrType)?.IsInteger() != true)
-        {
-            return SqliteValueGenerationStrategy.None;
-        }
-
-        return SqliteValueGenerationStrategy.Autoincrement;
+                ?? typeMapping?.ClrType)?.IsInteger()
+            != true
+                ? SqliteValueGenerationStrategy.None
+                : SqliteValueGenerationStrategy.Autoincrement;
     }
 
     /// <summary>
@@ -257,12 +250,9 @@ public static class SqlitePropertyExtensions
         in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqliteAnnotationNames.Srid);
-        if (annotation != null)
-        {
-            return (int?)annotation.Value;
-        }
-
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetSrid(storeObject);
+        return annotation != null
+            ? (int?)annotation.Value
+            : (property.FindSharedStoreObjectRootProperty(storeObject)?.GetSrid(storeObject));
     }
 
     /// <summary>

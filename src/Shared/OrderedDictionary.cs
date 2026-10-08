@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
@@ -40,8 +38,6 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
 
     // remains contiguous and maintains order
     private Entry[] _entries = InitialEntries;
-    private int _count;
-
     private int _version;
 
     // is null when comparer is EqualityComparer<TKey>.Default so that the GetHashCode method is used explicitly on the object
@@ -51,8 +47,7 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
     ///     Gets the number of key/value pairs contained in the <see cref="OrderedDictionary{TKey, TValue}" />.
     /// </summary>
     /// <returns>The number of key/value pairs contained in the <see cref="OrderedDictionary{TKey, TValue}" />.</returns>
-    public int Count
-        => _count;
+    public int Count { get; private set; }
 
     /// <summary>
     ///     Gets the <see cref="IEqualityComparer{TKey}" /> that is used to determine equality of keys for the dictionary.
@@ -248,11 +243,11 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
     /// </summary>
     public void Clear()
     {
-        if (_count > 0)
+        if (Count > 0)
         {
             Array.Clear(_buckets, 0, _buckets.Length);
-            Array.Clear(_entries, 0, _count);
-            _count = 0;
+            Array.Clear(_entries, 0, Count);
+            Count = 0;
             ++_version;
         }
     }
@@ -392,7 +387,7 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
             throw new ArgumentException($"Key {key} is already present");
         }
 
-        for (var i = _count - 1; i >= 0; i--)
+        for (var i = Count - 1; i >= 0; i--)
         {
             if (comparer.Compare(key, _entries[i].Key) >= 0)
             {
@@ -588,8 +583,8 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
             UpdateBucketIndex(i, incrementAmount: -1);
         }
 
-        --_count;
-        entries[_count] = default;
+        --Count;
+        entries[Count] = default;
         ++_version;
     }
 
@@ -873,7 +868,7 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
         entry.Key = key;
         entry.Value = value;
         AddEntryToBucket(ref entry, actualIndex, _buckets);
-        ++_count;
+        ++Count;
         ++_version;
         return actualIndex;
     }
@@ -968,17 +963,15 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
         private readonly OrderedDictionary<TKey, TValue> _orderedDictionary;
         private readonly int _version;
         private int _index;
-        private KeyValuePair<TKey, TValue> _current;
 
         /// <summary>
         ///     Gets the element at the current position of the enumerator.
         /// </summary>
         /// <returns>The element in the <see cref="OrderedDictionary{TKey, TValue}" /> at the current position of the enumerator.</returns>
-        public KeyValuePair<TKey, TValue> Current
-            => _current;
+        public KeyValuePair<TKey, TValue> Current { get; private set; }
 
         object IEnumerator.Current
-            => _current;
+            => Current;
 
         internal Enumerator(OrderedDictionary<TKey, TValue> orderedDictionary)
         {
@@ -1012,12 +1005,12 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
             if (_index < _orderedDictionary.Count)
             {
                 var entry = _orderedDictionary._entries[_index];
-                _current = new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
+                Current = new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
                 ++_index;
                 return true;
             }
 
-            _current = default;
+            Current = default;
             return false;
         }
 
@@ -1029,7 +1022,7 @@ internal sealed partial class OrderedDictionary<TKey, TValue> : IDictionary<TKey
             }
 
             _index = 0;
-            _current = default;
+            Current = default;
         }
     }
 

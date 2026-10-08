@@ -13,7 +13,7 @@ public class PhoneNumberType
 
     public int PhoneNumberTypeID { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<PersonPhone> PersonPhone { get; set; }
 }

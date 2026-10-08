@@ -8,8 +8,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -33,7 +31,7 @@ public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
         base.OnModelCreating(modelBuilder, context);
 
         modelBuilder.HasDbFunction(
-            typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
+            typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance))!,
             b => b.HasTranslation(e => new SqlFunctionExpression(
                 "Distance",
                 arguments: e,
@@ -47,9 +45,9 @@ public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
         TypeMappingSourceDependencies dependencies,
         RelationalTypeMappingSourceDependencies relationalDependencies) : SqliteTypeMappingSource(dependencies, relationalDependencies)
     {
-        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => mappingInfo.ClrType == typeof(GeoPoint)
-                ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))
+                ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))!
                     .WithComposedConverter(new GeoPointConverter()))
                 .WithStoreTypeAndSize("geometry", null)
                 : base.FindMapping(mappingInfo);

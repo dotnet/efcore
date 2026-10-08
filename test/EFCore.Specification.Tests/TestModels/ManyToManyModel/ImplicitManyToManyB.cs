@@ -6,14 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class ImplicitManyToManyB
 {
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public virtual int Id { get; set; }
 
-    public virtual string Name { get; set; }
+    public virtual string? Name { get; set; }
 
     public virtual ICollection<ImplicitManyToManyA> As { get; } = new ObservableCollection<ImplicitManyToManyA>();
 }

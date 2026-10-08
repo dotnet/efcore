@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexPropertyBuilder>
 {
@@ -119,10 +119,12 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexCollectionTypePropertyBuilder Property(string propertyName)
-        => new(
-            TypeBuilder.Property(
-                Check.NotEmpty(propertyName),
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionTypePropertyBuilder(innerBuilder.Property(leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -139,10 +141,13 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName)
-        => new(
-            TypeBuilder.Property(
-                typeof(TProperty),
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionTypePropertyBuilder<TProperty>(
+            innerBuilder.Property(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -159,10 +164,14 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexCollectionTypePropertyBuilder Property(Type propertyType, string propertyName)
-        => new(
-            TypeBuilder.Property(
-                Check.NotNull(propertyType),
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyType);
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionTypePropertyBuilder(
+            innerBuilder.Property(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type where that property represents
@@ -177,10 +186,13 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexTypePrimitiveCollectionBuilder PrimitiveCollection(string propertyName)
-        => new(
-            TypeBuilder.PrimitiveCollection(
-                Check.NotEmpty(propertyName),
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexTypePrimitiveCollectionBuilder(
+            innerBuilder.PrimitiveCollection(leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type where that property represents
@@ -198,10 +210,13 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
-        => new(
-            TypeBuilder.PrimitiveCollection(
-                typeof(TProperty),
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexTypePrimitiveCollectionBuilder<TProperty>(
+            innerBuilder.PrimitiveCollection(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type where that property represents
@@ -219,10 +234,14 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexTypePrimitiveCollectionBuilder PrimitiveCollection(Type propertyType, string propertyName)
-        => new(
-            TypeBuilder.PrimitiveCollection(
-                Check.NotNull(propertyType),
-                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyType);
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexTypePrimitiveCollectionBuilder(
+            innerBuilder.PrimitiveCollection(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -279,13 +298,14 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder ComplexProperty(string propertyName)
-        => new(
-            TypeBuilder.ComplexProperty(
-                propertyType: null,
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: false,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexPropertyBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType: null, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the complex type.
@@ -303,13 +323,14 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
         where TProperty : notnull
-        => new(
-            TypeBuilder.ComplexProperty(
-                typeof(TProperty),
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: false,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                typeof(TProperty), leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the complex type.
@@ -351,13 +372,15 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder ComplexProperty(Type propertyType, string propertyName)
-        => new(
-            TypeBuilder.ComplexProperty(
-                Check.NotNull(propertyType),
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: false,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyType);
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexPropertyBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the complex type.
@@ -528,13 +551,14 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexCollectionBuilder ComplexCollection(string propertyName)
-        => new(
-            TypeBuilder.ComplexProperty(
-                propertyType: null,
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType: null, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection of the complex type.
@@ -554,13 +578,14 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
-        => new(
-            TypeBuilder.ComplexProperty(
-                typeof(TProperty),
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                typeof(TProperty), leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection of the complex type.
@@ -604,13 +629,15 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexCollectionBuilder ComplexCollection(Type propertyType, string propertyName)
-        => new(
-            TypeBuilder.ComplexProperty(
-                Check.NotNull(propertyType),
-                Check.NotEmpty(propertyName),
-                complexTypeName: null,
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyType);
+        Check.NotEmpty(propertyName);
+
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        return new ComplexCollectionBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection of the complex type.
@@ -782,7 +809,8 @@ public class ComplexCollectionBuilder : IInfrastructure<IConventionComplexProper
     {
         Check.NotEmpty(propertyName);
 
-        TypeBuilder.Ignore(propertyName, ConfigurationSource.Explicit);
+        var (innerBuilder, leafName) = TypeBuilder.ResolveComplexChainByName(propertyName);
+        innerBuilder.Ignore(leafName, ConfigurationSource.Explicit);
 
         return this;
     }
