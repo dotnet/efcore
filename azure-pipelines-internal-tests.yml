@@ -151,14 +151,14 @@ extends:
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
-                inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
-                condition: always()
-                continueOnError: true
             templateContext:
               outputs:
+              - output: pipelineArtifact
+                displayName: Upload code coverage
+                condition: always()
+                continueOnError: true
+                targetPath: artifacts/coverage/coverage.cobertura.xml
+                artifactName: Coverage_$(Agent.JobName)_$(System.JobAttempt)
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
@@ -190,14 +190,14 @@ extends:
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
-                inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
-                condition: always()
-                continueOnError: true
             templateContext:
               outputs:
+              - output: pipelineArtifact
+                displayName: Upload code coverage
+                condition: always()
+                continueOnError: true
+                targetPath: artifacts/coverage/coverage.cobertura.xml
+                artifactName: Coverage_$(Agent.JobName)_$(System.JobAttempt)
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
@@ -227,14 +227,14 @@ extends:
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
-                inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
-                condition: always()
-                continueOnError: true
             templateContext:
               outputs:
+              - output: pipelineArtifact
+                displayName: Upload code coverage
+                condition: always()
+                continueOnError: true
+                targetPath: artifacts/coverage/coverage.cobertura.xml
+                artifactName: Coverage_$(Agent.JobName)_$(System.JobAttempt)
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
@@ -262,17 +262,17 @@ extends:
                 displayName: Merge coverage reports
                 condition: always()
                 continueOnError: true
-              - task: PublishCodeCoverageResults@2
-                displayName: Publish code coverage
-                inputs:
-                  summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
-                condition: always()
-                continueOnError: true
             templateContext:
               sdl:
                 binskim:
                   preReleaseVersion: ''
               outputs:
+              - output: pipelineArtifact
+                displayName: Upload code coverage
+                condition: always()
+                continueOnError: true
+                targetPath: artifacts/coverage/coverage.cobertura.xml
+                artifactName: Coverage_$(Agent.JobName)_$(System.JobAttempt)
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
@@ -694,6 +694,30 @@ extends:
           HelixWindowsArm64Result: $[ stageDependencies.build.Helix_Windows_Arm64.result ]
           HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
         steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: Download code coverage
+            inputs:
+              buildType: current
+              patterns: '**/*.cobertura.xml'
+              targetPath: artifacts/coverage/jobs
+            condition: always()
+            continueOnError: true
+          - script: eng\common\dotnet.cmd --info
+            displayName: Ensure .NET SDK is installed
+            condition: always()
+            continueOnError: true
+          - pwsh: . ./eng/merge-coverage.ps1 -CoverageDirectory artifacts/coverage/jobs -OutputFile artifacts/coverage/coverage.cobertura.xml
+            displayName: Merge code coverage reports
+            condition: always()
+            continueOnError: true
+          - task: PublishCodeCoverageResults@2
+            displayName: Publish code coverage
+            inputs:
+              summaryFileLocation: artifacts/coverage/coverage.cobertura.xml
+              pathToSources: $(Build.SourcesDirectory)
+              failIfCoverageEmpty: true
+            condition: always()
+            continueOnError: true
           - pwsh: |
               $jobResults = @{
                 Windows = "$(WindowsResult)"
