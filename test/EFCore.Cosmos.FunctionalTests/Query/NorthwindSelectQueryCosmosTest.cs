@@ -286,6 +286,30 @@ FROM root c
 """);
             });
 
+    public override Task Select_anonymous_non_numeric_constants(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_anonymous_non_numeric_constants(a);
+                AssertSql(
+                    """
+@MinValue='0001-01-01'
+@MinValue1='00:00:00'
+
+SELECT VALUE
+{
+    "CustomerID" : c["id"],
+    "ConstantGuid" : "00000000-0000-0000-0000-000000000000",
+    "ConstantDateTime" : "0001-01-01T00:00:00",
+    "ConstantDateOnly" : @MinValue,
+    "ConstantTimeSpan" : "00:00:00",
+    "ConstantTimeOnly" : @MinValue1,
+    "ConstantDateTimeOffset" : "0001-01-01T00:00:00+00:00"
+}
+FROM root c
+""");
+            });
+
     public override Task Select_anonymous_constant_in_expression(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
