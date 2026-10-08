@@ -22,7 +22,9 @@ public class StringToEnumConverterTest
         Assert.Equal(Beatles.Ringo, converter("-1"));
         Assert.Equal((Beatles)77, converter("77"));
         Assert.Equal(default, converter("0"));
-        Assert.Equal(default, converter(""));
+        Assert.Equal(
+            CoreStrings.CannotConvertEnumValue("", "Beatles"),
+            Assert.Throws<InvalidOperationException>(() => converter("")).Message);
 
         Assert.Throws<ArgumentNullException>(() => converter(null!));
 
@@ -45,7 +47,9 @@ public class StringToEnumConverterTest
         Assert.Equal(Beatles.Ringo, converter("-1"));
         Assert.Equal((Beatles)77, converter("77"));
         Assert.Equal(default(Beatles), converter("0"));
-        Assert.Equal(default(Beatles), converter(""));
+        Assert.Equal(
+            CoreStrings.CannotConvertEnumValue("", "Beatles"),
+            Assert.Throws<InvalidOperationException>(() => converter("")).Message);
         Assert.Null(converter(null));
     }
 
