@@ -27,8 +27,8 @@ public class ProviderSpecificServicesTest
     {
         var appServiceProvider = new ServiceCollection()
             .AddEntityFrameworkInMemoryDatabase()
-            .AddDbContext<ConstructorTestContext1A>(
-                (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
+            .AddDbContext<ConstructorTestContext1A>((p, b)
+                => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
             .BuildServiceProvider(validateScopes: true);
 
         using var serviceScope = appServiceProvider

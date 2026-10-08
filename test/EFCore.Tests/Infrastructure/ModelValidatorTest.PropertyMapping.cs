@@ -62,8 +62,7 @@ public partial class ModelValidatorTest
     [ConditionalFact]
     public virtual void Does_not_throw_when_nonprimitive_value_type_property_type_is_ignored()
     {
-        var modelBuilder = CreateConventionlessModelBuilder(
-            configurationBuilder => configurationBuilder.IgnoreAny<CancellationToken>());
+        var modelBuilder = CreateConventionlessModelBuilder(configurationBuilder => configurationBuilder.IgnoreAny<CancellationToken>());
         modelBuilder.Entity(typeof(NonPrimitiveValueTypePropertyEntity)).HasNoKey();
 
         Validate(modelBuilder);
@@ -160,8 +159,8 @@ public partial class ModelValidatorTest
     [ConditionalFact]
     public virtual void Does_not_throw_when_navigation_type_is_ignored()
     {
-        var modelBuilder = CreateConventionlessModelBuilder(
-            configurationBuilder => configurationBuilder.IgnoreAny<PrimitivePropertyEntity>());
+        var modelBuilder =
+            CreateConventionlessModelBuilder(configurationBuilder => configurationBuilder.IgnoreAny<PrimitivePropertyEntity>());
         modelBuilder.Entity(typeof(NavigationEntity)).HasNoKey();
 
         Validate(modelBuilder);
@@ -211,8 +210,7 @@ public partial class ModelValidatorTest
     [ConditionalFact]
     public virtual void Does_not_throw_when_interface_collection_type_property_type_is_ignored()
     {
-        var modelBuilder = CreateConventionlessModelBuilder(
-            configurationBuilder => configurationBuilder.IgnoreAny<INavigationEntity>());
+        var modelBuilder = CreateConventionlessModelBuilder(configurationBuilder => configurationBuilder.IgnoreAny<INavigationEntity>());
         modelBuilder.Entity(typeof(InterfaceNavigationEntity)).HasNoKey();
 
         Validate(modelBuilder);
@@ -221,8 +219,7 @@ public partial class ModelValidatorTest
     [ConditionalFact]
     public virtual void Does_not_throw_when_interface_generic_type_property_type_is_ignored()
     {
-        var modelBuilder = CreateConventionlessModelBuilder(
-            configurationBuilder => configurationBuilder.IgnoreAny(typeof(IList<>)));
+        var modelBuilder = CreateConventionlessModelBuilder(configurationBuilder => configurationBuilder.IgnoreAny(typeof(IList<>)));
         modelBuilder.Entity(typeof(InterfaceNavigationEntity)).HasNoKey();
 
         Validate(modelBuilder);
@@ -231,8 +228,8 @@ public partial class ModelValidatorTest
     [ConditionalFact]
     public virtual void Does_not_throw_when_interface_base_type_property_type_is_ignored()
     {
-        var modelBuilder = CreateConventionlessModelBuilder(
-            configurationBuilder => configurationBuilder.IgnoreAny<IEnumerable<INavigationEntity>>());
+        var modelBuilder =
+            CreateConventionlessModelBuilder(configurationBuilder => configurationBuilder.IgnoreAny<IEnumerable<INavigationEntity>>());
         modelBuilder.Entity(typeof(InterfaceNavigationEntity)).HasNoKey();
 
         Validate(modelBuilder);

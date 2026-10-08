@@ -145,9 +145,8 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 catch (DbUpdateConcurrencyException ex2)
                 {
                     Assert.Equal(
-                        LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
-                            l =>
-                                l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                        LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(l =>
+                            l.Id == CoreEventId.OptimisticConcurrencyException).Level);
 
                     var entry2 = ex2.Entries.Single();
                     Assert.IsAssignableFrom<Team>(entry2.Entity);
@@ -192,9 +191,8 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 catch (DbUpdateConcurrencyException ex2)
                 {
                     Assert.Equal(
-                        LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
-                            l =>
-                                l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                        LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(l =>
+                            l.Id == CoreEventId.OptimisticConcurrencyException).Level);
 
                     var entry2 = ex2.Entries.Single();
                     Assert.IsAssignableFrom<Team>(entry2.Entity);
@@ -427,9 +425,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
 
     #region Tests for calling Reload on an entity in various states
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_an_Added_entity_that_is_not_in_database_is_no_op(bool async)
     {
         using var c = CreateF1Context();
@@ -455,27 +451,19 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_an_Unchanged_entity_that_is_not_in_database_detaches_it(bool async)
         => await TestReloadGone(EntityState.Unchanged, async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Modified_entity_that_is_not_in_database_detaches_it(bool async)
         => await TestReloadGone(EntityState.Modified, async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Deleted_entity_that_is_not_in_database_detaches_it(bool async)
         => await TestReloadGone(EntityState.Deleted, async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Detached_entity_that_is_not_in_database_detaches_it(bool async)
         => await TestReloadGone(EntityState.Detached, async);
 
@@ -511,33 +499,23 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Unchanged, async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Modified, async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Deleted, async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Added, async);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Detached, async);
 
@@ -574,9 +552,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_GetDatabaseValues_on_owned_entity_works(bool async)
     {
         using var c = CreateF1Context();
@@ -606,9 +582,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_owned_entity_works(bool async)
     {
         using var c = CreateF1Context();
@@ -728,8 +702,8 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 if (typeof(TException) == typeof(DbUpdateConcurrencyException))
                 {
                     Assert.Equal(
-                        LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
-                            l => l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                        LogLevel.Debug,
+                        Fixture.ListLoggerFactory.Log.Single(l => l.Id == CoreEventId.OptimisticConcurrencyException).Level);
                 }
 
                 Fixture.ListLoggerFactory.Clear();

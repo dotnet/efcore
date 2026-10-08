@@ -46,11 +46,11 @@ LEFT JOIN [SpecialCategory] AS [s] ON [c].[Id] = [s].[Id]
 """,
             //
             """
-@__category_PrincipalId_0='778' (Nullable = true)
+@category_PrincipalId='778' (Nullable = true)
 
 SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[IsPrimary], [p].[IsPrimaryNormalized], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
-WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
+WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @category_PrincipalId
 """,
             //
             """
@@ -73,11 +73,11 @@ LEFT JOIN [SpecialCategory] AS [s] ON [c].[Id] = [s].[Id]
 """,
             //
             """
-@__category_PrincipalId_0='778' (Nullable = true)
+@category_PrincipalId='778' (Nullable = true)
 
 SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[IsPrimary], [p].[IsPrimaryNormalized], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
-WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
+WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @category_PrincipalId
 """);
     }
 

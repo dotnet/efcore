@@ -103,7 +103,8 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Explicit;
+    public override LockReleaseBehavior LockReleaseBehavior
+        => LockReleaseBehavior.Explicit;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,8 +117,8 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
         Dependencies.MigrationsLogger.AcquiringMigrationLock();
 
         if (!InterpretExistsResult(
-            Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
-                .ExecuteScalar(CreateRelationalCommandParameters())))
+                Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
+                    .ExecuteScalar(CreateRelationalCommandParameters())))
         {
             CreateLockTableCommand().ExecuteNonQuery(CreateRelationalCommandParameters());
         }
@@ -153,8 +154,8 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
         Dependencies.MigrationsLogger.AcquiringMigrationLock();
 
         if (!InterpretExistsResult(
-            await Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
-                .ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken).ConfigureAwait(false)))
+                await Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
+                    .ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken).ConfigureAwait(false)))
         {
             await CreateLockTableCommand().ExecuteNonQueryAsync(CreateRelationalCommandParameters(), cancellationToken)
                 .ConfigureAwait(false);

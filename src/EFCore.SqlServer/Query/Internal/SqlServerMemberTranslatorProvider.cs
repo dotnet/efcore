@@ -30,7 +30,8 @@ public class SqlServerMemberTranslatorProvider : RelationalMemberTranslatorProvi
             new SqlServerDateTimeMemberTranslator(sqlExpressionFactory, typeMappingSource),
             new SqlServerStringMemberTranslator(sqlExpressionFactory),
             new SqlServerTimeSpanMemberTranslator(sqlExpressionFactory),
-            new SqlServerTimeOnlyMemberTranslator(sqlExpressionFactory)
+            new SqlServerTimeOnlyMemberTranslator(sqlExpressionFactory),
+            new SqlServerVectorTranslator(sqlExpressionFactory, typeMappingSource)
         ]);
     }
 }

@@ -29,10 +29,10 @@ public static class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
         return test.RunAsync();
     }
 
-    public static async Task VerifyCodeFixAsync(string source, string fixedSource)
+    public static async Task VerifyCodeFixAsync(string source, string fixedSource, params DiagnosticResult[] expected)
     {
         var test = new Test { TestCode = source, FixedCode = fixedSource };
-
+        test.ExpectedDiagnostics.AddRange(expected);
         await test.RunAsync();
     }
 

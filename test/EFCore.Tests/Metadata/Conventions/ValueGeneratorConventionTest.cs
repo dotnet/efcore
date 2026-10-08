@@ -98,7 +98,7 @@ public class ValueGeneratorConventionTest
 
         referencedEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            referencedEntityBuilder.GetOrCreateProperties(new[] { properties[1] }, ConfigurationSource.Convention),
+            referencedEntityBuilder.GetOrCreateProperties([properties[1]], ConfigurationSource.Convention),
             ConfigurationSource.Convention);
 
         var keyBuilder = referencedEntityBuilder.PrimaryKey(properties, ConfigurationSource.Convention);
@@ -129,7 +129,7 @@ public class ValueGeneratorConventionTest
             referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
             ConfigurationSource.Convention);
 
-        var keyBuilder = referencedEntityBuilder.PrimaryKey(new[] { properties[1] }, ConfigurationSource.Convention);
+        var keyBuilder = referencedEntityBuilder.PrimaryKey([properties[1]], ConfigurationSource.Convention);
 
         RunConvention(referencedEntityBuilder);
 
@@ -303,7 +303,7 @@ public class ValueGeneratorConventionTest
         var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
         entityBuilder.Property(typeof(byte[]), "binaryKey", ConfigurationSource.Explicit);
 
-        var keyBuilder = entityBuilder.PrimaryKey(new[] { "binaryKey" }, ConfigurationSource.Convention);
+        var keyBuilder = entityBuilder.PrimaryKey(["binaryKey"], ConfigurationSource.Convention);
 
         var property = keyBuilder.Metadata.Properties.First();
 
@@ -318,7 +318,7 @@ public class ValueGeneratorConventionTest
         var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
         entityBuilder.Property(typeof(Eenom), "enumKey", ConfigurationSource.Explicit);
 
-        var keyBuilder = entityBuilder.PrimaryKey(new[] { "enumKey" }, ConfigurationSource.Convention);
+        var keyBuilder = entityBuilder.PrimaryKey(["enumKey"], ConfigurationSource.Convention);
 
         var property = keyBuilder.Metadata.Properties.First();
 

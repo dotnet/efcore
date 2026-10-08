@@ -56,7 +56,7 @@ public abstract class DbFunctionBuilderBase : IInfrastructure<IConventionDbFunct
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual DbFunctionBuilderBase HasName(string name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         Builder.HasName(name, ConfigurationSource.Explicit);
 

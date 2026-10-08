@@ -20,7 +20,7 @@ public sealed class BackingFieldAttribute : Attribute
     /// <param name="name">The name of the backing field.</param>
     public BackingFieldAttribute(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         Name = name;
     }

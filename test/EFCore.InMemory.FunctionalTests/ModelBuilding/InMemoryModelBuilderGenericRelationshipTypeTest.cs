@@ -30,9 +30,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
 
         public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
         {
-            ModelBuilder.Entity<TEntity>(
-                entityTypeBuilder =>
-                    buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+            ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
+                buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
             return this;
         }
 
@@ -195,8 +194,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
         public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
             Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
             => new GenericTypeTestEntityTypeBuilder<TRightEntity>(
-                CollectionCollectionBuilder.UsingEntity<TJoinEntity>(
-                    e => configureJoinEntityType(new GenericTypeTestEntityTypeBuilder<TJoinEntity>(e))));
+                CollectionCollectionBuilder.UsingEntity<TJoinEntity>(e
+                    => configureJoinEntityType(new GenericTypeTestEntityTypeBuilder<TJoinEntity>(e))));
 
         public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
             string joinEntityName,

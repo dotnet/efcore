@@ -294,14 +294,12 @@ public class QueryableExtensionsTest
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, ReferenceEqualityComparer.Instance));
-        await SourceNonAsyncEnumerableTest<int>(
-            () => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
-        await SourceNonAsyncEnumerableTest<int>(
-            () => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
+        await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
+        await SourceNonAsyncEnumerableTest<int>(() => Source().ToDictionaryAsync(
+            e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToHashSetAsync());
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToHashSetAsync(EqualityComparer<int>.Default));
-        await SourceNonAsyncEnumerableTest<int>(
-            () => Source().ToHashSetAsync(EqualityComparer<int>.Default, new CancellationToken()));
+        await SourceNonAsyncEnumerableTest<int>(() => Source().ToHashSetAsync(EqualityComparer<int>.Default, new CancellationToken()));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
         Assert.Equal(

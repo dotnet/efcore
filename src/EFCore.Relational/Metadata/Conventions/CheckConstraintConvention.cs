@@ -161,7 +161,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
         }
 
         if (checkConstraint.GetName(baseTable.Value) != baseCheckConstraint.GetName(baseTable.Value)
-            && checkConstraint.GetNameConfigurationSource() is ConfigurationSource nameConfigurationSource
+            && checkConstraint.GetNameConfigurationSource() is { } nameConfigurationSource
             && !nameConfigurationSource.OverridesStrictly(baseCheckConstraint.GetNameConfigurationSource()))
         {
             return false;

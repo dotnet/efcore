@@ -320,12 +320,12 @@ public readonly record struct TypeMappingInfo
         => new(this, converterInfo);
 
     /// <summary>
-    ///     Indicates whether or not the mapping is part of a key or foreign key.
+    ///     Indicates whether the mapping is part of a key or foreign key.
     /// </summary>
     public bool IsKey { get; init; }
 
     /// <summary>
-    ///     Indicates whether or not the mapping is part of a key, foreign key, or index.
+    ///     Indicates whether the mapping is part of a key, foreign key, or index.
     /// </summary>
     public bool IsKeyOrIndex { get; init; }
 
@@ -335,12 +335,12 @@ public readonly record struct TypeMappingInfo
     public int? Size { get; init; }
 
     /// <summary>
-    ///     Indicates whether or not the mapping supports Unicode, or <see langword="null" /> if not defined.
+    ///     Indicates whether the mapping supports Unicode, or <see langword="null" /> if not defined.
     /// </summary>
     public bool? IsUnicode { get; init; }
 
     /// <summary>
-    ///     Indicates whether or not the mapping will be used for a row version, or <see langword="null" /> if not defined.
+    ///     Indicates whether the mapping will be used for a row version, or <see langword="null" /> if not defined.
     /// </summary>
     public bool? IsRowVersion { get; init; }
 

@@ -59,8 +59,7 @@ public class SqlServerQueryCompilationContextFactory : IQueryCompilationContextF
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual QueryCompilationContext CreatePrecompiled(bool async, IReadOnlySet<string> nonNullableReferenceTypeParameters)
+    public virtual QueryCompilationContext CreatePrecompiled(bool async)
         => new SqlServerQueryCompilationContext(
-            Dependencies, RelationalDependencies, async, _sqlServerConnection.IsMultipleActiveResultSetsEnabled, precompiling: true,
-            nonNullableReferenceTypeParameters);
+            Dependencies, RelationalDependencies, async, _sqlServerConnection.IsMultipleActiveResultSetsEnabled, precompiling: true);
 }

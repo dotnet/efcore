@@ -12,6 +12,5 @@ public class DbFunctionsTest
     public void Like_on_client_throws()
         => Assert.Equal(
             CoreStrings.FunctionOnClient(nameof(DbFunctionsExtensions.Like)),
-            Assert.Throws<InvalidOperationException>(
-                () => EF.Functions.Like("abc", "abc")).Message);
+            Assert.Throws<InvalidOperationException>(() => EF.Functions.Like("abc", "abc")).Message);
 }

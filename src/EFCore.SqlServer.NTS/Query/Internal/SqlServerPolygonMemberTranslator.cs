@@ -67,10 +67,10 @@ public class SqlServerPolygonMemberTranslator : IMemberTranslator
                     return _sqlExpressionFactory.Function(
                         instance,
                         "RingN",
-                        new[] { _sqlExpressionFactory.Constant(1) },
+                        [_sqlExpressionFactory.Constant(1)],
                         nullable: true,
                         instancePropagatesNullability: true,
-                        argumentsPropagateNullability: new[] { false },
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
                         returnType,
                         _typeMappingSource.FindMapping(returnType, storeType));
                 }
@@ -81,10 +81,10 @@ public class SqlServerPolygonMemberTranslator : IMemberTranslator
                         _sqlExpressionFactory.Function(
                             instance,
                             "NumRings",
-                            Enumerable.Empty<SqlExpression>(),
+                            [],
                             nullable: true,
                             instancePropagatesNullability: true,
-                            argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                            argumentsPropagateNullability: [],
                             returnType),
                         _sqlExpressionFactory.Constant(1));
                 }
@@ -99,10 +99,10 @@ public class SqlServerPolygonMemberTranslator : IMemberTranslator
                 return _sqlExpressionFactory.Function(
                     instance,
                     functionName,
-                    Enumerable.Empty<SqlExpression>(),
+                    [],
                     nullable: true,
                     instancePropagatesNullability: true,
-                    argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                    argumentsPropagateNullability: [],
                     returnType,
                     resultTypeMapping);
             }

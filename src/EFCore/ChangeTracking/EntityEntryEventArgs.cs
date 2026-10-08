@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 public class EntityEntryEventArgs : EventArgs
 {
     private readonly InternalEntityEntry _internalEntityEntry;
-    private EntityEntry? _entry;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,6 +30,7 @@ public class EntityEntryEventArgs : EventArgs
     /// <summary>
     ///     The <see cref="EntityEntry" /> for the entity.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual EntityEntry Entry
-        => _entry ??= new EntityEntry(_internalEntityEntry);
+        => field ??= new EntityEntry(_internalEntityEntry);
 }

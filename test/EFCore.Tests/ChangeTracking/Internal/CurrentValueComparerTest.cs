@@ -7,32 +7,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class CurrentValueComparerTest
 {
-    [ConditionalTheory]
-    [InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Id))]
-    [InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Int))]
-    [InlineData(typeof(EntryCurrentValueComparer<ulong>), nameof(Godzilla.ULong))]
-    [InlineData(typeof(CurrentProviderValueComparer<IntStruct, int>), nameof(Godzilla.IntStruct))]
-    [InlineData(typeof(StructuralEntryCurrentProviderValueComparer), nameof(Godzilla.BytesStruct))]
-    [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableIntStruct))]
-    [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableBytesStruct))]
-    [InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntStruct>), nameof(Godzilla.GenericComparableIntStruct))]
-    [InlineData(typeof(EntryCurrentValueComparer<GenericComparableBytesStruct>), nameof(Godzilla.GenericComparableBytesStruct))]
-    [InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.StructuralComparableBytesStruct))]
-    [InlineData(typeof(NullableStructCurrentProviderValueComparer<IntStruct, int>), nameof(Godzilla.NullableIntStruct))]
-    [InlineData(typeof(StructuralEntryCurrentProviderValueComparer), nameof(Godzilla.NullableBytesStruct))]
-    [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.NullableComparableIntStruct))]
-    [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.NullableComparableBytesStruct))]
-    [InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntStruct?>), nameof(Godzilla.NullableGenericComparableIntStruct))]
-    [InlineData(
-        typeof(EntryCurrentValueComparer<GenericComparableBytesStruct?>), nameof(Godzilla.NullableGenericComparableBytesStruct))]
-    [InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.NullableStructuralComparableBytesStruct))]
-    [InlineData(typeof(EntryCurrentValueComparer<int?>), nameof(Godzilla.NullableInt))]
-    [InlineData(typeof(EntryCurrentValueComparer<ulong?>), nameof(Godzilla.NullableULong))]
-    [InlineData(typeof(EntryCurrentValueComparer<string>), nameof(Godzilla.String))]
-    [InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.Bytes))]
-    [InlineData(typeof(NullableClassCurrentProviderValueComparer<IntClass, int>), nameof(Godzilla.IntClass))]
-    [InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableIntClass))]
-    [InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntClass>), nameof(Godzilla.GenericComparableIntClass))]
+    [ConditionalTheory, InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Id)),
+     InlineData(typeof(EntryCurrentValueComparer<int>), nameof(Godzilla.Int)),
+     InlineData(typeof(EntryCurrentValueComparer<ulong>), nameof(Godzilla.ULong)),
+     InlineData(typeof(CurrentProviderValueComparer<IntStruct, int>), nameof(Godzilla.IntStruct)),
+     InlineData(typeof(StructuralEntryCurrentProviderValueComparer), nameof(Godzilla.BytesStruct)),
+     InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableIntStruct)),
+     InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableBytesStruct)),
+     InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntStruct>), nameof(Godzilla.GenericComparableIntStruct)),
+     InlineData(typeof(EntryCurrentValueComparer<GenericComparableBytesStruct>), nameof(Godzilla.GenericComparableBytesStruct)),
+     InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.StructuralComparableBytesStruct)),
+     InlineData(typeof(NullableStructCurrentProviderValueComparer<IntStruct, int>), nameof(Godzilla.NullableIntStruct)),
+     InlineData(typeof(StructuralEntryCurrentProviderValueComparer), nameof(Godzilla.NullableBytesStruct)),
+     InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.NullableComparableIntStruct)),
+     InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.NullableComparableBytesStruct)),
+     InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntStruct?>), nameof(Godzilla.NullableGenericComparableIntStruct)),
+     InlineData(
+         typeof(EntryCurrentValueComparer<GenericComparableBytesStruct?>), nameof(Godzilla.NullableGenericComparableBytesStruct)),
+     InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.NullableStructuralComparableBytesStruct)),
+     InlineData(typeof(EntryCurrentValueComparer<int?>), nameof(Godzilla.NullableInt)),
+     InlineData(typeof(EntryCurrentValueComparer<ulong?>), nameof(Godzilla.NullableULong)),
+     InlineData(typeof(EntryCurrentValueComparer<string>), nameof(Godzilla.String)),
+     InlineData(typeof(StructuralEntryCurrentValueComparer), nameof(Godzilla.Bytes)),
+     InlineData(typeof(NullableClassCurrentProviderValueComparer<IntClass, int>), nameof(Godzilla.IntClass)),
+     InlineData(typeof(EntryCurrentValueComparer), nameof(Godzilla.ComparableIntClass)),
+     InlineData(typeof(EntryCurrentValueComparer<GenericComparableIntClass>), nameof(Godzilla.GenericComparableIntClass))]
     public void Factory_creates_expected_comparer(Type expectedComparer, string property)
     {
         using var context = new GodzillaContext();
@@ -52,9 +51,8 @@ public class CurrentValueComparerTest
         Assert.Equal(
             CoreStrings.NonComparableKeyType(
                 nameof(Godzilla), nameof(Godzilla.NotComparable), nameof(NotComparable)),
-            Assert.Throws<InvalidOperationException>(
-                () => factory.Create(
-                    context.Model.FindEntityType(typeof(Godzilla)).FindProperty(nameof(Godzilla.NotComparable)))).Message);
+            Assert.Throws<InvalidOperationException>(() => factory.Create(
+                context.Model.FindEntityType(typeof(Godzilla)).FindProperty(nameof(Godzilla.NotComparable)))).Message);
     }
 
     [ConditionalFact]
@@ -67,9 +65,8 @@ public class CurrentValueComparerTest
         Assert.Equal(
             CoreStrings.NonComparableKeyTypes(
                 nameof(Godzilla), nameof(Godzilla.NotComparableConverted), nameof(NotComparable), nameof(NotComparable)),
-            Assert.Throws<InvalidOperationException>(
-                () => factory.Create(
-                    context.Model.FindEntityType(typeof(Godzilla)).FindProperty(nameof(Godzilla.NotComparableConverted)))).Message);
+            Assert.Throws<InvalidOperationException>(() => factory.Create(
+                context.Model.FindEntityType(typeof(Godzilla)).FindProperty(nameof(Godzilla.NotComparableConverted)))).Message);
     }
 
     [ConditionalFact]
@@ -350,32 +347,31 @@ public class CurrentValueComparerTest
             => optionsBuilder.UseInMemoryDatabase(nameof(GodzillaContext));
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Godzilla>(
-                b =>
-                {
-                    b.Property(e => e.IntStruct).HasConversion(IntStruct.Converter);
-                    b.Property(e => e.BytesStruct).HasConversion(BytesStruct.Converter);
-                    b.Property(e => e.ComparableIntStruct).HasConversion(ComparableIntStruct.Converter);
-                    b.Property(e => e.ComparableBytesStruct).HasConversion(ComparableBytesStruct.Converter);
-                    b.Property(e => e.GenericComparableIntStruct).HasConversion(GenericComparableIntStruct.Converter);
-                    b.Property(e => e.GenericComparableBytesStruct).HasConversion(GenericComparableBytesStruct.Converter);
-                    b.Property(e => e.StructuralComparableBytesStruct).HasConversion(StructuralComparableBytesStruct.Converter);
+            => modelBuilder.Entity<Godzilla>(b =>
+            {
+                b.Property(e => e.IntStruct).HasConversion(IntStruct.Converter);
+                b.Property(e => e.BytesStruct).HasConversion(BytesStruct.Converter);
+                b.Property(e => e.ComparableIntStruct).HasConversion(ComparableIntStruct.Converter);
+                b.Property(e => e.ComparableBytesStruct).HasConversion(ComparableBytesStruct.Converter);
+                b.Property(e => e.GenericComparableIntStruct).HasConversion(GenericComparableIntStruct.Converter);
+                b.Property(e => e.GenericComparableBytesStruct).HasConversion(GenericComparableBytesStruct.Converter);
+                b.Property(e => e.StructuralComparableBytesStruct).HasConversion(StructuralComparableBytesStruct.Converter);
 
-                    b.Property(e => e.NullableIntStruct).HasConversion(IntStruct.Converter);
-                    b.Property(e => e.NullableBytesStruct).HasConversion(BytesStruct.Converter);
-                    b.Property(e => e.NullableComparableIntStruct).HasConversion(ComparableIntStruct.Converter);
-                    b.Property(e => e.NullableComparableBytesStruct).HasConversion(ComparableBytesStruct.Converter);
-                    b.Property(e => e.NullableGenericComparableIntStruct).HasConversion(GenericComparableIntStruct.Converter);
-                    b.Property(e => e.NullableGenericComparableBytesStruct).HasConversion(GenericComparableBytesStruct.Converter);
-                    b.Property(e => e.NullableStructuralComparableBytesStruct).HasConversion(StructuralComparableBytesStruct.Converter);
+                b.Property(e => e.NullableIntStruct).HasConversion(IntStruct.Converter);
+                b.Property(e => e.NullableBytesStruct).HasConversion(BytesStruct.Converter);
+                b.Property(e => e.NullableComparableIntStruct).HasConversion(ComparableIntStruct.Converter);
+                b.Property(e => e.NullableComparableBytesStruct).HasConversion(ComparableBytesStruct.Converter);
+                b.Property(e => e.NullableGenericComparableIntStruct).HasConversion(GenericComparableIntStruct.Converter);
+                b.Property(e => e.NullableGenericComparableBytesStruct).HasConversion(GenericComparableBytesStruct.Converter);
+                b.Property(e => e.NullableStructuralComparableBytesStruct).HasConversion(StructuralComparableBytesStruct.Converter);
 
-                    b.Property(e => e.IntClass).HasConversion(IntClass.Converter);
-                    b.Property(e => e.ComparableIntClass).HasConversion(ComparableIntClass.Converter);
-                    b.Property(e => e.GenericComparableIntClass).HasConversion(GenericComparableIntClass.Converter);
+                b.Property(e => e.IntClass).HasConversion(IntClass.Converter);
+                b.Property(e => e.ComparableIntClass).HasConversion(ComparableIntClass.Converter);
+                b.Property(e => e.GenericComparableIntClass).HasConversion(GenericComparableIntClass.Converter);
 
-                    b.Property(e => e.NotComparable);
-                    b.Property(e => e.NotComparableConverted).HasConversion(NotComparable.Converter);
-                });
+                b.Property(e => e.NotComparable);
+                b.Property(e => e.NotComparableConverted).HasConversion(NotComparable.Converter);
+            });
     }
 
     private class Godzilla

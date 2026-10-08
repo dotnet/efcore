@@ -11,13 +11,13 @@ public class KeyTest
         var model = CreateModel();
         var entityType = model.AddEntityType("E");
         var property = entityType.AddProperty("P", typeof(int));
-        var key = entityType.AddKey(new[] { property });
+        var key = entityType.AddKey([property]);
 
         model.FinalizeModel();
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
-            Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { property })).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddKey([property])).Message);
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
@@ -32,7 +32,7 @@ public class KeyTest
         var property2 = entityType.AddProperty(Customer.NameProperty);
         property2.SetIsNullable(false);
 
-        var key = entityType.AddKey(new[] { property1, property2 });
+        var key = entityType.AddKey([property1, property2]);
 
         Assert.True(new[] { property1, property2 }.SequenceEqual(key.Properties));
         Assert.Equal(ConfigurationSource.Convention, key.GetConfigurationSource());
@@ -49,8 +49,7 @@ public class KeyTest
 
         Assert.Equal(
             CoreStrings.KeyPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", entityType1.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => entityType1.AddKey(new[] { property1, property2 })).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType1.AddKey([property1, property2])).Message);
     }
 
     private static IMutableModel CreateModel()

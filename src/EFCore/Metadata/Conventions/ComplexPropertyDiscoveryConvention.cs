@@ -1,15 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that configures relationships between entity types based on the navigation properties
-///     as long as there is no ambiguity as to which is the corresponding inverse navigation.
+///     A convention that configures complex properties on structural types as long as the type has been previously configured
+///     as a complex type or the declaring type is a complex type.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
@@ -69,14 +68,21 @@ public class ComplexPropertyDiscoveryConvention :
     private void TryConfigureComplexProperty(MemberInfo? candidateMember, IConventionTypeBase typeBase, IConventionContext context)
     {
         if (candidateMember == null
-            || !IsCandidateComplexProperty(candidateMember, typeBase, out var targetClrType))
+            || !IsCandidateComplexProperty(candidateMember, typeBase, out var targetClrType, out var collection))
         {
             return;
         }
 
         RemoveComplexCandidate(candidateMember.Name, typeBase.Builder);
 
-        typeBase.Builder.ComplexProperty(candidateMember, targetClrType);
+        if (collection)
+        {
+            typeBase.Builder.ComplexCollection(candidateMember, targetClrType);
+        }
+        else
+        {
+            typeBase.Builder.ComplexProperty(candidateMember, targetClrType);
+        }
     }
 
     /// <summary>
@@ -85,10 +91,12 @@ public class ComplexPropertyDiscoveryConvention :
     /// <param name="memberInfo">The member.</param>
     /// <param name="structuralType">The type for which the properties will be discovered.</param>
     /// <param name="targetClrType">The complex type.</param>
+    /// <param name="isCollection">Whether the property should be mapped as a collection.</param>
     protected virtual bool IsCandidateComplexProperty(
         MemberInfo memberInfo,
         IConventionTypeBase structuralType,
-        [NotNullWhen(true)] out Type? targetClrType)
+        [NotNullWhen(true)] out Type? targetClrType,
+        out bool isCollection)
     {
         if (!structuralType.IsInModel
             || structuralType.IsIgnored(memberInfo.Name)
@@ -97,10 +105,12 @@ public class ComplexPropertyDiscoveryConvention :
             || !Dependencies.MemberClassifier.IsCandidateComplexProperty(
                 memberInfo, structuralType.Model, UseAttributes, out var elementType, out var explicitlyConfigured))
         {
+            isCollection = false;
             targetClrType = null;
             return false;
         }
 
+        isCollection = elementType != null;
         var model = (Model)structuralType.Model;
         targetClrType = (elementType ?? memberInfo.GetMemberType()).UnwrapNullableType();
         if (structuralType.Model.Builder.IsIgnored(targetClrType)
@@ -110,7 +120,8 @@ public class ComplexPropertyDiscoveryConvention :
             return false;
         }
 
-        if (!explicitlyConfigured
+        if (structuralType is not IReadOnlyComplexType
+            && !explicitlyConfigured
             && model.FindIsComplexConfigurationSource(targetClrType) == null)
         {
             AddComplexCandidate(memberInfo, structuralType.Builder);

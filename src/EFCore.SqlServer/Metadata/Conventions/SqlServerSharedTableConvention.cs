@@ -33,6 +33,10 @@ public class SqlServerSharedTableConvention : SharedTableConvention
         => false;
 
     /// <inheritdoc />
+    protected override bool DefaultConstraintsUniqueAcrossTables
+        => true;
+
+    /// <inheritdoc />
     protected override bool AreCompatible(IReadOnlyKey key, IReadOnlyKey duplicateKey, in StoreObjectIdentifier storeObject)
         => base.AreCompatible(key, duplicateKey, storeObject)
             && key.AreCompatibleForSqlServer(duplicateKey, storeObject, shouldThrow: false);

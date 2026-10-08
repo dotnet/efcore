@@ -18,8 +18,6 @@ public class DbContextServices : IDbContextServices
     private IServiceProvider? _scopedProvider;
     private DbContextOptions? _contextOptions;
     private ICurrentDbContext? _currentContext;
-    private IModel? _model;
-    private IModel? _designTimeModel;
     private bool _inOnModelCreating;
 
     /// <summary>
@@ -156,8 +154,9 @@ public class DbContextServices : IDbContextServices
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual IModel Model
-        => _model ??= CreateModel(designTime: false);
+        => field ??= CreateModel(designTime: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -165,8 +164,9 @@ public class DbContextServices : IDbContextServices
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual IModel DesignTimeModel
-        => _designTimeModel ??= CreateModel(designTime: true);
+        => field ??= CreateModel(designTime: true);
 
     private CoreOptionsExtension? CoreOptions
         => _contextOptions?.FindExtension<CoreOptionsExtension>();

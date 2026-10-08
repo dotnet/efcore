@@ -29,7 +29,7 @@ public static class InMemoryEntityTypeBuilderExtensions
         this EntityTypeBuilder entityTypeBuilder,
         LambdaExpression? query)
     {
-        Check.NotNull(query, nameof(query));
+        Check.NotNull(query);
 
         entityTypeBuilder.Metadata.SetInMemoryQuery(query);
 
@@ -51,7 +51,7 @@ public static class InMemoryEntityTypeBuilderExtensions
         Expression<Func<IQueryable<TEntity>>> query)
         where TEntity : class
     {
-        Check.NotNull(query, nameof(query));
+        Check.NotNull(query);
 
         entityTypeBuilder.Metadata.SetInMemoryQuery(query);
 
@@ -101,9 +101,5 @@ public static class InMemoryEntityTypeBuilderExtensions
         this IConventionEntityTypeBuilder entityTypeBuilder,
         LambdaExpression? query,
         bool fromDataAnnotation = false)
-#pragma warning disable EF1001 // Internal EF Core API usage.
-#pragma warning disable CS0612 // Type or member is obsolete
-        => entityTypeBuilder.CanSetAnnotation(CoreAnnotationNames.DefiningQuery, query, fromDataAnnotation);
-#pragma warning restore CS0612 // Type or member is obsolete
-#pragma warning restore EF1001 // Internal EF Core API usage.
+        => entityTypeBuilder.CanSetAnnotation(InMemoryAnnotationNames.DefiningQuery, query, fromDataAnnotation);
 }

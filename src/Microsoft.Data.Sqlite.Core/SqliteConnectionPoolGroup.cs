@@ -1,102 +1,101 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.Data.Sqlite
+namespace Microsoft.Data.Sqlite;
+
+internal class SqliteConnectionPoolGroup(SqliteConnectionStringBuilder connectionOptions, string connectionString, bool isNonPooled)
 {
-    internal class SqliteConnectionPoolGroup(SqliteConnectionStringBuilder connectionOptions, string connectionString, bool isNonPooled)
+    private SqliteConnectionPool? _pool;
+    private State _state = State.Active;
+
+    public SqliteConnectionStringBuilder ConnectionOptions { get; } = connectionOptions;
+    public string ConnectionString { get; } = connectionString;
+    public bool IsNonPooled { get; } = isNonPooled;
+
+    public bool IsDisabled
+        => _state == State.Disabled;
+
+    public SqliteConnectionPool? GetPool()
     {
-        private SqliteConnectionPool? _pool;
-        private State _state = State.Active;
-
-        public SqliteConnectionStringBuilder ConnectionOptions { get; } = connectionOptions;
-        public string ConnectionString { get; } = connectionString;
-        public bool IsNonPooled { get; } = isNonPooled;
-
-        public bool IsDisabled
-            => _state == State.Disabled;
-
-        public SqliteConnectionPool? GetPool()
+        if (IsNonPooled)
         {
-            if (IsNonPooled)
+            lock (this)
             {
-                lock (this)
-                {
-                    KeepAlive();
-                }
+                KeepAlive();
+            }
 
-                return null;
+            return null;
+        }
+
+        if (_pool == null)
+        {
+            lock (this)
+            {
+                if (_pool == null
+                    && KeepAlive())
+                {
+                    _pool = new SqliteConnectionPool(ConnectionOptions);
+                }
+            }
+        }
+
+        return _pool;
+    }
+
+    public bool Clear()
+    {
+        lock (this)
+        {
+            if (_pool != null)
+            {
+                SqliteConnectionFactory.Instance.ReleasePool(_pool, clearing: true);
+                _pool = null;
+            }
+        }
+
+        return _pool != null;
+    }
+
+    public bool Prune()
+    {
+        lock (this)
+        {
+            if (_pool?.Count == 0)
+            {
+                SqliteConnectionFactory.Instance.ReleasePool(_pool, clearing: false);
+                _pool = null;
             }
 
             if (_pool == null)
             {
-                lock (this)
+                if (_state == State.Active)
                 {
-                    if (_pool == null
-                        && KeepAlive())
-                    {
-                        _pool = new SqliteConnectionPool(ConnectionOptions);
-                    }
+                    _state = State.Idle;
+                }
+                else if (_state == State.Idle)
+                {
+                    _state = State.Disabled;
                 }
             }
 
-            return _pool;
+            return _state == State.Disabled;
         }
+    }
 
-        public bool Clear()
+    private bool KeepAlive()
+    {
+        if (_state == State.Idle)
         {
-            lock (this)
-            {
-                if (_pool != null)
-                {
-                    SqliteConnectionFactory.Instance.ReleasePool(_pool, clearing: true);
-                    _pool = null;
-                }
-            }
-
-            return _pool != null;
+            _state = State.Active;
         }
 
-        public bool Prune()
-        {
-            lock (this)
-            {
-                if (_pool?.Count == 0)
-                {
-                    SqliteConnectionFactory.Instance.ReleasePool(_pool, clearing: false);
-                    _pool = null;
-                }
+        return _state == State.Active;
+    }
 
-                if (_pool == null)
-                {
-                    if (_state == State.Active)
-                    {
-                        _state = State.Idle;
-                    }
-                    else if (_state == State.Idle)
-                    {
-                        _state = State.Disabled;
-                    }
-                }
-
-                return _state == State.Disabled;
-            }
-        }
-
-        private bool KeepAlive()
-        {
-            if (_state == State.Idle)
-            {
-                _state = State.Active;
-            }
-
-            return _state == State.Active;
-        }
-
-        private enum State
-        {
-            Active,
-            Idle,
-            Disabled
-        }
+    private enum State
+    {
+        Active,
+        Idle,
+        Disabled
     }
 }

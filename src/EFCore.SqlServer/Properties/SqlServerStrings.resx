@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AlreadyConfiguredEngineType" xml:space="preserve">
-    <value>Cannot configure engine type '{newEngineType}', because engine type was already configured as '{oldEngineType}'.</value>
+    <value>Engine type '{newEngineType}' cannot be configured, because engine type was already configured as '{oldEngineType}'.</value>
   </data>
   <data name="AlterIdentityColumn" xml:space="preserve">
     <value>To change the IDENTITY property of a column, the column needs to be dropped and recreated.</value>
@@ -127,7 +127,7 @@
     <value>To change the memory-optimized setting on a table, the table needs to be dropped and recreated.</value>
   </data>
   <data name="CannotProduceUnterminatedSQLWithComments" xml:space="preserve">
-    <value>Can't produce unterminated SQL with comments when generating migrations SQL for {operation}.</value>
+    <value>Cannot produce unterminated SQL with comments when generating migrations SQL for '{operation}'.</value>
   </data>
   <data name="CompatibilityLevelTooLowForScalarCollections" xml:space="preserve">
     <value>EF Core's SQL Server compatibility level is set to {compatibilityLevel}; compatibility level 130 (SQL Server 2016) is the minimum for most forms of querying of JSON arrays.</value>
@@ -167,6 +167,9 @@
   </data>
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
     <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.</value>
+  </data>
+  <data name="ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer" xml:space="preserve">
+    <value>'ExecuteUpdate' cannot set a property in a JSON column to an expression containing a column on SQL Server versions before 2022. If you're on SQL Server 2022 and above, your compatibility level may be set to a lower value; consider raising it.</value>
   </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
@@ -264,10 +267,6 @@
     <value>Found unique constraint on table '{tableName}' with name '{uniqueConstraintName}'.</value>
     <comment>Debug SqlServerEventId.UniqueConstraintFound string string</comment>
   </data>
-  <data name="LogJsonTypeExperimental" xml:space="preserve">
-    <value>The entity type '{entityType}' makes use of the SQL Server native 'json' type. Please note that support for this type in EF Core 9 is experimental and may change in future releases.</value>
-    <comment>Warning SqlServerEventId.JsonTypeExperimental string</comment>
-  </data>
   <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema '{schema}'.</value>
     <comment>Warning SqlServerEventId.MissingSchemaWarning string?</comment>
@@ -321,9 +320,6 @@
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
   </data>
-  <data name="SplitQueryOffsetWithoutOrderBy" xml:space="preserve">
-    <value>The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.</value>
-  </data>
   <data name="TemporalAllEntitiesMappedToSameTableMustBeTemporal" xml:space="preserve">
     <value>Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.</value>
   </data>
@@ -371,5 +367,14 @@
   </data>
   <data name="TransientExceptionDetected" xml:space="preserve">
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
+  </data>
+  <data name="VectorDimensionsInvalid" xml:space="preserve">
+    <value>Vector properties require a positive size (number of dimensions).</value>
+  </data>
+  <data name="VectorDimensionsMissing" xml:space="preserve">
+    <value>Vector property '{structuralType}.{propertyName}' was not configured with the number of dimensions. Set the column type to 'vector(x)' with the desired number of dimensions, or use the 'MaxLength' APIs.</value>
+  </data>
+  <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
+    <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
   </data>
 </root>

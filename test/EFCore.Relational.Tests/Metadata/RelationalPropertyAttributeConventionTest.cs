@@ -158,8 +158,7 @@ public class RelationalPropertyAttributeConventionTest
     {
         public int Id { get; set; }
 
-        [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
-        [Comment("Test column comment")]
+        [Column("Post Name", Order = 1, TypeName = "DECIMAL"), Comment("Test column comment")]
         public string Name { get; set; }
     }
 
@@ -167,8 +166,7 @@ public class RelationalPropertyAttributeConventionTest
     {
         public int Id { get; set; }
 
-        [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
-        [Comment("Test column comment")]
+        [Column("Post Name", Order = 1, TypeName = "DECIMAL"), Comment("Test column comment")]
         public string Name;
     }
 }

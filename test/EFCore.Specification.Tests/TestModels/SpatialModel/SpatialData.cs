@@ -85,41 +85,35 @@ public class SpatialData(GeometryFactory factory) : ISetSource
     }
 
     public static IReadOnlyList<GeoPointEntity> CreateGeoPointEntities()
-        => new[]
-        {
-            new GeoPointEntity
-            {
-                Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E552"), Location = new GeoPoint(47.6233355, -122.34877)
-            },
-            new GeoPointEntity
-            {
-                Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E553"), Location = new GeoPoint(47.5978429, -122.3308366)
-            }
-        };
+        =>
+        [
+            new() { Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E552"), Location = new GeoPoint(47.6233355, -122.34877) },
+            new() { Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E553"), Location = new GeoPoint(47.5978429, -122.3308366) }
+        ];
 
     public static IReadOnlyList<LineStringEntity> CreateLineStringEntities(GeometryFactory factory)
-        => new[]
-        {
-            new LineStringEntity { Id = 1, LineString = factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]) },
-            new LineStringEntity { Id = 2, LineString = null }
-        };
+        =>
+        [
+            new() { Id = 1, LineString = factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]) },
+            new() { Id = 2, LineString = null }
+        ];
 
     public static IReadOnlyList<PolygonEntity> CreatePolygonEntities(GeometryFactory factory)
-        => new[]
-        {
-            new PolygonEntity
+        =>
+        [
+            new()
             {
                 Id = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B1"),
                 Polygon = factory.CreatePolygon(
                     [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)])
             },
-            new PolygonEntity { Id = Guid.Parse("F1B00CB9-862B-417B-955A-F1F7688B2AB5"), Polygon = null }
-        };
+            new() { Id = Guid.Parse("F1B00CB9-862B-417B-955A-F1F7688B2AB5"), Polygon = null }
+        ];
 
     public static IReadOnlyList<MultiLineStringEntity> CreateMultiLineStringEntities(GeometryFactory factory)
-        => new[]
-        {
-            new MultiLineStringEntity
+        =>
+        [
+            new()
             {
                 Id = 1,
                 MultiLineString = factory.CreateMultiLineString(
@@ -128,6 +122,6 @@ public class SpatialData(GeometryFactory factory) : ISetSource
                     factory.CreateLineString([new Coordinate(1, 0), new Coordinate(1, 1)])
                 ])
             },
-            new MultiLineStringEntity { Id = 2, MultiLineString = null }
-        };
+            new() { Id = 2, MultiLineString = null }
+        ];
 }

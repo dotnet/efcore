@@ -103,8 +103,8 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_for_stored_procedure_without_parameter_for_insert_non_save_property()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(
-                () => base.Passes_for_stored_procedure_without_parameter_for_insert_non_save_property());
+            Assert.Throws<InvalidOperationException>(()
+                => base.Passes_for_stored_procedure_without_parameter_for_insert_non_save_property());
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -112,8 +112,8 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_for_stored_procedure_without_parameter_for_update_non_save_property()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(
-                () => base.Passes_for_stored_procedure_without_parameter_for_update_non_save_property());
+            Assert.Throws<InvalidOperationException>(()
+                => base.Passes_for_stored_procedure_without_parameter_for_update_non_save_property());
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -150,15 +150,44 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
 
+    [ConditionalFact]
+    public void Detects_conflicting_autoincrement_and_default_value_sql()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .Property(e => e.Id)
+            .UseAutoincrement()
+            .HasDefaultValueSql("42");
+
+        VerifyWarning(
+            SqliteResources.LogConflictingValueGenerationStrategies(
+                new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Autoincrement", "DefaultValueSql", "Id", nameof(Person)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_conflicting_autoincrement_and_computed_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .Property(e => e.Id)
+            .UseAutoincrement()
+            .HasComputedColumnSql("42");
+
+        VerifyWarning(
+            SqliteResources.LogConflictingValueGenerationStrategies(
+                new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Autoincrement", "ComputedColumnSql", "Id", nameof(Person)),
+            modelBuilder);
+    }
+
     public override void Store_generated_in_composite_key()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<CarbonComposite>(
-            b =>
-            {
-                b.HasKey(e => new { e.Id1, e.Id2 });
-                b.Property(e => e.Id2).ValueGeneratedOnAdd();
-            });
+        modelBuilder.Entity<CarbonComposite>(b =>
+        {
+            b.HasKey(e => new { e.Id1, e.Id2 });
+            b.Property(e => e.Id2).ValueGeneratedOnAdd();
+        });
 
         VerifyWarning(
             SqliteResources.LogCompositeKeyWithValueGeneration(

@@ -24,7 +24,7 @@ public static class RelationalElementTypeBuilderExtensions
         this ElementTypeBuilder elementTypeBuilder,
         string? typeName)
     {
-        Check.NullButNotEmpty(typeName, nameof(typeName));
+        Check.NullButNotEmpty(typeName);
 
         elementTypeBuilder.Metadata.SetStoreType(typeName);
 

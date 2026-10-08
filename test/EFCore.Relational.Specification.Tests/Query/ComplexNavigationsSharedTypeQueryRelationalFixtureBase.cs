@@ -21,10 +21,9 @@ public abstract class ComplexNavigationsSharedTypeQueryRelationalFixtureBase : C
     }
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-                c => c
-                    .Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning)
-                    .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning))
+        => base.AddOptions(builder).ConfigureWarnings(c => c
+                .Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning)
+                .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning))
             .EnableDetailedErrors();
 
     protected override void Configure(OwnedNavigationBuilder<Level1, Level2> l2)

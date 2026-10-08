@@ -96,12 +96,8 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         Assert.Equal(-1, entry[keyProperty]);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Detached)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Deleted)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Detached), InlineData(EntityState.Modified),
+     InlineData(EntityState.Added), InlineData(EntityState.Deleted)]
     public void AcceptChanges_handles_different_entity_states_for_owned_types(EntityState entityState)
     {
         using var context = new KClrContext();
@@ -445,29 +441,26 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FullNotificationEntity>(
-                b =>
-                {
-                    b.Property(e => e.Name).IsConcurrencyToken();
-                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
-                });
+            modelBuilder.Entity<FullNotificationEntity>(b =>
+            {
+                b.Property(e => e.Name).IsConcurrencyToken();
+                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+            });
 
-            modelBuilder.Entity<ChangedOnlyEntity>(
-                b =>
-                {
-                    b.Property(e => e.Name).IsConcurrencyToken();
-                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
-                });
+            modelBuilder.Entity<ChangedOnlyEntity>(b =>
+            {
+                b.Property(e => e.Name).IsConcurrencyToken();
+                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+            });
 
-            modelBuilder.Entity<OwnerClass>(
-                eb =>
-                {
-                    eb.HasKey(e => e.Id);
-                    var owned = eb.OwnsOne(e => e.Owned);
-                    owned.WithOwner().HasForeignKey("Id");
-                    owned.HasKey("Id");
-                    owned.Property(e => e.Value);
-                });
+            modelBuilder.Entity<OwnerClass>(eb =>
+            {
+                eb.HasKey(e => e.Id);
+                var owned = eb.OwnsOne(e => e.Owned);
+                owned.WithOwner().HasForeignKey("Id");
+                owned.HasKey("Id");
+                owned.Property(e => e.Value);
+            });
         }
     }
 
@@ -477,19 +470,17 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<FullNotificationEntity>(
-                b =>
-                {
-                    b.Property(e => e.Name).IsConcurrencyToken();
-                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
-                });
+            modelBuilder.Entity<FullNotificationEntity>(b =>
+            {
+                b.Property(e => e.Name).IsConcurrencyToken();
+                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
+            });
 
-            modelBuilder.Entity<ChangedOnlyEntity>(
-                b =>
-                {
-                    b.Property(e => e.Name).IsConcurrencyToken();
-                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
-                });
+            modelBuilder.Entity<ChangedOnlyEntity>(b =>
+            {
+                b.Property(e => e.Name).IsConcurrencyToken();
+                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+            });
         }
     }
 }

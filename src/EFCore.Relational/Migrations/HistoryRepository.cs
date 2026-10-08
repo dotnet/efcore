@@ -95,12 +95,11 @@ public abstract class HistoryRepository : IHistoryRepository
             conventionSet.Remove(typeof(RelationalDbFunctionAttributeConvention));
 
             var modelBuilder = new ModelBuilder(conventionSet);
-            modelBuilder.Entity<HistoryRow>(
-                x =>
-                {
-                    ConfigureTable(x);
-                    x.ToTable(TableName, TableSchema);
-                });
+            modelBuilder.Entity<HistoryRow>(x =>
+            {
+                ConfigureTable(x);
+                x.ToTable(TableName, TableSchema);
+            });
 
             _model = Dependencies.ModelRuntimeInitializer.Initialize(
                 (IModel)modelBuilder.Model, designTime: true, validationLogger: null);
@@ -191,7 +190,8 @@ public abstract class HistoryRepository : IHistoryRepository
     /// </summary>
     public virtual Task CreateAsync(CancellationToken cancellationToken = default)
         => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
-            GetCreateCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken);
+            GetCreateCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true,
+            cancellationToken: cancellationToken);
 
     /// <summary>
     ///     Returns the migration commands that will create the history table.
@@ -208,19 +208,17 @@ public abstract class HistoryRepository : IHistoryRepository
 
     bool IHistoryRepository.CreateIfNotExists()
         => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(
-            GetCreateIfNotExistsCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true)
+                GetCreateIfNotExistsCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true)
             != 0;
 
     async Task<bool> IHistoryRepository.CreateIfNotExistsAsync(CancellationToken cancellationToken)
         => (await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
-            GetCreateIfNotExistsCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken).ConfigureAwait(false))
+                GetCreateIfNotExistsCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true,
+                cancellationToken: cancellationToken).ConfigureAwait(false))
             != 0;
 
     private IReadOnlyList<MigrationCommand> GetCreateIfNotExistsCommands()
-        => Dependencies.MigrationsSqlGenerator.Generate([new SqlOperation
-        {
-            Sql = GetCreateIfNotExistsScript()
-        }]);
+        => Dependencies.MigrationsSqlGenerator.Generate([new SqlOperation { Sql = GetCreateIfNotExistsScript() }]);
 
     /// <summary>
     ///     Gets an exclusive lock on the database.
@@ -232,7 +230,6 @@ public abstract class HistoryRepository : IHistoryRepository
     ///     Gets an exclusive lock on the database.
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    ///
     /// <returns>An object that can be disposed to release the lock.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public abstract Task<IMigrationsDatabaseLock> AcquireDatabaseLockAsync(CancellationToken cancellationToken = default);

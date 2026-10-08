@@ -37,10 +37,9 @@ public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventio
     {
         var entityTypeConfigurationType = attribute.EntityTypeConfigurationType;
 
-        if (!entityTypeConfigurationType.GetInterfaces().Any(
-                x => x.IsGenericType
-                    && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)
-                    && x.GenericTypeArguments[0] == entityTypeBuilder.Metadata.ClrType))
+        if (!entityTypeConfigurationType.GetInterfaces().Any(x => x.IsGenericType
+                && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)
+                && x.GenericTypeArguments[0] == entityTypeBuilder.Metadata.ClrType))
         {
             throw new InvalidOperationException(
                 CoreStrings.InvalidEntityTypeConfigurationAttribute(

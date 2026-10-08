@@ -20,6 +20,12 @@ public interface IReadOnlyComplexType : IReadOnlyTypeBase
     IReadOnlyComplexProperty ComplexProperty { get; }
 
     /// <summary>
+    ///     Gets the base type of this complex type. Returns <see langword="null" /> if this is not a
+    ///     derived type in an inheritance hierarchy.
+    /// </summary>
+    new IReadOnlyComplexType? BaseType { get; }
+
+    /// <summary>
     ///     Gets a value indicating whether given type is one of the containing types for this complex type.
     /// </summary>
     /// <param name="type">Type to search for in declaration path.</param>
@@ -43,6 +49,34 @@ public interface IReadOnlyComplexType : IReadOnlyTypeBase
 
         return false;
     }
+
+    /// <summary>
+    ///     Gets all types in the model that derive from this complex type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<IReadOnlyComplexType> GetDerivedTypes();
+
+    /// <summary>
+    ///     Returns all derived types of this complex type, including the type itself.
+    /// </summary>
+    /// <returns>Derived types.</returns>
+    new IEnumerable<IReadOnlyComplexType> GetDerivedTypesInclusive()
+        => new[] { this }.Concat(GetDerivedTypes());
+
+    /// <summary>
+    ///     Gets all types in the model that directly derive from this complex type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<IReadOnlyComplexType> GetDirectlyDerivedTypes();
+
+    /// <summary>
+    ///     Gets the root base type for a given entity type.
+    /// </summary>
+    /// <returns>
+    ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+    /// </returns>
+    new IReadOnlyComplexType GetRootType()
+        => BaseType?.GetRootType() ?? this;
 
     /// <summary>
     ///     <para>

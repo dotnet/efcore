@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocMiscellaneousQueryInMemoryTest : AdHocMiscellaneousQueryTestBase
+public class AdHocMiscellaneousQueryInMemoryTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => InMemoryTestStoreFactory.Instance;

@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("FrameworkDescription");
 
         /// <summary>
-        ///     Unable to retrieve project metadata. Ensure it's an SDK-style project. If you're using a custom BaseIntermediateOutputPath or MSBuildProjectExtensionsPath values, Use the --msbuildprojectextensionspath option.
+        ///     Unable to retrieve project metadata. Ensure it's an SDK-style project.
         /// </summary>
         public static string GetMetadataFailed
             => GetString("GetMetadataFailed");
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("IdempotentDescription");
 
         /// <summary>
-        ///     Show JSON output. Use with --prefix-output to parse programatically.
+        ///     Show JSON output. Use with --prefix-output to parse programmatically.
         /// </summary>
         public static string JsonDescription
             => GetString("JsonDescription");
@@ -318,13 +318,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MultipleStartupProjects");
 
         /// <summary>
+        ///     The project targets multiple frameworks. Use the --framework option to specify which target framework to use.
+        /// </summary>
+        public static string MultipleTargetFrameworks
+            => GetString("MultipleTargetFrameworks");
+
+        /// <summary>
         ///     The namespace to use. Matches the directory by default.
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
 
         /// <summary>
-        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental)
+        ///     Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
             => GetString("NativeAotDescription");
@@ -438,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ProjectDescription");
 
         /// <summary>
-        ///     The MSBuild project extensions path. Defaults to "obj".
+        ///     Obsolete
         /// </summary>
         public static string ProjectExtensionsDescription
             => GetString("ProjectExtensionsDescription");

@@ -186,7 +186,7 @@ public class InternalSkipNavigationBuilder :
             {
                 entityTypeBuilder = Metadata.DeclaringEntityType.Builder;
             }
-            else if (Metadata.DeclaringEntityType.Model.FindEntityType(Metadata.DeclaringEntityType.Name) is EntityType entityType)
+            else if (Metadata.DeclaringEntityType.Model.FindEntityType(Metadata.DeclaringEntityType.Name) is { } entityType)
             {
                 entityTypeBuilder = entityType.Builder;
             }

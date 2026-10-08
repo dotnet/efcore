@@ -18,8 +18,7 @@ public class PropertyExtensionsTest
 
         Assert.Equal(
             CoreStrings.ModelNotFinalized(nameof(IReadOnlyProperty.GetTypeMapping)),
-            Assert.Throws<InvalidOperationException>(
-                () => property.GetTypeMapping()).Message);
+            Assert.Throws<InvalidOperationException>(() => property.GetTypeMapping()).Message);
     }
 
     [ConditionalFact]
@@ -73,8 +72,7 @@ public class PropertyExtensionsTest
 
         Assert.Equal(
             CoreStrings.ConverterPropertyMismatch("long", "Entity (Dictionary<string, object>)", "Property1", "int"),
-            Assert.Throws<InvalidOperationException>(
-                () => property1.SetValueConverter(new CastingConverter<long, decimal>())).Message);
+            Assert.Throws<InvalidOperationException>(() => property1.SetValueConverter(new CastingConverter<long, decimal>())).Message);
     }
 
     [ConditionalFact]
@@ -137,14 +135,14 @@ public class PropertyExtensionsTest
         var rightType = model.AddEntityType("Right");
         var rightId1 = rightType.AddProperty("Id1", typeof(int));
         var rightId2 = rightType.AddProperty("Id2", typeof(int));
-        var rightKey = rightType.AddKey(new[] { rightId1, rightId2 });
+        var rightKey = rightType.AddKey([rightId1, rightId2]);
 
         var middleType = model.AddEntityType("Middle");
         var middleProperty1 = middleType.AddProperty("FK1", typeof(int));
         var middleProperty2 = middleType.AddProperty("FK2", typeof(int));
         var middleKey1 = middleType.AddKey(middleProperty1);
         middleType.AddForeignKey(middleProperty1, leftKey, leftType);
-        middleType.AddForeignKey(new[] { middleProperty2, middleProperty1 }, rightKey, rightType);
+        middleType.AddForeignKey([middleProperty2, middleProperty1], rightKey, rightType);
 
         var endType = model.AddEntityType("End");
         var endProperty = endType.AddProperty("FK", typeof(int));
@@ -164,7 +162,7 @@ public class PropertyExtensionsTest
         var leafType = model.AddEntityType("leaf");
         var leafId1 = leafType.AddProperty("Id1", typeof(int));
         var leafId2 = leafType.AddProperty("Id2", typeof(int));
-        var leafKey = leafType.AddKey(new[] { leafId1, leafId2 });
+        var leafKey = leafType.AddKey([leafId1, leafId2]);
 
         var firstType = model.AddEntityType("First");
         var firstId = firstType.AddProperty("Id", typeof(int));
@@ -177,7 +175,7 @@ public class PropertyExtensionsTest
 
         firstType.AddForeignKey(firstId, secondKey, secondType);
         secondType.AddForeignKey(secondId1, firstKey, firstType);
-        secondType.AddForeignKey(new[] { secondId1, secondId2 }, leafKey, leafType);
+        secondType.AddForeignKey([secondId1, secondId2], leafKey, leafType);
 
         leafId1.ValueGenerated = ValueGenerated.OnAdd;
 
@@ -301,49 +299,41 @@ public class PropertyExtensionsTest
             .WithOne(e => e.Category);
 
         modelBuilder
-            .Entity<ProductDetailsTag>(
-                b =>
-                {
-                    b.HasKey(
-                        e => new { e.Id1, e.Id2 });
-                    b.HasOne(e => e.TagDetails)
-                        .WithOne(e => e.Tag)
-                        .HasPrincipalKey<ProductDetailsTag>(e => e.Id2)
-                        .HasForeignKey<ProductDetailsTagDetails>(e => e.Id);
-                });
+            .Entity<ProductDetailsTag>(b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.HasOne(e => e.TagDetails)
+                    .WithOne(e => e.Tag)
+                    .HasPrincipalKey<ProductDetailsTag>(e => e.Id2)
+                    .HasForeignKey<ProductDetailsTagDetails>(e => e.Id);
+            });
 
         modelBuilder
-            .Entity<ProductDetails>(
-                b =>
-                {
-                    b.HasKey(
-                        e => new { e.Id1, e.Id2 });
-                    b.Property(e => e.Id2).ValueGeneratedOnAdd();
-                    b.HasOne(e => e.Tag)
-                        .WithOne(e => e.Details)
-                        .HasForeignKey<ProductDetailsTag>(
-                            e => new { e.Id1, e.Id2 });
-                });
+            .Entity<ProductDetails>(b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.Property(e => e.Id2).ValueGeneratedOnAdd();
+                b.HasOne(e => e.Tag)
+                    .WithOne(e => e.Details)
+                    .HasForeignKey<ProductDetailsTag>(e => new { e.Id1, e.Id2 });
+            });
 
         modelBuilder
             .Entity<Product>()
             .HasOne(e => e.Details)
             .WithOne(e => e.Product)
-            .HasForeignKey<ProductDetails>(
-                e => new { e.Id1 });
+            .HasForeignKey<ProductDetails>(e => new { e.Id1 });
 
-        modelBuilder.Entity<OrderDetails>(
-            b =>
-            {
-                b.HasKey(
-                    e => new { e.OrderId, e.ProductId });
-                b.HasOne(e => e.Order)
-                    .WithMany(e => e.OrderDetails)
-                    .HasForeignKey(e => e.OrderId);
-                b.HasOne(e => e.Product)
-                    .WithMany(e => e.OrderDetails)
-                    .HasForeignKey(e => e.ProductId);
-            });
+        modelBuilder.Entity<OrderDetails>(b =>
+        {
+            b.HasKey(e => new { e.OrderId, e.ProductId });
+            b.HasOne(e => e.Order)
+                .WithMany(e => e.OrderDetails)
+                .HasForeignKey(e => e.OrderId);
+            b.HasOne(e => e.Product)
+                .WithMany(e => e.OrderDetails)
+                .HasForeignKey(e => e.ProductId);
+        });
 
         return modelBuilder.Model;
     }

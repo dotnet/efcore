@@ -32,8 +32,7 @@ public abstract class NorthwindBulkUpdatesRelationalTestBase<TFixture> : Northwi
             RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => base.Delete_non_entity_projection_3(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_FromSql_converted_to_subquery(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
@@ -61,20 +60,15 @@ WHERE [OrderID] < 10300"));
             RelationalStrings.NoSetPropertyInvocation,
             () => base.Update_without_property_to_set_throws(async));
 
-    public override Task Update_with_invalid_lambda_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.InvalidArgumentToExecuteUpdate,
-            () => base.Update_with_invalid_lambda_throws(async));
-
     public override Task Update_with_invalid_lambda_in_set_property_throws(bool async)
         => AssertTranslationFailed(
             RelationalStrings.InvalidPropertyInSetProperty(
-                new ExpressionPrinter().PrintExpression((OrderDetail e) => e.MaybeScalar(e => e.OrderID))),
+                new ExpressionPrinter().PrintExpression((OrderDetail o) => o.MaybeScalar(e => e.OrderID))),
             () => base.Update_with_invalid_lambda_in_set_property_throws(async));
 
     public override Task Update_multiple_tables_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.MultipleTablesInExecuteUpdate("c => c.Customer.ContactName", "c => c.e.OrderDate"),
+            RelationalStrings.MultipleTablesInExecuteUpdate("o => o.e.OrderDate", "o => o.Customer.ContactName"),
             () => base.Update_multiple_tables_throws(async));
 
     public override Task Update_unmapped_property_throws(bool async)
@@ -82,8 +76,7 @@ WHERE [OrderID] < 10300"));
             RelationalStrings.InvalidPropertyInSetProperty("c => c.IsLondon"),
             () => base.Update_unmapped_property_throws(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_FromSql_set_constant(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
@@ -95,6 +88,44 @@ WHERE [OrderID] < 10300"));
                         @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
 FROM [Customers]
 WHERE [CustomerID] LIKE 'A%'"));
+
+                if (async)
+                {
+                    await queryable.ExecuteUpdateAsync(s => s.SetProperty(c => c.ContactName, "Updated"));
+                }
+                else
+                {
+                    queryable.ExecuteUpdate(s => s.SetProperty(c => c.ContactName, "Updated"));
+                }
+            });
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #37771
+    public virtual Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            () => Fixture.CreateContext(),
+            (facade, transaction) => Fixture.UseTransaction(facade, transaction),
+            async context =>
+            {
+                var queryable = context.Set<Customer>().Select(c => new { Entity = c, c.ContactName });
+
+                if (async)
+                {
+                    await queryable.ExecuteUpdateAsync(s => s.SetProperty(c => c.Entity.ContactName, "Updated"));
+                }
+                else
+                {
+                    queryable.ExecuteUpdate(s => s.SetProperty(c => c.Entity.ContactName, "Updated"));
+                }
+            });
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #37771
+    public virtual Task Update_with_select_scalar_anonymous_projection(bool async)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            () => Fixture.CreateContext(),
+            (facade, transaction) => Fixture.UseTransaction(facade, transaction),
+            async context =>
+            {
+                var queryable = context.Set<Customer>().Select(c => new { c.ContactName, c.City });
 
                 if (async)
                 {

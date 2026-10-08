@@ -43,9 +43,7 @@ public class CSharpUniqueNamerTest
         Assert.Equal("A_B_C1", namer.GetName(table2));
     }
 
-    [ConditionalTheory]
-    [InlineData("Name ending with s", "Name_ending_with_")]
-    [InlineData("Name with no s at end", "Name_with_no_s_at_end")]
+    [ConditionalTheory, InlineData("Name ending with s", "Name_ending_with_"), InlineData("Name with no s at end", "Name_with_no_s_at_end")]
     public void Singularizes_names(string input, string output)
     {
         var pluralizer = new HumanizerPluralizer();
@@ -54,9 +52,8 @@ public class CSharpUniqueNamerTest
         Assert.Equal(output, namer.GetName(table));
     }
 
-    [ConditionalTheory]
-    [InlineData("Name ending with s", "Name_ending_with_s")]
-    [InlineData("Name with no s at end", "Name_with_no_s_at_ends")]
+    [ConditionalTheory, InlineData("Name ending with s", "Name_ending_with_s"),
+     InlineData("Name with no s at end", "Name_with_no_s_at_ends")]
     public void Pluralizes_names(string input, string output)
     {
         var pluralizer = new HumanizerPluralizer();

@@ -218,11 +218,11 @@ public partial class DbContextTest
         {
         }
 
-        public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModifed)
+        public void PropertyChanged(IInternalEntry entry, IPropertyBase property, bool setModifed)
         {
         }
 
-        public void PropertyChanging(InternalEntityEntry entry, IPropertyBase property)
+        public void PropertyChanging(IInternalEntry entry, IPropertyBase property)
         {
         }
 
@@ -272,11 +272,15 @@ public partial class DbContextTest
         public void ResetState()
         {
         }
+
+        public void DetectChanges(InternalComplexEntry entry)
+            => throw new NotImplementedException();
+
+        public bool DetectComplexCollectionChanges(InternalEntryBase entry, IComplexProperty complexProperty)
+            => throw new NotImplementedException();
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Can_change_navigation_while_attaching_entities(bool async)
     {
         using (var context = new ActiveAddContext())
@@ -345,12 +349,11 @@ public partial class DbContextTest
         {
             modelBuilder.Entity<Question>(b => b.HasOne(x => x.Author).WithMany(x => x.Questions).HasForeignKey(x => x.AuthorId));
 
-            modelBuilder.Entity<Answer>(
-                b =>
-                {
-                    b.HasOne(x => x.Author).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
-                    b.HasOne(x => x.Question).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
-                });
+            modelBuilder.Entity<Answer>(b =>
+            {
+                b.HasOne(x => x.Author).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
+                b.HasOne(x => x.Question).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
+            });
         }
     }
 
@@ -513,9 +516,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task SaveChanges_calls_DetectChanges_by_default(bool async)
     {
         var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -560,9 +561,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Auto_DetectChanges_for_SaveChanges_can_be_switched_off(bool async)
     {
         var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -620,9 +619,7 @@ public partial class DbContextTest
                 .UseInternalServiceProvider(_serviceProvider);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void DetectChanges_is_called_for_cascade_delete_unless_disabled(bool autoDetectChangesEnabled)
     {
         var detectedChangesFor = new List<object>();
@@ -691,9 +688,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Entry_calls_DetectChanges_by_default(bool useGenericOverload)
     {
         using var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider());
@@ -727,9 +722,7 @@ public partial class DbContextTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Auto_DetectChanges_for_Entry_can_be_switched_off(bool useGenericOverload)
     {
         using var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider());
@@ -1227,9 +1220,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task It_throws_object_disposed_exception(bool async)
     {
         var context = new DbContext(new DbContextOptions<DbContext>());
@@ -1418,8 +1409,7 @@ public partial class DbContextTest
 
     private class TestAssembly
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Name { get; set; }
 
         public ICollection<TestClass> Classes { get; } = new List<TestClass>();
@@ -1451,23 +1441,21 @@ public partial class DbContextTest
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TestClass>(
-                x =>
-                {
-                    x.Property<string>("AssemblyName");
-                    x.HasKey("AssemblyName", nameof(TestClass.Name));
-                    x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
-                        .HasForeignKey("AssemblyName");
-                });
+            modelBuilder.Entity<TestClass>(x =>
+            {
+                x.Property<string>("AssemblyName");
+                x.HasKey("AssemblyName", nameof(TestClass.Name));
+                x.HasOne(c => c.Assembly).WithMany(a => a.Classes)
+                    .HasForeignKey("AssemblyName");
+            });
 
-            modelBuilder.Entity<Test>(
-                x =>
-                {
-                    x.Property<string>("AssemblyName");
-                    x.HasOne(t => t.Class).WithMany(c => c.Tests)
-                        .HasForeignKey("AssemblyName", "ClassName");
-                    x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
-                });
+            modelBuilder.Entity<Test>(x =>
+            {
+                x.Property<string>("AssemblyName");
+                x.HasOne(t => t.Class).WithMany(c => c.Tests)
+                    .HasForeignKey("AssemblyName", "ClassName");
+                x.HasKey("AssemblyName", "ClassName", nameof(Test.Name));
+            });
         }
     }
 }

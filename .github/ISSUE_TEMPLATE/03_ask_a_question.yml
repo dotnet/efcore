@@ -1,0 +1,85 @@
+name: ❓ Ask a question
+description: Ask a question about Entity Framework Core or Microsoft.Data.Sqlite.
+labels: ["customer-reported"]
+body:
+  - type: markdown
+    attributes:
+      value: |-
+        Remember:
+
+        * Please make your question as clear and specific as possible.
+        * Please check that the [documentation](https://docs.microsoft.com/ef/) does not answer your question.
+        * Please search in both [open](https://github.com/dotnet/efcore/issues) and [closed](https://github.com/dotnet/efcore/issues?q=is%3Aissue+is%3Aclosed) issues to check that your question has not already been answered.
+  - type: textarea
+    id: description
+    attributes:
+      label: Question
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Your code
+      description: |-
+        Usually the best way to ask a clear question and get a quick response is to show your code. Preferably, attach a small, runnable project or post a small, runnable code listing that reproduces what you are seeing.
+      render: csharp
+    validations:
+      required: false
+  - type: textarea
+    id: stack
+    attributes:
+      label: Stack traces
+      description: |-
+        Include the full exception message and stack trace for any exception you encounter. 
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: output
+    attributes:
+      label: Verbose output
+      description: |-
+        Include `--verbose` output when filing bugs about the `dotnet ef` or Package Manager Console tools.
+      render: text
+    validations:
+      required: false
+  - type: input
+    id: version-efcore
+    attributes:
+      label: EF Core version
+      placeholder: |-
+        9.0.0
+    validations:
+      required: true
+  - type: input
+    id: version-provider
+    attributes:
+      label: Database provider
+      placeholder: |-
+        Microsoft.EntityFrameworkCore.SqlServer
+    validations:
+      required: false
+  - type: input
+    id: version-target
+    attributes:
+      label: Target framework
+      placeholder: |-
+        .NET 9.0
+    validations:
+      required: false
+  - type: input
+    id: version-os
+    attributes:
+      label: Operating system
+      placeholder: |-
+        Windows 11
+    validations:
+      required: false
+  - type: input
+    id: version-ide
+    attributes:
+      label: IDE
+      placeholder: |-
+        Visual Studio 2022 17.4
+    validations:
+      required: false

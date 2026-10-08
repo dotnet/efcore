@@ -364,7 +364,7 @@ public partial class EntityWithAscendingDescendingIndexes
                     i =>
                     {
                         Assert.Equal("PartiallyDescending", i.Name);
-                        Assert.Equal(new[] { true, false }, i.IsDescending);
+                        Assert.Equal([true, false], i.IsDescending);
                     });
             });
 
@@ -602,7 +602,7 @@ public partial class TestDbContext : DbContext
             model =>
             {
                 var postType = model.FindEntityType("TestNamespace.Post");
-                Assert.Equal(new[] { "Key", "Serial" }, postType.FindPrimaryKey().Properties.Select(p => p.Name));
+                Assert.Equal(["Key", "Serial"], postType.FindPrimaryKey().Properties.Select(p => p.Name));
             });
 
     [ConditionalFact]
@@ -1290,9 +1290,8 @@ public partial class Entity
                     "Entity",
                     x =>
                     {
-                        x.ToTable(
-                            tb => tb.HasComment(
-                                """
+                        x.ToTable(tb => tb.HasComment(
+                            """
 Entity Comment
 On multiple lines
 With XML content <br/>
@@ -1551,7 +1550,7 @@ public partial class TestDbContext : DbContext
                 var postType = model.FindEntityType("TestNamespace.Post");
                 var blogNavigation = postType.FindNavigation("BlogNavigation");
                 Assert.Equal("TestNamespace.Blog", blogNavigation.ForeignKey.PrincipalEntityType.Name);
-                Assert.Equal(new[] { "BlogId1", "BlogId2" }, blogNavigation.ForeignKey.Properties.Select(p => p.Name));
+                Assert.Equal(["BlogId1", "BlogId2"], blogNavigation.ForeignKey.Properties.Select(p => p.Name));
             });
 
     [ConditionalFact]
@@ -1654,8 +1653,8 @@ public partial class TestDbContext : DbContext
                 var postType = model.FindEntityType("TestNamespace.Post");
                 var blogNavigation = postType.FindNavigation("BlogNavigation");
                 Assert.Equal("TestNamespace.Blog", blogNavigation.ForeignKey.PrincipalEntityType.Name);
-                Assert.Equal(new[] { "BlogId1", "BlogId2" }, blogNavigation.ForeignKey.Properties.Select(p => p.Name));
-                Assert.Equal(new[] { "Id1", "Id2" }, blogNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
+                Assert.Equal(["BlogId1", "BlogId2"], blogNavigation.ForeignKey.Properties.Select(p => p.Name));
+                Assert.Equal(["Id1", "Id2"], blogNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
             });
 
     [ConditionalFact]
@@ -1778,8 +1777,8 @@ public partial class TestDbContext : DbContext
                 var carType = model.FindEntityType("TestNamespace.Car");
                 var colorNavigation = carType.FindNavigation("Color");
                 Assert.Equal("TestNamespace.Color", colorNavigation.ForeignKey.PrincipalEntityType.Name);
-                Assert.Equal(new[] { "ColorCode" }, colorNavigation.ForeignKey.Properties.Select(p => p.Name));
-                Assert.Equal(new[] { "ColorCode" }, colorNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
+                Assert.Equal(["ColorCode"], colorNavigation.ForeignKey.Properties.Select(p => p.Name));
+                Assert.Equal(["ColorCode"], colorNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
             });
 
     [ConditionalFact]
@@ -2778,7 +2777,7 @@ public partial class Post
                 Assert.Single(joinEntityType.GetIndexes());
                 Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
 
-                var fk = Assert.Single(joinEntityType.FindDeclaredForeignKeys(new[] { joinEntityType.GetProperty("BlogsKey") }));
+                var fk = Assert.Single(joinEntityType.FindDeclaredForeignKeys([joinEntityType.GetProperty("BlogsKey")]));
                 Assert.False(fk.PrincipalKey.IsPrimaryKey());
             });
 

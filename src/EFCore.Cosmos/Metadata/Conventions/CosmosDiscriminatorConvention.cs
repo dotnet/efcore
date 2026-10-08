@@ -97,14 +97,14 @@ public class CosmosDiscriminatorConvention :
 
     /// <inheritdoc />
     public override void ProcessDiscriminatorPropertySet(
-        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionTypeBaseBuilder structuralTypeBuilder,
         string? name,
         IConventionContext<string> context)
     {
-        var entityType = entityTypeBuilder.Metadata;
-        if (entityType.IsDocumentRoot())
+        if (structuralTypeBuilder.Metadata is not IConventionEntityType entityType
+            || entityType.IsDocumentRoot())
         {
-            base.ProcessDiscriminatorPropertySet(entityTypeBuilder, name, context);
+            base.ProcessDiscriminatorPropertySet(structuralTypeBuilder, name, context);
         }
     }
 

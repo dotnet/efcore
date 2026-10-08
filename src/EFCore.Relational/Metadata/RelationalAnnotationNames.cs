@@ -53,6 +53,16 @@ public static class RelationalAnnotationNames
     public const string DefaultValue = Prefix + "DefaultValue";
 
     /// <summary>
+    ///     The name for default constraint annotations.
+    /// </summary>
+    public const string DefaultConstraintName = Prefix + "DefaultConstraintName";
+
+    /// <summary>
+    ///     The name for using named default constraints annotations.
+    /// </summary>
+    public const string UseNamedDefaultConstraints = Prefix + "UseNamedDefaultConstraints";
+
+    /// <summary>
     ///     The name for table name annotations.
     /// </summary>
     public const string TableName = Prefix + "TableName";
@@ -360,6 +370,8 @@ public static class RelationalAnnotationNames
         ComputedColumnSql,
         IsStored,
         DefaultValue,
+        DefaultConstraintName,
+        UseNamedDefaultConstraints,
         TableName,
         Schema,
         ViewName,

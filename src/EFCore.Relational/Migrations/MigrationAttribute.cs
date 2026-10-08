@@ -18,7 +18,7 @@ public sealed class MigrationAttribute : Attribute
     /// <param name="id">The migration identifier.</param>
     public MigrationAttribute(string id)
     {
-        Check.NotEmpty(id, nameof(id));
+        Check.NotEmpty(id);
 
         Id = id;
     }

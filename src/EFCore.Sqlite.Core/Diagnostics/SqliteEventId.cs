@@ -30,6 +30,7 @@ public static class SqliteEventId
         SchemaConfiguredWarning = CoreEventId.ProviderBaseId,
         SequenceConfiguredWarning,
         CompositeKeyWithValueGeneration,
+        ConflictingValueGenerationStrategiesWarning,
 
         // Infrastructure events
         UnexpectedConnectionTypeWarning = CoreEventId.ProviderBaseId + 100,
@@ -97,6 +98,20 @@ public static class SqliteEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId CompositeKeyWithValueGeneration = MakeValidationId(Id.CompositeKeyWithValueGeneration);
+
+    /// <summary>
+    ///     Both the SqliteValueGenerationStrategy and another value generation configuration have been set on a property. 
+    ///     Configuring two strategies is usually unintentional and will likely result in a database error.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ConflictingValueGenerationStrategiesEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ConflictingValueGenerationStrategiesWarning = MakeValidationId(Id.ConflictingValueGenerationStrategiesWarning);
 
     private static readonly string InfraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 

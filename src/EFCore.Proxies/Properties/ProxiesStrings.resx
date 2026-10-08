@@ -139,6 +139,6 @@
     <value>Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.</value>
   </data>
   <data name="ProxyServicesMissing" xml:space="preserve">
-    <value>'UseChangeTrackingProxies' and 'UseLazyLoadingProxies' each require AddEntityFrameworkProxies to be called on the internal service provider used.</value>
+    <value>'UseChangeTrackingProxies' and 'UseLazyLoadingProxies' each require 'AddEntityFrameworkProxies' to be called on the internal service provider used.</value>
   </data>
 </root>

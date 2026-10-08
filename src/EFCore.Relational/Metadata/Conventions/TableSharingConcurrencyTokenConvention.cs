@@ -78,6 +78,13 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                 {
                     Check.DebugAssert(readOnlyProperties.Count != 0, $"No properties mapped to column '{concurrencyColumnName}'");
 
+                    // JSON-mapped entities don't have column names for their properties,
+                    // so we skip them as they participate in the owner's concurrency token
+                    if (entityType.IsMappedToJson())
+                    {
+                        continue;
+                    }
+
                     var foundMappedProperty = !IsConcurrencyTokenMissing(readOnlyProperties, entityType, mappedTypes)
                         || entityType.GetProperties()
                             .Any(p => p.GetColumnName(table) == concurrencyColumnName);
@@ -238,15 +245,13 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
             }
 
             var linkingFks = containingEntityType.FindForeignKeys(containingEntityType.FindPrimaryKey()!.Properties)
-                .Where(
-                    fk => fk.PrincipalKey.IsPrimaryKey()
-                        && mappedTypes.Contains(fk.PrincipalEntityType)).ToList();
+                .Where(fk => fk.PrincipalKey.IsPrimaryKey()
+                    && mappedTypes.Contains(fk.PrincipalEntityType)).ToList();
             if (linkingFks != null
                 && linkingFks.Count > 0
                 && linkingFks.All(fk => fk.PrincipalEntityType != entityType)
-                && linkingFks.Any(
-                    fk => fk.PrincipalEntityType.IsAssignableFrom(entityType)
-                        || entityType.IsAssignableFrom(fk.PrincipalEntityType)))
+                && linkingFks.Any(fk => fk.PrincipalEntityType.IsAssignableFrom(entityType)
+                    || entityType.IsAssignableFrom(fk.PrincipalEntityType)))
             {
                 // The concurrency token is on a type that shares the row with a base or derived type
                 propertyMissing = false;

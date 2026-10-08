@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
+public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
     private static readonly MethodInfo LikeMethodInfo
         = typeof(DbFunctionsExtensions).GetRuntimeMethod(
@@ -27,7 +27,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
     protected ExpectedQueryRewritingVisitor ExpectedQueryRewriter { get; init; }
 
-    protected OperatorsProceduralQueryTestBase()
+    protected OperatorsProceduralQueryTestBase(NonSharedFixture fixture)
+        : base(fixture)
     {
         Binaries =
         [
@@ -167,11 +168,10 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
             // dummy input expression and whether is has already been used
             // (we want to prioritize ones that haven't been used yet, so that generated expressions are more interesting)
-            var rootEntityExpressions = types.Select(
-                (x, i) => new RootEntityExpressionInfo(
-                    Expression.Property(
-                        Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
-                        "Value"))).ToArray();
+            var rootEntityExpressions = types.Select((x, i) => new RootEntityExpressionInfo(
+                Expression.Property(
+                    Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
+                    "Value"))).ToArray();
 
             var testExpression = GenerateTestExpression(
                 random,
@@ -215,11 +215,10 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
             // dummy input expression and whether is has already been used
             // (we want to prioritize ones that haven't been used yet, so that generated expressions are more interesting)
-            var rootEntityExpressions = types.Select(
-                (x, i) => new RootEntityExpressionInfo(
-                    Expression.Property(
-                        Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
-                        "Value"))).ToArray();
+            var rootEntityExpressions = types.Select((x, i) => new RootEntityExpressionInfo(
+                Expression.Property(
+                    Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
+                    "Value"))).ToArray();
 
             var testExpression = GenerateTestExpression(
                 random,
@@ -260,8 +259,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             .Distinct()
             .ToList();
 
-        var possibleBinaries = Binaries.Where(
-            x => distinctTypesWithNesting.Contains(x.InputTypes.Left) && distinctTypesWithNesting.Contains(x.InputTypes.Right)).ToList();
+        var possibleBinaries = Binaries.Where(x
+            => distinctTypesWithNesting.Contains(x.InputTypes.Left) && distinctTypesWithNesting.Contains(x.InputTypes.Right)).ToList();
         var possibleUnaries = Unaries.Where(x => distinctTypesWithNesting.Contains(x.InputType)).ToList();
 
         var currentDepth = 0;
@@ -470,7 +469,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             methodName,
             BindingFlags.NonPublic | BindingFlags.Instance);
 
-        var genericArguments = roots.Select(x => PropertyTypeToEntityMap[x.Type]).Concat(new[] { resultExpression.Type }).ToArray();
+        var genericArguments = roots.Select(x => PropertyTypeToEntityMap[x.Type]).Concat([resultExpression.Type]).ToArray();
         var genericMethod = method.MakeGenericMethod(genericArguments);
 
         var resultRewriter = new ResultExpressionProjectionRewriter(resultExpression, roots);
@@ -676,7 +675,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[] { Expression.Property(newExpression.Arguments[0], "Value"), }).Visit(_resultExpression);
+                        [Expression.Property(newExpression.Arguments[0], "Value")]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression> { newExpression.Arguments[0], replaced };
 
@@ -687,11 +686,10 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(newExpression.Arguments[0], "Value"),
-                            Expression.Property(newExpression.Arguments[1], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(newExpression.Arguments[1], "Value")
+                        ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
@@ -707,12 +705,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(newExpression.Arguments[0], "Value"),
                             Expression.Property(newExpression.Arguments[1], "Value"),
-                            Expression.Property(newExpression.Arguments[2], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(newExpression.Arguments[2], "Value")
+                        ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
@@ -729,13 +726,12 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(newExpression.Arguments[0], "Value"),
                             Expression.Property(newExpression.Arguments[1], "Value"),
                             Expression.Property(newExpression.Arguments[2], "Value"),
-                            Expression.Property(newExpression.Arguments[3], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(newExpression.Arguments[3], "Value")
+                        ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
@@ -753,14 +749,13 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(newExpression.Arguments[0], "Value"),
                             Expression.Property(newExpression.Arguments[1], "Value"),
                             Expression.Property(newExpression.Arguments[2], "Value"),
                             Expression.Property(newExpression.Arguments[3], "Value"),
-                            Expression.Property(newExpression.Arguments[4], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(newExpression.Arguments[4], "Value")
+                        ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
@@ -779,15 +774,14 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(newExpression.Arguments[0], "Value"),
                             Expression.Property(newExpression.Arguments[1], "Value"),
                             Expression.Property(newExpression.Arguments[2], "Value"),
                             Expression.Property(newExpression.Arguments[3], "Value"),
                             Expression.Property(newExpression.Arguments[4], "Value"),
-                            Expression.Property(newExpression.Arguments[5], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(newExpression.Arguments[5], "Value")
+                        ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
@@ -1196,11 +1190,10 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(methodCallExpression.Arguments[0], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[1], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(methodCallExpression.Arguments[1], "Value")
+                        ]).Visit(_resultExpression);
 
                     return replaced;
                 }
@@ -1209,12 +1202,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(methodCallExpression.Arguments[0], "Value"),
                             Expression.Property(methodCallExpression.Arguments[1], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[2], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(methodCallExpression.Arguments[2], "Value")
+                        ]).Visit(_resultExpression);
 
                     return replaced;
                 }
@@ -1223,13 +1215,12 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(methodCallExpression.Arguments[0], "Value"),
                             Expression.Property(methodCallExpression.Arguments[1], "Value"),
                             Expression.Property(methodCallExpression.Arguments[2], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[3], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(methodCallExpression.Arguments[3], "Value")
+                        ]).Visit(_resultExpression);
 
                     return replaced;
                 }
@@ -1238,14 +1229,13 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(methodCallExpression.Arguments[0], "Value"),
                             Expression.Property(methodCallExpression.Arguments[1], "Value"),
                             Expression.Property(methodCallExpression.Arguments[2], "Value"),
                             Expression.Property(methodCallExpression.Arguments[3], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[4], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(methodCallExpression.Arguments[4], "Value")
+                        ]).Visit(_resultExpression);
 
                     return replaced;
                 }
@@ -1254,15 +1244,14 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
+                        [
                             Expression.Property(methodCallExpression.Arguments[0], "Value"),
                             Expression.Property(methodCallExpression.Arguments[1], "Value"),
                             Expression.Property(methodCallExpression.Arguments[2], "Value"),
                             Expression.Property(methodCallExpression.Arguments[3], "Value"),
                             Expression.Property(methodCallExpression.Arguments[4], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[5], "Value"),
-                        }).Visit(_resultExpression);
+                            Expression.Property(methodCallExpression.Arguments[5], "Value")
+                        ]).Visit(_resultExpression);
 
                     return replaced;
                 }

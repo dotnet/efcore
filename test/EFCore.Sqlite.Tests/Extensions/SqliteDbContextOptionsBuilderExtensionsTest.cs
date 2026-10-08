@@ -42,9 +42,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.Connection);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Can_add_extension_with_connection_string_using_generic_options(bool nullConnectionString)
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -161,9 +159,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Service_collection_extension_method_can_configure_sqlite_options(bool nullConnectionString)
     {
         var serviceCollection = new ServiceCollection();

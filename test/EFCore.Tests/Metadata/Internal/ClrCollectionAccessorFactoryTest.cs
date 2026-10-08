@@ -237,8 +237,8 @@ public class ClrCollectionAccessorFactoryTest
 
         Assert.Equal(
             CoreStrings.NavigationNoSetter("NoBackingFound", typeof(MyEntity).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
     [ConditionalFact]
@@ -248,8 +248,8 @@ public class ClrCollectionAccessorFactoryTest
 
         Assert.Equal(
             CoreStrings.NavigationNoSetter("ReadOnlyPropNoField", typeof(MyEntity).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
     [ConditionalFact]
@@ -267,8 +267,8 @@ public class ClrCollectionAccessorFactoryTest
 
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).Name, typeof(MyPrivateCollection).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
     [ConditionalFact]
@@ -278,8 +278,8 @@ public class ClrCollectionAccessorFactoryTest
 
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).Name, typeof(MyInternalCollection).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
     [ConditionalFact]
@@ -290,8 +290,8 @@ public class ClrCollectionAccessorFactoryTest
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType(
                 "AsMyUnavailableCollection", typeof(MyEntity).Name, typeof(MyUnavailableCollection).Name),
-            Assert.Throws<InvalidOperationException>(
-                () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
+            Assert.Throws<InvalidOperationException>(() => accessor.Add(
+                new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
     }
 
     private INavigation CreateNavigation(string navigationName)

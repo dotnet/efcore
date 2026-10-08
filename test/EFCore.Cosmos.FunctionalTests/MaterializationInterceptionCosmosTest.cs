@@ -5,8 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class MaterializationInterceptionCosmosTest :
-    MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>
+public class MaterializationInterceptionCosmosTest(NonSharedFixture fixture) :
+    MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>(fixture)
 {
     public override Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
         => Task.CompletedTask;
@@ -20,28 +20,25 @@ public class MaterializationInterceptionCosmosTest :
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Book>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                    b.HasPartitionKey(e => e.Title);
-                    b.HasKey(e => new { e.Id, e.Title });
-                });
+            modelBuilder.Entity<Book>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+                b.HasPartitionKey(e => e.Title);
+                b.HasKey(e => new { e.Id, e.Title });
+            });
 
-            modelBuilder.Entity<Pamphlet>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedOnAdd();
-                    b.HasPartitionKey(e => e.Title);
-                    b.HasKey(e => new { e.Id, e.Title });
-                });
+            modelBuilder.Entity<Pamphlet>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+                b.HasPartitionKey(e => e.Title);
+                b.HasKey(e => new { e.Id, e.Title });
+            });
 
-            modelBuilder.Entity<TestEntity30244>(
-                b =>
-                {
-                    b.HasPartitionKey(e => e.Title);
-                    b.HasKey(e => new { e.Id, e.Title });
-                });
+            modelBuilder.Entity<TestEntity30244>(b =>
+            {
+                b.HasPartitionKey(e => e.Title);
+                b.HasKey(e => new { e.Id, e.Title });
+            });
         }
     }
 

@@ -355,12 +355,12 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     {
         if (memberInfo == null)
         {
-            return Enumerable.Empty<TCustomAttribute>();
+            return [];
         }
 
         return Attribute.IsDefined(memberInfo, typeof(TCustomAttribute), inherit: true)
             ? memberInfo.GetCustomAttributes<TCustomAttribute>(true)
-            : Enumerable.Empty<TCustomAttribute>();
+            : [];
     }
 
     /// <summary>

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 ///     <para>
 ///         A value of this type is passed to all interceptor methods that are called before the operation
 ///         being intercepted is executed.
-///         Typically the interceptor should return the value passed in.
+///         Typically, the interceptor should return the value passed in.
 ///         However, creating a result with <see cref="SuppressWithResult" /> causes the operation being
 ///         intercepted to be suppressed; that is, the operation is not executed.
 ///         The value in the result is then used as a substitute return value for the operation that was suppressed.
@@ -23,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 /// <typeparam name="TResult">The new result to use.</typeparam>
 public readonly struct InterceptionResult<TResult>
 {
-    private readonly TResult _result;
-
     /// <summary>
     ///     Creates a new <see cref="InterceptionResult{TResult}" /> instance indicating that
     ///     execution should be suppressed and the given result should be used instead.
@@ -35,7 +33,7 @@ public readonly struct InterceptionResult<TResult>
 
     private InterceptionResult(TResult result)
     {
-        _result = result;
+        Result = result;
         HasResult = true;
     }
 
@@ -56,7 +54,7 @@ public readonly struct InterceptionResult<TResult>
                 throw new InvalidOperationException(CoreStrings.NoInterceptionResult);
             }
 
-            return _result;
+            return field;
         }
     }
 

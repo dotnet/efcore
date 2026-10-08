@@ -270,8 +270,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 var applied = false;
                 try
                 {
-                    applied = Dependencies.HistoryRepository.GetAppliedMigrations().Any(
-                        e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase));
+                    applied = Dependencies.HistoryRepository.GetAppliedMigrations().Any(e => e.MigrationId.Equals(
+                        migration.GetId(), StringComparison.OrdinalIgnoreCase));
                 }
                 catch (Exception ex) when (force)
                 {

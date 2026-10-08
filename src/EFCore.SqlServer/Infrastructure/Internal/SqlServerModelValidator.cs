@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
@@ -43,29 +45,9 @@ public class SqlServerModelValidator : RelationalModelValidator
         base.Validate(model, logger);
 
         ValidateDecimalColumns(model, logger);
+        ValidateVectorColumns(model, logger);
         ValidateByteIdentityMapping(model, logger);
         ValidateTemporalTables(model, logger);
-        ValidateUseOfJsonType(model, logger);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual void ValidateUseOfJsonType(
-        IModel model,
-        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-    {
-        foreach (var entityType in model.GetEntityTypes())
-        {
-            if (string.Equals(entityType.GetContainerColumnType(), "json", StringComparison.OrdinalIgnoreCase)
-                || entityType.GetProperties().Any(p => string.Equals(p.GetColumnType(), "json", StringComparison.OrdinalIgnoreCase)))
-            {
-                logger.JsonTypeExperimental(entityType);
-            }
-        }
     }
 
     /// <summary>
@@ -80,9 +62,8 @@ public class SqlServerModelValidator : RelationalModelValidator
     {
         foreach (IConventionProperty property in model.GetEntityTypes()
                      .SelectMany(t => t.GetDeclaredProperties())
-                     .Where(
-                         p => p.ClrType.UnwrapNullableType() == typeof(decimal)
-                             && !p.IsForeignKey()))
+                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                         && !p.IsForeignKey()))
         {
             var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
             var valueConverterProviderType = property.GetValueConverter()?.ProviderClrType;
@@ -116,6 +97,34 @@ public class SqlServerModelValidator : RelationalModelValidator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected virtual void ValidateVectorColumns(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (IConventionProperty property in model.GetEntityTypes()
+                     .SelectMany(t => t.GetDeclaredProperties())
+                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(SqlVector<float>)))
+        {
+            if (property.GetTypeMapping() is not SqlServerVectorTypeMapping { Size: not null } vectorTypeMapping)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorDimensionsMissing(property.DeclaringType.DisplayName(), property.Name));
+            }
+
+            if (property.DeclaringType.IsMappedToJson())
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorPropertiesNotSupportedInJson(property.DeclaringType.DisplayName(), property.Name));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected virtual void ValidateByteIdentityMapping(
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
@@ -124,9 +133,8 @@ public class SqlServerModelValidator : RelationalModelValidator
         {
             // TODO: Validate this per table
             foreach (var property in entityType.GetDeclaredProperties()
-                         .Where(
-                             p => p.ClrType.UnwrapNullableType() == typeof(byte)
-                                 && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+                         .Where(p => p.ClrType.UnwrapNullableType() == typeof(byte)
+                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 logger.ByteIdentityColumnWarning(property);
             }
@@ -147,9 +155,8 @@ public class SqlServerModelValidator : RelationalModelValidator
         if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
             && entityType.BaseType == null)
         {
-            foreach (var storeGeneratedProperty in key.Properties.Where(
-                         p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0
-                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+            foreach (var storeGeneratedProperty in key.Properties.Where(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0
+                         && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
             }
@@ -327,7 +334,7 @@ public class SqlServerModelValidator : RelationalModelValidator
                     temporalEntityType.DisplayName(), periodProperty.Name, expectedPeriodColumnName));
         }
 
-        if (periodProperty.TryGetDefaultValue(out var _))
+        if (periodProperty.TryGetDefaultValue(out _))
         {
             throw new InvalidOperationException(
                 SqlServerStrings.TemporalPeriodPropertyCantHaveDefaultValue(

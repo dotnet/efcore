@@ -12,12 +12,12 @@ public class StateDataTest
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated);
         }
     }
 
@@ -28,12 +28,12 @@ public class StateDataTest
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated);
         }
     }
 
@@ -44,12 +44,12 @@ public class StateDataTest
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated);
         }
     }
 
@@ -60,12 +60,12 @@ public class StateDataTest
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated);
         }
     }
 
@@ -76,12 +76,12 @@ public class StateDataTest
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.IsTemporary,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated);
+                InternalEntryBase.PropertyFlag.IsTemporary,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsStoreGenerated);
         }
     }
 
@@ -92,25 +92,25 @@ public class StateDataTest
         {
             PropertyManipulation(
                 i,
-                InternalEntityEntry.PropertyFlag.IsStoreGenerated,
-                InternalEntityEntry.PropertyFlag.IsLoaded,
-                InternalEntityEntry.PropertyFlag.Modified,
-                InternalEntityEntry.PropertyFlag.Null,
-                InternalEntityEntry.PropertyFlag.Unknown,
-                InternalEntityEntry.PropertyFlag.IsTemporary);
+                InternalEntryBase.PropertyFlag.IsStoreGenerated,
+                InternalEntryBase.PropertyFlag.IsLoaded,
+                InternalEntryBase.PropertyFlag.Modified,
+                InternalEntryBase.PropertyFlag.Null,
+                InternalEntryBase.PropertyFlag.Unknown,
+                InternalEntryBase.PropertyFlag.IsTemporary);
         }
     }
 
     private void PropertyManipulation(
         int propertyCount,
-        InternalEntityEntry.PropertyFlag propertyFlag,
-        InternalEntityEntry.PropertyFlag unusedFlag1,
-        InternalEntityEntry.PropertyFlag unusedFlag2,
-        InternalEntityEntry.PropertyFlag unusedFlag3,
-        InternalEntityEntry.PropertyFlag unusedFlag4,
-        InternalEntityEntry.PropertyFlag unusedFlag5)
+        InternalEntryBase.PropertyFlag propertyFlag,
+        InternalEntryBase.PropertyFlag unusedFlag1,
+        InternalEntryBase.PropertyFlag unusedFlag2,
+        InternalEntryBase.PropertyFlag unusedFlag3,
+        InternalEntryBase.PropertyFlag unusedFlag4,
+        InternalEntryBase.PropertyFlag unusedFlag5)
     {
-        var data = new InternalEntityEntry.StateData(propertyCount, propertyCount);
+        var data = new InternalEntryBase.StateData(propertyCount, propertyCount);
 
         Assert.False(data.AnyPropertiesFlagged(propertyFlag));
         Assert.False(data.AnyPropertiesFlagged(unusedFlag1));
@@ -215,7 +215,7 @@ public class StateDataTest
     [ConditionalFact]
     public void Can_get_and_set_EntityState()
     {
-        var data = new InternalEntityEntry.StateData(70, 0);
+        var data = new InternalEntryBase.StateData(70, 0);
 
         Assert.Equal(EntityState.Detached, data.EntityState);
 
@@ -231,7 +231,7 @@ public class StateDataTest
         data.EntityState = EntityState.Deleted;
         Assert.Equal(EntityState.Deleted, data.EntityState);
 
-        data.FlagAllProperties(70, InternalEntityEntry.PropertyFlag.Modified, flagged: true);
+        data.FlagAllProperties(70, InternalEntryBase.PropertyFlag.Modified, flagged: true);
 
         Assert.Equal(EntityState.Deleted, data.EntityState);
 

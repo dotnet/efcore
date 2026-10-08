@@ -32,24 +32,15 @@ public abstract class RelationalTypeMappingTest
         => (ValueComparer)Activator.CreateInstance(
             typeof(FakeValueComparer<>).MakeGenericType(type));
 
-    [ConditionalTheory]
-    [InlineData(typeof(BoolTypeMapping), typeof(bool))]
-    [InlineData(typeof(ByteTypeMapping), typeof(byte))]
-    [InlineData(typeof(CharTypeMapping), typeof(char))]
-    [InlineData(typeof(DateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
-    [InlineData(typeof(DateTimeTypeMapping), typeof(DateTime))]
-    [InlineData(typeof(DecimalTypeMapping), typeof(decimal))]
-    [InlineData(typeof(DoubleTypeMapping), typeof(double))]
-    [InlineData(typeof(FloatTypeMapping), typeof(float))]
-    [InlineData(typeof(GuidTypeMapping), typeof(Guid))]
-    [InlineData(typeof(IntTypeMapping), typeof(int))]
-    [InlineData(typeof(LongTypeMapping), typeof(long))]
-    [InlineData(typeof(SByteTypeMapping), typeof(sbyte))]
-    [InlineData(typeof(ShortTypeMapping), typeof(short))]
-    [InlineData(typeof(TimeSpanTypeMapping), typeof(TimeSpan))]
-    [InlineData(typeof(UIntTypeMapping), typeof(uint))]
-    [InlineData(typeof(ULongTypeMapping), typeof(ulong))]
-    [InlineData(typeof(UShortTypeMapping), typeof(ushort))]
+    [ConditionalTheory, InlineData(typeof(BoolTypeMapping), typeof(bool)), InlineData(typeof(ByteTypeMapping), typeof(byte)),
+     InlineData(typeof(CharTypeMapping), typeof(char)), InlineData(typeof(DateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
+     InlineData(typeof(DateTimeTypeMapping), typeof(DateTime)), InlineData(typeof(DecimalTypeMapping), typeof(decimal)),
+     InlineData(typeof(DoubleTypeMapping), typeof(double)), InlineData(typeof(FloatTypeMapping), typeof(float)),
+     InlineData(typeof(GuidTypeMapping), typeof(Guid)), InlineData(typeof(IntTypeMapping), typeof(int)),
+     InlineData(typeof(LongTypeMapping), typeof(long)), InlineData(typeof(SByteTypeMapping), typeof(sbyte)),
+     InlineData(typeof(ShortTypeMapping), typeof(short)), InlineData(typeof(TimeSpanTypeMapping), typeof(TimeSpan)),
+     InlineData(typeof(UIntTypeMapping), typeof(uint)), InlineData(typeof(ULongTypeMapping), typeof(ulong)),
+     InlineData(typeof(UShortTypeMapping), typeof(ushort))]
     public virtual void Create_and_clone_with_converter(Type mappingType, Type type)
     {
         var mapping = (RelationalTypeMapping)Activator.CreateInstance(

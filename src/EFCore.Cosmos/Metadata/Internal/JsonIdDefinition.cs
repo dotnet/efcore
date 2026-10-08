@@ -89,23 +89,24 @@ public class JsonIdDefinition : IJsonIdDefinition
 
         if (_discriminatorProperty != null)
         {
-            AppendValue(_discriminatorProperty!, _discriminatorValue!);
+            AppendValue(_discriminatorProperty!, _discriminatorValue!, singleValue: false);
         }
 
         var i = 0;
+        var multipleValues = _discriminatorProperty != null || values.Skip(1).Any();
         foreach (var value in values)
         {
-            AppendValue(Properties[i++], value);
+            AppendValue(Properties[i++], value, !multipleValues);
         }
 
         builder.Remove(builder.Length - 1, 1);
 
         return builder.ToString();
 
-        void AppendValue(IProperty property, object? value)
+        void AppendValue(IProperty property, object? value, bool singleValue)
         {
             var converter = property.GetTypeMapping().Converter;
-            AppendString(builder, converter == null ? value : converter.ConvertToProvider(value));
+            AppendString(builder, converter == null ? value : converter.ConvertToProvider(value), singleValue);
             builder.Append('|');
         }
     }
@@ -116,23 +117,23 @@ public class JsonIdDefinition : IJsonIdDefinition
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual void AppendString(StringBuilder builder, object? propertyValue)
+    protected virtual void AppendString(StringBuilder builder, object? propertyValue, bool singleValue)
     {
         switch (propertyValue)
         {
             case string stringValue:
-                AppendEscape(builder, stringValue);
+                AppendEscape(builder, stringValue, singleValue);
                 return;
             case IEnumerable enumerable:
                 foreach (var item in enumerable)
                 {
-                    AppendEscape(builder, item.ToString()!);
+                    AppendEscape(builder, item.ToString()!, singleValue);
                     builder.Append('|');
                 }
 
                 return;
             case DateTime dateTime:
-                AppendEscape(builder, dateTime.ToString("O"));
+                AppendEscape(builder, dateTime.ToString("O"), singleValue);
                 return;
             default:
                 if (propertyValue == null)
@@ -141,7 +142,7 @@ public class JsonIdDefinition : IJsonIdDefinition
                 }
                 else
                 {
-                    AppendEscape(builder, propertyValue.ToString()!);
+                    AppendEscape(builder, propertyValue.ToString()!, singleValue);
                 }
 
                 return;
@@ -154,16 +155,20 @@ public class JsonIdDefinition : IJsonIdDefinition
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual StringBuilder AppendEscape(StringBuilder builder, string stringValue)
+    protected virtual StringBuilder AppendEscape(StringBuilder builder, string stringValue, bool singleValue)
     {
         var startingIndex = builder.Length;
-        return builder.Append(stringValue)
-            // We need this to avoid collisions with the value separator
-            .Replace("|", "^|", startingIndex, builder.Length - startingIndex)
-            // These are invalid characters, see https://docs.microsoft.com/dotnet/api/microsoft.azure.documents.resource.id
-            .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)
-            .Replace("\\", "^5C", startingIndex, builder.Length - startingIndex)
-            .Replace("?", "^3F", startingIndex, builder.Length - startingIndex)
-            .Replace("#", "^23", startingIndex, builder.Length - startingIndex);
+        builder = builder.Append(stringValue);
+
+        return singleValue
+            ? builder
+            : builder
+                // We need this to avoid collisions with the value separator, but only when the key has multiple values.
+                .Replace("|", "^|", startingIndex, builder.Length - startingIndex)
+                // These are invalid characters, see https://docs.microsoft.com/dotnet/api/microsoft.azure.documents.resource.id
+                .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)
+                .Replace("\\", "^5C", startingIndex, builder.Length - startingIndex)
+                .Replace("?", "^3F", startingIndex, builder.Length - startingIndex)
+                .Replace("#", "^23", startingIndex, builder.Length - startingIndex);
     }
 }

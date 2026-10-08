@@ -27,4 +27,39 @@ public interface IConventionComplexType : IReadOnlyComplexType, IConventionTypeB
     ///     Gets the associated property.
     /// </summary>
     new IConventionComplexProperty ComplexProperty { get; }
+
+    /// <summary>
+    ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
+    /// </summary>
+    new IConventionComplexType? BaseType { get; }
+
+    /// <summary>
+    ///     Gets the root base type for a given type.
+    /// </summary>
+    /// <returns>
+    ///     The root base type. If the given type is not a derived type, then the same type is returned.
+    /// </returns>
+    new IConventionComplexType GetRootType()
+        => (IConventionComplexType)((IReadOnlyTypeBase)this).GetRootType();
+
+    /// <summary>
+    ///     Gets all types in the model that derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<IConventionComplexType> GetDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IConventionComplexType>();
+
+    /// <summary>
+    ///     Returns all derived types of this type, including the type itself.
+    /// </summary>
+    /// <returns>Derived types.</returns>
+    new IEnumerable<IConventionComplexType> GetDerivedTypesInclusive()
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IConventionComplexType>();
+
+    /// <summary>
+    ///     Gets all types in the model that directly derive from this type.
+    /// </summary>
+    /// <returns>The derived types.</returns>
+    new IEnumerable<IConventionComplexType> GetDirectlyDerivedTypes()
+        => ((IReadOnlyTypeBase)this).GetDirectlyDerivedTypes().Cast<IConventionComplexType>();
 }

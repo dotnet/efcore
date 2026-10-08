@@ -27,7 +27,7 @@ public class PropertyEntry : MemberEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public PropertyEntry(InternalEntityEntry internalEntry, IProperty property)
+    public PropertyEntry(IInternalEntry internalEntry, IProperty property)
         : base(internalEntry, property)
     {
     }
@@ -44,7 +44,7 @@ public class PropertyEntry : MemberEntry
     public override bool IsModified
     {
         get => InternalEntry.IsModified(Metadata);
-        set => InternalEntry.SetPropertyModified(Metadata, changeState: true, isModified: value);
+        set => InternalEntry.SetPropertyModified(Metadata, isModified: value);
     }
 
     /// <summary>

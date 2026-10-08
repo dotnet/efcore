@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 /// <summary>
@@ -250,7 +248,7 @@ public class EntityReferenceMap
                 case 1 when returnDeleted:
                     return _deletedReferenceMap!.Values;
                 case 0:
-                    return Enumerable.Empty<InternalEntityEntry>();
+                    return [];
             }
         }
 
