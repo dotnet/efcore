@@ -14196,6 +14196,9 @@
       "Properties": [
         {
           "Member": "bool SupportsNavigationExpansionJoins { get; }"
+        },
+        {
+          "Member": "bool SupportsSingleResultLifting { get; }"
         }
       ]
     },

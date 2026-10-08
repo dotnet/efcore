@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -813,6 +813,107 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
                 Assert.Equal(2, result.Key);
                 Assert.Equal(5, result.SumOrFive);
             });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Repeated_single_result_subquery_read_through_required_navigation_with_query_filter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38965>(
+            onConfiguring: b => b.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)),
+            seed: c =>
+            {
+                c.Dependents.AddRange(
+                    new Dependent38965 { GroupId = 1, Principal = new Principal38965 { Value = 10 }, Unfiltered = new Unfiltered38965() },
+                    new Dependent38965
+                    {
+                        GroupId = 2,
+                        Principal = new Principal38965 { Value = 20, Filtered = true },
+                        Unfiltered = new Unfiltered38965()
+                    });
+
+                return c.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+
+        // For group 2 the latest dependent is its own, whose principal is filtered out: the subquery skips to group 1's value.
+        var query = from d in context.Dependents
+                    let latest = context.Dependents
+                        .Where(e => e.GroupId <= d.GroupId)
+                        .OrderByDescending(e => e.GroupId)
+                        .FirstOrDefault()
+                    orderby d.GroupId
+                    select new { GroupId = (int?)latest!.GroupId, Value = (int?)latest.Principal.Value };
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal([(1, 10), (2, 10)], results.Select(r => (r.GroupId, r.Value)));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Single_result_subquery_null_check_preserves_filtered_projection(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38965>(
+            onConfiguring: b => b.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)),
+            seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Dependents.OrderBy(d => d.GroupId).Select(d => new
+        {
+            GroupId = context.Dependents.Where(e => e.GroupId == d.GroupId)
+                .OrderBy(e => e.Id).Select(e => (int?)e.GroupId).FirstOrDefault(),
+            HasPrincipal = context.Dependents.Where(e => e.GroupId == d.GroupId)
+                .OrderBy(e => e.Id).Select(e => new { e.Principal.Value }).FirstOrDefault() != null
+        });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal([(1, true), (2, false)], results.Select(r => (r.GroupId, r.HasPrincipal)));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Repeated_single_result_subquery_with_non_deterministic_query_filter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39107>(
+            seed: c =>
+            {
+                c.Parents.Add(new Context39107.Parent { Children = [new Context39107.Child { Value = 10, Other = 20 }] });
+
+                return c.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Parents.Select(p => new
+        {
+            Value = p.Children.OrderBy(c => c.Id).Select(c => c.Value).FirstOrDefault(),
+            Other = p.Children.OrderBy(c => c.Id).Select(c => c.Other).FirstOrDefault()
+        });
+
+        var result = Assert.Single(async ? await query.ToListAsync() : query.ToList());
+
+        Assert.Equal((10, 20), (result.Value, result.Other));
+    }
+
+    protected class Context39107(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent> Parents => Set<Parent>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Child>().HasQueryFilter(c => EF.Functions.Random() >= 0);
+
+        public class Parent
+        {
+            public int Id { get; set; }
+            public List<Child> Children { get; set; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public int? Value { get; set; }
+            public int? Other { get; set; }
+        }
     }
 
     protected class Context38965(DbContextOptions options) : DbContext(options)
