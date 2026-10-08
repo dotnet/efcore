@@ -13,7 +13,7 @@ agent_environment:
 stimuli:
   - name: plan-an-efcore-baseline-refresh
     prompt: |-
-      Before planning commands, use the available repository skill that applies to this task. Inspect src/EFCore/EFCore.baseline.json, eng/Tools/ApiChief/ApiChief.csproj, and eng/Tools/ApiChief/README.md. Write apichief-plan.md with the exact PowerShell sequence for refreshing the EFCore baseline from this checkout, including environment setup, target assembly/TFM selection, output path, and post-generation review. Include an `emit delta` verification step and explain its exit codes for changes, no changes, and errors. Include the required ApiChief and target-project build commands in the plan, but do not execute any command or build during this task.
+      Inspect src/EFCore/EFCore.baseline.json, eng/Tools/ApiChief/ApiChief.csproj, and eng/Tools/ApiChief/README.md. Write apichief-plan.md with the exact PowerShell sequence for refreshing the EFCore baseline from this checkout, including environment setup, target assembly/TFM selection, output path, and post-generation review. Include an `emit delta` verification step and explain its exit codes for changes, no changes, and errors. Include the required ApiChief and target-project build commands in the plan, but do not execute any command or build during this task.
     constraints: &short_constraints
       max_turns: 40
       max_tokens: 750000

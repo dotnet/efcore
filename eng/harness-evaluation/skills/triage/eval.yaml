@@ -13,7 +13,7 @@ agent_environment:
 stimuli:
   - name: triage-a-cosmos-readitem-regression
     prompt: |-
-      Before triaging, use the available repository skill that applies to this task. Inspect src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs and test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTest.cs. Offline issue #41235 reports that an id and partition-key predicate stopped using ReadItem after an upgrade. Write triage-report.md as a ready-to-paste EF Core issue comment: classify and label it, give a minimal single-provider repro, describe regression verification, and list plausible duplicate-search queries. Begin with the triage skill's exact AI heading and disclaimer, classify it as a bug, and include `area-cosmos` and `area-query`. Use only `github.com` URLs if links are needed. Do not access or mutate GitHub.
+      Inspect src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs and test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTest.cs. Offline issue #41235 reports that an id and partition-key predicate stopped using ReadItem after an upgrade. Write triage-report.md as a ready-to-paste EF Core issue comment: classify and label it, give a minimal single-provider repro, describe regression verification, and list plausible duplicate-search queries. Begin with the triage skill's exact AI heading and disclaimer, classify it as a bug, and include `area-cosmos` and `area-query`. Use only `github.com` URLs if links are needed. Do not access or mutate GitHub.
     constraints: &triage_constraints
       max_turns: 50
       max_tokens: 1000000
@@ -43,7 +43,7 @@ stimuli:
           max: 1000000
   - name: stop-on-a-security-sensitive-relational-report
     prompt: |-
-      Before triaging, use the available repository skill that applies to this task. A report about src/EFCore.Relational/Extensions/RelationalQueryableExtensions.cs claims a new SQL injection bypass and includes exploit details. Inspect only enough to apply the EF Core triage policy, then respond appropriately. Do not create files, continue technical investigation, search for duplicates, or access GitHub.
+      A report about src/EFCore.Relational/Extensions/RelationalQueryableExtensions.cs claims a new SQL injection bypass and includes exploit details. Inspect only enough to apply the EF Core triage policy, then respond appropriately. Do not create files, continue technical investigation, search for duplicates, or access GitHub.
     constraints: *triage_constraints
     agent_environment:
       files:

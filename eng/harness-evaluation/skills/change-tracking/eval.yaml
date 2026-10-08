@@ -11,30 +11,32 @@ agent_environment:
   skills:
     - ../../../../.agents/skills/change-tracking
 stimuli:
-  - name: diagnose-temporary-value-snapshot-transition
-    prompt: >-
-      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore/ChangeTracking/Internal/SnapshotFactoryFactory.cs, src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs, and test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs. A proposed change causes a temporary property to lose its modified state when an Added entry becomes Modified. Write analysis.md identifying the controlling code path, the shared-identity edge case that must remain safe, and the focused regression test you would add. Do not edit source.
+  - name: diagnose-replaced-owned-graph-corruption
+    prompt: |-
+      Inspect the staged change-tracking implementation and JSON update tests. Replacing a JSON-owned root with a new instance that reuses its nested leaf persists correctly, but after SaveChanges the replacement graph's leaf is null in memory.
+
+      A proposed fix makes `EntityGraphAttacher` process every entry in `Deleted` state and makes `StateManager.CascadeDelete` return early whenever the entry is `Deleted`. Write analysis.md with the corrected implementation and focused regression-test plan. Do not edit source.
     constraints:
       max_turns: 80
       max_tokens: 2000000
       max_duration: 30m
     agent_environment:
       files:
-        - src: ../../../../src/EFCore/ChangeTracking/Internal/SnapshotFactoryFactory.cs
-          dest: src/EFCore/ChangeTracking/Internal/SnapshotFactoryFactory.cs
-        - src: ../../../../src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs
-          dest: src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs
-        - src: ../../../../test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs
-          dest: test/EFCore.Tests/ChangeTracking/TemporaryValuesTest.cs
+        - src: ../../../../src/EFCore/ChangeTracking/Internal/EntityGraphAttacher.cs
+          dest: src/EFCore/ChangeTracking/Internal/EntityGraphAttacher.cs
+        - src: ../../../../src/EFCore/ChangeTracking/Internal/StateManager.cs
+          dest: src/EFCore/ChangeTracking/Internal/StateManager.cs
+        - src: ../../../../test/EFCore.Relational.Specification.Tests/Update/JsonUpdateTestBase.cs
+          dest: test/EFCore.Relational.Specification.Tests/Update/JsonUpdateTestBase.cs
     rubric:
-      - The analysis distinguishes snapshot comparison from state-transition handling in InternalEntityEntry.
-      - It explicitly considers SharedIdentityEntry when Added and Deleted entries can represent the same identity.
-      - The proposed test is located in TemporaryValuesTest.cs and verifies observable property/state behavior.
+      - The analysis uses `SharedIdentityEntry`, not broad Added/Deleted state checks, to identify an old entry and its replacement.
+      - It allows a deleted nested entry through EntityGraphAttacher only when the graph source has a shared-identity replacement, and skips cascading from the replaced old principal; synchronous and asynchronous paths remain equivalent.
+      - The regression replaces the root while reusing a nested reference, preserves unrelated branch values, and verifies the same nested object/value remains intact in memory after SaveChanges.
     graders:
       - type: file-matches
         config:
           path: analysis.md
-          pattern: (InternalEntityEntry|SetEntityState)[\s\S]*(TemporaryValuesTest|temporary)
+          pattern: (?i)(?=[\s\S]*SharedIdentityEntry)(?=[\s\S]*EntityGraphAttacher)(?=[\s\S]*CascadeDelete)(?=[\s\S]*(nested|leaf|replacement))[\s\S]+
       - type: prompt
         config:
           scoring: binary

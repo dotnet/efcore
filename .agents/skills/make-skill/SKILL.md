@@ -1,139 +1,54 @@
 ---
 name: make-skill
-description: 'Create and evaluate new Agent Skills for GitHub Copilot. Use when asked to create, scaffold, or add a skill. Generates SKILL.md, optional resources, and a paired Vally harness eval.'
+description: 'Create, review, or fix Agent Skills for GitHub Copilot. Use when asked to create, scaffold, improve, or repair a SKILL.md and its paired harness evaluation.'
 ---
 
-# Create Skill
+# Create Or Fix A Skill
 
-This skill helps you scaffold new agent skills that conform to the Agent Skills specification. Agent Skills are a lightweight, open format for extending AI agent capabilities with specialized knowledge and workflows.
+Produce concise, stable task guidance that adds knowledge an agent cannot reliably infer from source alone, together with a paired evaluation that proves the guidance changes behavior.
 
-## When Not to Use
+## Choose The Right Primitive
 
-- Creating custom agents (use the agents/ directory pattern)
-- Adding language-specific, framework-specific, or module-specific coding guidelines (use file-based instructions instead)
-
-### Key Principles
-
-- **Frontmatter is critical**: `name` and `description` determine when the skill triggers—be clear and comprehensive
-- **Concise is key**: Only include what agents don't already know; context window is shared
-- **Useful instructions**: Only include information that's stable, not easily searchable and can be used for any task within the skill's scope
-- **No duplication**: Information lives in SKILL.md OR reference files, not both
+- Use a skill for a task-specific workflow or body of knowledge loaded on demand.
+- Use file instructions for background guidance scoped to paths.
+- Use a custom agent when context isolation or distinct tool restrictions are required.
+- Prefer an existing skill over creating an overlapping one.
 
 ## Workflow
 
-### Step 1: Investigate the Topic
+1. Read the relevant implementation, tests, repository instructions, and neighboring customizations.
+2. Identify repeated mistakes or non-obvious invariants. Do not turn source inventories, line counts, or facts easily rediscovered from code into skill content.
+3. Create `.agents/skills/<name>/SKILL.md`. The frontmatter `name` must exactly match the directory; the description must state what the skill does and when natural user requests should trigger it.
+4. Mark background domain guidance `user-invocable: false`. Keep user-invocable workflows focused on an outcome a user would deliberately request.
+5. Write actionable guidance with observable validation. Explain why edge cases matter; avoid generic engineering advice already present in repository instructions.
+6. Create `eng/harness-evaluation/skills/<name>/eval.yaml` and follow `eng/harness-evaluation/README.md`.
+7. Lint the customization and inspect both control and treatment artifacts before accepting it.
 
-Build deep understanding of the relevant topics using the repository content, existing documentation, and any linked external resources.
+## Paired Evaluation
 
-After investigating, verify:
-- [ ] Can explain what the skill does in one paragraph
-- [ ] Can list 3-5 specific scenarios where the skill is applicable
-- [ ] Can identify common pitfalls or misconceptions about the topic
-- [ ] Can outline a step-by-step skill workflow with clear validation steps
-- [ ] Have search queries for deeper topics
-- [ ] Can determine if the skill should be user-invocable or background knowledge only
+- The eval root `agent_environment.skills` contains only the target skill. Stimulus inputs belong under each stimulus's `agent_environment.files`.
+- The runner removes the root skill for control and separately verifies treatment activation. Do not add a `skill-invocation` grader and do not tell the agent to invoke the skill in the shared prompt.
+- Prompts may identify fixtures, proposed code, fixed IDs, and output paths, but must not reveal the expected diagnosis, owning mechanism, or regression-test design.
+- Use deterministic graders for observable artifacts, a narrow semantic rubric for behavior, and a `token-budget` grader. Define bounded turns, tokens, and duration plus a committed scoring threshold.
+- The task must exercise guidance distinctive to the skill. A control that consistently matches treatment means the skill or eval is not useful enough.
 
-If there are any ambiguities, gaps in understanding, or multiple valid approaches, ask the user for clarification before proceeding to skill creation. Also, evaluate whether the task might be better handled by a custom agent, agentic workflow, an existing skill or multiple narrower skills, and discuss this with the user if relevant.
+## Validation
 
-### Step 2: Create the skill directory
-
-```
-.agents/skills/<skill-name>/
-├── SKILL.md          # Required: instructions + metadata
-```
-
-### Step 3: Generate SKILL.md with frontmatter
-
-Create the file with required YAML frontmatter:
-
-```yaml
----
-name: <skill-name>
-description: <description of what the skill does and when to use it>
-user-invocable: <Optional, defaults to true. Set to false for background knowledge skills.>
-argument-hint: <Optional, guidance for how agents should format arguments when invoking the skill.>
-disable-model-invocation: <Optional, set to true to prevent agents from invoking the skill and only allow to be used through manual invocation.>
-compatibility: <Optional, specify any environment, tool, or context requirements for the skill.>
-metadata: <Optional, key-value mapping for additional metadata that may be relevant for discovery or execution.>
-allowed-tools: <Optional, list of pre-approved tools that agents could use when invoking the skill.>
----
-```
-
-### Step 4: Add body content sections
-
-Include these recommended sections, following this file's structure:
-
-1. **<Human-readable skill name>**: One paragraph describing the outcome beyond what's already in the description
-2. **When Not to Use**: Bullet list of exclusions, optional
-3. **Inputs and Outputs**: Example inputs and expected outputs, if applicable
-4. **Workflow**: Numbered steps with checkpoints
-5. **Testing**: Instructions for how to create automated tests for the skill output, if applicable
-6. **Validation**: How to confirm the skill worked correctly
-7. **Common Pitfalls**: Known traps and how to avoid them, optional
-
-### Step 5: Add and populate optional directories if needed
-
-```
-.agents/skills/<skill-name>/
-├── SKILL.md
-├── scripts/          # Optional: executable code that agents can run
-├── references/       # Optional: REFERENCE.md (Detailed technical reference), FORMS.md (Form templates or structured data formats), domain-specific instruction files
-└── assets/           # Optional: templates, resources and other data files that aren't executable or Markdown
-```
-
-### Step 6: Write Scripts (Script-driven Only)
-
-- Prefer PowerShell, but can also use Python or JavaScript
-- Standard param block with defaults
-- Ensure scripts produce clear, structured, and parseable console output (for example, section headers and status lines)
-- Emoji status: ✅ green / ⚠️ yellow / 🔴 red
-- **Fail-closed error handling** — Unknown ≠ Healthy
-
-> ❌ **NEVER** count API failures as success. Return "Unknown" and exclude from positive counts.
-
-### Step 7: Author and validate the harness evaluation
-
-Create `eng/harness-evaluation/skills/<skill-name>/eval.yaml` and follow the authoring and validation rules in `eng/harness-evaluation/README.md`. Do not add a `skill-invocation` grader; the runner separately requires exact invocation of `<skill-name>` in every treatment trial so control and treatment share the same quality score. The eval must meaningfully distinguish the skilled treatment from the unskilled control.
-
-Also verify:
-
-- [ ] The skill name does not start or end with a hyphen, contain consecutive hyphens, or exceed 64 characters
-- [ ] YAML frontmatter name matches the directory name exactly and all frontmatter fields are valid
-- [ ] SKILL.md is under 500 lines and 5000 tokens, splitting stable detail into references when needed
-- [ ] File references are relative and instructions are actionable and specific
-- [ ] Instructions do not duplicate `.github/copilot-instructions.md` or `.github/instructions/`
-- [ ] The workflow has numbered steps and observable success criteria
-- [ ] No secrets, tokens, or internal URLs are included
-- [ ] Optional directories are used appropriately
-- [ ] Scripts handle edge cases, fail closed, and return structured, helpful errors
-- [ ] The paired Vally comparison demonstrates distinctive value over the unskilled control
-
-### Step 8: Test with Multi-Model Subagents
-
-Follow [references/testing-patterns.md](references/testing-patterns.md):
-
-1. Select top-tier model from 2-4 different families
-2. Give each the same test prompt exercising the skill
-3. Launch in parallel via `task` tool with `model` parameter
-4. Synthesize: consensus findings = high confidence
-5. Fix errors first, then warnings, then consider suggestions
-6. **Retrospective**: When an agent misapplies guidance, ask the *same model* why it made that choice — its self-analysis reveals guidance gaps you can close with targeted anti-patterns (see references/anti-patterns.md)
-7. **A/B test**: After fixing issues, re-run the same task to verify improvement — same model, same prompt, compare correctness/speed/tool calls (see references/testing-patterns.md)
-
-**For new skills or major restructuring**, use the writer-critic convergence loop instead: one agent writes, a different-model agent critiques, writer applies fixes, repeat until convergence (2-3 rounds). See references/testing-patterns.md#writer-critic-convergence-loop.
+- Frontmatter parses and the name matches the directory.
+- The skill is concise, stable, and does not duplicate root or scoped instructions.
+- File references are relative and exist.
+- Validation steps are observable and task-specific.
+- The paired eval targets only the skill, has complete bounded grading, and uses a solution-neutral prompt.
+- `npm run lint` and the harness inventory tests pass.
 
 ## Common Pitfalls
 
-| Pitfall | Solution |
-|---------|----------|
-| Description is vague | Include what it does AND when to use it |
-| Instructions are ambiguous | Use numbered steps with concrete actions |
-| Missing validation steps | Add checkpoints that verify success |
-| Hardcoded environment assumptions | Document requirements in `compatibility` field |
-| Key files section lists files previously mentioned | Avoid duplication, only include in one place and rename section to "Other Key Files" |
-| Testing section lists test folders that are obvious from the repo structure | Remove the section if it doesn't add value |
-
-## References
-
-- [Agent Skills Specification](https://agentskills.io/specification)
-- Repository guidance: `.github/copilot-instructions.md` and `.github/CONTRIBUTING.md`
+| Pitfall | Correction |
+|---|---|
+| Copying implementation inventories into the skill | Keep only non-obvious invariants and routing decisions |
+| Exact line counts or volatile metrics | Remove them; point to stable symbols or behavior |
+| Generic test-folder guidance | Describe the distinctive test shape or omit it |
+| Eval prompt tells the agent what to find | Move expected facts into the hidden rubric |
+| Eval root contains repository fixtures | Keep only the target skill at root; stage fixtures per stimulus |
+| Prompt instructs skill invocation | Let the treatment-only runner gate enforce activation |
+| Initial scaffold launches multi-model review | First produce and lint the requested artifacts; run expensive behavioral validation separately |

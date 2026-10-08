@@ -13,8 +13,8 @@ agent_environment:
 stimuli:
   - name: create-query-pipeline-file-instructions
     prompt: >-
-      Before creating files, use the available repository skill that applies to this task. Inspect src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs, src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs, and .github/copilot-instructions.md. Create concise file-based instructions with the fixed ID `query-implementation` at `.github/instructions/query-implementation.instructions.md`, together with its Vally eval at `eng/harness-evaluation/instructions/query-implementation/eval.yaml`. Scope applyTo to the relevant source trees, capture non-obvious patterns visible in the staged files, and do not repeat repository-wide guidance or create a skill.
-    constraints:
+      Inspect src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs, src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs, and .github/copilot-instructions.md. Create `query-implementation` at `.github/instructions/query-implementation.instructions.md` to help agents safely modify both staged query implementations, together with its paired evaluation at `eng/harness-evaluation/instructions/query-implementation/eval.yaml`. Do not repeat repository-wide guidance or create a skill.
+    constraints: &authoring_constraints
       max_turns: 50
       max_tokens: 1000000
       max_duration: 15m
@@ -26,8 +26,6 @@ stimuli:
           dest: src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
-        - src: ../../../../eng/harness-evaluation/README.md
-          dest: eng/harness-evaluation/README.md
     rubric:
       - The `.github/instructions/query-implementation.instructions.md` file has valid frontmatter and uses targeted query-tree applyTo patterns.
       - Guidance is concretely grounded in the staged relational and Cosmos query implementations.
@@ -37,11 +35,11 @@ stimuli:
       - type: file-matches
         config:
           path: .github/instructions/query-implementation.instructions.md
-          pattern: '(?m)^---[\s\S]*^applyTo:[\s\S]*SelectExpression'
+          pattern: '(?m)(?=^---[\s\S]*^applyTo:)(?=[\s\S]*SelectExpression)(?=[\s\S]*CosmosQueryableMethodTranslatingExpressionVisitor)[\s\S]+'
       - type: file-matches
         config:
           path: eng/harness-evaluation/instructions/query-implementation/eval.yaml
-          pattern: '(?m)(?=[\s\S]*^name:\s*query-implementation\s*$)(?=[\s\S]*runs:)(?=[\s\S]*^agent_environment:\s*$\r?\n\s+files:\s*$\r?\n\s+-\s+src:\s+\.\./\.\./\.\./\.\./\.github/instructions/query-implementation\.instructions\.md\s*$\r?\n\s+dest:\s+\.github/instructions/query-implementation\.instructions\.md\s*$)(?=[\s\S]*constraints:)(?=[\s\S]*token-budget)(?=[\s\S]*scoring:)(?=[\s\S]*threshold:)[\s\S]+'
+          pattern: '(?m)(?=[\s\S]*^name:\s*query-implementation\s*$)(?=[\s\S]*^agent_environment:\s*$)(?=[\s\S]*\.github/instructions/query-implementation\.instructions\.md)(?=[\s\S]*^stimuli:\s*$)(?=[\s\S]*constraints:)(?=[\s\S]*token-budget)(?=[\s\S]*scoring:)(?=[\s\S]*threshold:)[\s\S]+'
       - type: prompt
         config:
           scoring: binary
@@ -49,6 +47,48 @@ stimuli:
           evidence:
             - trajectory
             - repo
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: review-overbroad-query-instructions
+    prompt: |-
+      Inspect the staged relational and Cosmos query implementations plus root instructions. Review this proposal for `.github/instructions/query-implementation.instructions.md` and write instructions-review.md; do not edit the proposal.
+
+          ---
+          name: Query implementation
+          description: Guidance for C# files.
+          applyTo: '**/*.cs'
+          ---
+
+          1. Run restore.cmd and activate.ps1.
+          2. Put package versions in eng/Versions.props.
+          3. Use ConfigureAwait(false).
+          4. Search the repository, implement the requested change, and run all tests.
+
+      Its paired eval declares the instruction file and `.github/copilot-instructions.md` together in the root `agent_environment.files`; its only stimulus asks the agent to repeat the four rules above.
+    constraints: *authoring_constraints
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs
+          dest: src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs
+        - src: ../../../../src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs
+          dest: src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+    rubric:
+      - The review replaces the broad C# scope and vague description with targeted relational/Cosmos query implementation globs and discovery language.
+      - It removes duplicated repository-wide setup, package, and async rules plus the procedural workflow, replacing them with concise non-obvious guidance grounded in the two staged implementations.
+      - The paired eval root contains only the instruction file; stimuli exercise distinctive query guidance without restating it and use bounded deterministic, semantic, and token grading.
+    graders:
+      - type: file-matches
+        config:
+          path: instructions-review.md
+          pattern: (?i)(?=[\s\S]*(applyTo|glob))(?=[\s\S]*(EFCore\.Relational|SelectExpression))(?=[\s\S]*(EFCore\.Cosmos|CosmosQueryableMethodTranslatingExpressionVisitor))(?=[\s\S]*(duplicat|root instruction))(?=[\s\S]*(procedural|workflow))(?=[\s\S]*(only the instruction|single.*file))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence: [ trajectory, repo ]
       - type: token-budget
         config:
           max: 1000000

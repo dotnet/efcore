@@ -11,30 +11,31 @@ agent_environment:
   skills:
     - ../../../../.agents/skills/scaffolding
 stimuli:
-  - name: place-a-database-model-shape-change
+  - name: preserve-schema-filter-semantics
     prompt: |-
-      Before analyzing files, use the available repository skill that applies to this task. Inspect src/EFCore.Design/Scaffolding/Internal/ReverseEngineerScaffolder.cs, test/EFCore.Design.Tests/Scaffolding/Internal/RelationalScaffoldingModelFactoryTest.cs, and test/EFCore.Design.Tests/Scaffolding/Internal/ReverseEngineerScaffolderTest.cs. Write analysis.md explaining where a new DatabaseModel shape should be read, converted to EF metadata, and emitted as C#, and identify the focused staged tests that should change. Keep this reverse-engineering path distinct from compiled-model generation and include how to validate the generated C# code. Do not edit source.
+      Inspect the staged SQL Server schema reader, database creator, and SQL baselines. A target engine does not support the correlated `NOT EXISTS` used to exclude tables carrying the `microsoft_database_tools_support` extended property. A proposal replaces it with a `LEFT JOIN` to `sys.extended_properties`, includes the property-name predicate in the join, and filters for `ep.major_id IS NULL`. Write analysis.md reviewing the rewrite and focused validation. Do not edit source.
     constraints: &short_constraints
       max_turns: 40
       max_tokens: 750000
       max_duration: 5m
     agent_environment:
       files:
-        - src: ../../../../src/EFCore.Design/Scaffolding/Internal/ReverseEngineerScaffolder.cs
-          dest: src/EFCore.Design/Scaffolding/Internal/ReverseEngineerScaffolder.cs
-        - src: ../../../../test/EFCore.Design.Tests/Scaffolding/Internal/RelationalScaffoldingModelFactoryTest.cs
-          dest: test/EFCore.Design.Tests/Scaffolding/Internal/RelationalScaffoldingModelFactoryTest.cs
-        - src: ../../../../test/EFCore.Design.Tests/Scaffolding/Internal/ReverseEngineerScaffolderTest.cs
-          dest: test/EFCore.Design.Tests/Scaffolding/Internal/ReverseEngineerScaffolderTest.cs
+        - src: ../../../../src/EFCore.SqlServer/Scaffolding/Internal/SqlServerDatabaseModelFactory.cs
+          dest: src/EFCore.SqlServer/Scaffolding/Internal/SqlServerDatabaseModelFactory.cs
+        - src: ../../../../src/EFCore.SqlServer/Storage/Internal/SqlServerDatabaseCreator.cs
+          dest: src/EFCore.SqlServer/Storage/Internal/SqlServerDatabaseCreator.cs
+        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
+          dest: test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
     rubric:
-      - The analysis distinguishes IDatabaseModelFactory, IScaffoldingModelFactory, IModelCodeGenerator, and orchestration roles.
-      - It grounds the proposed changes in the staged model-factory and reverse-engineer tests.
-      - It keeps reverse engineering separate from compiled-model generation and includes generated-code validation.
+      - >-
+        The analysis recognizes that a LEFT JOIN containing the full excluded-property predicate in `ON`, followed by `ep.major_id IS NULL`, preserves anti-semi semantics when `major_id` is non-null; unrelated property rows do not join.
+      - It verifies that the complete minor-id, class, and property-name predicates remain in `ON`, or proposes an equivalent non-correlated anti-set such as `NOT IN`.
+      - It updates the schema-reader and database-creator occurrences plus their SQL baselines, and adds/identifies coverage with multiple extended properties on one object.
     graders:
       - type: file-matches
         config:
           path: analysis.md
-          pattern: IDatabaseModelFactory[\s\S]*IScaffoldingModelFactory[\s\S]*IModelCodeGenerator
+          pattern: (?i)(?=[\s\S]*(LEFT JOIN|left join))(?=[\s\S]*(mixed (?:extended )?propert|multiple catalog rows|same (?:object|table)|both the support marker))(?=[\s\S]*(NOT IN|anti[ -]?set|anti[ -]?semi))[\s\S]+
       - type: prompt
         config:
           scoring: binary

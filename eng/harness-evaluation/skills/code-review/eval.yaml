@@ -11,20 +11,9 @@ agent_environment:
   skills:
     - ../../../../.agents/skills/code-review
 stimuli:
-  - name: review-an-internal-public-api-change
+  - name: review-validation-relocation-across-inheritance
     prompt: |-
-      Before reviewing, use the available repository skill that applies to this task. Inspect src/EFCore/Metadata/Internal/EntityType.cs and review this proposed member as if it were added to EntityType:
-
-          public virtual async Task<object> ActivateAsync(
-              Type type,
-              Func<object, Task> callback)
-          {
-              var instance = Activator.CreateInstance(type)!;
-              await callback(instance);
-              return instance;
-          }
-
-      Write review.md with findings and requirements grounded by at least two relevant existing EntityType members or annotations. Do not access GitHub.
+      Review the staged ModelValidator.cs and ModelValidatorTest.cs. Write review.md. Do not edit source or access GitHub.
     constraints: &review_constraints
       max_turns: 50
       max_tokens: 1000000
@@ -33,17 +22,19 @@ stimuli:
       files:
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
-        - src: ../../../../src/EFCore/Metadata/Internal/EntityType.cs
-          dest: src/EFCore/Metadata/Internal/EntityType.cs
+        - src: fixtures/model-validator-relocation/ModelValidator.cs
+          dest: src/EFCore/Infrastructure/ModelValidator.cs
+        - src: fixtures/model-validator-relocation/ModelValidatorTest.cs
+          dest: test/EFCore.Tests/Infrastructure/ModelValidatorTest.cs
     rubric:
-      - The review applies the standard internal-API warning XML documentation and does not treat the member as supported public API merely because it is public.
-      - It addresses reflection and NativeAOT using concrete EntityType annotations or an alternative design and requires ConfigureAwait(false) on the callback.
-      - It grounds the advice in at least two staged EntityType members or annotations.
+      - The review identifies that a not-auto-loaded property declared on a base type is no longer checked against a derived type constructor binding because the relocated validation only examines the declaring structuralType.
+      - It requires checking constructor bindings across the declaring type and its derived types, using the consuming type in the diagnostic.
+      - It calls out both the stale ValidateAutoLoaded XML summary and the missing regression test for a base property consumed by a derived constructor.
     graders:
       - type: file-matches
         config:
           path: review.md
-          pattern: (?i)(?=[\s\S]*internal(?:-| )API)(?=[\s\S]*(NativeAOT|RequiresDynamicCode|DynamicallyAccessedMembers))(?=[\s\S]*ConfigureAwait\(false\))[\s\S]+
+          pattern: (?i)(?=[\s\S]*(derived|inherit))(?=[\s\S]*(constructor.?binding|ConstructorBinding))(?=[\s\S]*(base|declar))(?=[\s\S]*(test|coverage))[\s\S]+
       - type: prompt
         config:
           scoring: binary
@@ -52,39 +43,52 @@ stimuli:
       - type: token-budget
         config:
           max: 1000000
-  - name: catch-pooled-context-reset-race
+  - name: catch-concurrency-detector-flag-ownership-race
     prompt: |-
-      Before reviewing, use the available repository skill that applies to this task. Inspect the staged pooling implementation and tests. Review a proposed change that rewrites the successful branch of DbContextPool.ReturnAsync as follows:
+      Inspect the staged concurrency detector and tests. A proposed exception-safety change rewrites `EnterCriticalSection` as follows so an allocation failure cannot leave the detector locked:
 
-          if (Interlocked.Increment(ref _count) <= _maxSize)
+        if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1
+          && ThreadAcquiredLocksCount.Value == 0)
           {
-              _pool.Enqueue(context);
-              await context.ResetStateAsync(cancellationToken).ConfigureAwait(false);
+          throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
           }
 
-      The proposed test awaits ReturnAsync to completion and then asserts that Rent returns a reset context. Write review.md. Focus on concrete correctness and whether the test exercises the risky interleaving. Do not edit source or access GitHub.
+        try
+        {
+          ThreadAcquiredLocksCount.Value++;
+        }
+        catch
+        {
+          if (_currentContextRefCount == 0)
+          {
+            _inCriticalSection = 0;
+          }
+
+          throw;
+        }
+
+        _currentContextRefCount++;
+
+      Write review.md. Do not edit source or access GitHub.
     constraints: *review_constraints
     agent_environment:
       files:
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
-        - src: ../../../../src/EFCore/Internal/DbContextPool.cs
-          dest: src/EFCore/Internal/DbContextPool.cs
-        - src: ../../../../src/EFCore/Internal/IDbContextPoolable.cs
-          dest: src/EFCore/Internal/IDbContextPoolable.cs
-        - src: ../../../../src/EFCore/DbContext.cs
-          dest: src/EFCore/DbContext.cs
-        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
-          dest: test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
+        - src: ../../../../src/EFCore/Infrastructure/Internal/ConcurrencyDetector.cs
+          dest: src/EFCore/Infrastructure/Internal/ConcurrencyDetector.cs
+        - src: ../../../../test/EFCore.Tests/Infrastructure/Internal/ConcurrencyDetectorTest.cs
+          dest: test/EFCore.Tests/Infrastructure/Internal/ConcurrencyDetectorTest.cs
     rubric:
-      - The review identifies that enqueueing before reset completes allows a concurrent renter to observe or use stale or concurrently resetting context state.
-      - It requires enqueueing only after ResetStateAsync completes and explains why the proposed await-then-rent test cannot expose the race.
-      - It proposes a focused interleaving test that blocks reset while another operation attempts to rent the same context.
+      - >-
+        The review identifies that `_currentContextRefCount == 0` does not prove this invocation acquired `_inCriticalSection`: another thread can be between CompareExchange and its later ref-count increment.
+      - It requires capturing whether this invocation's CompareExchange acquired the flag and clearing it in the catch only when that boolean is true.
+      - It explains a concrete interleaving where clearing another thread's flag permits concurrent entry, and requests focused ownership/interleaving coverage without disturbing the nested-section protocol.
     graders:
       - type: file-matches
         config:
           path: review.md
-          pattern: (?i)(?=[\s\S]*(race|concurren))(?=[\s\S]*(stale|resetting|ResetStateAsync))(?=[\s\S]*(block|interleav|rent))[\s\S]+
+          pattern: (?i)(?=[\s\S]*(CompareExchange|acquired))(?=[\s\S]*(ownership|other thread|interleav|race))(?=[\s\S]*(boolean|this (?:call|invocation)|only clear))[\s\S]+
       - type: prompt
         config:
           scoring: binary
@@ -130,7 +134,7 @@ stimuli:
           max: 1000000
   - name: review-breaking-dbset-public-api
     prompt: |-
-      Before reviewing, use the available repository skill that applies to this task. Inspect the staged DbSet and DbContext Find/FindAsync API families. Review a proposed replacement of this DbSet<TEntity> member:
+      Inspect the staged DbSet and DbContext Find/FindAsync API families. Review a proposed replacement of this DbSet<TEntity> member:
 
           public virtual ValueTask<TEntity?> FindAsync(
               object?[]? keyValues,
@@ -142,7 +146,7 @@ stimuli:
               IEnumerable<object?> keyValues,
               CancellationToken cancellationToken = default)
 
-      Write review.md. Review the supported API shape and compatibility. Do not edit source or access GitHub.
+                  Write review.md. Do not edit source or access GitHub.
     constraints: *review_constraints
     agent_environment:
       files:
@@ -172,7 +176,7 @@ stimuli:
           max: 1000000
   - name: accept-documentation-only-change
     prompt: |-
-      Before reviewing, use the available repository skill that applies to this task. Inspect DbContext and review a proposed XML documentation-only correction that changes the visible link text `Changing tracking` to `Change tracking` while preserving the existing `https://aka.ms/efcore-docs-change-tracking` href. No signature or implementation changes are proposed. Write review.md. Do not edit source or access GitHub.
+      Inspect DbContext and review a proposed XML documentation correction that changes the visible link text `Changing tracking` to `Change tracking` while preserving the existing `https://aka.ms/efcore-docs-change-tracking` href. Write review.md. Do not edit source or access GitHub.
     constraints: *review_constraints
     agent_environment:
       files:

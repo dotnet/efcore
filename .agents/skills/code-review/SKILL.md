@@ -30,8 +30,9 @@ Before reading the author's narrative:
 
 1. Read each changed implementation beyond its diff hunk. Diff-only review is insufficient evidence for a finding. For very large files, read the containing members, their contracts, and relevant state. When many files are changed, use subagents to break down the review into manageable parts and gather context incrementally.
 2. Search callers, implementations, overrides, sibling provider paths, and nearby tests. Read shared helpers whose contracts control the changed behavior.
-3. Use focused history when it can explain an invariant, revert, or prior fix attempt.
-4. Describe the old and new behavior, likely motivation, affected callers/providers, and initial concerns in your own words.
+3. When logic moves, compare the old and new input domains to ensure coverage is preserved.
+4. Use focused history when it can explain an invariant, revert, or prior fix attempt.
+5. Describe the old and new behavior, likely motivation, affected callers/providers, and initial concerns in your own words.
 
 ### 3. Reconcile Pull Request Context
 
@@ -53,6 +54,8 @@ For each non-trivial production change, identify:
 5. **Coverage gaps**: affected behavior not exercised by changed or existing tests.
 
 Check correctness, error handling, async behavior, concurrency, state and resource lifetime, compatibility, provider hierarchy behavior, NativeAOT constraints, and performance only where the changed path plausibly makes them relevant.
+
+For exception cleanup around shared or concurrent state, distinguish whether this invocation acquired each resource from whether the resource currently appears held. Construct a concrete interleaving and require focused coverage that exercises ownership without weakening existing reentrancy or nesting behavior.
 
 For new functionality consider other feature areas that might be affected but are not directly touched by the change.
 
