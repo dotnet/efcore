@@ -565,6 +565,34 @@ public class SqliteDataReaderTest
         Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
     }
 
+    [Theory]
+    [InlineData("CREATE TABLE aux.DataTable (Id INTEGER PRIMARY KEY, Data BLOB) WITHOUT ROWID;")]
+    [InlineData("CREATE TABLE aux.DataTable (Id INTEGER PRIMARY KEY DESC, Data BLOB);")]
+    [InlineData("CREATE TABLE aux.DataTable (Id INTEGER, Data BLOB, Id2 INTEGER DEFAULT 0, PRIMARY KEY (Id, Id2));")]
+    public void GetStream_works_when_attached_table_has_same_name_as_rowid_table(string createTable)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            @"CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);
+                    ATTACH DATABASE ':memory:' AS aux;"
+            + createTable
+            + @"INSERT INTO aux.DataTable (Id, Data) VALUES (2, X'01020304');
+                    INSERT INTO aux.DataTable (Id, Data) VALUES (1, X'05060708');");
+
+        var selectCommand = connection.CreateCommand();
+        selectCommand.CommandText = "SELECT Id, Data FROM aux.DataTable WHERE Id = 2";
+        using var reader = selectCommand.ExecuteReader();
+        Assert.True(reader.Read());
+        using var sourceStream = reader.GetStream(1);
+        Assert.IsType<MemoryStream>(sourceStream);
+        var buffer = new byte[4];
+        var bytesRead = sourceStream.Read(buffer, 0, 4);
+        Assert.Equal(4, bytesRead);
+        Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
+    }
+
     [Fact]
     public void GetStream_throws_when_closed()
         => X_throws_when_closed(r => r.GetStream(0), nameof(SqliteDataReader.GetStream));
