@@ -20,11 +20,11 @@ public partial class NavigationExpandingExpressionVisitor
 
         // Existence checks alone don't justify a join: EF already translates those to EXISTS.
         // Non-deterministic functions (e.g. Guid.NewGuid()) are never client-evaluatable; copies calling one may pick different rows.
-        var nonEvaluatableFinder = new NonEvaluatableExpressionVisitor(_evaluatableExpressionFilter, _queryCompilationContext.Model);
+        var nonEvaluatableVisitor = new NonEvaluatableExpressionVisitor(this);
 
         foreach (var (collection, reads) in collector.Reads.Where(e => e.Value.Count > 1
                      && e.Value.Exists(r => !r.IsExistenceCheck)
-                     && !nonEvaluatableFinder.Contains(e.Key)))
+                     && !nonEvaluatableVisitor.Contains(e.Key)))
         {
             var innerParameter = Expression.Parameter(collection.Type.GetSequenceType(), "e");
             var rewrittenBody = ReplacingExpressionVisitor.Replace(
@@ -185,13 +185,15 @@ public partial class NavigationExpandingExpressionVisitor
             };
     }
 
-    private sealed class NonEvaluatableExpressionVisitor(IEvaluatableExpressionFilter filter, IModel model) : ExpressionVisitor
+    private sealed class NonEvaluatableExpressionVisitor(NavigationExpandingExpressionVisitor visitor) : ExpressionVisitor
     {
+        private readonly HashSet<IEntityType> _visitedEntityTypes = [];
         private bool _found;
 
         public bool Contains(Expression expression)
         {
             _found = false;
+            _visitedEntityTypes.Clear();
             Visit(expression);
 
             return _found;
@@ -199,7 +201,24 @@ public partial class NavigationExpandingExpressionVisitor
 
         public override Expression? Visit(Expression? node)
         {
-            _found |= node != null && !filter.IsEvaluatableExpression(node, model);
+            if (node == null || _found)
+            {
+                return node;
+            }
+
+            var model = visitor._queryCompilationContext.Model;
+            _found = !visitor._evaluatableExpressionFilter.IsEvaluatableExpression(node, model);
+
+            // Navigation expansion adds query filters after lifting, so inspect them before merging subqueries.
+            if (!_found
+                && model.FindEntityType(node.Type.TryGetSequenceType() ?? node.Type)?.GetRootType() is { } entityType
+                && _visitedEntityTypes.Add(entityType))
+            {
+                foreach (var queryFilter in visitor.GetApplicableQueryFilters(entityType))
+                {
+                    Visit(queryFilter.Expression);
+                }
+            }
 
             return _found ? node : base.Visit(node);
         }

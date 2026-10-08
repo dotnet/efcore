@@ -981,6 +981,25 @@ ORDER BY [d].[GroupId]
 """);
     }
 
+    public override async Task Repeated_single_result_subquery_with_non_deterministic_query_filter(bool async)
+    {
+        await base.Repeated_single_result_subquery_with_non_deterministic_query_filter(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [c].[Value]
+    FROM [Child] AS [c]
+    WHERE RAND() >= 0.0E0 AND [p].[Id] = [c].[ParentId]
+    ORDER BY [c].[Id]) AS [Value], (
+    SELECT TOP(1) [c0].[Other]
+    FROM [Child] AS [c0]
+    WHERE RAND() >= 0.0E0 AND [p].[Id] = [c0].[ParentId]
+    ORDER BY [c0].[Id]) AS [Other]
+FROM [Parents] AS [p]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

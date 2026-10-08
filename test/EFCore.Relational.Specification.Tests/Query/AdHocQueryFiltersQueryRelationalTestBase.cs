@@ -872,6 +872,50 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
         Assert.Equal([(1, true), (2, false)], results.Select(r => (r.GroupId, r.HasPrincipal)));
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Repeated_single_result_subquery_with_non_deterministic_query_filter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39107>(
+            seed: c =>
+            {
+                c.Parents.Add(new Context39107.Parent { Children = [new Context39107.Child { Value = 10, Other = 20 }] });
+
+                return c.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Parents.Select(p => new
+        {
+            Value = p.Children.OrderBy(c => c.Id).Select(c => c.Value).FirstOrDefault(),
+            Other = p.Children.OrderBy(c => c.Id).Select(c => c.Other).FirstOrDefault()
+        });
+
+        var result = Assert.Single(async ? await query.ToListAsync() : query.ToList());
+
+        Assert.Equal((10, 20), (result.Value, result.Other));
+    }
+
+    protected class Context39107(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent> Parents => Set<Parent>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Child>().HasQueryFilter(c => EF.Functions.Random() >= 0);
+
+        public class Parent
+        {
+            public int Id { get; set; }
+            public List<Child> Children { get; set; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public int? Value { get; set; }
+            public int? Other { get; set; }
+        }
+    }
+
     protected class Context38965(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Principal38965> Principals
