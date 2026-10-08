@@ -687,6 +687,10 @@ AND [v].[is_date_correlation_view] = 0
         IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases,
         string? databaseCollation)
     {
+        // The vector type is available under all database compatibility levels, so check whether the server knows
+        // the type rather than checking the compatibility level.
+        var supportsVectorType = typeAliases.ContainsKey("[sys].[vector]");
+
         using var command = connection.CreateCommand();
         var builder = new StringBuilder(
             $"""
@@ -700,7 +704,7 @@ SELECT
     CAST([c].[max_length] AS int) AS [max_length],
     CAST([c].[precision] AS int) AS [precision],
     CAST([c].[scale] AS int) AS [scale],
-    {(_compatibilityLevel is >= 170 ? "[c].[vector_dimensions]" : "NULL as [vector_dimensions]")},
+    {(supportsVectorType ? "[c].[vector_dimensions]" : "NULL as [vector_dimensions]")},
     [c].[is_nullable],
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
