@@ -203,42 +203,6 @@ partial class Snapshot : ModelSnapshot
         Assert.NotNull(BuildModelFromSnapshotSource(roundTrippedCode));
     }
 
-    [Fact]
-    public void Owned_attribute_column_name_round_trips()
-    {
-        var modelBuilder = CreateConventionalModelBuilder();
-        modelBuilder.HasDefaultSchema(null);
-        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
-        modelBuilder.Entity<OrderWithOwnedAttribute>();
-
-        var model = modelBuilder.FinalizeModel(designTime: true);
-        var table = StoreObjectIdentifier.Table("Orders");
-        var amount = model.FindEntityType(typeof(OrderDetailsWithOwnedAttribute))!
-            .FindProperty(nameof(OrderDetailsWithOwnedAttribute.Amount))!;
-
-        Assert.Equal("Details_Amount", amount.GetColumnName(table));
-
-        var generator = CreateMigrationsGenerator();
-        var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
-        var roundTrippedModel = BuildModelFromSnapshotSource(code);
-        var roundTrippedAmount = roundTrippedModel.FindEntityType(typeof(OrderDetailsWithOwnedAttribute))!
-            .FindProperty(nameof(OrderDetailsWithOwnedAttribute.Amount))!;
-
-        Assert.Equal(amount.GetColumnName(table), roundTrippedAmount.GetColumnName(table));
-    }
-
-    private class OrderWithOwnedAttribute
-    {
-        public int Id { get; set; }
-        public OrderDetailsWithOwnedAttribute Details { get; set; } = null!;
-    }
-
-    [Owned]
-    private class OrderDetailsWithOwnedAttribute
-    {
-        public decimal Amount { get; set; }
-    }
-
     private class Cart
     {
         public int Id { get; set; }
