@@ -193,9 +193,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             case NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression:
                 return base.Visit(expression);
 
-            //case SqlConstantExpression:
-            //    return expression;
-
             case null:
                 return null;
 
