@@ -100,6 +100,70 @@ WHERE CHARINDEX(CAST(@someByte AS varbinary(max)), [b].[ByteArray]) > 0
 """);
     }
 
+    public override async Task IndexOf_with_constant()
+    {
+        await base.IndexOf_with_constant();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX(0xBE, [b].[ByteArray]) AS int) - 1 = 2
+""");
+    }
+
+    public override async Task IndexOf_with_parameter()
+    {
+        await base.IndexOf_with_parameter();
+
+        AssertSql(
+            """
+@someByte='3' (Size = 1)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX(CAST(@someByte AS varbinary(max)), [b].[ByteArray]) AS int) - 1 = 2
+""");
+    }
+
+    public override async Task IndexOf_with_column()
+    {
+        await base.IndexOf_with_column();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX(CAST([b].[Byte] AS varbinary(max)), [b].[ByteArray]) AS int) - 1 >= 0
+""");
+    }
+
+    public override async Task IndexOf_with_parameter_above_ascii_range()
+    {
+        await base.IndexOf_with_parameter_above_ascii_range();
+
+        AssertSql(
+            """
+@someByte='222' (Size = 1)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX(CAST(@someByte AS varbinary(max)), [b].[ByteArray]) AS int) - 1 = 0
+""");
+    }
+
+    public override async Task IndexOf_not_found()
+    {
+        await base.IndexOf_not_found();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX(0x99, [b].[ByteArray]) AS int) - 1 = -1
+""");
+    }
+
     public override async Task Any()
     {
         await base.Any();
