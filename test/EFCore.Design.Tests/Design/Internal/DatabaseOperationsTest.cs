@@ -21,6 +21,58 @@ public class DatabaseOperationsTest
         ValidateContextNameInReverseEngineerGenerator("volatile");
     }
 
+    [Fact]
+    public void ScaffoldContext_throws_when_provider_does_not_support_reverse_engineering()
+    {
+        var operations = CreateOperations([]);
+
+        var ex = Assert.Throws<OperationException>(() => operations.ScaffoldContext(
+            "Microsoft.EntityFrameworkCore.InMemory",
+            "connectionstring",
+            "",
+            "",
+            dbContextClassName: nameof(TestContext),
+            null!,
+            null!,
+            "FakeNamespace",
+            contextNamespace: null,
+            useDataAnnotations: false,
+            overwriteFiles: true,
+            useDatabaseNames: false,
+            suppressOnConfiguring: true,
+            noPluralize: false));
+
+        Assert.Equal(
+            DesignStrings.CannotScaffoldProvider("Microsoft.EntityFrameworkCore.InMemory"),
+            ex.Message);
+    }
+
+    [Fact]
+    public void ScaffoldContext_throws_when_provider_assembly_not_found()
+    {
+        var operations = CreateOperations([]);
+
+        var ex = Assert.Throws<OperationException>(() => operations.ScaffoldContext(
+            "Unknown.Provider",
+            "connectionstring",
+            "",
+            "",
+            dbContextClassName: nameof(TestContext),
+            null!,
+            null!,
+            "FakeNamespace",
+            contextNamespace: null,
+            useDataAnnotations: false,
+            overwriteFiles: true,
+            useDatabaseNames: false,
+            suppressOnConfiguring: true,
+            noPluralize: false));
+
+        Assert.Equal(
+            DesignStrings.CannotFindRuntimeProviderAssembly("Unknown.Provider"),
+            ex.Message);
+    }
+
     private void ValidateContextNameInReverseEngineerGenerator(string contextName)
     {
         var operations = CreateOperations([]);

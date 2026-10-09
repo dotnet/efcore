@@ -172,17 +172,10 @@ public class DesignTimeServicesBuilder
         var providerServicesAttribute = providerAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
         if (providerServicesAttribute == null)
         {
-            var message = DesignStrings.CannotFindDesignTimeProviderAssemblyAttribute(
-                provider);
+            _reporter.WriteVerbose(
+                DesignStrings.CannotFindDesignTimeProviderAssemblyAttribute(provider));
 
-            if (!throwOnError)
-            {
-                _reporter.WriteVerbose(message);
-
-                return;
-            }
-
-            throw new InvalidOperationException(message);
+            return;
         }
 
         var designTimeServicesType = providerAssembly.GetType(

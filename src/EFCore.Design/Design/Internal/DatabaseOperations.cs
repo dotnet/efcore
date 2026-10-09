@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 /// <summary>
@@ -78,6 +81,8 @@ public class DatabaseOperations
         AppServiceProviderFactory.SetEnvironment(_reporter);
         var services = _servicesBuilder.Build(provider);
         using var scope = services.CreateScope();
+
+        EnsureServices(scope.ServiceProvider, provider);
 
         var scaffolder = scope.ServiceProvider.GetRequiredService<IReverseEngineerScaffolder>();
 
@@ -158,5 +163,14 @@ public class DatabaseOperations
             || last == Path.AltDirectorySeparatorChar
                 ? path
                 : path + Path.DirectorySeparatorChar;
+    }
+
+    private static void EnsureServices(IServiceProvider services, string provider)
+    {
+        var databaseModelFactory = services.GetService<IDatabaseModelFactory>();
+        if (databaseModelFactory == null)
+        {
+            throw new OperationException(DesignStrings.CannotScaffoldProvider(provider));
+        }
     }
 }
