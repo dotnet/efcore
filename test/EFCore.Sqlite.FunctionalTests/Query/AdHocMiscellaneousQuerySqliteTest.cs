@@ -174,6 +174,44 @@ ORDER BY "d"."Id"
 """);
     }
 
+    public override async Task String_conversion_on_string_converted_enum_projection(bool async)
+    {
+        await base.String_conversion_on_string_converted_enum_projection(async);
+
+        AssertSql(
+            """
+SELECT CAST("u"."Role" AS TEXT)
+FROM "Users" AS "u"
+ORDER BY "u"."Id"
+""",
+            //
+            """
+SELECT CAST("u"."NullableRole" AS TEXT)
+FROM "Users" AS "u"
+WHERE "u"."NullableRole" IS NOT NULL
+ORDER BY "u"."Id"
+""",
+            //
+            """
+SELECT "u"."Role"
+FROM "Users" AS "u"
+ORDER BY "u"."Id"
+""",
+            //
+            """
+SELECT CAST("u"."Role" AS TEXT)
+FROM "Users" AS "u"
+ORDER BY "u"."Id"
+""",
+            //
+            """
+SELECT CAST("u"."Role" AS TEXT)
+FROM "Users" AS "u"
+WHERE "u"."Role" = 'Admin'
+ORDER BY "u"."Id"
+""");
+    }
+
     public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
     {
         await base.Like_on_value_converted_string_column_does_not_produce_cast(async);
