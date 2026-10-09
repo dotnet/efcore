@@ -123,7 +123,7 @@ FROM "Orders" AS "o"
 
         AssertSql(
             """
-SELECT CAST(strftime('%w', "o"."OrderDate") AS INTEGER)
+SELECT CAST(CAST(strftime('%w', "o"."OrderDate") AS INTEGER) AS INTEGER)
 FROM "Orders" AS "o"
 """);
     }
