@@ -95,26 +95,26 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.Equal(etag, customerFromStore.ETag);
+            Assert.Equal(NormalizeEtag(etag), NormalizeEtag(customerFromStore.ETag));
 
             customerFromStore.Children.Add(new DummyChild { Id = "1" });
 
             await context.SaveChangesAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.NotEqual(etag, customerFromStore.ETag);
+            Assert.NotEqual(NormalizeEtag(etag), NormalizeEtag(customerFromStore.ETag));
 
             customerFromStore.Children.Add(new DummyChild { Id = "2" });
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.NotEqual(etag, customerFromStore.ETag);
+            Assert.NotEqual(NormalizeEtag(etag), NormalizeEtag(customerFromStore.ETag));
 
             customerFromStore.Children.Add(new DummyChild { Id = "3" });
 
             await context.SaveChangesAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.NotEqual(etag, customerFromStore.ETag);
+            Assert.NotEqual(NormalizeEtag(etag), NormalizeEtag(customerFromStore.ETag));
         }
     }
 
@@ -161,28 +161,31 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
             var customerFromStore = await context.Set<PremiumCustomer>().SingleAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.Equal(etag, customerFromStore.ETag);
+            Assert.Equal(NormalizeEtag(etag), NormalizeEtag(customerFromStore.ETag));
 
             customerFromStore.Children.Add(new DummyChild { Id = "1" });
 
             await context.SaveChangesAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.NotEqual(etag, customerFromStore.ETag);
+            Assert.NotEqual(NormalizeEtag(etag), NormalizeEtag(customerFromStore.ETag));
 
             customerFromStore.Children.Add(new DummyChild { Id = "2" });
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.NotEqual(etag, customerFromStore.ETag);
+            Assert.NotEqual(NormalizeEtag(etag), NormalizeEtag(customerFromStore.ETag));
 
             customerFromStore.Children.Add(new DummyChild { Id = "3" });
 
             await context.SaveChangesAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.NotEqual(etag, customerFromStore.ETag);
+            Assert.NotEqual(NormalizeEtag(etag), NormalizeEtag(customerFromStore.ETag));
         }
     }
+
+    private static string? NormalizeEtag(string? etag)
+        => etag?.Trim('"');
 
     /// <summary>
     ///     Runs the two actions with two different contexts and calling
