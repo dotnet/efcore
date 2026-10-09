@@ -341,6 +341,16 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 switch (_sqlTranslator.TranslateProjection(expression))
                 {
                     case SqlExpression sqlExpression:
+                        if (sqlExpression is SqlConstantExpression { Value: not null }
+                            && (sqlExpression.Type == typeof(Guid)
+                                || sqlExpression.Type == typeof(DateTime)
+                                || sqlExpression.Type == typeof(DateOnly)
+                                || sqlExpression.Type == typeof(TimeOnly)
+                                || sqlExpression.Type == typeof(TimeSpan)
+                                || sqlExpression.Type == typeof(DateTimeOffset)))
+                        {
+                            sqlExpression = new SqlUnaryExpression(ExpressionType.Convert, sqlExpression, sqlExpression.Type, sqlExpression.TypeMapping);
+                        }
                         _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
                         return new ProjectionBindingExpression(
                             _selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());

@@ -219,6 +219,20 @@ FROM [Customers] AS [c]
 """);
     }
 
+    public override async Task Select_anonymous_non_numeric_constants(bool async)
+    {
+        await base.Select_anonymous_non_numeric_constants(async);
+
+        AssertSql(
+            """
+@MinValue='01/01/0001' (DbType = Date)
+@MinValue1='00:00' (DbType = Time)
+
+SELECT [c].[CustomerID], CAST('00000000-0000-0000-0000-000000000000' AS uniqueidentifier) AS [ConstantGuid], CAST('0001-01-01T00:00:00.0000000' AS datetime2) AS [ConstantDateTime], @MinValue AS [ConstantDateOnly], CAST('00:00:00' AS time) AS [ConstantTimeSpan], @MinValue1 AS [ConstantTimeOnly], CAST('0001-01-01T00:00:00.0000000+00:00' AS datetimeoffset) AS [ConstantDateTimeOffset]
+FROM [Customers] AS [c]
+""");
+    }
+
     public override async Task Select_anonymous_constant_in_expression(bool async)
     {
         await base.Select_anonymous_constant_in_expression(async);
