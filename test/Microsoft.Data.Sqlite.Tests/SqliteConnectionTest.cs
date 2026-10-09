@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 using static SQLitePCL.raw;
@@ -1230,7 +1231,7 @@ public class SqliteConnectionTest
     }
 
     [Fact]
-    public void GetSchema_works()
+    public void GetSchema_implements_common_ado_net_schema_collections()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
 
@@ -1244,8 +1245,14 @@ public class SqliteConnectionTest
             c => Assert.Equal(DbMetaDataColumnNames.NumberOfIdentifierParts, c.ColumnName));
         Assert.Collection(
             dataTable.Rows.Cast<DataRow>().Select(r => r.ItemArray),
+            r => Assert.Equal([DbMetaDataCollectionNames.DataSourceInformation, 0, 0], r),
+            r => Assert.Equal([DbMetaDataCollectionNames.DataTypes, 0, 0], r),
             r => Assert.Equal([DbMetaDataCollectionNames.MetaDataCollections, 0, 0], r),
-            r => Assert.Equal([DbMetaDataCollectionNames.ReservedWords, 0, 0], r));
+            r => Assert.Equal([DbMetaDataCollectionNames.ReservedWords, 0, 0], r),
+            r => Assert.Equal([DbMetaDataCollectionNames.Restrictions, 0, 0], r),
+            r => Assert.Equal(["Tables", 0, 2], r),
+            r => Assert.Equal(["Columns", 0, 3], r),
+            r => Assert.Equal(["Indexes", 0, 3], r));
     }
 
     [Fact]
@@ -1256,6 +1263,300 @@ public class SqliteConnectionTest
         var dataTable = connection.GetSchema();
 
         Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+    }
+
+    [Fact]
+    public void GetSchema_DataSourceInformation_works()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+
+        var dataTable = connection.GetSchema(DbMetaDataCollectionNames.DataSourceInformation);
+
+        var row = Assert.Single(dataTable.Rows.Cast<DataRow>());
+        Assert.Equal("SQLite", row[DbMetaDataColumnNames.DataSourceProductName]);
+        Assert.Equal(2, row[DbMetaDataColumnNames.GroupByBehavior]);
+        Assert.Equal("@{0}", row[DbMetaDataColumnNames.ParameterMarkerFormat]);
+        Assert.Equal(@"(\?[0-9]+|\?|[@:$][\p{L}\p{N}_\x80-\uFFFF][\p{L}\p{N}_$\x80-\uFFFF]*(?:::[\p{L}\p{N}_$\x80-\uFFFF]*)*(?:\([^\s]*\))?)", row[DbMetaDataColumnNames.ParameterMarkerPattern]);
+        Assert.Equal(DBNull.Value, row[DbMetaDataColumnNames.ParameterNameMaxLength]);
+        Assert.Matches((string)row[DbMetaDataColumnNames.IdentifierPattern], "table$name");
+        Assert.Matches((string)row[DbMetaDataColumnNames.IdentifierPattern], "テーブル");
+        Assert.Matches((string)row[DbMetaDataColumnNames.ParameterMarkerPattern], "@value");
+        Assert.Matches((string)row[DbMetaDataColumnNames.ParameterMarkerPattern], "@значение");
+        Assert.Matches((string)row[DbMetaDataColumnNames.ParameterMarkerPattern], "?1");
+        Assert.Matches((string)row[DbMetaDataColumnNames.ParameterMarkerPattern], "$value::suffix(text)");
+        Assert.Matches((string)row[DbMetaDataColumnNames.ParameterNamePattern], "value::suffix(text)");
+        Assert.DoesNotMatch((string)row[DbMetaDataColumnNames.ParameterMarkerPattern], "value");
+        Assert.Equal(
+            new Version(connection.ServerVersion) >= new Version(3, 39) ? 15 : 3,
+            row[DbMetaDataColumnNames.SupportedJoinOperators]);
+        Assert.Matches((string)row[DbMetaDataColumnNames.QuotedIdentifierPattern], "name");
+        Assert.DoesNotMatch((string)row[DbMetaDataColumnNames.QuotedIdentifierPattern], "\"name\"");
+        var version = new Version(connection.ServerVersion);
+        Assert.Equal($"{version.Major:00}.{version.Minor:000}.{version.Build:0000}", row[DbMetaDataColumnNames.DataSourceProductVersionNormalized]);
+        Assert.Equal("name''with", Regex.Match("name''with", (string)row[DbMetaDataColumnNames.QuotedIdentifierPattern]).Groups[1].Value);
+        Assert.Equal("value''with", Regex.Match("'value''with'", (string)row[DbMetaDataColumnNames.StringLiteralPattern]).Groups[1].Value);
+    }
+
+    [Theory]
+    [InlineData("3.38.0", 3)]
+    [InlineData("3.39.0", 15)]
+    public void GetSchema_supported_join_operators_are_version_specific(string version, int expected)
+        => Assert.Equal(expected, SqliteConnection.GetSupportedJoinOperators(new Version(version)));
+
+    [Theory]
+    [InlineData("3.36.0", false)]
+    [InlineData("3.37.0", true)]
+    public void GetSchema_table_list_support_is_version_specific(string version, bool expected)
+        => Assert.Equal(expected, SqliteConnection.IsTableListSupported(new Version(version)));
+
+    [Theory]
+    [InlineData("3.25.0", false)]
+    [InlineData("3.26.0", true)]
+    public void GetSchema_table_xinfo_support_is_version_specific(string version, bool expected)
+        => Assert.Equal(expected, SqliteConnection.IsTableXInfoSupported(new Version(version)));
+
+    [Theory]
+    [InlineData("SQLite Error 1: 'no such table: missing'", true)]
+    [InlineData("SQLite Error 1: 'no such module: missing'", true)]
+    [InlineData("SQLite Error 5: 'database is locked'", false)]
+    [InlineData("SQLite Error 1: 'near WHERE: syntax error'", false)]
+    public void GetSchema_unavailable_schema_object_exception_filter_is_narrow(string message, bool expected)
+        => Assert.Equal(
+            expected,
+            SqliteConnection.IsUnavailableSchemaObjectException(
+                new SqliteException(message, message.Contains("Error 5") ? SQLITE_BUSY : SQLITE_ERROR)));
+
+    [Fact]
+    public void GetSchema_DataSourceInformation_marker_can_be_consumed()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        var info = Assert.Single(connection.GetSchema(DbMetaDataCollectionNames.DataSourceInformation).Rows.Cast<DataRow>());
+        var marker = string.Format((string)info[DbMetaDataColumnNames.ParameterMarkerFormat], "value");
+
+        using var command = connection.CreateCommand();
+        command.CommandText = $"SELECT {marker}";
+        command.Parameters.Add(new SqliteParameter("value", "from-schema"));
+
+        Assert.Equal("from-schema", command.ExecuteScalar());
+    }
+
+    [Fact]
+    public void GetSchema_DataSourceInformation_supports_parameter_names_longer_than_thirty_characters()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        const string parameterName = "parameter_name_longer_than_thirty";
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT @" + parameterName;
+        command.Parameters.Add(new SqliteParameter(parameterName, "from-schema"));
+
+        Assert.Equal("from-schema", command.ExecuteScalar());
+    }
+
+    [Fact]
+    public void GetSchema_DataTypes_works()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+
+        var dataTable = connection.GetSchema(DbMetaDataCollectionNames.DataTypes);
+
+        Assert.Equal(
+            [
+                DbMetaDataColumnNames.TypeName,
+                DbMetaDataColumnNames.ProviderDbType,
+                DbMetaDataColumnNames.DataType,
+                DbMetaDataColumnNames.ColumnSize,
+                DbMetaDataColumnNames.CreateFormat,
+                DbMetaDataColumnNames.CreateParameters,
+                DbMetaDataColumnNames.IsAutoIncrementable,
+                DbMetaDataColumnNames.IsBestMatch,
+                DbMetaDataColumnNames.IsCaseSensitive,
+                DbMetaDataColumnNames.IsConcurrencyType,
+                DbMetaDataColumnNames.IsFixedLength,
+                DbMetaDataColumnNames.IsFixedPrecisionScale,
+                DbMetaDataColumnNames.IsLiteralSupported,
+                DbMetaDataColumnNames.IsLong,
+                DbMetaDataColumnNames.IsNullable,
+                DbMetaDataColumnNames.IsSearchable,
+                DbMetaDataColumnNames.IsSearchableWithLike,
+                DbMetaDataColumnNames.IsUnsigned,
+                DbMetaDataColumnNames.LiteralPrefix,
+                DbMetaDataColumnNames.LiteralSuffix,
+                DbMetaDataColumnNames.MaximumScale,
+                DbMetaDataColumnNames.MinimumScale
+            ],
+            dataTable.Columns.Cast<DataColumn>().Select(c => c.ColumnName));
+        Assert.Equal(["INTEGER", "REAL", "TEXT", "BLOB"], dataTable.Rows.Cast<DataRow>().Select(r => r[DbMetaDataColumnNames.TypeName]));
+        Assert.Equal(
+            [SqliteType.Integer, SqliteType.Real, SqliteType.Text, SqliteType.Blob],
+            dataTable.Rows.Cast<DataRow>().Select(r => (SqliteType)r.Field<int>(DbMetaDataColumnNames.ProviderDbType)));
+        Assert.False((bool)dataTable.Rows.Cast<DataRow>().Single(r => (string)r[DbMetaDataColumnNames.TypeName] == "INTEGER")[DbMetaDataColumnNames.IsFixedLength]);
+        Assert.Equal(typeof(string), dataTable.Columns.Cast<DataColumn>().Single(c => c.ColumnName == DbMetaDataColumnNames.DataType).DataType);
+        Assert.Equal(typeof(string).FullName, dataTable.Rows[2][DbMetaDataColumnNames.DataType]);
+    }
+
+    [Fact]
+    public void GetSchema_Restrictions_works()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+
+        var dataTable = connection.GetSchema(DbMetaDataCollectionNames.Restrictions);
+
+        Assert.Empty(dataTable.Rows);
+        Assert.Equal(["CollectionName", "RestrictionName", "RestrictionDefault", "RestrictionNumber"], dataTable.Columns.Cast<DataColumn>().Select(c => c.ColumnName));
+        Assert.Equal(typeof(int), dataTable.Columns.Cast<DataColumn>().Single(c => c.ColumnName == "RestrictionNumber").DataType);
+    }
+
+    [Fact]
+    public void GetSchema_pragma_collections_work()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE blogs (id INTEGER PRIMARY KEY, title TEXT NOT NULL); CREATE TABLE legacy (id TEXT PRIMARY KEY); CREATE TABLE composite (id INTEGER, part INTEGER, PRIMARY KEY (id, part)); CREATE VIEW blog_view AS SELECT title FROM blogs; CREATE INDEX ix_blogs_title ON blogs(title);");
+
+        var tables = connection.GetSchema("Tables");
+        var columns = connection.GetSchema("Columns");
+        var indexes = connection.GetSchema("Indexes");
+
+        Assert.Contains(tables.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "blogs");
+        Assert.Equal("BASE TABLE", tables.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "blogs")["TABLE_TYPE"]);
+        Assert.Equal("VIEW", tables.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "blog_view")["TABLE_TYPE"]);
+        var titleColumn = Assert.Single(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "blogs" && (string)r["COLUMN_NAME"] == "title");
+        Assert.Equal("main", titleColumn["TABLE_SCHEMA"]);
+        Assert.Equal("TEXT", titleColumn["DATA_TYPE"]);
+        Assert.Equal("NO", titleColumn["IS_NULLABLE"]);
+        Assert.Equal(1, titleColumn["ORDINAL_POSITION"]);
+        Assert.Equal("NO", columns.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "blogs" && (string)r["COLUMN_NAME"] == "id")["IS_NULLABLE"]);
+        Assert.Equal("YES", columns.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "legacy" && (string)r["COLUMN_NAME"] == "id")["IS_NULLABLE"]);
+        Assert.Equal("YES", columns.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "composite" && (string)r["COLUMN_NAME"] == "id")["IS_NULLABLE"]);
+        Assert.Contains(indexes.Rows.Cast<DataRow>(), r => (string)r["INDEX_NAME"] == "ix_blogs_title");
+    }
+
+    [Fact]
+    public void GetSchema_pragma_columns_include_generated_columns()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE generated (value TEXT, virtual_value TEXT AS (upper(value)) VIRTUAL, stored_value TEXT AS (lower(value)) STORED);");
+
+        var columns = connection.GetSchema("Columns").Rows.Cast<DataRow>()
+            .Where(r => (string)r["TABLE_NAME"] == "generated")
+            .ToList();
+
+        Assert.Equal(["value", "virtual_value", "stored_value"], columns.Select(r => (string)r["COLUMN_NAME"]));
+        Assert.Equal([0, 1, 2], columns.Select(r => (int)r["ORDINAL_POSITION"]));
+    }
+
+    [Fact]
+    public void GetSchema_pragma_collections_include_attached_databases()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS attached; CREATE TABLE items (main_id INTEGER); CREATE INDEX ix_main_items_id ON items(main_id); CREATE TABLE attached.items (attached_id INTEGER PRIMARY KEY); CREATE INDEX attached.ix_items_id ON items(attached_id);");
+
+        var tables = connection.GetSchema("Tables");
+        var columns = connection.GetSchema("Columns");
+        var indexes = connection.GetSchema("Indexes");
+
+        Assert.Contains(tables.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["TABLE_NAME"] == "items");
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["TABLE_NAME"] == "items");
+        Assert.Contains(indexes.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["INDEX_NAME"] == "ix_items_id");
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["COLUMN_NAME"] == "attached_id");
+        Assert.DoesNotContain(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["COLUMN_NAME"] == "main_id");
+        Assert.DoesNotContain(indexes.Rows.Cast<DataRow>(), r => (string)r["TABLE_SCHEMA"] == "attached" && (string)r["INDEX_NAME"] == "ix_main_items_id");
+    }
+
+    [Fact]
+    public void GetSchema_pragma_collections_exclude_internal_tables()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE sequence_test (id INTEGER PRIMARY KEY AUTOINCREMENT); CREATE TABLE sqliteaudit (id INTEGER); CREATE INDEX sqliteaudit_ix ON sqliteaudit(id); ANALYZE;");
+
+        Assert.Contains(connection.GetSchema("Tables").Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "sqliteaudit");
+        Assert.Contains(connection.GetSchema("Columns").Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "sqliteaudit");
+        Assert.Contains(connection.GetSchema("Indexes").Rows.Cast<DataRow>(), r => (string)r["INDEX_NAME"] == "sqliteaudit_ix");
+
+        foreach (var collection in new[] { "Tables", "Columns", "Indexes" })
+        {
+            Assert.DoesNotContain(connection.GetSchema(collection).Rows.Cast<DataRow>(), r =>
+                r.Table.Columns.Contains("TABLE_NAME") && ((string)r["TABLE_NAME"]).StartsWith("sqlite_", StringComparison.Ordinal));
+        }
+    }
+
+    [Fact]
+    public void GetSchema_pragma_columns_ignore_broken_views()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE good_table (id INTEGER); CREATE VIEW broken_view AS SELECT missing FROM missing_table;");
+
+        var columns = connection.GetSchema("Columns");
+
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "good_table" && (string)r["COLUMN_NAME"] == "id");
+    }
+
+    [Fact]
+    public void GetSchema_pragma_columns_ignore_views_with_missing_columns()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE good_table (id INTEGER); CREATE VIEW broken_view AS SELECT missing FROM good_table;");
+
+        var columns = connection.GetSchema("Columns");
+
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "good_table" && (string)r["COLUMN_NAME"] == "id");
+    }
+
+    [Fact]
+    public void GetSchema_pragma_collections_include_virtual_tables_without_shadow_tables()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE VIRTUAL TABLE docs USING fts5(body);");
+
+        var tables = connection.GetSchema("Tables");
+        var columns = connection.GetSchema("Columns");
+        var indexes = connection.GetSchema("Indexes");
+
+        Assert.Contains(tables.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "docs");
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "docs" && (string)r["COLUMN_NAME"] == "body");
+        Assert.DoesNotContain(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "docs" && (string)r["COLUMN_NAME"] == "rank");
+        Assert.DoesNotContain(tables.Rows.Cast<DataRow>(), r => ((string)r["TABLE_NAME"]).StartsWith("docs_", StringComparison.Ordinal));
+        Assert.DoesNotContain(columns.Rows.Cast<DataRow>(), r => ((string)r["TABLE_NAME"]).StartsWith("docs_", StringComparison.Ordinal));
+        Assert.DoesNotContain(indexes.Rows.Cast<DataRow>(), r => ((string)r["TABLE_NAME"]).StartsWith("docs_", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void GetSchema_pragma_collections_are_empty_for_empty_database()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        Assert.Empty(connection.GetSchema("Tables").Rows);
+        Assert.Empty(connection.GetSchema("Columns").Rows);
+        Assert.Empty(connection.GetSchema("Indexes").Rows);
+    }
+
+    [Theory]
+    [InlineData("datasourceinformation")]
+    [InlineData("datatypes")]
+    [InlineData("restrictions")]
+    [InlineData("tables")]
+    [InlineData("columns")]
+    [InlineData("indexes")]
+    public void GetSchema_ignores_case_for_supported_collections(string collectionName)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        if (collectionName is "tables" or "columns" or "indexes")
+        {
+            connection.Open();
+        }
+
+        Assert.NotNull(connection.GetSchema(collectionName));
     }
 
     [Theory, InlineData(null), InlineData(""), InlineData(" "), InlineData("Unknown")]
