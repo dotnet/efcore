@@ -1370,7 +1370,7 @@ public class SqliteConnectionTest
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
-        connection.ExecuteNonQuery("CREATE TABLE blogs (id INTEGER PRIMARY KEY, title TEXT NOT NULL); CREATE TABLE legacy (id TEXT PRIMARY KEY); CREATE VIEW blog_view AS SELECT title FROM blogs; CREATE INDEX ix_blogs_title ON blogs(title);");
+        connection.ExecuteNonQuery("CREATE TABLE blogs (id INTEGER PRIMARY KEY, title TEXT NOT NULL); CREATE TABLE legacy (id TEXT PRIMARY KEY); CREATE TABLE composite (id INTEGER, part INTEGER, PRIMARY KEY (id, part)); CREATE VIEW blog_view AS SELECT title FROM blogs; CREATE INDEX ix_blogs_title ON blogs(title);");
 
         var tables = connection.GetSchema("Tables");
         var columns = connection.GetSchema("Columns");
@@ -1386,6 +1386,7 @@ public class SqliteConnectionTest
         Assert.Equal(1, titleColumn["ORDINAL_POSITION"]);
         Assert.Equal("NO", columns.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "blogs" && (string)r["COLUMN_NAME"] == "id")["IS_NULLABLE"]);
         Assert.Equal("YES", columns.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "legacy" && (string)r["COLUMN_NAME"] == "id")["IS_NULLABLE"]);
+        Assert.Equal("YES", columns.Rows.Cast<DataRow>().Single(r => (string)r["TABLE_NAME"] == "composite" && (string)r["COLUMN_NAME"] == "id")["IS_NULLABLE"]);
         Assert.Contains(indexes.Rows.Cast<DataRow>(), r => (string)r["INDEX_NAME"] == "ix_blogs_title");
     }
 
@@ -1447,6 +1448,18 @@ public class SqliteConnectionTest
         using var connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
         connection.ExecuteNonQuery("CREATE TABLE good_table (id INTEGER); CREATE VIEW broken_view AS SELECT missing FROM missing_table;");
+
+        var columns = connection.GetSchema("Columns");
+
+        Assert.Contains(columns.Rows.Cast<DataRow>(), r => (string)r["TABLE_NAME"] == "good_table" && (string)r["COLUMN_NAME"] == "id");
+    }
+
+    [Fact]
+    public void GetSchema_pragma_columns_ignore_views_with_missing_columns()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE good_table (id INTEGER); CREATE VIEW broken_view AS SELECT missing FROM good_table;");
 
         var columns = connection.GetSchema("Columns");
 

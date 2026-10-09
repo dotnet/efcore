@@ -982,7 +982,8 @@ public partial class SqliteConnection : DbConnection
                 using var command = CreateCommand();
                 command.CommandText = useTableList && useTableXInfo
                     ? """
-                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk, m.wr
+                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk, m.wr,
+                          EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
                       FROM pragma_table_list m
                       JOIN pragma_table_xinfo(m.name, $schema) p ON true
                       WHERE m.schema = $schema AND m.type = 'table'
@@ -991,7 +992,8 @@ public partial class SqliteConnection : DbConnection
                       """
                     : useTableList
                     ? """
-                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk, m.wr
+                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk, m.wr,
+                          EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
                       FROM pragma_table_list m
                       JOIN pragma_table_info(m.name, $schema) p ON true
                       WHERE m.schema = $schema AND m.type = 'table'
@@ -1000,7 +1002,8 @@ public partial class SqliteConnection : DbConnection
                     : useTableXInfo
                     ? $"""
                       SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk,
-                          CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END
+                          CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END,
+                          EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
                       FROM {QuoteIdentifier(databaseName)}.sqlite_master m
                       JOIN pragma_table_xinfo(m.name, $schema) p ON true
                       WHERE m.type = 'table'
@@ -1010,7 +1013,8 @@ public partial class SqliteConnection : DbConnection
                       """
                     : $"""
                       SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk,
-                          CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END
+                          CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END,
+                          EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
                       FROM {QuoteIdentifier(databaseName)}.sqlite_master m
                       JOIN pragma_table_info(m.name, $schema) p ON true
                       WHERE m.type = 'table'
@@ -1031,6 +1035,7 @@ public partial class SqliteConnection : DbConnection
                             reader.GetInt64(3) != 0
                             || (reader.GetInt64(6) != 0
                                 && reader.GetInt64(7) == 0
+                                && reader.GetInt64(8) == 0
                                 && string.Equals(reader.GetString(2), "INTEGER", StringComparison.OrdinalIgnoreCase))
                                 ? "NO"
                                 : "YES",
@@ -1179,7 +1184,8 @@ public partial class SqliteConnection : DbConnection
     internal static bool IsUnavailableSchemaObjectException(SqliteException exception)
         => exception.SqliteErrorCode == SQLITE_ERROR
             && (exception.Message?.Contains("no such table:", StringComparison.Ordinal) == true
-                || exception.Message?.Contains("no such module:", StringComparison.Ordinal) == true);
+                || exception.Message?.Contains("no such module:", StringComparison.Ordinal) == true
+                || exception.Message?.Contains("no such column:", StringComparison.Ordinal) == true);
 
     private static string QuoteIdentifier(string identifier)
         => "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
