@@ -33,6 +33,21 @@ public class ByteArrayTranslationsCosmosTest : ByteArrayTranslationsTestBase<Bas
     public override Task Contains_with_parameter_above_ascii_range()
         => AssertTranslationFailed(base.Contains_with_parameter_above_ascii_range);
 
+    public override Task IndexOf_with_constant()
+        => AssertTranslationFailed(base.IndexOf_with_constant);
+
+    public override Task IndexOf_with_parameter()
+        => AssertTranslationFailed(base.IndexOf_with_parameter);
+
+    public override Task IndexOf_with_column()
+        => AssertTranslationFailed(base.IndexOf_with_column);
+
+    public override Task IndexOf_with_parameter_above_ascii_range()
+        => AssertTranslationFailed(base.IndexOf_with_parameter_above_ascii_range);
+
+    public override Task IndexOf_not_found()
+        => AssertTranslationFailed(base.IndexOf_not_found);
+
     public override Task Any()
         => AssertTranslationFailed(base.Any);
 

@@ -45,6 +45,34 @@ public abstract class ByteArrayTranslationsTestBase<TFixture>(TFixture fixture) 
     }
 
     [Fact]
+    public virtual Task IndexOf_with_constant()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => Array.IndexOf(e.ByteArray, (byte)0xBE) == 2));
+
+    [Fact]
+    public virtual Task IndexOf_with_parameter()
+    {
+        byte someByte = 3;
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => Array.IndexOf(e.ByteArray, someByte) == 2));
+    }
+
+    [Fact]
+    public virtual Task IndexOf_with_column()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => Array.IndexOf(e.ByteArray, e.Byte) >= 0));
+
+    [Fact]
+    public virtual Task IndexOf_with_parameter_above_ascii_range()
+    {
+        byte someByte = 0xDE;
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => Array.IndexOf(e.ByteArray, someByte) == 0));
+    }
+
+    [Fact]
+    public virtual Task IndexOf_not_found()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => Array.IndexOf(e.ByteArray, (byte)0x99) == -1));
+
+    [Fact]
     public virtual Task Any()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Any()));
 
