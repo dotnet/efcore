@@ -909,7 +909,7 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add(DbMetaDataColumnNames.MaximumScale, typeof(short));
             dataTable.Columns.Add(DbMetaDataColumnNames.MinimumScale, typeof(short));
 
-            dataTable.Rows.Add("INTEGER", 1, typeof(long).FullName, -1L, "INTEGER", null, true, true, false, false, true, false, true, false, true, true, true, false, null, null, null, null);
+            dataTable.Rows.Add("INTEGER", 1, typeof(long).FullName, -1L, "INTEGER", null, true, true, false, false, false, false, true, false, true, true, true, false, null, null, null, null);
             dataTable.Rows.Add("REAL", 2, typeof(double).FullName, -1L, "REAL", null, false, true, false, false, true, false, true, false, true, true, true, false, null, null, null, null);
             dataTable.Rows.Add("TEXT", 3, typeof(string).FullName, -1L, "TEXT", null, false, true, true, false, false, false, true, true, true, true, true, false, "'", "'", null, null);
             dataTable.Rows.Add("BLOB", 4, typeof(byte[]).FullName, -1L, "BLOB", null, false, true, false, false, false, false, true, true, true, true, true, false, "X'", "'", null, null);

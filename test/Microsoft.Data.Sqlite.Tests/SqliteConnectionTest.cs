@@ -1348,6 +1348,7 @@ public class SqliteConnectionTest
         Assert.Equal(
             [SqliteType.Integer, SqliteType.Real, SqliteType.Text, SqliteType.Blob],
             dataTable.Rows.Cast<DataRow>().Select(r => (SqliteType)r.Field<int>(DbMetaDataColumnNames.ProviderDbType)));
+        Assert.False((bool)dataTable.Rows.Cast<DataRow>().Single(r => (string)r[DbMetaDataColumnNames.TypeName] == "INTEGER")[DbMetaDataColumnNames.IsFixedLength]);
         Assert.Equal(typeof(string), dataTable.Columns.Cast<DataColumn>().Single(c => c.ColumnName == DbMetaDataColumnNames.DataType).DataType);
         Assert.Equal(typeof(string).FullName, dataTable.Rows[2][DbMetaDataColumnNames.DataType]);
     }
