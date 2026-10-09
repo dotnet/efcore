@@ -180,6 +180,17 @@ FROM [Entities] AS [e]
 """);
     }
 
+    public override async Task AsNoTracking()
+    {
+        await base.AsNoTracking();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
     public override async Task Liftable_constant_named_like_a_keyword()
     {
         await base.Liftable_constant_named_like_a_keyword();

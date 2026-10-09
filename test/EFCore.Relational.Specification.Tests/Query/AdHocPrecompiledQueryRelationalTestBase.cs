@@ -707,6 +707,25 @@ var orderedSeconds = await context.Seconds.OrderBy(s => s.Id).ToListAsync();
     public virtual Task Liftable_constant_whose_sanitized_name_is_another_constants_name()
         => TestLiftableConstantName<CollidingLiftableConstantFactory>();
 
+    [Fact]
+    public virtual async Task AsNoTracking()
+    {
+        var contextFactory = await InitializeNonSharedTest<KeywordLiftableConstantContext>();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.KeywordLiftableConstantContext(dbContextOptions);
+var entities = await context.Entities.AsNoTracking().ToListAsync();
+""",
+            typeof(KeywordLiftableConstantContext),
+            contextFactory.GetOptions(),
+            interceptorCodeAsserter: code =>
+            {
+                Assert.Contains("keywordLiftableConstantEntityPrimaryKeyProperties", code);
+                Assert.DoesNotContain(".keywordLiftableConstantEntityPrimaryKeyProperties", code);
+            });
+    }
+
     // Every constant is given the same name, so the name under test is certain to reach the generated file whichever constants
     // the optimizer keeps, and the duplicates exercise uniquification at the same time.
     private async Task TestLiftableConstantName<TFactory>([CallerMemberName] string callerName = "")
