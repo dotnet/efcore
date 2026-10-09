@@ -359,7 +359,7 @@ jobs:
 
       - name: Upload coverage report
         if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && hashFiles('artifacts/coverage/coverage.cobertura.xml') != ''
-        uses: actions/upload-code-coverage@bfa741d815a28cb064a8e3a0837e577457a017d5
+        uses: actions/upload-code-coverage@2b21a77928be8d5168c2b9581a67f2adbebacc52
         with:
           file: artifacts/coverage/coverage.cobertura.xml
           language: C#
