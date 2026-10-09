@@ -870,7 +870,7 @@ public partial class SqliteConnection : DbConnection
                 1,
                 @"[\p{L}_\x80-\uFFFF][\p{L}\p{N}_$\x80-\uFFFF]*",
                 false,
-                "{0}",
+                "@{0}",
                 @"(\?[0-9]+|\?|[@:$][\p{L}\p{N}_\x80-\uFFFF][\p{L}\p{N}_$\x80-\uFFFF]*(?:::[\p{L}\p{N}_$\x80-\uFFFF]*)*(?:\([^\s]*\))?)",
                 DBNull.Value,
                 @"^[\p{L}\p{N}_\x80-\uFFFF][\p{L}\p{N}_$\x80-\uFFFF]*(?:::[\p{L}\p{N}_$\x80-\uFFFF]*)*(?:\([^\s]*\))?$",
@@ -974,20 +974,43 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add("ORDINAL_POSITION", typeof(int));
 
             var schemaObjects = GetSchemaObjects();
-            var useTableList = IsTableListSupported(new Version(ServerVersion));
+            var serverVersion = new Version(ServerVersion);
+            var useTableList = IsTableListSupported(serverVersion);
+            var useTableXInfo = IsTableXInfoSupported(serverVersion);
             foreach (var databaseName in GetDatabaseNames())
             {
                 using var command = CreateCommand();
-                command.CommandText = useTableList
+                command.CommandText = useTableList && useTableXInfo
                     ? """
-                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid
+                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk, m.wr
+                      FROM pragma_table_list m
+                      JOIN pragma_table_xinfo(m.name, $schema) p ON true
+                      WHERE m.schema = $schema AND m.type = 'table'
+                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                          AND p.hidden IN (0, 2, 3)
+                      """
+                    : useTableList
+                    ? """
+                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk, m.wr
                       FROM pragma_table_list m
                       JOIN pragma_table_info(m.name, $schema) p ON true
                       WHERE m.schema = $schema AND m.type = 'table'
                           AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
                       """
+                    : useTableXInfo
+                    ? $"""
+                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk,
+                          CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END
+                      FROM {QuoteIdentifier(databaseName)}.sqlite_master m
+                      JOIN pragma_table_xinfo(m.name, $schema) p ON true
+                      WHERE m.type = 'table'
+                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                          AND m.sql NOT LIKE 'CREATE VIRTUAL%'
+                          AND p.hidden IN (0, 2, 3)
+                      """
                     : $"""
-                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid
+                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk,
+                          CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END
                       FROM {QuoteIdentifier(databaseName)}.sqlite_master m
                       JOIN pragma_table_info(m.name, $schema) p ON true
                       WHERE m.type = 'table'
@@ -1005,7 +1028,12 @@ public partial class SqliteConnection : DbConnection
                             reader.GetString(0),
                             reader.GetString(1),
                             reader.IsDBNull(2) ? DBNull.Value : reader.GetString(2),
-                            reader.GetInt64(3) == 0 ? "YES" : "NO",
+                            reader.GetInt64(3) != 0
+                            || (reader.GetInt64(6) != 0
+                                && reader.GetInt64(7) == 0
+                                && string.Equals(reader.GetString(2), "INTEGER", StringComparison.OrdinalIgnoreCase))
+                                ? "NO"
+                                : "YES",
                             reader.IsDBNull(4) ? DBNull.Value : reader.GetString(4),
                             reader.GetInt64(5));
                     }
@@ -1014,7 +1042,7 @@ public partial class SqliteConnection : DbConnection
                 foreach (var (_, tableName, tableType) in schemaObjects.Where(o => o.DatabaseName == databaseName && (o.TableType is "view" or "virtual")))
                 {
                     using var viewCommand = CreateCommand();
-                    viewCommand.CommandText = "SELECT name, type, [notnull], dflt_value, cid FROM pragma_table_info($table, $schema)";
+                    viewCommand.CommandText = $"SELECT name, type, [notnull], dflt_value, cid FROM pragma_table_{(useTableXInfo ? "xinfo" : "info")}($table, $schema)" + (useTableXInfo ? " WHERE hidden IN (0, 2, 3)" : null);
                     viewCommand.Parameters.AddWithValue("$table", tableName);
                     viewCommand.Parameters.AddWithValue("$schema", databaseName);
 
@@ -1033,7 +1061,7 @@ public partial class SqliteConnection : DbConnection
                                 reader.GetInt64(4));
                         }
                     }
-                    catch (SqliteException)
+                    catch (SqliteException ex) when (IsUnavailableSchemaObjectException(ex))
                     {
                         // Ignore views whose dependencies are unavailable.
                     }
@@ -1144,6 +1172,14 @@ public partial class SqliteConnection : DbConnection
 
     internal static bool IsTableListSupported(Version sqliteVersion)
         => sqliteVersion >= new Version(3, 37);
+
+    internal static bool IsTableXInfoSupported(Version sqliteVersion)
+        => sqliteVersion >= new Version(3, 26);
+
+    internal static bool IsUnavailableSchemaObjectException(SqliteException exception)
+        => exception.SqliteErrorCode == SQLITE_ERROR
+            && (exception.Message?.Contains("no such table:", StringComparison.Ordinal) == true
+                || exception.Message?.Contains("no such module:", StringComparison.Ordinal) == true);
 
     private static string QuoteIdentifier(string identifier)
         => "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
