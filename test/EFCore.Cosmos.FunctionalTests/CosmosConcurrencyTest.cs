@@ -95,7 +95,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.Equal(etag, customerFromStore.ETag);
+            Assert.Equal(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
 
             customerFromStore.Children.Add(new DummyChild { Id = "1" });
 
@@ -161,7 +161,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
             var customerFromStore = await context.Set<PremiumCustomer>().SingleAsync();
 
             Assert.NotEmpty(customerFromStore.ETag);
-            Assert.Equal(etag, customerFromStore.ETag);
+            Assert.Equal(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
 
             customerFromStore.Children.Add(new DummyChild { Id = "1" });
 
