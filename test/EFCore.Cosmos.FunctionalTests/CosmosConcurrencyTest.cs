@@ -94,26 +94,26 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
         {
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
-            Assert.NotEmpty(customerFromStore.ETag.Trim('"'));
+            Assert.NotEmpty(customerFromStore.ETag);
             Assert.Equal(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
 
             customerFromStore.Children.Add(new DummyChild { Id = "1" });
 
             await context.SaveChangesAsync();
 
-            Assert.NotEmpty(customerFromStore.ETag.Trim('"'));
+            Assert.NotEmpty(customerFromStore.ETag);
             Assert.NotEqual(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
 
             customerFromStore.Children.Add(new DummyChild { Id = "2" });
 
-            Assert.NotEmpty(customerFromStore.ETag.Trim('"'));
+            Assert.NotEmpty(customerFromStore.ETag);
             Assert.NotEqual(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
 
             customerFromStore.Children.Add(new DummyChild { Id = "3" });
 
             await context.SaveChangesAsync();
 
-            Assert.NotEmpty(customerFromStore.ETag.Trim('"'));
+            Assert.NotEmpty(customerFromStore.ETag);
             Assert.NotEqual(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
         }
     }
@@ -160,26 +160,26 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
         {
             var customerFromStore = await context.Set<PremiumCustomer>().SingleAsync();
 
-            Assert.NotEmpty(customerFromStore.ETag.Trim('"'));
+            Assert.NotEmpty(customerFromStore.ETag);
             Assert.Equal(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
 
             customerFromStore.Children.Add(new DummyChild { Id = "1" });
 
             await context.SaveChangesAsync();
 
-            Assert.NotEmpty(customerFromStore.ETag.Trim('"'));
+            Assert.NotEmpty(customerFromStore.ETag);
             Assert.NotEqual(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
 
             customerFromStore.Children.Add(new DummyChild { Id = "2" });
 
-            Assert.NotEmpty(customerFromStore.ETag.Trim('"'));
+            Assert.NotEmpty(customerFromStore.ETag);
             Assert.NotEqual(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
 
             customerFromStore.Children.Add(new DummyChild { Id = "3" });
 
             await context.SaveChangesAsync();
 
-            Assert.NotEmpty(customerFromStore.ETag.Trim('"'));
+            Assert.NotEmpty(customerFromStore.ETag);
             Assert.NotEqual(etag.Trim('"'), customerFromStore.ETag.Trim('"'));
         }
     }
