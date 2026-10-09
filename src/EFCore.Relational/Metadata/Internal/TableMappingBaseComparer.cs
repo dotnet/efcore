@@ -129,6 +129,103 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
             return result;
         }
 
+        if (x.Table is IStoreFunction xFunction)
+        {
+            if (y.Table is not IStoreFunction)
+            {
+                return 1;
+            }
+
+            var yFunction = (IStoreFunction)y.Table;
+            if (xFunction.Parameters is IReadOnlyList<IStoreFunctionParameter> xParamsList
+                && yFunction.Parameters is IReadOnlyList<IStoreFunctionParameter> yParamsList)
+            {
+                result = xParamsList.Count.CompareTo(yParamsList.Count);
+                if (result != 0)
+                {
+                    return result;
+                }
+
+                for (var i = 0; i < xParamsList.Count; i++)
+                {
+                    var xp = xParamsList[i];
+                    var yp = yParamsList[i];
+                    result = StringComparer.Ordinal.Compare(xp.StoreType, yp.StoreType);
+                    if (result != 0)
+                    {
+                        return result;
+                    }
+
+                    result = StringComparer.Ordinal.Compare(xp.Name, yp.Name);
+                    if (result != 0)
+                    {
+                        return result;
+                    }
+                }
+            }
+            else
+            {
+                result = xFunction.Parameters.Count().CompareTo(yFunction.Parameters.Count());
+                if (result != 0)
+                {
+                    return result;
+                }
+
+                result = xFunction.Parameters.Zip(
+                        yFunction.Parameters, (xp, yp) =>
+                        {
+                            var paramResult = StringComparer.Ordinal.Compare(xp.StoreType, yp.StoreType);
+                            return paramResult != 0 ? paramResult : StringComparer.Ordinal.Compare(xp.Name, yp.Name);
+                        })
+                    .FirstOrDefault(r => r != 0);
+
+                if (result != 0)
+                {
+                    return result;
+                }
+            }
+        }
+        else if (y.Table is IStoreFunction)
+        {
+            return -1;
+        }
+
+        if (x.Table is IStoreStoredProcedure xSproc)
+        {
+            if (y.Table is not IStoreStoredProcedure)
+            {
+                return 1;
+            }
+
+            var ySproc = (IStoreStoredProcedure)y.Table;
+            result = xSproc.Parameters.Count.CompareTo(ySproc.Parameters.Count);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            for (var i = 0; i < xSproc.Parameters.Count; i++)
+            {
+                var xp = xSproc.Parameters[i];
+                var yp = ySproc.Parameters[i];
+                result = StringComparer.Ordinal.Compare(xp.StoreType, yp.StoreType);
+                if (result != 0)
+                {
+                    return result;
+                }
+
+                result = StringComparer.Ordinal.Compare(xp.Name, yp.Name);
+                if (result != 0)
+                {
+                    return result;
+                }
+            }
+        }
+        else if (y.Table is IStoreStoredProcedure)
+        {
+            return -1;
+        }
+
         result = x.ColumnMappings.Count().CompareTo(y.ColumnMappings.Count());
         return result != 0
             ? result
@@ -168,6 +265,23 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
         hashCode.Add(obj.TypeBase, TypeBaseNameComparer.Instance);
         hashCode.Add(obj.Table.Name);
         hashCode.Add(obj.Table.Schema);
+        if (obj.Table is IStoreFunction function)
+        {
+            foreach (var parameter in function.Parameters)
+            {
+                hashCode.Add(parameter.StoreType);
+                hashCode.Add(parameter.Name);
+            }
+        }
+        else if (obj.Table is IStoreStoredProcedure sproc)
+        {
+            foreach (var parameter in sproc.Parameters)
+            {
+                hashCode.Add(parameter.StoreType);
+                hashCode.Add(parameter.Name);
+            }
+        }
+
         foreach (var columnMapping in obj.ColumnMappings)
         {
             hashCode.Add(columnMapping.Property.Name);

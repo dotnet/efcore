@@ -3140,7 +3140,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(ordersFunction.ReturnType);
 
             var orderDate = orderType.FindProperty(nameof(Order.OrderDate))!;
-            Assert.Equal(2, orderDate.GetFunctionColumnMappings().Count());
+            Assert.Equal(3, orderDate.GetFunctionColumnMappings().Count());
             var orderDateMapping = orderMapping.ColumnMappings.Single(m => m.Property == orderDate);
             Assert.NotNull(orderDateMapping.TypeMapping);
             Assert.Equal("default_datetime_mapping", orderDateMapping.TypeMapping.StoreType);
@@ -3172,6 +3172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(model.Model.GetDbFunctions().First(f => f.Parameters.Count() == 1), tvfDbFunction);
             Assert.Same(tvfFunction.Parameters.Single(), tvfDbFunction.Parameters.Single().StoreFunctionParameter);
             Assert.Equal(tvfDbFunction.Parameters.Single().Name, tvfFunction.Parameters.Single().DbFunctionParameters.Single().Name);
+            Assert.NotNull(tvfFunction.FindColumn(orderDate));
 
             var tvfFunction2 = tvfMapping2.StoreFunction;
             Assert.Same(tvfMapping2, tvfFunction2.EntityTypeMappings.Single());
@@ -3187,6 +3188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(model.Model.GetDbFunctions().Last(f => f.Parameters.Count() == 1), tvfDbFunction2);
             Assert.Same(tvfFunction2.Parameters.Single(), tvfDbFunction2.Parameters.Single().StoreFunctionParameter);
             Assert.Equal(tvfDbFunction2.Parameters.Single().Name, tvfFunction2.Parameters.Single().DbFunctionParameters.Single().Name);
+            Assert.NotNull(tvfFunction2.FindColumn(orderDate));
         }
 
         [Fact]
