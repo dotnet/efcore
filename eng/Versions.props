@@ -47,7 +47,7 @@
     <XUnitV3Version>4.0.1</XUnitV3Version>
     <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26473.115</MicrosoftDotNetXUnitV3ExtensionsVersion>
     <MicrosoftTestingPlatformVersion>2.4.1</MicrosoftTestingPlatformVersion>
-    <MicrosoftTestingExtensionsCodeCoverageVersion>18.11.2</MicrosoftTestingExtensionsCodeCoverageVersion>
+    <MicrosoftTestingExtensionsCodeCoverageVersion>18.12.0</MicrosoftTestingExtensionsCodeCoverageVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
