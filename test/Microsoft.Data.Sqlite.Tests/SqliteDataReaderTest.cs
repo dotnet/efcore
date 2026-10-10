@@ -797,6 +797,39 @@ public class SqliteDataReaderTest
             "SELECT '13:10:15.5';",
             new TimeOnly(13, 10, 15, 500));
 
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_real()
+        => GetFieldValue_works(
+            "SELECT 0.5487847222222222;",
+            new TimeOnly(13, 10, 15));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_real_and_milliseconds()
+        => GetFieldValue_works(
+            "SELECT julianday('2014-04-15 13:10:15.123') - julianday('2014-04-15');",
+            new TimeOnly(13, 10, 15, 123));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_integer()
+        => GetFieldValue_works(
+            "SELECT 0;",
+            new TimeOnly(0, 0));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_round_trips_with_SqliteType_Real()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $time;";
+        command.Parameters.Add("$time", SqliteType.Real).Value = new TimeOnly(23, 59, 59, 999);
+
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+        Assert.Equal(new TimeOnly(23, 59, 59, 999), reader.GetFieldValue<TimeOnly>(0));
+    }
+
     [Theory,
      InlineData("SELECT 1;", "INTEGER"),
      InlineData("SELECT 3.14;", "REAL"),
