@@ -259,6 +259,36 @@ WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX(N'e', [b].[String], 
 """);
     }
 
+    public override async Task IndexOf_with_empty_string_and_constant_starting_position()
+    {
+        await base.IndexOf_with_empty_string_and_constant_starting_position();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(LEN([b].[String]) AS int) > 2
+""");
+    }
+
+    public override async Task IndexOf_with_empty_string_parameter_and_parameter_starting_position()
+    {
+        await base.IndexOf_with_empty_string_parameter_and_parameter_starting_position();
+
+        AssertSql(
+            """
+@pattern='' (Size = 4000)
+@start='2'
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX(@pattern, [b].[String], @start + 1) AS int) - CASE
+    WHEN @pattern = N'' THEN -@start
+    ELSE 1
+END = 2
+""");
+    }
+
     public override async Task IndexOf_after_ToString()
     {
         await base.IndexOf_after_ToString();
