@@ -132,6 +132,20 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
             MakeUnary(expressionType, Parameter(typeof(bool), "b"), typeof(bool)),
             expected);
 
+    [Theory, InlineData(ExpressionType.Not, "!b"), InlineData(ExpressionType.IsFalse, "!b"), InlineData(ExpressionType.IsTrue, "b")]
+    public void Unary_expression_nullable_bool(ExpressionType expressionType, string expected)
+        => AssertExpression(
+            MakeUnary(expressionType, Parameter(typeof(bool?), "b"), typeof(bool?)),
+            expected);
+
+    [Theory, InlineData(typeof(long), "1L"), InlineData(typeof(double), "1D"), InlineData(typeof(decimal), "1M"),
+     InlineData(typeof(int?), "1")]
+    public void Unary_expression_Increment_Decrement_non_int(Type type, string one)
+    {
+        AssertExpression(Increment(Parameter(type, "i")), $"i + {one}");
+        AssertExpression(Decrement(Parameter(type, "i")), $"i - {one}");
+    }
+
     [Theory, InlineData(ExpressionType.PostIncrementAssign, "i++"), InlineData(ExpressionType.PostDecrementAssign, "i--"),
      InlineData(ExpressionType.PreIncrementAssign, "++i"), InlineData(ExpressionType.PreDecrementAssign, "--i")]
     public void Unary_statement(ExpressionType expressionType, string expected)

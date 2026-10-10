@@ -2617,7 +2617,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         {
             ExpressionType.Negate => _g.NegateExpression(operand),
             ExpressionType.NegateChecked => _g.NegateExpression(operand),
-            ExpressionType.Not when unary.Type == typeof(bool) => _g.LogicalNotExpression(operand),
+            ExpressionType.Not when unary.Type.UnwrapNullableType() == typeof(bool) => _g.LogicalNotExpression(operand),
             ExpressionType.Not => _g.BitwiseNotExpression(operand),
             ExpressionType.OnesComplement => _g.BitwiseNotExpression(operand),
             ExpressionType.IsFalse => _g.LogicalNotExpression(operand),
@@ -2632,8 +2632,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             ExpressionType.Quote => operand,
             ExpressionType.UnaryPlus => PrefixUnaryExpression(SyntaxKind.UnaryPlusExpression, operand),
             ExpressionType.Unbox => operand,
-            ExpressionType.Increment => Translate(Expression.Add(unary.Operand, Expression.Constant(1))),
-            ExpressionType.Decrement => Translate(Expression.Subtract(unary.Operand, Expression.Constant(1))),
+            ExpressionType.Increment => Translate(Expression.Add(unary.Operand, One(unary.Operand.Type))),
+            ExpressionType.Decrement => Translate(Expression.Subtract(unary.Operand, One(unary.Operand.Type))),
             ExpressionType.PostIncrementAssign => PostfixUnaryExpression(SyntaxKind.PostIncrementExpression, operand),
             ExpressionType.PostDecrementAssign => PostfixUnaryExpression(SyntaxKind.PostDecrementExpression, operand),
             ExpressionType.PreIncrementAssign => PrefixUnaryExpression(SyntaxKind.PreIncrementExpression, operand),
@@ -2643,6 +2643,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         };
 
         return unary;
+
+        static ConstantExpression One(Type type)
+            => Expression.Constant(Convert.ChangeType(1, type.UnwrapNullableType(), CultureInfo.InvariantCulture), type);
     }
 
     /// <inheritdoc />
