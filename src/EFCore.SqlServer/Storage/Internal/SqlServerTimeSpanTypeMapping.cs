@@ -115,7 +115,17 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     ///     The generated string.
     /// </returns>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => value is TimeSpan { Milliseconds: 0 } // Handle trailing decimal separator when no fractional seconds
-            ? string.Format(CultureInfo.InvariantCulture, _timeFormats[0], value)
-            : string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
+    {
+        var precision = Precision is >= 0 and <= 7 ? Precision.Value : 7;
+
+        // The F format specifiers omit trailing zeros, so when no fractional digit is left at this precision the literal would end
+        // with a decimal separator, which SQL Server rejects.
+        var fractionTicks = Math.Abs(((TimeSpan)value).Ticks % TimeSpan.TicksPerSecond);
+        var ticksPerDigit = TimeSpan.TicksPerSecond / (long)Math.Pow(10, precision);
+
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            fractionTicks < ticksPerDigit ? _timeFormats[0] : _timeFormats[precision],
+            value);
+    }
 }
