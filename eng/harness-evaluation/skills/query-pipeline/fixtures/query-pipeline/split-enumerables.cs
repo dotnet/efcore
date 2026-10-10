@@ -1,3 +1,17 @@
+public class SplitQueryResultCoordinator
+{
+    public bool? HasNext { get; set; }
+    public bool CallerBuffersResults { get; set; }
+
+    public void CompleteConsumption()
+    {
+        if (!CallerBuffersResults)
+        {
+            VerifyNoOrphanedChildRows();
+        }
+    }
+}
+
 public class SplitQueryingEnumerable<T>
 {
     private sealed class Enumerator
@@ -15,11 +29,17 @@ public class SplitQueryingEnumerable<T>
             }
             else
             {
-                _resultCoordinator!.VerifyNoOrphanedChildRows();
+                _resultCoordinator!.CompleteConsumption();
                 Current = default!;
             }
 
             return hasNext;
+        }
+
+        public void Dispose()
+        {
+            _resultCoordinator?.CompleteConsumption();
+            _dataReader?.Dispose();
         }
     }
 
@@ -42,11 +62,20 @@ public class SplitQueryingEnumerable<T>
             }
             else
             {
-                _resultCoordinator!.VerifyNoOrphanedChildRows();
+                _resultCoordinator!.CompleteConsumption();
                 Current = default!;
             }
 
             return hasNext;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            _resultCoordinator?.CompleteConsumption();
+            if (_dataReader != null)
+            {
+                await _dataReader.DisposeAsync().ConfigureAwait(false);
+            }
         }
     }
 }
@@ -61,8 +90,11 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             if (hasNext)
             {
                 var group = new InternalGrouping(_keySelector(_relationalQueryContext, _dbDataReader!));
+                var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
                 do
                 {
+                    _resultCoordinator.HasNext = null;
+                    _resultCoordinator.ResultContext.Values = null;
                     var element = _elementSelector(
                         _relationalQueryContext,
                         _dbDataReader!,
@@ -74,7 +106,20 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                         _resultCoordinator);
                     group.Add(element);
 
-                    if (!(_resultCoordinator.HasNext ?? _dbDataReader!.Read()))
+                    if (_resultCoordinator.HasNext ?? _dbDataReader!.Read())
+                    {
+                        if (!CompareIdentifiers(
+                                _keyIdentifierValueComparers,
+                                keyIdentifier,
+                                _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
+                        {
+                            _resultCoordinator.HasNext = true;
+                            _resultCoordinator.CompleteConsumption();
+                            Current = group;
+                            break;
+                        }
+                    }
+                    else
                     {
                         Current = group;
                         break;
@@ -89,6 +134,12 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
 
             return hasNext;
         }
+
+        public void Dispose()
+        {
+            _resultCoordinator?.CompleteConsumption();
+            _dataReader?.Dispose();
+        }
     }
 
     private sealed class AsyncEnumerator
@@ -100,8 +151,11 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             if (hasNext)
             {
                 var group = new InternalGrouping(_keySelector(_relationalQueryContext, _dbDataReader!));
+                var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
                 do
                 {
+                    _resultCoordinator.HasNext = null;
+                    _resultCoordinator.ResultContext.Values = null;
                     var element = _elementSelector(
                         _relationalQueryContext,
                         _dbDataReader!,
@@ -117,8 +171,21 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                     }
                     group.Add(element);
 
-                    if (!(_resultCoordinator.HasNext
-                        ?? await _dbDataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false)))
+                    if (_resultCoordinator.HasNext
+                        ?? await _dbDataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
+                    {
+                        if (!CompareIdentifiers(
+                                _keyIdentifierValueComparers,
+                                keyIdentifier,
+                                _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
+                        {
+                            _resultCoordinator.HasNext = true;
+                            _resultCoordinator.CompleteConsumption();
+                            Current = group;
+                            break;
+                        }
+                    }
+                    else
                     {
                         Current = group;
                         break;
@@ -132,6 +199,15 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
             }
 
             return hasNext;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            _resultCoordinator?.CompleteConsumption();
+            if (_dataReader != null)
+            {
+                await _dataReader.DisposeAsync().ConfigureAwait(false);
+            }
         }
     }
 }

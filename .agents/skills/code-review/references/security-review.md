@@ -34,6 +34,7 @@ Use STRIDE categories as a completeness aid, not as a substitute for this trace.
 ## EF Core Guarantees and Checks
 
 - LINQ and interpolated SQL paths parameterize values. Raw SQL APIs deliberately accept responsibility from the application; do not misclassify documented raw behavior as an EF vulnerability.
+- Query annotations are not necessarily parameters. Trace comments and tags into final command text; escaping or prefixing intermediate text is insufficient if later decoding, normalization, or wrapping can introduce SQL syntax. Apply provider-specific escaping after all text transformations and verify that every emitted line or delimiter remains within its comment.
 - Sensitive parameter values are censored from logging and exceptions by default. Any new exposure must remain behind the established explicit opt-in.
 - Deserialization and cache-key work influenced by untrusted data must remain bounded as documented. Check complexity, recursion depth, allocation growth, cache cardinality, and eviction rather than only malformed-input handling.
 - Scaffolding must generate safe C# even when database identifiers, comments, and metadata are malicious. Follow data through identifier normalization, string/XML escaping, templates, and generated-code compilation.
