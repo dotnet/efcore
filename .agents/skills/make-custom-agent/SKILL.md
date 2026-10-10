@@ -1,6 +1,6 @@
 ---
 name: make-custom-agent
-description: 'Create custom GitHub Copilot agents. Use when asked to create, scaffold, or configure a custom agent, declarative agent, or @-invokable chat participant for GitHub Copilot.'
+description: 'Create, review, or fix custom GitHub Copilot agents. Use when asked to create, scaffold, configure, review, or restrict a custom agent, declarative agent, or @-invokable chat participant for GitHub Copilot.'
 ---
 
 # Create Custom Agent
@@ -15,6 +15,8 @@ This skill guides you through creating a custom GitHub Copilot agent — an `@`-
 - Creating reusable prompts — use .prompt.md instead
 
 ## Workflow
+
+For an existing proposal, audit the full definition rather than just its tools: the description must identify natural requests that should discover it, the body must add domain knowledge beyond root instructions, and the paired eval must isolate its contribution. Compare every tool and behavior to the user's intended authority. A command-free reviewer must not gain command execution or publication through a wildcard tool, handoff, or otherwise read-only workflow.
 
 ### Step 1: Choose the agent type
 

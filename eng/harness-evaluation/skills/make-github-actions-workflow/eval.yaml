@@ -4,52 +4,21 @@ type: capability
 defaults:
   runs: ${RUNS=5}
   timeout: 5m
-  model: ${MODEL=gpt-5.6-sol}
-  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
   executor: copilot-sdk
 agent_environment:
   skills:
     - ../../../../.agents/skills/make-github-actions-workflow
 stimuli:
-  - name: extend-the-release-target-validation-workflow
-    prompt: >-
-      Inspect .github/workflows/validate-pr-target-branch.yml and .github/workflows/label-and-milestone-issues.yml, and inspect .github/CONTRIBUTING.md for contributor context. Modify the staged validate-pr-target-branch.yml so an invalid external PR targeting a release branch receives an explanatory comment. Reruns must leave exactly one workflow-owned comment and must never edit a contributor-authored comment. Preserve its existing policy and immutable action reference, and do not execute or check out fork code.
-    constraints: &short_constraints
-      max_turns: 40
-      max_tokens: 750000
-      max_duration: 5m
-    agent_environment:
-      files:
-        - src: ../../../../.github/workflows/validate-pr-target-branch.yml
-          dest: .github/workflows/validate-pr-target-branch.yml
-        - src: ../../../../.github/workflows/label-and-milestone-issues.yml
-          dest: .github/workflows/label-and-milestone-issues.yml
-        - src: ../../../../.github/CONTRIBUTING.md
-          dest: .github/CONTRIBUTING.md
-    rubric:
-      - The edited workflow is valid YAML and preserves the existing release-target validation behavior.
-      - Permissions are explicit and minimal, and pull_request_target never executes or checks out untrusted PR content.
-      - Commenting preserves the staged workflow's immutable actions/github-script SHA reference and is idempotent across reruns without trusting a marker in a contributor-authored comment.
-    graders:
-      - type: file-matches
-        config:
-          path: .github/workflows/validate-pr-target-branch.yml
-          pattern: (?i)(?![\s\S]*actions/checkout)(?=[\s\S]*actions/github-script@[0-9a-f]{40})(?=[\s\S]*<!--)(?=[\s\S]*(user\?*\.(?:type|login)|\[bot\]))(?=[\s\S]*updateComment)(?=[\s\S]*createComment)[\s\S]+
-      - type: prompt
-        config:
-          scoring: binary
-          threshold: 1
-          evidence:
-            - trajectory
-            - diff
-            - repo
-      - type: token-budget
-        config:
-          max: 750000
   - name: create-external-pr-target-policy-workflow
     prompt: |-
       Inspect `.github/CONTRIBUTING.md` and the staged workflow for repository conventions. Create `.github/workflows/validate-external-pr-target.yml` to close and explain external pull requests that target servicing branches, while labeling newly opened external contributions. Maintainers must be able to edit or reopen pull requests without being incorrectly blocked, and automation accounts must be ignored. Do not check out or execute pull-request code.
-    constraints: *short_constraints
+    constraints:
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
     agent_environment:
       files:
         - src: ../../../../.github/CONTRIBUTING.md

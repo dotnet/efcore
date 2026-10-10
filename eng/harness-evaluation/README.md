@@ -23,15 +23,30 @@ Every stimulus must:
 3. Use stimulus-level `agent_environment.files` when repository inputs are needed. `src` is relative to the eval file; `dest` is relative to the isolated workspace.
 4. Add a `token-budget` grader to every stimulus and define its weight in `scoring.weights`.
 5. Use deterministic graders where possible and a narrow `prompt` rubric only for semantic quality.
-6. Present a realistic task without disclosing its solution. Prompts may name input files, proposed code or diffs, fixed artifact IDs, and required output paths, but must not state the expected diagnosis, owning symbol or stage, implementation mechanism, or regression-test design. Do not tell the agent to invoke the evaluated skill; treatment activation is runner-owned. Keep expected facts in the rubric and grade observable output that the prompt did not supply.
+6. Present a realistic task without disclosing its solution. Prompts may name input files, proposed code, fixed artifact IDs, and required output paths, but must not state the expected diagnosis, owning symbol or stage, implementation mechanism, or regression-test design. Do not tell the agent to invoke the evaluated skill; treatment activation is runner-owned. Keep expected facts in the rubric and grade observable output that the prompt did not supply.
+7. Use self-contained source and test snapshots for proposed changes, not `.diff` or `.patch` input fixtures. When comparison with prior behavior is necessary, freeze both `before/` and `proposed/` snapshots together; do not pair a frozen proposal with a live repository baseline. Generated trial workspace patches are output evidence, not eval fixtures.
 
 The runner passes declared input files from the evaluated commit to Vally, which validates and stages them in an isolated workspace. Inputs are optional.
 
 Skill evals load only their target skill. Do not add `skill-invocation` graders: shared graders score both variants, while the runner separately requires the exact target skill's activation in every treatment trial. The checked-in Vally experiment clears root `skills` and `files` for the unskilled control while the treatment inherits the eval's root environment.
 
+ Keep only the target instruction in the eval root environment; stage source inputs and other repository guidance per stimulus so the control does not inherit the treatment.
+
 ## Acceptance
 
 Pull request, post-merge harness, and manual evaluation use `vally experiment run` to execute the eval's configured number of unskilled-control and treatment trials, then use `vally compare` to judge paired trajectories. The treatment must meet the eval's committed `scoring.threshold`, comparison judging must complete, and `--fail-on-regression` rejects a statistically significant treatment regression. Reports include the treatment-relative quality verdict and mean token delta.
+
+Control trials must complete execution and grading, but do not have to meet the scoring threshold. Fully scored experiments proceed to comparison even when a variant scores below threshold; missing trials and execution or grader errors remain failures.
+
+### Comparison evidence
+
+The wrapper prepares separate `comparison-input/control/results.jsonl` and `comparison-input/treatment/results.jsonl` files before calling `vally compare`. Vally 0.17.0 compares trajectory output, metrics, and timelines, not workspace files or patches. Its comparison CLI constructs its own judge config; stimulus `grader.config.prompt` and workspace-evidence selections do not configure that comparison. The wrapper forwards `defaults.judge_reasoning_effort` to comparison and supports `--judge-reasoning-effort`; reasoning effort does not increase evidence budgets.
+
+Preparation includes explicit text-output requests such as `Write analysis.md`, `Create reports/review.md`, or `Save the report to report.md`, plus exact paths from `trajectory.stimulus.graders` of type `file-matches`. Paths shared by requests or graders are deduplicated and sorted. Preparation matches the result's `itemId` to saved trial `metadata.json` and reads that trial's final `workspace.patch`. Git's native, NUL-delimited `apply --numstat` output validates selected paths and each selected file section; no diff hunks are parsed by the wrapper. Only selected paths are applied in an empty temporary directory with isolated configuration. Newly created UTF-8 files are included as complete final content. An updated graded file such as a staged C# test is included as its actual unified diff when baseline contents are unavailable, explicitly labelled as a diff, NOT complete final content. Requested reports still require successful reconstruction and fail closed on baseline-dependent updates, even when also graded. Artifacts appear first in the copied trajectory's `output`, followed by the unchanged original final response. Grades, events, metrics, provenance, and original experiment files are not modified. Candidate checkout paths, trajectory `workDir`, and paths supplied in metadata are never used as evidence sources; staged inputs are not reread from mutable source checkouts.
+
+Both runs use the same evidence policy. Reports are retained in full, not truncated to fit one judge read. Outputs over a 12,000-character single-read target are audited as requiring ranged reads; only the 1,000,000-character safety ceiling aborts preparation. If a requested or graded path has no change in the saved patch, its contents are explicitly marked unavailable: the artifact may be absent or unchanged. This preserves valid low-scoring controls without inventing evidence or rereading the candidate checkout. Missing native trial metadata or patches, unsafe paths, symlinks or junctions, submodules, binary patches, duplicate identities or sections, and malformed patches still fail preparation. Patches are limited to 8 MiB and 256 native file sections. Deletions, renames, copies, and baseline-dependent mode changes are unsupported. Exact grader paths, not globs, are required. Explicit report requests recognize `.md`, `.txt`, `.json`, `.patch`, or `.diff` filenames in write/create/save/produce/update directives. Ungraded source outputs are not inferred from links or tool calls.
+
+`comparison-input/preparation.json` records source hashes, requested and graded paths, artifact kinds (`final-content`, `diff`, or `unavailable`), output lengths, and whether ranged reads are needed. Original results and patches remain the audit source; grades, timelines, completion, activation, regression, and conservative position-swap gates are unchanged. Preparation neither regrades nor selects favorable verdicts. It does not control the judge's read order or its 64,000-character total retrieval budget. Fewer inconsistent behavioral verdicts require a behavioral rerun to establish; unit tests verify evidence delivery and policy preservation.
 
 GitHub Actions pins the evaluation runner and dependencies to the repository default branch, then evaluates the authorized pull request from a separate candidate checkout. The candidate's customizations, eval specifications, and declared input files are data consumed by the trusted runner; candidate harness scripts are not executed.
 
@@ -60,10 +75,20 @@ npm test
 npm run lint
 
 # Run the configured treatment and control trials, then compare quality and token use.
-node src/cli.mjs eval <component-id> --workers 1 [--require-pass] [--runs 5] [--model <model-name>] [--judge-model <model-name>]
+node src/cli.mjs eval <component-id> --workers 1 [--require-pass] [--runs 5] [--model <model-name>] [--judge-model <model-name>] [--judge-reasoning-effort medium]
 ```
 
 Set `defaults.timeout` to five times the slowest observed trial, rounded up to the next five-minute boundary.
+
+### Timeout and recovery controls
+
+`constraints.max_duration` overrides `defaults.timeout` for agent execution. Increase the stimulus limit as well as the default when an agent hits its execution timeout; increasing only the default does not change that trial's effective budget.
+
+Judge timeouts are separate. Vally 0.17.0's Copilot LLM client defaults to 120 seconds per `sendAndWait`; eval execution limits do not extend it. The native CLI does not expose a judge-timeout flag. Timeout-prone evals use `judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}`. The wrapper's `--judge-reasoning-effort` supplies that parameter and the environment fallback for experiment grading, and the native flag for paired comparison. Keep one worker per component; do not multiply concurrent sessions to recover latency. The public LLM client API also accepts `timeoutMs` on `judge()` calls, so an isolated offline recovery can use a longer limit without changing the installed package.
+
+Retry only execution or grader infrastructure failures, never valid low grades. Offline regrading must use the original saved rubric, trajectory, inputs, and final workspace patch. A later input-file timestamp alone is not evidence of changed content: complete captured file reads can reconstruct and verify the original bytes. Do not substitute today's fixtures when their content differs or the original bytes cannot be established. Preserve original results, replace only failed grader results in a separate recovery copy, retain static grades and activation/completion gates, and recompute comparisons from that copy.
+
+The Cosmos transactional-batch eval is offline code generation. It needs no running emulator or database; only the generated functional test is intended to run against Cosmos later. Do not launch infrastructure or execute functional tests during this eval.
 
 Behavioral runs use the Copilot SDK and require a valid local Copilot login or `COPILOT_GITHUB_TOKEN`. Results are written below `artifacts/TestResults/harness-evaluation/<component-id>/` as one timestamped experiment containing separate `control` and `treatment` variants, plus `comparison.jsonl`. They may contain prompts, model output, and tool payloads; do not commit them.
 

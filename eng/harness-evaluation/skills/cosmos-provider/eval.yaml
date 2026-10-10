@@ -1,40 +1,44 @@
 name: cosmos-provider
-description: Evaluates Cosmos provider guidance against EF Core ReadItem translation.
+description: Evaluates Cosmos provider guidance when adding transactional batch functional coverage.
 type: capability
 defaults:
   runs: ${RUNS=5}
   timeout: 25m
-  model: ${MODEL=gpt-5.6-sol}
-  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
   executor: copilot-sdk
 agent_environment:
   skills:
     - ../../../../.agents/skills/cosmos-provider
 stimuli:
-  - name: explain-readitem-discriminator-selection
+  - name: add-oversized-atomic-batch-functional-test
     prompt: >-
-      Inspect src/EFCore.Cosmos/Query/Internal/CosmosReadItemAndPartitionKeysExtractor.cs, test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTestBase.cs, and test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTest.cs. Write analysis.md explaining why ReadItem_with_single_explicit_discriminator_mapping emits ReadItem, while ReadItem_with_single_explicit_incorrect_discriminator_mapping and ReadItem_with_single_explicit_parameterized_discriminator_mapping emit general queries. Identify the exact extractor condition responsible, explain why retaining each predicate is required for correctness, and outline the assertions that preserve all three behaviors during a refactor. Do not edit source. Include the exact focused EFCore.Cosmos.FunctionalTests command and state whether these tests require the emulator or a Linux-emulator condition.
+      Add a functional regression test to test/EFCore.Cosmos.FunctionalTests/CosmosTransactionalBatchTest.cs for an atomic SaveChangesAsync operation that updates an existing customer and inserts a new customer in the same partition. The combined payload should exceed the transactional batch size limit while each document remains within the individual item size limit. Verify that the save fails, the existing customer retains its persisted values, and the new customer is not stored. Use the staged fixture and provider source as context, implement the test in that C# file, and leave the existing tests and production code unchanged. This is an offline code-generation task: do not start or connect to an emulator or database, install infrastructure, or execute functional tests. Write analysis.md briefly summarizing the test and any file-level validation actually performed.
     constraints:
       max_turns: 80
       max_tokens: 2000000
       max_duration: 25m
     agent_environment:
       files:
-        - src: ../../../../src/EFCore.Cosmos/Query/Internal/CosmosReadItemAndPartitionKeysExtractor.cs
-          dest: src/EFCore.Cosmos/Query/Internal/CosmosReadItemAndPartitionKeysExtractor.cs
-        - src: ../../../../test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTestBase.cs
-          dest: test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTestBase.cs
-        - src: ../../../../test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTest.cs
-          dest: test/EFCore.Cosmos.FunctionalTests/Query/ReadItemPartitionKeyQueryTest.cs
+        - src: fixtures/CosmosTransactionalBatchTest.cs
+          dest: test/EFCore.Cosmos.FunctionalTests/CosmosTransactionalBatchTest.cs
+        - src: ../../../../src/EFCore.Cosmos/Storage/Internal/CosmosDatabaseWrapper.cs
+          dest: src/EFCore.Cosmos/Storage/Internal/CosmosDatabaseWrapper.cs
+        - src: ../../../../test/EFCore.Cosmos.FunctionalTests/TestUtilities/CosmosTestEnvironment.cs
+          dest: test/EFCore.Cosmos.FunctionalTests/TestUtilities/CosmosTestEnvironment.cs
+        - src: ../../../../test/EFCore.Cosmos.FunctionalTests/TestUtilities/CosmosTestStoreFactory.cs
+          dest: test/EFCore.Cosmos.FunctionalTests/TestUtilities/CosmosTestStoreFactory.cs
     rubric:
-      - The analysis identifies the SqlConstantExpression discriminator condition in CosmosReadItemAndPartitionKeysExtractor.
-      - It correctly explains the existing ReadItem result for the matching constant and general-query results for incorrect and parameterized discriminator values.
-      - It preserves all three base/override assertions and includes the focused Cosmos functional-test command and emulator constraints.
+      - The agent adds a substantive async functional test to CosmosTransactionalBatchTest.cs, not just an explanation, an empty method, or an attribute change. It seeds an existing customer, then stages its update and a new customer in the same partition with AutoTransactionBehavior.Always. The combined serialized payload exceeds 2 MiB while each individual document stays below the item size limit.
+      - The new test uses ConditionalFact or ConditionalTheory with typeof(CosmosTestEnvironment) and nameof(CosmosTestEnvironment.IsNotLinuxEmulator). Oversized transactional batch rejection is not supported by the Linux emulator, which times out instead. The condition belongs on the new test, not on the class or fixture; host OS checks, unconditional skips, early returns, IsNotEmulator, and documentation-only warnings do not satisfy this requirement.
+      - The test asserts DbUpdateException with an inner CosmosException whose StatusCode is HttpStatusCode.RequestEntityTooLarge, and uses a fresh context to prove the existing customer's persisted values are unchanged and the new customer is absent. It does not accept a timeout, an arbitrary exception, or tracked state alone as evidence of atomic rejection.
+      - Both staged ordinary batch tests remain unchanged and runnable on supported emulator configurations, including Linux. The agent does not broaden skip conditions, disable their coverage, or change production or test-environment behavior.
+      - The agent completes the offline code-generation task without starting or connecting to an emulator or database or executing functional tests. Its validation summary reports only file-level checks actually performed and does not claim functional test results.
     graders:
       - type: file-matches
         config:
-          path: analysis.md
-          pattern: (?=[\s\S]*CosmosReadItemAndPartitionKeysExtractor)(?=[\s\S]*ReadItem)(?=[\s\S]*(EFCore\.Cosmos\.FunctionalTests|dotnet test))(?=[\s\S]*emulator)[\s\S]+
+          path: test/EFCore.Cosmos.FunctionalTests/CosmosTransactionalBatchTest.cs
+          pattern: '(?=[\s\S]*Conditional(?:Fact|Theory)\s*\(\s*typeof\(CosmosTestEnvironment\)\s*,\s*nameof\(CosmosTestEnvironment\.IsNotLinuxEmulator\)\s*\))(?=[\s\S]*AutoTransactionBehavior\.Always)(?=[\s\S]*Assert\.Throws(?:Any)?Async<DbUpdateException>)(?=[\s\S]*HttpStatusCode\.RequestEntityTooLarge)[\s\S]+'
       - type: prompt
         config:
           scoring: binary

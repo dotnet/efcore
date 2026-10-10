@@ -4,8 +4,8 @@ type: capability
 defaults:
   runs: ${RUNS=5}
   timeout: 5m
-  model: ${MODEL=gpt-5.6-sol}
-  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
   executor: copilot-sdk
 agent_environment:
   skills:
@@ -13,7 +13,7 @@ agent_environment:
 stimuli:
   - name: preserve-schema-filter-semantics
     prompt: |-
-      Inspect the staged SQL Server schema reader, database creator, and SQL baselines. A target engine does not support the correlated `NOT EXISTS` used to exclude tables carrying the `microsoft_database_tools_support` extended property. A proposal replaces it with a `LEFT JOIN` to `sys.extended_properties`, includes the property-name predicate in the join, and filters for `ep.major_id IS NULL`. Write analysis.md reviewing the rewrite and focused validation. Do not edit source.
+      Inspect the staged SQL Server schema reader, database creator, and SQL baselines. A proposal replaces the existing non-correlated `NOT IN` exclusion of tables carrying the `microsoft_database_tools_support` extended property with a `LEFT JOIN` to `sys.extended_properties`, includes the property-name predicate in the join, and filters for `ep.major_id IS NULL`. Write analysis.md reviewing the rewrite and focused validation. Do not edit source.
     constraints: &short_constraints
       max_turns: 40
       max_tokens: 750000
@@ -35,7 +35,7 @@ stimuli:
       - type: file-matches
         config:
           path: analysis.md
-          pattern: (?i)(?=[\s\S]*(LEFT JOIN|left join))(?=[\s\S]*(mixed (?:extended )?propert|multiple catalog rows|same (?:object|table)|both the support marker))(?=[\s\S]*(NOT IN|anti[ -]?set|anti[ -]?semi))[\s\S]+
+          pattern: (?i)(?=[\s\S]*LEFT JOIN)(?=[\s\S]*(mixed (?:extended )?propert|multiple catalog rows|same (?:object|table)|both the support marker|support (property|marker)[^\r\n]{0,80}unrelated))(?=[\s\S]*(NOT IN|anti[ -]?set|anti[ -]?semi))[\s\S]+
       - type: prompt
         config:
           scoring: binary
