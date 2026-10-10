@@ -865,7 +865,7 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add(DbMetaDataColumnNames.SupportedJoinOperators, typeof(int));
 
             var serverVersion = new Version(ServerVersion);
-            var supportedJoinOperators = GetSupportedJoinOperators(serverVersion);
+            var supportedJoinOperators = (int)GetSupportedJoinOperators(serverVersion);
             var normalizedVersion = GetNormalizedVersion(serverVersion);
 
             dataTable.Rows.Add(
@@ -1200,8 +1200,11 @@ public partial class SqliteConnection : DbConnection
     private static string QuoteIdentifier(string identifier)
         => "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
 
-    internal static int GetSupportedJoinOperators(Version sqliteVersion)
-        => sqliteVersion >= new Version(3, 39) ? 15 : 3;
+    internal static SupportedJoinOperators GetSupportedJoinOperators(Version sqliteVersion)
+        => sqliteVersion >= new Version(3, 39)
+            ? SupportedJoinOperators.Inner | SupportedJoinOperators.LeftOuter
+                | SupportedJoinOperators.RightOuter | SupportedJoinOperators.FullOuter
+            : SupportedJoinOperators.Inner | SupportedJoinOperators.LeftOuter;
 
     private void CreateFunctionCore<TState, TResult>(
         string name,

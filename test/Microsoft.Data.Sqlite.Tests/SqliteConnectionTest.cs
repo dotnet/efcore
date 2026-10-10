@@ -1301,7 +1301,7 @@ public class SqliteConnectionTest
     [InlineData("3.38.0", 3)]
     [InlineData("3.39.0", 15)]
     public void GetSchema_supported_join_operators_are_version_specific(string version, int expected)
-        => Assert.Equal(expected, SqliteConnection.GetSupportedJoinOperators(new Version(version)));
+        => Assert.Equal((SupportedJoinOperators)expected, SqliteConnection.GetSupportedJoinOperators(new Version(version)));
 
     [Theory]
     [InlineData("3.8.7", "03.008.0007.0000")]
