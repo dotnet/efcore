@@ -1590,6 +1590,9 @@ public class SqliteConnectionTest
 
     [Theory, InlineData(nameof(DbMetaDataCollectionNames.MetaDataCollections), 0),
      InlineData(nameof(DbMetaDataCollectionNames.ReservedWords), 0),
+     InlineData(nameof(DbMetaDataCollectionNames.DataSourceInformation), 0),
+     InlineData(nameof(DbMetaDataCollectionNames.DataTypes), 0),
+     InlineData(nameof(DbMetaDataCollectionNames.Restrictions), 0),
      InlineData("Tables", 0),
      InlineData("Columns", 0),
      InlineData("Indexes", 0)]
