@@ -1292,7 +1292,7 @@ public class SqliteConnectionTest
         Assert.Matches((string)row[DbMetaDataColumnNames.QuotedIdentifierPattern], "name");
         Assert.DoesNotMatch((string)row[DbMetaDataColumnNames.QuotedIdentifierPattern], "\"name\"");
         var version = new Version(connection.ServerVersion);
-        Assert.Equal($"{version.Major:00}.{version.Minor:000}.{version.Build:0000}", row[DbMetaDataColumnNames.DataSourceProductVersionNormalized]);
+        Assert.Equal(SqliteConnection.GetNormalizedVersion(version), row[DbMetaDataColumnNames.DataSourceProductVersionNormalized]);
         Assert.Equal("name''with", Regex.Match("name''with", (string)row[DbMetaDataColumnNames.QuotedIdentifierPattern]).Groups[1].Value);
         Assert.Equal("value''with", Regex.Match("'value''with'", (string)row[DbMetaDataColumnNames.StringLiteralPattern]).Groups[1].Value);
     }
@@ -1302,6 +1302,12 @@ public class SqliteConnectionTest
     [InlineData("3.39.0", 15)]
     public void GetSchema_supported_join_operators_are_version_specific(string version, int expected)
         => Assert.Equal(expected, SqliteConnection.GetSupportedJoinOperators(new Version(version)));
+
+    [Theory]
+    [InlineData("3.8.7", "03.008.0007.0000")]
+    [InlineData("3.8.7.1", "03.008.0007.0001")]
+    public void GetSchema_normalized_version_preserves_revision(string version, string expected)
+        => Assert.Equal(expected, SqliteConnection.GetNormalizedVersion(new Version(version)));
 
     [Theory]
     [InlineData("3.36.0", false)]
@@ -1394,6 +1400,9 @@ public class SqliteConnectionTest
             [SqliteType.Integer, SqliteType.Real, SqliteType.Text, SqliteType.Blob],
             dataTable.Rows.Cast<DataRow>().Select(r => (SqliteType)r.Field<int>(DbMetaDataColumnNames.ProviderDbType)));
         Assert.False((bool)dataTable.Rows.Cast<DataRow>().Single(r => (string)r[DbMetaDataColumnNames.TypeName] == "INTEGER")[DbMetaDataColumnNames.IsFixedLength]);
+        Assert.False((bool)dataTable.Rows.Cast<DataRow>().Single(r => (string)r[DbMetaDataColumnNames.TypeName] == "REAL")[DbMetaDataColumnNames.IsFixedLength]);
+        Assert.Equal(DBNull.Value, dataTable.Rows.Cast<DataRow>().Single(r => (string)r[DbMetaDataColumnNames.TypeName] == "TEXT")[DbMetaDataColumnNames.IsUnsigned]);
+        Assert.Equal(DBNull.Value, dataTable.Rows.Cast<DataRow>().Single(r => (string)r[DbMetaDataColumnNames.TypeName] == "BLOB")[DbMetaDataColumnNames.IsUnsigned]);
         Assert.Equal(typeof(string), dataTable.Columns.Cast<DataColumn>().Single(c => c.ColumnName == DbMetaDataColumnNames.DataType).DataType);
         Assert.Equal(typeof(string).FullName, dataTable.Rows[2][DbMetaDataColumnNames.DataType]);
     }
@@ -1580,8 +1589,11 @@ public class SqliteConnectionTest
     }
 
     [Theory, InlineData(nameof(DbMetaDataCollectionNames.MetaDataCollections), 0),
-     InlineData(nameof(DbMetaDataCollectionNames.ReservedWords), 0)]
-    public void GetSchema_throws_when_unknown_restrictions(string collectionName, int maxRestrictions)
+     InlineData(nameof(DbMetaDataCollectionNames.ReservedWords), 0),
+     InlineData("Tables", 0),
+     InlineData("Columns", 0),
+     InlineData("Indexes", 0)]
+    public void GetSchema_throws_when_restrictions_are_not_supported(string collectionName, int maxRestrictions)
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
 

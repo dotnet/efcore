@@ -866,7 +866,7 @@ public partial class SqliteConnection : DbConnection
 
             var serverVersion = new Version(ServerVersion);
             var supportedJoinOperators = GetSupportedJoinOperators(serverVersion);
-            var normalizedVersion = $"{serverVersion.Major:00}.{serverVersion.Minor:000}.{serverVersion.Build:0000}";
+            var normalizedVersion = GetNormalizedVersion(serverVersion);
 
             dataTable.Rows.Add(
                 "\\.",
@@ -917,9 +917,9 @@ public partial class SqliteConnection : DbConnection
             dataTable.Columns.Add(DbMetaDataColumnNames.MinimumScale, typeof(short));
 
             dataTable.Rows.Add("INTEGER", 1, typeof(long).FullName, -1L, "INTEGER", null, true, true, false, false, false, false, true, false, true, true, true, false, null, null, null, null);
-            dataTable.Rows.Add("REAL", 2, typeof(double).FullName, -1L, "REAL", null, false, true, false, false, true, false, true, false, true, true, true, false, null, null, null, null);
-            dataTable.Rows.Add("TEXT", 3, typeof(string).FullName, -1L, "TEXT", null, false, true, true, false, false, false, true, true, true, true, true, false, "'", "'", null, null);
-            dataTable.Rows.Add("BLOB", 4, typeof(byte[]).FullName, -1L, "BLOB", null, false, true, false, false, false, false, true, true, true, true, true, false, "X'", "'", null, null);
+            dataTable.Rows.Add("REAL", 2, typeof(double).FullName, -1L, "REAL", null, false, true, false, false, false, false, true, false, true, true, true, false, null, null, null, null);
+            dataTable.Rows.Add("TEXT", 3, typeof(string).FullName, -1L, "TEXT", null, false, true, true, false, false, false, true, true, true, true, true, DBNull.Value, "'", "'", null, null);
+            dataTable.Rows.Add("BLOB", 4, typeof(byte[]).FullName, -1L, "BLOB", null, false, true, false, false, false, false, true, true, true, true, true, DBNull.Value, "X'", "'", null, null);
             return dataTable;
         }
 
@@ -1193,6 +1193,9 @@ public partial class SqliteConnection : DbConnection
             && (exception.Message?.Contains("no such table:", StringComparison.Ordinal) == true
                 || exception.Message?.Contains("no such module:", StringComparison.Ordinal) == true
                 || exception.Message?.Contains("no such column:", StringComparison.Ordinal) == true);
+
+    internal static string GetNormalizedVersion(Version version)
+        => $"{version.Major:00}.{version.Minor:000}.{version.Build:0000}.{(version.Revision < 0 ? 0 : version.Revision):0000}";
 
     private static string QuoteIdentifier(string identifier)
         => "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
