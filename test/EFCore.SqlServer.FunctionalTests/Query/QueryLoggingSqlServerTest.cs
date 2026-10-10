@@ -127,6 +127,70 @@ public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFi
     }
 
     [Fact]
+    public virtual void FirstOrDefault_on_collection_navigation_without_filter_order_by()
+    {
+        using var context = CreateContext();
+        var orderDates = context.Set<Customer>()
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.Orders.FirstOrDefault()!.OrderDate)
+            .ToList();
+
+        Assert.NotEmpty(orderDates);
+
+        Assert.Contains(
+            CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+            Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_on_collection_navigation_in_predicate_without_filter_order_by()
+    {
+        using var context = CreateContext();
+        var customers = context.Set<Customer>()
+            .OrderBy(c => c.CustomerID)
+            .Where(c => c.Orders.FirstOrDefault()!.OrderID > 10300)
+            .ToList();
+
+        Assert.NotEmpty(customers);
+
+        Assert.Contains(
+            CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+            Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_on_collection_navigation_with_filter_does_not_generate_warning()
+    {
+        using var context = CreateContext();
+        var orderDates = context.Set<Customer>()
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.Orders.FirstOrDefault(o => o.OrderID > 10300)!.OrderDate)
+            .ToList();
+
+        Assert.NotEmpty(orderDates);
+
+        Assert.DoesNotContain(
+            CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+            Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_on_collection_navigation_with_order_by_does_not_generate_warning()
+    {
+        using var context = CreateContext();
+        var orderDates = context.Set<Customer>()
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()!.OrderDate)
+            .ToList();
+
+        Assert.NotEmpty(orderDates);
+
+        Assert.DoesNotContain(
+            CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+            Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+    }
+
+    [Fact]
     public virtual void Distinct_used_after_order_by()
     {
         using var context = CreateContext();

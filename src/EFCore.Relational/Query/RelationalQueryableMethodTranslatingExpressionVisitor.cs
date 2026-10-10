@@ -770,8 +770,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.Predicate == null
-            && selectExpression.Orderings.Count == 0)
+        if (selectExpression.Orderings.Count == 0
+            && (selectExpression.Predicate == null
+                || (_subquery && IsFilteredOnlyByNavigationCorrelation(selectExpression))))
         {
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
@@ -2010,6 +2011,54 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ShapedQueryExpression shapedQueryExpression,
         LambdaExpression lambdaExpression)
         => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
+
+    // Expanding a collection navigation produces a subquery filtered only by the correlation to the outer query, i.e. a null check
+    // on the outer key and an equality between the outer and inner keys. That doesn't determine which of the related rows is returned.
+    private static bool IsFilteredOnlyByNavigationCorrelation(SelectExpression selectExpression)
+    {
+        var tableAliases = new HashSet<string>();
+        foreach (var table in selectExpression.Tables)
+        {
+            if (table.UnwrapJoin().Alias is { } alias)
+            {
+                tableAliases.Add(alias);
+            }
+        }
+
+        var hasNullCheck = false;
+        var hasKeyComparison = false;
+
+        return IsCorrelation(selectExpression.Predicate!) && hasNullCheck && hasKeyComparison;
+
+        bool IsCorrelation(SqlExpression predicate)
+        {
+            switch (predicate)
+            {
+                case SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } andAlso:
+                    return IsCorrelation(andAlso.Left) && IsCorrelation(andAlso.Right);
+
+                case SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.NotEqual, Left: ColumnExpression column, Right: SqlConstantExpression { Value: null }
+                }:
+                    hasNullCheck = true;
+                    return IsOuter(column);
+
+                case SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.Equal, Left: ColumnExpression left, Right: ColumnExpression right
+                }:
+                    hasKeyComparison = true;
+                    return IsOuter(left) != IsOuter(right);
+
+                default:
+                    return false;
+            }
+        }
+
+        bool IsOuter(ColumnExpression column)
+            => !tableAliases.Contains(column.TableAlias);
+    }
 
     /// <summary>
     ///     Determines whether the given <see cref="SelectExpression" /> is ordered, typically because orderings have been added to it.
