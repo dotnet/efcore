@@ -101,7 +101,7 @@ public class QueryRootProcessor : ExpressionVisitor
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
             // Convert that into a NewArrayExpression for use with InlineQueryRootExpression.
-            case ConstantExpression { Value: IEnumerable values }:
+            case ConstantExpression { Value: IEnumerable values and not string }:
                 var valueExpressions = new List<ConstantExpression>();
 
                 Type? valueClrType = null;

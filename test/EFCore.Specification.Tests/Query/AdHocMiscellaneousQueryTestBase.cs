@@ -2305,4 +2305,42 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 33061
+
+    [Fact]
+    public virtual async Task Select_concat_on_string()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33061>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        var result = context.Cities.Select(itm => itm.CityName.Concat("- A string")).ToList();
+
+        Assert.Equal([.. "- A string"], result[0]);
+        Assert.Equal([.. "City1- A string"], result[1]);
+        Assert.Equal([.. "City2- A string"], result[2]);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context33061(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<City> Cities { get; set; } = null!;
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new City { CityName = string.Empty },
+                new City { CityName = "City1" },
+                new City { CityName = "City2" });
+
+            return SaveChangesAsync();
+        }
+
+        public class City
+        {
+            public Guid CityId { get; set; }
+            public string CityName { get; set; } = null!;
+        }
+    }
+
+    #endregion
 }
