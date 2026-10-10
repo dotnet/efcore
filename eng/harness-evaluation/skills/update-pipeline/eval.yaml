@@ -4,8 +4,8 @@ type: capability
 defaults:
   runs: ${RUNS=5}
   timeout: 10m
-  model: ${MODEL=gpt-5.6-sol}
-  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
   executor: copilot-sdk
 agent_environment:
   skills:
@@ -13,39 +13,35 @@ agent_environment:
 stimuli:
   - name: review-shared-identity-column-access
     prompt: |-
-      Inspect the staged update implementation and tests. A proposed fix redirects an Added entry to its `SharedIdentityEntry` after resolving the column mapping:
-
-        var property = column.FindColumnMapping(entry.EntityType)?.Property;
-        if (entry.EntityState == EntityState.Added
-          && entry.SharedIdentityEntry != null)
-        {
-          entry = entry.SharedIdentityEntry;
-        }
-
-        var providerValue = entry.GetOriginalProviderValue(property!);
-
-      Write analysis.md reviewing the implementation and focused regression test for replacing a row-sharing owned entity whose required foreign key points to another table. Do not edit source.
+      Review the proposed/ C# implementation and test snapshots with the supporting context in
+      context/CommandBatchPreparer.cs and source-excerpts.md.
+      Write analysis.md with correctness findings, concrete source evidence, and a
+      focused regression-test recommendation. Do not edit source.
     constraints: &short_constraints
       max_turns: 40
       max_tokens: 1000000
       max_duration: 10m
     agent_environment:
       files:
-        - src: ../../../../src/EFCore.Relational/Update/Internal/ColumnAccessorsFactory.cs
-          dest: src/EFCore.Relational/Update/Internal/ColumnAccessorsFactory.cs
-        - src: ../../../../src/EFCore.Relational/Update/Internal/CommandBatchPreparer.cs
-          dest: src/EFCore.Relational/Update/Internal/CommandBatchPreparer.cs
-        - src: ../../../../test/EFCore.Relational.Specification.Tests/Update/NonSharedModelUpdatesTestBase.cs
-          dest: test/EFCore.Relational.Specification.Tests/Update/NonSharedModelUpdatesTestBase.cs
+        - src: fixtures/shared-identity/proposed/ColumnAccessorsFactory.cs
+          dest: proposed/ColumnAccessorsFactory.cs
+        - src: fixtures/shared-identity/proposed/NonSharedModelUpdatesTestBase.cs
+          dest: proposed/NonSharedModelUpdatesTestBase.cs
+        - src: fixtures/shared-identity/context/CommandBatchPreparer.cs
+          dest: context/CommandBatchPreparer.cs
+        - src: fixtures/shared-identity/source-excerpts.md
+          dest: source-excerpts.md
     rubric:
-      - The analysis identifies that `property` belongs to the original entry's entity type and must be resolved again after selecting a shared entry of a different type.
-      - It moves shared-entry selection before `column.FindColumnMapping(entry.EntityType)` or otherwise explicitly remaps the property, preserving original-value lookup used by dependency ordering.
-      - The regression replaces the owned row, changes its required FK, deletes the old principal in the same SaveChanges, and verifies the principal/update/delete ordering through observable success and final state.
+      - The review rejects the proposed command-state gate in CreateOriginalValueGetter. It distinguishes the row command's EntityState from each entry's EntityState and explains that an Added entry with a Deleted SharedIdentityEntry participates in an effective Modified command, grounded in ModificationCommand.AddEntry or shared-table command composition rather than assuming the replacement is an INSERT.
+      - It preserves selection of the old SharedIdentityEntry based on the Added entry, then resolves FindColumnMapping for the selected entry and reads its original provider value. It traces the old FK through CommandBatchPreparer.AddForeignKeyEdges and its original-value predecessor map, explaining why the new principal INSERT must precede the row UPDATE, which must precede deletion of the old principal; the replacement entry's original FK cannot substitute for the old entry's FK.
+      - The review identifies that the proposed test never deletes the old principal or asserts its absence, so it does not exercise the old-FK dependency. The recommended regression replaces the row-sharing owned entity with a new instance of the same mapped entry type, changes its required FK to a new principal, and deletes the old principal in the same SaveChanges. Successful saving with restrictive FK enforcement and fresh-context assertions for the replacement, new FK/principal, and absent old principal demonstrate dependency ordering. SQL-order assertions or an accessor-level check alone are not sufficient substitutes.
+      - The correction is restricted to original-value selection. It preserves current-value selection for the replacement and normal inserts without SharedIdentityEntry, and includes a non-replacement update as a positive control. It does not replace the row command's state generally or redirect current values to the deleted entry.
+      - Same-entry-type coverage is sufficient and must not be rejected for lacking different-entity-type coverage. The review must not make a cross-type replacement or property-metadata mismatch the required diagnosis; resolving the selected entry's mapping remains correct even when both entries have the same EntityType.
     graders:
       - type: file-matches
         config:
           path: analysis.md
-          pattern: (?i)(?=[\s\S]*SharedIdentityEntry)(?=[\s\S]*FindColumnMapping)(?=[\s\S]*(different entity type|EntityType.*different|remap|re-resolv))(?=[\s\S]*(foreign key|dependency|ordering))[\s\S]+
+          pattern: (?i)(?=[\s\S]*SharedIdentityEntry)(?=[\s\S]*Added)(?=[\s\S]*Modified)(?=[\s\S]*(original|old)[\s\S]*(foreign key|FK))(?=[\s\S]*(dependency|ordering|precede|before))[\s\S]+
       - type: prompt
         config:
           scoring: binary

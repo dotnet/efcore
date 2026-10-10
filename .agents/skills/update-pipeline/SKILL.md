@@ -23,7 +23,7 @@ Concurrency tokens → WHERE conditions on UPDATE/DELETE. `AffectedCountModifica
 
 ## Shared-Row Value Access
 
-Column accessors may need values from a `SharedIdentityEntry` when one CLR entry replaces another mapped to the same row. Select the effective entry before resolving the column's property mapping: entries in a shared-identity pair can have different entity types, so a property from the original type must not be used against the replacement. Regression tests should exercise the resulting command dependency ordering, not just the accessor in isolation.
+Command state describes the row operation, not every entry: an Added replacement with a Deleted `SharedIdentityEntry` can participate in a Modified command. Original-value access must use the original valued from the deleted shared entry, preserving the previous FK for dependency ordering.
 
 ## Validation
 

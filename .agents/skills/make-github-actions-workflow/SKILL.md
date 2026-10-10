@@ -1,6 +1,6 @@
 ---
 name: make-github-actions-workflow
-description: 'Create GitHub Actions workflows for CI, automation, or PR management. Use when asked to create, scaffold, or add a GitHub Actions workflow (.yml file under .github/workflows/).'
+description: 'Create or modify GitHub Actions workflows for CI, automation, or PR management. Use when asked to create, scaffold, add, extend, or fix a workflow (.yml file under .github/workflows/), including existing pull-request policy and comment automation.'
 ---
 
 # Create GitHub Actions Workflow
@@ -163,7 +163,7 @@ const hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
 
 ### Updating Bot-Owned Comments Idempotently
 
-A hidden marker identifies the workflow's comment but does not establish ownership: contributors can place the same marker in their own comments. Match the marker only on a bot-authored comment, then update that comment or create a new one. Preserve the workflow's pinned action SHA and never execute code from a pull-request fork in a `pull_request_target` job.
+A hidden marker identifies the workflow's comment but does not establish ownership: contributors and other apps can place the same marker in their comments. Match both the marker and the exact `github-actions[bot]` login, then update that comment or create a new one. A generic `user.type === 'Bot'` check does not establish workflow ownership. Preserve the workflow's pinned action SHA and never execute code from a pull-request fork in a `pull_request_target` job.
 
 ```javascript
 const marker = '<!-- validate-pr-target-branch -->';
@@ -176,7 +176,7 @@ const comments = await github.paginate(github.rest.issues.listComments, {
 
 const body = `${marker}\nComment text`;
 const existing = comments.find(comment =>
-  comment.user?.type === 'Bot' && comment.body?.includes(marker));
+  comment.user?.login === 'github-actions[bot]' && comment.body?.includes(marker));
 
 if (existing) {
   await github.rest.issues.updateComment({

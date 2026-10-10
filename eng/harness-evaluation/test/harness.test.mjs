@@ -3,14 +3,16 @@ import { spawnSync } from 'node:child_process';
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { dirname, join, parse as parsePath } from 'node:path';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import test from 'node:test';
+import { loadEvalWithParams } from '@microsoft/vally';
 import {
   findExperimentRunDirectory,
   validateComponentId,
   validateEval,
   validateInventory,
   validateOutputRoot,
+  variantCompleted,
   variantInvokedSkill,
   variantPassed,
 } from '../src/harness.mjs';
@@ -78,6 +80,26 @@ test('inventory accepts complete repository customization coverage', async () =>
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('eval inputs use source snapshots instead of diff fixtures', async () => {
+  const root = await makeRepo();
+  const evalPath = join(root, 'eng/harness-evaluation/skills/example/eval.yaml');
+  try {
+    assert.deepEqual(await validateEval(evalPath, 'example'), []);
+    for (const fixture of ['proposal.diff', 'proposal.PATCH']) {
+      for (const field of ['src', 'dest']) {
+        const content = evalYaml('example').replace(`${field}: src/EFCore/Anchor.cs`, `${field}: ${fixture}`);
+        await writeFile(evalPath, content);
+        assert.match((await validateEval(evalPath, 'example')).join('\n'), /self-contained source snapshots/);
+      }
+      await writeFile(evalPath, evalYaml('example', undefined, `agent_environment:\n  files:\n    - src: ${fixture}\n      dest: proposal.cs\n`));
+      assert.match((await validateEval(evalPath, 'example')).join('\n'), /self-contained source snapshots/);
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('eval rejects unsafe component ids before deleting output', async () => {
   const root = await mkdtemp(join(tmpdir(), 'efcore-agent-output-'));
   try {
@@ -120,11 +142,11 @@ test('eval scopes component resolution and output validation to the selected rep
   }
 });
 
-test('eval rejects missing model, judge model, and runs option values', async () => {
+test('eval rejects missing model, judge model, judge effort, and runs option values', async () => {
   const root = await makeRepo();
   try {
     const cliPath = fileURLToPath(new URL('../src/cli.mjs', import.meta.url));
-    for (const option of ['--model', '--judge-model', '--runs']) {
+    for (const option of ['--model', '--judge-model', '--judge-reasoning-effort', '--runs']) {
       const result = spawnSync(process.execPath, [
         cliPath,
         'eval',
@@ -136,6 +158,64 @@ test('eval rejects missing model, judge model, and runs option values', async ()
       assert.notEqual(result.status, 0);
       assert.match(result.stderr, new RegExp(`${option} requires a value\\.`));
     }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('eval rejects unsupported judge reasoning effort', async () => {
+  const root = await makeRepo();
+  try {
+    const result = spawnSync(process.execPath, [
+      fileURLToPath(new URL('../src/cli.mjs', import.meta.url)),
+      'eval', 'example', '--repo-root', root, '--judge-reasoning-effort', 'unbounded',
+    ], { encoding: 'utf8' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /--judge-reasoning-effort must be low, medium, high, or xhigh/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('timeout-prone evals resolve judge defaults and overrides through Vally', async () => {
+  for (const component of ['code-review', 'query-pipeline', 'migrations', 'make-github-actions-workflow']) {
+    const evalPath = fileURLToPath(new URL(`../skills/${component}/eval.yaml`, import.meta.url));
+    const defaults = (await loadEvalWithParams(evalPath)).spec.defaults;
+    assert.equal(defaults.judge_reasoning_effort, 'medium');
+    assert.equal(defaults.judge_model, 'gpt-6.1-terra');
+    const overridden = (await loadEvalWithParams(evalPath, {
+      cliParams: { JUDGE_REASONING_EFFORT: 'high', JUDGE_MODEL: 'gpt-6.1-sol' },
+    })).spec.defaults;
+    assert.equal(overridden.judge_reasoning_effort, 'high');
+    assert.equal(overridden.judge_model, 'gpt-6.1-sol');
+  }
+});
+
+test('eval forwards judge effort to experiment parameters and the grader environment', async () => {
+  const root = await makeRepo();
+  try {
+    const capturePath = join(root, 'vally-call.json');
+    const preloadPath = join(root, 'capture-vally.mjs');
+    await writeFile(preloadPath, `
+import { createRequire, syncBuiltinESMExports } from 'node:module';
+import { writeFileSync } from 'node:fs';
+const childProcess = createRequire(import.meta.url)('node:child_process');
+childProcess.spawnSync = (executable, args, options) => {
+  writeFileSync(${JSON.stringify(capturePath)}, JSON.stringify({ executable, args, effort: options.env.EVAL_JUDGE_REASONING_EFFORT }));
+  throw new Error('Intercepted Vally invocation');
+};
+syncBuiltinESMExports();
+`);
+    const result = spawnSync(process.execPath, [
+      '--import', pathToFileURL(preloadPath).href,
+      fileURLToPath(new URL('../src/cli.mjs', import.meta.url)),
+      'eval', 'example', '--repo-root', root, '--judge-reasoning-effort', 'high',
+    ], { encoding: 'utf8' });
+    assert.match(result.stderr, /Intercepted Vally invocation/);
+    const invocation = JSON.parse(await readFile(capturePath, 'utf8'));
+    assert.deepEqual(invocation.args.slice(0, 2), ['experiment', 'run']);
+    assert.deepEqual(invocation.args.slice(-2), ['--param', 'JUDGE_REASONING_EFFORT=high']);
+    assert.equal(invocation.effort, 'high');
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -446,6 +526,55 @@ test('treatment verdict uses the eval scoring threshold', async () => {
       gradeResult: { passed: true, score: 0.7 },
     })}\n`);
     assert.equal(await variantPassed(resultsPath, evalPath, planPath), false);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('completed controls can be compared despite failing the scoring threshold', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'efcore-agent-completion-'));
+  try {
+    const resultsPath = join(root, 'results.jsonl');
+    const planPath = join(root, 'plan-snapshot.json');
+    const evalPath = join(root, 'eval.yaml');
+    await writeFile(evalPath, evalYaml('example'));
+    await writeFile(planPath, JSON.stringify({
+      type: 'experiment-plan-snapshot',
+      evals: [{ variant: 'control', evalName: 'example', model: 'mock', runs: 1, plannedStimulusNames: ['inspect-anchor'] }],
+    }));
+    const trial = {
+      type: 'trial-result', evalName: 'example', model: 'mock', stimulus: 'inspect-anchor',
+      status: 'success', gradeResult: { passed: false, score: 0.1, details: [] },
+    };
+    await writeFile(resultsPath, `${JSON.stringify(trial)}\n`);
+    assert.equal(await variantCompleted(resultsPath, planPath, 'control'), true);
+    assert.equal(await variantPassed(resultsPath, evalPath, planPath, 'control'), false);
+
+    await writeFile(planPath, JSON.stringify({
+      type: 'experiment-plan-snapshot',
+      evals: [
+        { variant: 'control', evalName: 'example', model: 'mock', runs: 1, plannedStimulusNames: ['inspect-anchor'] },
+        { variant: 'control', evalName: 'failed', model: 'mock', failure: 'Planning failed' },
+      ],
+    }));
+    assert.equal(await variantCompleted(resultsPath, planPath, 'control'), false);
+    await writeFile(planPath, JSON.stringify({
+      type: 'experiment-plan-snapshot',
+      evals: [{ variant: 'control', evalName: 'example', model: 'mock', runs: 1, plannedStimulusNames: ['inspect-anchor'] }],
+    }));
+
+    for (const incomplete of [
+      { ...trial, status: 'error' },
+      { ...trial, gradeResult: null },
+      { ...trial, gradeResult: { score: 1, status: 'error' } },
+      { ...trial, gradeResult: { score: 1, details: [{ status: 'error' }] } },
+      { ...trial, gradeResult: { score: 1, details: [{ details: [{ status: 'error' }] }] } },
+    ]) {
+      await writeFile(resultsPath, `${JSON.stringify(incomplete)}\n`);
+      assert.equal(await variantCompleted(resultsPath, planPath, 'control'), false);
+    }
+    await rm(resultsPath);
+    assert.equal(await variantCompleted(resultsPath, planPath, 'control'), false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

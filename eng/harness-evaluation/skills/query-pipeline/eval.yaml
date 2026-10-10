@@ -1,0 +1,84 @@
+name: query-pipeline
+description: Evaluates translation fallback isolation and query regression-test ownership.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/query-pipeline
+stimuli:
+  - name: move-provider-query-regression-to-specifications
+    prompt: |-
+      Inspect the staged before/ and proposed/ test-class snapshots and source-context.md. Write test-plan.md reviewing the proposed regression coverage, ownership, and focused validation. Do not edit source.
+    constraints:
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 5m
+    agent_environment:
+      files:
+        - src: fixtures/provider-test-placement/source-context.md
+          dest: source-context.md
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQueryTestBase.cs
+          dest: before/test/EFCore.Specification.Tests/Query/NorthwindMiscellaneousQueryTestBase.cs
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQueryRelationalTestBase.cs
+          dest: before/test/EFCore.Relational.Specification.Tests/Query/NorthwindMiscellaneousQueryRelationalTestBase.cs
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQuerySqlServerTest.cs
+          dest: before/test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
+        - src: fixtures/provider-test-placement/proposed/NorthwindMiscellaneousQuerySqlServerTest.cs
+          dest: proposed/test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
+    rubric:
+      - The plan identifies that the added provider-only conversion test leaves other applicable providers without behavior coverage, and moves its LINQ query and result assertion into a virtual test on NorthwindMiscellaneousQueryTestBase.
+      - The plan keeps SQL Server's override as a base call plus AssertSql, preserves sync and async coverage, and addresses provider override guards without duplicating the shared behavior.
+      - The plan supplies focused Microsoft Testing Platform validation for the shared behavior and SQL Server baseline without stale --no-build output; no test execution is required for the reduced snapshots.
+    graders:
+      - type: file-matches
+        config:
+          path: test-plan.md
+          pattern: (?i)(?=[\s\S]*NorthwindMiscellaneousQueryTestBase)(?=[\s\S]*AssertSql)(?=[\s\S]*(shared|specification|provider.independent))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 750000
+  - name: review-split-query-count-change
+    prompt: |-
+      Inspect the staged fallback-and-tests.cs snapshot. Write analysis.md reviewing the implementation and focused validation. Do not edit source.
+    constraints:
+      max_turns: 35
+      max_tokens: 600000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: fixtures/query-pipeline/fallback-and-tests.cs
+          dest: fallback-and-tests.cs
+    rubric:
+      - The analysis rejects the bare catch because it converts unexpected translation defects into a silent streaming fallback and requires fallback to handle only established unsupported-shape failures.
+      - It identifies that the static factory and mutation flags are shared process-wide across parallel InlineData rows and inheriting provider suites, and requires test-scoped or async-flow-scoped coordination.
+      - The analysis specifies regression cases for expected fallback and unexpected exception propagation, plus sync and async concurrency cases without cross-test state interference; executing tests is not required for this snapshot-only review.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*(bare catch|catch[ -]all|unexpected[\s\S]{0,100}(exception|failure)))(?=[\s\S]*(static|process.wide|shared mutable))(?=[\s\S]*(parallel|AsyncLocal|test.scoped|isolat))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 600000
+scoring:
+  weights:
+    file-matches: 0.2
+    prompt: 0.7
+    token-budget: 0.1
+  threshold: 0.8

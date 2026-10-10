@@ -81,6 +81,8 @@ Create `eng/harness-evaluation/instructions/<id>/eval.yaml`, where `<id>` is the
 
 Follow the authoring and validation rules in `eng/harness-evaluation/README.md`. Exercise guidance distinctive to the instruction and ensure the treatment meaningfully outperforms the omitted-instruction control.
 
+For initial authoring, produce and lint the requested instruction and eval before running behavioral comparisons.
+
 After creating the file, verify:
 
 - [ ] File is in `.github/instructions/` (or a configured instructions folder)
