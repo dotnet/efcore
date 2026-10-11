@@ -3622,6 +3622,7 @@ ORDER BY [e].[Group]
             """
 SELECT [c].[CityName]
 FROM [Cities] AS [c]
+ORDER BY [c].[CityId]
 """);
     }
 
