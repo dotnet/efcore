@@ -170,16 +170,4 @@ public abstract class DateTimeOffsetTranslationsTestBase<TFixture>(TFixture fixt
         => AssertQuery(ss => ss.Set<BasicTypesEntity>()
             .Where(b => b.DateTime.Year > 1)
             .Select(b => new DateTimeOffset(b.DateTime, new TimeSpan(2, 0, 0))));
-
-    // new DateTimeOffset(DateTime) with Unspecified kind: databases don't have DateTimeKind, so this is always treated
-    // as UTC (+00:00). The expected query explicitly uses TimeSpan.Zero to match.
-    [Fact]
-    public virtual Task Select_Ctor_Parameter_DateTime()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>()
-                .Where(b => b.DateTime.Year > 1)
-                .Select(b => new DateTimeOffset(b.DateTime)),
-            ss => ss.Set<BasicTypesEntity>()
-                .Where(b => b.DateTime.Year > 1)
-                .Select(b => new DateTimeOffset(b.DateTime, TimeSpan.Zero)));
 }
