@@ -2311,9 +2311,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     [Fact]
     public virtual async Task Select_concat_on_string()
     {
-        var contextFactory = await InitializeNonSharedTest<Context33061>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context33061>();
         using var context = contextFactory.CreateDbContext();
-        var result = context.Cities.Select(itm => itm.CityName.Concat("- A string")).ToList();
+        var result = context.Cities
+            .OrderBy(itm => itm.CityId)
+            .Select(itm => itm.CityName.Concat("- A string"))
+            .ToList();
 
         Assert.Equal([.. "- A string"], result[0]);
         Assert.Equal([.. "City1- A string"], result[1]);
@@ -2325,19 +2328,16 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     {
         public DbSet<City> Cities { get; set; } = null!;
 
-        public Task SeedAsync()
-        {
-            AddRange(
-                new City { CityName = string.Empty },
-                new City { CityName = "City1" },
-                new City { CityName = "City2" });
-
-            return SaveChangesAsync();
-        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<City>()
+                .HasData(
+                    new City { CityId = 1, CityName = string.Empty },
+                    new City { CityId = 2, CityName = "City1" },
+                    new City { CityId = 3, CityName = "City2" });
 
         public class City
         {
-            public Guid CityId { get; set; }
+            public int CityId { get; set; }
             public string CityName { get; set; } = null!;
         }
     }
