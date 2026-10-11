@@ -427,6 +427,30 @@ WHERE DATEPART(year, [b].[DateTime]) > 1 AND TODATETIMEOFFSET([b].[DateTime], @o
 """);
     }
 
+    public override async Task Select_Ctor_Parameter_DateTime_New_TimeSpan()
+    {
+        await base.Select_Ctor_Parameter_DateTime_New_TimeSpan();
+
+        AssertSql(
+            """
+SELECT TODATETIMEOFFSET([b].[DateTime], '+02:00')
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEPART(year, [b].[DateTime]) > 1
+""");
+    }
+
+    public override async Task Select_Ctor_Parameter_DateTime()
+    {
+        await base.Select_Ctor_Parameter_DateTime();
+
+        AssertSql(
+            """
+SELECT TODATETIMEOFFSET([b].[DateTime], '+00:00')
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEPART(year, [b].[DateTime]) > 1
+""");
+    }
+
     [Fact]
     public virtual async Task Now_has_proper_type_mapping_for_constant_comparison()
     {

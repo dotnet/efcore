@@ -759,7 +759,7 @@ OFFSET @p ROWS
 
         AssertSql(
             """
-SELECT [o].[OrderDate]
+SELECT [o].[OrderDate], CAST('1997-01-01T00:00:00.0000000' AS datetime2)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300
 """);
@@ -1173,7 +1173,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT [o].[OrderDate]
+SELECT [o].[OrderDate], CAST('1753-01-01T00:00:00.0000000' AS datetime2)
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 """);

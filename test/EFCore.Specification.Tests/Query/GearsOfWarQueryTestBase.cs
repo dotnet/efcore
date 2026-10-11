@@ -4279,6 +4279,17 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 .ThenBy(e => e.HasValue).Select(e => e));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task New_Date_Expressions_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Select(m => new
+            {
+                MorningOfMission = new DateTime(m.Date, new TimeOnly(8, 0, 0)),
+                OnSpacificDate = new DateTime(new DateOnly(2020, 1, 2), m.Time),
+                ConstantDateTime = new DateTime(2020, 1, 2, 8, 0, 0)
+            }));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GetValueOrDefault_in_projection(bool async)
         => AssertQueryScalar(
             async,
