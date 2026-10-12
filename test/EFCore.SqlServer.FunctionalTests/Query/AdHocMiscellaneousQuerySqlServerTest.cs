@@ -2220,7 +2220,7 @@ WHERE [f].[Taste] = CAST(1 AS tinyint)
 
         AssertSql(
             """
-SELECT [f].[Taste] AS [Bar]
+SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
 FROM [Foods] AS [f]
 """);
     }
@@ -2666,6 +2666,44 @@ SELECT [d].[Id], CASE
 END AS [Foo]
 FROM [Data] AS [d]
 ORDER BY [d].[Id]
+""");
+    }
+
+    public override async Task String_conversion_on_string_converted_enum_projection(bool async)
+    {
+        await base.String_conversion_on_string_converted_enum_projection(async);
+
+        AssertSql(
+            """
+SELECT CAST([u].[Role] AS nvarchar(max))
+FROM [Users] AS [u]
+ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT CAST([u].[NullableRole] AS nvarchar(max))
+FROM [Users] AS [u]
+WHERE [u].[NullableRole] IS NOT NULL
+ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT CONVERT(nvarchar(max), [u].[Role])
+FROM [Users] AS [u]
+ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT CAST([u].[Role] AS nvarchar(max))
+FROM [Users] AS [u]
+ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT CAST([u].[Role] AS nvarchar(max))
+FROM [Users] AS [u]
+WHERE [u].[Role] = N'Admin'
+ORDER BY [u].[Id]
 """);
     }
 

@@ -348,6 +348,65 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region 39146
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task String_conversion_on_string_converted_enum_projection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context39146>(
+                seed: async context =>
+                {
+                    context.Users.AddRange(
+                        new Context39146.User { Role = Context39146.Role.Admin, NullableRole = Context39146.Role.User },
+                        new Context39146.User { Role = Context39146.Role.User });
+                    await context.SaveChangesAsync();
+                });
+            using var context = contextFactory.CreateDbContext();
+            ClearLog();
+
+            var users = context.Users.OrderBy(u => u.Id);
+            var toStringQuery = users.Select(u => u.Role.ToString());
+            Assert.Equal(["Admin", "User"], async ? await toStringQuery.ToListAsync() : toStringQuery.ToList());
+
+            var nullableQuery = users.Where(u => u.NullableRole != null).Select(u => u.NullableRole.ToString());
+            Assert.Equal(["User"], async ? await nullableQuery.ToListAsync() : nullableQuery.ToList());
+
+            var convertQuery = users.Select(u => Convert.ToString(u.Role));
+            Assert.Equal(["Admin", "User"], async ? await convertQuery.ToListAsync() : convertQuery.ToList());
+
+            var castQuery = users.Select(u => (string)(object)u.Role);
+            Assert.Equal(["Admin", "User"], async ? await castQuery.ToListAsync() : castQuery.ToList());
+
+            var filteredQuery = users.Where(u => u.Role.ToString() == "Admin").Select(u => u.Role.ToString());
+            Assert.Equal(["Admin"], async ? await filteredQuery.ToListAsync() : filteredQuery.ToList());
+        }
+
+        protected class Context39146(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<User> Users { get; set; } = null!;
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<User>().Property(u => u.Role).HasConversion<string>();
+                modelBuilder.Entity<User>().Property(u => u.NullableRole).HasConversion<string>();
+            }
+
+            public class User
+            {
+                public int Id { get; set; }
+                public Role Role { get; set; }
+                public Role? NullableRole { get; set; }
+            }
+
+            public enum Role
+            {
+                User,
+                Admin
+            }
+        }
+
+        #endregion
+
         #region 36247
 
         [Theory, MemberData(nameof(IsAsyncData))]

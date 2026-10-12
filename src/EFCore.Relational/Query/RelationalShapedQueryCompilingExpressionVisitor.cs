@@ -89,7 +89,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         return extensionExpression switch
         {
             UpdateExpression updateExpression => GenerateNonQueryShaper(updateExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
-            DeleteExpression deleteExpression => GenerateNonQueryShaper(deleteExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
+            DeleteExpression deleteExpression => GenerateNonQueryShaper(deleteExpression.ApplyTags(_tags), CommandSource.ExecuteDelete),
             _ => base.VisitExtension(extensionExpression)
         };
 
