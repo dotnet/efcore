@@ -20272,15 +20272,7 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);",
-          "Stage": "Experimental"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch? other);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override int GetHashCode();",
           "Stage": "Experimental"
         },
         {
@@ -20289,10 +20281,6 @@
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch? left, Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch? right);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override string ToString();",
           "Stage": "Experimental"
         }
       ],

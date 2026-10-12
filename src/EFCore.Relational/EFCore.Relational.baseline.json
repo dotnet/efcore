@@ -7113,26 +7113,6 @@
         {
           "Member": "MergeColumnReferenceExpression(string columnName, bool fromExcluded, System.Type type, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);",
           "Stage": "Experimental"
-        },
-        {
-          "Member": "override bool Equals(object? obj);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override int GetHashCode();",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression Quote();",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
-          "Stage": "Experimental"
         }
       ],
       "Properties": [
@@ -7163,15 +7143,7 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);",
-          "Stage": "Experimental"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? other);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override int GetHashCode();",
           "Stage": "Experimental"
         },
         {
@@ -7180,10 +7152,6 @@
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? left, Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? right);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override string ToString();",
           "Stage": "Experimental"
         }
       ],
@@ -7211,23 +7179,11 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override int GetHashCode();",
-          "Stage": "Experimental"
-        },
-        {
           "Member": "void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);",
           "Stage": "Experimental"
         },
         {
           "Member": "System.Linq.Expressions.Expression Quote();",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
           "Stage": "Experimental"
         },
         {
@@ -7242,10 +7198,6 @@
         },
         {
           "Member": "System.Collections.Generic.IReadOnlyList<string> InsertColumns { get; }",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }",
           "Stage": "Experimental"
         },
         {
@@ -7273,10 +7225,6 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override System.Type Type { get; }",
-          "Stage": "Experimental"
-        },
-        {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter>? UpdateSetters { get; }",
           "Stage": "Experimental"
         }
@@ -7291,27 +7239,7 @@
           "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override int GetHashCode();",
-          "Stage": "Experimental"
-        },
-        {
           "Member": "object? GetValue(object? row);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression Quote();",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
           "Stage": "Experimental"
         }
       ],
@@ -14581,10 +14509,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.DeleteExpression TranslateExecuteDelete(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression TranslateExecuteMerge(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, Microsoft.EntityFrameworkCore.Query.QueryParameterExpression sourceRows, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch> matches, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter>? whenMatchedSetters, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter>? whenNotMatchedSetters, System.Linq.Expressions.LambdaExpression? returningSelector);",
-          "Stage": "Experimental"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.UpdateExpression TranslateExecuteUpdate(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter> setters);"
