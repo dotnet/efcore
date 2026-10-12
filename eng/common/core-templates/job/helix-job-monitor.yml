@@ -135,21 +135,6 @@ jobs:
   displayName: Monitor Helix Jobs
   timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
   continueOnError: ${{ parameters.continueOnError }}
-  variables:
-    HELIX_MONITOR_BASE_URI: ${{ parameters.helixBaseUri }}
-    HELIX_MONITOR_USE_ENTRA_AUTHENTICATION: ${{ parameters.useEntraAuthentication }}
-    HELIX_MONITOR_ENTRA_SCOPE: ${{ parameters.helixEntraScope }}
-    HELIX_MONITOR_POLLING_INTERVAL_SECONDS: ${{ parameters.pollingIntervalSeconds }}
-    HELIX_MONITOR_FAIL_ON_FAILED_TESTS: ${{ parameters.failWorkItemsWithFailedTests }}
-    HELIX_MONITOR_ALLOW_NO_HELIX_JOBS: ${{ parameters.allowNoHelixJobs }}
-    HELIX_MONITOR_USE_FULLY_QUALIFIED_TEST_NAME: ${{ parameters.useFullyQualifiedTestName }}
-    HELIX_MONITOR_TIMEOUT_IN_MINUTES: ${{ parameters.timeoutInMinutes }}
-    HELIX_MONITOR_TEST_RESULT_UPLOAD_PARALLELISM: ${{ parameters.testResultUploadParallelism }}
-    HELIX_MONITOR_ORGANIZATION: ${{ parameters.organization }}
-    HELIX_MONITOR_REPOSITORY: ${{ parameters.repository }}
-    HELIX_MONITOR_TEST_RESULT_ATTACHMENT_MODE: ${{ parameters.testResultAttachmentMode }}
-    HELIX_MONITOR_TOOL_NUPKG_ARTIFACT_NAME: ${{ parameters.toolNupkgArtifactName }}
-    HELIX_MONITOR_TOOL_COMMAND: ${{ parameters.toolCommand }}
   ${{ if ne(length(parameters.dependsOn), 0) }}:
     dependsOn: ${{ parameters.dependsOn }}
   ${{ if ne(parameters.condition, '') }}:
@@ -170,6 +155,22 @@ jobs:
   - ${{ if and(eq(parameters.useEntraAuthentication, true), eq(parameters.azureSubscription, '')) }}:
     - pwsh: throw "azureSubscription must be set when useEntraAuthentication is true."
       displayName: Validate Helix Entra authentication
+
+  - ${{ if eq(parameters.useEntraAuthentication, true) }}:
+    - task: AzureCLI@2
+      displayName: Initialize Helix Entra authentication
+      inputs:
+        azureSubscription: ${{ parameters.azureSubscription }}
+        addSpnToEnvironment: true
+        scriptType: pscore
+        scriptLocation: inlineScript
+        inlineScript: |
+          if ([string]::IsNullOrWhiteSpace($env:servicePrincipalId) -or [string]::IsNullOrWhiteSpace($env:tenantId)) {
+            throw "The Helix Azure service connection did not provide a service principal or tenant ID."
+          }
+
+          Write-Host "##vso[task.setvariable variable=HelixEntraClientId]$env:servicePrincipalId"
+          Write-Host "##vso[task.setvariable variable=HelixEntraTenantId]$env:tenantId"
 
   - ${{ if ne(parameters.toolNupkgArtifactName, '') }}:
     - task: DownloadPipelineArtifact@2
@@ -308,3 +309,7 @@ jobs:
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)
       ${{ if eq(parameters.useEntraAuthentication, false) }}:
         HELIX_ACCESSTOKEN: ${{ parameters.helixAccessToken }}
+      ${{ if eq(parameters.useEntraAuthentication, true) }}:
+        AZURESUBSCRIPTION_CLIENT_ID: $(HelixEntraClientId)
+        AZURESUBSCRIPTION_TENANT_ID: $(HelixEntraTenantId)
+        AZURESUBSCRIPTION_SERVICE_CONNECTION_ID: ${{ parameters.azureSubscription }}
