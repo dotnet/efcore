@@ -34,6 +34,20 @@ public class SqlExpressionSimplifyingExpressionVisitor(
                 return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
             }
 
+            case ProjectionExpression projectionExpression:
+            {
+                var expression = (SqlExpression)Visit(projectionExpression.Expression);
+
+                // Preserve the projection's converter semantics when simplification strips a no-op CAST.
+                if (expression.TypeMapping?.Converter != projectionExpression.Expression.TypeMapping?.Converter)
+                {
+                    expression = _sqlExpressionFactory.Convert(
+                        expression, projectionExpression.Expression.Type, projectionExpression.Expression.TypeMapping);
+                }
+
+                return projectionExpression.Update(expression);
+            }
+
             // Strip no-op SQL CASTs: when the Convert's store type matches the operand's store type,
             // the CAST would be a no-op in SQL (e.g. CAST(column AS nvarchar(max)) when column is already nvarchar(max)).
             // This can occur in various situations, e.g. when a C# implicit conversion exists for a value-converted type
