@@ -433,6 +433,9 @@
   <data name="ExecuteMergeInvalidPropertySelector" xml:space="preserve">
     <value>Invalid property selector '{selector}' in ExecuteMerge.</value>
   </data>
+  <data name="ExecuteMergeMatchColumnNotInserted" xml:space="preserve">
+    <value>The match property '{property}' must be set in 'WhenNotMatched'.</value>
+  </data>
   <data name="ExecuteMergeNoPrimaryKey" xml:space="preserve">
     <value>The entity type '{entityType}' has no primary key to match on in ExecuteMerge.</value>
   </data>

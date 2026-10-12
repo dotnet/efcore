@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 /// <summary>
@@ -13,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     </para>
 /// </summary>
 [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
+[Experimental(EFDiagnostics.ExecuteMergeExperimental)]
 public sealed class MergeExpression : Expression, IRelationalQuotableExpression, IPrintableExpression
 {
     /// <summary>
@@ -25,6 +28,10 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
     /// <param name="updateSetters">The setters applied to matched rows, or <see langword="null" /> to leave matched rows unchanged.</param>
     /// <param name="returning">A projection returned for each affected row, or <see langword="null" /> when no results are returned.</param>
     /// <param name="returningShaper">The shaper that materializes each returned row, or <see langword="null" /> when no results are returned.</param>
+    /// <param name="sourceParameterName">
+    ///     The name of the query parameter holding the source rows, or <see langword="null" /> when <paramref name="sourceRows" /> are the
+    ///     actual rows. When set, <paramref name="sourceRows" /> holds a single template row, expanded when the query is executed.
+    /// </param>
     public MergeExpression(
         TableExpression table,
         IReadOnlyList<string> insertColumns,
@@ -32,8 +39,11 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
         IReadOnlyList<string> conflictColumns,
         IReadOnlyList<MergeColumnSetter>? updateSetters,
         IReadOnlyList<ProjectionExpression>? returning,
-        LambdaExpression? returningShaper = null)
-        : this(table, insertColumns, sourceRows, conflictColumns, updateSetters, returning, returningShaper, new HashSet<string>())
+        LambdaExpression? returningShaper = null,
+        string? sourceParameterName = null)
+        : this(
+            table, insertColumns, sourceRows, conflictColumns, updateSetters, returning, returningShaper, sourceParameterName,
+            new HashSet<string>())
     {
     }
 
@@ -52,6 +62,7 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
         IReadOnlyList<MergeColumnSetter>? updateSetters,
         IReadOnlyList<ProjectionExpression>? returning,
         LambdaExpression? returningShaper,
+        string? sourceParameterName,
         ISet<string> tags)
     {
         Table = table;
@@ -61,6 +72,7 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
         UpdateSetters = updateSetters;
         Returning = returning;
         ReturningShaper = returningShaper;
+        SourceParameterName = sourceParameterName;
         Tags = tags;
     }
 
@@ -83,6 +95,12 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
     ///     The source rows to merge.
     /// </summary>
     public IReadOnlyList<RowValueExpression> SourceRows { get; }
+
+    /// <summary>
+    ///     The name of the query parameter holding the source rows, or <see langword="null" /> when <see cref="SourceRows" /> are the
+    ///     actual rows. When set, <see cref="SourceRows" /> holds a single template row, expanded when the query is executed.
+    /// </summary>
+    public string? SourceParameterName { get; }
 
     /// <summary>
     ///     The names of the columns that determine whether a source row matches an existing target row (the conflict target).
@@ -111,7 +129,15 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
     /// </summary>
     /// <param name="tags">A list of tags to apply.</param>
     public MergeExpression ApplyTags(ISet<string> tags)
-        => new(Table, InsertColumns, SourceRows, ConflictColumns, UpdateSetters, Returning, ReturningShaper, tags);
+        => new(Table, InsertColumns, SourceRows, ConflictColumns, UpdateSetters, Returning, ReturningShaper, SourceParameterName, tags);
+
+    /// <summary>
+    ///     Creates a new expression with the given actual source rows, replacing the template row.
+    /// </summary>
+    /// <param name="sourceRows">The actual source rows.</param>
+    /// <returns>The updated expression.</returns>
+    public MergeExpression WithSourceRows(IReadOnlyList<RowValueExpression> sourceRows)
+        => new(Table, InsertColumns, sourceRows, ConflictColumns, UpdateSetters, Returning, ReturningShaper, sourceParameterName: null, Tags);
 
     /// <inheritdoc />
     public override Type Type
@@ -170,6 +196,7 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
                 updateSetters ?? UpdateSetters,
                 returning ?? Returning,
                 ReturningShaper,
+                SourceParameterName,
                 Tags)
             : this;
     }
@@ -199,6 +226,7 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
                 || (Table.Equals(merge.Table)
                     && InsertColumns.SequenceEqual(merge.InsertColumns)
                     && SourceRows.SequenceEqual(merge.SourceRows)
+                    && SourceParameterName == merge.SourceParameterName
                     && ConflictColumns.SequenceEqual(merge.ConflictColumns)
                     && (UpdateSetters is null
                         ? merge.UpdateSetters is null
@@ -212,6 +240,7 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
     {
         var hash = new HashCode();
         hash.Add(Table);
+        hash.Add(SourceParameterName);
         foreach (var column in InsertColumns)
         {
             hash.Add(column);
@@ -236,4 +265,5 @@ public sealed class MergeExpression : Expression, IRelationalQuotableExpression,
 /// </summary>
 /// <param name="ColumnName">The target column being assigned.</param>
 /// <param name="Value">The value assigned to the column.</param>
+[Experimental(EFDiagnostics.ExecuteMergeExperimental)]
 public sealed record MergeColumnSetter(string ColumnName, SqlExpression Value);

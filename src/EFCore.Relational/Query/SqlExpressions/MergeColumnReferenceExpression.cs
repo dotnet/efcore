@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 /// <summary>
@@ -13,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         This type is typically used by database providers (and other extensions). It is generally not used in application code.
 ///     </para>
 /// </summary>
+[Experimental(EFDiagnostics.ExecuteMergeExperimental)]
 public sealed class MergeColumnReferenceExpression : SqlExpression
 {
     private static ConstructorInfo? _quotingConstructor;
@@ -61,12 +64,17 @@ public sealed class MergeColumnReferenceExpression : SqlExpression
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
-        => obj is MergeColumnReferenceExpression other
-            && ColumnName == other.ColumnName
-            && FromExcluded == other.FromExcluded
-            && Type == other.Type;
+        => obj != null
+            && (ReferenceEquals(this, obj)
+                || (obj is MergeColumnReferenceExpression mergeColumnReferenceExpression
+                    && Equals(mergeColumnReferenceExpression)));
+
+    private bool Equals(MergeColumnReferenceExpression mergeColumnReferenceExpression)
+        => base.Equals(mergeColumnReferenceExpression)
+            && ColumnName == mergeColumnReferenceExpression.ColumnName
+            && FromExcluded == mergeColumnReferenceExpression.FromExcluded;
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(ColumnName, FromExcluded, Type);
+        => HashCode.Combine(base.GetHashCode(), ColumnName, FromExcluded);
 }

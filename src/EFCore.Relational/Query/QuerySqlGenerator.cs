@@ -92,6 +92,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     ///     override this to emit provider-specific SQL.
     /// </summary>
     /// <param name="mergeExpression">The merge expression to generate SQL for.</param>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
     protected virtual void VisitMerge(MergeExpression mergeExpression)
         => throw new InvalidOperationException(RelationalStrings.ExecuteMergeNotSupportedByProvider);
 

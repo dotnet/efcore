@@ -844,6 +844,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 selector);
 
         /// <summary>
+        ///     The match property '{property}' must be set in 'WhenNotMatched'.
+        /// </summary>
+        public static string ExecuteMergeMatchColumnNotInserted(object? property)
+            => string.Format(
+                GetString("ExecuteMergeMatchColumnNotInserted", nameof(property)),
+                property);
+
+        /// <summary>
         ///     The entity type '{entityType}' has no primary key to match on in ExecuteMerge.
         /// </summary>
         public static string ExecuteMergeNoPrimaryKey(object? entityType)

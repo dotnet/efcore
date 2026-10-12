@@ -105,6 +105,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             case SelectExpression select:
                 return Visit(select);
 
+            case MergeExpression { SourceParameterName: { } sourceParameterName } mergeExpression:
+                return Visit(mergeExpression.WithSourceRows(ExpandMergeSourceRows(mergeExpression, sourceParameterName)));
+
             case PredicateJoinExpressionBase join:
             {
                 var newTable = VisitAndConvert(join.Table, nameof(VisitExtension));
@@ -415,12 +418,37 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     /// <param name="mergeColumnReferenceExpression">A merge column reference to visit.</param>
     /// <param name="nullable">A bool value indicating whether the expression is nullable.</param>
     /// <returns>The expression, unchanged.</returns>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
     protected virtual SqlExpression VisitMergeColumnReference(
         MergeColumnReferenceExpression mergeColumnReferenceExpression,
         out bool nullable)
     {
         nullable = true;
         return mergeColumnReferenceExpression;
+    }
+
+    private List<RowValueExpression> ExpandMergeSourceRows(MergeExpression mergeExpression, string sourceParameterName)
+    {
+        // The SQL depends on the number of source rows, so the generated command can't be cached.
+        var rows = (IEnumerable?)ParametersDecorator.GetAndDisableCaching()[sourceParameterName];
+        var template = mergeExpression.SourceRows[0].Values;
+        var sourceRows = new List<RowValueExpression>();
+        foreach (var row in rows ?? Array.Empty<object>())
+        {
+            var values = new SqlExpression[template.Count];
+            for (var i = 0; i < template.Count; i++)
+            {
+                // Source values are user data, so they're redacted from logs unless sensitive data logging is enabled.
+                values[i] = template[i] is MergeSourceMemberExpression sourceMember
+                    ? new SqlConstantExpression(
+                        sourceMember.GetValue(row), sourceMember.Type, sensitive: true, sourceMember.TypeMapping)
+                    : template[i];
+            }
+
+            sourceRows.Add(new RowValueExpression(values));
+        }
+
+        return sourceRows;
     }
 
     /// <summary>

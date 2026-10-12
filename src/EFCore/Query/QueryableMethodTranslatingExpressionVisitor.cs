@@ -1232,15 +1232,16 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
     ///     Translates an ExecuteMerge / ExecuteMergeReturning operator over the given source.
     /// </summary>
     /// <param name="source">The shaped query identifying the target table.</param>
-    /// <param name="sourceRows">A constant holding the source rows to merge.</param>
+    /// <param name="sourceRows">A parameter holding the source rows to merge; its value is only available when the query is executed.</param>
     /// <param name="matches">The match (conflict) selectors; empty means match on the target's primary key.</param>
     /// <param name="whenMatchedSetters">The update setters for matched rows, or <see langword="null" /> to leave matched rows unchanged.</param>
     /// <param name="whenNotMatchedSetters">The insert setters for unmatched rows, or <see langword="null" /> to insert all mapped columns.</param>
     /// <param name="returningSelector">A projection over each affected row, or <see langword="null" /> when no results are returned.</param>
     /// <returns>The non query after translation.</returns>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
     protected virtual Expression TranslateExecuteMerge(
         ShapedQueryExpression source,
-        ConstantExpression sourceRows,
+        QueryParameterExpression sourceRows,
         IReadOnlyList<ExecuteMergeMatch> matches,
         IReadOnlyList<ExecuteUpdateSetter>? whenMatchedSetters,
         IReadOnlyList<ExecuteUpdateSetter>? whenNotMatchedSetters,
@@ -1256,16 +1257,20 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
     /// <summary>
     ///     Represents a single match (conflict-target) column pair in an ExecuteMerge call.
     /// </summary>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
     public sealed record ExecuteMergeMatch(LambdaExpression TargetKeySelector, LambdaExpression SourceKeySelector);
 
-    private static ConstantExpression UnwrapMergeSource(Expression argument)
+    private static QueryParameterExpression UnwrapMergeSource(Expression argument)
     {
         while (argument is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.Quote, Operand: var operand })
         {
             argument = operand;
         }
 
-        return (ConstantExpression)argument;
+        // A source whose element type isn't an entity type is wrapped as a query root.
+        return argument is ParameterQueryRootExpression parameterQueryRoot
+            ? parameterQueryRoot.QueryParameterExpression
+            : (QueryParameterExpression)argument;
     }
 
     private static IReadOnlyList<ExecuteMergeMatch> DecodeMergeMatches(Expression argument)
@@ -1280,7 +1285,15 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
         for (var i = 0; i < matches.Length; i++)
         {
             var @new = (NewExpression)newArray.Expressions[i];
-            matches[i] = new ExecuteMergeMatch((LambdaExpression)@new.Arguments[0], (LambdaExpression)@new.Arguments[1]);
+            var targetKeySelector = (LambdaExpression)@new.Arguments[0];
+            var sourceKeySelector = (LambdaExpression)@new.Arguments[1];
+            if (targetKeySelector.Body is NewExpression { Arguments.Count: 0 }
+                || sourceKeySelector.Body is NewExpression { Arguments.Count: 0 })
+            {
+                throw new InvalidOperationException(CoreStrings.ExecuteMergeEmptyMatch);
+            }
+
+            matches[i] = new ExecuteMergeMatch(targetKeySelector, sourceKeySelector);
         }
 
         return matches;

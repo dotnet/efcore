@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 /// <typeparam name="TTarget">The type of the target entity.</typeparam>
 /// <typeparam name="TSource">The type of the source rows.</typeparam>
+[Experimental(EFDiagnostics.ExecuteMergeExperimental)]
 public sealed class MergeInsertSettersBuilder<TTarget, TSource> : MergeSettersBuilder
 {
     /// <summary>

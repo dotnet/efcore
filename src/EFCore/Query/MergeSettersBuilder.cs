@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
+[Experimental(EFDiagnostics.ExecuteMergeExperimental)]
 public abstract class MergeSettersBuilder
 {
     private readonly List<NewExpression> _setters = [];

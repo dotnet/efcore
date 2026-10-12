@@ -3801,7 +3801,7 @@ public static class EntityFrameworkQueryableExtensions
 
     private static int ExecuteMerge<TTarget, TSource>(
         this IQueryable<TTarget> target,
-        [NotParameterized] IEnumerable<TSource> source,
+        IEnumerable<TSource> source,
         [NotParameterized] IReadOnlyList<ITuple> matchSelectors,
         [NotParameterized] IReadOnlyList<ITuple>? whenMatchedSetters,
         [NotParameterized] IReadOnlyList<ITuple>? whenNotMatchedSetters)
@@ -3809,7 +3809,7 @@ public static class EntityFrameworkQueryableExtensions
 
     private static IEnumerable<TResult> ExecuteMergeReturning<TTarget, TSource, TResult>(
         this IQueryable<TTarget> target,
-        [NotParameterized] IEnumerable<TSource> source,
+        IEnumerable<TSource> source,
         [NotParameterized] IReadOnlyList<ITuple> matchSelectors,
         [NotParameterized] IReadOnlyList<ITuple>? whenMatchedSetters,
         [NotParameterized] IReadOnlyList<ITuple>? whenNotMatchedSetters,

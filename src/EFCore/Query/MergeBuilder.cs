@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
+[Experimental(EFDiagnostics.ExecuteMergeExperimental)]
 public class MergeBuilder<TTarget, TSource>
 {
     private readonly List<NewExpression> _matchSelectors = [];
@@ -78,6 +79,10 @@ public class MergeBuilder<TTarget, TSource>
     ///     Specifies the properties and values to insert when a source row does not match any existing target row. Omitting this call
     ///     inserts all mapped columns using the same-named source members.
     /// </summary>
+    /// <remarks>
+    ///     Properties not set in <paramref name="setPropertyCalls" /> are omitted from the inserted row, so they take the
+    ///     database default (or <see langword="null" />).
+    /// </remarks>
     /// <param name="setPropertyCalls">A collection of <c>SetProperty</c> statements specifying properties to insert.</param>
     /// <returns>The same instance so that multiple calls can be chained.</returns>
     public virtual MergeBuilder<TTarget, TSource> WhenNotMatched(

@@ -7602,130 +7602,217 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnReferenceExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression",
+      "Stage": "Experimental",
       "Methods": [
         {
-          "Member": "MergeColumnReferenceExpression(string columnName, bool fromExcluded, System.Type type, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);"
+          "Member": "MergeColumnReferenceExpression(string columnName, bool fromExcluded, System.Type type, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);"
+          "Member": "override bool Equals(object? obj);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override int GetHashCode();"
+          "Member": "override int GetHashCode();",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
+          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression Quote();"
+          "Member": "override System.Linq.Expressions.Expression Quote();",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
+          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
+          "Stage": "Experimental"
         }
       ],
       "Properties": [
         {
-          "Member": "string ColumnName { get; }"
+          "Member": "string ColumnName { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "bool FromExcluded { get; }"
+          "Member": "bool FromExcluded { get; }",
+          "Stage": "Experimental"
         }
       ]
     },
     {
       "Type": "sealed record Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter(string ColumnName, SqlExpression Value)",
+      "Stage": "Experimental",
       "Methods": [
         {
-          "Member": "MergeColumnSetter(string ColumnName, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression Value);"
+          "Member": "MergeColumnSetter(string ColumnName, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression Value);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter <Clone>$();"
+          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter <Clone>$();",
+          "Stage": "Experimental"
         },
         {
-          "Member": "void Deconstruct(out string ColumnName, out Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression Value);"
+          "Member": "void Deconstruct(out string ColumnName, out Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression Value);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);"
+          "Member": "override bool Equals(object? obj);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? other);"
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? other);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override int GetHashCode();"
+          "Member": "override int GetHashCode();",
+          "Stage": "Experimental"
         },
         {
-          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? left, Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? right);"
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? left, Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? right);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? left, Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? right);"
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? left, Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter? right);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override string ToString();"
+          "Member": "override string ToString();",
+          "Stage": "Experimental"
         }
       ],
       "Properties": [
         {
-          "Member": "string ColumnName { get; init; }"
+          "Member": "string ColumnName { get; init; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression Value { get; init; }"
+          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression Value { get; init; }",
+          "Stage": "Experimental"
         }
       ]
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IRelationalQuotableExpression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
+      "Stage": "Experimental",
       "Methods": [
         {
-          "Member": "MergeExpression(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpression table, System.Collections.Generic.IReadOnlyList<string> insertColumns, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.RowValueExpression> sourceRows, System.Collections.Generic.IReadOnlyList<string> conflictColumns, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter>? updateSetters, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.ProjectionExpression>? returning, System.Linq.Expressions.LambdaExpression? returningShaper = null);"
+          "Member": "MergeExpression(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpression table, System.Collections.Generic.IReadOnlyList<string> insertColumns, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.RowValueExpression> sourceRows, System.Collections.Generic.IReadOnlyList<string> conflictColumns, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter>? updateSetters, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.ProjectionExpression>? returning, System.Linq.Expressions.LambdaExpression? returningShaper = null, string? sourceParameterName = null);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeExpression ApplyTags(System.Collections.Generic.ISet<string> tags);"
+          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeExpression ApplyTags(System.Collections.Generic.ISet<string> tags);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override bool Equals(object? obj);"
+          "Member": "override bool Equals(object? obj);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override int GetHashCode();"
+          "Member": "override int GetHashCode();",
+          "Stage": "Experimental"
         },
         {
-          "Member": "void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
+          "Member": "void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);",
+          "Stage": "Experimental"
         },
         {
-          "Member": "System.Linq.Expressions.Expression Quote();"
+          "Member": "System.Linq.Expressions.Expression Quote();",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);"
+          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeExpression WithSourceRows(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.RowValueExpression> sourceRows);",
+          "Stage": "Experimental"
         }
       ],
       "Properties": [
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<string> ConflictColumns { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<string> ConflictColumns { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<string> InsertColumns { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<string> InsertColumns { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }"
+          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.ProjectionExpression>? Returning { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.ProjectionExpression>? Returning { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "System.Linq.Expressions.LambdaExpression? ReturningShaper { get; }"
+          "Member": "System.Linq.Expressions.LambdaExpression? ReturningShaper { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.RowValueExpression> SourceRows { get; }"
+          "Member": "string? SourceParameterName { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpression Table { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.RowValueExpression> SourceRows { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "System.Collections.Generic.ISet<string> Tags { get; }"
+          "Member": "Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpression Table { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "override System.Type Type { get; }"
+          "Member": "System.Collections.Generic.ISet<string> Tags { get; }",
+          "Stage": "Experimental"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter>? UpdateSetters { get; }"
+          "Member": "override System.Type Type { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnSetter>? UpdateSetters { get; }",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeSourceMemberExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "MergeSourceMemberExpression(System.Reflection.MemberInfo member, System.Type type, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override bool Equals(object? obj);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override int GetHashCode();",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "object? GetValue(object? row);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression Quote();",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
+          "Stage": "Experimental"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "System.Reflection.MemberInfo Member { get; }",
+          "Stage": "Experimental"
         }
       ]
     },
@@ -9679,7 +9766,8 @@
           "Member": "virtual System.Linq.Expressions.Expression VisitLeftJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.LeftJoinExpression leftJoinExpression);"
         },
         {
-          "Member": "virtual void VisitMerge(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeExpression mergeExpression);"
+          "Member": "virtual void VisitMerge(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeExpression mergeExpression);",
+          "Stage": "Experimental"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression VisitOrdering(Microsoft.EntityFrameworkCore.Query.SqlExpressions.OrderingExpression orderingExpression);"
@@ -15565,7 +15653,8 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.DeleteExpression TranslateExecuteDelete(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source);"
         },
         {
-          "Member": "override System.Linq.Expressions.Expression TranslateExecuteMerge(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.ConstantExpression sourceRows, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch> matches, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter>? whenMatchedSetters, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter>? whenNotMatchedSetters, System.Linq.Expressions.LambdaExpression? returningSelector);"
+          "Member": "override System.Linq.Expressions.Expression TranslateExecuteMerge(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, Microsoft.EntityFrameworkCore.Query.QueryParameterExpression sourceRows, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch> matches, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter>? whenMatchedSetters, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter>? whenNotMatchedSetters, System.Linq.Expressions.LambdaExpression? returningSelector);",
+          "Stage": "Experimental"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.UpdateExpression TranslateExecuteUpdate(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter> setters);"
@@ -16680,6 +16769,9 @@
         },
         {
           "Member": "static string ExecuteMergeInvalidPropertySelector(object? selector);"
+        },
+        {
+          "Member": "static string ExecuteMergeMatchColumnNotInserted(object? property);"
         },
         {
           "Member": "static string ExecuteMergeNoPrimaryKey(object? entityType);"
@@ -19678,7 +19770,8 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitLike(Microsoft.EntityFrameworkCore.Query.SqlExpressions.LikeExpression likeExpression, bool allowOptimizedExpansion, out bool nullable);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitMergeColumnReference(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnReferenceExpression mergeColumnReferenceExpression, out bool nullable);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitMergeColumnReference(Microsoft.EntityFrameworkCore.Query.SqlExpressions.MergeColumnReferenceExpression mergeColumnReferenceExpression, out bool nullable);",
+          "Stage": "Experimental"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitRowNumber(Microsoft.EntityFrameworkCore.Query.SqlExpressions.RowNumberExpression rowNumberExpression, bool allowOptimizedExpansion, out bool nullable);"

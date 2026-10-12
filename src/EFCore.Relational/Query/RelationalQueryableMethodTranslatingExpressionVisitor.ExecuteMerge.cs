@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -10,9 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 {
     /// <inheritdoc />
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
     protected override Expression TranslateExecuteMerge(
         ShapedQueryExpression source,
-        ConstantExpression sourceRows,
+        QueryParameterExpression sourceRows,
         IReadOnlyList<ExecuteMergeMatch> matches,
         IReadOnlyList<ExecuteUpdateSetter>? whenMatchedSetters,
         IReadOnlyList<ExecuteUpdateSetter>? whenNotMatchedSetters,
@@ -95,7 +96,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         // the primary key, matched by the same-named source member. The conflict-column value must come from the source-side selector of
         // the match, not the same-named source member, so that Match(t => t.Id, s => s.ExternalId) actually matches on ExternalId.
         string[] conflictColumns;
-        var conflictSourceGetters = new Dictionary<string, Func<object?, object?>>();
+        var conflictSourceMembers = new Dictionary<string, MemberInfo>();
         var conflictProperties = new List<IProperty>();
         if (matches.Count == 0)
         {
@@ -108,12 +109,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             foreach (var match in matches)
             {
                 var (targetColumns, targetProperties) = ResolveColumnNamesAndProperties(match.TargetKeySelector, entityType, table);
-                var sourceGetters = CompileKeyMemberGetters(match.SourceKeySelector);
+                var sourceMembers = ResolveKeySourceMembers(match.SourceKeySelector);
                 Check.DebugAssert(
-                    targetColumns.Length == sourceGetters.Length, "Match target and source key selectors have different arities.");
+                    targetColumns.Length == sourceMembers.Length, "Match target and source key selectors have different arities.");
                 for (var i = 0; i < targetColumns.Length; i++)
                 {
-                    if (!conflictSourceGetters.TryAdd(targetColumns[i], sourceGetters[i]))
+                    if (!conflictSourceMembers.TryAdd(targetColumns[i], sourceMembers[i]))
                     {
                         throw new InvalidOperationException(RelationalStrings.ExecuteMergeDuplicateMatchColumn(targetColumns[i]));
                     }
@@ -128,12 +129,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
         // Determine the columns (and per-row values) to insert. When WhenNotMatched isn't specified, insert every mapped column using
         // the same-named source member (except for conflict columns, which use the match source selector); otherwise use the explicit
-        // insert setters. Insert value selectors are over the source row only, so they can be evaluated client-side against the
-        // (constant) source rows.
+        // insert setters. The source rows are a query parameter, so a single template row is built here and expanded into the actual
+        // rows when the query is executed.
         var insertProperties = ResolveInsertProperties(entityType, table, whenNotMatchedSetters, conflictProperties);
         var sourceType = sourceRows.Type.TryGetSequenceType() ?? typeof(object);
         var insertColumns = new string[insertProperties.Count];
-        var valueGetters = new Func<object?, object?>?[insertProperties.Count];
+        var valueMembers = new MemberInfo?[insertProperties.Count];
         var fixedValues = new SqlExpression?[insertProperties.Count];
         var columnTypeMappings = new RelationalTypeMapping[insertProperties.Count];
 
@@ -150,12 +151,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             string? sourceMember = null;
             switch (valueExpression)
             {
-                // A value selector over the source row: evaluate it per-row client-side against the (constant) source rows.
+                // Only a direct source member is supported: compiling an arbitrary selector would fail on (or bake in the value of)
+                // funcletized parameters such as a captured variable.
                 case LambdaExpression valueSelector:
-                    valueGetters[i] = CompileValueSelector(valueSelector);
-                    sourceMember = valueSelector.Parameters is [var rowParam]
-                        ? GetDirectSourceMemberName(valueSelector.Body, rowParam)
-                        : null;
+                    sourceMember = GetDirectSourceMemberName(valueSelector.Body, valueSelector.Parameters[0])
+                        ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(valueSelector.Print()));
+                    valueMembers[i] = FindSourceMember(sourceType, sourceMember);
                     break;
 
                 // A constant insert value from the SetProperty(property, value) overload is funcletized to a query parameter; emit
@@ -170,14 +171,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     break;
 
                 // No explicit insert setter: use the match source selector for conflict columns, otherwise the same-named source member.
-                case null when conflictSourceGetters.TryGetValue(column.Name, out var sourceGetter):
-                    valueGetters[i] = sourceGetter;
+                case null when conflictSourceMembers.TryGetValue(column.Name, out var conflictSourceMember):
+                    valueMembers[i] = conflictSourceMember;
                     break;
 
                 // Read the same-named member off the source row. The source type may differ from the target entity (e.g. a DTO), so
-                // we can't use the target property's getter here — build the accessor against the actual source type instead.
+                // we can't use the target property's getter here — look the member up on the actual source type instead.
                 case null:
-                    valueGetters[i] = CompileSourceMemberGetter(sourceType, property.Name);
+                    valueMembers[i] = FindSourceMember(sourceType, property.Name);
                     sourceMember = property.Name;
                     break;
 
@@ -191,19 +192,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             }
         }
 
-        var sourceRowValues = new List<RowValueExpression>();
-        foreach (var row in (IEnumerable)sourceRows.Value!)
+        var templateValues = new SqlExpression[insertProperties.Count];
+        for (var i = 0; i < insertProperties.Count; i++)
         {
-            var values = new SqlExpression[insertProperties.Count];
-            for (var i = 0; i < insertProperties.Count; i++)
-            {
-                // Source values are user data, so they're redacted from logs unless sensitive data logging is enabled.
-                values[i] = fixedValues[i]
-                    ?? new SqlConstantExpression(
-                        valueGetters[i]!(row), insertProperties[i].Property.ClrType, sensitive: true, columnTypeMappings[i]);
-            }
-
-            sourceRowValues.Add(new RowValueExpression(values));
+            templateValues[i] = fixedValues[i]
+                ?? new MergeSourceMemberExpression(valueMembers[i]!, insertProperties[i].Property.ClrType, columnTypeMappings[i]);
         }
 
         // WhenMatched value selectors reference the existing target row (and the incoming source row), so they must be translated to
@@ -246,7 +239,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             (returning, returningShaper) = BuildReturning(returningSelector, entityType, table);
         }
 
-        return new MergeExpression(targetTable, insertColumns, sourceRowValues, conflictColumns, updateSetters, returning, returningShaper);
+        return new MergeExpression(
+            targetTable, insertColumns, [new RowValueExpression(templateValues)], conflictColumns, updateSetters, returning, returningShaper,
+            sourceRows.Name);
     }
 
     private static readonly MethodInfo IsDbNullMethod =
@@ -339,7 +334,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
         private Expression ReadColumn(Expression selector, Type resultType)
         {
-            var property = ResolveProperty(selector, entityType);
+            var property = ResolveProperty(selector, targetParam, entityType);
             var column = table.FindColumn(property)
                 ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergePropertyNotMapped(property.Name, table.Name));
 
@@ -383,15 +378,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             explicitProperties.Add(property);
         }
 
-        // The conflict (match) columns must always be part of the insert row, even when WhenNotMatched doesn't set them explicitly:
-        // otherwise a not-matched row is inserted without its conflict-column value, so it can never actually be matched by a
-        // subsequent merge. Falling through with a null ValueExpression makes the caller source the value from the match's source
-        // key selector, same as the implicit-insert path.
+        // Without its conflict-column values, an inserted row could never be matched by a subsequent merge.
         foreach (var property in conflictProperties)
         {
-            if (explicitProperties.Add(property))
+            if (!explicitProperties.Contains(property))
             {
-                result.Add((property, null));
+                throw new InvalidOperationException(RelationalStrings.ExecuteMergeMatchColumnNotInserted(property.Name));
             }
         }
 
@@ -427,7 +419,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             case MemberExpression member:
             {
-                var property = ResolveProperty(member, entityType);
+                var property = ResolveProperty(member, targetParam, entityType);
                 var column = table.FindColumn(property)
                     ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergePropertyNotMapped(property.Name, table.Name));
 
@@ -467,14 +459,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         return expression as ParameterExpression;
     }
 
-    private static Func<object?, object?> CompileValueSelector(LambdaExpression valueSelector)
-    {
-        var compiled = valueSelector.Compile();
-        return valueSelector.Parameters.Count == 0
-            ? _ => compiled.DynamicInvoke()
-            : row => compiled.DynamicInvoke(row);
-    }
-
     private static (string[] Columns, IProperty[] Properties) ResolvePrimaryKeyColumnsAndProperties(
         IEntityType entityType,
         ITableBase table)
@@ -508,7 +492,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var properties = new IProperty[members.Count];
         for (var i = 0; i < members.Count; i++)
         {
-            var property = ResolveProperty(members[i], entityType);
+            var property = ResolveProperty(members[i], selector.Parameters[0], entityType);
             properties[i] = property;
             names[i] = (table.FindColumn(property)
                 ?? throw new InvalidOperationException(
@@ -518,7 +502,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         return (names, properties);
     }
 
-    private static Func<object?, object?> CompileSourceMemberGetter(Type sourceType, string memberName)
+    private static MemberInfo FindSourceMember(Type sourceType, string memberName)
     {
         var member = (MemberInfo?)sourceType.GetProperty(memberName) ?? sourceType.GetField(memberName);
         if (member is null)
@@ -527,17 +511,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 RelationalStrings.ExecuteMergePropertyNotFound(memberName, sourceType.DisplayName(fullName: false)));
         }
 
-        var parameter = Expression.Parameter(typeof(object), "row");
-        Expression body = Expression.MakeMemberAccess(Expression.Convert(parameter, sourceType), member);
-        if (body.Type != typeof(object))
-        {
-            body = Expression.Convert(body, typeof(object));
-        }
-
-        return (Func<object?, object?>)Expression.Lambda(typeof(Func<object?, object?>), body, parameter).Compile();
+        return member;
     }
 
-    private static Func<object?, object?>[] CompileKeyMemberGetters(LambdaExpression selector)
+    private static MemberInfo[] ResolveKeySourceMembers(LambdaExpression selector)
     {
         var parameter = selector.Parameters[0];
         IReadOnlyList<Expression> members = selector.Body switch
@@ -546,20 +523,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             _ => [selector.Body]
         };
 
-        var getters = new Func<object?, object?>[members.Count];
+        var sourceMembers = new MemberInfo[members.Count];
         for (var i = 0; i < members.Count; i++)
         {
-            var body = members[i];
-            if (body.Type.IsValueType)
-            {
-                body = Expression.Convert(body, typeof(object));
-            }
-
-            var compiled = Expression.Lambda(body, parameter).Compile();
-            getters[i] = row => compiled.DynamicInvoke(row);
+            var memberName = GetDirectSourceMemberName(members[i], parameter)
+                ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(selector.Print()));
+            sourceMembers[i] = FindSourceMember(parameter.Type, memberName);
         }
 
-        return getters;
+        return sourceMembers;
     }
 
     private static string? GetDirectSourceMemberName(Expression expression, ParameterExpression sourceParam)
@@ -568,17 +540,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 ? name
                 : null;
 
-    private static IProperty ResolveProperty(Expression selector, IEntityType entityType)
+    private static IProperty ResolveProperty(LambdaExpression selector, IEntityType entityType)
+        => ResolveProperty(selector.Body, selector.Parameters[0], entityType);
+
+    // Only properties declared directly on the target are supported; a nested member such as t.Owned.Name must not resolve to a
+    // same-named property on the target itself.
+    private static IProperty ResolveProperty(Expression selector, ParameterExpression? targetParam, IEntityType entityType)
     {
-        var expression = selector is LambdaExpression lambda ? lambda.Body : selector;
-        expression = expression.UnwrapTypeConversion(out _);
+        var expression = selector.UnwrapTypeConversion(out _);
 
         return expression switch
         {
-            MemberExpression { Member.Name: var name } => entityType.FindProperty(name)
-                ?? throw new InvalidOperationException(
-                    RelationalStrings.ExecuteMergePropertyNotFound(name, entityType.DisplayName())),
-            MethodCallExpression { Method.Name: "Property", Arguments: [_, ConstantExpression { Value: string shadowName }] }
+            MemberExpression { Member.Name: var name, Expression: var instance }
+                when instance is not null && instance.UnwrapTypeConversion(out _) == targetParam
+                => entityType.FindProperty(name)
+                    ?? throw new InvalidOperationException(
+                        RelationalStrings.ExecuteMergePropertyNotFound(name, entityType.DisplayName())),
+            MethodCallExpression { Method.Name: "Property", Arguments: [var instance, ConstantExpression { Value: string shadowName }] }
+                when instance.UnwrapTypeConversion(out _) == targetParam
                 => entityType.FindProperty(shadowName)
                     ?? throw new InvalidOperationException(
                         RelationalStrings.ExecuteMergePropertyNotFound(shadowName, entityType.DisplayName())),
