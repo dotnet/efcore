@@ -3,7 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCInheritanceQueryHiLoSqlServerTest(TPCInheritanceQueryHiLoSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : TPCInheritanceQuerySqlServerTestBase<TPCInheritanceQueryHiLoSqlServerFixture>(fixture, testOutputHelper);

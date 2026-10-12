@@ -14,9 +14,9 @@ public class StringTranslationsCosmosTest : StringTranslationsTestBase<BasicType
 
     #region Equals
 
-    public override async Task Equals()
+    public override async Task Instance_Equals()
     {
-        await base.Equals();
+        await base.Instance_Equals();
 
         AssertSql(
             """
@@ -164,6 +164,18 @@ WHERE (INDEX_OF(c["String"], "e") != -1)
 """);
     }
 
+    public override async Task IndexOf_Char_with_non_ASCII_char()
+    {
+        await base.IndexOf_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["String"], "ş") = -1)
+""");
+    }
+
     public override async Task IndexOf_with_empty_string()
     {
         await base.IndexOf_with_empty_string();
@@ -257,10 +269,10 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
     }
 
     public override Task IndexOf_after_ToString()
-        => AssertTranslationFailed(() => base.IndexOf_after_ToString());
+        => AssertTranslationFailed(base.IndexOf_after_ToString);
 
     public override Task IndexOf_over_ToString()
-        => AssertTranslationFailed(() => base.IndexOf_over_ToString());
+        => AssertTranslationFailed(base.IndexOf_over_ToString);
 
     #endregion IndexOf
 
@@ -290,6 +302,18 @@ WHERE (REPLACE(c["String"], "S", "R") = "Reattle")
 """);
     }
 
+    public override async Task Replace_Char_with_non_ASCII_char()
+    {
+        await base.Replace_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (REPLACE(c["String"], "ş", "x") = c["String"])
+""");
+    }
+
     public override async Task Replace_with_empty_string()
     {
         await base.Replace_with_empty_string();
@@ -305,7 +329,7 @@ WHERE ((c["String"] != "") AND (REPLACE(c["String"], c["String"], "") = ""))
     public override async Task Replace_using_property_arguments()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Replace_using_property_arguments());
+        await AssertTranslationFailed(base.Replace_using_property_arguments);
 
         AssertSql();
     }
@@ -421,7 +445,7 @@ WHERE (CONTAINS(c["String"], "a") AND (SUBSTRING(c["String"], INDEX_OF(c["String
     public override async Task IsNullOrEmpty()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrEmpty());
+        await AssertTranslationFailed(base.IsNullOrEmpty);
 
         AssertSql();
     }
@@ -429,7 +453,7 @@ WHERE (CONTAINS(c["String"], "a") AND (SUBSTRING(c["String"], INDEX_OF(c["String
     public override async Task IsNullOrEmpty_negated()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrEmpty_negated());
+        await AssertTranslationFailed(base.IsNullOrEmpty_negated);
 
         AssertSql();
     }
@@ -437,7 +461,7 @@ WHERE (CONTAINS(c["String"], "a") AND (SUBSTRING(c["String"], INDEX_OF(c["String
     public override async Task IsNullOrWhiteSpace()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrWhiteSpace());
+        await AssertTranslationFailed(base.IsNullOrWhiteSpace);
 
         AssertSql();
     }
@@ -778,7 +802,7 @@ WHERE (LTRIM(c["String"]) = "Boston  ")
     public override async Task TrimStart_with_char_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_argument());
+        await AssertTranslationFailed(base.TrimStart_with_char_argument);
 
         AssertSql();
     }
@@ -786,7 +810,28 @@ WHERE (LTRIM(c["String"]) = "Boston  ")
     public override async Task TrimStart_with_char_array_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument());
+        await AssertTranslationFailed(base.TrimStart_with_char_array_argument);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_array_parameter);
 
         AssertSql();
     }
@@ -810,7 +855,7 @@ WHERE (RTRIM(c["String"]) = "  Boston")
     public override async Task TrimEnd_with_char_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_argument());
+        await AssertTranslationFailed(base.TrimEnd_with_char_argument);
 
         AssertSql();
     }
@@ -818,7 +863,28 @@ WHERE (RTRIM(c["String"]) = "  Boston")
     public override async Task TrimEnd_with_char_array_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument());
+        await AssertTranslationFailed(base.TrimEnd_with_char_array_argument);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_array_parameter);
 
         AssertSql();
     }
@@ -842,7 +908,7 @@ WHERE (TRIM(c["String"]) = "Boston")
     public override async Task Trim_with_char_argument_in_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate());
+        await AssertTranslationFailed(base.Trim_with_char_argument_in_predicate);
 
         AssertSql();
     }
@@ -850,7 +916,7 @@ WHERE (TRIM(c["String"]) = "Boston")
     public override async Task Trim_with_char_array_argument_in_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate());
+        await AssertTranslationFailed(base.Trim_with_char_array_argument_in_predicate);
 
         AssertSql();
     }
@@ -861,104 +927,442 @@ WHERE (TRIM(c["String"]) = "Boston")
 
     public override async Task Compare_simple_zero()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_zero());
+        await base.Compare_simple_zero();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) = 0)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) > 0)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 < IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) <= 0)
+""");
     }
 
     public override async Task Compare_simple_one()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_one());
+        await base.Compare_simple_one();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) = 1)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (-1 = IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) < 1)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (1 > IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) > -1)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (-1 < IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""");
     }
 
     public override async Task Compare_with_parameter()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_with_parameter());
+        await base.Compare_with_parameter();
 
         AssertSql(
             """
-ReadItem([1.0], 1)
-""");
+    ReadItem([1.0], 1)
+    """,
+            //
+            """
+    @basicTypeEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["String"] = @basicTypeEntity_String), 0, IIF((c["String"] > @basicTypeEntity_String), 1, IIF((c["String"] < @basicTypeEntity_String), -1, null))) = 1)
+    """,
+            //
+            """
+    @basicTypeEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (-1 = IIF((c["String"] = @basicTypeEntity_String), 0, IIF((c["String"] > @basicTypeEntity_String), 1, IIF((c["String"] < @basicTypeEntity_String), -1, null))))
+    """,
+            //
+            """
+    @basicTypeEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["String"] = @basicTypeEntity_String), 0, IIF((c["String"] > @basicTypeEntity_String), 1, IIF((c["String"] < @basicTypeEntity_String), -1, null))) < 1)
+    """,
+            //
+            """
+    @basicTypeEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (1 > IIF((c["String"] = @basicTypeEntity_String), 0, IIF((c["String"] > @basicTypeEntity_String), 1, IIF((c["String"] < @basicTypeEntity_String), -1, null))))
+    """,
+            //
+            """
+    @basicTypeEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["String"] = @basicTypeEntity_String), 0, IIF((c["String"] > @basicTypeEntity_String), 1, IIF((c["String"] < @basicTypeEntity_String), -1, null))) > -1)
+    """,
+            //
+            """
+    @basicTypeEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (-1 < IIF((c["String"] = @basicTypeEntity_String), 0, IIF((c["String"] > @basicTypeEntity_String), 1, IIF((c["String"] < @basicTypeEntity_String), -1, null))))
+    """);
     }
 
     public override async Task Compare_simple_more_than_one()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_more_than_one());
+        await base.Compare_simple_more_than_one();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) = 42)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) > 42)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (42 > IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""");
     }
 
     public override async Task Compare_nested()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_nested());
+        await base.Compare_nested();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = ("M" || c["String"])), 0, IIF((c["String"] > ("M" || c["String"])), 1, IIF((c["String"] < ("M" || c["String"])), -1, null))) = 0)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["String"] = LEFT(c["String"], 0)), 0, IIF((c["String"] > LEFT(c["String"], 0)), 1, IIF((c["String"] < LEFT(c["String"], 0)), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = REPLACE("Seattle", "Sea", c["String"])), 0, IIF((c["String"] > REPLACE("Seattle", "Sea", c["String"])), 1, IIF((c["String"] < REPLACE("Seattle", "Sea", c["String"])), -1, null))) > 0)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["String"] = ("M" || c["String"])), 0, IIF((c["String"] > ("M" || c["String"])), 1, IIF((c["String"] < ("M" || c["String"])), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (1 = IIF((c["String"] = LEFT(c["String"], 0)), 0, IIF((c["String"] > LEFT(c["String"], 0)), 1, IIF((c["String"] < LEFT(c["String"], 0)), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = REPLACE("Seattle", "Sea", c["String"])), 0, IIF((c["String"] > REPLACE("Seattle", "Sea", c["String"])), 1, IIF((c["String"] < REPLACE("Seattle", "Sea", c["String"])), -1, null))) = -1)
+""");
     }
 
     public override async Task Compare_multi_predicate()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_multi_predicate());
+        await base.Compare_multi_predicate();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) > -1) AND (IIF((c["String"] = "Toronto"), 0, IIF((c["String"] > "Toronto"), 1, IIF((c["String"] < "Toronto"), -1, null))) = -1))
+""");
     }
 
     public override async Task CompareTo_simple_zero()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_zero());
+        await base.CompareTo_simple_zero();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) = 0)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) > 0)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 < IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) <= 0)
+""");
     }
 
     public override async Task CompareTo_simple_one()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_one());
+        await base.CompareTo_simple_one();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) = 1)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (-1 = IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) < 1)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (1 > IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) > -1)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (-1 < IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""");
     }
 
     public override async Task CompareTo_with_parameter()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_with_parameter());
+        await base.CompareTo_with_parameter();
 
         AssertSql(
             """
-ReadItem([1.0], 1)
-""");
+    ReadItem([1.0], 1)
+    """,
+            //
+            """
+    @basicTypesEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["String"] = @basicTypesEntity_String), 0, IIF((c["String"] > @basicTypesEntity_String), 1, IIF((c["String"] < @basicTypesEntity_String), -1, null))) = 1)
+    """,
+            //
+            """
+    @basicTypesEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (-1 = IIF((c["String"] = @basicTypesEntity_String), 0, IIF((c["String"] > @basicTypesEntity_String), 1, IIF((c["String"] < @basicTypesEntity_String), -1, null))))
+    """,
+            //
+            """
+    @basicTypesEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["String"] = @basicTypesEntity_String), 0, IIF((c["String"] > @basicTypesEntity_String), 1, IIF((c["String"] < @basicTypesEntity_String), -1, null))) < 1)
+    """,
+            //
+            """
+    @basicTypesEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (1 > IIF((c["String"] = @basicTypesEntity_String), 0, IIF((c["String"] > @basicTypesEntity_String), 1, IIF((c["String"] < @basicTypesEntity_String), -1, null))))
+    """,
+            //
+            """
+    @basicTypesEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["String"] = @basicTypesEntity_String), 0, IIF((c["String"] > @basicTypesEntity_String), 1, IIF((c["String"] < @basicTypesEntity_String), -1, null))) > -1)
+    """,
+            //
+            """
+    @basicTypesEntity_String='Seattle'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (-1 < IIF((c["String"] = @basicTypesEntity_String), 0, IIF((c["String"] > @basicTypesEntity_String), 1, IIF((c["String"] < @basicTypesEntity_String), -1, null))))
+    """);
     }
 
     public override async Task CompareTo_simple_more_than_one()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_more_than_one());
+        await base.CompareTo_simple_more_than_one();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) = 42)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) > 42)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (42 > IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))))
+""");
     }
 
     public override async Task CompareTo_nested()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_nested());
+        await base.CompareTo_nested();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = ("M" || c["String"])), 0, IIF((c["String"] > ("M" || c["String"])), 1, IIF((c["String"] < ("M" || c["String"])), -1, null))) = 0)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["String"] = LEFT(c["String"], 0)), 0, IIF((c["String"] > LEFT(c["String"], 0)), 1, IIF((c["String"] < LEFT(c["String"], 0)), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = REPLACE("Seattle", "Sea", c["String"])), 0, IIF((c["String"] > REPLACE("Seattle", "Sea", c["String"])), 1, IIF((c["String"] < REPLACE("Seattle", "Sea", c["String"])), -1, null))) > 0)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["String"] = ("M" || c["String"])), 0, IIF((c["String"] > ("M" || c["String"])), 1, IIF((c["String"] < ("M" || c["String"])), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (1 = IIF((c["String"] = LEFT(c["String"], 0)), 0, IIF((c["String"] > LEFT(c["String"], 0)), 1, IIF((c["String"] < LEFT(c["String"], 0)), -1, null))))
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["String"] = REPLACE("Seattle", "Sea", c["String"])), 0, IIF((c["String"] > REPLACE("Seattle", "Sea", c["String"])), 1, IIF((c["String"] < REPLACE("Seattle", "Sea", c["String"])), -1, null))) = -1)
+""");
     }
 
     public override async Task Compare_to_multi_predicate()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_to_multi_predicate());
+        await base.Compare_to_multi_predicate();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, IIF((c["String"] < "Seattle"), -1, null))) > -1) AND (IIF((c["String"] = "Toronto"), 0, IIF((c["String"] > "Toronto"), 1, IIF((c["String"] < "Toronto"), -1, null))) = -1))
+""");
     }
 
     #endregion Compare
@@ -966,19 +1370,19 @@ ReadItem([1.0], 1)
     #region Join
 
     public override Task Join_over_non_nullable_column()
-        => AssertTranslationFailed(() => base.Join_over_non_nullable_column());
+        => AssertTranslationFailed(base.Join_over_non_nullable_column);
 
     public override Task Join_with_predicate()
-        => AssertTranslationFailed(() => base.Join_with_predicate());
+        => AssertTranslationFailed(base.Join_with_predicate);
 
     public override Task Join_with_ordering()
-        => AssertTranslationFailed(() => base.Join_with_ordering());
+        => AssertTranslationFailed(base.Join_with_ordering);
 
     public override Task Join_over_nullable_column()
-        => AssertTranslationFailed(() => base.Join_over_nullable_column());
+        => AssertTranslationFailed(base.Join_over_nullable_column);
 
     public override Task Join_non_aggregate()
-        => AssertTranslationFailed(() => base.Join_non_aggregate());
+        => AssertTranslationFailed(base.Join_non_aggregate);
 
     #endregion Join
 
@@ -997,7 +1401,7 @@ WHERE ((c["String"] || "Boston") = "SeattleBoston")
     }
 
     public override Task Concat_aggregate()
-        => AssertTranslationFailed(() => base.Concat_aggregate());
+        => AssertTranslationFailed(base.Concat_aggregate);
 
     public override async Task Concat_string_string_comparison()
     {
@@ -1015,35 +1419,57 @@ WHERE ((@i || c["String"]) = "ASeattle")
 
     public override async Task Concat_string_int_comparison1()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison1());
+        await base.Concat_string_int_comparison1();
 
-        AssertSql();
+        AssertSql(
+            """
+@i='10'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["String"] || ToString(@i)) = "Seattle10")
+""");
     }
 
     public override async Task Concat_string_int_comparison2()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison2());
+        await base.Concat_string_int_comparison2();
 
-        AssertSql();
+        AssertSql(
+            """
+@i='10'
+
+SELECT VALUE c
+FROM root c
+WHERE ((ToString(@i) || c["String"]) = "10Seattle")
+""");
     }
 
     public override async Task Concat_string_int_comparison3()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison3());
+        await base.Concat_string_int_comparison3();
 
-        AssertSql();
+        AssertSql(
+            """
+@p='30'
+@j='21'
+
+SELECT VALUE c
+FROM root c
+WHERE ((((ToString(@p) || c["String"]) || ToString(@j)) || ToString(42)) = "30Seattle2142")
+""");
     }
 
     public override async Task Concat_string_int_comparison4()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Concat_string_int_comparison4());
+        await base.Concat_string_int_comparison4();
 
         AssertSql(
-        );
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((ToString(c["Int"]) || c["String"]) = "8Seattle")
+""");
     }
 
     public override async Task Concat_method_comparison()
@@ -1147,7 +1573,7 @@ WHERE RegexMatch("Seattle", c["String"])
 """);
     }
 
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_None()
     //         => Fixture.NoSyncTest(
@@ -1165,7 +1591,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase()
     //         => Fixture.NoSyncTest(
@@ -1183,7 +1609,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_Multiline()
     //         => Fixture.NoSyncTest(
@@ -1201,7 +1627,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_Singleline()
     //         => Fixture.NoSyncTest(
@@ -1219,7 +1645,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnorePatternWhitespace()
     //         => Fixture.NoSyncTest(
@@ -1237,7 +1663,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_IgnorePatternWhitespace()
     //         => Fixture.NoSyncTest(
@@ -1256,7 +1682,7 @@ WHERE RegexMatch("Seattle", c["String"])
     // """);
     //             }
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_RightToLeft()
     //         => AssertTranslationFailed(
@@ -1264,7 +1690,7 @@ WHERE RegexMatch("Seattle", c["String"])
     //                 async,
     //                 ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft))));
     //
-    //     [ConditionalTheory]
+    //     [Theory]
     //     [MemberData(nameof(IsAsyncData))]
     //     public virtual Task Regex_IsMatch_with_RegexOptions_IgnoreCase_and_RightToLeft()
     //         => AssertTranslationFailed(
@@ -1275,7 +1701,7 @@ WHERE RegexMatch("Seattle", c["String"])
 
     #endregion Regex
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPHFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<TPHFiltersInheritanceQuerySqlServerFixture>
 {
     public TPHFiltersInheritanceQuerySqlServerTest(TPHFiltersInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -14,7 +12,7 @@ public class TPHFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTe
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public class StringTypeMapping : RelationalTypeMapping
+public class StringTypeMapping : RelationalTypeMapping<string>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

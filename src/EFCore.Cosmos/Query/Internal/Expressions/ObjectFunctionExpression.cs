@@ -102,8 +102,8 @@ public class ObjectFunctionExpression(string name, IEnumerable<Expression> argum
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ObjectFunctionExpression objectFunctionExpression
-                && Equals(objectFunctionExpression));
+                || (obj is ObjectFunctionExpression objectFunctionExpression
+                    && Equals(objectFunctionExpression)));
 
     private bool Equals(ObjectFunctionExpression objectFunctionExpression)
         => Name == objectFunctionExpression.Name

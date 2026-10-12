@@ -39,4 +39,22 @@ public interface INavigationExpansionExtensibilityHelper
     /// <param name="first">The first query root.</param>
     /// <param name="second">The second query root.</param>
     bool AreQueryRootsCompatible(EntityQueryRootExpression? first, EntityQueryRootExpression? second);
+
+    /// <summary>
+    ///     Whether navigation expansion may add joins to a source to translate aggregates over
+    ///     reference navigations inside a GroupBy result selector into the grouped query, instead
+    ///     of a correlated subquery per group. Providers that do not support joins must return
+    ///     <see langword="false" />.
+    /// </summary>
+    bool SupportsNavigationExpansionJoins
+        => false;
+
+    /// <summary>
+    ///     Whether navigation expansion may lift a single-result subquery that is read more than once in a projection
+    ///     into a single join. When the subquery's correlation cannot be converted to a regular join, the lifted join
+    ///     requires <c>OUTER APPLY</c> or <c>LATERAL</c>, so providers that cannot translate those must return
+    ///     <see langword="false" />.
+    /// </summary>
+    bool SupportsSingleResultLifting
+        => false;
 }

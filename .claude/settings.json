@@ -1,0 +1,27 @@
+{
+  "extraKnownMarketplaces": {
+    "dotnet-arcade-skills": {
+      "source": {
+        "source": "github",
+        "repo": "dotnet/arcade-skills"
+      }
+    },
+    "dotnet-skills": {
+      "source": {
+        "source": "github",
+        "repo": "dotnet/skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "dotnet-dnceng@dotnet-arcade-skills": true,
+    "dotnet-helix@dotnet-arcade-skills": true,
+    "dotnet-codeflow@dotnet-arcade-skills": true,
+    "dotnet@dotnet-skills": true,
+    "dotnet-test@dotnet-skills": true,
+    "dotnet-diag@dotnet-skills": true,
+    "dotnet-msbuild@dotnet-skills": true,
+    "dotnet-nuget@dotnet-skills": true,
+    "microsoft-docs@claude-plugins-official": true
+  }
+}

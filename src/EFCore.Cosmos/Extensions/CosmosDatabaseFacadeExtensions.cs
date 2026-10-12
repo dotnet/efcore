@@ -30,7 +30,7 @@ public static class CosmosDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>See https://aka.ms/efcore-docs-cosmos-session for more information.</remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <returns>The session token for the default container in the context, or <see langword="null"/> if none present.</returns>
+    /// <returns>The session token for the default container in the context, or <see langword="null" /> if none present.</returns>
     public static string? GetSessionToken(this DatabaseFacade databaseFacade)
         => GetSessionTokenStorage(databaseFacade).GetDefaultContainerTrackedToken();
 
@@ -53,7 +53,8 @@ public static class CosmosDatabaseFacadeExtensions
         => GetSessionTokenStorage(databaseFacade).SetDefaultContainerSessionToken(sessionToken);
 
     /// <summary>
-    ///     Sets the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in <paramref name="sessionTokens"/>.
+    ///     Sets the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in
+    ///     <paramref name="sessionTokens" />.
     /// </summary>
     /// <remarks>See https://aka.ms/efcore-docs-cosmos-session for more information.</remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -75,7 +76,8 @@ public static class CosmosDatabaseFacadeExtensions
         => GetSessionTokenStorage(databaseFacade).AppendDefaultContainerSessionToken(sessionToken);
 
     /// <summary>
-    ///     Appends the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in <paramref name="sessionTokens"/>.
+    ///     Appends the composite sessions token per container for this <see cref="DbContext" /> with the tokens specified in
+    ///     <paramref name="sessionTokens" />.
     /// </summary>
     /// <remarks>See https://aka.ms/efcore-docs-cosmos-session for more information.</remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -90,24 +92,16 @@ public static class CosmosDatabaseFacadeExtensions
     private static ISessionTokenStorage GetSessionTokenStorage(DatabaseFacade databaseFacade)
     {
         var db = GetService<IDatabase>(databaseFacade);
-        if (db is not CosmosDatabaseWrapper dbWrapper)
-        {
-            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
-        }
-
-        return dbWrapper.SessionTokenStorage;
+        return db is not CosmosDatabaseWrapper dbWrapper
+            ? throw new InvalidOperationException(CosmosStrings.CosmosNotInUse)
+            : dbWrapper.SessionTokenStorage;
     }
 
     private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
         where TService : class
     {
         var service = databaseFacade.GetService<TService>();
-        if (service == null)
-        {
-            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
-        }
-
-        return service;
+        return service ?? throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
     }
 
     /// <summary>
@@ -121,12 +115,7 @@ public static class CosmosDatabaseFacadeExtensions
     public static string GetCosmosDatabaseId(this DatabaseFacade databaseFacade)
     {
         var cosmosOptions = databaseFacade.GetService<IDbContextOptions>().FindExtension<CosmosOptionsExtension>();
-        if (cosmosOptions == null)
-        {
-            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
-        }
-
-        return cosmosOptions.DatabaseName;
+        return cosmosOptions == null ? throw new InvalidOperationException(CosmosStrings.CosmosNotInUse) : cosmosOptions.DatabaseName;
     }
 
     /// <summary>

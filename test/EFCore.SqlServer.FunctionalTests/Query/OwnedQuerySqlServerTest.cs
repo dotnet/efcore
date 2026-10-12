@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<OwnedQuerySqlServerTest.OwnedQuerySqlServerFixture>
 {
     public OwnedQuerySqlServerTest(OwnedQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -30,7 +28,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o3] ON [o2].[ClientId] = [o3].[OrderClientId] AND [o2].[Id] = [o3].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE 0 = 1
-ORDER BY [o].[Id], [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -53,7 +51,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o3] ON [o2].[ClientId] = [o3].[OrderClientId] AND [o2].[Id] = [o3].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE 0 = 1
-ORDER BY [o].[Id], [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -76,7 +74,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o3] ON [o2].[ClientId] = [o3].[OrderClientId] AND [o2].[Id] = [o3].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE 0 = 1
-ORDER BY [o].[Id], [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -94,7 +92,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -123,7 +121,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -141,7 +139,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -159,7 +157,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -185,7 +183,7 @@ LEFT JOIN (
     FROM [Order] AS [o1]
     LEFT JOIN [OrderDetail] AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
 ) AS [s] ON [o3].[Id] = [s].[ClientId]
-ORDER BY [o3].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o3].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -239,7 +237,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[PersonAddress_Country_Name] = N'USA'
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -260,7 +258,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Order] AS [o0]
     WHERE [o].[Id] = [o0].[ClientId])
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -306,7 +304,7 @@ SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id], [o1].[OrderClient
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o1].[OrderClientId], [o1].[OrderId]
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id]
 """);
     }
 
@@ -340,7 +338,7 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 
         AssertSql(
             """
-SELECT [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail]
+SELECT [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
@@ -349,7 +347,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [p].[Id] <> 42 OR [p].[Id] IS NULL
-ORDER BY [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -359,7 +357,7 @@ ORDER BY [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].
 
         AssertSql(
             """
-SELECT [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Name], [p].[StarId]
+SELECT [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Id], [p].[Name], [p].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
@@ -367,7 +365,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
-ORDER BY [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -396,7 +394,7 @@ ORDER BY [o].[Id]
 
         AssertSql(
             """
-SELECT [o].[Id], [o].[Discriminator], [o].[Name], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
@@ -405,7 +403,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [p].[Id] <> 7 OR [p].[Id] IS NULL
-ORDER BY [o].[Id], [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -427,11 +425,11 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 
         AssertSql(
             """
-SELECT [o].[Id], [p].[Id], [m].[Id], [m].[Diameter], [m].[PlanetId]
+SELECT [o].[Id], [m].[Id], [m].[Diameter], [m].[PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
-ORDER BY [o].[Id], [p].[Id]
+ORDER BY [o].[Id]
 """);
     }
 
@@ -468,12 +466,12 @@ INNER JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
 
         AssertSql(
             """
-SELECT [s].[Id], [s].[Name], [o].[Id], [p].[Id], [e].[Id], [e].[Name], [e].[StarId]
+SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-ORDER BY [o].[Id], [p].[Id], [s].[Id]
+ORDER BY [o].[Id]
 """);
     }
 
@@ -499,13 +497,13 @@ LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 
         AssertSql(
             """
-SELECT [s].[Id], [s].[Name], [o].[Id], [p].[Id], [e].[Id], [e].[Name], [e].[StarId]
+SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
 WHERE [s].[Name] = N'Sol'
-ORDER BY [o].[Id], [p].[Id], [s].[Id]
+ORDER BY [o].[Id]
 """);
     }
 
@@ -523,7 +521,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -550,7 +548,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o3].[Id] = [s].[ClientId]
-ORDER BY [o3].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o3].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -568,7 +566,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -592,7 +590,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o2].[Id] = [s].[ClientId]
-ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -615,7 +613,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o2].[Id] = [s].[ClientId]
-ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -640,7 +638,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o2].[Id] = [s].[ClientId]
-ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -664,7 +662,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o2].[Id] = [s].[ClientId]
-ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -687,7 +685,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o2].[Id] = [s].[ClientId]
-ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -712,7 +710,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o2].[Id] = [s].[ClientId]
-ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -730,7 +728,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]
 """);
     }
 
@@ -748,7 +746,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]
 """);
     }
 
@@ -766,7 +764,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]
 """);
     }
 
@@ -784,7 +782,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]
 """);
     }
 
@@ -802,7 +800,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]
 """);
     }
 
@@ -820,7 +818,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -905,7 +903,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
-ORDER BY [o].[Name], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Name], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1170,27 +1168,25 @@ ORDER BY [o5].[Id], [o2].[ClientId], [o2].[Id]
 
         AssertSql(
             """
-SELECT [o].[Id], [p].[Id], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Name], [p].[StarId]
+SELECT [o].[Id], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Id], [p].[Name], [p].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-ORDER BY [o].[Id], [p].[Id]
+ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o].[Id], [p].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
-LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
-ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] AS [o]
-LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
 INNER JOIN [OrderDetail] AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
-ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1200,18 +1196,17 @@ ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 
         AssertSql(
             """
-SELECT [o].[Id], [p].[Id]
+SELECT [o].[Id]
 FROM [OwnedPerson] AS [o]
-LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-ORDER BY [o].[Id], [p].[Id]
+ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [m].[Id], [m].[Diameter], [m].[PlanetId], [o].[Id], [p].[Id]
+SELECT [m].[Id], [m].[Diameter], [m].[PlanetId], [o].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 INNER JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
-ORDER BY [o].[Id], [p].[Id]
+ORDER BY [o].[Id]
 """);
     }
 
@@ -1320,7 +1315,7 @@ SELECT (
     LEFT JOIN [Planet] AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
     LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
     WHERE [o0].[Key] = [o1].[Key]) AS [p1], (
-    SELECT COALESCE(SUM([s0].[Id]), 0)
+    SELECT ISNULL(SUM([s0].[Id]), 0)
     FROM (
         SELECT 1 AS [Key], [o4].[PersonAddress_Country_PlanetId]
         FROM [OwnedPerson] AS [o4]
@@ -1357,7 +1352,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
-ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1380,7 +1375,7 @@ LEFT JOIN (
     FROM [Order] AS [o3]
     LEFT JOIN [OrderDetail] AS [o4] ON [o3].[ClientId] = [o4].[OrderClientId] AND [o3].[Id] = [o4].[OrderId]
 ) AS [s] ON [m].[Id] = [s].[ClientId]
-ORDER BY [m].[Id], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [m].[Id], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1391,11 +1386,11 @@ ORDER BY [m].[Id], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [s].[ClientId], [s
 
         AssertSql(
             """
-SELECT [b].[Throned_Value], [f].[Id], [b].[Id], [p].[Id], [p].[Name], [p].[StarId]
+SELECT [b].[Throned_Value], [f].[Id], [p].[Id], [p].[Name], [p].[StarId]
 FROM [Fink] AS [f]
 LEFT JOIN [Barton] AS [b] ON [f].[BartonId] = [b].[Id]
 LEFT JOIN [Planet] AS [p] ON [b].[Throned_Value] <> [p].[Id] OR [b].[Throned_Value] IS NULL
-ORDER BY [f].[Id], [b].[Id]
+ORDER BY [f].[Id]
 """);
     }
 
@@ -1413,7 +1408,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[PersonAddress_ZipCode] = 38654
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1431,7 +1426,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s] ON [o].[Id] = [s].[ClientId]
 WHERE [o].[PersonAddress_ZipCode] = 38654
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1467,7 +1462,7 @@ LEFT JOIN (
     FROM [Order] AS [o2]
     LEFT JOIN [OrderDetail] AS [o3] ON [o2].[ClientId] = [o3].[OrderClientId] AND [o2].[Id] = [o3].[OrderId]
 ) AS [s0] ON [o].[Id] = [s0].[ClientId]
-ORDER BY [p].[Id], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [s0].[OrderId]
+ORDER BY [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [s0].[OrderId], [s0].[Id0]
 """);
     }
 
@@ -1480,7 +1475,7 @@ ORDER BY [p].[Id], [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].
 SELECT [p].[Id], [p].[Name], [p].[StarId], [s].[Id], [s].[Name], [s].[StarId], [s].[Id0], [s].[Discriminator], [s].[Name0], [s0].[ClientId], [s0].[Id], [s0].[OrderDate], [s0].[OrderClientId], [s0].[OrderId], [s0].[Id0], [s0].[Detail], [s].[PersonAddress_AddressLine], [s].[PersonAddress_PlaceType], [s].[PersonAddress_ZipCode], [s].[PersonAddress_Country_Name], [s].[PersonAddress_Country_PlanetId], [s].[BranchAddress_BranchName], [s].[BranchAddress_PlaceType], [s].[BranchAddress_Country_Name], [s].[BranchAddress_Country_PlanetId], [s].[LeafBAddress_LeafBType], [s].[LeafBAddress_PlaceType], [s].[LeafBAddress_Country_Name], [s].[LeafBAddress_Country_PlanetId], [s].[LeafAAddress_LeafType], [s].[LeafAAddress_PlaceType], [s].[LeafAAddress_Country_Name], [s].[LeafAAddress_Country_PlanetId]
 FROM [Planet] AS [p]
 LEFT JOIN (
-    SELECT DISTINCT [p0].[Id], [p0].[Name], [p0].[StarId], [o].[Id] AS [Id0], [o].[Discriminator], [o].[Name] AS [Name0], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+    SELECT DISTINCT [p0].[Id], [p0].[Name], [p0].[StarId], [o].[Id] AS [Id0], [o].[Discriminator], [o].[Name] AS [Name0], 1 AS [marker], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [Planet] AS [p0]
     LEFT JOIN [OwnedPerson] AS [o] ON [p0].[Id] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[Id0]
@@ -1489,7 +1484,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [s0] ON [s].[Id0] = [s0].[ClientId]
-ORDER BY [p].[Id], [s].[Id], [s].[Id0], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [s0].[OrderId]
+ORDER BY [p].[Id], [s].[Id], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [s0].[OrderId], [s0].[Id0]
 """);
     }
 
@@ -1499,12 +1494,217 @@ ORDER BY [p].[Id], [s].[Id], [s].[Id0], [s0].[ClientId], [s0].[Id], [s0].[OrderC
 
         AssertSql(
             """
-SELECT [o].[Id] AS [Key], (
-    SELECT COALESCE(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
-    FROM [OwnedPerson] AS [o0]
-    WHERE [o].[Id] = [o0].[Id]) AS [Sum]
+SELECT [o].[Id] AS [Key], ISNULL(SUM([o].[PersonAddress_Country_PlanetId]), 0) AS [Sum]
 FROM [OwnedPerson] AS [o]
 GROUP BY [o].[Id]
+""");
+    }
+
+    public override async Task GroupBy_multiple_aggregates_on_owned_navigation(bool async)
+    {
+        await base.GroupBy_multiple_aggregates_on_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], ISNULL(SUM([o0].[PersonAddress_ZipCode]), 0) AS [Sum], MIN([o0].[PersonAddress_ZipCode]) AS [Min], MAX([o0].[PersonAddress_ZipCode]) AS [Max], AVG(CAST([o0].[PersonAddress_ZipCode] AS float)) AS [Average], ISNULL(SUM([o0].[PersonAddress_Country_PlanetId]), 0) AS [Nested]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key], [o].[PersonAddress_Country_PlanetId]
+    FROM [OwnedPerson] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_count_with_predicate_on_owned_navigation(bool async)
+    {
+        await base.GroupBy_count_with_predicate_on_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], COUNT(*) AS [Total], COUNT(CASE
+    WHEN [o0].[PersonAddress_ZipCode] > 19000 THEN 1
+END) AS [Filtered]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], ISNULL(SUM(CASE
+    WHEN [o0].[PersonAddress_ZipCode] > 19000 THEN [o0].[PersonAddress_ZipCode]
+END), 0) AS [Sum]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_ordered_aggregate_on_owned_navigation(bool async)
+    {
+        await base.GroupBy_ordered_aggregate_on_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [o1].[Id]
+    FROM (
+        SELECT [o2].[Id], [o2].[PersonAddress_ZipCode], CASE
+            WHEN [o2].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END AS [Key]
+        FROM [OwnedPerson] AS [o2]
+    ) AS [o1]
+    WHERE [o0].[Key] = [o1].[Key] OR ([o0].[Key] IS NULL AND [o1].[Key] IS NULL)
+    ORDER BY [o1].[PersonAddress_ZipCode] DESC)
+FROM (
+    SELECT CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_navigation_reached_through_owned_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_on_navigation_reached_through_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [s].[Key], ISNULL(SUM([s].[PersonAddress_ZipCode]), 0) AS [Sum], MAX([s].[Name0]) AS [Planet]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], [p].[Name] AS [Name0], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] AS [o]
+    LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
+) AS [s]
+GROUP BY [s].[Key]
+""");
+    }
+
+    public override async Task GroupBy_first_entity_ordered_by_owned_navigation(bool async)
+    {
+        await base.GroupBy_first_entity_ordered_by_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o7].[Id], [o7].[Discriminator], [o7].[Name], [o5].[Key], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [o7].[PersonAddress_AddressLine], [o7].[PersonAddress_PlaceType], [o7].[PersonAddress_ZipCode], [o7].[PersonAddress_Country_Name], [o7].[PersonAddress_Country_PlanetId], [o7].[BranchAddress_BranchName], [o7].[BranchAddress_PlaceType], [o7].[BranchAddress_Country_Name], [o7].[BranchAddress_Country_PlanetId], [o7].[LeafBAddress_LeafBType], [o7].[LeafBAddress_PlaceType], [o7].[LeafBAddress_Country_Name], [o7].[LeafBAddress_Country_PlanetId], [o7].[LeafAAddress_LeafType], [o7].[LeafAAddress_PlaceType], [o7].[LeafAAddress_Country_Name], [o7].[LeafAAddress_Country_PlanetId]
+FROM (
+    SELECT [o0].[Key]
+    FROM (
+        SELECT CASE
+            WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END AS [Key]
+        FROM [OwnedPerson] AS [o]
+    ) AS [o0]
+    GROUP BY [o0].[Key]
+) AS [o5]
+LEFT JOIN (
+    SELECT [o6].[Id], [o6].[Discriminator], [o6].[Name], [o6].[PersonAddress_AddressLine], [o6].[PersonAddress_PlaceType], [o6].[PersonAddress_ZipCode], [o6].[PersonAddress_Country_Name], [o6].[PersonAddress_Country_PlanetId], [o6].[BranchAddress_BranchName], [o6].[BranchAddress_PlaceType], [o6].[BranchAddress_Country_Name], [o6].[BranchAddress_Country_PlanetId], [o6].[LeafBAddress_LeafBType], [o6].[LeafBAddress_PlaceType], [o6].[LeafBAddress_Country_Name], [o6].[LeafBAddress_Country_PlanetId], [o6].[LeafAAddress_LeafType], [o6].[LeafAAddress_PlaceType], [o6].[LeafAAddress_Country_Name], [o6].[LeafAAddress_Country_PlanetId], [o6].[Key]
+    FROM (
+        SELECT [o1].[Id], [o1].[Discriminator], [o1].[Name], [o1].[PersonAddress_AddressLine], [o1].[PersonAddress_PlaceType], [o1].[PersonAddress_ZipCode], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o1].[BranchAddress_BranchName], [o1].[BranchAddress_PlaceType], [o1].[BranchAddress_Country_Name], [o1].[BranchAddress_Country_PlanetId], [o1].[LeafBAddress_LeafBType], [o1].[LeafBAddress_PlaceType], [o1].[LeafBAddress_Country_Name], [o1].[LeafBAddress_Country_PlanetId], [o1].[LeafAAddress_LeafType], [o1].[LeafAAddress_PlaceType], [o1].[LeafAAddress_Country_Name], [o1].[LeafAAddress_Country_PlanetId], [o1].[Key], ROW_NUMBER() OVER(PARTITION BY [o1].[Key] ORDER BY [o1].[PersonAddress_ZipCode] DESC) AS [row]
+        FROM (
+            SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PersonAddress_AddressLine], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], CASE
+                WHEN [o2].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+                ELSE CAST(0 AS bit)
+            END AS [Key], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
+            FROM [OwnedPerson] AS [o2]
+        ) AS [o1]
+    ) AS [o6]
+    WHERE [o6].[row] <= 1
+) AS [o7] ON [o5].[Key] = [o7].[Key]
+LEFT JOIN (
+    SELECT [o3].[ClientId], [o3].[Id], [o3].[OrderDate], [o4].[OrderClientId], [o4].[OrderId], [o4].[Id] AS [Id0], [o4].[Detail]
+    FROM [Order] AS [o3]
+    LEFT JOIN [OrderDetail] AS [o4] ON [o3].[ClientId] = [o4].[OrderClientId] AND [o3].[Id] = [o4].[OrderId]
+) AS [s] ON [o7].[Id] = [s].[ClientId]
+ORDER BY [o5].[Key], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_in_having(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], COUNT(*) AS [Count]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+HAVING ISNULL(SUM([o0].[PersonAddress_ZipCode]), 0) > 50000
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_collection_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_collection_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], ISNULL(SUM([s].[value]), 0) AS [Sum]
+FROM (
+    SELECT [o].[Id], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] AS [o]
+) AS [o0]
+OUTER APPLY (
+    SELECT COUNT(*) AS [value]
+    FROM [Order] AS [o1]
+    WHERE [o0].[Id] = [o1].[ClientId]
+) AS [s]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_optional_owned_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_on_optional_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [b0].[Key], ISNULL(SUM([b0].[Throned_Value]), 0) AS [Sum], COUNT(CASE
+    WHEN [b0].[Throned_Value] > 40 THEN 1
+END) AS [Above]
+FROM (
+    SELECT CASE
+        WHEN [b].[Simple] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key], [b].[Throned_Value]
+    FROM [Barton] AS [b]
+) AS [b0]
+GROUP BY [b0].[Key]
 """);
     }
 
@@ -1525,7 +1725,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o0]
     WHERE [o].[Id] = [o0].[ClientId]) = 2
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1546,7 +1746,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Order] AS [o0]
     WHERE [o].[Id] = [o0].[ClientId])
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1567,7 +1767,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Order] AS [o0]
     WHERE [o].[Id] = [o0].[ClientId] AND [o0].[Id] = -30)
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1611,7 +1811,7 @@ WHERE (
     WHERE [o].[Id] = [o0].[ClientId]
     ORDER BY [o0].[Id]
     OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) = -10
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1649,7 +1849,7 @@ WHERE (
         FROM [Order] AS [o0]
         WHERE [o].[Id] = [o0].[ClientId]
     ) AS [o1]) = 2
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 
@@ -1677,7 +1877,7 @@ WHERE (
         FROM [Order] AS [o1]
         WHERE [o].[Id] = [o1].[ClientId] AND [o1].[Id] = -11
     ) AS [u]) = 2
-ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
+ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
 """);
     }
 

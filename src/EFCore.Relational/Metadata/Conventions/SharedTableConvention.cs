@@ -53,50 +53,58 @@ public class SharedTableConvention : IModelFinalizingConvention
         var checkConstraints = new Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)>();
         var defaultConstraints = new Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)>();
         var triggers = new Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)>();
-        foreach (var ((tableName, schema), conventionEntityTypes) in tables)
+        foreach (var schemaGroup in tables.GroupBy(t => t.Key.Schema).OrderBy(g => g.Key))
         {
-            columns.Clear();
-
-            if (!KeysUniqueAcrossTables)
+            if (!KeysUniqueAcrossSchemas)
             {
                 keys.Clear();
             }
 
-            if (!ForeignKeysUniqueAcrossTables)
+            foreach (var ((tableName, schema), conventionEntityTypes) in schemaGroup.OrderBy(t => t.Key.TableName))
             {
-                foreignKeys.Clear();
-            }
+                columns.Clear();
 
-            if (!IndexesUniqueAcrossTables)
-            {
-                indexes.Clear();
-            }
+                if (!KeysUniqueAcrossTables)
+                {
+                    keys.Clear();
+                }
 
-            if (!CheckConstraintsUniqueAcrossTables)
-            {
-                checkConstraints.Clear();
-            }
+                if (!ForeignKeysUniqueAcrossTables)
+                {
+                    foreignKeys.Clear();
+                }
 
-            if (!DefaultConstraintsUniqueAcrossTables)
-            {
-                defaultConstraints.Clear();
-            }
+                if (!IndexesUniqueAcrossTables)
+                {
+                    indexes.Clear();
+                }
 
-            if (!TriggersUniqueAcrossTables)
-            {
-                triggers.Clear();
-            }
+                if (!CheckConstraintsUniqueAcrossTables)
+                {
+                    checkConstraints.Clear();
+                }
 
-            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
-            foreach (var entityType in conventionEntityTypes)
-            {
-                UniquifyColumnNames(entityType, columns, storeObject, maxLength);
-                UniquifyKeyNames(entityType, keys, storeObject, maxLength);
-                UniquifyForeignKeyNames(entityType, foreignKeys, storeObject, maxLength);
-                UniquifyIndexNames(entityType, indexes, storeObject, maxLength);
-                UniquifyCheckConstraintNames(entityType, checkConstraints, storeObject, maxLength);
-                UniquifyDefaultConstraintNames(entityType, defaultConstraints, storeObject, maxLength);
-                UniquifyTriggerNames(entityType, triggers, storeObject, maxLength);
+                if (!DefaultConstraintsUniqueAcrossTables)
+                {
+                    defaultConstraints.Clear();
+                }
+
+                if (!TriggersUniqueAcrossTables)
+                {
+                    triggers.Clear();
+                }
+
+                var storeObject = StoreObjectIdentifier.Table(tableName, schema);
+                foreach (var entityType in conventionEntityTypes)
+                {
+                    UniquifyColumnNames(entityType, columns, storeObject, maxLength);
+                    UniquifyKeyNames(entityType, keys, storeObject, maxLength);
+                    UniquifyForeignKeyNames(entityType, foreignKeys, storeObject, maxLength);
+                    UniquifyIndexNames(entityType, indexes, storeObject, maxLength);
+                    UniquifyCheckConstraintNames(entityType, checkConstraints, storeObject, maxLength);
+                    UniquifyDefaultConstraintNames(entityType, defaultConstraints, storeObject, maxLength);
+                    UniquifyTriggerNames(entityType, triggers, storeObject, maxLength);
+                }
             }
         }
     }
@@ -106,6 +114,12 @@ public class SharedTableConvention : IModelFinalizingConvention
     /// </summary>
     protected virtual bool KeysUniqueAcrossTables
         => false;
+
+    /// <summary>
+    ///     Gets a value indicating whether key names should be unique across schemas.
+    /// </summary>
+    protected virtual bool KeysUniqueAcrossSchemas
+        => true;
 
     /// <summary>
     ///     Gets a value indicating whether foreign key names should be unique across tables.
@@ -181,11 +195,11 @@ public class SharedTableConvention : IModelFinalizingConvention
                 }
 
                 clashingTables ??=
-                    new Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>();
+                    [];
 
                 if (!clashingTables.TryGetValue(table, out var clashingSubTables))
                 {
-                    clashingSubTables = new Dictionary<(string Name, string? Schema), List<IConventionEntityType>>();
+                    clashingSubTables = [];
                     clashingTables[table] = clashingSubTables;
                 }
 
@@ -322,8 +336,8 @@ public class SharedTableConvention : IModelFinalizingConvention
             return prefix == otherType.ShortName()
                 && type is IComplexType complexType
                 && otherType is IComplexType othertComplexType
-                ? CreatePrefix(complexType.ComplexProperty.DeclaringType, othertComplexType.ComplexProperty.DeclaringType)
-                : prefix;
+                    ? CreatePrefix(complexType.ComplexProperty.DeclaringType, othertComplexType.ComplexProperty.DeclaringType)
+                    : prefix;
         }
     }
 

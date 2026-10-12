@@ -3,10 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
-#nullable disable
-
 public class ComplexNavigationGlobalization
 {
-    public string Text { get; set; }
-    public ComplexNavigationLanguage Language { get; set; }
+    public string Text { get; set; } = null!;
+    public ComplexNavigationLanguage? Language { get; set; }
 }

@@ -7,39 +7,37 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
     : AssociationsProjectionTestBase<TFixture>(fixture)
     where TFixture : ComplexPropertiesFixtureBase, new()
 {
+    public override bool AssertQueryTrackingBehaviour
+        => false;
+
     #region Value types
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_root_with_value_types(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<ValueRootEntity>(),
             queryTrackingBehavior: queryTrackingBehavior);
 
-
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_non_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.RequiredAssociate),
             assertOrder: true,
             queryTrackingBehavior: queryTrackingBehavior);
 
-
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate),
             assertOrder: true,
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory]
-    [MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_nullable_value_type_with_Value(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.Value),
-            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate == null ? default : x.OptionalAssociate!.Value),
+            ss => ss.Set<ValueRootEntity>().OrderBy(e => e.Id)
+                .Select(x => x.OptionalAssociate == null ? default : x.OptionalAssociate!.Value),
             assertOrder: true,
             queryTrackingBehavior: queryTrackingBehavior);
 

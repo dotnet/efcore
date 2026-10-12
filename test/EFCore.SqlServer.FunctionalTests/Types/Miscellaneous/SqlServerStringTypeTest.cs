@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 
 public class SqlServerStringTypeTest(SqlServerStringTypeTest.StringTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -14,7 +16,7 @@ public class SqlServerStringTypeTest(SqlServerStringTypeTest.StringTypeFixture f
             """
 @Fixture_Value='foo' (Size = 4000)
 
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = @Fixture_Value
 """);
@@ -26,9 +28,26 @@ WHERE [t].[Value] = @Fixture_Value
 
         AssertSql(
             """
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = N'foo'
+""");
+    }
+
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+
+        AssertSql(
+            """
+@value='foo' (Size = 4000)
+
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
+FROM [TypeEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[ArrayValue]) WITH ([value] nvarchar(max) '$') AS [a]
+    WHERE [a].[value] = @value) = 2
 """);
     }
 
@@ -106,6 +125,7 @@ WHERE [Id] = @p1;
                 """
 @Fixture_OtherValue='bar' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -117,6 +137,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 @Fixture_OtherValue='bar' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -132,6 +153,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', N'bar')
 FROM [JsonTypeEntity] AS [j]
@@ -141,6 +163,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'bar')
 FROM [JsonTypeEntity] AS [j]
@@ -156,6 +179,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING nvarchar(max)))
 FROM [JsonTypeEntity] AS [j]
@@ -165,6 +189,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue'))
 FROM [JsonTypeEntity] AS [j]
@@ -172,13 +197,13 @@ FROM [JsonTypeEntity] AS [j]
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    // TODO: Currently failing on Helix only, see #36746
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // TODO: Currently failing on Helix only, see #36746
-        if (Environment.GetEnvironmentVariable("HELIX_WORKITEM_ROOT") is not null)
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
         {
-            return;
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
         }
 
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -187,6 +212,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', [j].[OtherValue])
 FROM [JsonTypeEntity] AS [j]
@@ -196,6 +222,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue])
 FROM [JsonTypeEntity] AS [j]
@@ -211,8 +238,7 @@ FROM [JsonTypeEntity] AS [j]
         public override string OtherValue { get; } = "bar";
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }
-

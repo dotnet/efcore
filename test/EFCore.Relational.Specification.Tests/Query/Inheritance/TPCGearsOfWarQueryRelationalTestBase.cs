@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public abstract class TPCGearsOfWarQueryRelationalTestBase<TFixture>(TFixture fixture)
     : GearsOfWarQueryRelationalTestBase<TFixture>(fixture)
     where TFixture : TPCGearsOfWarQueryRelationalFixture, new()

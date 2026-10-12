@@ -31,17 +31,14 @@ public class RelationalParameterProcessor : ExpressionVisitor
     ///     <see cref="ISqlGenerationHelper.GenerateParameterName(string)" /> (i.e. they're prefixed), since
     ///     <see cref="DbParameter.ParameterName" /> can be prefixed or not.
     /// </summary>
-    private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _prefixedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
 
-    private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = new();
+    private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = [];
 
     private Dictionary<DbParameter, RawRelationalParameter>? _processedDbParameters;
 
     private ParametersCacheDecorator _parametersDecorator;
     private ParameterNameGenerator _parameterNameGenerator;
-
-    private static readonly bool UseOldBehavior37189 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37189", out var enabled37189) && enabled37189;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -120,10 +117,10 @@ public class RelationalParameterProcessor : ExpressionVisitor
         if (_sqlParameters.TryGetValue(parameter.InvariantName, out var existingParameter)
             && existingParameter is { TypeMapping: { } existingTypeMapping }
             && string.Equals(existingTypeMapping.StoreType, typeMapping.StoreType, StringComparison.OrdinalIgnoreCase)
-            && (existingTypeMapping.Converter is null && typeMapping.Converter is null
-                || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)))
+            && ((existingTypeMapping.Converter is null && typeMapping.Converter is null)
+                || (existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter))))
         {
-            return UseOldBehavior37189 ? parameter : existingParameter;
+            return existingParameter;
         }
 
         var uniquifiedName = UniquifyParameterName(parameter.Name);

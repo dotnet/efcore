@@ -60,7 +60,6 @@ WHERE [Id] = @p0;
 """);
     }
 
-
     public override async Task Modify_element_in_complex_collection_mapped_to_json()
     {
         await base.Modify_element_in_complex_collection_mapped_to_json();
@@ -340,6 +339,57 @@ WHERE [Id] = @p1;
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Companies] SET [Department] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Set_nullable_complex_property_with_nested_collection_to_null()
+    {
+        await base.Set_nullable_complex_property_with_nested_collection_to_null();
+
+        AssertSql(
+            """
+@p0='[{"Name":"Item1","Meta":null}]' (Nullable = false) (Size = 30)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [EntitiesWithNullableMeta] SET [Items] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Save_changes_after_loading_row_with_complex_collection_absent_from_json()
+    {
+        await base.Save_changes_after_loading_row_with_complex_collection_absent_from_json();
+
+        AssertSql(
+            """
+@p0='{"Mid":{"Items":[{"Title":"Item1-updated","Inner":[{"Value":"inner-0"}],"Others":[]}]}}' (Nullable = false) (Size = 87)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Widgets] SET [Deep] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Save_changes_after_loading_row_with_primitive_collection_absent_from_json()
+    {
+        await base.Save_changes_after_loading_row_with_primitive_collection_absent_from_json();
+
+        AssertSql(
+            """
+@p0='{"Items":[{"ArrayCodes":[],"Codes":[],"CustomCodes":[9],"InterfaceCodes":[],"Label":"C1-updated","OptionalCodes":null,"ReadOnlyCodes":[],"TextCodes":[]}]}' (Nullable = false) (Size = 154)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [CodeWidgets] SET [Data] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """);

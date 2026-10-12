@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Newtonsoft.Json.Linq;
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 /// <summary>
@@ -45,7 +43,8 @@ public interface ICosmosClientWrapper
     /// </summary>
     Task<bool> CreateItemAsync(
         string containerId,
-        JToken document,
+        string documentId,
+        ReadOnlyMemory<byte> document,
         IUpdateEntry updateEntry,
         ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
@@ -59,7 +58,7 @@ public interface ICosmosClientWrapper
     Task<bool> ReplaceItemAsync(
         string collectionId,
         string documentId,
-        JObject document,
+        ReadOnlyMemory<byte> document,
         IUpdateEntry updateEntry,
         ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
@@ -96,7 +95,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<JObject?> ExecuteReadItemAsync(
+    Task<ReadOnlyMemory<byte>?> ExecuteReadItemAsync(
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
@@ -109,19 +108,11 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IAsyncEnumerable<JToken> ExecuteSqlQueryAsync(
+    IAsyncEnumerable<ReadOnlyMemory<byte>> ExecuteSqlQueryAsync(
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
         ISessionTokenStorage sessionTokenStorage);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    IEnumerable<JToken> GetResponseMessageEnumerable(ResponseMessage responseMessage);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -145,5 +136,5 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, ISessionTokenStorage sessionTokenStorage, CancellationToken cancellationToken = default);
+    Task ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, ISessionTokenStorage sessionTokenStorage, CancellationToken cancellationToken = default);
 }

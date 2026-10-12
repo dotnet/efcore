@@ -2,10 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using NetTopologySuite.Geometries;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geography;
 
-public class SqlServerGeographyMultiPointTypeTest(SqlServerGeographyMultiPointTypeTest.MultiPointTypeFixture fixture, ITestOutputHelper testOutputHelper)
+public class SqlServerGeographyMultiPointTypeTest(
+    SqlServerGeographyMultiPointTypeTest.MultiPointTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
     : SqlServerGeographyTypeTestBase<MultiPoint, SqlServerGeographyMultiPointTypeTest.MultiPointTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
@@ -33,6 +36,9 @@ FROM [TypeEntity] AS [t]
 WHERE [t].[Value].STEquals('MULTIPOINT ((-122.35 47.62), (-122.345 47.615))') = CAST(1 AS bit)
 """);
     }
+
+    public override async Task Primitive_collection_in_query()
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -102,6 +108,7 @@ WHERE [Id] = @p1;
 (-121.5 46.6)
 (-121.2 46.3))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -115,6 +122,7 @@ FROM [JsonTypeEntity] AS [j]
 (-121.5 46.6)
 (-121.2 46.3))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -130,6 +138,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', N'MULTIPOINT ((-121.9 46.95), (-121.5 46.6), (-121.2 46.3))')
 FROM [JsonTypeEntity] AS [j]
@@ -139,6 +148,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'MULTIPOINT ((-121.9 46.95), (-121.5 46.6), (-121.2 46.3))')
 FROM [JsonTypeEntity] AS [j]
@@ -154,6 +164,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING nvarchar(max)))
 FROM [JsonTypeEntity] AS [j]
@@ -163,6 +174,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue'))
 FROM [JsonTypeEntity] AS [j]
@@ -170,13 +182,13 @@ FROM [JsonTypeEntity] AS [j]
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    // TODO: Currently failing on Helix only, see #36746
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // TODO: Currently failing on Helix only, see #36746
-        if (Environment.GetEnvironmentVariable("HELIX_WORKITEM_ROOT") is not null)
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
         {
-            return;
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
         }
 
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -185,6 +197,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
@@ -194,6 +207,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
@@ -205,13 +219,15 @@ FROM [JsonTypeEntity] AS [j]
 
     public class MultiPointTypeFixture : SqlServerGeographyTypeFixture
     {
-        public override MultiPoint Value { get; } = new([
+        public override MultiPoint Value { get; } = new(
+        [
             new Point(-122.3500, 47.6200) { SRID = 4326 },
             new Point(-122.3450, 47.6150) { SRID = 4326 }
         ])
         { SRID = 4326 };
 
-        public override MultiPoint OtherValue { get; } = new([
+        public override MultiPoint OtherValue { get; } = new(
+        [
             new Point(-121.9000, 46.9500) { SRID = 4326 },
             new Point(-121.5000, 46.6000) { SRID = 4326 },
             new Point(-121.2000, 46.3000) { SRID = 4326 }
@@ -219,7 +235,7 @@ FROM [JsonTypeEntity] AS [j]
         { SRID = 4326 };
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

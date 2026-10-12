@@ -17,30 +17,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerQuerySqlGenerator : QuerySqlGenerator
+public class SqlServerQuerySqlGenerator(
+    QuerySqlGeneratorDependencies dependencies,
+    IRelationalTypeMappingSource typeMappingSource,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : QuerySqlGenerator(dependencies)
 {
-    private readonly IRelationalTypeMappingSource _typeMappingSource;
-    private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+    private readonly IRelationalTypeMappingSource _typeMappingSource = typeMappingSource;
+    private readonly ISqlGenerationHelper _sqlGenerationHelper = dependencies.SqlGenerationHelper;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
 
     private bool _withinTable;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerQuerySqlGenerator(
-        QuerySqlGeneratorDependencies dependencies,
-        IRelationalTypeMappingSource typeMappingSource,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
-        : base(dependencies)
-    {
-        _typeMappingSource = typeMappingSource;
-        _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-        _sqlServerSingletonOptions = sqlServerSingletonOptions;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -92,6 +79,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
     {
+        Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
         var selectExpression = deleteExpression.SelectExpression;
 
         if (selectExpression is
@@ -153,8 +142,148 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression function)
+    {
+        switch (function)
+        {
+            // The VECTOR_SEARCH() function requires some special syntax (specifically named parameters), as well as
+            // some special handling for its column parameter, which needs to be written out without a table alias.
+            case
+            {
+                Name: "VECTOR_SEARCH",
+                Arguments:
+                [
+                    TableExpression table,
+                    ColumnExpression column,
+                    SqlExpression similarTo,
+                    SqlConstantExpression { Value: string } metric
+                ]
+            }:
+                // VECTOR_SEARCH(
+                //     TABLE = [Articles] AS t,
+                //     COLUMN = [Vector],
+                //     SIMILAR_TO = @qv,
+                //     METRIC = 'Cosine'
+                // )
+                Sql.AppendLine("VECTOR_SEARCH(");
+
+                using (Sql.Indent())
+                {
+                    Sql.Append("TABLE = ");
+                    VisitTable(table);
+                    Sql.AppendLine(",");
+
+                    // SQL Server requires only the column name here, without a table alias (COLUMN = [Vector], not COLUMN = [b].[Vector]).
+                    // Since ColumnExpression requires a non-nullable table alias, we handle this here in a special way.
+                    Check.DebugAssert(column.TableAlias == table.Alias);
+                    Sql.Append("COLUMN = ").Append(_sqlGenerationHelper.DelimitIdentifier(column.Name)).AppendLine(",");
+
+                    Sql.Append("SIMILAR_TO = ");
+                    Visit(similarTo);
+                    Sql.AppendLine(",");
+
+                    Sql.Append("METRIC = ");
+                    Visit(metric);
+                    Sql.AppendLine();
+                }
+
+                Sql.Append(")")
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(function.Alias));
+
+                return function;
+
+            // FREETEXTTABLE and CONTAINSTABLE full-text search functions
+            // Syntax: FREETEXTTABLE/CONTAINSTABLE(table, column, 'search_string' [, LANGUAGE language_term] [, top_n_by_rank])
+            case
+            {
+                Name: "FREETEXTTABLE" or "CONTAINSTABLE",
+                Arguments: [TableExpression table, var columnsArgument, SqlExpression searchText, ..]
+            }:
+            {
+                Sql.Append(function.Name).Append("(");
+
+                // Table name
+                Sql.Append(_sqlGenerationHelper.DelimitIdentifier(table.Name, table.Schema));
+                Sql.Append(", ");
+
+                // Column(s) - NewArrayExpression containing ColumnExpressions (empty array means "*")
+                switch (columnsArgument)
+                {
+                    case NewArrayExpression { Expressions: [] }:
+                        // Empty array means all columns
+                        Sql.Append("*");
+                        break;
+
+                    case NewArrayExpression { Expressions: [ColumnExpression singleColumn] }:
+                        // Single column - just write the delimited name
+                        Sql.Append(_sqlGenerationHelper.DelimitIdentifier(singleColumn.Name));
+                        break;
+
+                    case NewArrayExpression { Expressions: IReadOnlyList<Expression> columns }:
+                        // Multiple columns - wrap in parentheses
+                        Sql.Append("(");
+
+                        for (var i = 0; i < columns.Count; i++)
+                        {
+                            if (i > 0)
+                            {
+                                Sql.Append(", ");
+                            }
+
+                            Sql.Append(_sqlGenerationHelper.DelimitIdentifier(((ColumnExpression)columns[i]).Name));
+                        }
+
+                        Sql.Append(")");
+                        break;
+
+                    default:
+                        throw new UnreachableException();
+                }
+
+                Sql.Append(", ");
+
+                // Search text
+                Visit(searchText);
+
+                // Check remaining arguments for LANGUAGE and top_n
+                var arguments = function.Arguments;
+                var argIndex = 3;
+                if (arguments.Count > argIndex && arguments[argIndex] is SqlConstantExpression { Value: string } languageTerm)
+                {
+                    Sql.Append(", LANGUAGE ");
+                    Visit(languageTerm);
+                    argIndex++;
+                }
+
+                if (arguments.Count > argIndex)
+                {
+                    Sql.Append(", ");
+                    Visit(arguments[argIndex]);
+                }
+
+                Sql.Append(")")
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(function.Alias));
+
+                return function;
+            }
+
+            default:
+                return base.VisitTableValuedFunction(function);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitUpdate(UpdateExpression updateExpression)
     {
+        Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
         var selectExpression = updateExpression.SelectExpression;
 
         if (selectExpression is
@@ -422,10 +551,13 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         if (selectExpression is { Limit: not null, Offset: null })
         {
             Sql.Append("TOP(");
-
             Visit(selectExpression.Limit);
 
-            Sql.Append(") ");
+            // WithApproximateExpression renders its own closing ") WITH APPROXIMATE " via VisitExtension
+            if (selectExpression.Limit is not WithApproximateExpression)
+            {
+                Sql.Append(") ");
+            }
         }
 
         _withinTable = parentWithinTable;
@@ -613,6 +745,13 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             case SqlServerOpenJsonExpression openJsonExpression:
                 return VisitOpenJsonExpression(openJsonExpression);
+
+            // WithApproximateExpression wraps the Limit in the SelectExpression; it renders the operand value
+            // followed by ") WITH APPROXIMATE " (closing the TOP( opened by GenerateTop).
+            case WithApproximateExpression withApproximate:
+                Visit(withApproximate.Operand);
+                Sql.Append(") WITH APPROXIMATE ");
+                return withApproximate;
         }
 
         return base.VisitExtension(extensionExpression);
@@ -768,7 +907,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         // expression.
         Sql.Append("OPENJSON(");
 
-        Visit(openJsonExpression.JsonExpression);
+        Visit(openJsonExpression.Json);
 
         if (openJsonExpression.Path is not null)
         {
@@ -812,8 +951,22 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             {
                 Sql
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(columnInfo.Name))
-                    .Append(" ")
-                    .Append(columnInfo.TypeMapping.StoreType);
+                    .Append(" ");
+
+                // OPENJSON() WITH clause AS JSON option requires nvarchar(max) on platforms that don't support the json data
+                // type in OPENJSON (i.e. Azure SQL). SQL Server 2025 (17.x) added native support for json in OPENJSON WITH.
+                // See: https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#limitations
+                if (columnInfo.AsJson
+                    && columnInfo.TypeMapping.StoreType == "json"
+                    && (_sqlServerSingletonOptions.EngineType != SqlServerEngineType.SqlServer
+                        || _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 170))
+                {
+                    Sql.Append("nvarchar(max)");
+                }
+                else
+                {
+                    Sql.Append(columnInfo.TypeMapping.StoreType);
+                }
 
                 if (columnInfo.Path is not null)
                 {

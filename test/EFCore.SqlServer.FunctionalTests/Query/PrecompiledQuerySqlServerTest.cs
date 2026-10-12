@@ -269,6 +269,17 @@ WHERE CAST([b].[Id] AS smallint) = CAST(8 AS smallint)
         AssertSql();
     }
 
+    public override async Task RuntimeConstantExpression()
+    {
+        await base.RuntimeConstantExpression();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
     #endregion Expression types
 
     #region Regular operators
@@ -405,6 +416,18 @@ ORDER BY [b].[Id]
         AssertSql(
             """
 SELECT [b].[Name], [b].[Id], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+""");
+    }
+
+    public override async Task Final_GroupBy_projecting_grouping_elements()
+    {
+        await base.Final_GroupBy_projecting_grouping_elements();
+
+        AssertSql(
+            """
+SELECT [b].[Name], [b].[Id]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Name]
 """);
@@ -1453,12 +1476,12 @@ WHERE [b].[Id] = 7
 
         AssertSql(
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """,
             //
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """);
     }
@@ -1469,12 +1492,12 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """,
             //
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """);
     }
@@ -1485,6 +1508,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
@@ -1502,6 +1526,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
@@ -1521,6 +1546,7 @@ FROM [Blogs] AS [b]
             """
 @suffix='Suffix' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
@@ -1542,6 +1568,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
             """
 @newValue='NewValue' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = @newValue
 FROM [Blogs] AS [b]
@@ -1563,6 +1590,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
             """
 @suffix='Suffix' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
@@ -1584,6 +1612,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
             """
 @newValue='NewValue' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = @newValue
 FROM [Blogs] AS [b]
@@ -1841,7 +1870,7 @@ ORDER BY [m].[Id]
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task SqlServerAggregateFunctionExpression()
     {
         await Test(
@@ -1862,89 +1891,89 @@ GROUP BY [b].[Id]
 
     // SqlServerOpenJsonExpression is covered by PrecompiledQueryRelationalTestBase.Contains_with_parameterized_collection
 
-//     [ConditionalFact]
-//     public virtual Task TableValuedFunctionExpression_toplevel()
-//         => Test(
-//             "_ = context.GetBlogsWithAtLeast(9).ToList();",
-//             modelSourceCode: providerOptions => $$"""
-// public class BlogContext : DbContext
-// {
-//     public DbSet<Blog> Blogs { get; set; }
-//
-//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//         => optionsBuilder
-//             {{providerOptions}}
-//             .ReplaceService<IQueryCompiler, Microsoft.EntityFrameworkCore.Query.NonCompilingQueryCompiler>();
-//
-//     protected override void OnModelCreating(ModelBuilder modelBuilder)
-//     {
-//         modelBuilder.HasDbFunction(typeof(BlogContext).GetMethod(nameof(GetBlogsWithAtLeast)));
-//     }
-//
-//     public IQueryable<Blog> GetBlogsWithAtLeast(int minBlogId) => FromExpression(() => GetBlogsWithAtLeast(minBlogId));
-// }
-//
-// public class Blog
-// {
-//     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-//     public int Id { get; set; }
-//     public string StringProperty { get; set; }
-// }
-// """,
-//             setupSql: """
-// CREATE FUNCTION dbo.GetBlogsWithAtLeast(@minBlogId int)
-// RETURNS TABLE AS RETURN
-// (
-//     SELECT [b].[Id], [b].[Name] FROM [Blogs] AS [b] WHERE [b].[Id] >= @minBlogId
-// )
-// """,
-//             cleanupSql: "DROP FUNCTION dbo.GetBlogsWithAtLeast;");
-//
-//     [ConditionalFact]
-//     public virtual Task TableValuedFunctionExpression_non_toplevel()
-//         => Test(
-//             "_ = context.Blogs.Where(b => context.GetPosts(b.Id).Count() == 2).ToList();",
-//             modelSourceCode: providerOptions => $$"""
-// public class BlogContext : DbContext
-// {
-//     public DbSet<Blog> Blogs { get; set; }
-//
-//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//         => optionsBuilder
-//             {{providerOptions}}
-//             .ReplaceService<IQueryCompiler, Microsoft.EntityFrameworkCore.Query.NonCompilingQueryCompiler>();
-//
-//     protected override void OnModelCreating(ModelBuilder modelBuilder)
-//     {
-//         modelBuilder.HasDbFunction(typeof(BlogContext).GetMethod(nameof(GetPosts)));
-//     }
-//
-//     public IQueryable<Post> GetPosts(int blogId) => FromExpression(() => GetPosts(blogId));
-// }
-//
-// public class Blog
-// {
-//     public int Id { get; set; }
-//     public string StringProperty { get; set; }
-//     public List<Post> Post { get; set; }
-// }
-//
-// public class Post
-// {
-//     public int Id { get; set; }
-//     public string Title { get; set; }
-//
-//     public Blog Blog { get; set; }
-// }
-// """,
-//             setupSql: """
-// CREATE FUNCTION dbo.GetPosts(@blogId int)
-// RETURNS TABLE AS RETURN
-// (
-//     SELECT [p].[Id], [p].[Title], [p].[BlogId] FROM [Posts] AS [p] WHERE [p].[BlogId] = @blogId
-// )
-// """,
-//             cleanupSql: "DROP FUNCTION dbo.GetPosts;");
+    //     [Fact]
+    //     public virtual Task TableValuedFunctionExpression_toplevel()
+    //         => Test(
+    //             "_ = context.GetBlogsWithAtLeast(9).ToList();",
+    //             modelSourceCode: providerOptions => $$"""
+    // public class BlogContext : DbContext
+    // {
+    //     public DbSet<Blog> Blogs { get; set; }
+    //
+    //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //         => optionsBuilder
+    //             {{providerOptions}}
+    //             .ReplaceService<IQueryCompiler, Microsoft.EntityFrameworkCore.Query.NonCompilingQueryCompiler>();
+    //
+    //     protected override void OnModelCreating(ModelBuilder modelBuilder)
+    //     {
+    //         modelBuilder.HasDbFunction(typeof(BlogContext).GetMethod(nameof(GetBlogsWithAtLeast)));
+    //     }
+    //
+    //     public IQueryable<Blog> GetBlogsWithAtLeast(int minBlogId) => FromExpression(() => GetBlogsWithAtLeast(minBlogId));
+    // }
+    //
+    // public class Blog
+    // {
+    //     [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    //     public int Id { get; set; }
+    //     public string StringProperty { get; set; }
+    // }
+    // """,
+    //             setupSql: """
+    // CREATE FUNCTION dbo.GetBlogsWithAtLeast(@minBlogId int)
+    // RETURNS TABLE AS RETURN
+    // (
+    //     SELECT [b].[Id], [b].[Name] FROM [Blogs] AS [b] WHERE [b].[Id] >= @minBlogId
+    // )
+    // """,
+    //             cleanupSql: "DROP FUNCTION dbo.GetBlogsWithAtLeast;");
+    //
+    //     [Fact]
+    //     public virtual Task TableValuedFunctionExpression_non_toplevel()
+    //         => Test(
+    //             "_ = context.Blogs.Where(b => context.GetPosts(b.Id).Count() == 2).ToList();",
+    //             modelSourceCode: providerOptions => $$"""
+    // public class BlogContext : DbContext
+    // {
+    //     public DbSet<Blog> Blogs { get; set; }
+    //
+    //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //         => optionsBuilder
+    //             {{providerOptions}}
+    //             .ReplaceService<IQueryCompiler, Microsoft.EntityFrameworkCore.Query.NonCompilingQueryCompiler>();
+    //
+    //     protected override void OnModelCreating(ModelBuilder modelBuilder)
+    //     {
+    //         modelBuilder.HasDbFunction(typeof(BlogContext).GetMethod(nameof(GetPosts)));
+    //     }
+    //
+    //     public IQueryable<Post> GetPosts(int blogId) => FromExpression(() => GetPosts(blogId));
+    // }
+    //
+    // public class Blog
+    // {
+    //     public int Id { get; set; }
+    //     public string StringProperty { get; set; }
+    //     public List<Post> Post { get; set; }
+    // }
+    //
+    // public class Post
+    // {
+    //     public int Id { get; set; }
+    //     public string Title { get; set; }
+    //
+    //     public Blog Blog { get; set; }
+    // }
+    // """,
+    //             setupSql: """
+    // CREATE FUNCTION dbo.GetPosts(@blogId int)
+    // RETURNS TABLE AS RETURN
+    // (
+    //     SELECT [p].[Id], [p].[Title], [p].[BlogId] FROM [Posts] AS [p] WHERE [p].[BlogId] = @blogId
+    // )
+    // """,
+    //             cleanupSql: "DROP FUNCTION dbo.GetPosts;");
 
     #endregion SQL expression quotability
 
@@ -1994,6 +2023,16 @@ FROM [Blogs] AS [b]
 """);
     }
 
+    public override async Task DbContext_as_captured_parameter()
+    {
+        await base.DbContext_as_captured_parameter();
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
     public override async Task DbContext_as_method_invocation_result()
     {
         await base.DbContext_as_method_invocation_result();
@@ -2008,6 +2047,19 @@ FROM [Blogs] AS [b]
     #endregion Different query roots
 
     #region Captured variable handling
+
+    public override async Task Captured_method_parameter_in_lambda()
+    {
+        await base.Captured_method_parameter_in_lambda();
+        AssertSql(
+            """
+@id='7'
+
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @id
+""");
+    }
 
     public override async Task Two_captured_variables_in_same_lambda()
     {
@@ -2170,7 +2222,31 @@ FROM [Blogs] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    public override async Task Materialize_entity_with_primitive_collection_mapped_to_column()
+    {
+        await base.Materialize_entity_with_primitive_collection_mapped_to_column();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Tags]
+FROM [EntitiesWithPrimitiveCollection] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Project_primitive_collection_mapped_to_column()
+    {
+        await base.Project_primitive_collection_mapped_to_column();
+
+        AssertSql(
+            """
+SELECT [e].[Tags]
+FROM [EntitiesWithPrimitiveCollection] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -2186,7 +2262,7 @@ FROM [Blogs] AS [b]
             // TODO: Figure out if there's a nice way to continue using the retrying strategy
             var sqlServerOptionsBuilder = new SqlServerDbContextOptionsBuilder(builder);
             sqlServerOptionsBuilder.ExecutionStrategy(d => new NonRetryingExecutionStrategy(d));
-            return builder;
+            return builder.EnableDetailedErrors();
         }
 
         public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers

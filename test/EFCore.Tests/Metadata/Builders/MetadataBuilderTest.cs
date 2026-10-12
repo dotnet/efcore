@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class MetadataBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_write_model_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -27,7 +27,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", model["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_entity_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -40,13 +40,13 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_entity_builder_extension_and_use_with_generic_builder()
     {
         var builder = CreateModelBuilder();
@@ -59,13 +59,13 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_generic_entity_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -78,13 +78,13 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_key_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -98,13 +98,13 @@ public class MetadataBuilderTest
         Assert.IsType<KeyBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
+        var key = model.FindEntityType(typeof(Gunter))!.FindPrimaryKey()!;
 
         Assert.Equal("V2.Annotation", key["Annotation"]);
         Assert.Equal("V2.Metadata", key["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_property_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -118,13 +118,13 @@ public class MetadataBuilderTest
         Assert.IsType<PropertyBuilder<int>>(returnedBuilder);
 
         var model = builder.Model;
-        var property = model.FindEntityType(typeof(Gunter)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(Gunter))!.FindProperty("Id")!;
 
         Assert.Equal("V2.Annotation", property["Annotation"]);
         Assert.Equal("V2.Metadata", property["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_index_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -138,13 +138,13 @@ public class MetadataBuilderTest
         Assert.IsType<IndexBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
+        var index = model.FindEntityType(typeof(Gunter))!.GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
 
         Assert.Equal("V2.Annotation", index["Annotation"]);
         Assert.Equal("V2.Metadata", index["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_one_to_many_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -159,13 +159,13 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Gate))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_many_to_one_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -180,13 +180,13 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Gate))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_one_to_one_builder_extension()
     {
         var builder = CreateModelBuilder();
@@ -202,13 +202,13 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Avatar)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Avatar))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_model_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -225,7 +225,7 @@ public class MetadataBuilderTest
         Assert.Equal("V2.Metadata", model["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_entity_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -238,13 +238,13 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_entity_builder_extension_and_use_with_generic_builder_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -257,13 +257,13 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_generic_entity_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -276,13 +276,13 @@ public class MetadataBuilderTest
         Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var entityType = model.FindEntityType(typeof(Gunter));
+        var entityType = model.FindEntityType(typeof(Gunter))!;
 
         Assert.Equal("V2.Annotation", entityType["Annotation"]);
         Assert.Equal("V2.Metadata", entityType["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_key_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -296,13 +296,13 @@ public class MetadataBuilderTest
         Assert.IsType<KeyBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
+        var key = model.FindEntityType(typeof(Gunter))!.FindPrimaryKey()!;
 
         Assert.Equal("V2.Annotation", key["Annotation"]);
         Assert.Equal("V2.Metadata", key["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_property_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -316,13 +316,13 @@ public class MetadataBuilderTest
         Assert.IsType<PropertyBuilder<int>>(returnedBuilder);
 
         var model = builder.Model;
-        var property = model.FindEntityType(typeof(Gunter)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(Gunter))!.FindProperty("Id")!;
 
         Assert.Equal("V2.Annotation", property["Annotation"]);
         Assert.Equal("V2.Metadata", property["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_index_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -336,13 +336,13 @@ public class MetadataBuilderTest
         Assert.IsType<IndexBuilder<Gunter>>(returnedBuilder);
 
         var model = builder.Model;
-        var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
+        var index = model.FindEntityType(typeof(Gunter))!.GetIndexes().Single(i => i.Properties.All(p => p.Name == nameof(Gunter.Id)));
 
         Assert.Equal("V2.Annotation", index["Annotation"]);
         Assert.Equal("V2.Metadata", index["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_one_to_many_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -357,13 +357,13 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Gate))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_many_to_one_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -378,13 +378,13 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Gate))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_one_to_one_builder_extension_with_common_name()
     {
         var builder = CreateModelBuilder();
@@ -400,7 +400,7 @@ public class MetadataBuilderTest
         Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
         var model = builder.Model;
-        var foreignKey = model.FindEntityType(typeof(Avatar)).GetForeignKeys().Single();
+        var foreignKey = model.FindEntityType(typeof(Avatar))!.GetForeignKeys().Single();
 
         Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
         Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -413,9 +413,9 @@ public class MetadataBuilderTest
     {
         public int Id { get; set; }
 
-        public ICollection<Gate> Gates { get; set; }
+        public ICollection<Gate> Gates { get; set; } = null!;
 
-        public Avatar Avatar { get; set; }
+        public Avatar Avatar { get; set; } = null!;
     }
 
     private class Gate
@@ -423,14 +423,14 @@ public class MetadataBuilderTest
         public int Id { get; set; }
 
         public int GunterId { get; set; }
-        public Gunter Gunter { get; set; }
+        public Gunter Gunter { get; set; } = null!;
     }
 
     private class Avatar
     {
         public int Id { get; set; }
 
-        public Gunter Gunter { get; set; }
+        public Gunter Gunter { get; set; } = null!;
     }
 }
 

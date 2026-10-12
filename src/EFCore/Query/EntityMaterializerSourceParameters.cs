@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <param name="InstanceName">The name of the instance being materialized.</param>
 /// <param name="ClrType">
 ///     CLR type of the result.
-///     Note that this differs from <see cref="IReadOnlyTypeBase.ClrType "/> on <paramref name="StructuralType" />
+///     Note that this differs from <see cref="IReadOnlyTypeBase.ClrType " /> on <paramref name="StructuralType" />
 ///     when a nullable value type is being projected out.
 /// </param>
 /// <param name="IsNullable">

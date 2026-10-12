@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
 {
-    private static readonly List<MethodInfo> SupportedMethods =
+    internal static readonly List<MethodInfo> SupportedMethods =
     [
         QueryableMethods.FirstWithPredicate,
         QueryableMethods.FirstWithoutPredicate,
@@ -59,23 +59,20 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
     protected override Expression VisitMember(MemberExpression memberExpression)
     {
         var innerExpression = Visit(memberExpression.Expression);
-        if (innerExpression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
-            && SupportedMethods.Contains(methodCallExpression.Method.GetGenericMethodDefinition()))
-        {
-            return PushdownMember(
-                methodCallExpression,
-                (target, nullable) =>
-                {
-                    var memberAccessExpression = Expression.MakeMemberAccess(target, memberExpression.Member);
+        return innerExpression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
+            && SupportedMethods.Contains(methodCallExpression.Method.GetGenericMethodDefinition())
+                ? PushdownMember(
+                    methodCallExpression,
+                    (target, nullable) =>
+                    {
+                        var memberAccessExpression = Expression.MakeMemberAccess(target, memberExpression.Member);
 
-                    return nullable && !memberAccessExpression.Type.IsNullableType()
-                        ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
-                        : memberAccessExpression;
-                },
-                memberExpression.Type);
-        }
-
-        return memberExpression.Update(innerExpression);
+                        return nullable && !memberAccessExpression.Type.IsNullableType()
+                            ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
+                            : memberAccessExpression;
+                    },
+                    memberExpression.Type)
+                : memberExpression.Update(innerExpression);
     }
 
     /// <summary>

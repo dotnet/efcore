@@ -5,32 +5,30 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPHInheritanceQuerySqlServerTest(TPHInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : TPHInheritanceQueryTestBase<TPHInheritanceQuerySqlServerFixture>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Common_property_shares_column()
     {
         using var context = CreateContext();
-        var liltType = context.Model.FindEntityType(typeof(Lilt));
-        var cokeType = context.Model.FindEntityType(typeof(Coke));
-        var teaType = context.Model.FindEntityType(typeof(Tea));
+        var liltType = context.Model.FindEntityType(typeof(Lilt))!;
+        var cokeType = context.Model.FindEntityType(typeof(Coke))!;
+        var teaType = context.Model.FindEntityType(typeof(Tea))!;
 
-        Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams").GetColumnName());
-        Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams").GetColumnName());
-        Assert.Equal("CokeCO2", cokeType.FindProperty("Carbonation").GetColumnName());
+        Assert.Equal("SugarGrams", cokeType.FindProperty("SugarGrams")!.GetColumnName());
+        Assert.Equal("CaffeineGrams", cokeType.FindProperty("CaffeineGrams")!.GetColumnName());
+        Assert.Equal("CokeCO2", cokeType.FindProperty("Carbonation")!.GetColumnName());
 
-        Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams").GetColumnName());
-        Assert.Equal("LiltCO2", liltType.FindProperty("Carbonation").GetColumnName());
+        Assert.Equal("SugarGrams", liltType.FindProperty("SugarGrams")!.GetColumnName());
+        Assert.Equal("LiltCO2", liltType.FindProperty("Carbonation")!.GetColumnName());
 
-        Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams").GetColumnName());
-        Assert.Equal("HasMilk", teaType.FindProperty("HasMilk").GetColumnName());
+        Assert.Equal("CaffeineGrams", teaType.FindProperty("CaffeineGrams")!.GetColumnName());
+        Assert.Equal("HasMilk", teaType.FindProperty("HasMilk")!.GetColumnName());
     }
 
     public override async Task Can_query_when_shared_column(bool async)
@@ -39,7 +37,7 @@ public class TPHInheritanceQuerySqlServerTest(TPHInheritanceQuerySqlServerFixtur
 
         AssertSql(
             """
-SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[ChildComplexType_Int], [d].[ChildComplexType_UniqueInt], [d].[ChildComplexType_Nested_NestedInt], [d].[ChildComplexType_Nested_UniqueInt]
+SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[ChildComplexType_Int], [d].[ChildComplexType_UniqueInt], [d].[ChildComplexType_Nested_NestedInt], [d].[ChildComplexType_Nested_UniqueInt]
 FROM [Drinks] AS [d]
 WHERE [d].[Discriminator] = 1
 """,
@@ -87,7 +85,7 @@ WHERE [m].[Discriminator] = N'Eagle'
 
         AssertSql(
             """
-SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[ChildComplexType_Int], [d].[ChildComplexType_UniqueInt], [d].[ChildComplexType_Nested_NestedInt], [d].[ChildComplexType_Nested_UniqueInt], [d].[Tea_ChildComplexType_Int], [d].[Tea_ChildComplexType_UniqueInt], [d].[Tea_ChildComplexType_Nested_NestedInt], [d].[Tea_ChildComplexType_Nested_UniqueInt]
+SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[ChildComplexType_Int], [d].[ChildComplexType_UniqueInt], [d].[ChildComplexType_Nested_NestedInt], [d].[ChildComplexType_Nested_UniqueInt], [d].[Tea_ChildComplexType_Int], [d].[Tea_ChildComplexType_UniqueInt], [d].[Tea_ChildComplexType_Nested_NestedInt], [d].[Tea_ChildComplexType_Nested_UniqueInt]
 FROM [Drinks] AS [d]
 """);
     }
@@ -737,6 +735,20 @@ WHERE [a].[Discriminator] = N'Kiwi'
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] <> N'Kiwi'
+""");
+    }
+
+    public override async Task Primitive_collection_on_subtype(bool async)
+    {
+        await base.Primitive_collection_on_subtype(async);
+
+        AssertSql(
+            """
+SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[ChildComplexType_Int], [d].[ChildComplexType_UniqueInt], [d].[ChildComplexType_Nested_NestedInt], [d].[ChildComplexType_Nested_UniqueInt], [d].[Tea_ChildComplexType_Int], [d].[Tea_ChildComplexType_UniqueInt], [d].[Tea_ChildComplexType_Nested_NestedInt], [d].[Tea_ChildComplexType_Nested_UniqueInt]
+FROM [Drinks] AS [d]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([d].[Ints]) AS [i])
 """);
     }
 

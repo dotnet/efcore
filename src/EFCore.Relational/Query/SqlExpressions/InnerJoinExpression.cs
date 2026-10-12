@@ -96,8 +96,8 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is InnerJoinExpression innerJoinExpression
-                && Equals(innerJoinExpression));
+                || (obj is InnerJoinExpression innerJoinExpression
+                    && Equals(innerJoinExpression)));
 
     private bool Equals(InnerJoinExpression innerJoinExpression)
         => base.Equals(innerJoinExpression);

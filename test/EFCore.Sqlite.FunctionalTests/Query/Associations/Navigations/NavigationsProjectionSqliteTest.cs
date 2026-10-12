@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.Navigations;
 public class NavigationsProjectionSqliteTest(NavigationsSqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : NavigationsProjectionRelationalTestBase<NavigationsSqliteFixture>(fixture, testOutputHelper)
 {
+    public override Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior));
+
     public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertApplyNotSupported(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
 

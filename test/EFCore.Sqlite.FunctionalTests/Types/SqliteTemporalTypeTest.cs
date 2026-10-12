@@ -9,7 +9,7 @@ public class SqliteDateTimeTypeTest(SqliteDateTimeTypeTest.DateTimeTypeFixture f
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.ExecuteUpdate_within_json_to_nonjson_column);
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 
@@ -20,13 +20,15 @@ public class SqliteDateTimeTypeTest(SqliteDateTimeTypeTest.DateTimeTypeFixture f
     }
 }
 
-public class SqliteDateTimeOffsetTypeTest(SqliteDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture, ITestOutputHelper testOutputHelper)
+public class SqliteDateTimeOffsetTypeTest(
+    SqliteDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<DateTimeOffset, SqliteDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.ExecuteUpdate_within_json_to_nonjson_column);
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 
@@ -43,7 +45,7 @@ public class SqliteDateOnlyTypeTest(SqliteDateOnlyTypeTest.DateTypeFixture fixtu
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.ExecuteUpdate_within_json_to_nonjson_column);
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 
@@ -57,14 +59,17 @@ public class SqliteDateOnlyTypeTest(SqliteDateOnlyTypeTest.DateTypeFixture fixtu
 public class SqliteTimeOnlyTypeTest(SqliteTimeOnlyTypeTest.TimeTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<TimeOnly, SqliteTimeOnlyTypeTest.TimeTypeFixture>(fixture, testOutputHelper)
 {
-    // TODO: string representation discrepancy between our JSON and M.D.SQLite's string representation, see #36749.
     public override Task Query_property_within_json()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Query_property_within_json());
+        => base.Query_property_within_json();
+
+    // TODO: TimeOnly comparison within JSON primitive collections doesn't work on SQLite, see #36749.
+    public override Task Primitive_collection_in_query()
+        => Task.CompletedTask;
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.ExecuteUpdate_within_json_to_nonjson_column);
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 
@@ -81,7 +86,7 @@ public class SqliteTimeSpanTypeTest(SqliteTimeSpanTypeTest.TimeSpanTypeFixture f
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.ExecuteUpdate_within_json_to_nonjson_column);
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 

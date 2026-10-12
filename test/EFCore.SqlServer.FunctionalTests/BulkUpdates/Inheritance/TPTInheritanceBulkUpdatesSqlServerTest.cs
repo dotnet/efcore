@@ -1,9 +1,7 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
-
-#nullable disable
 
 public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesTestBase<TPTInheritanceBulkUpdatesSqlServerFixture>
 {
@@ -11,7 +9,7 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
         : base(fixture, testOutputHelper)
         => ClearLog();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -86,6 +84,7 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
             """
 @p='Animal' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -101,6 +100,7 @@ WHERE [a].[Name] = N'Great spotted kiwi'
             """
 @p='NewBird' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -124,6 +124,7 @@ WHERE [k].[Id] IS NOT NULL
             """
 @p='SomeOtherKiwi' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -140,6 +141,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
             """
 @p='0' (Size = 1)
 
+SET NOCOUNT OFF;
 UPDATE [k]
 SET [k].[FoundOn] = @p
 FROM [Animals] AS [a]
@@ -163,6 +165,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
@@ -181,6 +184,7 @@ WHERE (
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
@@ -207,6 +211,7 @@ WHERE (
             """
 @p='0'
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[SugarGrams] = @p
 FROM [Drinks] AS [d]
@@ -222,6 +227,7 @@ INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
             """
 @p='0'
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[SugarGrams] = @p
 FROM [Drinks] AS [d]

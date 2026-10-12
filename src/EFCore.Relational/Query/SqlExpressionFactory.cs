@@ -384,17 +384,15 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         }
 
         // Resolve the array type mapping for the given element mapping.
-        if (_typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not { } arrayMapping)
-        {
-            throw new UnreachableException($"Couldn't find collection type mapping for element type mapping {elementMapping.ClrType.Name}");
-        }
-
-        return new JsonScalarExpression(
-            ApplyTypeMapping(array, arrayMapping),
-            newPath,
-            jsonScalarExpression.Type,
-            elementMapping,
-            jsonScalarExpression.IsNullable);
+        return _typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not { } arrayMapping
+            ? throw new UnreachableException(
+                $"Couldn't find collection type mapping for element type mapping {elementMapping.ClrType.Name}")
+            : (SqlExpression)new JsonScalarExpression(
+                ApplyTypeMapping(array, arrayMapping),
+                newPath,
+                jsonScalarExpression.Type,
+                elementMapping,
+                jsonScalarExpression.IsNullable);
     }
 
     /// <inheritdoc />
@@ -492,14 +490,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             return Constant(false);
         }
 
-        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+        return existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
-            && right == binaryExpr.Right)
-        {
-            return existingExpression;
-        }
-
-        return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
+            && right == binaryExpr.Right
+                ? existingExpression
+                : new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
     }
 
     /// <inheritdoc />
@@ -536,14 +531,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             return Constant(true);
         }
 
-        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+        return existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
-            && right == binaryExpr.Right)
-        {
-            return existingExpression;
-        }
-
-        return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
+            && right == binaryExpr.Right
+                ? existingExpression
+                : new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
     }
 
     /// <inheritdoc />
@@ -664,23 +656,23 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 => AndAlso(Not(binary.Left), Not(binary.Right)),
 
             SqlBinaryExpression
-                {
-                    OperatorType: ExpressionType.Equal,
-                    Right: SqlConstantExpression { Value: bool },
-                    Left: SqlConstantExpression { Value: bool }
+            {
+                OperatorType: ExpressionType.Equal,
+                Right: SqlConstantExpression { Value: bool },
+                Left: SqlConstantExpression { Value: bool }
                     or SqlParameterExpression { IsNullable: false }
                     or ColumnExpression { IsNullable: false }
-                } binary
+            } binary
                 => Equal(binary.Left, Not(binary.Right)),
 
             SqlBinaryExpression
-                {
-                    OperatorType: ExpressionType.Equal,
-                    Left: SqlConstantExpression { Value: bool },
-                    Right: SqlConstantExpression { Value: bool }
+            {
+                OperatorType: ExpressionType.Equal,
+                Left: SqlConstantExpression { Value: bool },
+                Right: SqlConstantExpression { Value: bool }
                     or SqlParameterExpression { IsNullable: false }
                     or ColumnExpression { IsNullable: false }
-                } binary
+            } binary
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b
@@ -758,11 +750,30 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     // WHEN x THEN y
                     test = nestedSingleClause.Test;
                 }
-                else if (nestedSingleClause.Result is SqlConstantExpression { Value: false or null }
+                else if (whenClauses.Count == 1
+                         && nestedSingleClause.Result is SqlConstantExpression { Value: false or null }
                          && testExpr.ElseResult is SqlConstantExpression { Value: true })
                 {
-                    // same for the negated results
-                    test = Not(nestedSingleClause.Test);
+                    // CASE
+                    //   WHEN CASE
+                    //     WHEN x THEN FALSE/NULL
+                    //     ELSE TRUE
+                    //   END THEN y
+                    //   ELSE z
+                    // END
+                    // simplifies to
+                    // CASE
+                    //   WHEN x THEN z
+                    //   ELSE y
+                    // END
+                    // It cannot become WHEN NOT x THEN y: when x is NULL the nested CASE is TRUE, but NOT x is NULL. That is
+                    // the case the nested CASE exists for, as the nullability processor wraps a nullable comparison in it
+                    // to give it C# semantics. With more clauses, swapping would change which one the remaining rows reach,
+                    // so the nested CASE is left as is.
+                    return Case(
+                        operand: null,
+                        [new CaseWhenClause(nestedSingleClause.Test, elseResult ?? Constant(null, caseWhenClause.Result.Type, caseWhenClause.Result.TypeMapping))],
+                        caseWhenClause.Result);
                 }
             }
 
@@ -836,6 +847,62 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             typeMappedWhenClauses[^1] = new CaseWhenClause(AndAlso(typeMappedWhenClauses[^1].Test, lastClause.Test), lastClause.Result);
             elseResult = lastCase.ElseResult;
+        }
+
+        // Simplify:
+        //   a == b ? b : a -> a
+        //   a != b ? a : b -> a
+        // And lift:
+        //   a == b ? null : a -> NULLIF(a, b)
+        //   a != b ? a : null -> NULLIF(a, b)
+        if (operand is null
+            && typeMappedWhenClauses is
+            [
+                {
+                    Test: SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                        Left: var left,
+                        Right: var right
+                    } binary,
+                    Result: var result
+                }
+            ])
+        {
+            // Swap result/elseResult for NotEqual so we can reason uniformly about ifEqual/ifNotEqual.
+            // A missing ELSE clause is equivalent to ELSE NULL, so normalize to a null constant for matching.
+            var (ifEqual, ifNotEqual) = binary.OperatorType is ExpressionType.Equal
+                ? (result, elseResult ?? Constant(null, result.Type, result.TypeMapping))
+                : (elseResult ?? Constant(null, result.Type, result.TypeMapping), result);
+
+            // 'left' survives the conditional.
+            if (left.Equals(ifNotEqual))
+            {
+                switch (ifEqual)
+                {
+                    // a == b ? b : a -> a   (also collapses NULLIF(a, NULL) when both are null constants)
+                    case var _ when ifEqual.Equals(right):
+                        return left;
+                    // a == b ? null : a -> NULLIF(a, b)
+                    // NULLIF is also NULL when a == b, so its nullability doesn't follow from its arguments: never propagate.
+                    case SqlConstantExpression { Value: null }:
+                        return Function("NULLIF", [left, right], nullable: true, Statics.FalseArrays[2], left.Type, left.TypeMapping);
+                }
+            }
+
+            // 'right' survives the conditional (operand-swapped equivalents of the patterns above).
+            if (right.Equals(ifNotEqual))
+            {
+                switch (ifEqual)
+                {
+                    // a == b ? a : b -> b
+                    case var _ when ifEqual.Equals(left):
+                        return right;
+                    // a == b ? null : b -> NULLIF(b, a)
+                    case SqlConstantExpression { Value: null }:
+                        return Function("NULLIF", [right, left], nullable: true, Statics.FalseArrays[2], right.Type, right.TypeMapping);
+                }
+            }
         }
 
         return existingExpression is CaseExpression expr

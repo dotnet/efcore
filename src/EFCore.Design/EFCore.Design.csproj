@@ -48,11 +48,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\**\*" PackagePath="build\" Pack="true" />
+    <None Include="build\**\*" PackagePath="build\$(DefaultNetCoreTargetFramework)" Pack="true" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" />
+    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" PackageVersion="[$(Version), $(NextMajorVersion))" />
   </ItemGroup>
 
   <ItemGroup>

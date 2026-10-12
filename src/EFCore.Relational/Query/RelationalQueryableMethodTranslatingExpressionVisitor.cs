@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -22,6 +21,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
     private readonly ParameterTranslationMode _collectionParameterTranslationMode;
+
+    private Expression? _rootExpression;
+    private bool _isRootOperator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -158,8 +160,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             case EntityQueryRootExpression entityQueryRootExpression
                 when entityQueryRootExpression.GetType() == typeof(EntityQueryRootExpression)
                 && entityQueryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is
-                    { } sqlQuery:
+                { } sqlQuery:
             {
+                // TODO: Use the SqlQuery directly instead of the default mapping once hierarchy support is implemented.
+                // Issue #21660
                 var table = entityQueryRootExpression.EntityType.GetDefaultMappings().Single().Table;
                 var alias = _sqlAliasManager.GenerateTableAlias(table);
 
@@ -172,15 +176,40 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             case GroupByShaperExpression groupByShaperExpression:
                 var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
-                var groupClonedSelectExpression = ((SelectExpression)groupShapedQueryExpression.QueryExpression).Clone();
-                return new ShapedQueryExpression(
-                    groupClonedSelectExpression,
-                    new QueryExpressionReplacingExpressionVisitor(
-                            groupShapedQueryExpression.QueryExpression, groupClonedSelectExpression)
-                        .Visit(groupShapedQueryExpression.ShaperExpression));
+                var groupSourceSelectExpression = (SelectExpression)groupShapedQueryExpression.QueryExpression;
+                var groupClonedSelectExpression = groupSourceSelectExpression.Clone();
+
+                // #22517/#30915: this clone is (re)translating a grouping-element subquery (e.g.
+                // `els.Select(...).FirstOrDefault()`), so any non-entity nullability marker recorded on the source
+                // grouping SelectExpression must be carried over the same way ApplyGrouping does it -- otherwise the
+                // marker is stranded on groupSourceSelectExpression, which nothing consults once this clone is the
+                // one actually translated, and the whole-object null gate never fires for this subquery.
+                // RemapGroupingElementShaper rebuilds the shaper and owns that transfer (fail-safe; see its comments).
+                // Note: groupSourceSelectExpression here is the clone ApplyGrouping already populated -- this is the
+                // second hop of the propagation, not the origin, so the marker binding resolves against it.
+                var groupRebuiltShaperExpression = groupSourceSelectExpression.RemapGroupingElementShaper(
+                    groupClonedSelectExpression, groupShapedQueryExpression.ShaperExpression);
+
+                return new ShapedQueryExpression(groupClonedSelectExpression, groupRebuiltShaperExpression);
 
             case ShapedQueryExpression shapedQueryExpression:
-                var clonedSelectExpression = ((SelectExpression)shapedQueryExpression.QueryExpression).Clone();
+                var subquerySourceSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+
+                // #22517/#30915: unlike the GroupByShaperExpression case above, this non-grouping subquery clone does NOT
+                // carry non-entity nullability markers across. It is safe today because a non-grouping subquery is bound to
+                // completion -- its markers created and consumed by the projection binder in the same window -- before it is
+                // embedded, so no live marker ever reaches this clone (verified: this case is never hit with a live marker
+                // across the whole #30915 suite, whereas the grouping sibling is). Clone() deliberately drops markers (see the
+                // _nonEntityNullabilityMarkers field comment), so if a future change ever routed a live marker here it would be
+                // silently stranded and the whole-object null gate would regress to a throw. Assert the invariant so that
+                // regression surfaces loudly in Debug; the fix would be to route through the same marker-aware remap the
+                // grouping case uses (SelectExpression.RemapGroupingElementShaper).
+                Check.DebugAssert(
+                    !subquerySourceSelectExpression.HasNonEntityNullabilityMarkers,
+                    "Non-grouping subquery clone carries a live non-entity nullability marker; it would be stranded by Clone(). "
+                    + "Route it through a marker-aware remap as the GroupByShaperExpression case does.");
+
+                var clonedSelectExpression = subquerySourceSelectExpression.Clone();
                 return new ShapedQueryExpression(
                     clonedSelectExpression,
                     new QueryExpressionReplacingExpressionVisitor(shapedQueryExpression.QueryExpression, clonedSelectExpression)
@@ -235,6 +264,23 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
+        // Operators are translated after their source has been visited, so this needs restoring rather than just clearing: by the time
+        // the query's last operator is translated, the ones nested inside it have already had their turn.
+        var parentIsRootOperator = _isRootOperator;
+        _isRootOperator = ReferenceEquals(methodCallExpression, _rootExpression);
+
+        try
+        {
+            return VisitMethodCallCore(methodCallExpression);
+        }
+        finally
+        {
+            _isRootOperator = parentIsRootOperator;
+        }
+    }
+
+    private Expression VisitMethodCallCore(MethodCallExpression methodCallExpression)
+    {
         var method = methodCallExpression.Method;
 
         if (method.DeclaringType == typeof(RelationalQueryableMethodTranslatingExpressionVisitor)
@@ -242,7 +288,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && method.GetGenericMethodDefinition() == _fakeDefaultIfEmptyMethodInfo.Value
             && Visit(methodCallExpression.Arguments[0]) is ShapedQueryExpression source)
         {
-            ((SelectExpression)source.QueryExpression).MakeProjectionNullable(_sqlExpressionFactory, source.ShaperExpression.Type.IsNullableType());
+            ((SelectExpression)source.QueryExpression).MakeProjectionNullable(
+                _sqlExpressionFactory, source.ShaperExpression.Type.IsNullableType());
             return source.UpdateShaperExpression(MarkShaperNullable(source.ShaperExpression));
         }
 
@@ -303,7 +350,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         return null;
 
-        string GenerateTableAlias(SqlExpression sqlExpression)
+        static string GenerateTableAlias(SqlExpression sqlExpression)
             => sqlExpression switch
             {
                 ColumnExpression c => c.Name,
@@ -491,7 +538,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 ? nestedOperand
                 : _sqlExpressionFactory.Not(translation));
 
-        subquery.ReplaceProjection(new List<Expression>());
+        subquery.ReplaceProjection([]);
         subquery.ApplyProjection();
         if (subquery.Limit == null
             && subquery.Offset == null)
@@ -524,7 +571,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var subquery = (SelectExpression)source.QueryExpression;
-        subquery.ReplaceProjection(new List<Expression>());
+        subquery.ReplaceProjection([]);
         subquery.ApplyProjection();
         if (subquery.Limit == null
             && subquery.Offset == null)
@@ -558,6 +605,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
+        source1 = TranslateSetOperationOperand(source1);
+        source2 = TranslateSetOperationOperand(source2);
+
         ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: false);
 
         return source1.UpdateShaperExpression(
@@ -621,7 +671,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         subquery.IsDistinct = false;
 
-        subquery.ReplaceProjection(new List<Expression> { projection });
+        subquery.ReplaceProjection([projection]);
         subquery.ApplyProjection();
 
         var translation = _sqlExpressionFactory.In(translatedItem, subquery);
@@ -642,7 +692,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     {
         if (defaultValue == null)
         {
-            ((SelectExpression)source.QueryExpression).ApplyDefaultIfEmpty(_sqlExpressionFactory, source.ShaperExpression.Type.IsNullableType());
+            ((SelectExpression)source.QueryExpression).ApplyDefaultIfEmpty(
+                _sqlExpressionFactory, source.ShaperExpression.Type.IsNullableType());
             return source.UpdateShaperExpression(MarkShaperNullable(source.ShaperExpression));
         }
 
@@ -691,6 +742,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
+        source1 = TranslateSetOperationOperand(source1);
+        source2 = TranslateSetOperationOperand(source2);
+
         ((SelectExpression)source1.QueryExpression).ApplyExcept((SelectExpression)source2.QueryExpression, distinct: true);
 
         // Since except has result from source1, we don't need to change shaper
@@ -781,8 +835,88 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         newResultSelectorBody = ExpandSharedTypeEntities(selectExpression, newResultSelectorBody);
 
+        if (TryTranslateGroupingElementProjection(source, groupByShaper, newResultSelectorBody) is { } liftedGroupBy)
+        {
+            return liftedGroupBy;
+        }
+
         return source.UpdateShaperExpression(
             _projectionBindingExpressionVisitor.Translate(selectExpression, newResultSelectorBody));
+    }
+
+    /// <summary>
+    ///     Attempts to translate a projection over a grouping which doesn't aggregate the grouping, but only enumerates its elements
+    ///     (e.g. <c>GroupBy(e => e.Key).Select(g => g.Select(e => e.Id).ToList())</c>).
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Such a projection needs no GROUP BY on the server: the same rows the grouping was computed from are the rows being
+    ///         projected. Translating it as a correlated collection over the grouping would instead group on the server and then join the
+    ///         source back to itself to get the elements back, reading everything twice (see issue #35991).
+    ///     </para>
+    ///     <para>
+    ///         So instead the element projection is pushed into the grouping's element selector - where it composes over the very same
+    ///         rows - and the rest of the projection is recorded as a selector applied on the client to each grouping, once it has been
+    ///         materialized. This leaves the shaper a <see cref="RelationalGroupByShaperExpression" />, which makes
+    ///         <see
+    ///             cref="SelectExpression.ApplyProjection(Expression, ResultCardinality, QuerySplittingBehavior)" />
+    ///         stream the source rows in key order rather than aggregate them.
+    ///     </para>
+    /// </remarks>
+    private ShapedQueryExpression? TryTranslateGroupingElementProjection(
+        ShapedQueryExpression source,
+        RelationalGroupByShaperExpression groupByShaper,
+        Expression projection)
+    {
+        if (groupByShaper.ResultSelector != null)
+        {
+            // Already projected out of the grouping once; the shaper is a client-side projection which can't be composed over.
+            return null;
+        }
+
+        if (_subquery || !_isRootOperator)
+        {
+            // Anything composing over the projection - another operator, or an outer query - would compose over the rows rather than
+            // over the groupings, since the GROUP BY is what's being traded away here. So only the query's last operator is lifted.
+            return null;
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        if (selectExpression.Limit != null
+            || selectExpression.Offset != null
+            || selectExpression.IsDistinct
+            || selectExpression.Having != null
+            || selectExpression.Orderings.Any(o => !selectExpression.GroupBy.Contains(o.Expression)))
+        {
+            // Operators between the GroupBy and the projection have already left state on the SelectExpression which counts groups
+            // rather than rows: a limit, an offset, a HAVING, an ordering over an aggregate. Dropping the GROUP BY out from under any
+            // of those would silently reinterpret them as being about the source rows.
+            return null;
+        }
+
+        var analyzer = new GroupingElementProjectionAnalyzer(groupByShaper);
+        if (!analyzer.Analyze(projection))
+        {
+            return null;
+        }
+
+        // Build the client-side selector before anything gets composed into the SelectExpression: composing mutates it, and there's no
+        // way back to the correlated subquery translation afterwards.
+        var groupingParameter = Expression.Parameter(
+            typeof(IGrouping<,>).MakeGenericType(
+                groupByShaper.KeySelector.Type,
+                analyzer.ElementSelector?.ReturnType ?? groupByShaper.ElementSelector.Type),
+            "g");
+
+        var resultSelector = Expression.Lambda(analyzer.Rewrite(projection, groupingParameter), groupingParameter);
+
+        var elementShaper = analyzer.ElementSelector is { } elementSelector
+            ? TranslateSelect(source.UpdateShaperExpression(groupByShaper.ElementSelector), elementSelector).ShaperExpression
+            : groupByShaper.ElementSelector;
+
+        return source.UpdateShaperExpression(
+            new RelationalGroupByShaperExpression(
+                groupByShaper.KeySelector, elementShaper, groupByShaper.GroupingEnumerable, resultSelector));
     }
 
     private Expression? TranslateGroupingKey(Expression expression)
@@ -856,6 +990,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
+        source1 = TranslateSetOperationOperand(source1);
+        source2 = TranslateSetOperationOperand(source2);
+
         ((SelectExpression)source1.QueryExpression).ApplyIntersect((SelectExpression)source2.QueryExpression, distinct: true);
 
         // For intersect since result comes from both sides, if one of them is non-nullable then both are non-nullable
@@ -874,14 +1011,98 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
         if (joinPredicate != null)
         {
+            var isToOneJoin = IsToOneJoin(inner, innerKeySelector);
+            var isPrunable = isToOneJoin && IsPrunableInnerJoin();
+
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            var outerShaperExpression = outerSelectExpression.AddInnerJoin(inner, joinPredicate, outer.ShaperExpression);
+            var outerShaperExpression = outerSelectExpression.AddInnerJoin(
+                inner, joinPredicate, outer.ShaperExpression, isToOneJoin, isPrunable);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
         }
 
         return null;
+
+        // An INNER JOIN is safe to prune when every outer row is guaranteed to have exactly one matching inner row.
+        // The caller checks IsToOneJoin (at most one match via PK/AK/unique index); this method checks that at least
+        // one matching row exists by looking for a required FK between the outer and inner entity types.
+        // However, the FK guarantee only holds when the full inner table is available. If the inner query has been
+        // filtered (via predicates, limit, offset, etc.), some rows may be missing and the join may filter the outer
+        // side; in that case, the join must not be pruned.
+        bool IsPrunableInnerJoin()
+        {
+            if ((SelectExpression)inner.QueryExpression is
+                {
+                    Predicate: null,
+                    Limit: null,
+                    Offset: null,
+                    Having: null,
+                    IsDistinct: false,
+                    GroupBy.Count: 0
+                }
+                && outer.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType outerEntityType }
+                && inner.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType innerEntityType })
+            {
+                var outerKeyProperties = ExtractKeyProperties(outerEntityType, outerKeySelector);
+                var innerKeyProperties = ExtractKeyProperties(innerEntityType, innerKeySelector);
+
+                if (outerKeyProperties is null || innerKeyProperties is null)
+                {
+                    return false;
+                }
+
+                Debug.Assert(outerKeyProperties.Count == innerKeyProperties.Count);
+
+                // Case 1: Outer is dependent, inner is principal — FK.IsRequired guarantees every dependent has a principal.
+                // Case 2: Outer is principal, inner is dependent — FK.IsRequiredDependent guarantees every principal has a dependent.
+                return HasMatchingRequiredForeignKey(
+                        outerEntityType, innerEntityType, outerKeyProperties, innerKeyProperties, checkIsRequired: true)
+                    || HasMatchingRequiredForeignKey(
+                        innerEntityType, outerEntityType, innerKeyProperties, outerKeyProperties, checkIsRequired: false);
+            }
+
+            return false;
+
+            // Checks whether the dependent entity type has a required FK to the principal whose properties match the key selectors.
+            // When checkIsRequired is true, checks FK.IsRequired (every dependent has a principal);
+            // when false, checks FK.IsRequiredDependent (every principal has a dependent).
+            // The key selector properties may appear in a different order than the FK properties, so we match positionally:
+            // for each (fkProperty[i], principalKeyProperty[i]) pair, both must appear at the same index in the respective key selectors.
+            static bool HasMatchingRequiredForeignKey(
+                IEntityType dependentEntityType,
+                IEntityType principalEntityType,
+                IReadOnlyList<IReadOnlyProperty> dependentKeyProperties,
+                IReadOnlyList<IReadOnlyProperty> principalKeyProperties,
+                bool checkIsRequired)
+            {
+                foreach (var fk in dependentEntityType.GetForeignKeys())
+                {
+                    if (fk.PrincipalEntityType == principalEntityType
+                        && (checkIsRequired ? fk.IsRequired : fk.IsRequiredDependent)
+                        && fk.IsConstrained
+                        && fk.Properties.Count == dependentKeyProperties.Count)
+                    {
+                        for (var i = 0; i < fk.Properties.Count; i++)
+                        {
+                            var dependentIndex = dependentKeyProperties.IndexOf(fk.Properties[i]);
+                            if (dependentIndex == -1
+                                || dependentIndex >= principalKeyProperties.Count
+                                || principalKeyProperties[dependentIndex] != fk.PrincipalKey.Properties[i])
+                            {
+                                goto NextForeignKey;
+                            }
+                        }
+
+                        return true;
+
+                        NextForeignKey:;
+                    }
+                }
+
+                return false;
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -895,8 +1116,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
         if (joinPredicate != null)
         {
+            var isToOneJoin = IsToOneJoin(inner, innerKeySelector);
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            var outerShaperExpression = outerSelectExpression.AddLeftJoin(inner, joinPredicate, outer.ShaperExpression);
+            var outerShaperExpression = outerSelectExpression.AddLeftJoin(
+                inner, joinPredicate, outer.ShaperExpression, isToOneJoin, prunableJoin: isToOneJoin);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
@@ -918,6 +1141,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
             var outerShaperExpression = outerSelectExpression.AddRightJoin(inner, joinPredicate, outer.ShaperExpression);
+            outer = outer.UpdateShaperExpression(outerShaperExpression);
+
+            return TranslateTwoParameterSelector(outer, resultSelector);
+        }
+
+        return null;
+    }
+
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateFullJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
+        if (joinPredicate != null)
+        {
+            var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+            var outerShaperExpression = outerSelectExpression.AddFullJoin(inner, joinPredicate, outer.ShaperExpression);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
@@ -1026,16 +1270,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // Note that some providers propagate NULL arguments (SQLite, MySQL), while others only return NULL if all arguments evaluate to
         // NULL (SQL Server, PostgreSQL). If the argument is a nullable value type, don't translate to GREATEST() if it propagates NULLs,
         // to match the .NET behavior.
-        if (TryExtractBareInlineCollectionValues(source, out var values)
+        return TryExtractBareInlineCollectionValues(source, out var values)
             && _sqlTranslator.GenerateGreatest(values, resultType.UnwrapNullableType()) is SqlFunctionExpression greatestExpression
             && (Nullable.GetUnderlyingType(resultType) is null
-                || greatestExpression.ArgumentsPropagateNullability?.All(a => a == false) == true))
-        {
-            return source.Update(new SelectExpression(greatestExpression, _sqlAliasManager), source.ShaperExpression);
-        }
-
-        return TranslateAggregateWithSelector(
-            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), resultType);
+                || greatestExpression.ArgumentsPropagateNullability?.All(a => !a) == true)
+                ? source.Update(new SelectExpression(greatestExpression, _sqlAliasManager), source.ShaperExpression)
+                : TranslateAggregateWithSelector(
+                    source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), resultType);
     }
 
     /// <inheritdoc />
@@ -1045,16 +1286,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         selectExpression.IsDistinct = false;
 
         // See comments above in TranslateMax()
-        if (TryExtractBareInlineCollectionValues(source, out var values)
+        return TryExtractBareInlineCollectionValues(source, out var values)
             && _sqlTranslator.GenerateLeast(values, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression
             && (Nullable.GetUnderlyingType(resultType) is null
-                || leastExpression.ArgumentsPropagateNullability?.All(a => a == false) == true))
-        {
-            return source.Update(new SelectExpression(leastExpression, _sqlAliasManager), source.ShaperExpression);
-        }
-
-        return TranslateAggregateWithSelector(
-            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), resultType);
+                || leastExpression.ArgumentsPropagateNullability?.All(a => !a) == true)
+                ? source.Update(new SelectExpression(leastExpression, _sqlAliasManager), source.ShaperExpression)
+                : TranslateAggregateWithSelector(
+                    source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), resultType);
     }
 
     /// <inheritdoc />
@@ -1137,6 +1375,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     }
 
     /// <inheritdoc />
+    public override Expression Translate(Expression expression)
+    {
+        _rootExpression ??= expression;
+        return base.Translate(expression);
+    }
+
+    /// <inheritdoc />
     protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
     {
         if (selector.Body == selector.Parameters[0])
@@ -1151,6 +1396,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var newSelectorBody = RemapLambdaBody(source, selector);
+
+        if (source.ShaperExpression is RelationalGroupByShaperExpression groupByShaper
+            && TryTranslateGroupingElementProjection(source, groupByShaper, newSelectorBody) is { } liftedGroupBy)
+        {
+            return liftedGroupBy;
+        }
 
         return source.UpdateShaperExpression(_projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody));
     }
@@ -1198,6 +1449,221 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Recognizes projections which use a grouping only through its key and a single, unfiltered enumeration of its elements, and
+    ///     splits them into the element projection (which gets composed into the grouping's element selector, server-side) and the rest
+    ///     of the projection (which gets applied on the client to each materialized grouping).
+    /// </summary>
+    private sealed class GroupingElementProjectionAnalyzer(RelationalGroupByShaperExpression groupByShaper) : ExpressionVisitor
+    {
+        private static readonly MethodInfo[] ElementEnumerationMethods =
+            [EnumerableMethods.ToList, EnumerableMethods.ToArray, EnumerableMethods.AsEnumerable];
+
+        private List<MethodInfo> _enumerationMethods = [];
+        private Expression? _elements;
+        private ParameterExpression? _groupingParameter;
+        private bool _unsupported;
+
+        /// <summary>
+        ///     The projection applied to the elements of the grouping, or <see langword="null" /> if they're enumerated as-is.
+        /// </summary>
+        public LambdaExpression? ElementSelector { get; private set; }
+
+        /// <summary>
+        ///     Checks whether the given projection over the grouping can be applied on the client, over materialized groupings.
+        /// </summary>
+        public bool Analyze(Expression projection)
+        {
+            Visit(projection);
+
+            // Projections which don't enumerate the elements at all (aggregates, or just the key) are better off translated as usual,
+            // on the server.
+            return !_unsupported && _elements != null;
+        }
+
+        /// <summary>
+        ///     Rewrites the projection into one over a materialized <see cref="IGrouping{TKey,TElement}" />, with the element projection
+        ///     taken out of it (it gets applied on the server instead).
+        /// </summary>
+        public Expression Rewrite(Expression projection, ParameterExpression groupingParameter)
+        {
+            _groupingParameter = groupingParameter;
+
+            return Visit(projection);
+        }
+
+        [return: NotNullIfNotNull(nameof(expression))]
+        public override Expression? Visit(Expression? expression)
+        {
+            if (expression is null || _unsupported)
+            {
+                return expression;
+            }
+
+            // g.Key was replaced by the grouping's key selector when the lambda body was remapped; the materialized grouping exposes
+            // the same value as its key.
+            if (ReferenceEquals(expression, groupByShaper.KeySelector))
+            {
+                return _groupingParameter is null
+                    ? expression
+                    : Expression.MakeMemberAccess(
+                        _groupingParameter, _groupingParameter.Type.GetProperty(nameof(IGrouping<object, object>.Key))!);
+            }
+
+            if (_elements is null)
+            {
+                if (TryMatchElements(expression, out var elementSelector, out var enumerationMethods))
+                {
+                    _elements = expression;
+                    ElementSelector = elementSelector;
+                    _enumerationMethods = enumerationMethods;
+
+                    return _groupingParameter is null ? expression : RewriteElements();
+                }
+            }
+            else if (ReferenceEquals(expression, _elements))
+            {
+                return _groupingParameter is null ? expression : RewriteElements();
+            }
+
+            switch (expression)
+            {
+                // Assembling the key and the elements into a result is all the client selector is allowed to do. Anything computed -
+                // g.Key.ToUpper(), EF.Functions.DateDiffDay(g.Key, ...), string.Join over the elements - has a server translation which
+                // moving it to the client would quietly replace with CLR semantics, or with a FunctionOnClient throw.
+                case NewExpression:
+                case MemberInitExpression:
+                case NewArrayExpression:
+                case ConstantExpression:
+                case ParameterExpression:
+                case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked }:
+                    return base.Visit(expression);
+
+                default:
+                    _unsupported = true;
+                    return expression;
+            }
+        }
+
+        private bool TryMatchElements(
+            Expression expression,
+            out LambdaExpression? elementSelector,
+            out List<MethodInfo> enumerationMethods)
+        {
+            enumerationMethods = [];
+            elementSelector = null;
+            var current = expression;
+
+            // g.Select(...).ToList()/.ToArray()/.AsEnumerable(), or any of those over the grouping itself. Note that the query has been
+            // preprocessed by now, so the enumeration typically reads g.AsQueryable().Select(...) rather than g.Select(...).
+            while (current is MethodCallExpression
+                   {
+                       Object: null, Method.IsGenericMethod: true, Arguments: [var enumerationSource]
+                   } enumeration
+                   && ElementEnumerationMethods.Contains(enumeration.Method.GetGenericMethodDefinition()))
+            {
+                enumerationMethods.Add(enumeration.Method.GetGenericMethodDefinition());
+                current = enumerationSource;
+            }
+
+            if (current is MethodCallExpression
+                {
+                    Object: null, Method.IsGenericMethod: true, Arguments: [var selectSource, var selectorArgument]
+                } select
+                && (select.Method.GetGenericMethodDefinition() == EnumerableMethods.Select
+                    || select.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
+                && (selectorArgument is LambdaExpression
+                    or UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression })
+                && selectorArgument.UnwrapLambdaFromQuote() is { Parameters.Count: 1 } selectorLambda)
+            {
+                elementSelector = selectorLambda;
+                current = selectSource;
+            }
+
+            // The AsQueryable the preprocessor introduced is only peeled off as part of an enumeration recognized above; on its own it
+            // says nothing about what's being done with the grouping.
+            if ((enumerationMethods.Count > 0 || elementSelector != null)
+                && current is MethodCallExpression
+                {
+                    Object: null, Method.IsGenericMethod: true, Arguments: [var queryableSource]
+                } asQueryable
+                && asQueryable.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
+            {
+                current = queryableSource;
+            }
+
+            if (!ReferenceEquals(current, groupByShaper)
+                || (elementSelector != null && !IsComposableElementSelector(elementSelector)))
+            {
+                elementSelector = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        private Expression RewriteElements()
+        {
+            var elementType = _groupingParameter!.Type.GetGenericArguments()[1];
+            var elements = (Expression)_groupingParameter;
+
+            // The elements are enumerated as a queryable (over the grouping) rather than as a plain sequence; keep that type, the
+            // enumeration around it may well depend on it.
+            if (_elements!.Type.IsGenericType && _elements.Type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+            {
+                elements = Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(elementType), elements);
+            }
+
+            // The element projection now happens on the server, so only the materialization (ToList/ToArray/...) is left to do here.
+            for (var i = _enumerationMethods.Count - 1; i >= 0; i--)
+            {
+                elements = Expression.Call(_enumerationMethods[i].MakeGenericMethod(elementType), elements);
+            }
+
+            return elements;
+        }
+
+        /// <summary>
+        ///     Checks whether an element projection can be composed into the grouping's element selector, i.e. whether it's a projection
+        ///     of the grouping's own rows and nothing else.
+        /// </summary>
+        private bool IsComposableElementSelector(LambdaExpression elementSelector)
+        {
+            var validator = new ElementSelectorValidator(groupByShaper);
+            validator.Visit(elementSelector.Body);
+
+            return !validator.Unsupported;
+        }
+
+        private sealed class ElementSelectorValidator(RelationalGroupByShaperExpression groupByShaper) : ExpressionVisitor
+        {
+            public bool Unsupported { get; private set; }
+
+            [return: NotNullIfNotNull(nameof(expression))]
+            public override Expression? Visit(Expression? expression)
+            {
+                if (expression is null || Unsupported)
+                {
+                    return expression;
+                }
+
+                if (expression is GroupByShaperExpression
+                    || ReferenceEquals(expression, groupByShaper.KeySelector)
+                    // A collection (navigation, subquery, ...) would be translated as a correlated collection over the element; once the
+                    // GROUP BY is dropped, that correlation would be to the grouping rather than to the element.
+                    || (expression.Type != typeof(string)
+                        && expression.Type != typeof(byte[])
+                        && expression.Type.TryGetSequenceType() is not null))
+                {
+                    Unsupported = true;
+                    return expression;
+                }
+
+                return base.Visit(expression);
+            }
+        }
     }
 
     private sealed class CorrelationFindingExpressionVisitor : ExpressionVisitor
@@ -1463,10 +1929,23 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
+        source1 = TranslateSetOperationOperand(source1);
+        source2 = TranslateSetOperationOperand(source2);
+
         ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: true);
 
         return source1.UpdateShaperExpression(
             MatchShaperNullabilityForSetOperation(source1.ShaperExpression, source2.ShaperExpression, makeNullable: true));
+    }
+
+    private ShapedQueryExpression TranslateSetOperationOperand(ShapedQueryExpression source)
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        return selectExpression.HasClientProjections
+            && _projectionBindingExpressionVisitor.TryTranslateToServerProjection(selectExpression, source.ShaperExpression)
+            is { } serverShaper
+                ? source.UpdateShaperExpression(serverShaper)
+                : source;
     }
 
     /// <inheritdoc />
@@ -1558,8 +2037,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return ExpandSharedTypeEntities((SelectExpression)shapedQueryExpression.QueryExpression, lambdaBody);
     }
 
-    private Expression ExpandSharedTypeEntities(SelectExpression selectExpression, Expression lambdaBody)
-        => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
+    // Mutates selectExpression. When expanding over a grouped SelectExpression, such as an aggregate lambda remapped onto a
+    // grouping element, allowOwnerJoin should be false so that a dependent in its own table is left unexpanded rather than
+    // appending an owner join and the dependent's key as an identifier.
+    // Also called by RelationalSqlTranslatingExpressionVisitor, which remaps aggregate lambdas onto the grouping element itself.
+    internal Expression ExpandSharedTypeEntities(
+        SelectExpression selectExpression,
+        Expression lambdaBody,
+        bool allowOwnerJoin = true)
+        => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody, allowOwnerJoin);
 
     private sealed class IncludePruner : ExpressionVisitor
     {
@@ -1579,12 +2065,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         private readonly SqlAliasManager _sqlAliasManager = queryableTranslator._sqlAliasManager;
         private SelectExpression _selectExpression = null!;
         private bool _bindComplexProperties;
+        private bool _allowOwnerJoin = true;
 
-        public Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
+        public Expression Expand(SelectExpression selectExpression, Expression lambdaBody, bool allowOwnerJoin = true)
         {
-            _selectExpression = selectExpression;
+            // Expansion can re-enter SQL translation, which can re-enter expansion for a different SelectExpression.
+            var (parentSelect, parentAllowOwnerJoin, parentBindComplex) =
+                (_selectExpression, _allowOwnerJoin, _bindComplexProperties);
+            (_selectExpression, _allowOwnerJoin, _bindComplexProperties) = (selectExpression, allowOwnerJoin, false);
 
-            return Visit(lambdaBody);
+            try
+            {
+                return Visit(lambdaBody);
+            }
+            finally
+            {
+                (_selectExpression, _allowOwnerJoin, _bindComplexProperties) =
+                    (parentSelect, parentAllowOwnerJoin, parentBindComplex);
+            }
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -1728,9 +2226,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 {
                     // JSON_QUERY($[0]).Property
                     case MemberExpression
-                        {
-                            Expression: RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression memberJqe }
-                        }
+                    {
+                        Expression: RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression memberJqe }
+                    }
                         when JsonQueryExpressionIsRootedIn(memberJqe, baselineJsonQuery):
                     {
                         return true;
@@ -1828,15 +2326,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 ? entityType.FindNavigation(member.MemberInfo)
                 : entityType.FindNavigation(member.Name!);
 
-            if (navigation is { TargetEntityType: var targetEntityType }
-                && targetEntityType.IsOwned())
-            {
-                return ExpandOwnedNavigation(navigation);
-            }
+            return navigation is { TargetEntityType: var targetEntityType }
+                && targetEntityType.IsOwned()
+                    ? ExpandOwnedNavigation(navigation)
+                    : null;
 
-            return null;
-
-            Expression ExpandOwnedNavigation(INavigation navigation)
+            Expression? ExpandOwnedNavigation(INavigation navigation)
             {
                 var targetEntityType = navigation.TargetEntityType;
 
@@ -1928,7 +2423,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
                 return entityProjectionExpression.BindNavigation(navigation)
                     ?? _selectExpression.GenerateOwnedReferenceEntityProjectionExpression(
-                        entityProjectionExpression, navigation, queryableTranslator._sqlExpressionFactory, _sqlAliasManager);
+                        entityProjectionExpression, navigation, queryableTranslator._sqlExpressionFactory, _sqlAliasManager,
+                        _allowOwnerJoin);
             }
 
             static TableExpressionBase FindRootTableExpressionForColumn(SelectExpression select, ColumnExpression column)
@@ -2003,8 +2499,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     translatedExpression = jsonSource.BindStructuralProperty(complexProperty);
                 }
                 else if (!queryableTranslator._sqlTranslator.TryBindMember(
-                    queryableTranslator._sqlTranslator.Visit(source), MemberIdentity.Create(memberName),
-                    out translatedExpression, out _))
+                             queryableTranslator._sqlTranslator.Visit(source), MemberIdentity.Create(memberName),
+                             out translatedExpression, out _))
                 {
                     return null;
                 }
@@ -2026,9 +2522,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
                 return complexProperty switch
                 {
-                    { IsCollection: false } when translatedExpression is StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery }
+                    { IsCollection: false } when translatedExpression is StructuralTypeShaperExpression
+                    {
+                        ValueBufferExpression: JsonQueryExpression jsonQuery
+                    }
                         => jsonQuery,
-                    { IsCollection: true } when translatedExpression is CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery }
+                    { IsCollection: true } when translatedExpression is CollectionResultExpression
+                    {
+                        QueryExpression: JsonQueryExpression jsonQuery
+                    }
                         => jsonQuery,
                     { IsCollection: true } when translatedExpression is JsonQueryExpression jsonQuery
                         => jsonQuery,
@@ -2178,7 +2680,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (!selectExpression.IsDistinct)
         {
-            selectExpression.ReplaceProjection(new List<Expression>());
+            selectExpression.ReplaceProjection([]);
         }
 
         selectExpression.PrepareForAggregate(liftOrderings);
@@ -2390,15 +2892,92 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private static IQueryable<TSource?> FakeDefaultIfEmpty<TSource>(IQueryable<TSource> source)
         => throw new UnreachableException();
 
-    private static readonly Lazy<MethodInfo> _fakeDefaultIfEmptyMethodInfo = new(
-        () => typeof(RelationalQueryableMethodTranslatingExpressionVisitor)
+    private static readonly Lazy<MethodInfo> _fakeDefaultIfEmptyMethodInfo = new(()
+        => typeof(RelationalQueryableMethodTranslatingExpressionVisitor)
             .GetMethod(nameof(FakeDefaultIfEmpty), BindingFlags.NonPublic | BindingFlags.Static)!);
 
     /// <summary>
-    ///     This visitor has been obsoleted; Extend RelationalTypeMappingPostprocessor instead, and invoke it from
-    ///     <see cref="RelationalQueryTranslationPostprocessor.ProcessTypeMappings" />.
+    ///     Determines whether a join is guaranteed to match at most one inner row per outer row (a "to-one" join).
+    ///     This is detected by checking whether the inner key selector's properties form a primary/alternate key
+    ///     or are covered by a unique index on the inner entity type.
     /// </summary>
-    [Obsolete(
-        "Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
-    protected class RelationalInferredTypeMappingApplier;
+    private static bool IsToOneJoin(ShapedQueryExpression inner, LambdaExpression innerKeySelector)
+    {
+        if (inner.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType entityType })
+        {
+            return false;
+        }
+
+        var keyProperties = ExtractKeyProperties(entityType, innerKeySelector);
+        if (keyProperties is null)
+        {
+            return false;
+        }
+
+        // Check if the inner key properties form a primary or alternate key.
+        if (entityType.FindKey(keyProperties) is not null)
+        {
+            return true;
+        }
+
+        // Check if the inner key properties are covered by a unique index (e.g. unique FK in a 1:1 relationship).
+        foreach (var index in entityType.GetIndexes())
+        {
+            if (index.IsUnique
+                && index.Properties.Count == keyProperties.Count
+                && index.Properties.OfType<IProperty>().SequenceEqual(keyProperties))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Extracts the <see cref="IProperty" /> instances referenced by the inner key selector lambda.
+    ///     Returns <see langword="null" /> if properties cannot be determined.
+    /// </summary>
+    private static IReadOnlyList<IReadOnlyProperty>? ExtractKeyProperties(
+        IEntityType entityType,
+        LambdaExpression innerKeySelector)
+    {
+        switch (innerKeySelector.Body.UnwrapTypeConversion(out _))
+        {
+            // Composite key: new[] { Convert(EF.Property<T>(...)), ... }
+            case NewArrayExpression { NodeType: ExpressionType.NewArrayInit } newArray:
+            {
+                var properties = new IReadOnlyProperty[newArray.Expressions.Count];
+                for (var i = 0; i < newArray.Expressions.Count; i++)
+                {
+                    var property = ExtractSingleKeyProperty(entityType, newArray.Expressions[i].UnwrapTypeConversion(out _));
+                    if (property is null)
+                    {
+                        return null;
+                    }
+
+                    properties[i] = property;
+                }
+
+                return properties;
+            }
+
+            // Single key
+            case var e when ExtractSingleKeyProperty(entityType, e) is IProperty singleProperty:
+                return [singleProperty];
+
+            default:
+                return null;
+        }
+
+        static IReadOnlyProperty? ExtractSingleKeyProperty(IEntityType entityType, Expression expression)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+
+            return Infrastructure.ExpressionExtensions.IsMemberAccess(expression, entityType.Model, out _, out var memberIdentity)
+                && memberIdentity.Name is not null
+                    ? entityType.FindProperty(memberIdentity.Name)
+                    : null;
+        }
+    }
 }

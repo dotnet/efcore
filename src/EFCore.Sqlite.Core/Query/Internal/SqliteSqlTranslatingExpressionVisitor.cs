@@ -116,40 +116,34 @@ public class SqliteSqlTranslatingExpressionVisitor(
     {
         var translation = base.VisitUnary(unaryExpression);
 
-        if (translation is SqlUnaryExpression { OperatorType: ExpressionType.Negate } sqlUnary)
-        {
-            return GetProviderType(sqlUnary.Operand) switch
+        return translation is SqlUnaryExpression { OperatorType: ExpressionType.Negate } sqlUnary
+            ? GetProviderType(sqlUnary.Operand) switch
             {
                 var t when t == typeof(decimal)
                     => Dependencies.SqlExpressionFactory.Function(
-                    name: "ef_negate",
-                    [sqlUnary.Operand],
-                    nullable: true,
-                    [true],
-                    translation.Type),
+                        name: "ef_negate",
+                        [sqlUnary.Operand],
+                        nullable: true,
+                        [true],
+                        translation.Type),
 
                 var t when t == typeof(TimeOnly) || t == typeof(TimeSpan)
                     => QueryCompilationContext.NotTranslatedExpression,
 
                 _ => translation
-            };
-        }
-
-        if (translation == QueryCompilationContext.NotTranslatedExpression
+            }
+            : translation == QueryCompilationContext.NotTranslatedExpression
             && unaryExpression.NodeType == ExpressionType.ArrayLength
-            && unaryExpression.Operand.Type == typeof(byte[]))
-        {
-            return Visit(unaryExpression.Operand) is SqlExpression sqlExpression
-                ? Dependencies.SqlExpressionFactory.Function(
-                    "length",
-                    [sqlExpression],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                    typeof(int))
-                : QueryCompilationContext.NotTranslatedExpression;
-        }
-
-        return translation;
+            && unaryExpression.Operand.Type == typeof(byte[])
+                ? Visit(unaryExpression.Operand) is SqlExpression sqlExpression
+                    ? Dependencies.SqlExpressionFactory.Function(
+                        "length",
+                        [sqlExpression],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                        typeof(int))
+                    : QueryCompilationContext.NotTranslatedExpression
+                : translation;
     }
 
     /// <summary>
@@ -174,7 +168,7 @@ public class SqliteSqlTranslatingExpressionVisitor(
 
                 case { OperatorType: ExpressionType.Modulo }
                     when ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Left), out var function)
-                        || ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Right), out function):
+                    || ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Right), out function):
                 {
                     return Dependencies.SqlExpressionFactory.Function(
                         function,
@@ -193,8 +187,8 @@ public class SqliteSqlTranslatingExpressionVisitor(
 
                 case { }
                     when RestrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
-                        && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
-                            || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))):
+                    && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))):
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
@@ -214,21 +208,65 @@ public class SqliteSqlTranslatingExpressionVisitor(
         }
 
         var method = methodCallExpression.Method;
+        var declaringType = method.DeclaringType;
+        var @object = methodCallExpression.Object;
+        var arguments = methodCallExpression.Arguments;
 
-        // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-string)
-        // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-char)
-        // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-string)
-        // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-char)
-        if (method.Name is nameof(string.StartsWith) or nameof(string.EndsWith)
-            && methodCallExpression.Object is not null
-            && method.DeclaringType == typeof(string)
-            && methodCallExpression.Arguments is [Expression value]
-            && (value.Type == typeof(string) || value.Type == typeof(char)))
+        switch (method.Name)
         {
-            return TranslateStartsEndsWith(
-                methodCallExpression.Object,
-                value,
-                method.Name is nameof(string.StartsWith));
+            // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-string)
+            // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-char)
+            // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-string)
+            // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-char)
+            case nameof(string.StartsWith) or nameof(string.EndsWith)
+                when methodCallExpression.Object is not null
+                && declaringType == typeof(string)
+                && arguments is [Expression value]
+                && (value.Type == typeof(string) || value.Type == typeof(char)):
+            {
+                return TranslateStartsEndsWith(
+                    methodCallExpression.Object,
+                    value,
+                    method.Name is nameof(string.StartsWith));
+            }
+
+            // We translate EF.Functions.JsonPathExists here and not in a method translator since we need to support JsonPathExists over
+            // complex and owned JSON properties, which requires special handling.
+            case nameof(RelationalDbFunctionsExtensions.JsonPathExists)
+                when declaringType == typeof(RelationalDbFunctionsExtensions)
+                && @object is null
+                && arguments is [_, var json, var path]:
+            {
+                if (Translate(path) is not SqlExpression translatedPath)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    // The JSON argument is a scalar string property
+                    SqlExpression scalar => scalar,
+
+                    // The JSON argument is a complex or owned JSON property
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                return translatedJson is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.IsNotNull(
+                        _sqlExpressionFactory.Function(
+                            "json_type",
+                            [translatedJson, translatedPath],
+                            nullable: true,
+                            // Note that json_type() does propagate nullability; however, our query pipeline assumes that if arguments
+                            // propagate nullability, that's the *only* reason for the function to return null; this means that if the
+                            // arguments are non-nullable, the IS NOT NULL wrapping check can be optimized away.
+                            argumentsPropagateNullability: [false, false],
+                            typeof(int)));
+            }
         }
 
         return QueryCompilationContext.NotTranslatedExpression;
@@ -267,20 +305,20 @@ public class SqliteSqlTranslatingExpressionVisitor(
                         string s => s.Any(IsLikeWildChar)
                             ? _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? EscapeLikePattern(s) + '%' : '%' + EscapeLikePattern(s)),
+                                _sqlExpressionFactory.Constant(startsWith ? $"{EscapeLikePattern(s)}%" : $"%{EscapeLikePattern(s)}"),
                                 _sqlExpressionFactory.Constant(LikeEscapeString))
                             : _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? s + '%' : '%' + s)),
+                                _sqlExpressionFactory.Constant(startsWith ? $"{s}%" : $"%{s}")),
 
                         char s => IsLikeWildChar(s)
                             ? _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? LikeEscapeString + s + "%" : '%' + LikeEscapeString + s),
+                                _sqlExpressionFactory.Constant(startsWith ? $"{LikeEscapeChar}{s}%" : $"%{LikeEscapeChar}{s}"),
                                 _sqlExpressionFactory.Constant(LikeEscapeString))
                             : _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? s + "%" : "%" + s)),
+                                _sqlExpressionFactory.Constant(startsWith ? $"{s}%" : $"%{s}")),
 
                         _ => throw new UnreachableException()
                     };
@@ -344,39 +382,37 @@ public class SqliteSqlTranslatingExpressionVisitor(
                                             translatedPattern),
                                         _sqlExpressionFactory.Equal(translatedPattern, _sqlExpressionFactory.Constant(string.Empty)))));
                     }
-                    else
-                    {
-                        // Generate: WHERE instance IS NOT NULL AND pattern IS NOT NULL AND (substr(instance, -length(pattern)) = pattern OR pattern = '')
-                        // Note that the empty string pattern needs special handling, since in .NET it returns true for all non-null
-                        // instances, but substr(instance, 0) returns the entire string in SQLite.
-                        // Note that we compensate for the case where both the instance and the pattern are null (null.StartsWith(null)); a
-                        // simple equality would yield true in that case, but we want false. We technically
-                        return
+
+                    // Generate: WHERE instance IS NOT NULL AND pattern IS NOT NULL AND (substr(instance, -length(pattern)) = pattern OR pattern = '')
+                    // Note that the empty string pattern needs special handling, since in .NET it returns true for all non-null
+                    // instances, but substr(instance, 0) returns the entire string in SQLite.
+                    // Note that we compensate for the case where both the instance and the pattern are null (null.StartsWith(null)); a
+                    // simple equality would yield true in that case, but we want false. We technically
+                    return
+                        _sqlExpressionFactory.AndAlso(
+                            _sqlExpressionFactory.IsNotNull(translatedInstance),
                             _sqlExpressionFactory.AndAlso(
-                                _sqlExpressionFactory.IsNotNull(translatedInstance),
-                                _sqlExpressionFactory.AndAlso(
-                                    _sqlExpressionFactory.IsNotNull(translatedPattern),
-                                    _sqlExpressionFactory.OrElse(
-                                        _sqlExpressionFactory.Equal(
-                                            _sqlExpressionFactory.Function(
-                                                "substr",
-                                                [
-                                                    translatedInstance,
-                                                    _sqlExpressionFactory.Negate(
-                                                        _sqlExpressionFactory.Function(
-                                                            "length",
-                                                            [translatedPattern],
-                                                            nullable: true,
-                                                            argumentsPropagateNullability: Statics.TrueArrays[1],
-                                                            typeof(int)))
-                                                ],
-                                                nullable: true,
-                                                argumentsPropagateNullability: Statics.TrueArrays[2],
-                                                typeof(string),
-                                                stringTypeMapping),
-                                            translatedPattern),
-                                        _sqlExpressionFactory.Equal(translatedPattern, _sqlExpressionFactory.Constant(string.Empty)))));
-                    }
+                                _sqlExpressionFactory.IsNotNull(translatedPattern),
+                                _sqlExpressionFactory.OrElse(
+                                    _sqlExpressionFactory.Equal(
+                                        _sqlExpressionFactory.Function(
+                                            "substr",
+                                            [
+                                                translatedInstance,
+                                                _sqlExpressionFactory.Negate(
+                                                    _sqlExpressionFactory.Function(
+                                                        "length",
+                                                        [translatedPattern],
+                                                        nullable: true,
+                                                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                                                        typeof(int)))
+                                            ],
+                                            nullable: true,
+                                            argumentsPropagateNullability: Statics.TrueArrays[2],
+                                            typeof(string),
+                                            stringTypeMapping),
+                                        translatedPattern),
+                                    _sqlExpressionFactory.Equal(translatedPattern, _sqlExpressionFactory.Constant(string.Empty)))));
             }
         }
     }
@@ -400,11 +436,11 @@ public class SqliteSqlTranslatingExpressionVisitor(
             // Return % which always matches instead.
             "" => "%",
 
-            string s => startsWith ? EscapeLikePattern(s) + '%' : '%' + EscapeLikePattern(s),
+            string s => startsWith ? $"{EscapeLikePattern(s)}%" : $"%{EscapeLikePattern(s)}",
 
-            char s when IsLikeWildChar(s) => startsWith ? LikeEscapeString + s + '%' : '%' + LikeEscapeString + s,
+            char s when IsLikeWildChar(s) => startsWith ? $"{LikeEscapeChar}{s}%" : $"%{LikeEscapeChar}{s}",
 
-            char s => startsWith ? s + "%" : "%" + s,
+            char s => startsWith ? $"{s}%" : $"%{s}",
 
             _ => throw new UnreachableException()
         };

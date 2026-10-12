@@ -121,10 +121,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             var leftReference = left as StructuralTypeReferenceExpression;
             var rightReference = right as StructuralTypeReferenceExpression;
 
-            if (IsNullSqlConstantExpression(left)
-                || IsNullSqlConstantExpression(right))
+            if (left is SqlConstantExpression { Value: null }
+                || right is SqlConstantExpression { Value: null })
             {
-                var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightReference : leftReference)!;
+                var nonNullEntityReference = (left is SqlConstantExpression { Value: null } ? rightReference : leftReference)!;
                 var nullComparedEntityType = (IEntityType)nonNullEntityReference.StructuralType;
 
                 if (nonNullEntityReference is { Parameter.ValueBufferExpression: JsonQueryExpression jsonQueryExpression })
@@ -159,13 +159,16 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 if (nullComparedEntityType.GetRootType() == nullComparedEntityType
                     && nullComparedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    var table = nullComparedEntityType.GetViewOrTableMappings().ToList() switch
+                    // Scope to actually-projected tables when known (entity-splitting).
+                    var tableMap = (nonNullEntityReference.Parameter?.ValueBufferExpression as StructuralTypeProjectionExpression)
+                        ?.TableMap;
+                    var table = nullComparedEntityType.GetProjectedQueryMappings(tableMap) switch
                     {
                         [var singleMapping] => singleMapping.Table,
 
                         // For entity splitting we get multiple table mappings, but can simply choose the principal table.
                         var multipleMappings when multipleMappings.SingleOrDefault(m => m.IsSplitEntityTypePrincipal is true)
-                            is { Table: var principalSplitTable }
+                                is { Table: var principalSplitTable }
                             => principalSplitTable,
 
                         _ => null
@@ -473,7 +476,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                             default:
                                 result = null;
                                 return false;
-                        };
+                        }
+
+                        ;
                     }
                 }
 
@@ -536,8 +541,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                             // Find the corresponding property on the right-side complex type (which is different than the left-side complex type,
                             // despite the two having the same CLR type, e.g. compare ShippingAddress to BillingAddress)
                             var rightComplexProperty = secondComplexType!.FindComplexProperty(firstComplexProperty.Name)
-                                ?? throw new InvalidOperationException(RelationalStrings.IncompatibleComplexTypesInComparison(
-                                    firstComplexType.DisplayName(), secondComplexType.DisplayName(), firstComplexProperty.Name));
+                                ?? throw new InvalidOperationException(
+                                    RelationalStrings.IncompatibleComplexTypesInComparison(
+                                        firstComplexType.DisplayName(), secondComplexType.DisplayName(), firstComplexProperty.Name));
                             nestedRight = BindComplexProperty(rightReference, rightComplexProperty);
                             nestedRightType = rightComplexProperty.ComplexType;
                             break;
@@ -547,7 +553,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                     }
 
                     if (!TryGenerateComparisons(
-                        nestedLeftType, nestedRightType, nestedLeft, nestedRight, ref comparisons, out exitImmediately))
+                            nestedLeftType, nestedRightType, nestedLeft, nestedRight, ref comparisons, out exitImmediately))
                     {
                         return false;
                     }

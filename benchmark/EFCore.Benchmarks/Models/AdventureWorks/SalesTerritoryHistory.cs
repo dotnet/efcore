@@ -16,6 +16,6 @@ public class SalesTerritoryHistory
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
-    public virtual SalesPerson BusinessEntity { get; set; }
-    public virtual SalesTerritory Territory { get; set; }
+    public virtual SalesPerson BusinessEntity { get; set; } = null!;
+    public virtual SalesTerritory Territory { get; set; } = null!;
 }

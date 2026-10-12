@@ -55,7 +55,7 @@ public static class CosmosPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> ToJsonProperty<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string name)
-        => (PropertyBuilder<TProperty>)ToJsonProperty((PropertyBuilder)propertyBuilder, name);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).ToJsonProperty(name);
 
     /// <summary>
     ///     Configures the property name that the property is mapped to when targeting Azure Cosmos. If an empty string is
@@ -146,7 +146,7 @@ public static class CosmosPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         DistanceFunction distanceFunction,
         int dimensions)
-        => (PropertyBuilder<TProperty>)IsVectorProperty((PropertyBuilder)propertyBuilder, distanceFunction, dimensions);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).IsVectorProperty(distanceFunction, dimensions);
 
     /// <summary>
     ///     Configures the property as a vector for Azure Cosmos DB.
@@ -246,7 +246,7 @@ public static class CosmosPropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder<TProperty> IsETagConcurrency<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder)
-        => (PropertyBuilder<TProperty>)IsETagConcurrency((PropertyBuilder)propertyBuilder);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).IsETagConcurrency();
 
     /// <summary>
     ///     Enables full-text search for this property using a specified language.
@@ -296,7 +296,7 @@ public static class CosmosPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         string? language = null,
         bool enabled = true)
-        => (PropertyBuilder<TProperty>)EnableFullTextSearch((PropertyBuilder)propertyBuilder, language, enabled);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).EnableFullTextSearch(language, enabled);
 
     /// <summary>
     ///     Enables full-text search for this property using a specified language.

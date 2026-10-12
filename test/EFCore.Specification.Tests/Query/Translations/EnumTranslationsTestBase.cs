@@ -5,16 +5,18 @@ using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
+#nullable disable
+
 public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
     #region Equality
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equality_to_constant()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Enum == BasicEnum.One));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equality_to_parameter()
     {
         var basicEnum = BasicEnum.One;
@@ -22,11 +24,11 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Enum == basicEnum));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equality_nullable_enum_to_constant()
         => AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(b => b.Enum == BasicEnum.One));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equality_nullable_enum_to_parameter()
     {
         var basicEnum = BasicEnum.One;
@@ -34,11 +36,11 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
         return AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(b => b.Enum == basicEnum));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equality_nullable_enum_to_null_constant()
         => AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(b => b.Enum == null));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equality_nullable_enum_to_null_parameter()
     {
         BasicEnum? basicEnum = null;
@@ -46,7 +48,7 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
         return AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(b => b.Enum == basicEnum));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equality_nullable_enum_to_nullable_parameter()
     {
         BasicEnum? basicEnum = BasicEnum.One;
@@ -56,7 +58,7 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
 
     #endregion Equality
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Bitwise_and_enum_constant()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(g => (g.FlagsEnum & BasicFlagsEnum.One) > 0));
@@ -64,7 +66,7 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(g => (g.FlagsEnum & BasicFlagsEnum.One) == BasicFlagsEnum.One));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Bitwise_and_integral_constant()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(g => ((int)g.FlagsEnum & 8) == 8));
@@ -74,21 +76,19 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(g => ((short)g.FlagsEnum & 8) == 8));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Bitwise_and_nullable_enum_with_constant()
         => AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(w => (w.FlagsEnum & BasicFlagsEnum.Eight) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Where_bitwise_and_nullable_enum_with_null_constant()
-    {
-        return AssertQuery(
+        => AssertQuery(
 #pragma warning disable CS0458 // The result of the expression is always 'null'
             ss => ss.Set<NullableBasicTypesEntity>().Where(w => (w.FlagsEnum & null) > 0),
 #pragma warning restore CS0458 // The result of the expression is always 'null'
             assertEmpty: true);
-    }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Where_bitwise_and_nullable_enum_with_non_nullable_parameter()
     {
         var flagsEnum = BasicFlagsEnum.Eight;
@@ -96,7 +96,7 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
         return AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(w => (w.FlagsEnum & flagsEnum) > 0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bitwise_and_nullable_enum_with_nullable_parameter()
     {
         BasicFlagsEnum? flagsEnum = BasicFlagsEnum.Eight;
@@ -110,11 +110,11 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
             assertEmpty: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Bitwise_or()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(g => (g.FlagsEnum | BasicFlagsEnum.Eight) > 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Bitwise_projects_values_in_select()
         => AssertFirst(ss => ss.Set<BasicTypesEntity>()
             .Where(g => (g.FlagsEnum & BasicFlagsEnum.Eight) == BasicFlagsEnum.Eight)
@@ -126,7 +126,7 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
                 BitwiseValue = b.FlagsEnum & BasicFlagsEnum.Eight
             }));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task HasFlag()
     {
         // Constant
@@ -151,11 +151,12 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
             .Where(b => b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight))
             .Select(b => new
             {
-                hasFlagTrue = b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight), hasFlagFalse = b.FlagsEnum.HasFlag(BasicFlagsEnum.Four)
+                hasFlagTrue = b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight),
+                hasFlagFalse = b.FlagsEnum.HasFlag(BasicFlagsEnum.Four)
             }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task HasFlag_with_non_nullable_parameter()
     {
         var flagsEnum = BasicFlagsEnum.Eight;
@@ -163,13 +164,37 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.FlagsEnum.HasFlag(flagsEnum)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task HasFlag_with_nullable_parameter()
     {
         BasicFlagsEnum? flagsEnum = BasicFlagsEnum.Eight;
 
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.FlagsEnum.HasFlag(flagsEnum)));
     }
+
+     [Theory, MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_enum_property_projection(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<BasicTypesEntity>().Select(g => g.Enum.ToString()));
+
+     [Theory, MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_nullable_enum_property_projection(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<NullableBasicTypesEntity>().Select(w => w.Enum.ToString()));
+
+     [Theory, MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_enum_contains(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<BasicTypesEntity>().Where(g => g.Enum.ToString().Contains("One")).Select(g => g.Enum));
+
+     [Theory, MemberData(nameof(IsAsyncData))]
+     public virtual Task ToString_nullable_enum_contains(bool async)
+         => AssertQuery(
+             async,
+             ss => ss.Set<NullableBasicTypesEntity>().Where(w => w.Enum.ToString().Contains("One")).Select(g => g.Enum));
 
     protected BasicTypesContext CreateContext()
         => Fixture.CreateContext();

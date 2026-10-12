@@ -52,12 +52,12 @@ FROM root c
     public override async Task NewGuid()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.NewGuid());
+        await AssertTranslationFailed(base.NewGuid);
 
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

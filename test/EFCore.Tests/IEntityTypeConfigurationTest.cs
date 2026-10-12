@@ -1,23 +1,23 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
 
 public class IEntityTypeConfigurationTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Configure_entity_not_already_in_model()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         builder.ApplyConfiguration(new CustomerConfiguration());
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
         Assert.NotNull(entityType);
         Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Configure_entity_already_in_model()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -25,11 +25,11 @@ public class IEntityTypeConfigurationTest
         builder.Entity<Customer>();
         builder.ApplyConfiguration(new CustomerConfiguration());
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
         Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Override_config_in_entity_type_configuration()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -37,11 +37,11 @@ public class IEntityTypeConfigurationTest
         builder.Entity<Customer>().Property(c => c.Name).HasMaxLength(500);
         builder.ApplyConfiguration(new CustomerConfiguration());
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
-        Assert.Equal(200, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
+        Assert.Equal(200, entityType.FindProperty(nameof(Customer.Name))!.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Override_config_after_entity_type_configuration()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -49,11 +49,11 @@ public class IEntityTypeConfigurationTest
         builder.ApplyConfiguration(new CustomerConfiguration());
         builder.Entity<Customer>().Property(c => c.Name).HasMaxLength(500);
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
-        Assert.Equal(500, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
+        Assert.Equal(500, entityType.FindProperty(nameof(Customer.Name))!.GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Apply_multiple_entity_type_configurations()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -61,9 +61,9 @@ public class IEntityTypeConfigurationTest
         builder.ApplyConfiguration(new CustomerConfiguration());
         builder.ApplyConfiguration(new CustomerConfiguration2());
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
         Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
-        Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
+        Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name))!.GetMaxLength());
     }
 
     private class CustomerConfiguration : IEntityTypeConfiguration<Customer>
@@ -88,15 +88,15 @@ public class IEntityTypeConfigurationTest
 
         public int? CustomerId { get; set; }
         public Guid AnotherCustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 
     protected class Customer
     {
         public int Id { get; set; }
         public Guid AlternateKey { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public IEnumerable<Order> Orders { get; set; }
+        public IEnumerable<Order> Orders { get; set; } = [];
     }
 }

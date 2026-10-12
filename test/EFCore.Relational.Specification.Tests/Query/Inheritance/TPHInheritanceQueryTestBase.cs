@@ -1,11 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
-
-#nullable disable
 
 public abstract class TPHInheritanceQueryTestBase<TFixture> : InheritanceQueryTestBase<TFixture>
     where TFixture : TPHInheritanceQueryFixture, new()
@@ -17,21 +15,21 @@ public abstract class TPHInheritanceQueryTestBase<TFixture> : InheritanceQueryTe
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FromSql_on_root()
     {
         using var context = CreateContext();
         context.Set<Animal>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animals]")).ToList();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FromSql_on_derived()
     {
         using var context = CreateContext();
         context.Set<Eagle>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animals]")).ToList();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Casting_to_base_type_joining_with_query_type_works()
     {
         using var context = CreateContext();

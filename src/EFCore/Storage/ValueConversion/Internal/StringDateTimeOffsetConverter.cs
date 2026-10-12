@@ -43,7 +43,7 @@ public class StringDateTimeOffsetConverter<TModel, TProvider> : ValueConverter<T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected static new Expression<Func<DateTimeOffset, string>> ToString()
-        => v => v.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz");
+        => v => v.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz", CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

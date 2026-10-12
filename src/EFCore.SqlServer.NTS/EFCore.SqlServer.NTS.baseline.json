@@ -1,0 +1,37 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite",
+  "Types": [
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonGeometryWktReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<NetTopologySuite.Geometries.Geometry>",
+      "Properties": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonGeometryWktReaderWriter Instance { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static T UseNetTopologySuite<T>(this T optionsBuilder) where T : Microsoft.EntityFrameworkCore.Infrastructure.SqlEngineDbContextOptionsBuilderBase<T>;"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.SqlServerNetTopologySuiteDbFunctionsExtensions",
+      "Methods": [
+        {
+          "Member": "static NetTopologySuite.Geometries.Geometry CurveToLine(this Microsoft.EntityFrameworkCore.DbFunctions _, NetTopologySuite.Geometries.Geometry geometry);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.Extensions.DependencyInjection.SqlServerNetTopologySuiteServiceCollectionExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServerNetTopologySuite(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+        }
+      ]
+    }
+  ]
+}

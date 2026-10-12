@@ -2,7 +2,7 @@
   <Import Project="..\Directory.Packages.props" />
   <ItemGroup>
     <!-- dependencies only used in benchmarks -->
-    <PackageVersion Include="BenchmarkDotNet" Version="0.15.6" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsConfigurationVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsConfigurationEnvironmentVariablesVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsConfigurationJsonVersion)" />

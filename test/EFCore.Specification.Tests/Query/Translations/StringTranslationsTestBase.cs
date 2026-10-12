@@ -18,23 +18,23 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Equals
 
-    [ConditionalFact]
-    public virtual Task Equals()
+    [Fact]
+    public virtual Task Instance_Equals()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("Seattle")))
             : AssertQuery(
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("seattle")),
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("seattle", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equals_with_OrdinalIgnoreCase()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("seattle", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Equals_with_Ordinal()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Equals("Seattle", StringComparison.Ordinal)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Static_Equals()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "Seattle")))
@@ -42,11 +42,11 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "seattle")),
                 ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "seattle", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Static_Equals_with_OrdinalIgnoreCase()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "seattle", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Static_Equals_with_Ordinal()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => string.Equals(b.String, "Seattle", StringComparison.Ordinal)));
 
@@ -54,11 +54,11 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Miscellaneous
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Length()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length == 7));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToUpper()
     {
         // Note that if the database is case-insensitive, the Where() assertion checks nothing.
@@ -67,7 +67,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Select(b => b.String.ToUpper()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ToLower()
     {
         // Note that if the database is case-insensitive, the Where() assertion checks nothing.
@@ -80,7 +80,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region IndexOf
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("eattl") != -1))
@@ -88,19 +88,23 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("Eattl") != -1),
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("Eattl", StringComparison.OrdinalIgnoreCase) != -1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_Char()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('e') != -1))
             : AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('e') != -1));
 
-    [ConditionalFact]
+    [Fact]
+    public virtual Task IndexOf_Char_with_non_ASCII_char()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('ş') == -1));
+
+    [Fact]
     public virtual Task IndexOf_with_empty_string()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf(string.Empty) == 0),
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String != null && b.String.IndexOf(string.Empty) == 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_with_one_parameter_arg()
     {
         if (IsCaseSensitive)
@@ -119,7 +123,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_with_one_parameter_arg_char()
     {
         if (IsCaseSensitive)
@@ -138,16 +142,16 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_with_constant_starting_position()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf("e", 2) == 6));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_with_constant_starting_position_char()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf('e', 2) == 6));
 
 #pragma warning disable CA1866 // Use 'string.Method(char)' instead of 'string.Method(string)' for string with single char
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_with_parameter_starting_position()
     {
         var start = 2;
@@ -161,7 +165,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     }
 #pragma warning restore CA1866
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_with_parameter_starting_position_char()
     {
         var start = 2;
@@ -171,11 +175,11 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
             : AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf('e', start) == 6));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_after_ToString()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => x.Int.ToString().IndexOf("55") == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IndexOf_over_ToString()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => "12559".IndexOf(x.Int.ToString()) == 1));
 
@@ -183,7 +187,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Replace
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace("Sea", "Rea") == "Reattle"))
@@ -192,17 +196,21 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>()
                     .Where(b => b.String.Replace("sea", "rea", StringComparison.OrdinalIgnoreCase) == "reattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_Char()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace('S', 'R') == "Reattle"));
 
-    [ConditionalFact]
+    [Fact]
+    public virtual Task Replace_Char_with_non_ASCII_char()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace('ş', 'x') == b.String));
+
+    [Fact]
     public virtual Task Replace_with_empty_string()
         => AssertQuery(ss => ss
             .Set<BasicTypesEntity>()
             .Where(c => c.String != "" && c.String.Replace(c.String, string.Empty) == ""));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_using_property_arguments()
         => AssertQuery(ss => ss
             .Set<BasicTypesEntity>()
@@ -212,19 +220,19 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Substring
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Substring()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length >= 3 && b.String.Substring(1, 2) == "ea"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Substring_with_one_arg_with_zero_startIndex()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Substring(0) == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Substring_with_one_arg_with_constant()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length >= 1 && b.String.Substring(1) == "eattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Substring_with_one_arg_with_parameter()
     {
         var start = 2;
@@ -232,15 +240,15 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length >= 2 && b.String.Substring(start) == "attle"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Substring_with_two_args_with_zero_startIndex()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length >= 3 && b.String.Substring(0, 3) == "Sea"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Substring_with_two_args_with_zero_length()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length >= 2 && b.String.Substring(2, 0) == ""));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Substring_with_two_args_with_parameter()
     {
         var start = 2;
@@ -248,7 +256,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length >= 5 && b.String.Substring(start, 3) == "att"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Substring_with_two_args_with_IndexOf()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c =>
             c.String.Contains("a") && c.String.Substring(c.String.IndexOf("a"), 3) == "att"));
@@ -257,7 +265,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region IsNullOrEmpty/Whitespace
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task IsNullOrEmpty()
     {
         await AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(n => string.IsNullOrEmpty(n.String)));
@@ -265,7 +273,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQueryScalar(ss => ss.Set<NullableBasicTypesEntity>().Select(n => string.IsNullOrEmpty(n.String)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task IsNullOrEmpty_negated()
     {
         await AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(n => !string.IsNullOrEmpty(n.String)));
@@ -273,7 +281,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Select(n => !string.IsNullOrEmpty(n.String)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task IsNullOrWhiteSpace()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => string.IsNullOrWhiteSpace(c.String)));
 
@@ -281,7 +289,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region StartsWith
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task StartsWith_Literal()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("Se")))
@@ -289,7 +297,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("se")),
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("se", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task StartsWith_Literal_Char()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith('S')))
@@ -297,7 +305,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith('S')),
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith('S')));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task StartsWith_Parameter()
     {
         if (IsCaseSensitive)
@@ -316,7 +324,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task StartsWith_Parameter_Char()
     {
         if (IsCaseSensitive)
@@ -335,19 +343,19 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task StartsWith_Column()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith(b.String)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task StartsWith_with_StringComparison_Ordinal()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("Se", StringComparison.Ordinal)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task StartsWith_with_StringComparison_OrdinalIgnoreCase()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.StartsWith("Se", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task StartsWith_with_StringComparison_unsupported()
     {
         await AssertTranslationFailed(() =>
@@ -368,7 +376,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region EndsWith
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task EndsWith_Literal()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("le")))
@@ -376,13 +384,13 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("Le")),
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("Le", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task EndsWith_Literal_Char()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith('e')))
             : AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith('e')));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task EndsWith_Parameter()
     {
         if (IsCaseSensitive)
@@ -401,7 +409,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task EndsWith_Parameter_Char()
     {
         if (IsCaseSensitive)
@@ -420,19 +428,19 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task EndsWith_Column()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith(b.String)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task EndsWith_with_StringComparison_Ordinal()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("le", StringComparison.Ordinal)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task EndsWith_with_StringComparison_OrdinalIgnoreCase()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.EndsWith("LE", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task EndsWith_with_StringComparison_unsupported()
     {
         await AssertTranslationFailed(() =>
@@ -452,7 +460,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Contains
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Contains_Literal()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains("eattl")))
@@ -460,7 +468,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains("Eattl")),
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains("Eattl", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Contains_Literal_Char()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains('e')))
@@ -468,7 +476,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains('e')),
                 ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains('e')));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Contains_Column()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Contains(b.String)));
@@ -476,7 +484,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.String.Contains(b.String)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Contains_negated()
     {
         if (IsCaseSensitive)
@@ -497,15 +505,15 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Contains_with_StringComparison_Ordinal()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Contains("eattl", StringComparison.Ordinal)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Contains_with_StringComparison_OrdinalIgnoreCase()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Contains("EATTL", StringComparison.OrdinalIgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Contains_with_StringComparison_unsupported()
     {
         await AssertTranslationFailed(() =>
@@ -523,13 +531,13 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 => ss.Set<BasicTypesEntity>().Where(c => c.String.Contains("eattl", StringComparison.InvariantCultureIgnoreCase))));
     }
 
-    [ConditionalFact] // Probably belongs in FunkyDataQueryTestBase
+    [Fact] // Probably belongs in FunkyDataQueryTestBase
     public virtual Task Contains_constant_with_whitespace()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Contains("     ")),
             assertEmpty: true);
 
-    [ConditionalFact] // Probably belongs in FunkyDataQueryTestBase
+    [Fact] // Probably belongs in FunkyDataQueryTestBase
     public virtual Task Contains_parameter_with_whitespace()
     {
         var pattern = "     ";
@@ -542,47 +550,95 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region TrimStart
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task TrimStart_without_arguments()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart() == "Boston  "));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task TrimStart_with_char_argument()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart('S') == "eattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task TrimStart_with_char_array_argument()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(new[] { 'S', 'e' }) == "attle"));
+
+    [Fact]
+    public virtual Task TrimStart_with_char_parameter()
+    {
+        var trimChar = 'S';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChar) == "eattle"));
+    }
+
+    [Fact]
+    public virtual Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        var trimChar = 'ş';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChar) == c.String));
+    }
+
+    [Fact]
+    public virtual Task TrimStart_with_char_array_parameter()
+    {
+        var trimChars = new[] { 'S', 'e' };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChars) == "attle"));
+    }
 
     #endregion TrimStart
 
     #region TrimEnd
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task TrimEnd_without_arguments()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd() == "  Boston"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task TrimEnd_with_char_argument()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd('e') == "Seattl"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task TrimEnd_with_char_array_argument()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(new[] { 'l', 'e' }) == "Seatt"));
+
+    [Fact]
+    public virtual Task TrimEnd_with_char_parameter()
+    {
+        var trimChar = 'e';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChar) == "Seattl"));
+    }
+
+    [Fact]
+    public virtual Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        var trimChar = 'ş';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChar) == c.String));
+    }
+
+    [Fact]
+    public virtual Task TrimEnd_with_char_array_parameter()
+    {
+        var trimChars = new[] { 'l', 'e' };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChars) == "Seatt"));
+    }
 
     #endregion TrimEnd
 
     #region Trim
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Trim_without_argument_in_predicate()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Trim() == "Boston"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Trim_with_char_argument_in_predicate()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Trim('S') == "eattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Trim_with_char_array_argument_in_predicate()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Trim(new[] { 'S', 'e' }) == "attl"));
 
@@ -590,7 +646,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Compare
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Compare_simple_zero()
     {
         if (IsCaseSensitive)
@@ -635,7 +691,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Compare_simple_one()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "Seattle") == 1));
@@ -651,7 +707,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => -1 < string.Compare(c.String, "Seattle")));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Compare_with_parameter()
     {
         BasicTypesEntity? basicTypeEntity;
@@ -675,7 +731,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => -1 < string.Compare(c.String, basicTypeEntity.String)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Compare_simple_more_than_one()
     {
         await AssertQuery(
@@ -689,7 +745,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 42 > string.Compare(c.String, "Seattle")));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Compare_nested()
     {
         await AssertQuery(
@@ -709,13 +765,13 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => string.Compare(c.String, "Seattle".Replace("Sea", c.String)) == -1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Compare_multi_predicate()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>()
             .Where(c => string.Compare(c.String, "Seattle") > -1)
             .Where(c => string.Compare(c.String, "Toronto") == -1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CompareTo_simple_zero()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.CompareTo("Seattle") == 0));
@@ -731,7 +787,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.CompareTo("Seattle") <= 0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CompareTo_simple_one()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.CompareTo("Seattle") == 1));
@@ -747,7 +803,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => -1 < c.String.CompareTo("Seattle")));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CompareTo_with_parameter()
     {
         BasicTypesEntity? basicTypesEntity;
@@ -771,7 +827,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => -1 < c.String.CompareTo(basicTypesEntity.String)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CompareTo_simple_more_than_one()
     {
         await AssertQuery(
@@ -785,7 +841,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => 42 > c.String.CompareTo("Seattle")));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CompareTo_nested()
     {
         await AssertQuery(
@@ -805,7 +861,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.CompareTo("Seattle".Replace("Sea", c.String)) == -1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Compare_to_multi_predicate()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>()
             .Where(c => c.String.CompareTo("Seattle") > -1)
@@ -815,7 +871,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Join
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Join_over_non_nullable_column()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>()
@@ -832,7 +888,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                     a.Strings.Split("|").OrderBy(id => id).ToArray());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Join_over_nullable_column()
         => AssertQuery(
             ss => ss.Set<NullableBasicTypesEntity>()
@@ -849,7 +905,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                     a.Regions.Split("|").OrderBy(id => id).ToArray());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Join_with_predicate()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>()
@@ -866,7 +922,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                     a.Strings.Split("|").OrderBy(id => id).ToArray());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Join_with_ordering()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>()
@@ -874,7 +930,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 .Select(g => new { g.Key, Strings = string.Join("|", g.OrderByDescending(e => e.Id).Select(e => e.String)) }),
             elementSorter: x => x.Key);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Join_non_aggregate()
     {
         var foo = "foo";
@@ -887,13 +943,13 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Concatenation
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Concat_operator()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String + "Boston" == "SeattleBoston"));
 
     // TODO: Possibly move to aggregate-specific test suite, not sure. Also Join above.
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Concat_aggregate()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>()
@@ -909,7 +965,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 Assert.Equal(e.BasicTypesEntitys.OrderBy(c => c).ToArray(), a.BasicTypesEntitys.OrderBy(c => c).ToArray());
             });
 
-    [ConditionalFact] // #31917
+    [Fact] // #31917
     public virtual Task Concat_string_int_comparison1()
     {
         var i = 10;
@@ -917,7 +973,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String + i == "Seattle10"));
     }
 
-    [ConditionalFact] // #31917
+    [Fact] // #31917
     public virtual Task Concat_string_int_comparison2()
     {
         var i = 10;
@@ -925,7 +981,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => i + c.String == "10Seattle"));
     }
 
-    [ConditionalFact] // #31917
+    [Fact] // #31917
     public virtual Task Concat_string_int_comparison3()
     {
         var i = 10;
@@ -934,11 +990,11 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => i + 20 + c.String + j + 42 == "30Seattle2142"));
     }
 
-    [ConditionalFact] // #31917
+    [Fact] // #31917
     public virtual Task Concat_string_int_comparison4()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int + o.String == "8Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Concat_string_string_comparison()
     {
         var i = "A";
@@ -946,7 +1002,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => i + c.String == "ASeattle"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Concat_method_comparison()
     {
         var i = "A";
@@ -954,7 +1010,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => string.Concat(i, c.String) == "ASeattle"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Concat_method_comparison_2()
     {
         var i = "A";
@@ -963,7 +1019,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => string.Concat(i, j, c.String) == "ABSeattle"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Concat_method_comparison_3()
     {
         var i = "A";
@@ -977,11 +1033,11 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region LINQ Operators
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task FirstOrDefault()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.FirstOrDefault() == 'S'));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task LastOrDefault()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.LastOrDefault() == 'e'));
 
@@ -989,7 +1045,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
 
     #region Regex
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Regex_IsMatch()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch(o.String, "^S")))
@@ -997,7 +1053,7 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
                 ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch(o.String, "^s")),
                 ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch(o.String, "^s", RegexOptions.IgnoreCase)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Regex_IsMatch_constant_input()
         => IsCaseSensitive
             ? AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => Regex.IsMatch("Seattle", o.String)))

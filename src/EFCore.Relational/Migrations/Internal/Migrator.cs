@@ -108,37 +108,44 @@ public class Migrator : IMigrator
         try
         {
             var state = new MigrationExecutionState();
-            if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction
-                && useTransaction)
+            try
             {
-                state.DatabaseLock = _historyRepository.AcquireDatabaseLock();
-            }
-
-            _executionStrategy.Execute(
-                this,
-                static (_, migrator) =>
+                if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction
+                    && useTransaction)
                 {
-                    migrator._connection.Open();
-                    try
-                    {
-                        return migrator._historyRepository.CreateIfNotExists();
-                    }
-                    finally
-                    {
-                        migrator._connection.Close();
-                    }
-                },
-                verifySucceeded: null);
+                    state.DatabaseLock = _historyRepository.AcquireDatabaseLock();
+                }
 
-            _executionStrategy.Execute(
-                (Migrator: this,
-                    TargetMigration: targetMigration,
-                    State: state,
-                    UseTransaction: useTransaction),
-                static (c, s) => s.Migrator.MigrateImplementation(c, s.TargetMigration, s.State, s.UseTransaction),
-                static (_, s) => new ExecutionResult<bool>(
-                    successful: s.Migrator.VerifyMigrationSucceeded(s.TargetMigration, s.State),
-                    result: true));
+                _executionStrategy.Execute(
+                    this,
+                    static (_, migrator) =>
+                    {
+                        migrator._connection.Open();
+                        try
+                        {
+                            return migrator._historyRepository.CreateIfNotExists();
+                        }
+                        finally
+                        {
+                            migrator._connection.Close();
+                        }
+                    },
+                    verifySucceeded: null);
+
+                _executionStrategy.Execute(
+                    (Migrator: this,
+                        TargetMigration: targetMigration,
+                        State: state,
+                        UseTransaction: useTransaction),
+                    static (c, s) => s.Migrator.MigrateImplementation(c, s.TargetMigration, s.State, s.UseTransaction),
+                    static (_, s) => new ExecutionResult<bool>(
+                        successful: s.Migrator.VerifyMigrationSucceeded(s.TargetMigration, s.State),
+                        result: true));
+            }
+            finally
+            {
+                state.DatabaseLock?.Dispose();
+            }
         }
         finally
         {
@@ -192,7 +199,11 @@ public class Migrator : IMigrator
             var seed = coreOptionsExtension.Seeder;
             if (seed != null)
             {
-                seed(context, state.AnyOperationPerformed);
+                if (!state.SeedingCompleted)
+                {
+                    seed(context, state.AnyOperationPerformed);
+                    state.SeedingCompleted = true;
+                }
             }
             else if (coreOptionsExtension.AsyncSeeder != null)
             {
@@ -236,41 +247,52 @@ public class Migrator : IMigrator
         try
         {
             var state = new MigrationExecutionState();
-            if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction
-                && useTransaction)
+            try
             {
-                state.DatabaseLock = await _historyRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false);
-            }
-
-            await _executionStrategy.ExecuteAsync(
-                this,
-                static async (_, migrator, ct) =>
+                if (_historyRepository.LockReleaseBehavior != LockReleaseBehavior.Transaction
+                    && useTransaction)
                 {
-                    await migrator._connection.OpenAsync(ct).ConfigureAwait(false);
-                    try
-                    {
-                        return await migrator._historyRepository.CreateIfNotExistsAsync(ct).ConfigureAwait(false);
-                    }
-                    finally
-                    {
-                        await migrator._connection.CloseAsync().ConfigureAwait(false);
-                    }
-                },
-                verifySucceeded: null,
-                cancellationToken).ConfigureAwait(false);
+                    state.DatabaseLock = await _historyRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false);
+                }
 
-            await _executionStrategy.ExecuteAsync(
-                    (Migrator: this,
-                        TargetMigration: targetMigration,
-                        State: state,
-                        UseTransaction: useTransaction),
-                    async static (c, s, ct) => await s.Migrator.MigrateImplementationAsync(
-                        c, s.TargetMigration, s.State, s.UseTransaction, ct).ConfigureAwait(false),
-                    async static (_, s, ct) => new ExecutionResult<bool>(
-                        successful: await s.Migrator.VerifyMigrationSucceededAsync(s.TargetMigration, s.State, ct).ConfigureAwait(false),
-                        result: true),
-                    cancellationToken)
-                .ConfigureAwait(false);
+                await _executionStrategy.ExecuteAsync(
+                    this,
+                    static async (_, migrator, ct) =>
+                    {
+                        await migrator._connection.OpenAsync(ct).ConfigureAwait(false);
+                        try
+                        {
+                            return await migrator._historyRepository.CreateIfNotExistsAsync(ct).ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            await migrator._connection.CloseAsync().ConfigureAwait(false);
+                        }
+                    },
+                    verifySucceeded: null,
+                    cancellationToken).ConfigureAwait(false);
+
+                await _executionStrategy.ExecuteAsync(
+                        (Migrator: this,
+                            TargetMigration: targetMigration,
+                            State: state,
+                            UseTransaction: useTransaction),
+                        async static (c, s, ct) => await s.Migrator.MigrateImplementationAsync(
+                            c, s.TargetMigration, s.State, s.UseTransaction, ct).ConfigureAwait(false),
+                        async static (_, s, ct) => new ExecutionResult<bool>(
+                            successful: await s.Migrator.VerifyMigrationSucceededAsync(s.TargetMigration, s.State, ct)
+                                .ConfigureAwait(false),
+                            result: true),
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                if (state.DatabaseLock != null)
+                {
+                    await state.DatabaseLock.DisposeAsync().ConfigureAwait(false);
+                }
+            }
         }
         finally
         {
@@ -317,7 +339,8 @@ public class Migrator : IMigrator
                 }
 
                 await _migrationCommandExecutor.ExecuteNonQueryAsync(
-                        getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel, cancellationToken)
+                        getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -328,7 +351,11 @@ public class Migrator : IMigrator
             var seedAsync = coreOptionsExtension.AsyncSeeder;
             if (seedAsync != null)
             {
-                await seedAsync(context, state.AnyOperationPerformed, cancellationToken).ConfigureAwait(false);
+                if (!state.SeedingCompleted)
+                {
+                    await seedAsync(context, state.AnyOperationPerformed, cancellationToken).ConfigureAwait(false);
+                    state.SeedingCompleted = true;
+                }
             }
             else if (coreOptionsExtension.Seeder != null)
             {
@@ -344,11 +371,8 @@ public class Migrator : IMigrator
         }
         finally
         {
-            if (state.DatabaseLock != null)
-            {
-                state.DatabaseLock.Dispose();
-                state.DatabaseLock = null;
-            }
+            state.DatabaseLock?.Dispose();
+            state.DatabaseLock = null;
 
             if (state.Transaction != null)
             {
@@ -391,7 +415,24 @@ public class Migrator : IMigrator
             }
             else
             {
-                _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
+                var snapshotVersion = _migrationsAssembly.ModelSnapshot.Model.GetProductVersion();
+                var currentVersion = ProductInfo.GetVersion();
+
+                // When the snapshot was generated with an older major version, emit
+                // OldMigrationVersionWarning instead of PendingModelChangesWarning because
+                // the detected changes may be caused by snapshot-generation improvements
+                // in the newer EF Core version rather than actual model changes.
+                if (snapshotVersion != null
+                    && TryGetMajorVersion(currentVersion, out var currentMajorVersion)
+                    && TryGetMajorVersion(snapshotVersion, out var snapshotMajorVersion)
+                    && snapshotMajorVersion < currentMajorVersion)
+                {
+                    _logger.OldMigrationVersionWarning(_currentContext.Context.GetType(), snapshotVersion);
+                }
+                else
+                {
+                    _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
+                }
             }
         }
 
@@ -401,6 +442,19 @@ public class Migrator : IMigrator
         }
 
         _logger.MigrateUsingConnection(this, _connection);
+
+        static bool TryGetMajorVersion(string? version, out int majorVersion)
+        {
+            majorVersion = default;
+            if (string.IsNullOrEmpty(version))
+            {
+                return false;
+            }
+
+            var separatorIndex = version.IndexOf('.');
+            return separatorIndex > 0
+                && int.TryParse(version.AsSpan(0, separatorIndex), out majorVersion);
+        }
     }
 
     private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData parameters)
@@ -415,39 +469,41 @@ public class Migrator : IMigrator
 
             var index = i;
             yield return (migration.GetId(), () =>
-            {
-                _logger.MigrationReverting(this, migration);
+                    {
+                        _logger.MigrationReverting(this, migration);
 
-                var commands = GenerateDownSql(
-                    migration,
-                    index != migrationsToRevert.Count - 1
-                        ? migrationsToRevert[index + 1]
-                        : actualTargetMigration);
-                if (migration.DownOperations.Count > 1
-                    && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
-                {
-                    _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
-                }
+                        var commands = GenerateDownSql(
+                            migration,
+                            index != migrationsToRevert.Count - 1
+                                ? migrationsToRevert[index + 1]
+                                : actualTargetMigration);
+                        if (migration.DownOperations.Count > 1
+                            && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
+                        {
+                            _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
+                        }
 
-                return commands;
-            });
+                        return commands;
+                    }
+            );
         }
 
         foreach (var migration in migrationsToApply)
         {
             yield return (migration.GetId(), () =>
-            {
-                _logger.MigrationApplying(this, migration);
+                    {
+                        _logger.MigrationApplying(this, migration);
 
-                var commands = GenerateUpSql(migration);
-                if (migration.UpOperations.Count > 1
-                    && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
-                {
-                    _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
-                }
+                        var commands = GenerateUpSql(migration);
+                        if (migration.UpOperations.Count > 1
+                            && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
+                        {
+                            _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
+                        }
 
-                return commands;
-            });
+                        return commands;
+                    }
+            );
         }
 
         if (migrationsToRevert.Count + migrationsToApply.Count == 0)

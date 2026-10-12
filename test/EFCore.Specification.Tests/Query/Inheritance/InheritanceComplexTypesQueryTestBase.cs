@@ -16,55 +16,55 @@ namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 public abstract class InheritanceComplexTypesQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : InheritanceQueryFixtureBase, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_complex_type_property_on_derived_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Coke>().Where(d => d.ChildComplexType!.Int == 10));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_complex_type_property_on_base_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Drink>().Where(d => d.ParentComplexType!.Int == 8));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_nested_complex_type_property_on_derived_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Coke>().Where(d => d.ChildComplexType!.Nested!.NestedInt == 58));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_nested_complex_type_property_on_base_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Drink>().Where(d => d.ParentComplexType!.Nested!.NestedInt == 50));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_complex_type_on_derived_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Coke>().Select(d => d.ChildComplexType));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_complex_type_on_base_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Drink>().Select(d => d.ParentComplexType));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_nested_complex_type_on_derived_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Coke>().Select(d => d.ChildComplexType!.Nested));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_nested_complex_type_on_base_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Drink>().Select(d => d.ParentComplexType!.Nested));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Subquery_over_complex_collection(bool async)
         => AssertQuery(
             async,

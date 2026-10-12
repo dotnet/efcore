@@ -51,30 +51,25 @@ public class ProxyBindingInterceptor : IInstantiationBindingInterceptor
             return new FactoryMethodBinding(
                 _proxyFactory,
                 CreateLazyLoadingProxyMethod,
-                new List<ParameterBinding>
-                {
+                [
                     new ContextParameterBinding(typeof(DbContext)),
                     new EntityTypeParameterBinding(),
                     new DependencyInjectionParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
                     new ObjectArrayParameterBinding(binding.ParameterBindings)
-                },
+                ],
                 proxyType);
         }
 
-        if ((bool?)entityType.Model[ProxyAnnotationNames.ChangeTracking] == true)
-        {
-            return new FactoryMethodBinding(
+        return (bool?)entityType.Model[ProxyAnnotationNames.ChangeTracking] == true
+            ? new FactoryMethodBinding(
                 _proxyFactory,
                 CreateProxyMethod,
-                new List<ParameterBinding>
-                {
+                [
                     new ContextParameterBinding(typeof(DbContext)),
                     new EntityTypeParameterBinding(),
                     new ObjectArrayParameterBinding(binding.ParameterBindings)
-                },
-                proxyType);
-        }
-
-        return binding;
+                ],
+                proxyType)
+            : binding;
     }
 }

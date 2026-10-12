@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqliteRelationalConnectionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Sets_DefaultTimeout_when_connectionString()
     {
         var services = SqliteTestHelpers.Instance.CreateContextServices(
@@ -20,7 +20,7 @@ public class SqliteRelationalConnectionTest
         Assert.Equal(42, connection.DefaultTimeout);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sets_DefaultTimeout_when_connection()
     {
         var originalConnection = new SqliteConnection("Data Source=:memory:") { DefaultTimeout = 21 };
@@ -33,5 +33,30 @@ public class SqliteRelationalConnectionTest
 
         Assert.Same(originalConnection, connection);
         Assert.Equal(42, originalConnection.DefaultTimeout);
+    }
+
+    [Fact]
+    public void Registers_builtin_functions_as_deterministic()
+    {
+        var services = SqliteTestHelpers.Instance.CreateContextServices(
+            new DbContextOptionsBuilder()
+                .UseSqlite("Data Source=:memory:")
+                .Options);
+
+        var relationalConnection = services.GetRequiredService<IRelationalConnection>();
+        var connection = (SqliteConnection)relationalConnection.DbConnection;
+        relationalConnection.Open();
+
+        try
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "CREATE TABLE Data (Value TEXT); CREATE INDEX IX_Data ON Data (Value) WHERE Value REGEXP '^a';";
+
+            Assert.Equal(0, command.ExecuteNonQuery());
+        }
+        finally
+        {
+            relationalConnection.Close();
+        }
     }
 }

@@ -1,11 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
-
-#nullable disable
 
 public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : InheritanceBulkUpdatesTestBase<TFixture>
     where TFixture : InheritanceBulkUpdatesRelationalFixtureBase, new()
@@ -17,7 +15,7 @@ public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : Inher
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
         => AssertTranslationFailed(
             RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator("ExecuteDelete", "EagleQuery"),
@@ -26,7 +24,7 @@ public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : Inher
                 ss => ss.Set<EagleQuery>().Where(e => e.CountryId > 0),
                 rowsAffectedCount: 1));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_where_keyless_entity_mapped_to_sql_query(bool async)
         => AssertTranslationFailed(
             RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator("ExecuteUpdate", "EagleQuery"),
@@ -40,7 +38,7 @@ public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : Inher
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
-        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[..^1], exception.Message);
         var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
         Assert.Equal(details, innerException.Message);
     }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using JetBrains.Annotations;
@@ -10,19 +10,19 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class ExpressionEqualityComparerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Member_init_expressions_are_compared_correctly()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
 
-        var addMethod = typeof(List<string>).GetTypeInfo().GetDeclaredMethod("Add");
+        var addMethod = typeof(List<string>).GetTypeInfo().GetDeclaredMethod("Add")!;
 
         var bindingMessages = ListBind(
-            typeof(Node).GetProperty("Messages"),
+            typeof(Node).GetProperty("Messages")!,
             ElementInit(addMethod, Constant("Constant1")));
 
         var bindingDescriptions = ListBind(
-            typeof(Node).GetProperty("Descriptions"),
+            typeof(Node).GetProperty("Descriptions")!,
             ElementInit(addMethod, Constant("Constant2")));
 
         Expression e1 = MemberInit(
@@ -39,7 +39,7 @@ public class ExpressionEqualityComparerTest
         Assert.True(expressionComparer.Equals(e1, e1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_expressions_are_compared_correctly()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -56,7 +56,7 @@ public class ExpressionEqualityComparerTest
         Assert.True(expressionComparer.Equals(e1, e1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Index_expressions_are_compared_correctly()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -91,7 +91,7 @@ public class ExpressionEqualityComparerTest
         Assert.True(expressionComparer.Equals(e2, e3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Array_constant_expressions_are_compared_correctly()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -107,7 +107,32 @@ public class ExpressionEqualityComparerTest
         Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e3));
     }
 
-    [ConditionalFact] // #30697
+    [Fact]
+    public void Collection_constant_expressions_of_different_types_are_compared_symmetrically()
+    {
+        var expressionComparer = ExpressionEqualityComparer.Instance;
+
+        var array = Constant(new[] { 1, 2, 3 }, typeof(IEnumerable<int>));
+        var list = Constant(new List<int> { 1, 2, 3 }, typeof(IEnumerable<int>));
+
+        Assert.True(expressionComparer.Equals(array, list));
+        Assert.True(expressionComparer.Equals(list, array));
+
+        Assert.Equal(expressionComparer.GetHashCode(array), expressionComparer.GetHashCode(list));
+    }
+
+    [Fact]
+    public void Queryable_constant_expressions_are_not_compared_by_their_elements()
+    {
+        var expressionComparer = ExpressionEqualityComparer.Instance;
+
+        var queryable = new[] { 1, 2, 3 }.AsQueryable();
+
+        Assert.True(expressionComparer.Equals(Constant(queryable), Constant(queryable)));
+        Assert.False(expressionComparer.Equals(Constant(queryable), Constant(new[] { 1, 2, 3 }.AsQueryable())));
+    }
+
+    [Fact] // #30697
     public void Lambda_parameters_names_are_taken_into_account()
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
@@ -126,10 +151,10 @@ public class ExpressionEqualityComparerTest
     private class Node
     {
         [UsedImplicitly]
-        public List<string> Messages { set; get; }
+        public List<string> Messages { set; get; } = null!;
 
         [UsedImplicitly]
-        public List<string> Descriptions { set; get; }
+        public List<string> Descriptions { set; get; } = null!;
     }
 
     private class Indexable

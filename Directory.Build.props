@@ -23,11 +23,12 @@
     <TargetRuntimeIdentifier Condition="'$(TargetRuntimeIdentifier)' == ''">$(TargetOsName)-$(TargetArchitecture)</TargetRuntimeIdentifier>
   </PropertyGroup>
 
-  <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
+  <PropertyGroup>
+    <!-- Pin to 1.22.0 until efcore migrates to xunit v3; 1.27.0 crashes with xunit v2 -->
+    <XUnitAnalyzersVersion>1.22.0</XUnitAnalyzersVersion>
+  </PropertyGroup>
 
-  <Import
-    Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))\AspNetCoreSettings.props"
-    Condition="'$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))' != '' " />
+  <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <PropertyGroup Condition="'$(CopyrightMicrosoft)' != ''">
     <Copyright>$(CopyrightMicrosoft)</Copyright>
@@ -38,6 +39,7 @@
     <StrongNameKeyId>MicrosoftAspNetCore</StrongNameKeyId>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
+    <DefaultNetCoreTargetFramework>$(NetCurrent)</DefaultNetCoreTargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
@@ -46,10 +48,6 @@
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
     <PackageIconFullPath>$(MSBuildThisFileDirectory)logo\ef-logo.png</PackageIconFullPath>
     <PublishWindowsPdb>false</PublishWindowsPdb>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636</WarningsNotAsErrors>
   </PropertyGroup>
 
   <!-- HACK: Work around #15093 -->

@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -28,6 +29,34 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     private ExpressionTreeFuncletizer _funcletizer = null!;
     private RuntimeModelLinqToCSharpSyntaxTranslator _linqToCSharpTranslator = null!;
     private LiftableConstantProcessor _liftableConstantProcessor = null!;
+
+    // The identifiers the generated executor declares for itself. They are used both to emit those declarations and to keep
+    // anything named by the model or by a provider from taking one of them, so the two cannot drift apart.
+    private const string DbContextVariable = "dbContext";
+    private const string QueryContextVariable = "queryContext";
+    private const string RelationalModelVariable = "relationalModel";
+    private const string RelationalTypeMappingSourceVariable = "relationalTypeMappingSource";
+    private const string MaterializerLiftableConstantContextVariable = "materializerLiftableConstantContext";
+
+    private static readonly string[] GeneratedExecutorVariableNames =
+    [
+        DbContextVariable,
+        QueryContextVariable,
+        RelationalModelVariable,
+        RelationalTypeMappingSourceVariable,
+        MaterializerLiftableConstantContextVariable
+    ];
+
+    private readonly Dictionary<string, RuntimeConstantExpression> _runtimeConstants = [];
+    private readonly BidirectionalDictionary<object, string> _constantReplacements = [];
+
+    // Declared runtime constants by initializer, for sharing a field between queries whose constants are equal by initializer but
+    // not by value; see GenerateQueryExecutor.
+    private readonly Dictionary<Expression, RuntimeConstantExpression> _runtimeConstantsByInitializer =
+        new(ExpressionEqualityComparer.Instance);
+
+    // The runtime constants the query being generated has declared so far, so that a query which fails can take exactly those back
+    private readonly List<string> _runtimeConstantsOfCurrentQuery = [];
 
     private Symbols _symbols;
 
@@ -74,9 +103,12 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _queryLocator.Initialize(compilation);
         _symbols = Symbols.Load(compilation);
         _g = syntaxGenerator;
-        _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g);
+        _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g, compilation.UseUpdatedMemorySafetyRules());
         _memberAccessReplacements = memberAccessReplacements;
         _liftableConstantProcessor = new LiftableConstantProcessor(null!);
+        _constantReplacements.Clear();
+        _runtimeConstants.Clear();
+        _runtimeConstantsByInitializer.Clear();
         _queryCompiler = dbContext.GetService<IQueryCompiler>();
         _unsafeAccessors.Clear();
         var contextType = dbContext.GetType();
@@ -150,6 +182,18 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         {
             var querySyntax = locatedQueries[queryNum];
 
+            // A query that fails must leave nothing of itself behind: its interceptors reference an executor that will never be
+            // generated, and the executor method itself may be half-written, so the file would not compile for the queries that
+            // did succeed. Its code is therefore generated into a builder of its own and added to the file only once the query has
+            // succeeded, and the runtime constants it declares are recorded so that exactly those can be taken back.
+            var queryCode = new IndentedStringBuilder();
+            for (var i = 0; i < _code.IndentCount; i++)
+            {
+                queryCode.IncrementIndent();
+            }
+
+            _runtimeConstantsOfCurrentQuery.Clear();
+
             try
             {
                 // We have a query lambda, as a Roslyn syntax tree. Translate to LINQ expression tree.
@@ -190,7 +234,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
                 // The query has been compiled successfully by the EF query pipeline.
                 // Now go over each LINQ operator, generating an interceptor for it.
-                _code.AppendLine($"#region Query{queryNum + 1}").AppendLine();
+                queryCode.AppendLine($"#region Query{queryNum + 1}").AppendLine();
 
                 try
                 {
@@ -204,18 +248,18 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                     // Generate interceptors for all LINQ operators in the query, starting from the root up until the penultimate.
                     // Then generate the interceptor for the terminating operator, and finally the query's executor.
                     GenerateOperatorInterceptorsRecursively(
-                        _code, penultimateOperator, penultimateOperatorSyntax, semanticModel, queryNum + 1, out var operatorNum,
+                        queryCode, penultimateOperator, penultimateOperatorSyntax, semanticModel, queryNum + 1, out var operatorNum,
                         cancellationToken: cancellationToken);
 
                     GenerateOperatorInterceptor(
-                        _code, terminatingOperator, querySyntax, semanticModel, queryNum + 1, operatorNum + 1, isTerminatingOperator: true,
-                        cancellationToken);
+                        queryCode, terminatingOperator, querySyntax, semanticModel, queryNum + 1, operatorNum + 1,
+                        isTerminatingOperator: true, cancellationToken);
 
-                    GenerateQueryExecutor(_code, queryNum + 1, queryExecutor, _namespaces, _unsafeAccessors);
+                    GenerateQueryExecutor(queryCode, queryNum + 1, queryExecutor, _namespaces, _unsafeAccessors);
                 }
                 finally
                 {
-                    _code
+                    queryCode
                         .AppendLine()
                         .AppendLine($"#endregion Query{queryNum + 1}");
                 }
@@ -223,10 +267,31 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             catch (Exception e)
             {
                 precompilationErrors.Add(new QueryPrecompilationError(querySyntax, e));
+
+                foreach (var constantName in _runtimeConstantsOfCurrentQuery)
+                {
+                    var constant = _runtimeConstants[constantName];
+                    _runtimeConstants.Remove(constantName);
+                    _constantReplacements.Remove(constant.Value);
+                    if (_runtimeConstantsByInitializer.TryGetValue(constant.InitializeExpression, out var declared)
+                        && ReferenceEquals(declared, constant))
+                    {
+                        _runtimeConstantsByInitializer.Remove(constant.InitializeExpression);
+                    }
+                }
+
                 continue;
             }
 
-            // We're done generating the interceptors for the query's LINQ operators.
+            // We're done generating the interceptors for the query's LINQ operators. The query's code already carries the file's
+            // indentation, so it is added as it is, and the trailing line break is re-added through the builder to keep its own
+            // indentation state right for what follows.
+            using (_code.SuspendIndent())
+            {
+                _code.Append(queryCode.ToString().TrimEnd('\r', '\n'));
+            }
+
+            _code.AppendLine();
 
             queriesPrecompiledInFile++;
         }
@@ -248,6 +313,19 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             }
 
             _code.AppendLine("#endregion Unsafe accessors");
+        }
+
+        // The fields are in scope for their own initializers, so a type an initializer refers to by a name one of them has taken
+        // has to be written out fully qualified; the translator does that for the names it is told are declared here.
+        var runtimeConstantNames = _runtimeConstants.Keys.ToHashSet();
+        foreach (var (fieldName, constant) in _runtimeConstants.OrderBy(x => x.Key))
+        {
+            var typeSymbol = GetTypeSymbol(semanticModel.Compilation, constant.Type);
+
+            var syntax = _linqToCSharpTranslator.TranslateExpression(
+                constant.InitializeExpression, constantReplacements: null, _namespaces, _unsafeAccessors, runtimeConstantNames);
+            _code.AppendLine(
+                $"private static readonly {typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {fieldName} = {syntax.NormalizeWhitespace().ToFullString()};");
         }
 
         _code
@@ -304,7 +382,7 @@ namespace System.Runtime.CompilerServices
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     file sealed class InterceptsLocationAttribute : Attribute
     {
-        public InterceptsLocationAttribute(string filePath, int line, int column) { }
+        public InterceptsLocationAttribute(int version, string data) { }
     }
 }
 """
@@ -496,10 +574,11 @@ namespace System.Runtime.CompilerServices
         };
 
         // Output the interceptor method signature preceded by the [InterceptsLocation] attribute.
-        var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccessSyntax.Name.Span, cancellationToken).StartLinePosition;
         var interceptorName = $"Query{queryNum}_{memberAccessSyntax.Name}{operatorNum}";
-        code.AppendLine(
-            $"""[InterceptsLocation(@"{operatorSyntax.SyntaxTree.FilePath.Replace("\"", "\"\"")}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
+        var invocationSyntax = (InvocationExpressionSyntax)operatorSyntax;
+        var interceptableLocation = semanticModel.GetInterceptableLocation(invocationSyntax, cancellationToken)
+            ?? throw new InvalidOperationException(DesignStrings.CouldNotGetInterceptableLocation(operatorSyntax));
+        code.AppendLine(interceptableLocation.GetInterceptsLocationAttributeSyntax());
         GenerateInterceptorMethodSignature();
         code.AppendLine("{").IncrementIndent();
 
@@ -736,6 +815,14 @@ namespace System.Runtime.CompilerServices
 
                         if (parameterType == typeof(CancellationToken))
                         {
+                            // Set the cancellation token on the query context
+                            if (!declaredQueryContextVariable)
+                            {
+                                code.AppendLine("var queryContext = precompiledQueryContext.QueryContext;");
+                                declaredQueryContextVariable = true;
+                            }
+
+                            code.AppendLine($"queryContext.CancellationToken = {parameterName};");
                             continue;
                         }
 
@@ -916,41 +1003,121 @@ namespace System.Runtime.CompilerServices
         // the real strongly-typed signature inside the interceptor, where the return value is represented as a generic type parameter
         // (which can be an anonymous type).
         code
-            .AppendLine($"private static object Query{queryNum}_GenerateExecutor(DbContext dbContext, QueryContext queryContext)")
+            .AppendLine(
+                $"private static object Query{queryNum}_GenerateExecutor(DbContext {DbContextVariable}, QueryContext {QueryContextVariable})")
             .AppendLine("{")
             .IncrementIndent()
-            .AppendLine("var relationalModel = dbContext.Model.GetRelationalModel();")
-            .AppendLine("var relationalTypeMappingSource = dbContext.GetService<IRelationalTypeMappingSource>();")
-            .AppendLine("var materializerLiftableConstantContext = new RelationalMaterializerLiftableConstantContext(")
-            .AppendLine("    dbContext.GetService<ShapedQueryCompilingExpressionVisitorDependencies>(),")
-            .AppendLine("    dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>(),")
-            .AppendLine("    dbContext.GetService<RelationalCommandBuilderDependencies>());");
+            .AppendLine($"var {RelationalModelVariable} = {DbContextVariable}.Model.GetRelationalModel();")
+            .AppendLine($"var {RelationalTypeMappingSourceVariable} = {DbContextVariable}.GetService<IRelationalTypeMappingSource>();")
+            .AppendLine($"var {MaterializerLiftableConstantContextVariable} = new RelationalMaterializerLiftableConstantContext(")
+            .AppendLine($"    {DbContextVariable}.GetService<ShapedQueryCompilingExpressionVisitorDependencies>(),")
+            .AppendLine($"    {DbContextVariable}.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>(),")
+            .AppendLine($"    {DbContextVariable}.GetService<RelationalCommandBuilderDependencies>());");
 
-        HashSet<string> variableNames = ["relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
+        // A processor per query: its deduplication cache would otherwise outlive a query that failed and was rolled back, so a
+        // later query reusing the same constant would be told it is already registered and end up with no field to reference.
+        // Constants shared between queries are deduplicated here instead, against what has actually been declared. Equality by
+        // value is not enough for that: the shaper evaluates a runtime constant's initializer afresh for every query, so the same
+        // JSON property name in two queries is two byte arrays. A constant whose initializer matches a declared one is replaced by
+        // that constant's value, which the translator emits as the existing field.
+        queryExecutor = new DeclaredRuntimeConstantReplacingExpressionVisitor(_runtimeConstantsByInitializer).Visit(queryExecutor);
+        var runtimeConstantProcessor = new RuntimeConstantProcessor();
+        queryExecutor = runtimeConstantProcessor.Process(queryExecutor);
+        foreach (var runtimeConstant in runtimeConstantProcessor.LastProcessFoundRuntimeConstants)
+        {
+            if (_constantReplacements.ContainsKey(runtimeConstant.Value))
+            {
+                continue;
+            }
+
+            // A runtime constant becomes a field of the interceptors class under a name that came from the model or from a provider.
+            // The members the class declares for itself and the executor's parameters all start with a letter, so a field name that
+            // starts with an underscore is none of them, and nothing has to be reserved family by family. A type can start with one,
+            // which is why the translator writes out any type whose simple name is in use in the emitted scope fully qualified. The
+            // lifted constants, which can start with an underscore as well, are uniquified against these names below. The prefixed
+            // name is what gets sanitized, since the prefix can itself complete a reserved token: _arglist is an identifier,
+            // __arglist is not.
+            var name = LinqToCSharpSyntaxTranslator.SanitizeIdentifierName("_" + runtimeConstant.Name);
+            var baseName = name;
+            for (var j = 0; _runtimeConstants.ContainsKey(name); j++)
+            {
+                name = baseName + j;
+            }
+
+            _runtimeConstants.Add(name, runtimeConstant);
+            _constantReplacements.Add(runtimeConstant.Value, name);
+            _runtimeConstantsByInitializer.TryAdd(runtimeConstant.InitializeExpression, runtimeConstant);
+            _runtimeConstantsOfCurrentQuery.Add(name);
+        }
+
+        // Everything the generated executor declares for itself, so that nothing named by the model or by a provider can take
+        // one of these names. Keep in step with the declarations emitted below.
+        HashSet<string> variableNames = [.. _constantReplacements.Values, .. GeneratedExecutorVariableNames];
 
         var materializerLiftableConstantContext =
-            Expression.Parameter(typeof(RelationalMaterializerLiftableConstantContext), "materializerLiftableConstantContext");
+            Expression.Parameter(typeof(RelationalMaterializerLiftableConstantContext), MaterializerLiftableConstantContextVariable);
 
         // The materializer expression tree contains LiftedConstantExpression nodes, which contain instructions on how to resolve
         // constant values which need to be lifted.
         var queryExecutorAfterLiftingExpression =
             _liftableConstantProcessor.LiftConstants(queryExecutor, materializerLiftableConstantContext, variableNames);
 
+        // The name of a lifted constant is whatever the caller of ILiftableConstantFactory.CreateLiftableConstant passed, so it
+        // need not be a valid C# identifier. The parameter itself is renamed rather than just its declaration, because the same
+        // name is what the translated executor emits for every reference to that constant.
+        var liftedConstantOriginals = new List<Expression>();
+        var liftedConstantReplacements = new List<Expression>();
         foreach (var liftedConstant in _liftableConstantProcessor.LiftedConstants)
         {
+            var name = LinqToCSharpSyntaxTranslator.SanitizeIdentifierName(liftedConstant.Parameter.Name)!;
+            if (name == liftedConstant.Parameter.Name)
+            {
+                continue;
+            }
+
+            var baseName = name;
+            for (var j = 0; variableNames.Contains(name); j++)
+            {
+                name = baseName + j;
+            }
+
+            variableNames.Add(name);
+            liftedConstantOriginals.Add(liftedConstant.Parameter);
+            liftedConstantReplacements.Add(Expression.Parameter(liftedConstant.Parameter.Type, name));
+        }
+
+        foreach (var liftedConstant in _liftableConstantProcessor.LiftedConstants)
+        {
+            var parameter = liftedConstant.Parameter;
+            var expression = liftedConstant.Expression;
+
+            if (liftedConstantOriginals.Count > 0)
+            {
+                var replacer = new ReplacingExpressionVisitor(liftedConstantOriginals, liftedConstantReplacements);
+                parameter = (ParameterExpression)replacer.Visit(parameter);
+                expression = replacer.Visit(expression);
+            }
+
             var variableValueSyntax = _linqToCSharpTranslator.TranslateExpression(
-                liftedConstant.Expression, constantReplacements: null, _memberAccessReplacements, namespaces, unsafeAccessors);
-            // code.AppendLine($"{liftedConstant.Parameter.Type.Name} {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
-            code.AppendLine($"var {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
+                expression, _constantReplacements, _memberAccessReplacements, namespaces, unsafeAccessors, variableNames);
+            code.AppendLine($"var {parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
+        }
+
+        if (liftedConstantOriginals.Count > 0)
+        {
+            queryExecutorAfterLiftingExpression =
+                new ReplacingExpressionVisitor(liftedConstantOriginals, liftedConstantReplacements)
+                    .Visit(queryExecutorAfterLiftingExpression);
         }
 
         var queryExecutorSyntaxTree =
             (AnonymousFunctionExpressionSyntax)_linqToCSharpTranslator.TranslateExpression(
                 queryExecutorAfterLiftingExpression,
-                constantReplacements: null,
+                _constantReplacements,
                 _memberAccessReplacements,
                 namespaces,
-                unsafeAccessors);
+                unsafeAccessors,
+                variableNames);
 
         code
             .AppendLine($"return {queryExecutorSyntaxTree.NormalizeWhitespace().ToFullString()};")
@@ -1207,12 +1374,57 @@ namespace System.Runtime.CompilerServices
             throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
         }
 
-        return settersBuilder.BuildSettersExpression();
+        // The expression tree is nested inside-out (last SetProperty call is the outermost node),
+        // so setters were added in reverse order. Reverse to restore source code order.
+        var settersArray = settersBuilder.BuildSettersExpression();
+        return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
+    }
+
+    private sealed class DeclaredRuntimeConstantReplacingExpressionVisitor(Dictionary<Expression, RuntimeConstantExpression> declared)
+        : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression node)
+            => node is RuntimeConstantExpression runtimeConstant
+                && declared.TryGetValue(runtimeConstant.InitializeExpression, out var existing)
+                    ? Expression.Constant(existing.Value, runtimeConstant.Type)
+                    : base.VisitExtension(node);
+    }
+
+    private static ITypeSymbol GetTypeSymbol(Compilation compilation, Type type)
+    {
+        if (type.IsByRef || type.IsPointer || type.IsGenericParameter || type.IsByRefLike)
+        {
+            throw new NotSupportedException($"Unsupported type: {type}");
+        }
+
+        if (type.IsArray)
+        {
+            var elementSymbol = GetTypeSymbol(compilation, type.GetElementType()!);
+            return compilation.CreateArrayTypeSymbol(elementSymbol, type.GetArrayRank());
+        }
+
+        if (type.IsGenericType && !type.IsGenericTypeDefinition)
+        {
+            var genericDefinition = (INamedTypeSymbol)GetTypeSymbol(
+                compilation,
+                type.GetGenericTypeDefinition());
+
+            var typeArguments = type
+                .GetGenericArguments()
+                .Select(t => GetTypeSymbol(compilation, t))
+                .ToArray();
+
+            return genericDefinition.Construct(typeArguments);
+        }
+
+        return type.FullName is null || compilation.GetTypeByMetadataName(type.FullName) is not { } typeSymbol
+            ? throw new InvalidOperationException($"Couldn't find type symbol for: {type}")
+            : typeSymbol;
     }
 
     /// <summary>
     ///     Contains information on a failure to precompile a specific query in the user's source code.
-    ///     Includes information about the query, its location, and the exception that occured.
+    ///     Includes information about the query, its location, and the exception that occurred.
     /// </summary>
     public sealed record QueryPrecompilationError(SyntaxNode SyntaxNode, Exception Exception);
 

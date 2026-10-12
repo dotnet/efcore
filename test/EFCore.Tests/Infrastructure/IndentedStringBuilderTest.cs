@@ -9,7 +9,7 @@ public class IndentedStringBuilderTest
 {
     private static readonly string EOL = Environment.NewLine;
 
-    [ConditionalFact]
+    [Fact]
     public void Append_at_start_with_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -22,7 +22,7 @@ public class IndentedStringBuilderTest
         Assert.Equal("    Foo", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_in_middle_when_no_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -37,7 +37,19 @@ public class IndentedStringBuilderTest
         Assert.Equal("FooFoo", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void AppendLine_with_FormattableString_appends_a_new_line()
+    {
+        var indentedStringBuilder = new IndentedStringBuilder();
+
+        FormattableString value = $"Foo{1}";
+        indentedStringBuilder.AppendLine(value);
+        indentedStringBuilder.AppendLine(value);
+
+        Assert.Equal("Foo1" + EOL + "Foo1" + EOL, indentedStringBuilder.ToString());
+    }
+
+    [Fact]
     public void Append_in_middle_when_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -53,7 +65,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"Foo{EOL}    Foo{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_value_containing_end_of_line_no_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -63,7 +75,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"Foo{EOL}Bar", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_value_containing_end_of_line_with_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -77,7 +89,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"    Foo{EOL}Bar", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_in_middle_value_containing_end_of_line_with_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -92,7 +104,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"xyzFoo{EOL}Bar", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_line_at_start_with_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -105,7 +117,7 @@ public class IndentedStringBuilderTest
         Assert.Equal("    Foo" + EOL, indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_line_in_middle_when_no_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -120,7 +132,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"Foo{EOL}    Foo{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_line_with_indent_only()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -133,7 +145,7 @@ public class IndentedStringBuilderTest
         Assert.Equal(Environment.NewLine, indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_line_value_containing_end_of_line_no_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -143,7 +155,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"Foo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_line_value_containing_end_of_line_with_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -157,7 +169,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"    Foo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_line_in_middle_value_containing_end_of_line_with_indent_when_no_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -172,7 +184,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"xyzFoo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_line_in_middle_value_containing_end_of_line_with_indent_when_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -187,7 +199,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"xyz{EOL}    Foo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_lines_at_start_with_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -200,7 +212,7 @@ public class IndentedStringBuilderTest
         Assert.Equal("    Foo" + EOL, indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_lines_no_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -210,7 +222,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"Foo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_lines_with_indent()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -224,7 +236,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"    Foo{EOL}    Bar{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_lines_with_indent_with_skip_final_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -238,7 +250,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"    Foo{EOL}    Bar", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_lines_in_middle_with_indent_when_no_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
@@ -253,7 +265,7 @@ public class IndentedStringBuilderTest
         Assert.Equal($"xyzFoo{EOL}    Bar{EOL}", indentedStringBuilder.ToString());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Append_lines_in_middle_with_indent_when_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();

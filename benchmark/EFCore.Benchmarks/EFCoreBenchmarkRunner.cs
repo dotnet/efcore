@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks;
 
 public static class EFCoreBenchmarkRunner
 {
-    public static void Run(string[] args, Assembly assembly, IConfig config = null)
+    public static void Run(string[] args, Assembly assembly, IConfig? config = null)
     {
         config ??= DefaultConfig.Instance;
 

@@ -31,7 +31,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         _defaultContainerName = defaultContainerName;
         _mode = mode;
-        _defaultToken = _mode == SessionTokenManagementMode.Manual || _mode == SessionTokenManagementMode.EnforcedManual ? "" : null;
+        _defaultToken = _mode is SessionTokenManagementMode.Manual or SessionTokenManagementMode.EnforcedManual ? "" : null;
 
         _containerSessionTokens = containerNames.ToDictionary(x => x, x => new CompositeSessionToken(_defaultToken));
     }
@@ -86,13 +86,14 @@ public class SessionTokenStorage : ISessionTokenStorage
     /// </summary>
     public virtual void AppendDefaultContainerSessionToken(string sessionToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
+        ArgumentException.ThrowIfNullOrWhiteSpace(sessionToken);
         CheckMode();
         ref var containerSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, _defaultContainerName);
         if (Unsafe.IsNullRef(ref containerSessionToken))
         {
             throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(_defaultContainerName));
         }
+
         containerSessionToken.Add(sessionToken, true);
     }
 
@@ -110,6 +111,7 @@ public class SessionTokenStorage : ISessionTokenStorage
         {
             throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(_defaultContainerName));
         }
+
         containerSessionToken = new CompositeSessionToken(sessionToken, true);
     }
 
@@ -135,11 +137,9 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         CheckMode();
         ref var containerSessionToken = ref CollectionsMarshal.GetValueRefOrNullRef(_containerSessionTokens, _defaultContainerName);
-        if (Unsafe.IsNullRef(ref containerSessionToken))
-        {
-            throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(_defaultContainerName));
-        }
-        return containerSessionToken.ConvertToString();
+        return Unsafe.IsNullRef(ref containerSessionToken)
+            ? throw new InvalidOperationException(CosmosStrings.ContainerNameDoesNotExist(_defaultContainerName))
+            : containerSessionToken.ConvertToString();
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     /// </summary>
     public virtual string? GetSessionToken(string containerName)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
 
         if (_mode == SessionTokenManagementMode.FullyAutomatic)
         {
@@ -181,12 +181,11 @@ public class SessionTokenStorage : ISessionTokenStorage
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void TrackSessionToken(string containerName, string sessionToken)
+    public virtual void TrackSessionToken(string containerName, string? sessionToken)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(containerName, nameof(containerName));
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(sessionToken, nameof(sessionToken));
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
 
-        if (_mode == SessionTokenManagementMode.FullyAutomatic)
+        if (_mode == SessionTokenManagementMode.FullyAutomatic || string.IsNullOrWhiteSpace(sessionToken))
         {
             return;
         }
@@ -220,7 +219,7 @@ public class SessionTokenStorage : ISessionTokenStorage
     {
         private string? _string;
         private bool _isChanged;
-        private readonly HashSet<string> _tokens = new();
+        private readonly HashSet<string> _tokens = [];
 
         public CompositeSessionToken(string? token, bool isSet = false)
         {
@@ -228,6 +227,7 @@ public class SessionTokenStorage : ISessionTokenStorage
             {
                 Add(token);
             }
+
             IsSet = isSet;
         }
 

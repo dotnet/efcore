@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
-#nullable disable
-
 public abstract class TPTInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesRelationalFixtureBase
 {
     protected override string StoreName

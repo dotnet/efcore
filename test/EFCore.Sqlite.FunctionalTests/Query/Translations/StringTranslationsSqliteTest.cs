@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
@@ -17,9 +18,9 @@ public class StringTranslationsSqliteTest : StringTranslationsRelationalTestBase
 
     #region Equals
 
-    public override async Task Equals()
+    public override async Task Instance_Equals()
     {
-        await base.Equals();
+        await base.Instance_Equals();
 
         AssertSql(
             """
@@ -147,6 +148,18 @@ WHERE instr("b"."String", 'e') - 1 <> -1
 """);
     }
 
+    public override async Task IndexOf_Char_with_non_ASCII_char()
+    {
+        await base.IndexOf_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."String", 'ş') - 1 = -1
+""");
+    }
+
     public override async Task IndexOf_with_empty_string()
     {
         await base.IndexOf_with_empty_string();
@@ -195,7 +208,10 @@ WHERE instr("b"."String", @pattern) - 1 = 1
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2 = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2
+END = 6
 """);
     }
 
@@ -207,7 +223,10 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1)
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2 = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2
+END = 6
 """);
     }
 
@@ -221,7 +240,10 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e') - 1) + @start = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", @start + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", @start + 1), 'e') - 1) + @start
+END = 6
 """);
     }
 
@@ -235,7 +257,26 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e')
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e') - 1) + @start = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", @start + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", @start + 1), 'e') - 1) + @start
+END = 6
+""");
+    }
+
+    [Fact]
+    public virtual async Task IndexOf_with_starting_position_returns_negative_one_when_not_found()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf("qwxz", 2) == -1));
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'qwxz') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'qwxz') - 1) + 2
+END = -1
 """);
     }
 
@@ -260,6 +301,20 @@ WHERE instr(CAST("b"."Int" AS TEXT), '55') - 1 = 1
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE instr('12559', CAST("b"."Int" AS TEXT)) - 1 = 1
+""");
+    }
+
+    public override async Task IndexOf_with_non_string_column_using_double_cast()
+    {
+        await base.IndexOf_with_non_string_column_using_double_cast();
+
+        AssertSql(
+            """
+@pattern='5' (Size = 1)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr(CAST("b"."Int" AS TEXT), @pattern) - 1 <> -1
 """);
     }
 
@@ -291,6 +346,18 @@ WHERE replace("b"."String", 'S', 'R') = 'Reattle'
 """);
     }
 
+    public override async Task Replace_Char_with_non_ASCII_char()
+    {
+        await base.Replace_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE replace("b"."String", 'ş', 'x') = "b"."String"
+""");
+    }
+
     public override async Task Replace_with_empty_string()
     {
         await base.Replace_with_empty_string();
@@ -312,6 +379,18 @@ WHERE "b"."String" <> '' AND replace("b"."String", "b"."String", '') = ''
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."String" <> '' AND replace("b"."String", "b"."String", CAST("b"."Int" AS TEXT)) = CAST("b"."Int" AS TEXT)
+""");
+    }
+
+    public override async Task Replace_with_non_string_column_using_double_cast()
+    {
+        await base.Replace_with_non_string_column_using_double_cast();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE replace(CAST("b"."Int" AS TEXT), '8', '3') = '3'
 """);
     }
 
@@ -791,6 +870,27 @@ WHERE ltrim("b"."String", 'Se') = 'attle'
 """);
     }
 
+    public override async Task TrimStart_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_array_parameter);
+
+        AssertSql();
+    }
+
     #endregion TrimStart
 
     #region TrimEnd
@@ -829,6 +929,27 @@ SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."D
 FROM "BasicTypesEntities" AS "b"
 WHERE rtrim("b"."String", 'le') = 'Seatt'
 """);
+    }
+
+    public override async Task TrimEnd_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_array_parameter);
+
+        AssertSql();
     }
 
     #endregion TrimEnd
@@ -1392,24 +1513,35 @@ GROUP BY "b"."Int"
 
     public override async Task Join_with_ordering()
     {
-        // SQLite does not support input ordering on aggregate methods; the below does client evaluation.
+        // group_concat with an ORDER BY clause requires SQLite 3.44.0.
+        Assert.SkipUnless(SqliteTestEnvironment.VersionAtLeast3_44, "Requires SQLite 3.44.0 for ORDER BY in aggregate functions.");
+
         await base.Join_with_ordering();
 
         AssertSql(
             """
-SELECT "b1"."Int", "b0"."String", "b0"."Id"
-FROM (
-    SELECT "b"."Int"
-    FROM "BasicTypesEntities" AS "b"
-    GROUP BY "b"."Int"
-) AS "b1"
-LEFT JOIN "BasicTypesEntities" AS "b0" ON "b1"."Int" = "b0"."Int"
-ORDER BY "b1"."Int", "b0"."Id" DESC
+SELECT "b"."Int" AS "Key", COALESCE(group_concat("b"."String", '|' ORDER BY "b"."Id" DESC), '') AS "Strings"
+FROM "BasicTypesEntities" AS "b"
+GROUP BY "b"."Int"
 """);
     }
 
     public override Task Join_non_aggregate()
-        => AssertTranslationFailed(() => base.Join_non_aggregate());
+        => AssertTranslationFailed(base.Join_non_aggregate);
+
+    [Fact]
+    public virtual async Task Join_with_distinct()
+        =>
+            // SQLite's group_concat() accepts only a single argument when DISTINCT is used, so it cannot be combined
+            // with the separator that string.Join always supplies ("DISTINCT aggregates must have exactly one argument").
+            // We therefore don't translate it; the query then falls back to APPLY, which SQLite does not support.
+            Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+                    ss => ss.Set<BasicTypesEntity>()
+                        .GroupBy(c => c.Int)
+                        .Select(g => new { g.Key, Strings = string.Join("|", g.Select(e => e.String).Distinct()) }),
+                    elementSorter: x => x.Key))).Message);
 
     #endregion Join
 
@@ -1609,7 +1741,7 @@ WHERE 'Seattle' REGEXP "b"."String"
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Regex_IsMatch_negated()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => !Regex.IsMatch(o.String, "^[^S]")));
@@ -1676,7 +1808,7 @@ WHERE CAST("b"."Int" AS TEXT) LIKE '%5%'
 
     #endregion Like
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

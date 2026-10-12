@@ -121,6 +121,7 @@ public static class RelationalQueryableExtensions
     /// </param>
     /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
     /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
+    [Obsolete("Use FromSql() instead. This method is obsolete and will be removed in a future release.")]
     public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
         this DbSet<TEntity> source,
         [NotParameterized] FormattableString sql)
@@ -186,17 +187,15 @@ public static class RelationalQueryableExtensions
         var entityQueryRootExpression = (EntityQueryRootExpression)source.Expression;
 
         var entityType = entityQueryRootExpression.EntityType;
-        if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
-            && entityType.FindDiscriminatorProperty() == null)
-        {
-            throw new InvalidOperationException(RelationalStrings.MethodOnNonTphRootNotSupported(memberName, entityType.DisplayName()));
-        }
-
-        return new FromSqlQueryRootExpression(
-            entityQueryRootExpression.QueryProvider!,
-            entityType,
-            sql,
-            Expression.Constant(arguments));
+        return (entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
+            && entityType.FindDiscriminatorProperty() == null
+                ? throw new InvalidOperationException(
+                    RelationalStrings.MethodOnNonTphRootNotSupported(memberName, entityType.DisplayName()))
+                : new FromSqlQueryRootExpression(
+                    entityQueryRootExpression.QueryProvider!,
+                    entityType,
+                    sql,
+                    Expression.Constant(arguments));
     }
 
     #endregion

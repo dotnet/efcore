@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
@@ -7,37 +7,35 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocMiscellaneousQueryTests";
 
     #region 603
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task First_FirstOrDefault_ix_async()
     {
-        var contextFactory = await InitializeAsync<Context603>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context603>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.OrderBy(p => p.Id).FirstAsync();
             context.Products.Remove(product);
             await context.SaveChangesAsync();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Products.Add(new Context603.Product { Name = "Product 1" });
             await context.SaveChangesAsync();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.OrderBy(p => p.Id).FirstOrDefaultAsync();
-            context.Products.Remove(product);
+            context.Products.Remove(product!);
             await context.SaveChangesAsync();
         }
     }
@@ -45,7 +43,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context603(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Product>()
@@ -55,7 +53,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -63,11 +61,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 6901
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task LeftJoin_with_missing_key_values_on_both_sides(bool async)
     {
-        var contextFactory = await InitializeAsync<Context6901>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context6901>();
+        using var context = contextFactory.CreateDbContext();
 
         var results
             = context.Customers
@@ -160,21 +158,21 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             });
         }
 
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Postcode> Postcodes { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
+        public DbSet<Postcode> Postcodes { get; set; } = null!;
 
         public class Customer
         {
             public int CustomerID { get; set; }
-            public string CustomerName { get; set; }
+            public string CustomerName { get; set; } = null!;
             public int? PostcodeID { get; set; }
         }
 
         public class Postcode
         {
             public int PostcodeID { get; set; }
-            public string PostcodeValue { get; set; }
-            public string TownName { get; set; }
+            public string PostcodeValue { get; set; } = null!;
+            public string TownName { get; set; } = null!;
         }
     }
 
@@ -182,12 +180,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 6986
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Shadow_property_with_inheritance()
     {
-        var contextFactory = await InitializeAsync<Context6986>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context6986>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             // can_query_base_type_when_derived_types_contain_shadow_properties
             var query = context.Contacts.ToList();
@@ -197,7 +195,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Single(query.OfType<Context6986.ServiceOperatorContact>());
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             // can_include_dependent_to_principal_navigation_of_derived_type_with_shadow_fk
             var query = context.Contacts.OfType<Context6986.ServiceOperatorContact>().Include(e => e.ServiceOperator)
@@ -207,7 +205,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.NotNull(query[0].ServiceOperator);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             // can_project_shadow_property_using_ef_property
             var query = context.Contacts.OfType<Context6986.ServiceOperatorContact>()
@@ -221,11 +219,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context6986(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Contact> Contacts { get; set; }
-        public DbSet<EmployerContact> EmployerContacts { get; set; }
-        public DbSet<Employer> Employers { get; set; }
-        public DbSet<ServiceOperatorContact> ServiceOperatorContacts { get; set; }
-        public DbSet<ServiceOperator> ServiceOperators { get; set; }
+        public DbSet<Contact> Contacts { get; set; } = null!;
+        public DbSet<EmployerContact> EmployerContacts { get; set; } = null!;
+        public DbSet<Employer> Employers { get; set; } = null!;
+        public DbSet<ServiceOperatorContact> ServiceOperatorContacts { get; set; } = null!;
+        public DbSet<ServiceOperator> ServiceOperators { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -239,15 +237,18 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Contacts.AddRange(
                 new ServiceOperatorContact
                 {
-                    UserName = "service.operator@esoterix.co.uk", ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
+                    UserName = "service.operator@esoterix.co.uk",
+                    ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
                 },
                 new EmployerContact
                 {
-                    UserName = "uwe@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
+                    UserName = "uwe@esoterix.co.uk",
+                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                 },
                 new EmployerContact
                 {
-                    UserName = "hp@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
+                    UserName = "hp@esoterix.co.uk",
+                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                 },
                 new Contact { UserName = "noroles@esoterix.co.uk" });
 
@@ -257,33 +258,33 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class EmployerContact : Contact
         {
             [Required]
-            public Employer Employer { get; set; }
+            public Employer Employer { get; set; } = null!;
         }
 
         public class ServiceOperatorContact : Contact
         {
             [Required]
-            public ServiceOperator ServiceOperator { get; set; }
+            public ServiceOperator ServiceOperator { get; set; } = null!;
         }
 
         public class Contact
         {
             public int Id { get; set; }
-            public string UserName { get; set; }
+            public string UserName { get; set; } = null!;
             public bool IsPrimary { get; set; }
         }
 
         public class Employer
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public List<EmployerContact> Contacts { get; set; }
+            public string Name { get; set; } = null!;
+            public List<EmployerContact> Contacts { get; set; } = null!;
         }
 
         public class ServiceOperator
         {
             public int Id { get; set; }
-            public List<ServiceOperatorContact> Contacts { get; set; }
+            public List<ServiceOperatorContact> Contacts { get; set; } = null!;
         }
     }
 
@@ -291,25 +292,25 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 7222
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inlined_dbcontext_is_not_leaking()
     {
-        var contextFactory = await InitializeAsync<Context7222>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context7222>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var entities = context.Blogs.Select(b => context.ClientMethod(b)).ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
-            Assert.Throws<InvalidOperationException>(() => context.RunQuery());
+            Assert.Throws<InvalidOperationException>(context.RunQuery);
         }
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context7222(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         public void RunQuery()
             => Blogs.Select(b => ClientMethod(b)).ToList();
@@ -327,19 +328,19 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 7359
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Discriminator_type_is_handled_correctly()
     {
-        var contextFactory = await InitializeAsync<Context7359>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context7359>(seed: c => c.SeedAsync());
 
-        using (var ctx = contextFactory.CreateContext())
+        using (var ctx = contextFactory.CreateDbContext())
         {
             var query = ctx.Products.OfType<Context7359.SpecialProduct>().ToList();
 
             Assert.Single(query);
         }
 
-        using (var ctx = contextFactory.CreateContext())
+        using (var ctx = contextFactory.CreateDbContext())
         {
             var query = ctx.Products.Where(p => p is Context7359.SpecialProduct).ToList();
 
@@ -350,7 +351,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context7359(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -372,7 +373,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class SpecialProduct : Product;
@@ -382,11 +383,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 7983
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task New_instances_in_projection_are_not_shared_across_results()
     {
-        var contextFactory = await InitializeAsync<Context7983>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context7983>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var list = context.Posts.Select(p => new Context7983.PostDTO().From(p)).ToList();
 
         Assert.Equal(3, list.Count);
@@ -396,20 +397,20 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context7983(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
 
         public Task SeedAsync()
         {
             Add(
                 new Blog
                 {
-                    Posts = new List<Post>
-                    {
+                    Posts =
+                    [
                         new() { Title = "First" },
                         new() { Title = "Second" },
                         new() { Title = "Third" }
-                    }
+                    ]
                 });
 
             return SaveChangesAsync();
@@ -418,23 +419,23 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Blog
         {
             public int Id { get; set; }
-            public string Title { get; set; }
+            public string? Title { get; set; }
 
-            public ICollection<Post> Posts { get; set; }
+            public ICollection<Post> Posts { get; set; } = null!;
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
 
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class PostDTO
         {
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
 
             public PostDTO From(Post post)
             {
@@ -448,36 +449,36 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 8538
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Enum_has_flag_applies_explicit_cast_for_constant()
     {
-        var contextFactory = await InitializeAsync<Context8538>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context8538>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Entities.Where(e => e.Permission.HasFlag(Context8538.Permission.READ_WRITE)).ToList();
             Assert.Single(query);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Entities.Where(e => e.PermissionShort.HasFlag(Context8538.PermissionShort.READ_WRITE)).ToList();
             Assert.Single(query);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Enum_has_flag_does_not_apply_explicit_cast_for_non_constant()
     {
-        var contextFactory = await InitializeAsync<Context8538>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context8538>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Entities.Where(e => e.Permission.HasFlag(e.Permission)).ToList();
             Assert.Equal(3, query.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Entities.Where(e => e.PermissionByte.HasFlag(e.PermissionByte)).ToList();
             Assert.Equal(3, query.Count);
@@ -487,7 +488,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context8538(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -552,11 +553,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 8909
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Variable_from_closure_is_parametrized()
     {
-        var contextFactory = await InitializeAsync<Context8909>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context8909>();
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Cache.Compact(1);
 
@@ -569,7 +570,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, context.Cache.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Cache.Compact(1);
 
@@ -586,7 +587,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, context.Cache.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Cache.Compact(1);
 
@@ -606,14 +607,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Relational_command_cache_creates_new_entry_when_parameter_nullability_changes()
     {
-        var contextFactory = await InitializeAsync<Context8909>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8909>();
+        using var context = contextFactory.CreateDbContext();
         context.Cache.Compact(1);
 
-        var name = "A";
+        string? name = "A";
 
         context.Entities.Where(e => e.Name == name).ToList();
         Assert.Equal(2, context.Cache.Count);
@@ -623,18 +624,18 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Equal(3, context.Cache.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_cache_entries_are_evicted_as_necessary()
     {
-        var contextFactory = await InitializeAsync<Context8909>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8909>();
+        using var context = contextFactory.CreateDbContext();
         context.Cache.Compact(1);
         Assert.Equal(0, context.Cache.Count);
 
         var entityParam = Expression.Parameter(typeof(Context8909.Entity), "e");
-        var idPropertyInfo = context.Model.FindEntityType((typeof(Context8909.Entity)))
-            .FindProperty(nameof(Context8909.Entity.Id))
-            .PropertyInfo;
+        var idPropertyInfo = context.Model.FindEntityType(typeof(Context8909.Entity))!
+            .FindProperty(nameof(Context8909.Entity.Id))!
+            .PropertyInfo!;
         for (var i = 0; i < 1100; i++)
         {
             var conditionBody = Expression.Equal(
@@ -647,7 +648,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.True(context.Cache.Count <= 1024);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Explicitly_compiled_query_does_not_add_cache_entry()
     {
         var parameter = Expression.Parameter(typeof(Context8909.Entity));
@@ -659,9 +660,9 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             parameter);
         var query = EF.CompileQuery((Context8909 context) => context.Set<Context8909.Entity>().SingleOrDefault(predicate));
 
-        var contextFactory = await InitializeAsync<Context8909>();
+        var contextFactory = await InitializeNonSharedTest<Context8909>();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Cache.Compact(1);
             Assert.Equal(0, context.Cache.Count);
@@ -676,7 +677,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context8909(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; set; } = null!;
 
         public MemoryCache Cache
         {
@@ -686,14 +687,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
                 return (MemoryCache)typeof(CompiledQueryCache)
                     .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
-                    ?.GetValue(compiledQueryCache);
+                    !.GetValue(compiledQueryCache)!;
             }
         }
 
         public class Entity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -701,11 +702,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 9468
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Conditional_expression_with_conditions_does_not_collapse_if_nullable_bool()
     {
-        var contextFactory = await InitializeAsync<Context9468>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context9468>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Carts.Select(t => new { Processing = t.Configuration != null ? !t.Configuration.Processed : (bool?)null })
             .ToList();
 
@@ -717,7 +718,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context9468(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Cart> Carts { get; set; }
+        public DbSet<Cart> Carts { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -734,7 +735,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
             public int? ConfigurationId { get; set; }
-            public Configuration Configuration { get; set; }
+            public Configuration Configuration { get; set; } = null!;
         }
 
         public class Configuration
@@ -748,11 +749,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 11104
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task QueryBuffer_requirement_is_computed_when_querying_base_type_while_derived_type_has_shadow_prop()
     {
-        var contextFactory = await InitializeAsync<Context11104>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11104>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Bases.ToList();
 
         var derived1 = Assert.Single(query);
@@ -762,7 +763,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context11104(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Base> Bases { get; set; }
+        public DbSet<Base> Bases { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Base>()
@@ -784,7 +785,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
         public class Derived1 : Base
         {
-            public Stuff MoreStuff { get; set; }
+            public Stuff? MoreStuff { get; set; }
         }
 
         public class Derived2 : Base;
@@ -799,11 +800,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 11885
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Average_with_cast()
     {
-        var contextFactory = await InitializeAsync<Context11885>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11885>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var prices = context.Prices.ToList();
 
         Assert.Equal(prices.Average(e => e.Price), context.Prices.Average(e => e.Price));
@@ -822,7 +823,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context11885(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<PriceEntity> Prices { get; set; }
+        public DbSet<PriceEntity> Prices { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<PriceEntity>(b =>
@@ -898,11 +899,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 12274
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameterless_ctor_on_inner_DTO_gets_called_for_every_row()
     {
-        var contextFactory = await InitializeAsync<Context12274>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context12274>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var results = context.Entities.Select(x =>
             new Context12274.OuterDTO
             {
@@ -919,7 +920,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context12274(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MyEntity> Entities { get; set; }
+        public DbSet<MyEntity> Entities { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -935,14 +936,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class MyEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class OuterDTO
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public InnerDTO Inner { get; set; }
+            public string Name { get; set; } = null!;
+            public InnerDTO Inner { get; set; } = null!;
         }
 
         public class InnerDTO;
@@ -952,41 +953,39 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 12549
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Union_and_insert_works_correctly_together()
     {
-        var contextFactory = await InitializeAsync<Context12549>();
+        var contextFactory = await InitializeNonSharedTest<Context12549>();
 
-        using (var context = contextFactory.CreateContext())
-        {
-            var id1 = 1;
-            var id2 = 2;
+        using var context = contextFactory.CreateDbContext();
+        var id1 = 1;
+        var id2 = 2;
 
-            var ids1 = context.Set<Context12549.Table1>()
-                .Where(x => x.Id == id1)
-                .Select(x => x.Id);
+        var ids1 = context.Set<Context12549.Table1>()
+            .Where(x => x.Id == id1)
+            .Select(x => x.Id);
 
-            var ids2 = context.Set<Context12549.Table2>()
-                .Where(x => x.Id == id2)
-                .Select(x => x.Id);
+        var ids2 = context.Set<Context12549.Table2>()
+            .Where(x => x.Id == id2)
+            .Select(x => x.Id);
 
-            var results = ids1.Union(ids2).ToList();
+        var results = ids1.Union(ids2).ToList();
 
-            context.AddRange(
-                new Context12549.Table1(),
-                new Context12549.Table2(),
-                new Context12549.Table1(),
-                new Context12549.Table2());
+        context.AddRange(
+            new Context12549.Table1(),
+            new Context12549.Table2(),
+            new Context12549.Table1(),
+            new Context12549.Table2());
 
-            await context.SaveChangesAsync();
-        }
+        await context.SaveChangesAsync();
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context12549(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Table1> Tables1 { get; set; }
-        public DbSet<Table2> Tables2 { get; set; }
+        public DbSet<Table1> Tables1 { get; set; } = null!;
+        public DbSet<Table2> Tables2 { get; set; } = null!;
 
         public class Table1
         {
@@ -1003,11 +1002,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 15215
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repeated_parameters_in_generated_query_sql()
     {
-        var contextFactory = await InitializeAsync<Context15215>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context15215>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var k = 1;
         var a = context.Autos.Where(e => e.Id == k).First();
         var b = context.Autos.Where(e => e.Id == k + 1).First();
@@ -1023,8 +1022,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context15215(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Auto> Autos { get; set; }
-        public DbSet<EqualAuto> EqualAutos { get; set; }
+        public DbSet<Auto> Autos { get; set; } = null!;
+        public DbSet<EqualAuto> EqualAutos { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -1036,8 +1035,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             await SaveChangesAsync();
 
             AddRange(
-                new EqualAuto { Auto = await Autos.FindAsync(1), AnotherAuto = await Autos.FindAsync(2) },
-                new EqualAuto { Auto = await Autos.FindAsync(5), AnotherAuto = await Autos.FindAsync(4) });
+                new EqualAuto { Auto = (await Autos.FindAsync(1))!, AnotherAuto = (await Autos.FindAsync(2))! },
+                new EqualAuto { Auto = (await Autos.FindAsync(5))!, AnotherAuto = (await Autos.FindAsync(4))! });
 
             await SaveChangesAsync();
         }
@@ -1045,14 +1044,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Auto
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         public class EqualAuto
         {
             public int Id { get; set; }
-            public Auto Auto { get; set; }
-            public Auto AnotherAuto { get; set; }
+            public Auto? Auto { get; set; }
+            public Auto? AnotherAuto { get; set; }
         }
     }
 
@@ -1060,12 +1059,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 19253
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Operators_combine_nullability_of_entity_shapers()
     {
-        var contextFactory = await InitializeAsync<Context19253>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context19253>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Expression<Func<Context19253.A, string>> leftKeySelector = x => x.forkey;
             Expression<Func<Context19253.B, string>> rightKeySelector = y => y.forkey;
@@ -1077,7 +1076,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     (left, rightg) => new { left, rightg })
                 .SelectMany(
                     r => r.rightg.DefaultIfEmpty(),
-                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y })
+                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y! })
                 .Concat(
                     context.Bs.GroupJoin(
                             context.As,
@@ -1086,14 +1085,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right })
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y!, Right = x.right })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
 
             Assert.Equal(3, query.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Expression<Func<Context19253.A, string>> leftKeySelector = x => x.forkey;
             Expression<Func<Context19253.B, string>> rightKeySelector = y => y.forkey;
@@ -1105,7 +1104,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     (left, rightg) => new { left, rightg })
                 .SelectMany(
                     r => r.rightg.DefaultIfEmpty(),
-                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y })
+                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y! })
                 .Union(
                     context.Bs.GroupJoin(
                             context.As,
@@ -1114,14 +1113,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right })
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y!, Right = x.right })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
 
             Assert.Equal(3, query.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Expression<Func<Context19253.A, string>> leftKeySelector = x => x.forkey;
             Expression<Func<Context19253.B, string>> rightKeySelector = y => y.forkey;
@@ -1133,7 +1132,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     (left, rightg) => new { left, rightg })
                 .SelectMany(
                     r => r.rightg.DefaultIfEmpty(),
-                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y })
+                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y! })
                 .Except(
                     context.Bs.GroupJoin(
                             context.As,
@@ -1142,13 +1141,13 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right }))
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y!, Right = x.right }))
                 .ToList();
 
             Assert.Single(query);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Expression<Func<Context19253.A, string>> leftKeySelector = x => x.forkey;
             Expression<Func<Context19253.B, string>> rightKeySelector = y => y.forkey;
@@ -1160,7 +1159,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     (left, rightg) => new { left, rightg })
                 .SelectMany(
                     r => r.rightg.DefaultIfEmpty(),
-                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y })
+                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y! })
                 .Intersect(
                     context.Bs.GroupJoin(
                             context.As,
@@ -1169,7 +1168,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right }))
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y!, Right = x.right }))
                 .ToList();
 
             Assert.Single(query);
@@ -1179,8 +1178,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context19253(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<A> As { get; set; }
-        public DbSet<B> Bs { get; set; }
+        public DbSet<A> As { get; set; } = null!;
+        public DbSet<B> Bs { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1221,25 +1220,25 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
         public class JoinResult<TLeft, TRight>
         {
-            public TLeft Left { get; set; }
+            public TLeft Left { get; set; } = default!;
 
-            public TRight Right { get; set; }
+            public TRight Right { get; set; } = default!;
         }
 
         public class A
         {
             public int Id { get; set; }
-            public string a { get; set; }
-            public string a1 { get; set; }
-            public string forkey { get; set; }
+            public string a { get; set; } = null!;
+            public string a1 { get; set; } = null!;
+            public string forkey { get; set; } = null!;
         }
 
         public class B
         {
             public int Id { get; set; }
-            public string b { get; set; }
-            public string b1 { get; set; }
-            public string forkey { get; set; }
+            public string b { get; set; } = null!;
+            public string b1 { get; set; } = null!;
+            public string forkey { get; set; } = null!;
         }
     }
 
@@ -1247,11 +1246,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 21770
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_enum_casted_to_byte_with_int_parameter(bool async)
     {
-        var contextFactory = await InitializeAsync<Context21770>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21770>();
+        using var context = contextFactory.CreateDbContext();
         var bitterTaste = Context21770.Taste.Bitter;
         var query = context.IceCreams.Where(i => i.Taste == (byte)bitterTaste);
 
@@ -1262,11 +1261,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Single(bitterIceCreams);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_enum_casted_to_byte_with_int_constant(bool async)
     {
-        var contextFactory = await InitializeAsync<Context21770>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21770>();
+        using var context = contextFactory.CreateDbContext();
         var query = context.IceCreams.Where(i => i.Taste == (byte)Context21770.Taste.Bitter);
 
         var bitterIceCreams = async
@@ -1276,11 +1275,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Single(bitterIceCreams);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_byte_column_to_enum_in_vb_creating_double_cast(bool async)
     {
-        var contextFactory = await InitializeAsync<Context21770>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21770>();
+        using var context = contextFactory.CreateDbContext();
         Expression<Func<Context21770.Food, byte?>> memberAccess = i => i.Taste;
         var predicate = Expression.Lambda<Func<Context21770.Food, bool>>(
             Expression.Equal(
@@ -1296,11 +1295,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Null_check_removal_in_ternary_maintain_appropriate_cast(bool async)
     {
-        var contextFactory = await InitializeAsync<Context21770>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21770>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = from f in context.Foods
                     select new { Bar = f.Taste != null ? (Context21770.Taste)f.Taste : (Context21770.Taste?)null };
@@ -1313,38 +1312,32 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context21770(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<IceCream> IceCreams { get; set; }
-        public DbSet<Food> Foods { get; set; }
+        public DbSet<IceCream> IceCreams { get; set; } = null!;
+        public DbSet<Food> Foods { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<IceCream>(entity =>
-            {
-                entity.HasData(
-                    new IceCream
-                    {
-                        IceCreamId = 1,
-                        Name = "Vanilla",
-                        Taste = (byte)Taste.Sweet
-                    },
-                    new IceCream
-                    {
-                        IceCreamId = 2,
-                        Name = "Chocolate",
-                        Taste = (byte)Taste.Sweet
-                    },
-                    new IceCream
-                    {
-                        IceCreamId = 3,
-                        Name = "Match",
-                        Taste = (byte)Taste.Bitter
-                    });
-            });
+            modelBuilder.Entity<IceCream>(entity => entity.HasData(
+                new IceCream
+                {
+                    IceCreamId = 1,
+                    Name = "Vanilla",
+                    Taste = (byte)Taste.Sweet
+                },
+                new IceCream
+                {
+                    IceCreamId = 2,
+                    Name = "Chocolate",
+                    Taste = (byte)Taste.Sweet
+                },
+                new IceCream
+                {
+                    IceCreamId = 3,
+                    Name = "Match",
+                    Taste = (byte)Taste.Bitter
+                }));
 
-            modelBuilder.Entity<Food>(entity =>
-            {
-                entity.HasData(new Food { Id = 1, Taste = null });
-            });
+            modelBuilder.Entity<Food>(entity => entity.HasData(new Food { Id = 1, Taste = null }));
         }
 
         public enum Taste : byte
@@ -1356,7 +1349,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class IceCream
         {
             public int IceCreamId { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public int Taste { get; set; }
         }
 
@@ -1371,12 +1364,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 22841
 
-    [ConditionalFact(Skip = "Issue #34727 - flaky test")]
+    [Fact(Skip = "Issue #34727 - flaky test")]
     public virtual async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
     {
-        var contextFactory = await InitializeAsync<Context22841>();
+        var contextFactory = await InitializeNonSharedTest<Context22841>();
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var observableThing = new Context22841.ObservableThing();
 
         using var trackingSynchronizationContext = new SingleThreadSynchronizationContext();
@@ -1416,23 +1409,21 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                 .Property(o => o.Id)
                 .UsePropertyAccessMode(PropertyAccessMode.Property);
 
-        public DbSet<ObservableThing> ObservableThings { get; set; }
+        public DbSet<ObservableThing> ObservableThings { get; set; } = null!;
 
         public class ObservableThing
         {
             public int Id
             {
-                get => _id;
+                get;
                 set
                 {
-                    _id = value;
+                    field = value;
                     Event?.Invoke();
                 }
             }
 
-            private int _id;
-
-            public event Action Event;
+            public event Action Event = null!;
         }
     }
 
@@ -1440,11 +1431,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 24657
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bool_discriminator_column_works(bool async)
     {
-        var contextFactory = await InitializeAsync<Context24657>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context24657>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Authors.Include(e => e.Blog);
 
@@ -1458,7 +1449,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context24657(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Author> Authors { get; set; }
+        public DbSet<Author> Authors { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Blog>()
@@ -1477,14 +1468,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Author
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public abstract class Blog
         {
             public int Id { get; set; }
             public bool IsPhotoBlog { get; set; }
-            public string Title { get; set; }
+            public string? Title { get; set; }
         }
 
         public class DevBlog : Blog
@@ -1506,11 +1497,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 26593
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var currentUserId = 1;
 
@@ -1530,11 +1521,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var currentUserId = 1;
 
@@ -1554,11 +1545,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var currentUserId = 1;
 
@@ -1581,9 +1572,9 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26593(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Group> Groups { get; set; }
-        public DbSet<Membership> Memberships { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Group> Groups { get; set; } = null!;
+        public DbSet<Membership> Memberships { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1599,22 +1590,22 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public ICollection<Membership> Memberships { get; set; }
+            public ICollection<Membership> Memberships { get; set; } = null!;
         }
 
         public class Group
         {
             public int Id { get; set; }
 
-            public ICollection<Membership> Memberships { get; set; }
+            public ICollection<Membership> Memberships { get; set; } = null!;
         }
 
         public class Membership
         {
             public int Id { get; set; }
-            public User User { get; set; }
+            public User User { get; set; } = null!;
             public int UserId { get; set; }
-            public Group Group { get; set; }
+            public Group Group { get; set; } = null!;
             public int GroupId { get; set; }
         }
     }
@@ -1623,11 +1614,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 26587
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_aggregate_on_right_side_of_join(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26587>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26587>();
+        using var context = contextFactory.CreateDbContext();
 
         var orderId = 123456;
 
@@ -1637,7 +1628,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                 o => o.OrderId,
                 (o, g) => new
                 {
-                    Key = o, IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
+                    Key = o,
+                    IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
                 })
             .OrderBy(e => e.Key);
 
@@ -1653,7 +1645,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26587(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; } = null!;
 
         public class OrderItem
         {
@@ -1668,11 +1660,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 26472
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Enum_with_value_converter_matching_take_value(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26472>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26472>();
+        using var context = contextFactory.CreateDbContext();
         var orderItemType = Context26472.OrderItemType.MyType1;
         var query = context.Orders.Where(x => x.Items.Any()).OrderBy(e => e.Id).Take(1)
             .Select(e => e.Id)
@@ -1693,8 +1685,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26472(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<Order> Orders { get; set; }
-        public virtual DbSet<OrderItem> OrderItems { get; set; }
+        public virtual DbSet<Order> Orders { get; set; } = null!;
+        public virtual DbSet<OrderItem> OrderItems { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<OrderItem>().Property(x => x.Type).HasConversion<string>();
@@ -1703,7 +1695,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public virtual ICollection<OrderItem> Items { get; set; }
+            public virtual ICollection<OrderItem> Items { get; set; } = null!;
         }
 
         public class OrderItem
@@ -1726,11 +1718,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 27083
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27083>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context
             .Set<Context27083.TimeSheet>()
@@ -1750,11 +1742,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Equal(2, timeSheets.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Aggregate_over_subquery_in_group_by_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27083>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         Expression<Func<Context27083.Order, bool>> someFilterFromOutside = x => x.Number != "A1";
 
@@ -1796,8 +1788,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context27083(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<TimeSheet> TimeSheets { get; set; }
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<TimeSheet> TimeSheets { get; set; } = null!;
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1840,19 +1832,19 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public List<Project> Projects { get; set; }
-            public List<Order> Orders { get; set; }
+            public List<Project> Projects { get; set; } = null!;
+            public List<Order> Orders { get; set; } = null!;
         }
 
         public class Order
         {
             public int Id { get; set; }
-            public string Number { get; set; }
+            public string? Number { get; set; }
 
             public int CustomerId { get; set; }
-            public Customer Customer { get; set; }
+            public Customer Customer { get; set; } = null!;
 
             public int HourlyRate { get; set; }
         }
@@ -1862,7 +1854,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public int Id { get; set; }
             public int CustomerId { get; set; }
 
-            public Customer Customer { get; set; }
+            public Customer Customer { get; set; } = null!;
         }
 
         public class TimeSheet
@@ -1870,10 +1862,10 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public int Id { get; set; }
 
             public int ProjectId { get; set; }
-            public Project Project { get; set; }
+            public Project Project { get; set; } = null!;
 
             public int? OrderId { get; set; }
-            public Order Order { get; set; }
+            public Order Order { get; set; } = null!;
         }
     }
 
@@ -1881,18 +1873,19 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 27094
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27094>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27094>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = from t in context.Tables
                     group t.Id by t.Value
                     into tg
                     select new
                     {
-                        A = tg.Key, B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
+                        A = tg.Key,
+                        B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
                     };
 
         var orders = async
@@ -1900,11 +1893,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Group_by_aggregate_in_subquery_projection_after_group_by(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27094>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27094>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = from t in context.Tables
                     group t.Id by t.Value
@@ -1928,7 +1921,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context27094(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Table> Tables { get; set; }
+        public DbSet<Table> Tables { get; set; } = null!;
 
         public class Table
         {
@@ -1941,11 +1934,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 26744
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Subquery_first_member_compared_to_null(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26744>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Parents
             .Where(p => p.Children.Any(c => c.SomeNullableDateTime == null)
@@ -1964,11 +1957,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Single(result);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SelectMany_where_Select(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26744>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Parents
             .SelectMany(p => p.Children
@@ -1988,7 +1981,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26744(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -2000,7 +1993,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Parent
         {
             public int Id { get; set; }
-            public List<Child> Children { get; set; }
+            public List<Child> Children { get; set; } = null!;
         }
 
         public class Child
@@ -2009,7 +2002,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public int SomeInteger { get; set; }
             public DateTime? SomeNullableDateTime { get; set; }
             public DateTime? SomeOtherNullableDateTime { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
         }
     }
 
@@ -2017,11 +2010,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 27343
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Flattened_GroupJoin_on_interface_generic(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27343>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27343>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var entitySet = context.Parents.AsQueryable<Context27343.IDocumentType>();
         var query = from p in entitySet
                     join c in context.Set<Context27343.Child>()
@@ -2039,7 +2032,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context27343(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; set; } = null!;
 
         public Task SeedAsync()
             => SaveChangesAsync();
@@ -2052,7 +2045,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Parent : IDocumentType
         {
             public int Id { get; set; }
-            public List<Child> Children { get; set; }
+            public List<Child> Children { get; set; } = null!;
         }
 
         public class Child
@@ -2061,7 +2054,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public int SomeInteger { get; set; }
             public DateTime? SomeNullableDateTime { get; set; }
             public DateTime? SomeOtherNullableDateTime { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
         }
     }
 
@@ -2069,11 +2062,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 28039
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28039>();
-        using var db = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context28039>();
+        using var db = contextFactory.CreateDbContext();
 
         var queryResults = (from i in db.IndexDatas.Where(a => a.Parcel == "some condition")
                                 .Select(a => new Context28039.SearchResult { ParcelNumber = a.Parcel, RowId = a.RowId })
@@ -2096,15 +2089,15 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context28039(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<IndexData> IndexDatas { get; set; }
-        public DbSet<TableData> TableDatas { get; set; }
+        public DbSet<IndexData> IndexDatas { get; set; } = null!;
+        public DbSet<TableData> TableDatas { get; set; } = null!;
 
         public class TableData : EntityBase
         {
             public int TableId { get; set; }
-            public string ParcelNumber { get; set; }
+            public string ParcelNumber { get; set; } = null!;
             public short RowId { get; set; }
-            public string JSON { get; set; }
+            public string JSON { get; set; } = null!;
         }
 
         public abstract class EntityBase
@@ -2115,15 +2108,15 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
         public class IndexData : EntityBase
         {
-            public string Parcel { get; set; }
+            public string Parcel { get; set; } = null!;
             public int RowId { get; set; }
         }
 
         public class SearchResult
         {
-            public string ParcelNumber { get; set; }
+            public string ParcelNumber { get; set; } = null!;
             public int RowId { get; set; }
-            public string DistinctValue { get; set; }
+            public string DistinctValue { get; set; } = null!;
         }
     }
 
@@ -2131,11 +2124,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 31961
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Filter_on_nested_DTO_with_interface_gets_simplified_correctly(bool async)
     {
-        var contextFactory = await InitializeAsync<Context31961>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context31961>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Customers
             .Select(m => new Context31961.CustomerDto
@@ -2150,12 +2143,13 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                         CountryId = m.Company.CountryId,
                         Country = new Context31961.CountryDto
                         {
-                            Id = m.Company.Country.Id, CountryName = m.Company.Country.CountryName,
+                            Id = m.Company.Country!.Id,
+                            CountryName = m.Company.Country!.CountryName,
                         },
                     }
                     : null,
             })
-            .Where(m => m.Company.Country.CountryName == "COUNTRY");
+            .Where(m => m.Company!.Country!.CountryName == "COUNTRY");
 
         var result = async
             ? await query.ToListAsync()
@@ -2165,91 +2159,148 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context31961(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
-        public DbSet<Company> Companies { get; set; }
+        public DbSet<Company> Companies { get; set; } = null!;
 
-        public DbSet<Country> Countries { get; set; }
+        public DbSet<Country> Countries { get; set; } = null!;
 
         public class Customer
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CompanyId { get; set; }
+            public string? CompanyId { get; set; }
 
-            public Company Company { get; set; }
+            public Company? Company { get; set; }
         }
 
         public class Country
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CountryName { get; set; } = string.Empty;
+            public string? CountryName { get; set; }
         }
 
         public class Company
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CompanyName { get; set; } = string.Empty;
+            public string? CompanyName { get; set; }
 
-            public string CountryId { get; set; }
+            public string? CountryId { get; set; }
 
-            public Country Country { get; set; }
+            public Country? Country { get; set; }
         }
 
         public interface ICustomerDto
         {
             string Id { get; set; }
 
-            string CompanyId { get; set; }
+            string? CompanyId { get; set; }
 
-            ICompanyDto Company { get; set; }
+            ICompanyDto? Company { get; set; }
         }
 
         public interface ICountryDto
         {
             string Id { get; set; }
 
-            string CountryName { get; set; }
+            string? CountryName { get; set; }
         }
 
         public interface ICompanyDto
         {
             string Id { get; set; }
 
-            string CompanyName { get; set; }
+            string? CompanyName { get; set; }
 
-            string CountryId { get; set; }
+            string? CountryId { get; set; }
 
-            ICountryDto Country { get; set; }
+            ICountryDto? Country { get; set; }
         }
 
         public class CustomerDto : ICustomerDto
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CompanyId { get; set; }
+            public string? CompanyId { get; set; }
 
-            public ICompanyDto Company { get; set; }
+            public ICompanyDto? Company { get; set; }
         }
 
         public class CountryDto : ICountryDto
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CountryName { get; set; } = string.Empty;
+            public string? CountryName { get; set; }
         }
 
         public class CompanyDto : ICompanyDto
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CompanyName { get; set; } = string.Empty;
+            public string? CompanyName { get; set; }
 
-            public string CountryId { get; set; }
+            public string? CountryId { get; set; }
 
-            public ICountryDto Country { get; set; }
+            public ICountryDto? Country { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 37653
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Coalesce_in_conditional_with_value_conversion(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37653>();
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context37653.Data>()
+            .OrderBy(e => e.Id)
+            .Select(e => new
+            {
+                e.Id,
+                Foo = e.Foo ?? false ? 'A' : 'B',
+            });
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+        Assert.Equal('A', result[0].Foo);
+        Assert.Equal('B', result[1].Foo);
+        Assert.Equal('B', result[2].Foo);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context37653(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Data>(builder =>
+            {
+                builder.Property(a => a.Foo).HasConversion<FooConverter>();
+                builder.HasData(
+                    new Data { Id = 1, Foo = true },
+                    new Data { Id = 2, Foo = false },
+                    new Data { Id = 3, Foo = null });
+            });
+
+        public class Data
+        {
+            public int Id { get; set; }
+            public bool? Foo { get; set; }
+        }
+
+        public class FooConverter : ValueConverter<bool?, short?>
+        {
+            public FooConverter()
+                : base(
+                    x => x == true ? 10 : (short?)99,
+                    x => x == 10 ? true : x == 99 ? false : null,
+                    convertsNulls: true)
+            {
+            }
         }
     }
 

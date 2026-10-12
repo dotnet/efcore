@@ -297,19 +297,16 @@ public class CSharpHelper : ICSharpHelper
             builder.Append(name[partStart..]);
         }
 
-        if (builder.Length == 0
-            || !IsIdentifierStartCharacter(builder[0]))
-        {
-            builder.Insert(0, '_');
-        }
-
         if (capitalize != null)
         {
             ChangeFirstLetterCase(builder, capitalize.Value);
         }
 
-        var identifier = builder.ToString();
-        return identifier;
+        var candidateIdentifier = builder.ToString();
+
+        return ModelValidator.IsValidIdentifier(candidateIdentifier)
+            ? candidateIdentifier
+            : "_" + candidateIdentifier;
     }
 
     private static void ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
@@ -367,6 +364,9 @@ public class CSharpHelper : ICSharpHelper
                 .Replace("\n", @"\n")
                 .Replace("\r", @"\r")
                 .Replace("\"", "\\\"")
+                .Replace("\u2028", "\\u2028")
+                .Replace("\u2029", "\\u2029")
+                .Replace("\u0085", "\\u0085")
                 .Insert(0, '"')
                 .Append('"')
                 .ToString()
@@ -405,6 +405,9 @@ public class CSharpHelper : ICSharpHelper
                 '\n' => @"\n",
                 '\r' => @"\r",
                 '\'' => @"\'",
+                '\u2028' => "\\u2028",
+                '\u2029' => "\\u2029",
+                '\u0085' => "\\u0085",
                 _ => value.ToString()
             }
             + "\'";
@@ -479,26 +482,17 @@ public class CSharpHelper : ICSharpHelper
     {
         var literal = number.ToString("G17", CultureInfo.InvariantCulture);
 
-        if (double.IsNaN(number))
-        {
-            return $"double.{nameof(double.NaN)}";
-        }
-
-        if (double.IsNegativeInfinity(number))
-        {
-            return $"double.{nameof(double.NegativeInfinity)}";
-        }
-
-        if (double.IsPositiveInfinity(number))
-        {
-            return $"double.{nameof(double.PositiveInfinity)}";
-        }
-
-        return !literal.Contains('E')
-            && !literal.Contains('e')
-            && !literal.Contains('.')
-                ? literal + ".0"
-                : literal;
+        return double.IsNaN(number)
+            ? $"double.{nameof(double.NaN)}"
+            : double.IsNegativeInfinity(number)
+                ? $"double.{nameof(double.NegativeInfinity)}"
+                : double.IsPositiveInfinity(number)
+                    ? $"double.{nameof(double.PositiveInfinity)}"
+                    : !literal.Contains('E')
+                    && !literal.Contains('e')
+                    && !literal.Contains('.')
+                        ? literal + ".0"
+                        : literal;
     }
 
     /// <summary>
@@ -508,7 +502,24 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(float value)
-        => value.ToString(CultureInfo.InvariantCulture) + "f";
+    {
+        if (float.IsNaN(value))
+        {
+            return $"float.{nameof(float.NaN)}";
+        }
+
+        if (float.IsNegativeInfinity(value))
+        {
+            return $"float.{nameof(float.NegativeInfinity)}";
+        }
+
+        if (float.IsPositiveInfinity(value))
+        {
+            return $"float.{nameof(float.PositiveInfinity)}";
+        }
+
+        return value.ToString(CultureInfo.InvariantCulture) + "f";
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -692,6 +703,12 @@ public class CSharpHelper : ICSharpHelper
             {
                 builder.Append(" object");
             }
+            else if (Nullable.GetUnderlyingType(type) != null)
+            {
+                // Elements are emitted as their underlying type, so an implicitly-typed array would be inferred as
+                // the non-nullable type; emit the element type explicitly to keep the array type correct.
+                builder.Append(' ').Append(Reference(type));
+            }
 
             if (vertical)
             {
@@ -871,10 +888,7 @@ public class CSharpHelper : ICSharpHelper
             .Append(">");
 
         return HandleEnumerable(
-            builder, vertical, values, value =>
-            {
-                builder.Append(UnknownLiteral(value));
-            });
+            builder, vertical, values, value => builder.Append(UnknownLiteral(value)));
     }
 
     /// <summary>
@@ -898,13 +912,10 @@ public class CSharpHelper : ICSharpHelper
             .Append(">");
 
         return HandleEnumerable(
-            builder, vertical, dict.Keys, key =>
-            {
-                builder.Append("[")
-                    .Append(UnknownLiteral(key))
-                    .Append("] = ")
-                    .Append(UnknownLiteral(dict[key]));
-            });
+            builder, vertical, dict.Keys, key => builder.Append("[")
+                .Append(UnknownLiteral(key))
+                .Append("] = ")
+                .Append(UnknownLiteral(dict[key])));
     }
 
     private static string HandleEnumerable(IndentedStringBuilder builder, bool vertical, IEnumerable values, Action<object> handleValue)
@@ -989,8 +1000,18 @@ public class CSharpHelper : ICSharpHelper
         return name == null
             ? type.IsDefined(typeof(FlagsAttribute), false)
                 ? GetCompositeEnumValue(type, value, fullName)
-                : $"({Reference(type)}){UnknownLiteral(Convert.ChangeType(value, Enum.GetUnderlyingType(type)))}"
+                : GetUnnamedEnumValue(type, value)
             : GetSimpleEnumValue(type, name, fullName);
+    }
+
+    private string GetUnnamedEnumValue(Type type, Enum value)
+    {
+        var underlyingLiteral = UnknownLiteral(Convert.ChangeType(value, Enum.GetUnderlyingType(type)));
+
+        // A negative value must be enclosed in parentheses, otherwise e.g. (MyEnum)-1 fails to compile (CS0075).
+        return underlyingLiteral.StartsWith('-')
+            ? $"({Reference(type)})({underlyingLiteral})"
+            : $"({Reference(type)}){underlyingLiteral}";
     }
 
     /// <summary>
@@ -1026,7 +1047,7 @@ public class CSharpHelper : ICSharpHelper
                     previous == null
                         ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
                         : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName))
-            ?? $"({Reference(type)}){UnknownLiteral(Convert.ChangeType(flags, Enum.GetUnderlyingType(type)))}";
+            ?? GetUnnamedEnumValue(type, flags);
     }
 
     internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)
@@ -1111,15 +1132,12 @@ public class CSharpHelper : ICSharpHelper
             var expression = mapping.GenerateCodeLiteral(value);
             var handled = HandleExpression(expression, builder);
 
-            if (!handled)
-            {
-                throw new NotSupportedException(
+            return !handled
+                ? throw new NotSupportedException(
                     DesignStrings.LiteralExpressionNotSupported(
                         expression.ToString(),
-                        literalType.ShortDisplayName()));
-            }
-
-            return builder.ToString();
+                        literalType.ShortDisplayName()))
+                : builder.ToString();
         }
 
         throw new InvalidOperationException(DesignStrings.UnknownLiteral(literalType));
@@ -1523,7 +1541,7 @@ public class CSharpHelper : ICSharpHelper
         var builder = new StringBuilder();
 
         var first = true;
-        foreach (var line in comment.Split(["\r\n", "\n", "\r"], StringSplitOptions.None))
+        foreach (var line in comment.Split(["\r\n", "\r", "\n", "\u0085", "\u2028", "\u2029"], StringSplitOptions.None))
         {
             if (!first)
             {
@@ -1622,73 +1640,6 @@ public class CSharpHelper : ICSharpHelper
         return code;
     }
 
-    private static bool IsIdentifierStartCharacter(char ch)
-    {
-        if (ch < 'a')
-        {
-            return ch is >= 'A' and (<= 'Z' or '_');
-        }
-
-        if (ch <= 'z')
-        {
-            return true;
-        }
-
-        return ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
-    }
-
     private static bool IsIdentifierPartCharacter(char ch)
-    {
-        if (ch < 'a')
-        {
-            return (ch < 'A'
-                    ? ch is >= '0' and <= '9'
-                    : ch <= 'Z')
-                || ch == '_';
-        }
-
-        if (ch <= 'z')
-        {
-            return true;
-        }
-
-        if (ch <= '\u007F')
-        {
-            return false;
-        }
-
-        var cat = CharUnicodeInfo.GetUnicodeCategory(ch);
-        if (IsLetterChar(cat))
-        {
-            return true;
-        }
-
-        switch (cat)
-        {
-            case UnicodeCategory.DecimalDigitNumber:
-            case UnicodeCategory.ConnectorPunctuation:
-            case UnicodeCategory.NonSpacingMark:
-            case UnicodeCategory.SpacingCombiningMark:
-            case UnicodeCategory.Format:
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsLetterChar(UnicodeCategory cat)
-    {
-        switch (cat)
-        {
-            case UnicodeCategory.UppercaseLetter:
-            case UnicodeCategory.LowercaseLetter:
-            case UnicodeCategory.TitlecaseLetter:
-            case UnicodeCategory.ModifierLetter:
-            case UnicodeCategory.OtherLetter:
-            case UnicodeCategory.LetterNumber:
-                return true;
-        }
-
-        return false;
-    }
+        => char.IsLetter(ch) || char.IsAsciiDigit(ch) || ch == '_';
 }

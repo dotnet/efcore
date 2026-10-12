@@ -89,8 +89,8 @@ public class EntityQueryRootExpression : QueryRootExpression, IPrintableExpressi
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is EntityQueryRootExpression queryRootExpression
-                && EntityType == queryRootExpression.EntityType);
+                || (obj is EntityQueryRootExpression queryRootExpression
+                    && EntityType == queryRootExpression.EntityType));
 
     /// <inheritdoc />
     public override int GetHashCode()

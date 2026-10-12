@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Types.Numeric;
 
 public class SqlServerShortTypeTest(SqlServerShortTypeTest.ShortTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -14,7 +16,7 @@ public class SqlServerShortTypeTest(SqlServerShortTypeTest.ShortTypeFixture fixt
             """
 @Fixture_Value='-32768'
 
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = @Fixture_Value
 """);
@@ -26,9 +28,26 @@ WHERE [t].[Value] = @Fixture_Value
 
         AssertSql(
             """
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = CAST(-32768 AS smallint)
+""");
+    }
+
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+
+        AssertSql(
+            """
+@value='-32768'
+
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
+FROM [TypeEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[ArrayValue]) WITH ([value] smallint '$') AS [a]
+    WHERE [a].[value] = @value) = 2
 """);
     }
 
@@ -106,6 +125,7 @@ WHERE [Id] = @p1;
                 """
 @Fixture_OtherValue='32767'
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -117,6 +137,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 @Fixture_OtherValue='32767'
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -132,6 +153,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', CAST(32767 AS smallint))
 FROM [JsonTypeEntity] AS [j]
@@ -141,6 +163,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', CAST(32767 AS smallint))
 FROM [JsonTypeEntity] AS [j]
@@ -156,6 +179,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING smallint))
 FROM [JsonTypeEntity] AS [j]
@@ -165,6 +189,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', CAST(JSON_VALUE([j].[JsonContainer], '$.OtherValue') AS smallint))
 FROM [JsonTypeEntity] AS [j]
@@ -172,13 +197,13 @@ FROM [JsonTypeEntity] AS [j]
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    // TODO: Currently failing on Helix only, see #36746
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // TODO: Currently failing on Helix only, see #36746
-        if (Environment.GetEnvironmentVariable("HELIX_WORKITEM_ROOT") is not null)
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
         {
-            return;
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
         }
 
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -187,6 +212,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', [j].[OtherValue])
 FROM [JsonTypeEntity] AS [j]
@@ -196,6 +222,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue])
 FROM [JsonTypeEntity] AS [j]

@@ -1,0 +1,37 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.SqlServer.HierarchyId",
+  "Types": [
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.SqlServerHierarchyIdDbContextOptionsBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static T UseHierarchyId<T>(this T optionsBuilder) where T : Microsoft.EntityFrameworkCore.Infrastructure.SqlEngineDbContextOptionsBuilderBase<T>;"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.Extensions.DependencyInjection.SqlServerHierarchyIdServiceCollectionExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServerHierarchyId(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<Microsoft.EntityFrameworkCore.HierarchyId>",
+      "Properties": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter Instance { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<Microsoft.SqlServer.Types.SqlHierarchyId>",
+      "Properties": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter Instance { get; }"
+        }
+      ]
+    }
+  ]
+}

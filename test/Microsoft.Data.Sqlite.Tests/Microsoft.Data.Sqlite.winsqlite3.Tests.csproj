@@ -1,13 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(DefaultNetCoreTargetFramework);$(NetFrameworkCurrent)</TargetFrameworks>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <DefineConstants>$(DefineConstants);WINSQLITE3</DefineConstants>
     <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\Xunit\UseCultureAttribute.cs" Link="TestUtilities\Xunit\UseCultureAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>

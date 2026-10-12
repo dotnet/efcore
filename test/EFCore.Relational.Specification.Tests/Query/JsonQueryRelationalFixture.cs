@@ -1,13 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
-
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
-
-#nullable disable
 
 public abstract class JsonQueryRelationalFixture : JsonQueryFixtureBase, ITestSqlLoggerFactory
 {
@@ -16,6 +12,9 @@ public abstract class JsonQueryRelationalFixture : JsonQueryFixtureBase, ITestSq
 
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

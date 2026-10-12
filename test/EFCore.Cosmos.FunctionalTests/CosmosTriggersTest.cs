@@ -9,18 +9,19 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "CosmosTriggersTest";
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
-    [ConditionalFact]
+    // Linux emulator: server-side scripts are not supported
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public async Task Triggers_are_executed_on_SaveChanges()
     {
-        var contextFactory = await InitializeAsync<TriggersContext>(shouldLogCategory: _ => true);
+        var contextFactory = await InitializeNonSharedTest<TriggersContext>(shouldLogCategory: _ => true);
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             await CreateTriggersInCosmosAsync(context);
 
@@ -41,7 +42,7 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
             Assert.Contains(logs, l => l.TriggerName == "PreInsertTrigger" && l.Operation == "INSERT");
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.SingleAsync();
             product.Name = "Updated Product";
@@ -53,7 +54,7 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
             Assert.Contains(logs, l => l.TriggerName == "UpdateTrigger" && l.Operation == "UPDATE");
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.SingleAsync();
             context.Products.Remove(product);
@@ -108,15 +109,7 @@ function preInsertTrigger() {
 }"
         };
 
-        try
-        {
-            await container.Scripts.CreateTriggerAsync(preInsertTriggerDefinition);
-        }
-        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
-        {
-            // Trigger already exists, replace it
-            await container.Scripts.ReplaceTriggerAsync(preInsertTriggerDefinition);
-        }
+        await CosmosTestHelpers.CreateOrReplaceTriggerAsync(context, container, preInsertTriggerDefinition);
 
         var postDeleteTriggerDefinition = new TriggerProperties
         {
@@ -146,15 +139,7 @@ function postDeleteTrigger() {
 }"
         };
 
-        try
-        {
-            await container.Scripts.CreateTriggerAsync(postDeleteTriggerDefinition);
-        }
-        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
-        {
-            // Trigger already exists, replace it
-            await container.Scripts.ReplaceTriggerAsync(postDeleteTriggerDefinition);
-        }
+        await CosmosTestHelpers.CreateOrReplaceTriggerAsync(context, container, postDeleteTriggerDefinition);
 
         var updateTriggerDefinition = new TriggerProperties
         {
@@ -185,15 +170,7 @@ function updateTrigger() {
 }"
         };
 
-        try
-        {
-            await container.Scripts.CreateTriggerAsync(updateTriggerDefinition);
-        }
-        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
-        {
-            // Trigger already exists, replace it
-            await container.Scripts.ReplaceTriggerAsync(updateTriggerDefinition);
-        }
+        await CosmosTestHelpers.CreateOrReplaceTriggerAsync(context, container, updateTriggerDefinition);
     }
 
     protected class TriggersContext(DbContextOptions options) : DbContext(options)
@@ -211,10 +188,7 @@ function updateTrigger() {
                 entity.HasTrigger("UpdateTrigger", TriggerType.Pre, TriggerOperation.Replace);
             });
 
-            modelBuilder.Entity<TriggerExecutionLog>(entity =>
-            {
-                entity.HasPartitionKey(e => e.PartitionKey);
-            });
+            modelBuilder.Entity<TriggerExecutionLog>(entity => entity.HasPartitionKey(e => e.PartitionKey));
         }
     }
 

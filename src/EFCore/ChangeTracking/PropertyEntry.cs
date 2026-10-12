@@ -67,6 +67,21 @@ public class PropertyEntry : MemberEntry
     }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether the value of this property has been loaded
+    ///     from the database. When <see langword="false" />, the property value is considered
+    ///     not present and will be excluded from update operations.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    public virtual bool IsLoaded
+    {
+        get => InternalEntry.IsLoaded(Metadata);
+        set => InternalEntry.SetIsLoaded(Metadata, value);
+    }
+
+    /// <summary>
     ///     Gets the metadata that describes the facets of this property and how it maps to the database.
     /// </summary>
     public new virtual IProperty Metadata

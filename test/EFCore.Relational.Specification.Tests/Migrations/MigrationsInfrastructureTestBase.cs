@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : MigrationsInfrastructureFixtureBase, new()
 {
@@ -20,9 +18,9 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Fixture.ResetCounts();
     }
 
-    protected string Sql { get; private set; }
+    protected string Sql { get; private set; } = null!;
 
-    protected string ActiveProvider { get; private set; }
+    protected string? ActiveProvider { get; private set; }
 
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
@@ -62,7 +60,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_apply_all_migrations()
     {
         using var db = Fixture.CreateContext();
@@ -89,7 +87,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Assert.Equal(0, Fixture.SeedAsyncCallCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_apply_all_migrations_async()
     {
         using var db = Fixture.CreateContext();
@@ -116,7 +114,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Assert.Equal(1, Fixture.SeedAsyncCallCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_apply_range_of_migrations()
     {
         using var db = Fixture.CreateContext();
@@ -137,7 +135,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000006_Migration6", x.MigrationId));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_apply_one_migration()
     {
         using var db = Fixture.CreateContext();
@@ -158,7 +156,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == RelationalEventId.ModelSnapshotNotFound).Level);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_revert_all_migrations()
     {
         using var db = Fixture.CreateContext();
@@ -174,7 +172,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Assert.Empty(history.GetAppliedMigrations());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_revert_one_migrations()
     {
         using var db = Fixture.CreateContext();
@@ -195,7 +193,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_apply_one_migration_in_parallel()
     {
         using var db = Fixture.CreateContext();
@@ -217,7 +215,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_apply_one_migration_in_parallel_async()
     {
         using var db = Fixture.CreateContext();
@@ -239,7 +237,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_apply_second_migration_in_parallel()
     {
         using var db = Fixture.CreateContext();
@@ -262,7 +260,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_apply_second_migration_in_parallel_async()
     {
         using var db = Fixture.CreateContext();
@@ -285,7 +283,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_apply_two_migrations_in_transaction()
     {
         using var db = Fixture.CreateContext();
@@ -313,7 +311,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             Fixture.TestSqlLoggerFactory.Log.First(l => l.Id == RelationalEventId.MigrationsUserTransactionWarning).Level);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_apply_two_migrations_in_transaction_async()
     {
         using var db = Fixture.CreateContext();
@@ -324,7 +322,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         var strategy = db.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
         {
-            using var transaction = db.Database.BeginTransactionAsync();
+            await using var transaction = await db.Database.BeginTransactionAsync();
             var migrator = db.GetService<IMigrator>();
             await migrator.MigrateAsync("Migration1");
             await migrator.MigrateAsync("Migration2");
@@ -341,7 +339,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             Fixture.TestSqlLoggerFactory.Log.First(l => l.Id == RelationalEventId.MigrationsUserTransactionWarning).Level);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_generate_no_migration_script()
     {
         using var db = Fixture.CreateEmptyContext();
@@ -354,7 +352,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         await SetAndExecuteSqlAsync(migrator.GenerateScript());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_generate_migration_from_initial_database_to_initial()
     {
         using var db = Fixture.CreateContext();
@@ -368,7 +366,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_generate_up_and_down_scripts()
     {
         using var db = Fixture.CreateContext();
@@ -388,7 +386,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             append: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_generate_up_and_down_scripts_noTransactions()
     {
         using var db = Fixture.CreateContext();
@@ -409,7 +407,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             append: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_generate_one_up_and_down_script()
     {
         using var db = Fixture.CreateContext();
@@ -436,7 +434,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             append: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_generate_up_and_down_script_using_names()
     {
         using var db = Fixture.CreateContext();
@@ -463,7 +461,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             append: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_generate_idempotent_up_and_down_scripts()
     {
         using var db = Fixture.CreateContext();
@@ -487,7 +485,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             append: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_generate_idempotent_up_and_down_scripts_noTransactions()
     {
         using var db = Fixture.CreateContext();
@@ -511,7 +509,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             append: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_get_active_provider()
     {
         using var db = Fixture.CreateContext();
@@ -523,16 +521,16 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         ActiveProvider = MigrationsInfrastructureFixtureBase.ActiveProvider;
     }
 
-    [ConditionalFact]
+    [Fact]
     public abstract void Can_diff_against_2_2_model();
 
-    [ConditionalFact]
+    [Fact]
     public abstract void Can_diff_against_3_0_ASP_NET_Identity_model();
 
-    [ConditionalFact]
+    [Fact]
     public abstract void Can_diff_against_2_2_ASP_NET_Identity_model();
 
-    [ConditionalFact]
+    [Fact]
     public abstract void Can_diff_against_2_1_ASP_NET_Identity_model();
 
     protected virtual void DiffSnapshot(ModelSnapshot snapshot, DbContext context)
@@ -561,7 +559,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 public abstract class MigrationsInfrastructureFixtureBase
     : SharedStoreFixtureBase<MigrationsInfrastructureFixtureBase.MigrationsContext>
 {
-    public static string ActiveProvider { get; set; }
+    public static string? ActiveProvider { get; set; }
 
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;
@@ -601,7 +599,7 @@ public abstract class MigrationsInfrastructureFixtureBase
 
     public class MigrationsContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public DbSet<Foo> Foos { get; set; }
+        public DbSet<Foo> Foos { get; set; } = null!;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
@@ -609,10 +607,7 @@ public abstract class MigrationsInfrastructureFixtureBase
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder)
-            .UseSeeding((context, migrated) =>
-            {
-                SeedCallCount++;
-            })
+            .UseSeeding((context, migrated) => SeedCallCount++)
             .UseAsyncSeeding((context, migrated, token) =>
             {
                 SeedAsyncCallCount++;
@@ -622,6 +617,7 @@ public abstract class MigrationsInfrastructureFixtureBase
                 .Log(RelationalEventId.PendingModelChangesWarning)
                 .Log(RelationalEventId.NonTransactionalMigrationOperationWarning)
                 .Log(RelationalEventId.MigrationsUserTransactionWarning)
+                .Log(RelationalEventId.OldMigrationVersionWarning)
             );
 
     protected override bool ShouldLogCategory(string logCategory)
@@ -631,7 +627,7 @@ public abstract class MigrationsInfrastructureFixtureBase
     {
         public int Id { get; set; }
         public int Bar { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 
     [DbContext(typeof(MigrationsContext)), Migration("00000000000001_Migration1")]

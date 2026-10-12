@@ -3,40 +3,30 @@
 
 using System.Net;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocCosmosTestHelpers
 {
-    public static async Task CreateCustomEntityHelperAsync(
+    public static Task CreateCustomEntityHelperAsync(
         Container container,
         string json,
         CancellationToken cancellationToken)
-    {
-        var document = JObject.Parse(json);
+        => new TestCosmosExecutionStrategy().ExecuteAsync(
+            async ct =>
+            {
+                using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+                using var response = await container.CreateItemStreamAsync(
+                        stream,
+                        PartitionKey.None,
+                        requestOptions: null,
+                        ct)
+                    .ConfigureAwait(false);
 
-        var stream = new MemoryStream();
-        await using var __ = stream.ConfigureAwait(false);
-        var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
-        await using var ___ = writer.ConfigureAwait(false);
-        using var jsonWriter = new JsonTextWriter(writer);
-
-        CosmosClientWrapper.Serializer.Serialize(jsonWriter, document);
-        await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
-
-        var response = await container.CreateItemStreamAsync(
-                stream,
-                PartitionKey.None,
-                requestOptions: null,
-                cancellationToken)
-            .ConfigureAwait(false);
-
-        if (response.StatusCode != HttpStatusCode.Created)
-        {
-            throw new InvalidOperationException($"Failed to create entity (status code: {response.StatusCode}) for json: {json}");
-        }
-    }
+                response.EnsureSuccessStatusCode();
+                if (response.StatusCode != HttpStatusCode.Created)
+                {
+                    throw new InvalidOperationException($"Failed to create entity (status code: {response.StatusCode}) for json: {json}");
+                }
+            }, cancellationToken);
 }

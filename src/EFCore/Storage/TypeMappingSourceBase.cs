@@ -118,7 +118,12 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public abstract CoreTypeMapping? FindMapping(Type type, IModel model, CoreTypeMapping? elementMapping = null);
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
+    ///     a field or a property of a CLR type.
+    /// </summary>
+    /// <param name="member">The field or property.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public abstract CoreTypeMapping? FindMapping(MemberInfo member);
 
     /// <inheritdoc />
@@ -144,6 +149,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         out JsonValueReaderWriter? collectionReaderWriter)
     {
         if ((providerClrType == null || providerClrType == typeof(string))
+            && modelClrType != typeof(string)
             && modelClrType.TryGetElementType(typeof(IEnumerable<>)) is { } elementType
             && elementType != modelClrType
             && !modelClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
@@ -161,7 +167,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                         typeof(JsonCastValueReaderWriter<>).MakeGenericType(elementType.UnwrapNullableType()), elementReader)!;
                 }
 
-                var typeToInstantiate = FindTypeToInstantiate();
+                var typeToInstantiate = modelClrType.FindJsonCollectionTypeToInstantiate(elementType);
 
                 collectionReaderWriter = mappingInfo.JsonValueReaderWriter
                     ?? (JsonValueReaderWriter?)Activator.CreateInstance(
@@ -182,32 +188,6 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                     elementMapping.Comparer.ComposeConversion(elementType)!);
 
                 return true;
-
-                Type FindTypeToInstantiate()
-                {
-                    if (modelClrType.IsArray)
-                    {
-                        return modelClrType;
-                    }
-
-                    var listOfT = typeof(List<>).MakeGenericType(elementType);
-
-                    if (modelClrType.IsAssignableFrom(listOfT))
-                    {
-                        if (!modelClrType.IsAbstract)
-                        {
-                            var constructor = modelClrType.GetDeclaredConstructor(null);
-                            if (constructor?.IsPublic == true)
-                            {
-                                return modelClrType;
-                            }
-                        }
-
-                        return listOfT;
-                    }
-
-                    return modelClrType;
-                }
             }
         }
 

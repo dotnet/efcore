@@ -27,6 +27,12 @@ public class CompiledModelCodeGenerationOptions
     public virtual string? Language { get; set; }
 
     /// <summary>
+    ///     Gets or sets the C# language version to use when generating code.
+    /// </summary>
+    /// <value> The C# language version string. </value>
+    public virtual string? LangVersion { get; set; }
+
+    /// <summary>
     ///     Gets or sets a value indicating whether nullable reference types are enabled.
     /// </summary>
     /// <value> A value indicating whether nullable reference types are enabled. </value>
@@ -43,6 +49,12 @@ public class CompiledModelCodeGenerationOptions
     /// </summary>
     /// <value> A value indicating whether the generated code should be compatible with NativeAOT. </value>
     public virtual bool ForNativeAot { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the database provider name to embed in the compiled model.
+    /// </summary>
+    /// <value> The database provider name. </value>
+    public virtual string? ProviderName { get; set; }
 
     /// <summary>
     ///     Gets or sets the set of file names generated so far.

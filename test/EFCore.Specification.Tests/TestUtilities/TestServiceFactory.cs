@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public class TestServiceFactory
 {
     public static readonly TestServiceFactory Instance = new();
@@ -38,7 +36,7 @@ public class TestServiceFactory
         return _factories.GetOrAdd(
                 typeof(TService),
                 t => AddType([], typeof(TService), exceptions).BuildServiceProvider(validateScopes: true))
-            .GetService<TService>();
+            .GetService<TService>()!;
     }
 
     private static ServiceCollection AddType(
@@ -102,21 +100,15 @@ public class TestServiceFactory
             .Where(t => (elementType ?? serviceType).IsAssignableFrom(t) && !t.IsAbstract)
             .ToList();
 
-        if (elementType == null)
-        {
-            if (implementationTypes.Count != 1)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot use 'TestServiceFactory' for '{serviceType.ShortDisplayName()}': no single implementation type in same assembly.");
-            }
-
-            return [(serviceType, implementationTypes[0])];
-        }
-
-        return implementationTypes.Select(t => (elementType, t)).ToList();
+        return elementType == null
+            ? implementationTypes.Count != 1
+                ? throw new InvalidOperationException(
+                    $"Cannot use 'TestServiceFactory' for '{serviceType.ShortDisplayName()}': no single implementation type in same assembly.")
+                : [(serviceType, implementationTypes[0])]
+            : (IList<(Type ServiceType, Type ImplementationType)>)implementationTypes.Select(t => (elementType, t)).ToList();
     }
 
-    private static Type TryGetEnumerableType(Type type)
+    private static Type? TryGetEnumerableType(Type type)
         => !type.IsGenericTypeDefinition
             && type.IsGenericType
             && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)

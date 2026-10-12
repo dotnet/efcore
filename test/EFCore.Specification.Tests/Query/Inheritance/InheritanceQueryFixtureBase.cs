@@ -5,11 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
-public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>, IFilteredQueryFixtureBase
+public abstract class InheritanceQueryFixtureBase : QueryFixtureBase<InheritanceContext>
 {
-    private readonly Dictionary<bool, ISetSource> _expectedDataCache = new();
+    private readonly Dictionary<bool, ISetSource> _expectedDataCache = [];
 
     protected override string StoreName
         => "InheritanceTest";
@@ -35,15 +33,12 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
             CoreEventId.MappedPropertyIgnoredWarning,
             CoreEventId.MappedNavigationIgnoredWarning));
 
-    public Func<DbContext> GetContextCreator()
-        => CreateContext;
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => UseGeneratedKeys
             ? InheritanceData.GeneratedKeysInstance
             : InheritanceData.Instance;
 
-    public virtual ISetSource GetFilteredExpectedData(DbContext context)
+    public override ISetSource GetFilteredExpectedData(DbContext context)
     {
         if (_expectedDataCache.TryGetValue(EnableFilters, out var cachedResult))
         {
@@ -64,30 +59,30 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         return expectedData;
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
-        { typeof(Animal), e => ((Animal)e)?.Species },
-        { typeof(Bird), e => ((Bird)e)?.Species },
-        { typeof(Kiwi), e => ((Kiwi)e)?.Species },
-        { typeof(Eagle), e => ((Eagle)e)?.Species },
-        { typeof(AnimalQuery), e => ((AnimalQuery)e)?.Name },
-        { typeof(BirdQuery), e => ((BirdQuery)e)?.Name },
-        { typeof(KiwiQuery), e => ((KiwiQuery)e)?.Name },
-        { typeof(EagleQuery), e => ((EagleQuery)e)?.Name },
-        { typeof(Plant), e => ((Plant)e)?.Species },
-        { typeof(Flower), e => ((Flower)e)?.Species },
-        { typeof(Daisy), e => ((Daisy)e)?.Species },
-        { typeof(Rose), e => ((Rose)e)?.Species },
-        { typeof(Country), e => ((Country)e)?.Id },
-        { typeof(Drink), e => ((Drink)e)?.SortIndex },
-        { typeof(Coke), e => ((Coke)e)?.SortIndex },
-        { typeof(Lilt), e => ((Lilt)e)?.SortIndex },
-        { typeof(Tea), e => ((Tea)e)?.SortIndex },
-        { typeof(ComplexType), e => ((ComplexType)e)?.UniqueInt },
-        { typeof(NestedComplexType), e => ((NestedComplexType)e)?.UniqueInt },
+        { typeof(Animal), e => ((Animal)e).Species! },
+        { typeof(Bird), e => ((Bird)e).Species! },
+        { typeof(Kiwi), e => ((Kiwi)e).Species! },
+        { typeof(Eagle), e => ((Eagle)e).Species! },
+        { typeof(AnimalQuery), e => ((AnimalQuery)e).Name! },
+        { typeof(BirdQuery), e => ((BirdQuery)e).Name! },
+        { typeof(KiwiQuery), e => ((KiwiQuery)e).Name! },
+        { typeof(EagleQuery), e => ((EagleQuery)e).Name! },
+        { typeof(Plant), e => ((Plant)e).Species },
+        { typeof(Flower), e => ((Flower)e).Species },
+        { typeof(Daisy), e => ((Daisy)e).Species },
+        { typeof(Rose), e => ((Rose)e).Species },
+        { typeof(Country), e => ((Country)e).Id },
+        { typeof(Drink), e => ((Drink)e).SortIndex },
+        { typeof(Coke), e => ((Coke)e).SortIndex },
+        { typeof(Lilt), e => ((Lilt)e).SortIndex },
+        { typeof(Tea), e => ((Tea)e).SortIndex },
+        { typeof(ComplexType), e => e is ComplexType complexType ? complexType.UniqueInt : 0 },
+        { typeof(NestedComplexType), e => e is NestedComplexType nestedComplexType ? nestedComplexType.UniqueInt : 0 },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; }
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; }
 
     public InheritanceQueryFixtureBase()
         => EntityAsserters = new Dictionary<Type, Action<object, object>>
@@ -99,7 +94,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Animal)e;
+                        var ee = (Animal)e!;
                         var aa = (Animal)a;
 
                         Assert.Equal(ee.Species, aa.Species);
@@ -115,7 +110,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Bird)e;
+                        var ee = (Bird)e!;
                         var aa = (Bird)a;
 
                         Assert.Equal(ee.Species, aa.Species);
@@ -132,7 +127,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Eagle)e;
+                        var ee = (Eagle)e!;
                         var aa = (Eagle)a;
 
                         Assert.Equal(ee.Species, aa.Species);
@@ -150,7 +145,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Kiwi)e;
+                        var ee = (Kiwi)e!;
                         var aa = (Kiwi)a;
 
                         Assert.Equal(ee.Species, aa.Species);
@@ -168,7 +163,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (AnimalQuery)e;
+                        var ee = (AnimalQuery)e!;
                         var aa = (AnimalQuery)a;
 
                         Assert.Equal(ee.Name, aa.Name);
@@ -183,7 +178,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (BirdQuery)e;
+                        var ee = (BirdQuery)e!;
                         var aa = (BirdQuery)a;
 
                         Assert.Equal(ee.Name, aa.Name);
@@ -200,7 +195,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (EagleQuery)e;
+                        var ee = (EagleQuery)e!;
                         var aa = (EagleQuery)a;
 
                         Assert.Equal(ee.Name, aa.Name);
@@ -218,7 +213,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (KiwiQuery)e;
+                        var ee = (KiwiQuery)e!;
                         var aa = (KiwiQuery)a;
 
                         Assert.Equal(ee.Name, aa.Name);
@@ -236,7 +231,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Plant)e;
+                        var ee = (Plant)e!;
                         var aa = (Plant)a;
 
                         Assert.Equal(ee.Species, aa.Species);
@@ -252,7 +247,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Flower)e;
+                        var ee = (Flower)e!;
                         var aa = (Flower)a;
 
                         Assert.Equal(ee.Species, aa.Species);
@@ -268,7 +263,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Daisy)e;
+                        var ee = (Daisy)e!;
                         var aa = (Daisy)a;
 
                         Assert.Equal(ee.Species, aa.Species);
@@ -284,7 +279,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Rose)e;
+                        var ee = (Rose)e!;
                         var aa = (Rose)a;
 
                         Assert.Equal(ee.Species, aa.Species);
@@ -301,7 +296,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Country)e;
+                        var ee = (Country)e!;
                         var aa = (Country)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -316,7 +311,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Drink)e;
+                        var ee = (Drink)e!;
                         var aa = (Drink)a;
 
                         Assert.Equal(ee.SortIndex, aa.SortIndex);
@@ -333,13 +328,14 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Coke)e;
+                        var ee = (Coke)e!;
                         var aa = (Coke)a;
 
                         Assert.Equal(ee.SortIndex, aa.SortIndex);
                         Assert.Equal(ee.SugarGrams, aa.SugarGrams);
                         Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
                         Assert.Equal(ee.Carbonation, aa.Carbonation);
+                        Assert.Equal(ee.Ints, aa.Ints);
 
                         AssertComplexType(ee.ParentComplexType, aa.ParentComplexType);
                         AssertComplexType(ee.ChildComplexType, aa.ChildComplexType);
@@ -354,7 +350,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Lilt)e;
+                        var ee = (Lilt)e!;
                         var aa = (Lilt)a;
 
                         Assert.Equal(ee.SortIndex, aa.SortIndex);
@@ -373,7 +369,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (Tea)e;
+                        var ee = (Tea)e!;
                         var aa = (Tea)a;
 
                         Assert.Equal(ee.SortIndex, aa.SortIndex);
@@ -393,7 +389,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (ComplexType)e;
+                        var ee = (ComplexType)e!;
                         var aa = (ComplexType)a;
 
                         AssertComplexType(ee, aa);
@@ -407,7 +403,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
                     if (a != null)
                     {
-                        var ee = (NestedComplexType)e;
+                        var ee = (NestedComplexType)e!;
                         var aa = (NestedComplexType)a;
 
                         AssertNestedComplexType(ee, aa);
@@ -416,7 +412,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
             },
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    private void AssertComplexType(ComplexType e, ComplexType a)
+    private void AssertComplexType(ComplexType? e, ComplexType? a)
     {
         if (!EnableComplexTypes)
         {
@@ -427,7 +423,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
         if (e is not null)
         {
-            Assert.Equal(e.UniqueInt, a.UniqueInt);
+            Assert.Equal(e.UniqueInt, a!.UniqueInt);
             Assert.Equal(e.Int, a.Int);
 
             Assert.Equal(e.Nested is null, a.Nested is null);
@@ -438,7 +434,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         }
     }
 
-    private void AssertNestedComplexType(NestedComplexType e, NestedComplexType a)
+    private void AssertNestedComplexType(NestedComplexType? e, NestedComplexType? a)
     {
         if (!EnableComplexTypes)
         {
@@ -449,12 +445,12 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
         if (e is not null)
         {
-            Assert.Equal(e.UniqueInt, a.UniqueInt);
+            Assert.Equal(e.UniqueInt, a!.UniqueInt);
             Assert.Equal(e.NestedInt, a.NestedInt);
         }
     }
 
-    private void AssertComplexTypes(List<ComplexType> e, List<ComplexType> a)
+    private void AssertComplexTypes(List<ComplexType>? e, List<ComplexType>? a)
     {
         if (!EnableComplexTypes)
         {

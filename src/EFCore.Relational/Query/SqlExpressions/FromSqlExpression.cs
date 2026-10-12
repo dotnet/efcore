@@ -161,8 +161,8 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is FromSqlExpression fromSqlExpression
-                && Equals(fromSqlExpression));
+                || (obj is FromSqlExpression fromSqlExpression
+                    && Equals(fromSqlExpression)));
 
     private bool Equals(FromSqlExpression fromSqlExpression)
         => base.Equals(fromSqlExpression)

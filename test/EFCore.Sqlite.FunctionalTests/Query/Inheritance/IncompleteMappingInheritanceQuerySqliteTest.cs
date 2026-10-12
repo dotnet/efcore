@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class IncompleteMappingInheritanceQuerySqliteTest(
     IncompleteMappingInheritanceQuerySqliteFixture fixture,
     ITestOutputHelper testOutputHelper)

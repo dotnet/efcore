@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
-#nullable disable
-
 public class IdentityRole<TKey>
     where TKey : IEquatable<TKey>
 {
@@ -16,16 +14,16 @@ public class IdentityRole<TKey>
         : this()
         => Name = roleName;
 
-    public virtual TKey Id { get; set; }
+    public virtual TKey Id { get; set; } = default!;
 
-    public virtual string Name { get; set; }
+    public virtual string? Name { get; set; }
 
-    public virtual string NormalizedName { get; set; }
+    public virtual string? NormalizedName { get; set; }
 
-    public virtual string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
+    public virtual string? ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
 
     public override string ToString()
-        => Name;
+        => Name!;
 }
 
 public class IdentityRole : IdentityRole<string>

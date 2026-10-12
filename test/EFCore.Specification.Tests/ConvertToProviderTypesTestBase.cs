@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class ConvertToProviderTypesTestBase<TFixture>(TFixture fixture) : BuiltInDataTypesTestBase<TFixture>(fixture)
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Equals_method_over_enum_works()
     {
         using var context = CreateContext();
@@ -16,7 +16,7 @@ public abstract class ConvertToProviderTypesTestBase<TFixture>(TFixture fixture)
         Assert.Empty(query);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Object_equals_method_over_enum_works()
     {
         using var context = CreateContext();
@@ -80,10 +80,7 @@ public abstract class ConvertToProviderTypesTestBase<TFixture>(TFixture fixture)
                 b.Property(e => e.ByteArray9000).HasConversion<string>().HasMaxLength(LongStringLength * 2);
             });
 
-            modelBuilder.Entity<AnimalIdentification>(b =>
-            {
-                b.Property(e => e.Method).HasConversion<string>().HasMaxLength(6);
-            });
+            modelBuilder.Entity<AnimalIdentification>(b => b.Property(e => e.Method).HasConversion<string>().HasMaxLength(6));
         }
     }
 }

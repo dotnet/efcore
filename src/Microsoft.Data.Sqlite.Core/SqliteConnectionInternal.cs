@@ -7,8 +7,8 @@ using System.IO;
 using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-using static SQLitePCL.raw;
 using static Microsoft.Data.Sqlite.Utilities.IsBusyHelper;
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite;
 
@@ -85,7 +85,7 @@ internal class SqliteConnectionInternal
         {
             if (filename.StartsWith(DataDirectoryMacro, StringComparison.InvariantCultureIgnoreCase))
             {
-                filename = Path.Combine(dataDirectory, filename.Substring(DataDirectoryMacro.Length));
+                filename = Path.Combine(dataDirectory, filename[DataDirectoryMacro.Length..]);
             }
             else if (!Path.IsPathRooted(filename))
             {
@@ -161,8 +161,9 @@ internal class SqliteConnectionInternal
 
     public void Activate(SqliteConnection outerConnection)
     {
-        _active = true;
+        // Publish the owner before making this connection eligible for leak reclamation.
         _outerConnection.SetTarget(outerConnection);
+        _active = true;
     }
 
     public void Close()
@@ -179,9 +180,24 @@ internal class SqliteConnectionInternal
 
     public void Deactivate()
     {
-        if (_outerConnection.TryGetTarget(out var outerConnection))
+        // The underlying handle can already be disposed (e.g. the connection is being torn down). In that case there is
+        // nothing to reset and the connection must not be returned to the pool with a dead handle.
+        if (_db is { IsClosed: false, IsInvalid: false })
         {
-            outerConnection!.Deactivate();
+            if (_outerConnection.TryGetTarget(out var outerConnection))
+            {
+                outerConnection!.Deactivate();
+            }
+
+            // A failed rollback can detach the managed transaction without ending the native transaction.
+            if (sqlite3_get_autocommit(_db) == 0)
+            {
+                _canBePooled = false;
+            }
+        }
+        else
+        {
+            _canBePooled = false;
         }
 
         _outerConnection.SetTarget(null);

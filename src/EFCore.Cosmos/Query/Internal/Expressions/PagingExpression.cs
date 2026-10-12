@@ -111,8 +111,8 @@ public class PagingExpression(
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is PagingExpression other
-                && Equals(other));
+                || (obj is PagingExpression other
+                    && Equals(other)));
 
     private bool Equals(PagingExpression other)
         => Expression.Equals(other.Expression)

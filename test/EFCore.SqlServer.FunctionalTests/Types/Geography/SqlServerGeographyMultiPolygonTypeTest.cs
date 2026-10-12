@@ -2,13 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using NetTopologySuite.Geometries;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geography;
 
 public class SqlServerGeographyMultiPolygonTypeTest(
     SqlServerGeographyMultiPolygonTypeTest.MultiPolygonTypeFixture fixture,
     ITestOutputHelper testOutputHelper)
-    : SqlServerGeographyTypeTestBase<MultiPolygon, SqlServerGeographyMultiPolygonTypeTest.MultiPolygonTypeFixture>(fixture, testOutputHelper)
+    : SqlServerGeographyTypeTestBase<MultiPolygon, SqlServerGeographyMultiPolygonTypeTest.MultiPolygonTypeFixture>(
+        fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
     {
@@ -35,6 +37,9 @@ FROM [TypeEntity] AS [t]
 WHERE [t].[Value].STEquals('MULTIPOLYGON (((-122.35 47.62, -122.35 47.615, -122.345 47.615, -122.345 47.62, -122.35 47.62)), ((-122.3525 47.623, -122.3525 47.6215, -122.351 47.6215, -122.351 47.623, -122.3525 47.623)))') = CAST(1 AS bit)
 """);
     }
+
+    public override async Task Primitive_collection_in_query()
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -101,6 +106,7 @@ WHERE [Id] = @p1;
 @complex_type_Fixture_OtherValue='MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
 ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -113,6 +119,7 @@ FROM [JsonTypeEntity] AS [j]
 @complex_type_Fixture_OtherValue='MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
 ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -128,6 +135,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', N'MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625)), ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))')
 FROM [JsonTypeEntity] AS [j]
@@ -137,6 +145,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625)), ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))')
 FROM [JsonTypeEntity] AS [j]
@@ -152,6 +161,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING nvarchar(max)))
 FROM [JsonTypeEntity] AS [j]
@@ -161,6 +171,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue'))
 FROM [JsonTypeEntity] AS [j]
@@ -168,13 +179,13 @@ FROM [JsonTypeEntity] AS [j]
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    // TODO: Currently failing on Helix only, see #36746
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // TODO: Currently failing on Helix only, see #36746
-        if (Environment.GetEnvironmentVariable("HELIX_WORKITEM_ROOT") is not null)
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
         {
-            return;
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
         }
 
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -183,6 +194,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
@@ -192,6 +204,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
@@ -205,44 +218,52 @@ FROM [JsonTypeEntity] AS [j]
     {
         public override MultiPolygon Value { get; } = new(
         [
-            new Polygon(new LinearRing([
-                new Coordinate(-122.3500, 47.6200), // NW
-                new Coordinate(-122.3500, 47.6150), // SW
-                new Coordinate(-122.3450, 47.6150), // SE
-                new Coordinate(-122.3450, 47.6200), // NE
-                new Coordinate(-122.3500, 47.6200)
-            ])) { SRID = 4326 },
-            new Polygon(new LinearRing([
-                new Coordinate(-122.3525, 47.6230), // NW
-                new Coordinate(-122.3525, 47.6215), // SW
-                new Coordinate(-122.3510, 47.6215), // SE
-                new Coordinate(-122.3510, 47.6230), // NE
-                new Coordinate(-122.3525, 47.6230)
-            ])) { SRID = 4326 }
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-122.3500, 47.6200), // NW
+                    new Coordinate(-122.3500, 47.6150), // SW
+                    new Coordinate(-122.3450, 47.6150), // SE
+                    new Coordinate(-122.3450, 47.6200), // NE
+                    new Coordinate(-122.3500, 47.6200)
+                ])) { SRID = 4326 },
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-122.3525, 47.6230), // NW
+                    new Coordinate(-122.3525, 47.6215), // SW
+                    new Coordinate(-122.3510, 47.6215), // SE
+                    new Coordinate(-122.3510, 47.6230), // NE
+                    new Coordinate(-122.3525, 47.6230)
+                ])) { SRID = 4326 }
         ])
         { SRID = 4326 };
 
         public override MultiPolygon OtherValue { get; } = new(
         [
-            new Polygon(new LinearRing([
-                new Coordinate(-121.3600, 46.6250), // NW
-                new Coordinate(-121.3600, 46.6200), // SW
-                new Coordinate(-121.3550, 46.6200), // SE
-                new Coordinate(-121.3550, 46.6250), // NE
-                new Coordinate(-121.3600, 46.6250)
-            ])) { SRID = 4326 },
-            new Polygon(new LinearRing([
-                new Coordinate(-121.3540, 46.6240), // NW
-                new Coordinate(-121.3540, 46.6220), // SW
-                new Coordinate(-121.3525, 46.6220), // SE
-                new Coordinate(-121.3525, 46.6240), // NE
-                new Coordinate(-121.3540, 46.6240)
-            ])) { SRID = 4326 }
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-121.3600, 46.6250), // NW
+                    new Coordinate(-121.3600, 46.6200), // SW
+                    new Coordinate(-121.3550, 46.6200), // SE
+                    new Coordinate(-121.3550, 46.6250), // NE
+                    new Coordinate(-121.3600, 46.6250)
+                ])) { SRID = 4326 },
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-121.3540, 46.6240), // NW
+                    new Coordinate(-121.3540, 46.6220), // SW
+                    new Coordinate(-121.3525, 46.6220), // SE
+                    new Coordinate(-121.3525, 46.6240), // NE
+                    new Coordinate(-121.3540, 46.6240)
+                ])) { SRID = 4326 }
         ])
         { SRID = 4326 };
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

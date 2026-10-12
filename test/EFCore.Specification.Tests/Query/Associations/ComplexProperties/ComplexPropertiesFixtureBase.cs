@@ -14,17 +14,20 @@ public abstract class ComplexPropertiesFixtureBase : AssociationsQueryFixtureBas
 
         modelBuilder.Entity<RootEntity>(b =>
         {
-            b.ComplexProperty(e => e.RequiredAssociate, rrb
-                => rrb.ComplexProperty(r => r.OptionalNestedAssociate).IsRequired(false));
+            b.ComplexProperty(
+                e => e.RequiredAssociate, rrb
+                    => rrb.ComplexProperty(r => r.OptionalNestedAssociate).IsRequired(false));
 
-            b.ComplexProperty(e => e.OptionalAssociate, orb =>
-            {
-                orb.IsRequired(false);
-                orb.ComplexProperty(r => r.OptionalNestedAssociate).IsRequired(false);
-            });
+            b.ComplexProperty(
+                e => e.OptionalAssociate, orb =>
+                {
+                    orb.IsRequired(false);
+                    orb.ComplexProperty(r => r.OptionalNestedAssociate).IsRequired(false);
+                });
 
-            b.ComplexCollection(e => e.AssociateCollection, rcb
-                => rcb.ComplexProperty(r => r.OptionalNestedAssociate).IsRequired(false));
+            b.ComplexCollection(
+                e => e.AssociateCollection, rcb
+                    => rcb.ComplexProperty(r => r.OptionalNestedAssociate).IsRequired(false));
         });
 
         // Value types are only supported with complex types, so we add them to the model here.
@@ -36,14 +39,16 @@ public abstract class ComplexPropertiesFixtureBase : AssociationsQueryFixtureBas
             // as we don't yet support complex collections of value types, #31411
             b.ComplexProperty(e => e.RequiredAssociate);
 
-            b.ComplexProperty(e => e.OptionalAssociate, orb =>
-            {
-                orb.IsRequired(false);
-                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
-            });
+            b.ComplexProperty(
+                e => e.OptionalAssociate, orb =>
+                {
+                    orb.IsRequired(false);
+                    orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+                });
 
-            b.ComplexCollection(e => e.AssociateCollection, rcb
-                => rcb.ComplexProperty(r => r.OptionalNestedAssociate).IsRequired(false));
+            b.ComplexCollection(
+                e => e.AssociateCollection, rcb
+                    => rcb.ComplexProperty(r => r.OptionalNestedAssociate).IsRequired(false));
         });
     }
 

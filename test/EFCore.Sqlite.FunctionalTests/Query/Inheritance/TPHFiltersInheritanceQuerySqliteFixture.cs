@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPHFiltersInheritanceQuerySqliteFixture : TPHInheritanceQuerySqliteFixture
 {
     public override bool EnableFilters

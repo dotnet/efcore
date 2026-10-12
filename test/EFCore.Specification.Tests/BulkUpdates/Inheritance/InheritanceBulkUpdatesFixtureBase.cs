@@ -5,9 +5,7 @@ using Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
-#nullable disable
-
-public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtureBase, IBulkUpdatesFixtureBase
+public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtureBase
 {
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
@@ -16,5 +14,5 @@ public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtur
                 CoreEventId.MappedPropertyIgnoredWarning,
                 CoreEventId.MappedNavigationIgnoredWarning));
 
-    public abstract void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction);
+    public abstract override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction);
 }

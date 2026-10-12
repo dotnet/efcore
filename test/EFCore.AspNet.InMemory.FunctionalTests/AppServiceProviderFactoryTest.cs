@@ -1,15 +1,14 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 
 public class AppServiceProviderFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Create_services_from_template_method()
     {
         TestCreateServices(typeof(ProgramWithBuildWebHost));
@@ -57,8 +56,7 @@ public class AppServiceProviderFactoryTest
         }
     }
 
-    [ConditionalFact]
-    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Mac)]
+    [Fact, SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public void Create_with_no_builder_method()
     {
         var factory = new TestAppServiceProviderFactory(
@@ -71,10 +69,10 @@ public class AppServiceProviderFactoryTest
         Assert.NotNull(services.GetRequiredService<TestService>());
     }
 
-    private static void InjectHostIntoDiagnostics(object[] args)
+    private static void InjectHostIntoDiagnostics(object?[] args)
     {
         Assert.Single(args);
-        Assert.Equal((string[])args[0], new[] { "arg1", "--applicationName", "MockAssembly" });
+        Assert.Equal((string[])args[0]!, new[] { "arg1", "--applicationName", "MockAssembly" });
 
         using var diagnosticListener = new DiagnosticListener("Microsoft.Extensions.Hosting");
 
@@ -95,7 +93,7 @@ public class AppServiceProviderFactoryTest
 
     private class TestService;
 
-    [ConditionalFact]
+    [Fact]
     public void Create_works_when_no_BuildWebHost()
     {
         var factory = new TestAppServiceProviderFactory(
@@ -108,7 +106,7 @@ public class AppServiceProviderFactoryTest
 
     private class ProgramWithoutBuildWebHost;
 
-    [ConditionalFact]
+    [Fact]
     public void Create_works_when_BuildWebHost_throws()
     {
         var reporter = new TestOperationReporter();
@@ -131,7 +129,7 @@ public class AppServiceProviderFactoryTest
     }
 }
 
-public class TestAppServiceProviderFactory(Assembly startupAssembly, IOperationReporter reporter = null)
+public class TestAppServiceProviderFactory(Assembly startupAssembly, IOperationReporter? reporter = null)
     : AppServiceProviderFactory(startupAssembly, reporter ?? new TestOperationReporter());
 
 public class TestWebHost(IServiceProvider services)

@@ -315,30 +315,18 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
             return (EntityType)DeclaringEntityType;
         }
 
-        if (RelatedEntityType.Name == entityTypeName)
-        {
-            return (EntityType)RelatedEntityType;
-        }
-
-        if (DeclaringEntityType.DisplayName() == entityTypeName)
-        {
-            return (EntityType)DeclaringEntityType;
-        }
-
-        if (RelatedEntityType.DisplayName() == entityTypeName)
-        {
-            return (EntityType)RelatedEntityType;
-        }
-
-        if (DeclaringEntityType.HasSharedClrType
-            && DeclaringEntityType.ShortName() == entityTypeName)
-        {
-            return (EntityType)DeclaringEntityType;
-        }
-
-        return RelatedEntityType.HasSharedClrType && RelatedEntityType.ShortName() == entityTypeName
+        return RelatedEntityType.Name == entityTypeName
             ? (EntityType)RelatedEntityType
-            : null;
+            : DeclaringEntityType.DisplayName() == entityTypeName
+                ? (EntityType)DeclaringEntityType
+                : RelatedEntityType.DisplayName() == entityTypeName
+                    ? (EntityType)RelatedEntityType
+                    : DeclaringEntityType.HasSharedClrType
+                    && DeclaringEntityType.ShortName() == entityTypeName
+                        ? (EntityType)DeclaringEntityType
+                        : RelatedEntityType.HasSharedClrType && RelatedEntityType.ShortName() == entityTypeName
+                            ? (EntityType)RelatedEntityType
+                            : null;
     }
 
     /// <summary>
@@ -349,14 +337,11 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
     /// </summary>
     [EntityFrameworkInternal]
     protected virtual EntityType? ResolveEntityType(Type entityType)
-    {
-        if (DeclaringEntityType.ClrType == entityType)
-        {
-            return (EntityType)DeclaringEntityType;
-        }
-
-        return RelatedEntityType.ClrType == entityType ? (EntityType)RelatedEntityType : null;
-    }
+        => DeclaringEntityType.ClrType == entityType
+            ? (EntityType)DeclaringEntityType
+            : RelatedEntityType.ClrType == entityType
+                ? (EntityType)RelatedEntityType
+                : null;
 
     private EntityType GetOtherEntityType(EntityType entityType)
         => DeclaringEntityType == entityType ? (EntityType)RelatedEntityType : (EntityType)DeclaringEntityType;
@@ -369,6 +354,17 @@ public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ReferenceReferenceBuilder IsRequired(bool required = true)
         => new(Builder.IsRequired(required, ConfigurationSource.Explicit)!, this, requiredSet: true);
+
+    /// <summary>
+    ///     Configures whether the relationship is constrained. When <see langword="false" />, no database
+    ///     foreign key constraint is created and queries treat the relationship as optional (the principal is
+    ///     not assumed to exist), even when the foreign key properties are non-nullable. This does not affect
+    ///     change tracking. See <see cref="Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey.IsConstrained" />.
+    /// </summary>
+    /// <param name="constrained">A value indicating whether the relationship is constrained.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ReferenceReferenceBuilder IsConstrained(bool constrained = true)
+        => new(Builder.IsConstrained(constrained, ConfigurationSource.Explicit)!, this);
 
     /// <summary>
     ///     Configures the operation applied to dependent entities in the relationship when the

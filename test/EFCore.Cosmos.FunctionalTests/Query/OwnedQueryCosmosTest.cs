@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.OwnedQueryCosmosFixture>
 {
     public OwnedQueryCosmosTest(OwnedQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
@@ -46,7 +44,7 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
         AssertSql();
     }
 
-    [ConditionalTheory]
+    [Theory]
     public override Task Navigation_rewrite_on_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -55,14 +53,14 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["Orders"]
 FROM root c
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
 ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory]
+    [Theory]
     public override async Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
     {
         // Always throws for sync.
@@ -303,7 +301,7 @@ WHERE (c["Terminator"] = "LeafA")
         AssertSql();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task SelectMany_on_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -319,9 +317,13 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task SelectMany_with_result_selector(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
                 await base.SelectMany_with_result_selector(a);
@@ -338,6 +340,7 @@ JOIN o IN c["Orders"]
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
+    }
 
     // Address.Planet is a non-owned navigation, cross-document join
     public override async Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
@@ -382,10 +385,9 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Te
             {
                 await base.Project_owned_reference_navigation_which_owns_additional(a);
 
-                // TODO: The following should project out c["PersonAddress"], not c: #34067
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -401,7 +403,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]["Country"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -427,7 +429,8 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         // Always throws for sync.
         if (async)
         {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
+            var exception =
+                await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
 
             Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
         }
@@ -439,7 +442,8 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         if (async)
         {
             var exception =
-                await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations_variation_2(async));
+                await Assert.ThrowsAsync<InvalidOperationException>(()
+                    => base.Client_method_skip_loads_owned_navigations_variation_2(async));
 
             Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
         }
@@ -491,7 +495,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -518,7 +522,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -572,7 +576,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -668,8 +672,11 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task Can_OrderBy_indexer_properties(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
@@ -689,8 +696,11 @@ ORDER BY c["Name"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task Can_OrderBy_indexer_properties_converted(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
@@ -710,8 +720,11 @@ ORDER BY c["Name"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task Can_OrderBy_owned_indexer_properties(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
@@ -731,8 +744,11 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task Can_OrderBy_owned_indexer_properties_converted(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
@@ -805,10 +821,13 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
             () => base.Indexer_property_is_pushdown_into_subquery(async),
             CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/330 (Aggregates over subqueries return null result set)
     public override Task Can_query_indexer_property_on_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
+                CosmosTestEnvironment.SkipOnLinuxEmulator();
+
                 await base.Can_query_indexer_property_on_owned_collection(a);
 
                 AssertSql(
@@ -844,8 +863,11 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
         AssertSql();
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     public override async Task Ordering_by_identifying_projection(bool async)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         // Always throws for sync.
         if (async)
         {
@@ -917,6 +939,34 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["Cl
     // TODO: GroupBy, #17313
     public override Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
         => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_multiple_aggregates_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_multiple_aggregates_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_count_with_predicate_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_count_with_predicate_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_ordered_aggregate_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_ordered_aggregate_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_first_entity_ordered_by_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_first_entity_ordered_by_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_having(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_collection_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_collection_navigation(async));
 
     public override Task Filter_on_indexer_using_closure(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -1026,7 +1076,7 @@ OFFSET @p LIMIT @p1
                 {
                     await Assert.ThrowsAsync<NullReferenceException>(() => AssertQuery(
                         async,
-                        ss => ss.Set<Barton>().Select(e => new { e.Throned.Value })));
+                        ss => ss.Set<Barton>().Select(e => new { e.Throned!.Value })));
 
                     AssertSql(
                         """
@@ -1038,19 +1088,43 @@ WHERE (c["Terminator"] = "Barton")
         }
     }
 
-    public override Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Owned_entity_without_owner_does_not_throw_for_identity_resolution(a, useAsTracking);
+    public override async Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)
+    {
+        if (async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<OwnedPerson>().Select(e => new { e.Id, e.PersonAddress });
 
-                AssertSql(
-                    """
-SELECT VALUE c
+            query = useAsTracking
+                ? query.AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+                : query.AsNoTrackingWithIdentityResolution();
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(4, result.Count);
+            Assert.Collection(
+                result.OrderBy(e => e.Id),
+                element => AssertProjectedPersonAddress(1, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(2, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(3, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(4, element.Id, element.PersonAddress!));
+            Assert.Empty(context.ChangeTracker.Entries());
+
+            AssertSql(
+                """
+SELECT c["Id"], c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+        }
+    }
+
+    private static void AssertProjectedPersonAddress(int expectedId, int id, OwnedAddress personAddress)
+    {
+        Assert.Equal(expectedId, id);
+        Assert.Equal("Land", personAddress.PlaceType);
+        Assert.Equal("USA", personAddress.Country!.Name);
+    }
 
     public override Task Simple_query_entity_with_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -1074,7 +1148,7 @@ WHERE (c["Terminator"] = "Star")
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -1112,7 +1186,7 @@ OFFSET 0 LIMIT @p
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task Client_method_take_loads_owned_navigations_variation_2(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1131,7 +1205,7 @@ OFFSET 0 LIMIT @p
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task Count_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1146,7 +1220,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task Any_without_predicate_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1161,7 +1235,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task Any_with_predicate_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1179,7 +1253,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task Contains_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1197,7 +1271,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task ElementAt_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1212,7 +1286,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Or
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task ElementAtOrDefault_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1227,7 +1301,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["O
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task OrderBy_ElementAt_over_owned_collection(bool async)
     {
         // Always throws for sync.
@@ -1249,7 +1323,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task Skip_Take_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1264,7 +1338,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task FirstOrDefault_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1282,7 +1356,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateT
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Distinct_over_owned_collection(bool async)
     {
         // Always throws for sync.
@@ -1295,7 +1369,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateT
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override Task Union_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1316,7 +1390,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
 """);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1462,38 +1536,35 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                         );
 
                         ob.OwnsMany(
-                            e => e.Details, odb =>
-                            {
-                                odb.HasData(
-                                    new
-                                    {
-                                        Id = -100,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Discounted Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -101,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Full Price Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -200,
-                                        OrderId = -20,
-                                        OrderClientId = 2,
-                                        Detail = "Internal Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -300,
-                                        OrderId = -30,
-                                        OrderClientId = 3,
-                                        Detail = "Bulk Order"
-                                    });
-                            });
+                            e => e.Details, odb => odb.HasData(
+                                new
+                                {
+                                    Id = -100,
+                                    OrderId = -10,
+                                    OrderClientId = 1,
+                                    Detail = "Discounted Order"
+                                },
+                                new
+                                {
+                                    Id = -101,
+                                    OrderId = -10,
+                                    OrderClientId = 1,
+                                    Detail = "Full Price Order"
+                                },
+                                new
+                                {
+                                    Id = -200,
+                                    OrderId = -20,
+                                    OrderClientId = 2,
+                                    Detail = "Internal Order"
+                                },
+                                new
+                                {
+                                    Id = -300,
+                                    OrderId = -30,
+                                    OrderClientId = 3,
+                                    Detail = "Bulk Order"
+                                }));
                     });
             });
 
@@ -1526,22 +1597,19 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 2,
-                                        PlanetId = 1,
-                                        Name = "Canada"
-                                    },
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 3,
-                                        PlanetId = 1,
-                                        Name = "Canada"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressBranchId = 2,
+                                    PlanetId = 1,
+                                    Name = "Canada"
+                                },
+                                new
+                                {
+                                    OwnedAddressBranchId = 3,
+                                    PlanetId = 1,
+                                    Name = "Canada"
+                                }));
                     });
             });
 
@@ -1568,16 +1636,13 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressLeafAId = 3,
-                                        PlanetId = 1,
-                                        Name = "Mexico"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressLeafAId = 3,
+                                    PlanetId = 1,
+                                    Name = "Mexico"
+                                }));
                     });
             });
 
@@ -1604,16 +1669,13 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressLeafBId = 4,
-                                        PlanetId = 1,
-                                        Name = "Panama"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressLeafBId = 4,
+                                    PlanetId = 1,
+                                    Name = "Panama"
+                                }));
                     });
             });
 

@@ -28,27 +28,35 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
     {
         public Test()
         {
-            ReferenceAssemblies = ReferenceAssemblies.Net.Net100;
+#if NET11_0
+            // Microsoft.CodeAnalysis.Testing currently does not have built-in support for .NET 11.0.
+            // ReferenceAssemblies = ReferenceAssemblies.Net.Net110;
+
+            ReferenceAssemblies = ReferenceAssembliesNet110;
+#else
+#error Update the above to match the targeted TFM
+#endif
 
             if (NugetConfigFinder.Find() is string nuGetConfigFilePath)
             {
-                ReferenceAssemblies = ReferenceAssemblies.Net.Net100.WithNuGetConfigFilePath(nuGetConfigFilePath);
+                ReferenceAssemblies = ReferenceAssemblies.WithNuGetConfigFilePath(nuGetConfigFilePath);
             }
 
             TestState.AdditionalReferences.AddRange(
                 DependencyContext.Load(GetType().Assembly)!
                     .CompileLibraries
                     .SelectMany(c => c.ResolveReferencePaths())
-                    .Select(path => MetadataReference.CreateFromFile(path))
-                    .Cast<MetadataReference>());
+                    .Select(path => MetadataReference.CreateFromFile(path)));
 
             DisabledDiagnostics.AddRange(
                 "CS1701", // Assuming assembly reference '...' used by '...' matches identity '...' of '...', you may need to supply runtime policy
-                "CS1591"  // Missing XML comment for publicly visible type or member '...'
+                "CS1591" // Missing XML comment for publicly visible type or member '...'
             );
         }
 
         protected override CompilationOptions CreateCompilationOptions()
             => ((CSharpCompilationOptions)base.CreateCompilationOptions()).WithNullableContextOptions(NullableContextOptions.Enable);
+
+        private static readonly ReferenceAssemblies ReferenceAssembliesNet110 = new("net11.0");
     }
 }

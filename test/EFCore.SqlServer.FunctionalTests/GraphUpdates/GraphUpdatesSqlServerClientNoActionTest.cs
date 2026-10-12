@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class GraphUpdatesSqlServerClientNoActionTest(GraphUpdatesSqlServerClientNoActionTest.SqlServerFixture fixture)
     : GraphUpdatesSqlServerTestBase<
         GraphUpdatesSqlServerClientNoActionTest.SqlServerFixture>(fixture)
@@ -33,7 +31,8 @@ public class GraphUpdatesSqlServerClientNoActionTest(GraphUpdatesSqlServerClient
 
             foreach (var foreignKey in modelBuilder.Model
                          .GetEntityTypes()
-                         .SelectMany(e => e.GetDeclaredForeignKeys()))
+                         .SelectMany(e => e.GetDeclaredForeignKeys())
+                         .Where(e => !e.IsOwnership))
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.ClientNoAction;
             }

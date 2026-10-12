@@ -1,7 +1,5 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-#nullable enable
 
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -14,7 +12,7 @@ public class SessionTokenStorageTest
     private readonly string _otherContainerName = "other";
     private readonly HashSet<string> _containerNames = new(["default", "other"]);
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -38,7 +36,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -59,10 +57,11 @@ public class SessionTokenStorageTest
                 AssertDefault(storage, null);
             }
         }
+
         AssertOther(storage, "A");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -70,17 +69,14 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
 
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "Token1" },
-            { _otherContainerName, "Token2" }
-        });
+        storage.SetSessionTokens(
+            new Dictionary<string, string?> { { _defaultContainerName, "Token1" }, { _otherContainerName, "Token2" } });
 
         AssertDefault(storage, "Token1");
         AssertOther(storage, "Token2");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -88,22 +84,14 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
 
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "" },
-            { _otherContainerName, "" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "" }, { _otherContainerName, "" } });
 
         AssertDefault(storage, "");
         AssertOther(storage, "");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -112,35 +100,27 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(mode);
         storage.TrackSessionToken(_defaultContainerName, "Token1");
         storage.TrackSessionToken(_otherContainerName, "Token2");
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
 
         AssertDefault(storage, "A");
         AssertOther(storage, "B");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
     public virtual void SetSessionTokens_SingleContainer_OverwritesOnlySingleContainer(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
         storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "C" } });
 
         AssertDefault(storage, "C");
         AssertOther(storage, "B");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -154,7 +134,7 @@ public class SessionTokenStorageTest
         AssertOther(storage, "B");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -178,7 +158,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -203,7 +183,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -227,7 +207,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -251,7 +231,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -276,7 +256,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -300,7 +280,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -324,11 +304,12 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void AppendDefaultContainerSessionToken_PreviousTrackedToken_Duplicate_DoesNotAppendToken(SessionTokenManagementMode mode)
+    public virtual void AppendDefaultContainerSessionToken_PreviousTrackedToken_Duplicate_DoesNotAppendToken(
+        SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
         storage.TrackSessionToken(_defaultContainerName, "A");
@@ -348,7 +329,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -356,17 +337,13 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
 
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
 
         AssertDefault(storage, "A");
         AssertOther(storage, "B");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -374,10 +351,7 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
 
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _otherContainerName, "B" }
-        });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _otherContainerName, "B" } });
 
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
@@ -390,53 +364,39 @@ public class SessionTokenStorageTest
                 AssertDefault(storage, null);
             }
         }
+
         AssertOther(storage, "B");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
     public virtual void AppendSessionTokens_PreviousSetTokens_AppendsTokens(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _defaultContainerName, "C" },
-            { _otherContainerName, "D" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "C" }, { _otherContainerName, "D" } });
 
         AssertDefault(storage, "A,C");
         AssertOther(storage, "B,D");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
     public virtual void AppendSessionTokens_PreviousSetToken_AppendsAndSetsTokens(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _otherContainerName, "B" }
-        });
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _defaultContainerName, "C" },
-            { _otherContainerName, "D" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _otherContainerName, "B" } });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "C" }, { _otherContainerName, "D" } });
 
         AssertDefault(storage, "C");
         AssertOther(storage, "B,D");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -444,17 +404,13 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
         storage.TrackSessionToken(_otherContainerName, "B");
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _defaultContainerName, "C" },
-            { _otherContainerName, "D" }
-        });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "C" }, { _otherContainerName, "D" } });
 
         AssertDefault(storage, "C");
         AssertOther(storage, "B,D");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -465,7 +421,7 @@ public class SessionTokenStorageTest
         AssertDefault(storage, "A,B");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -476,7 +432,7 @@ public class SessionTokenStorageTest
         AssertDefault(storage, "A,B");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -488,19 +444,20 @@ public class SessionTokenStorageTest
         AssertOther(storage, "B,C");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
     public virtual void AppendSessionTokens_RemovesDuplicates(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
-        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A,B,A" }, { _otherContainerName, "B,C,B" } });
+        storage.AppendSessionTokens(
+            new Dictionary<string, string> { { _defaultContainerName, "A,B,A" }, { _otherContainerName, "B,C,B" } });
         AssertDefault(storage, "A,B");
         AssertOther(storage, "B,C");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -508,12 +465,13 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
         storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A,C,E" }, { _otherContainerName, "J,K,L" } });
-        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A,B,B" }, { _otherContainerName, "K,A,A" } });
+        storage.AppendSessionTokens(
+            new Dictionary<string, string> { { _defaultContainerName, "A,B,B" }, { _otherContainerName, "K,A,A" } });
         AssertDefault(storage, "A,C,E,B");
         AssertOther(storage, "J,K,L,A");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -526,7 +484,7 @@ public class SessionTokenStorageTest
         AssertOther(storage, "J,K");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -538,7 +496,7 @@ public class SessionTokenStorageTest
         AssertOther(storage, "");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -572,7 +530,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -611,7 +569,30 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalFact]
+    [Theory]
+    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
+    [InlineData(SessionTokenManagementMode.Manual)]
+    [InlineData(SessionTokenManagementMode.EnforcedManual)]
+    public virtual void TrackSessionToken_WhenTokenIsNull_DoesNotTrackSessionToken(SessionTokenManagementMode mode)
+    {
+        var storage = CreateStorage(mode);
+        storage.TrackSessionToken(_defaultContainerName, null);
+        AssertDefaultTracked(storage, mode == SessionTokenManagementMode.SemiAutomatic ? null : "");
+    }
+
+    [Theory]
+    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
+    [InlineData(SessionTokenManagementMode.Manual)]
+    [InlineData(SessionTokenManagementMode.EnforcedManual)]
+    public virtual void TrackSessionToken_WhenTokenIsWhitespace_DoesNotTrackSessionToken(SessionTokenManagementMode mode)
+    {
+        var storage = CreateStorage(mode);
+        storage.TrackSessionToken(_defaultContainerName, "");
+        storage.TrackSessionToken(_defaultContainerName, "        ");
+        AssertDefaultTracked(storage, mode == SessionTokenManagementMode.SemiAutomatic ? null : "");
+    }
+
+    [Fact]
     public virtual void EnforcedManual_WhenGettingTokenBeforeSet_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.EnforcedManual);
@@ -620,7 +601,7 @@ public class SessionTokenStorageTest
         Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual(_defaultContainerName), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void EnforcedManual_WhenGettingTokenAfterClear_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.EnforcedManual);
@@ -631,7 +612,7 @@ public class SessionTokenStorageTest
         Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual(_defaultContainerName), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void EnforcedManual_SetDefaultContainerSessionToken_SetsAndUses()
     {
         var storage = CreateStorage(SessionTokenManagementMode.EnforcedManual);
@@ -642,21 +623,17 @@ public class SessionTokenStorageTest
         Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual(_otherContainerName), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void EnforcedManual_SetSessionTokens_SetsAndUses()
     {
         var storage = CreateStorage(SessionTokenManagementMode.EnforcedManual);
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
 
         AssertDefault(storage, "A");
         AssertOther(storage, "B");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void EnforcedManual_WhenOneContainerNotSet_ThrowsForThatContainerOnly()
     {
         var storage = CreateStorage(SessionTokenManagementMode.EnforcedManual);
@@ -667,7 +644,7 @@ public class SessionTokenStorageTest
         Assert.Contains(CosmosStrings.MissingSessionTokenEnforceManual(_otherContainerName), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SemiAutomatic_WhenTrackingToken_SetsButDoesnotUseToken()
     {
         var storage = CreateStorage(SessionTokenManagementMode.SemiAutomatic);
@@ -676,7 +653,7 @@ public class SessionTokenStorageTest
         AssertDefaultUsed(storage, null);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SemiAutomatic_WhenSetToken_SetsAndUses()
     {
         var storage = CreateStorage(SessionTokenManagementMode.SemiAutomatic);
@@ -685,7 +662,7 @@ public class SessionTokenStorageTest
         AssertDefault(storage, "A");
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Manual_TrackedToken_UsesToken()
     {
         var storage = CreateStorage(SessionTokenManagementMode.Manual);
@@ -697,7 +674,7 @@ public class SessionTokenStorageTest
         Assert.True(storage.GetSessionToken(_otherContainerName) == "B");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
     public virtual void Manual_Constructor_AllContainersHaveEmptyString(SessionTokenManagementMode mode)
@@ -716,7 +693,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
     public virtual void Manual_Clear_ResetsAllContainersToEmptyString(SessionTokenManagementMode mode)
@@ -737,7 +714,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -751,7 +728,7 @@ public class SessionTokenStorageTest
         Assert.Contains(_otherContainerName, tokens.Keys);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -761,10 +738,10 @@ public class SessionTokenStorageTest
 
         storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
         storage.Clear();
-        
+
         var tokens = storage.GetTrackedTokens();
 
-        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
+        if (mode is SessionTokenManagementMode.Manual or SessionTokenManagementMode.EnforcedManual)
         {
             Assert.True(tokens[_defaultContainerName] == "");
             Assert.True(tokens[_otherContainerName] == "");
@@ -787,7 +764,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -801,7 +778,7 @@ public class SessionTokenStorageTest
 
         var tokens = storage.GetTrackedTokens();
 
-        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
+        if (mode is SessionTokenManagementMode.Manual or SessionTokenManagementMode.EnforcedManual)
         {
             Assert.True(tokens[_defaultContainerName] == "");
             Assert.True(tokens[_otherContainerName] == "");
@@ -824,7 +801,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -853,7 +830,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -882,7 +859,7 @@ public class SessionTokenStorageTest
         }
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -900,7 +877,7 @@ public class SessionTokenStorageTest
         AssertOtherTracked(storage, "D");
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -914,7 +891,7 @@ public class SessionTokenStorageTest
         Assert.True(tokens.ContainsKey(_otherContainerName));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Constructor_WhenInitializing_AllContainersStartWithNullTokens()
     {
         var storage = CreateStorage(SessionTokenManagementMode.SemiAutomatic);
@@ -927,7 +904,7 @@ public class SessionTokenStorageTest
         Assert.Null(storage.GetSessionToken(_otherContainerName));
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -940,7 +917,7 @@ public class SessionTokenStorageTest
         var snapshot2 = storage.GetTrackedTokens();
 
         Assert.NotSame(snapshot, snapshot2);
-        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
+        if (mode is SessionTokenManagementMode.Manual or SessionTokenManagementMode.EnforcedManual)
         {
             Assert.True(snapshot[_defaultContainerName] == "");
         }
@@ -948,10 +925,11 @@ public class SessionTokenStorageTest
         {
             Assert.Null(snapshot[_defaultContainerName]);
         }
+
         Assert.Equal("A", snapshot2[_defaultContainerName]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FullyAutomatic_WhenCallingSetSessionTokens_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
@@ -960,15 +938,15 @@ public class SessionTokenStorageTest
         Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FullyAutomatic_WhenCallingGetTrackedTokens_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
-        var ex = Assert.Throws<InvalidOperationException>(() => storage.GetTrackedTokens());
+        var ex = Assert.Throws<InvalidOperationException>(storage.GetTrackedTokens);
         Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FullyAutomatic_WhenCallingAppendSessionTokens_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
@@ -977,7 +955,7 @@ public class SessionTokenStorageTest
         Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FullyAutomatic_WhenCallingSetDefaultContainerSessionToken_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
@@ -986,7 +964,7 @@ public class SessionTokenStorageTest
         Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FullyAutomatic_WhenCallingAppendDefaultContainerSessionToken_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
@@ -995,16 +973,15 @@ public class SessionTokenStorageTest
         Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FullyAutomatic_WhenCallingGetDefaultContainerTrackedToken_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            storage.GetDefaultContainerTrackedToken());
+        var ex = Assert.Throws<InvalidOperationException>(storage.GetDefaultContainerTrackedToken);
         Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FullyAutomatic_WhenTrackingToken_AlwaysReturnsNull()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
@@ -1012,7 +989,7 @@ public class SessionTokenStorageTest
         Assert.Null(storage.GetSessionToken(_defaultContainerName));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FullyAutomatic_WhenTrackingMultipleTokens_AlwaysReturnsNull()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
@@ -1023,7 +1000,7 @@ public class SessionTokenStorageTest
         Assert.Null(storage.GetSessionToken(_otherContainerName));
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.FullyAutomatic)]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
@@ -1034,7 +1011,7 @@ public class SessionTokenStorageTest
         Assert.Throws<ArgumentNullException>(() => storage.TrackSessionToken(null!, "A"));
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.FullyAutomatic)]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
@@ -1046,30 +1023,7 @@ public class SessionTokenStorageTest
         Assert.Throws<ArgumentException>(() => storage.TrackSessionToken("", "A"));
     }
 
-    [ConditionalTheory]
-    [InlineData(SessionTokenManagementMode.FullyAutomatic)]
-    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
-    [InlineData(SessionTokenManagementMode.Manual)]
-    [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void TrackSessionToken_WhenTokenIsNull_ThrowsArgumentNullException(SessionTokenManagementMode mode)
-    {
-        var storage = CreateStorage(mode);
-        Assert.Throws<ArgumentNullException>(() => storage.TrackSessionToken(_defaultContainerName, null!));
-    }
-
-    [ConditionalTheory]
-    [InlineData(SessionTokenManagementMode.FullyAutomatic)]
-    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
-    [InlineData(SessionTokenManagementMode.Manual)]
-    [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void TrackSessionToken_WhenTokenIsWhitespace_ThrowsArgumentNullException(SessionTokenManagementMode mode)
-    {
-        var storage = CreateStorage(mode);
-        Assert.Throws<ArgumentException>(() => storage.TrackSessionToken(_defaultContainerName, "   "));
-        Assert.Throws<ArgumentException>(() => storage.TrackSessionToken(_defaultContainerName, ""));
-    }
-
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.FullyAutomatic)]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
@@ -1080,7 +1034,7 @@ public class SessionTokenStorageTest
         Assert.Throws<ArgumentNullException>(() => storage.AppendDefaultContainerSessionToken(null!));
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.FullyAutomatic)]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
@@ -1092,8 +1046,7 @@ public class SessionTokenStorageTest
         Assert.Throws<ArgumentException>(() => storage.AppendDefaultContainerSessionToken(""));
     }
 
-
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -1105,7 +1058,7 @@ public class SessionTokenStorageTest
         Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -1117,7 +1070,7 @@ public class SessionTokenStorageTest
         Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -1127,7 +1080,7 @@ public class SessionTokenStorageTest
         Assert.Throws<ArgumentNullException>(() => storage.GetSessionToken(null!));
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -1138,7 +1091,7 @@ public class SessionTokenStorageTest
         Assert.Throws<ArgumentException>(() => storage.GetSessionToken(""));
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -1150,7 +1103,7 @@ public class SessionTokenStorageTest
         Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
@@ -1162,18 +1115,16 @@ public class SessionTokenStorageTest
         Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
     public virtual void GetDefaultContainerTrackedToken_NotInUse_ThrowsInvalidOperationException(SessionTokenManagementMode mode)
     {
         var storage = new SessionTokenStorage("bad", _containerNames, mode);
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            storage.GetDefaultContainerTrackedToken());
+        var ex = Assert.Throws<InvalidOperationException>(storage.GetDefaultContainerTrackedToken);
         Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
     }
-
 
     private SessionTokenStorage CreateStorage(SessionTokenManagementMode mode)
         => new(_defaultContainerName, _containerNames, mode);
@@ -1239,5 +1190,4 @@ public class SessionTokenStorageTest
             Assert.Equal(value, storage.GetTrackedTokens()[_otherContainerName]);
         }
     }
-
 }

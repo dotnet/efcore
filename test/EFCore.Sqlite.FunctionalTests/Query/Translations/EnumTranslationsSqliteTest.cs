@@ -138,13 +138,13 @@ WHERE "b"."FlagsEnum" & 8 = 8
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST("b"."FlagsEnum" AS INTEGER) & 8 = 8
+WHERE "b"."FlagsEnum" & 8 = 8
 """,
             //
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST("b"."FlagsEnum" AS INTEGER) & 8 = 8
+WHERE "b"."FlagsEnum" & 8 = 8
 """);
     }
 
@@ -302,7 +302,73 @@ WHERE "b"."FlagsEnum" & @flagsEnum = @flagsEnum
 """);
     }
 
-    [ConditionalFact]
+    public override async Task ToString_enum_contains(bool async)
+    {
+        await base.ToString_enum_contains(async);
+
+        AssertSql(
+            """
+SELECT "b"."Enum"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr(CASE "b"."Enum"
+    WHEN 0 THEN 'One'
+    WHEN 1 THEN 'Two'
+    WHEN 2 THEN 'Three'
+    ELSE CAST("b"."Enum" AS TEXT)
+END, 'One') > 0
+""");
+    }
+
+    public override async Task ToString_nullable_enum_contains(bool async)
+    {
+        await base.ToString_nullable_enum_contains(async);
+
+        AssertSql(
+            """
+SELECT "n"."Enum"
+FROM "NullableBasicTypesEntities" AS "n"
+WHERE instr(CASE "n"."Enum"
+    WHEN 0 THEN 'One'
+    WHEN 1 THEN 'Two'
+    WHEN 2 THEN 'Three'
+    ELSE COALESCE(CAST("n"."Enum" AS TEXT), '')
+END, 'One') > 0
+""");
+    }
+
+    public override async Task ToString_enum_property_projection(bool async)
+    {
+        await base.ToString_enum_property_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE "b"."Enum"
+    WHEN 0 THEN 'One'
+    WHEN 1 THEN 'Two'
+    WHEN 2 THEN 'Three'
+    ELSE CAST("b"."Enum" AS TEXT)
+END
+FROM "BasicTypesEntities" AS "b"
+""");
+    }
+
+    public override async Task ToString_nullable_enum_property_projection(bool async)
+    {
+        await base.ToString_nullable_enum_property_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE "n"."Enum"
+    WHEN 0 THEN 'One'
+    WHEN 1 THEN 'Two'
+    WHEN 2 THEN 'Three'
+    ELSE COALESCE(CAST("n"."Enum" AS TEXT), '')
+END
+FROM "NullableBasicTypesEntities" AS "n"
+""");
+    }
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

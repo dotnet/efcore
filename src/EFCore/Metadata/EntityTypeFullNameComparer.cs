@@ -35,24 +35,7 @@ public sealed class EntityTypeFullNameComparer : IComparer<IReadOnlyEntityType>,
     /// <param name="y">The second object to compare.</param>
     /// <returns>A negative number if 'x' is less than 'y'; a positive number if 'x' is greater than 'y'; zero otherwise.</returns>
     public int Compare(IReadOnlyEntityType? x, IReadOnlyEntityType? y)
-    {
-        if (ReferenceEquals(x, y))
-        {
-            return 0;
-        }
-
-        if (x == null)
-        {
-            return -1;
-        }
-
-        if (y == null)
-        {
-            return 1;
-        }
-
-        return StringComparer.Ordinal.Compare(x.Name, y.Name);
-    }
+        => ReferenceEquals(x, y) ? 0 : x == null ? -1 : y == null ? 1 : StringComparer.Ordinal.Compare(x.Name, y.Name);
 
     /// <summary>
     ///     Determines whether the specified objects are equal.

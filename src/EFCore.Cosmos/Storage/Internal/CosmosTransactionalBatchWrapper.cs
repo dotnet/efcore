@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -19,11 +20,8 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     private long _size;
 
     private readonly TransactionalBatch _transactionalBatch;
-    private readonly string _collectionId;
-    private readonly PartitionKey _partitionKeyValue;
     private readonly bool _checkSize;
-    private readonly bool? _enableContentResponseOnWrite;
-    private readonly List<CosmosTransactionalBatchEntry> _entries = new();
+    private readonly List<CosmosTransactionalBatchEntry> _entries = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,14 +33,12 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
         TransactionalBatch transactionalBatch,
         string collectionId,
         PartitionKey partitionKeyValue,
-        bool checkSize,
-        bool? enableContentResponseOnWrite)
+        bool checkSize)
     {
         _transactionalBatch = transactionalBatch;
-        _collectionId = collectionId;
-        _partitionKeyValue = partitionKeyValue;
+        CollectionId = collectionId;
+        PartitionKeyValue = partitionKeyValue;
         _checkSize = checkSize;
-        _enableContentResponseOnWrite = enableContentResponseOnWrite;
     }
 
     /// <summary>
@@ -51,7 +47,8 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IReadOnlyList<CosmosTransactionalBatchEntry> Entries => _entries;
+    public IReadOnlyList<CosmosTransactionalBatchEntry> Entries
+        => _entries;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +56,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public PartitionKey PartitionKeyValue => _partitionKeyValue;
+    public PartitionKey PartitionKeyValue { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +64,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public string CollectionId => _collectionId;
+    public string CollectionId { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,21 +72,29 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool CreateItem(string id, Stream stream, IUpdateEntry updateEntry)
+    public bool CreateItem(string id, ReadOnlyMemory<byte> document, IUpdateEntry updateEntry)
     {
-        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, out var itemRequestOptionsLength);
 
         if (_checkSize)
         {
-            var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes;
+            var size = document.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes;
 
             if (_size + size > MaxSize && _size != 0)
             {
                 return false;
             }
+
             _size += size;
         }
 
+        if (!MemoryMarshal.TryGetArray(document, out var segment) || segment.Array == null)
+        {
+            throw new UnreachableException("ReadOnlyMemory should have an underlying array.");
+        }
+
+        // Stream is disposed by disposing the response of TransactionalBatch.ExecuteAsync in CosmosClientWrapper.
+        var stream = new MemoryStream(segment.Array, segment.Offset, segment.Count);
         _transactionalBatch.CreateItemStream(stream, itemRequestOptions);
         _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Create, id));
 
@@ -102,21 +107,32 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool ReplaceItem(string documentId, Stream stream, IUpdateEntry updateEntry)
+    public bool ReplaceItem(string documentId, ReadOnlyMemory<byte> document, IUpdateEntry updateEntry)
     {
-        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, out var itemRequestOptionsLength);
 
         if (_checkSize)
         {
-            var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
+            var size = document.Length
+                + itemRequestOptionsLength
+                + OperationSerializationOverheadOverEstimateInBytes
+                + Encoding.UTF8.GetByteCount(documentId);
 
             if (_size + size > MaxSize && _size != 0)
             {
                 return false;
             }
+
             _size += size;
         }
 
+        if (!MemoryMarshal.TryGetArray(document, out var segment) || segment.Array == null)
+        {
+            throw new UnreachableException("ReadOnlyMemory should have an underlying array.");
+        }
+
+        // Stream is disposed by disposing the response of TransactionalBatch.ExecuteAsync in CosmosClientWrapper.
+        var stream = new MemoryStream(segment.Array, segment.Offset, segment.Count);
         _transactionalBatch.ReplaceItemStream(documentId, stream, itemRequestOptions);
         _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Update, documentId));
 
@@ -131,16 +147,19 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     /// </summary>
     public bool DeleteItem(string documentId, IUpdateEntry updateEntry)
     {
-        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, out var itemRequestOptionsLength);
 
         if (_checkSize)
         {
-            var size = itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
+            var size = itemRequestOptionsLength
+                + OperationSerializationOverheadOverEstimateInBytes
+                + Encoding.UTF8.GetByteCount(documentId);
 
             if (_size + size > MaxSize && _size != 0)
             {
                 return false;
             }
+
             _size += size;
         }
 
@@ -156,11 +175,12 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TransactionalBatch GetTransactionalBatch() => _transactionalBatch;
+    public TransactionalBatch GetTransactionalBatch()
+        => _transactionalBatch;
 
-    private TransactionalBatchItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite, out int size)
+    private TransactionalBatchItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, out int size)
     {
-        var helper = RequestOptionsHelper.Create(entry, enableContentResponseOnWrite);
+        var helper = RequestOptionsHelper.Create(entry);
         size = 0;
 
         if (helper == null)
@@ -173,7 +193,6 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
             size += helper.IfMatchEtag.Length;
         }
 
-        // EnableContentResponseOnWrite is a header so no request body size for that.
-        return new TransactionalBatchItemRequestOptions { IfMatchEtag = helper.IfMatchEtag, EnableContentResponseOnWrite = helper.EnableContentResponseOnWrite };
+        return new TransactionalBatchItemRequestOptions { IfMatchEtag = helper.IfMatchEtag };
     }
 }

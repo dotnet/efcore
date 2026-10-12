@@ -128,7 +128,8 @@ public class CandidateNamingService : ICandidateNamingService
 
         var ignoredCharacterCount = 2;
         if (commonPrefix.Length > 4
-            && commonPrefix.EndsWith("guid", StringComparison.OrdinalIgnoreCase))
+            && (commonPrefix.EndsWith("guid", StringComparison.OrdinalIgnoreCase)
+                || commonPrefix.EndsWith("uuid", StringComparison.OrdinalIgnoreCase)))
         {
             ignoredCharacterCount = 4;
         }
@@ -142,7 +143,7 @@ public class CandidateNamingService : ICandidateNamingService
             }
         }
 
-        return i != 0
+        return i > 0
             ? commonPrefix[..(i + 1)]
             : commonPrefix;
     }

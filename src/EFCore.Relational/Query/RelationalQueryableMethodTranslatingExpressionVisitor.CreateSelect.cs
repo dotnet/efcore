@@ -46,7 +46,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                         foreach (var complexProperty in baseType.GetDeclaredComplexProperties())
                         {
-                            complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, containerNullable: false);
+                            complexPropertyMap[complexProperty] = ProcessComplexProperty(
+                                complexProperty, table, alias, containerNullable: false);
                         }
 
                         if (tables.Count == 0)
@@ -87,7 +88,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                         foreach (var complexProperty in derivedType.GetDeclaredComplexProperties())
                         {
-                            complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, containerNullable: true);
+                            complexPropertyMap[complexProperty] = ProcessComplexProperty(
+                                complexProperty, table, alias, containerNullable: true);
                         }
 
                         var keyColumns = keyProperties.Select(p => CreateColumnExpression(p, table, alias, nullable: true)).ToArray();
@@ -97,7 +99,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             caseWhenClauses.Add(
                                 new CaseWhenClause(
                                     _sqlExpressionFactory.IsNotNull(keyColumns[0]),
-                                    _sqlExpressionFactory.Constant(derivedType.ShortName())));
+                                    _sqlExpressionFactory.Constant((string)derivedType.GetDiscriminatorValue()!)));
                         }
 
                         var joinPredicate = joinColumns
@@ -114,7 +116,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             _sqlExpressionFactory.Case(caseWhenClauses, elseResult: null));
 
                     var projection = new StructuralTypeProjectionExpression(
-                        entityType, propertyMap, complexPropertyMap, nullable: false, discriminatorExpression);
+                        entityType, propertyMap, complexPropertyMap, nullable: false, discriminatorExpression, tableMap);
 
                     return new SelectExpression(tables, projection, identifier, _sqlAliasManager);
                 }
@@ -128,7 +130,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     // (no UNION needed, no discriminator needed)
                     if (concreteEntityTypes is [var singleEntityType])
                     {
-                        var table = singleEntityType.GetViewOrTableMappings().Single().Table;
+                        var table = singleEntityType.GetQueryMappings().Single().Table;
                         var alias = _sqlAliasManager.GenerateTableAlias(table);
                         var tableExpression = new TableExpression(alias, table);
 
@@ -152,7 +154,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                     foreach (var concreteEntityType in concreteEntityTypes)
                     {
-                        var table = concreteEntityType.GetViewOrTableMappings().Single().Table;
+                        var table = concreteEntityType.GetQueryMappings().Single().Table;
 
                         foreach (var currentType in concreteEntityType.GetAllBaseTypesInclusive())
                         {
@@ -199,8 +201,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     // So the moment this property is not on the root projected entity type (or one of its base types),
                                     // it must be nullable since there's going to be some concrete type which doesn't have it.
                                     nullable: containerNullable
-                                        || property.IsNullable
-                                        || !entityType.IsAssignableTo(property.DeclaringType.ContainingEntityType));
+                                    || property.IsNullable
+                                    || !entityType.IsAssignableTo(property.DeclaringType.ContainingEntityType));
 
                                 allPropertyMap.Add((property, columnExpression));
 
@@ -222,7 +224,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
 
                                     var containerColumn = table.FindColumn(containerColumnName);
-                                    Check.DebugAssert(containerColumn is not null, "Complex JSON container table not found on relational table");
+                                    Check.DebugAssert(
+                                        containerColumn is not null, "Complex JSON container table not found on relational table");
 
                                     // Since multiple properties from different entity types may have the same column names in their
                                     // respective table, we must uniquify the projected container column name.
@@ -232,7 +235,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                                     var shaper = GenerateComplexJsonShaper(
                                         complexProperty,
-                                        containerColumn: null,
+                                        containerColumn,
                                         projectedColumnName,
                                         containerColumn.ProviderClrType,
                                         containerColumn.StoreTypeMapping,
@@ -272,7 +275,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     var discriminatorValues = new List<string>(concreteEntityTypes.Length);
                     foreach (var concreteEntityType in concreteEntityTypes)
                     {
-                        var table = concreteEntityType.GetViewOrTableMappings().Single().Table;
+                        var table = concreteEntityType.GetQueryMappings().Single().Table;
                         var tableAlias = _sqlAliasManager.GenerateTableAlias(table);
                         var tableExpression = new TableExpression(tableAlias, table);
 
@@ -287,7 +290,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             {
                                 projections.Add(
                                     new ProjectionExpression(
-                                        _sqlExpressionFactory.Constant(value: null, property.ClrType.MakeNullable(), projectedColumn.TypeMapping),
+                                        _sqlExpressionFactory.Constant(
+                                            value: null, property.ClrType.MakeNullable(), projectedColumn.TypeMapping),
                                         projectedColumn.Name));
                                 continue;
                             }
@@ -295,20 +299,25 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             var column = property switch
                             {
                                 IProperty p => table.FindColumn(p),
-                                IComplexProperty p => p.ComplexType.GetContainerColumnName() is string columnName ? table.FindColumn(columnName) : null,
-                                _ => throw new UnreachableException()
+                                IComplexProperty p => p.ComplexType.GetContainerColumnName() is string columnName
+                                    ? table.FindColumn(columnName)
+                                    : null,
+                                _ => throw new UnreachableException("Unexpected property type when building TPC union projection.")
                             };
 
                             Debug.Assert(column is not null, "Column not found for property " + property.Name);
 
                             // Note that the projected name may differ from the column name on the entity's concrete table because of
                             // uniquification (i.e. two TPC entities in the same hierarchy have two properties mapped columns with the
-                            // same name)
+                            // same name).
+                            // Each union arm's column references its own concrete table's model column; the outer union column
+                            // (created separately over the union alias) references no single model column and has a null Column.
                             projections.Add(
                                 new ProjectionExpression(
                                     new ColumnExpression(
                                         column.Name,
                                         tableAlias,
+                                        column,
                                         column.ProviderClrType.UnwrapNullableType(),
                                         column.StoreTypeMapping,
                                         column.IsNullable),
@@ -319,9 +328,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         projections.Add(
                             new ProjectionExpression(
                                 _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                                    _sqlExpressionFactory.Constant(concreteEntityType.ShortName())),
+                                    _sqlExpressionFactory.Constant((string)concreteEntityType.GetDiscriminatorValue()!)),
                                 discriminatorColumnName));
-                        discriminatorValues.Add(concreteEntityType.ShortName());
+                        discriminatorValues.Add((string)concreteEntityType.GetDiscriminatorValue()!);
 
                         subSelectExpressions.Add(
                             SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections, _sqlAliasManager));
@@ -338,9 +347,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     var tpcTablesExpression = new TpcTablesExpression(
                         tpcTableAlias, entityType, subSelectExpressions, discriminatorColumn, discriminatorValues);
 
+                    // Every concrete TPC table is projected through the union's outer alias.
+                    var tpcTableMap = new Dictionary<ITableBase, string>(concreteEntityTypes.Length);
+                    foreach (var concreteEntityType in concreteEntityTypes)
+                    {
+                        tpcTableMap[concreteEntityType.GetQueryMappings().Single().Table] = tpcTableAlias;
+                    }
+
                     return new SelectExpression(
                         [tpcTablesExpression],
-                        new StructuralTypeProjectionExpression(entityType, propertyMap, complexPropertyMap, nullable: false, discriminatorColumn),
+                        new StructuralTypeProjectionExpression(
+                            entityType, propertyMap, complexPropertyMap, nullable: false, discriminatorColumn, tpcTableMap),
                         identifier,
                         _sqlAliasManager);
                 }
@@ -357,7 +374,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             entityType, storeFunction, new TableValuedFunctionExpression(alias, (IStoreFunction)storeFunction, []));
                     }
 
-                    var mappings = entityType.GetViewOrTableMappings().ToList();
+                    var mappings = entityType.GetQueryMappings().ToList();
                     if (mappings is [{ Table: var singleTable }])
                     {
                         var alias = _sqlAliasManager.GenerateTableAlias(singleTable);
@@ -399,7 +416,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 .Zip(innerColumns, _sqlExpressionFactory.Equal)
                                 .Aggregate(_sqlExpressionFactory.AndAlso);
 
-                            tables.Add(new InnerJoinExpression(tableExpression, joinPredicate, prunable: true));
+                            tables.Add(
+                                mapping.IsSplitFragmentOptional
+                                    ? new LeftJoinExpression(tableExpression, joinPredicate, prunable: true)
+                                    : new InnerJoinExpression(tableExpression, joinPredicate, prunable: true));
                         }
                     }
 
@@ -410,29 +430,76 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             continue;
                         }
 
-                        var columnBase = mappings.Select(e => e.Table.FindColumn(property)).First(e => e != null)!;
-                        propertyMap[property] = CreateColumnExpression(property, columnBase, tableMap[columnBase.Table], nullable: false);
+                        var mapping = mappings.First(e => e.Table.FindColumn(property) != null);
+                        var columnBase = mapping.Table.FindColumn(property)!;
+                        propertyMap[property] = CreateColumnExpression(
+                            property, columnBase, tableMap[columnBase.Table], nullable: mapping.IsSplitFragmentOptional);
                     }
 
                     var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
                     foreach (var complexProperty in entityType.GetComplexProperties())
                     {
-                        var table = complexProperty.ComplexType.GetViewOrTableMappings().Single().Table;
-                        complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, tableMap[table], containerNullable: false);
+                        var table = FindTable(complexProperty, mappings);
+                        var containerNullable = mappings.First(m => m.Table == table).IsSplitFragmentOptional;
+                        complexPropertyMap[complexProperty] =
+                            ProcessComplexProperty(complexProperty, table, tableMap[table], containerNullable: containerNullable);
                     }
 
-                    var projection = new StructuralTypeProjectionExpression(entityType, propertyMap, complexPropertyMap);
+                    var projection = new StructuralTypeProjectionExpression(
+                        entityType, propertyMap, complexPropertyMap, tableMap: tableMap);
                     AddJsonNavigationBindings(entityType, projection, propertyMap, tableMap);
 
                     return new SelectExpression(tables, projection, identifier, _sqlAliasManager);
                 }
 
                 default:
-                    throw new UnreachableException();
+                    throw new UnreachableException("Unexpected mapping strategy.");
             }
 
             static ITableBase GetTableBaseFiltered(IEntityType entityType, Dictionary<ITableBase, string> existingTables)
-                => entityType.GetViewOrTableMappings().Single(m => !existingTables.ContainsKey(m.Table)).Table;
+                => entityType.GetQueryMappings().Single(m => !existingTables.ContainsKey(m.Table)).Table;
+
+            static ITableBase FindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
+                => TryFindTable(complexProperty, mappings)
+                    ?? complexProperty.ComplexType.GetQueryMappings().Single().Table;
+
+            static ITableBase? TryFindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
+            {
+                if (complexProperty.ComplexType.IsMappedToJson())
+                {
+                    foreach (var mapping in mappings)
+                    {
+                        if (mapping.Table.FindColumn(complexProperty) is { } containerColumn)
+                        {
+                            return containerColumn.Table;
+                        }
+                    }
+
+                    return null;
+                }
+
+                foreach (var property in complexProperty.ComplexType.GetProperties())
+                {
+                    foreach (var mapping in mappings)
+                    {
+                        if (mapping.Table.FindColumn(property) is { } column)
+                        {
+                            return column.Table;
+                        }
+                    }
+                }
+
+                foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+                {
+                    var nestedTable = TryFindTable(nestedComplexProperty, mappings);
+                    if (nestedTable is not null)
+                    {
+                        return nestedTable;
+                    }
+                }
+
+                return null;
+            }
         }
     }
 
@@ -448,13 +515,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
         var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
         foreach (var complexProperty in entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-            .SelectMany(t => t.GetDeclaredComplexProperties()))
+                     .SelectMany(t => t.GetDeclaredComplexProperties()))
         {
             complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, containerNullable: false);
         }
 
         var tableMap = new Dictionary<ITableBase, string> { [table] = alias };
-        var projection = new StructuralTypeProjectionExpression(entityType, propertyMap, complexPropertyMap);
+        var projection = new StructuralTypeProjectionExpression(entityType, propertyMap, complexPropertyMap, tableMap: tableMap);
         AddJsonNavigationBindings(entityType, projection, propertyMap, tableMap);
 
         var identifier = new List<(ColumnExpression Column, ValueComparer Comparer)>();
@@ -463,7 +530,30 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             foreach (var property in primaryKey.Properties)
             {
-                identifier.Add((propertyMap[property], property.GetKeyValueComparer()));
+                if (!propertyMap.TryGetValue(property, out var columnExpression))
+                {
+                    // The key property is declared on a complex type; navigate the complex-property chain
+                    // from the entity to its declaring complex type and bind the property there.
+                    var chain = new Stack<IComplexProperty>();
+                    for (var current = property.DeclaringType as IComplexType;
+                         current != null;
+                         current = current.ComplexProperty.DeclaringType as IComplexType)
+                    {
+                        chain.Push(current.ComplexProperty);
+                    }
+
+                    var shaper = (RelationalStructuralTypeShaperExpression)complexPropertyMap[chain.Pop()];
+                    var complexProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
+                    while (chain.Count > 0)
+                    {
+                        shaper = (RelationalStructuralTypeShaperExpression)complexProjection.BindComplexProperty(chain.Pop());
+                        complexProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
+                    }
+
+                    columnExpression = complexProjection.BindProperty(property);
+                }
+
+                identifier.Add((columnExpression, property.GetKeyValueComparer()));
             }
         }
 
@@ -699,7 +789,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             // Find the containing column for the owned JSON entity type, and then the table in the table map that
             // contains that column.
             var targetEntityType = ownedJsonNavigation.TargetEntityType;
-            var containerColumnName = targetEntityType.GetContainerColumnName() ?? throw new UnreachableException();
+            var containerColumnName = targetEntityType.GetContainerColumnName()
+                ?? throw new UnreachableException(
+                    $"JSON-mapped entity type '{targetEntityType.DisplayName()}' without a container column name.");
             var (containerColumn, tableAlias) = tableMap
                 .Select(kvp => (Column: kvp.Key.FindColumn(containerColumnName), TableAlias: kvp.Value))
                 .SingleOrDefault(c => c.Column is not null);
@@ -716,6 +808,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             var column = new ColumnExpression(
                 containerColumnName,
                 tableAlias,
+                containerColumn,
                 containerColumnTypeMapping.ClrType,
                 containerColumnTypeMapping,
                 isNullable);
@@ -787,13 +880,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 continue;
             }
 
-            // Skip also properties with no JSON name (i.e. shadow keys containing the index in the collection, which don't actually exist
+            // Skip properties with no JSON name (i.e. shadow keys containing the index in the collection, which don't actually exist
             // in the JSON document and can't be bound to)
-            if (property.GetJsonPropertyName() is { } jsonPropertyName)
+            var element = jsonQueryExpression.GetJsonElement(property);
+            if (element.PropertyName is { } jsonPropertyName)
             {
                 propertyExpressions[property] = CreateColumnExpression(
-                    tableExpressionBase, jsonPropertyName, property.ClrType, property.GetRelationalTypeMapping(),
-                    /* jsonQueryExpression.IsNullable || */ property.IsNullable); // TODO:
+                    tableExpressionBase, jsonPropertyName, property.ClrType,
+                    element.StoreTypeMapping!,
+                    /* jsonQueryExpression.IsNullable || */ property.IsNullable); // TODO: Issue #28887
             }
         }
 
@@ -807,9 +902,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             var isNullable = jsonQueryExpression.IsNullable || complexProperty.IsNullable;
 
             var containerColumnExpression = new ColumnExpression(
-                complexType.GetJsonPropertyName()
+                jsonQueryExpression.GetJsonElement(complexProperty).PropertyName
                 ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
                 tableAlias,
+                // Nested container projects a sub-document of the same underlying JSON column, so preserve the model column
+                // for downstream FindJsonElement matching.
+                jsonColumn.Column,
                 jsonColumn.Type,
                 jsonColumn.TypeMapping,
                 isNullable);
@@ -837,7 +935,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                              && n.ForeignKey.PrincipalToDependent == n))
             {
                 var targetEntityType = ownedJsonNavigation.TargetEntityType;
-                var jsonNavigationName = ownedJsonNavigation.TargetEntityType.GetJsonPropertyName();
+                var jsonNavigationName = jsonQueryExpression.GetJsonElement(ownedJsonNavigation).PropertyName;
                 Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
                 var isNullable = jsonQueryExpression.IsNullable
                     || !ownedJsonNavigation.ForeignKey.IsRequiredDependent
@@ -845,7 +943,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                 // The TableExpressionBase represents a relational expansion of the JSON collection. We now need a ColumnExpression to represent
                 // the specific JSON property (projected as a relational column) which holds the JSON subtree for the target entity.
-                var column = new ColumnExpression(jsonNavigationName, tableAlias, jsonColumn.Type, jsonColumn.TypeMapping, isNullable);
+                // Pass the underlying model column through so FindJsonElement matches for properties of the nested entity.
+                var column = new ColumnExpression(
+                    jsonNavigationName, tableAlias, jsonColumn.Column, jsonColumn.Type, jsonColumn.TypeMapping, isNullable);
 
                 // need to remap key property map to use target entity key properties
                 var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();

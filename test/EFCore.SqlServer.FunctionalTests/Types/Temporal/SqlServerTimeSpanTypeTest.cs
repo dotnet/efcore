@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 
 public class SqlServerTimeSpanTypeTest(SqlServerTimeSpanTypeTest.TimeSpanTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -14,7 +16,7 @@ public class SqlServerTimeSpanTypeTest(SqlServerTimeSpanTypeTest.TimeSpanTypeFix
             """
 @Fixture_Value='12:30:45'
 
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = @Fixture_Value
 """);
@@ -26,9 +28,26 @@ WHERE [t].[Value] = @Fixture_Value
 
         AssertSql(
             """
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = '12:30:45'
+""");
+    }
+
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+
+        AssertSql(
+            """
+@value='12:30:45'
+
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
+FROM [TypeEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[ArrayValue]) WITH ([value] time '$') AS [a]
+    WHERE [a].[value] = @value) = 2
 """);
     }
 
@@ -106,6 +125,7 @@ WHERE [Id] = @p1;
                 """
 @complex_type_Fixture_OtherValue='14:00:00' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -117,6 +137,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 @complex_type_Fixture_OtherValue='14:00:00' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -132,6 +153,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', N'14:00:00')
 FROM [JsonTypeEntity] AS [j]
@@ -141,6 +163,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'14:00:00')
 FROM [JsonTypeEntity] AS [j]
@@ -156,6 +179,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING nvarchar(max)))
 FROM [JsonTypeEntity] AS [j]
@@ -165,6 +189,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue'))
 FROM [JsonTypeEntity] AS [j]
@@ -172,13 +197,13 @@ FROM [JsonTypeEntity] AS [j]
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    // TODO: Currently failing on Helix only, see #36746
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // TODO: Currently failing on Helix only, see #36746
-        if (Environment.GetEnvironmentVariable("HELIX_WORKITEM_ROOT") is not null)
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
         {
-            return;
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
         }
 
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -187,6 +212,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
 FROM [JsonTypeEntity] AS [j]
@@ -196,6 +222,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE(JSON_OBJECT('v': [j].[OtherValue]), '$.v'))
 FROM [JsonTypeEntity] AS [j]
@@ -207,11 +234,11 @@ FROM [JsonTypeEntity] AS [j]
 
     public class TimeSpanTypeFixture : SqlServerTypeFixture<TimeSpan>
     {
-        public override TimeSpan Value { get; } = new TimeSpan(12, 30, 45);
-        public override TimeSpan OtherValue { get; } = new TimeSpan(14, 0, 0);
+        public override TimeSpan Value { get; } = new(12, 30, 45);
+        public override TimeSpan OtherValue { get; } = new(14, 0, 0);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

@@ -1,0 +1,652 @@
+{
+  "Name": "Microsoft.Data.Sqlite",
+  "Types": [
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteBlob : System.IO.Stream",
+      "Methods": [
+        {
+          "Member": "SqliteBlob(Microsoft.Data.Sqlite.SqliteConnection connection, string tableName, string columnName, long rowid, bool readOnly = false);"
+        },
+        {
+          "Member": "SqliteBlob(Microsoft.Data.Sqlite.SqliteConnection connection, string databaseName, string tableName, string columnName, long rowid, bool readOnly = false);"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.Data.Sqlite.SqliteCacheMode",
+      "Methods": [
+        {
+          "Member": "SqliteCacheMode();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteCacheMode Default",
+          "Value": "0"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteCacheMode Private",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteCacheMode Shared",
+          "Value": "2"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteCommand : System.Data.Common.DbCommand",
+      "Methods": [
+        {
+          "Member": "SqliteCommand();"
+        },
+        {
+          "Member": "SqliteCommand(string? commandText);"
+        },
+        {
+          "Member": "SqliteCommand(string? commandText, Microsoft.Data.Sqlite.SqliteConnection? connection);"
+        },
+        {
+          "Member": "SqliteCommand(string? commandText, Microsoft.Data.Sqlite.SqliteConnection? connection, Microsoft.Data.Sqlite.SqliteTransaction? transaction);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter CreateParameter();"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteDataReader ExecuteReader();"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteDataReader ExecuteReader(System.Data.CommandBehavior behavior);"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<Microsoft.Data.Sqlite.SqliteDataReader> ExecuteReaderAsync();"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<Microsoft.Data.Sqlite.SqliteDataReader> ExecuteReaderAsync(System.Threading.CancellationToken cancellationToken);"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<Microsoft.Data.Sqlite.SqliteDataReader> ExecuteReaderAsync(System.Data.CommandBehavior behavior);"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<Microsoft.Data.Sqlite.SqliteDataReader> ExecuteReaderAsync(System.Data.CommandBehavior behavior, System.Threading.CancellationToken cancellationToken);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteConnection? Connection { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameterCollection Parameters { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction? Transaction { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteConnection : System.Data.Common.DbConnection",
+      "Methods": [
+        {
+          "Member": "SqliteConnection();"
+        },
+        {
+          "Member": "SqliteConnection(string? connectionString);"
+        },
+        {
+          "Member": "virtual void BackupDatabase(Microsoft.Data.Sqlite.SqliteConnection destination);"
+        },
+        {
+          "Member": "virtual void BackupDatabase(Microsoft.Data.Sqlite.SqliteConnection destination, string destinationName, string sourceName);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction BeginTransaction();"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction BeginTransaction(bool deferred);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel, bool deferred);"
+        },
+        {
+          "Member": "static void ClearAllPools();"
+        },
+        {
+          "Member": "static void ClearPool(Microsoft.Data.Sqlite.SqliteConnection connection);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<TAccumulate>(string name, System.Func<TAccumulate?, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, TAccumulate>(string name, System.Func<TAccumulate?, T1, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<TAccumulate>(string name, System.Func<TAccumulate?, object?[], TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, object?[], TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateAggregate<TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, object?[], TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateCollation(string name, System.Comparison<string>? comparison);"
+        },
+        {
+          "Member": "virtual void CreateCollation<T>(string name, T state, System.Func<T, string, string, int>? comparison);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteCommand CreateCommand();"
+        },
+        {
+          "Member": "virtual void CreateFunction<TResult>(string name, System.Func<TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, TResult>(string name, System.Func<T1, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, TResult>(string name, System.Func<T1, T2, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, TResult>(string name, System.Func<T1, T2, T3, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, TResult>(string name, System.Func<T1, T2, T3, T4, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, TResult>(string name, System.Func<T1, T2, T3, T4, T5, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TResult>(string name, System.Func<object?[], TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, TResult>(string name, TState state, System.Func<TState, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, TResult>(string name, TState state, System.Func<TState, T1, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, TResult>(string name, TState state, System.Func<TState, T1, T2, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void CreateFunction<TState, TResult>(string name, TState state, System.Func<TState, object?[], TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void EnableExtensions(bool enable = true);"
+        },
+        {
+          "Member": "virtual void LoadExtension(string file, string? proc = null);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual int DefaultTimeout { get; set; }"
+        },
+        {
+          "Member": "virtual SQLitePCL.sqlite3? Handle { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteConnectionStringBuilder : System.Data.Common.DbConnectionStringBuilder",
+      "Methods": [
+        {
+          "Member": "SqliteConnectionStringBuilder();"
+        },
+        {
+          "Member": "SqliteConnectionStringBuilder(string? connectionString);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteCacheMode Cache { get; set; }"
+        },
+        {
+          "Member": "virtual string DataSource { get; set; }"
+        },
+        {
+          "Member": "int DefaultTimeout { get; set; }"
+        },
+        {
+          "Member": "bool? ForeignKeys { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteOpenMode Mode { get; set; }"
+        },
+        {
+          "Member": "string Password { get; set; }"
+        },
+        {
+          "Member": "bool Pooling { get; set; }"
+        },
+        {
+          "Member": "bool RecursiveTriggers { get; set; }"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteSynchronousMode? Synchronous { get; set; }"
+        },
+        {
+          "Member": "string? Vfs { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteDataReader : System.Data.Common.DbDataReader",
+      "Methods": [
+        {
+          "Member": "virtual System.DateTimeOffset GetDateTimeOffset(int ordinal);"
+        },
+        {
+          "Member": "virtual System.TimeSpan GetTimeSpan(int ordinal);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual SQLitePCL.sqlite3_stmt? Handle { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteException : System.Data.Common.DbException",
+      "Methods": [
+        {
+          "Member": "SqliteException(string? message, int errorCode);"
+        },
+        {
+          "Member": "SqliteException(string? message, int errorCode, int extendedErrorCode);"
+        },
+        {
+          "Member": "static void ThrowExceptionForRC(int rc, SQLitePCL.sqlite3? db);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual int SqliteErrorCode { get; }"
+        },
+        {
+          "Member": "virtual int SqliteExtendedErrorCode { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteFactory : System.Data.Common.DbProviderFactory",
+      "Fields": [
+        {
+          "Member": "static readonly Microsoft.Data.Sqlite.SqliteFactory Instance"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.Data.Sqlite.SqliteOpenMode",
+      "Methods": [
+        {
+          "Member": "SqliteOpenMode();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteOpenMode Memory",
+          "Value": "3"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteOpenMode ReadOnly",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteOpenMode ReadWrite",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteOpenMode ReadWriteCreate",
+          "Value": "0"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteParameter : System.Data.Common.DbParameter",
+      "Methods": [
+        {
+          "Member": "SqliteParameter();"
+        },
+        {
+          "Member": "SqliteParameter(string? name, object? value);"
+        },
+        {
+          "Member": "SqliteParameter(string? name, Microsoft.Data.Sqlite.SqliteType type);"
+        },
+        {
+          "Member": "SqliteParameter(string? name, Microsoft.Data.Sqlite.SqliteType type, int size);"
+        },
+        {
+          "Member": "SqliteParameter(string? name, Microsoft.Data.Sqlite.SqliteType type, int size, string? sourceColumn);"
+        },
+        {
+          "Member": "virtual void ResetSqliteType();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteType SqliteType { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteParameterCollection : System.Data.Common.DbParameterCollection",
+      "Methods": [
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Add(Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Add(string? parameterName, Microsoft.Data.Sqlite.SqliteType type);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Add(string? parameterName, Microsoft.Data.Sqlite.SqliteType type, int size);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Add(string? parameterName, Microsoft.Data.Sqlite.SqliteType type, int size, string? sourceColumn);"
+        },
+        {
+          "Member": "virtual void AddRange(System.Collections.Generic.IEnumerable<Microsoft.Data.Sqlite.SqliteParameter> values);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter AddWithValue(string? parameterName, object? value);"
+        },
+        {
+          "Member": "virtual bool Contains(Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "virtual void CopyTo(Microsoft.Data.Sqlite.SqliteParameter[] array, int index);"
+        },
+        {
+          "Member": "virtual int IndexOf(Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "virtual void Insert(int index, Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "virtual void Remove(Microsoft.Data.Sqlite.SqliteParameter value);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter this[int index] { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter this[string parameterName] { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.Data.Sqlite.SqliteSynchronousMode",
+      "Methods": [
+        {
+          "Member": "SqliteSynchronousMode();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteSynchronousMode Extra",
+          "Value": "3"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteSynchronousMode Full",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteSynchronousMode Normal",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteSynchronousMode Off",
+          "Value": "0"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteTransaction : System.Data.Common.DbTransaction",
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteConnection? Connection { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.Data.Sqlite.SqliteType",
+      "Methods": [
+        {
+          "Member": "SqliteType();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteType Blob",
+          "Value": "4"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteType Integer",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteType Real",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteType Text",
+          "Value": "3"
+        }
+      ]
+    }
+  ]
+}

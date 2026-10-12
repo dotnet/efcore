@@ -1,13 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class InternalComplexEntryTest
 {
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added),
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added),
      InlineData(EntityState.Deleted)]
     public void Complex_entry_can_change_state(EntityState entityState)
     {
@@ -154,7 +152,7 @@ public class InternalComplexEntryTest
         Assert.Equal(entityState == EntityState.Modified, entityEntry.IsModified(complexProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Multiple_complex_entries_state_changes_maintain_correct_ordinals()
     {
         var model = CreateModel();
@@ -251,7 +249,48 @@ public class InternalComplexEntryTest
         Assert.True(entityEntry.IsModified(complexProperty));
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added),
+    [Fact]
+    public void Can_change_entity_state_from_Deleted_to_Unchanged_with_complex_collection()
+    {
+        var model = CreateModel();
+        var entityType = model.FindEntityType(typeof(Blog))!;
+        var complexProperty = entityType.FindComplexProperty(nameof(Blog.Tags))!;
+
+        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
+        var stateManager = serviceProvider.GetRequiredService<IStateManager>();
+
+        var blog = new Blog
+        {
+            Tags =
+            [
+                new Tag { Name = "Tag0" },
+                new Tag { Name = "Tag1" },
+                new Tag { Name = "Tag2" }
+            ]
+        };
+        var entityEntry = stateManager.GetOrCreateEntry(blog);
+        entityEntry.SetEntityState(EntityState.Unchanged);
+
+        // Simulate soft delete pattern: set to Deleted then back to Unchanged
+        entityEntry.SetEntityState(EntityState.Deleted);
+        Assert.Equal(EntityState.Deleted, entityEntry.EntityState);
+
+        // This should not throw an exception about invalid ordinal
+        entityEntry.SetEntityState(EntityState.Unchanged);
+        Assert.Equal(EntityState.Unchanged, entityEntry.EntityState);
+
+        // Verify complex collection entries are still accessible
+        var entries = entityEntry.GetComplexCollectionEntries(complexProperty);
+        Assert.Equal(3, entries.Count);
+        Assert.NotNull(entries[0]);
+        Assert.NotNull(entries[1]);
+        Assert.NotNull(entries[2]);
+        Assert.Equal(0, entries[0]!.Ordinal);
+        Assert.Equal(1, entries[1]!.Ordinal);
+        Assert.Equal(2, entries[2]!.Ordinal);
+    }
+
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added),
      InlineData(EntityState.Deleted)]
     public void Complex_collection_detects_additions_and_deletions(EntityState entityState)
     {
@@ -322,7 +361,7 @@ public class InternalComplexEntryTest
         Assert.True(entityEntry.IsModified(complexProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_collection_detects_reference_change_as_modified()
     {
         var model = CreateModel();
@@ -355,7 +394,7 @@ public class InternalComplexEntryTest
         Assert.True(entityEntry.IsModified(complexProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_collection_detects_property_modifications()
     {
         var model = CreateModel();
@@ -383,7 +422,7 @@ public class InternalComplexEntryTest
         Assert.Equal([EntityState.Modified, EntityState.Unchanged], allEntries.Select(e => e!.EntityState));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_collection_detects_reordering_without_modification()
     {
         var model = CreateModel();
@@ -418,7 +457,7 @@ public class InternalComplexEntryTest
         Assert.True(entityEntry.IsModified(complexProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_collection_detects_elements_replaced_with_nulls_as_modified()
     {
         var model = CreateModel();
@@ -450,7 +489,7 @@ public class InternalComplexEntryTest
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_collection_detects_null_elements_being_replaced_as_modified()
     {
         var model = CreateModel();
@@ -477,7 +516,7 @@ public class InternalComplexEntryTest
             entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_collection_detects_moved_replaced_null_elements_as_modified()
     {
         var model = CreateModel();
@@ -512,7 +551,7 @@ public class InternalComplexEntryTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_collection_detects_moved_null_elements_and_replaced_instances_as_unchanged()
     {
         var model = CreateModel();
@@ -548,7 +587,7 @@ public class InternalComplexEntryTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Complex_collection_throws_when_not_initialized()
     {
         var model = CreateModel();
@@ -567,7 +606,7 @@ public class InternalComplexEntryTest
             Assert.Throws<InvalidOperationException>(() => entityEntry.GetComplexCollectionEntry(complexProperty, 0)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEntry_throws_when_accessing_original_ordinal_on_added_entity()
     {
         var model = CreateModel();
@@ -590,7 +629,7 @@ public class InternalComplexEntryTest
                 entityEntry.GetComplexCollectionEntry(complexProperty, 0).Ordinal = 1).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEntry_throws_when_accessing_original_entries_that_were_originally_null()
     {
         var model = CreateModel();
@@ -610,7 +649,7 @@ public class InternalComplexEntryTest
         Assert.Equal(CoreStrings.ComplexCollectionEntryOriginalNull("Blog", "Tags"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEntry_throws_when_accessing_invalid_original_ordinal()
     {
         var model = CreateModel();
@@ -630,7 +669,7 @@ public class InternalComplexEntryTest
         Assert.Equal(CoreStrings.ComplexCollectionEntryOriginalOrdinalInvalid(5, "Blog", "Tags", 1), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEntry_throws_when_accessing_ordinal_on_deleted_entity()
     {
         var model = CreateModel();
@@ -653,7 +692,7 @@ public class InternalComplexEntryTest
                 entityEntry.GetComplexCollectionOriginalEntry(complexProperty, 0).OriginalOrdinal = 1).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEntry_throws_when_accessing_invalid_current_ordinal()
     {
         var model = CreateModel();
@@ -674,7 +713,7 @@ public class InternalComplexEntryTest
         Assert.Equal(CoreStrings.ComplexCollectionEntryOrdinalInvalid(5, "Blog", "Tags", 1), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DetectChanges_detects_changes_in_nested_complex_collections()
     {
         var model = CreateModelWithNestedComplexCollections();
@@ -726,6 +765,43 @@ public class InternalComplexEntryTest
         Assert.Equal(EntityState.Added, items[2].State);
     }
 
+    [Fact]
+    public void Entity_can_be_marked_modified_after_nested_complex_collection_shrinks()
+    {
+        var model = CreateModelWithNestedComplexCollection();
+        var complexProperty = model.FindEntityType(typeof(BlogWithNestedCollection))!
+            .FindComplexProperty(nameof(BlogWithNestedCollection.Items))!;
+        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
+        var stateManager = serviceProvider.GetRequiredService<IStateManager>();
+        var changeDetector = serviceProvider.GetRequiredService<IChangeDetector>();
+
+        var blog = new BlogWithNestedCollection
+        {
+            Items =
+            [
+                new NestedCollectionItem { Name = "foo" },
+                new NestedCollectionItem
+                {
+                    Name = "bar",
+                    NestedItems = [new NestedItem { Name = "baz" }]
+                }
+            ]
+        };
+
+        var entityEntry = stateManager.GetOrCreateEntry(blog);
+        entityEntry.SetEntityState(EntityState.Unchanged);
+
+        blog.Items = [new NestedCollectionItem { Name = "foo" }];
+
+        entityEntry.SetEntityState(EntityState.Modified);
+
+        Assert.Equal(EntityState.Modified, entityEntry.EntityState);
+
+        changeDetector.DetectChanges(stateManager);
+
+        Assert.Equal(EntityState.Deleted, entityEntry.GetComplexCollectionOriginalEntry(complexProperty, 1).EntityState);
+    }
+
     private static IModel CreateModel()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -740,17 +816,30 @@ public class InternalComplexEntryTest
         return modelBuilder.FinalizeModel();
     }
 
+    private static IModel CreateModelWithNestedComplexCollection()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<BlogWithNestedCollection>(
+            b => b.ComplexCollection(
+                e => e.Items,
+                b => b.ComplexCollection(e => e.NestedItems)));
+
+        return modelBuilder.FinalizeModel();
+    }
+
     private static IModel CreateModelWithNestedComplexCollections()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<BlogWithNested>(eb =>
         {
-            eb.ComplexProperty(e => e.NestedJson, b =>
-            {
-                b.ComplexProperty(a => a.Item);
-                b.ComplexCollection(a => a.Items);
-            });
+            eb.ComplexProperty(
+                e => e.NestedJson, b =>
+                {
+                    b.ComplexProperty(a => a.Item);
+                    b.ComplexCollection(a => a.Items);
+                });
         });
 
         return modelBuilder.FinalizeModel();
@@ -788,6 +877,18 @@ public class InternalComplexEntryTest
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public NestedJson NestedJson { get; set; } = new();
+    }
+
+    private class BlogWithNestedCollection
+    {
+        public int Id { get; set; }
+        public List<NestedCollectionItem> Items { get; set; } = [];
+    }
+
+    private class NestedCollectionItem
+    {
+        public string Name { get; set; } = "";
+        public List<NestedItem> NestedItems { get; set; } = [];
     }
 
     private record NestedJson

@@ -20,7 +20,6 @@ function deactivate ([switch]$init) {
     }
 
     Remove-Item env:DOTNET_ROOT -ErrorAction Ignore
-    Remove-Item env:DOTNET_MULTILEVEL_LOOKUP -ErrorAction Ignore
     if (-not $init) {
         # Remove the deactivate function
         Remove-Item function:deactivate
@@ -32,9 +31,7 @@ deactivate -init
 
 $_OLD_PATH = $env:PATH
 # Tell dotnet where to find itself
-$env:DOTNET_ROOT = "$PSScriptRoot\.dotnet"
-# Tell dotnet not to look beyond the DOTNET_ROOT folder for more dotnet things
-$env:DOTNET_MULTILEVEL_LOOKUP = 0
+$env:DOTNET_ROOT = if ([string]::IsNullOrEmpty($env:DOTNET_GLOBAL_INSTALL_DIR)) { "$PSScriptRoot\.dotnet" } else { $env:DOTNET_GLOBAL_INSTALL_DIR }
 # Put dotnet first on PATH
 $env:PATH = "${env:DOTNET_ROOT};${env:PATH}"
 

@@ -32,7 +32,7 @@ public interface ISqlQuery : ITableBase
     /// <summary>
     ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
     /// </summary>
-    new ISqlQueryColumn? FindColumn(IProperty property);
+    new ISqlQueryColumn? FindColumn(IPropertyBase propertyBase);
 
     /// <summary>
     ///     Gets the SQL query string.

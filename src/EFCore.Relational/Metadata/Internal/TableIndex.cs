@@ -41,7 +41,7 @@ public class TableIndex : Annotatable, ITableIndex
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedSet<IIndex> MappedIndexes { get; } = new(IndexComparer.Instance);
+    public virtual SortedSet<IIndex> MappedIndexes { get; } = [with(IndexComparer.Instance)];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,8 +72,22 @@ public class TableIndex : Annotatable, ITableIndex
     public virtual bool IsUnique { get; }
 
     /// <inheritdoc />
+    /// <remarks>
+    ///     For a JSON-mapped index this is always <see langword="null" />: since no database supports
+    ///     creating an index on a plain column and its contained JSON members in a single operation, and
+    ///     multiple JSON members may be deduplicated into a single JSON container column (see
+    ///     <see cref="Columns" />), per-element sort order cannot be represented at the column level.
+    ///     It is instead carried per element on <see cref="RelationalAnnotationNames.JsonIndex" />
+    ///     (<see cref="RelationalJsonIndex.IsDescending" />).
+    /// </remarks>
     public virtual IReadOnlyList<bool>? IsDescending
-        => MappedIndexes.First().IsDescending;
+    {
+        get
+        {
+            var mappedIndex = MappedIndexes.First();
+            return mappedIndex.IsJsonIndex() ? null : mappedIndex.IsDescending;
+        }
+    }
 
     /// <inheritdoc />
     public virtual string? Filter

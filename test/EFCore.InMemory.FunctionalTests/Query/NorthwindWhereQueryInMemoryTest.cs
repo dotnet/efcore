@@ -14,7 +14,7 @@ public class NorthwindWhereQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopM
 
         Assert.Equal(InMemoryStrings.NoQueryStrings, queryString);
 
-        return null;
+        return null!;
     }
 
     public override Task ElementAt_over_custom_projection_compared_to_not_null(bool async)
@@ -27,6 +27,9 @@ public class NorthwindWhereQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopM
         => Task.CompletedTask;
 
     public override Task Where_compare_constructed_multi_value_equal(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_compare_constructed_multi_value_not_equal(bool async)
         => Task.CompletedTask;
 
     public override Task Where_compare_tuple_constructed_equal(bool async)

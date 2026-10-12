@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Types;
-
 using static System.Linq.Expressions.Expression;
+
+namespace Microsoft.EntityFrameworkCore.Types;
 
 public abstract class SqlServerSpatialTypeTestBase<T, TFixture>(TFixture fixture, ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<T, TFixture>(fixture, testOutputHelper)
@@ -53,19 +53,29 @@ public abstract class SqlServerSpatialTypeTestBase<T, TFixture>(TFixture fixture
 
         Fixture.TestSqlLoggerFactory.Clear();
 
-        var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.JsonContainer.Value.EqualsTopologically(Fixture.Value)).SingleAsync();
+        var result = await context.Set<JsonTypeEntity<T>>().Where(e => e.JsonContainer.Value.EqualsTopologically(Fixture.Value))
+            .SingleAsync();
 
         Assert.Equal(Fixture.Value, result.JsonContainer.Value, Fixture.Comparer);
     }
 
+    // Spatial types aren't supported as primitive collections
+    public override Task Primitive_collection_in_query()
+        => Task.CompletedTask;
+
     public abstract class SqlServerSpatialTypeFixture : SqlServerTypeFixture<T>
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(o => o.UseNetTopologySuite());
+            => base.AddOptions(builder)
+                .UseSqlServer(o => o.UseNetTopologySuite())
+                .ConfigureWarnings(w => w.Ignore(CoreEventId.MappedPropertyIgnoredWarning));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            // Spatial types aren't supported as primitive collections
+            modelBuilder.Entity<TypeEntity<T>>().Ignore(e => e.ArrayValue);
+        }
     }
 }
-
-
-
-
-

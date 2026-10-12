@@ -640,7 +640,7 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append("oldComputedColumnSql: ")
                     .Append(Code.Literal(operation.OldColumn.ComputedColumnSql));
 
-                if (operation.IsStored != null)
+                if (operation.OldColumn.IsStored != null)
                 {
                     builder
                         .AppendLine(",")
@@ -2144,6 +2144,11 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
     {
         foreach (var annotation in annotations)
         {
+            if (annotation.Name == RelationalAnnotationNames.JsonIndex)
+            {
+                continue;
+            }
+
             // TODO: Give providers an opportunity to render these as provider-specific extension methods
             // Issue #6546
             builder

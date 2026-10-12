@@ -165,13 +165,10 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
                 || (Metadata.Configuration?.GetConfigurationType(clrType) == TypeConfigurationType.OwnedEntityType
                     && configurationSource != ConfigurationSource.Explicit)))
         {
-            if (configurationSource == ConfigurationSource.Explicit)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ClashingOwnedEntityType(clrType == null ? type.Name : clrType.ShortDisplayName()));
-            }
-
-            return null;
+            return configurationSource == ConfigurationSource.Explicit
+                ? throw new InvalidOperationException(
+                    CoreStrings.ClashingOwnedEntityType(clrType == null ? type.Name : clrType.ShortDisplayName()))
+                : null;
         }
 
         if (entityType != null)
@@ -637,29 +634,12 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     private bool CanIgnore(in TypeIdentity type, ConfigurationSource configurationSource)
     {
         var name = type.Name;
-        if (Metadata.FindIgnoredConfigurationSource(name).HasValue)
-        {
-            return true;
-        }
-
-        if (IsOwned(type)
-            && configurationSource != ConfigurationSource.Explicit)
-        {
-            return false;
-        }
-
-        if (type.Type != null
-            && Metadata.FindEntityTypes(type.Type).Any(o => !configurationSource.Overrides(o.GetConfigurationSource())))
-        {
-            return false;
-        }
-
-        if (Metadata.FindEntityType(name)?.GetConfigurationSource().OverridesStrictly(configurationSource) == true)
-        {
-            return false;
-        }
-
-        return true;
+        return Metadata.FindIgnoredConfigurationSource(name).HasValue
+            || (!IsOwned(type)
+                || configurationSource == ConfigurationSource.Explicit)
+            && (type.Type == null
+                || !Metadata.FindEntityTypes(type.Type).Any(o => !configurationSource.Overrides(o.GetConfigurationSource())))
+            && (Metadata.FindEntityType(name)?.GetConfigurationSource().OverridesStrictly(configurationSource)) != true;
     }
 
     /// <summary>

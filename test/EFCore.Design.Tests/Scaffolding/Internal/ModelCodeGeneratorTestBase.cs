@@ -14,7 +14,7 @@ public abstract class ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture f
         Action<ModelBuilder> buildModel,
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
-        Action<IModel> assertModel,
+        Action<IModel>? assertModel,
         bool skipBuild = false)
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(addServices: AddModelServices);
@@ -34,7 +34,7 @@ public abstract class ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture f
         Func<IServiceProvider, IModel> buildModel,
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
-        Action<IModel> assertModel,
+        Action<IModel>? assertModel,
         bool skipBuild = false)
     {
         var designServices = new ServiceCollection();
@@ -52,7 +52,7 @@ public abstract class ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture f
         IModel model,
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
-        Action<IModel> assertModel,
+        Action<IModel>? assertModel,
         bool skipBuild = false)
     {
         var generators = serviceProvider.GetServices<IModelCodeGenerator>();
@@ -93,10 +93,11 @@ public abstract class ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture f
             if (assertModel != null)
             {
                 var contextNamespace = options.ContextNamespace ?? options.ModelNamespace;
-                var context = (DbContext)assembly.CreateInstance(
-                    !string.IsNullOrEmpty(contextNamespace)
-                        ? contextNamespace + "." + options.ContextName
-                        : options.ContextName);
+                var context = Assert.IsAssignableFrom<DbContext>(
+                    assembly.CreateInstance(
+                        !string.IsNullOrEmpty(contextNamespace)
+                            ? contextNamespace + "." + options.ContextName
+                            : options.ContextName));
 
                 var compiledModel = context.GetService<IDesignTimeModel>().Model;
                 assertModel(compiledModel);
@@ -104,7 +105,7 @@ public abstract class ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture f
         }
     }
 
-    protected static DatabaseModel BuildModelWithColumn(string storeType, string sql, object expected)
+    protected static DatabaseModel BuildModelWithColumn(string storeType, string? sql, object? expected)
     {
         var dbModel = new DatabaseModel
         {

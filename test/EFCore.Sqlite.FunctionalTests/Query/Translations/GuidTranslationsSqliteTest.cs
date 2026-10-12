@@ -44,15 +44,15 @@ WHERE "b"."Guid" = @p
 
         AssertSql(
             """
-SELECT CAST("b"."Guid" AS TEXT)
+SELECT "b"."Guid"
 FROM "BasicTypesEntities" AS "b"
 """);
     }
 
     public override Task NewGuid()
-        => AssertTranslationFailed(() => base.NewGuid());
+        => AssertTranslationFailed(base.NewGuid);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

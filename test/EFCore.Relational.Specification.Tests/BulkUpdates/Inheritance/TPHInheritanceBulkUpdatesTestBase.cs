@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
-#nullable disable
-
 public abstract class TPHInheritanceBulkUpdatesTestBase<TFixture>(TFixture fixture, ITestOutputHelper testOutputHelper)
     : InheritanceBulkUpdatesRelationalTestBase<TFixture>(fixture, testOutputHelper)
     where TFixture : InheritanceBulkUpdatesRelationalFixtureBase, new();

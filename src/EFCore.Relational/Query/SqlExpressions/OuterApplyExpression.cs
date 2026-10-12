@@ -77,8 +77,8 @@ public class OuterApplyExpression : JoinExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is OuterApplyExpression outerApplyExpression
-                && Equals(outerApplyExpression));
+                || (obj is OuterApplyExpression outerApplyExpression
+                    && Equals(outerApplyExpression)));
 
     private bool Equals(OuterApplyExpression outerApplyExpression)
         => base.Equals(outerApplyExpression);

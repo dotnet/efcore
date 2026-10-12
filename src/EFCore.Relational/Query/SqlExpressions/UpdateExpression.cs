@@ -103,7 +103,7 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
             }
             else if (!ReferenceEquals(newColumn, columnValueSetter.Column) || !ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                columnValueSetters = new List<ColumnValueSetter>(n);
+                columnValueSetters = [with(n)];
                 for (var j = 0; j < i; j++)
                 {
                     columnValueSetters.Add(ColumnValueSetters[j]);
@@ -188,8 +188,8 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is UpdateExpression updateExpression
-                && Equals(updateExpression));
+                || (obj is UpdateExpression updateExpression
+                    && Equals(updateExpression)));
 
     private bool Equals(UpdateExpression updateExpression)
         => Table == updateExpression.Table

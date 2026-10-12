@@ -1,0 +1,29 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite",
+  "Types": [
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.SqliteJsonGeometryWktReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<NetTopologySuite.Geometries.Geometry>",
+      "Properties": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.SqliteJsonGeometryWktReaderWriter Instance { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.SqliteNetTopologySuiteDbContextOptionsBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder UseNetTopologySuite(this Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder optionsBuilder);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.Extensions.DependencyInjection.SqliteNetTopologySuiteServiceCollectionExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqliteNetTopologySuite(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+        }
+      ]
+    }
+  ]
+}

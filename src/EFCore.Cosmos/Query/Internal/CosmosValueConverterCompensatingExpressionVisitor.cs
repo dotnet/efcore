@@ -84,17 +84,22 @@ public class CosmosValueConverterCompensatingExpressionVisitor(ISqlExpressionFac
     private SqlExpression? TryCompensateForBoolWithValueConverter(SqlExpression? sqlExpression)
         => sqlExpression switch
         {
-            ScalarAccessExpression keyAccessExpression
-                when keyAccessExpression.TypeMapping!.ClrType == typeof(bool) && keyAccessExpression.TypeMapping!.Converter != null
-                => sqlExpressionFactory.Equal(sqlExpression, sqlExpressionFactory.Constant(true, sqlExpression.TypeMapping)),
-
             SqlUnaryExpression sqlUnaryExpression
                 => sqlUnaryExpression.Update(TryCompensateForBoolWithValueConverter(sqlUnaryExpression.Operand)),
 
-            SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse } sqlBinaryExpression
+            SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse,
+                Left: SqlExpression left,
+                Right: SqlExpression right
+            } sqlBinaryExpression
                 => sqlBinaryExpression.Update(
-                    TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Left),
-                    TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Right)),
+                    TryCompensateForBoolWithValueConverter(left),
+                    TryCompensateForBoolWithValueConverter(right)),
+
+            { TypeMapping.ClrType: var clrType, TypeMapping.Converter: not null }
+                when clrType == typeof(bool) || clrType == typeof(bool?)
+                => sqlExpressionFactory.Equal(sqlExpression, sqlExpressionFactory.Constant(true, sqlExpression.TypeMapping)),
 
             _ => sqlExpression
         };

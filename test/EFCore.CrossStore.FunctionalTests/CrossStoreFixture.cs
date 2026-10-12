@@ -18,7 +18,7 @@ public class CrossStoreFixture : FixtureBase
     public Task<TestStore> CreateTestStoreAsync(
         ITestStoreFactory testStoreFactory,
         string storeName,
-        Func<CrossStoreContext, Task> seed = null)
+        Func<CrossStoreContext, Task>? seed = null)
         => testStoreFactory.GetOrCreate(storeName)
             .InitializeAsync(
                 AddServices(testStoreFactory.AddProviderServices(new ServiceCollection())).BuildServiceProvider(validateScopes: true),

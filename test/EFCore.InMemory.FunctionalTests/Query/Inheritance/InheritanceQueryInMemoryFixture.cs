@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
@@ -24,29 +27,24 @@ public class InheritanceQueryInMemoryFixture : InheritanceQueryFixtureBase
     }
 
     private static AnimalQuery MaterializeView(Bird bird)
-    {
-        switch (bird)
+        => bird switch
         {
-            case Kiwi kiwi:
-                return new KiwiQuery
-                {
-                    Name = kiwi.Name,
-                    CountryId = kiwi.CountryId,
-                    EagleId = kiwi.EagleId,
-                    FoundOn = kiwi.FoundOn,
-                    IsFlightless = kiwi.IsFlightless
-                };
-            case Eagle eagle:
-                return new EagleQuery
-                {
-                    Name = eagle.Name,
-                    CountryId = eagle.CountryId,
-                    EagleId = eagle.EagleId,
-                    Group = eagle.Group,
-                    IsFlightless = eagle.IsFlightless
-                };
-        }
-
-        throw new InvalidOperationException();
-    }
+            Kiwi kiwi => new KiwiQuery
+            {
+                Name = kiwi.Name,
+                CountryId = kiwi.CountryId,
+                EagleId = kiwi.EagleId,
+                FoundOn = kiwi.FoundOn,
+                IsFlightless = kiwi.IsFlightless
+            },
+            Eagle eagle => new EagleQuery
+            {
+                Name = eagle.Name,
+                CountryId = eagle.CountryId,
+                EagleId = eagle.EagleId,
+                Group = eagle.Group,
+                IsFlightless = eagle.IsFlightless
+            },
+            _ => throw new InvalidOperationException(),
+        };
 }

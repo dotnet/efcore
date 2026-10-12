@@ -30,17 +30,17 @@ public static class CosmosEventId
 
         // Command events
         ExecutingSqlQuery = CoreEventId.ProviderBaseId + 100,
-        ExecutingReadItem,
-        ExecutedReadNext,
-        ExecutedReadItem,
-        ExecutedCreateItem,
-        ExecutedReplaceItem,
-        ExecutedDeleteItem,
-        ExecutedTransactionalBatch,
+        ExecutingReadItem = CoreEventId.ProviderBaseId + 101,
+        ExecutedReadNext = CoreEventId.ProviderBaseId + 102,
+        ExecutedReadItem = CoreEventId.ProviderBaseId + 103,
+        ExecutedCreateItem = CoreEventId.ProviderBaseId + 104,
+        ExecutedReplaceItem = CoreEventId.ProviderBaseId + 105,
+        ExecutedDeleteItem = CoreEventId.ProviderBaseId + 106,
+        ExecutedTransactionalBatch = CoreEventId.ProviderBaseId + 107,
 
         // Update events
         PrimaryKeyValueNotSet = CoreEventId.ProviderBaseId + 200,
-        BulkExecutionWithTransactionalBatch,
+        BulkExecutionWithTransactionalBatch = CoreEventId.ProviderBaseId + 201,
 
         // Model validation events
         NoPartitionKeyDefined = CoreEventId.ProviderBaseId + 600,
@@ -112,7 +112,8 @@ public static class CosmosEventId
     ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
     ///     </para>
     ///     <para>
-    ///         This event uses the <see cref="CosmosTransactionalBatchExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///         This event uses the <see cref="CosmosTransactionalBatchExecutedEventData" /> payload when used with a
+    ///         <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutedTransactionalBatch
@@ -205,7 +206,8 @@ public static class CosmosEventId
     ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
     ///     </para>
     ///     <para>
-    ///         This event uses the <see cref="Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.AutoTransactionBehaviorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///         This event uses the <see cref="Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.AutoTransactionBehaviorEventData" /> payload when
+    ///         used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
     public static readonly EventId BulkExecutionWithTransactionalBatch = MakeUpdateId(Id.BulkExecutionWithTransactionalBatch);

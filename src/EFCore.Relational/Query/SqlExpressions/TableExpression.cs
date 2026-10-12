@@ -102,8 +102,8 @@ public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TableExpression fromSqlExpression
-                && Equals(fromSqlExpression));
+                || (obj is TableExpression fromSqlExpression
+                    && Equals(fromSqlExpression)));
 
     private bool Equals(TableExpression fromSqlExpression)
         => base.Equals(fromSqlExpression)

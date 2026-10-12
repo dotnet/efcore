@@ -24,8 +24,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : ExpressionVisitor
+public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
+        : this(syntaxGenerator, useUpdatedMemorySafetyRules: false)
+    {
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator, bool useUpdatedMemorySafetyRules)
+    {
+        _g = syntaxGenerator;
+        _useUpdatedMemorySafetyRules = useUpdatedMemorySafetyRules;
+    }
+
     private sealed record StackFrame(
         Dictionary<ParameterExpression, string> Variables,
         HashSet<string> VariableNames,
@@ -66,6 +89,8 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
     private bool _onLastLambdaLine;
 
     private readonly HashSet<ParameterExpression> _capturedVariables = [];
+    private readonly HashSet<string> _capturedVariableNames = [];
+    private IReadOnlySet<string>? _declaredNames;
     private ISet<string> _collectedNamespaces = null!;
     private readonly Dictionary<MethodBase, MethodDeclarationSyntax> _methodUnsafeAccessors = [];
     private readonly Dictionary<(FieldInfo Field, bool ForWrite), MethodDeclarationSyntax> _fieldUnsafeAccessors = [];
@@ -74,7 +99,8 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
 
     private readonly SideEffectDetectionSyntaxWalker _sideEffectDetector = new();
     private readonly ConstantDetectionSyntaxWalker _constantDetector = new();
-    private readonly SyntaxGenerator _g = syntaxGenerator;
+    private readonly SyntaxGenerator _g;
+    private readonly bool _useUpdatedMemorySafetyRules;
     private readonly StringBuilder _stringBuilder = new();
 
     /// <summary>
@@ -104,8 +130,9 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         Expression node,
         IReadOnlyDictionary<object, string>? constantReplacements,
         ISet<string> collectedNamespaces,
-        ISet<MethodDeclarationSyntax> unsafeAccessors)
-        => TranslateCore(node, constantReplacements, collectedNamespaces, unsafeAccessors, statementContext: true);
+        ISet<MethodDeclarationSyntax> unsafeAccessors,
+        IReadOnlySet<string>? declaredNames = null)
+        => TranslateCore(node, constantReplacements, declaredNames, collectedNamespaces, unsafeAccessors, statementContext: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -117,8 +144,9 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         Expression node,
         IReadOnlyDictionary<object, string>? constantReplacements,
         ISet<string> collectedNamespaces,
-        ISet<MethodDeclarationSyntax> unsafeAccessors)
-        => TranslateCore(node, constantReplacements, collectedNamespaces, unsafeAccessors, statementContext: false);
+        ISet<MethodDeclarationSyntax> unsafeAccessors,
+        IReadOnlySet<string>? declaredNames = null)
+        => TranslateCore(node, constantReplacements, declaredNames, collectedNamespaces, unsafeAccessors, statementContext: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -129,30 +157,93 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
     protected virtual SyntaxNode TranslateCore(
         Expression node,
         IReadOnlyDictionary<object, string>? constantReplacements,
+        IReadOnlySet<string>? declaredNames,
         ISet<string> collectedNamespaces,
         ISet<MethodDeclarationSyntax> unsafeAccessors,
         bool statementContext)
     {
         _capturedVariables.Clear();
+        // Names the expression references without declaring belong to the caller and are emitted as-is, so nothing generated here
+        // may take one of them; collecting them up front means a name chosen later cannot rebind an earlier reference.
+        _capturedVariableNames.Clear();
+        FreeVariableNameCollector.Collect(node, _capturedVariableNames);
         _constantReplacements = constantReplacements;
+        // Other names the caller declares in the scope the result is emitted into, such as the fields for the runtime constants when
+        // one of their initializers is being translated; treated like the constant replacement names below.
+        _declaredNames = declaredNames;
         _collectedNamespaces = collectedNamespaces;
         _unnamedParameterCounter = 0;
         _context = statementContext ? ExpressionContext.Statement : ExpressionContext.Expression;
         _onLastLambdaLine = true;
 
-        Visit(node);
-
-        if (_liftedState.Statements.Count > 0
-            && _context == ExpressionContext.Expression)
+        // The constant replacements (e.g. variables declared in the enclosing generated method for properties,
+        // navigations, etc.) are in scope for the whole translation, so register their names in the root stack frame.
+        // This keeps the in-scope variable tracking accurate, ensuring generated variables and lambda parameters don't
+        // clash with them (their references are emitted by name inside the translated lambda bodies).
+        var rootFrame = _stack.Peek();
+        if (constantReplacements != null)
         {
-            throw new NotSupportedException("Lifted expressions remaining at top-level in expression context");
+            foreach (var name in constantReplacements.Values)
+            {
+                rootFrame.VariableNames.Add(name);
+            }
         }
 
-        Check.DebugAssert(_stack.Count == 1, "_parameterStack.Count == 1");
-        Check.DebugAssert(_stack.Peek().Variables.Count == 0, "_stack.Peek().Parameters.Count == 0");
-        Check.DebugAssert(_stack.Peek().VariableNames.Count == 0, "_stack.Peek().ParameterNames.Count == 0");
-        Check.DebugAssert(_stack.Peek().Labels.Count == 0);
-        Check.DebugAssert(_stack.Peek().UniqueLabelNames.Count == 0);
+        if (declaredNames != null)
+        {
+            foreach (var name in declaredNames)
+            {
+                rootFrame.VariableNames.Add(name);
+            }
+        }
+
+        try
+        {
+            try
+            {
+                Visit(node);
+            }
+            finally
+            {
+                if (constantReplacements != null)
+                {
+                    foreach (var name in constantReplacements.Values)
+                    {
+                        rootFrame.VariableNames.Remove(name);
+                    }
+                }
+
+                if (declaredNames != null)
+                {
+                    foreach (var name in declaredNames)
+                    {
+                        rootFrame.VariableNames.Remove(name);
+                    }
+                }
+            }
+
+            if (_liftedState.Statements.Count > 0
+                && _context == ExpressionContext.Expression)
+            {
+                throw new NotSupportedException("Lifted expressions remaining at top-level in expression context");
+            }
+
+            Check.DebugAssert(_stack.Count == 1, "_parameterStack.Count == 1");
+            Check.DebugAssert(_stack.Peek().Variables.Count == 0, "_stack.Peek().Parameters.Count == 0");
+            Check.DebugAssert(_stack.Peek().VariableNames.Count == 0, "_stack.Peek().ParameterNames.Count == 0");
+            Check.DebugAssert(_stack.Peek().Labels.Count == 0);
+            Check.DebugAssert(_stack.Peek().UniqueLabelNames.Count == 0);
+        }
+        catch
+        {
+            // The translator is reused for later translations (PrecompiledQueryCodeGenerator records a failed query and moves on to
+            // the next one), so the scopes and lifted statements a failed translation left behind must not leak into them
+            _stack.Clear();
+            _stack.Push(new StackFrame([], [], [], []));
+            _liftedState = new LiftedState();
+
+            throw;
+        }
 
         foreach (var unsafeAccessor in _fieldUnsafeAccessors.Values.Concat(_methodUnsafeAccessors.Values))
         {
@@ -715,8 +806,8 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
 
                 var (_, _, labels, uniqueLabelNames) = stackFrame;
 
-                // Generate names for unnamed label targets and uniquify (all label names)
-                identifier = label.Target.Name ?? "unnamedLabel";
+                // Generate names for unnamed label targets, sanitize named ones, and uniquify (all label names)
+                identifier = label.Target.Name is null ? "unnamedLabel" : SanitizeIdentifierName(label.Target.Name);
                 var identifierBase = identifier;
                 for (var i = 0; uniqueLabelNames.Contains(identifier); i++)
                 {
@@ -745,6 +836,33 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
     /// </summary>
     protected virtual SyntaxNode TranslateCatchBlock(CatchBlock catchBlock, bool noType = false)
     {
+        if (catchBlock.Variable is { Name: null })
+        {
+            throw new NotSupportedException("TranslateCatchBlock: unnamed parameter as catch variable");
+        }
+
+        var catchDeclaration = noType
+            ? null
+            : CatchDeclaration(Generate(catchBlock.Test));
+
+        // The catch variable gets its own scope, so that its declaration and the references to it agree on the (sanitized) name
+        var stackFrame = PushNewStackFrame();
+
+        if (catchBlock.Variable is not null)
+        {
+            Check.DebugAssert(catchDeclaration is not null);
+
+            var name = UniquifyVariableName(catchBlock.Variable.Name!);
+            if (!stackFrame.Variables.TryAdd(catchBlock.Variable, name))
+            {
+                throw new InvalidOperationException(
+                    DesignStrings.SameParameterExpressionDeclaredAsVariableInNestedBlocks(catchBlock.Variable.Name));
+            }
+
+            stackFrame.VariableNames.Add(name);
+            catchDeclaration = catchDeclaration.WithIdentifier(Identifier(name));
+        }
+
         var translatedBody = Translate(catchBlock.Body) switch
         {
             BlockSyntax b => b,
@@ -753,26 +871,12 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        var catchDeclaration = noType
-            ? null
-            : CatchDeclaration(Generate(catchBlock.Test));
+        var filter = catchBlock.Filter is null ? null : CatchFilterClause(Translate<ExpressionSyntax>(catchBlock.Filter));
 
-        if (catchBlock.Variable is not null)
-        {
-            Check.DebugAssert(catchDeclaration is not null);
+        var popped = _stack.Pop();
+        Check.DebugAssert(popped.Equals(stackFrame));
 
-            if (catchBlock.Variable.Name is null)
-            {
-                throw new NotSupportedException("TranslateCatchBlock: unnamed parameter as catch variable");
-            }
-
-            catchDeclaration = catchDeclaration.WithIdentifier(Identifier(catchBlock.Variable.Name));
-        }
-
-        return CatchClause(
-            catchDeclaration,
-            catchBlock.Filter is null ? null : CatchFilterClause(Translate<ExpressionSyntax>(catchBlock.Filter)),
-            translatedBody);
+        return CatchClause(catchDeclaration, filter, translatedBody);
     }
 
     /// <inheritdoc />
@@ -966,131 +1070,128 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
     /// </summary>
     protected virtual ExpressionSyntax GenerateValue(object? value)
     {
-        if (_constantReplacements != null
+        return _constantReplacements != null
             && value != null
-            && _constantReplacements.TryGetValue(value, out var variableName))
-        {
-            return IdentifierName(variableName);
-        }
+            && _constantReplacements.TryGetValue(value, out var variableName)
+                ? IdentifierName(variableName)
+                : value switch
+                {
+                    int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or char
+                        or string or bool or null
+                        => (ExpressionSyntax)_g.LiteralExpression(value),
 
-        return value switch
-        {
-            int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or char
-                or string or bool or null
-                => (ExpressionSyntax)_g.LiteralExpression(value),
+                    Type t => TypeOfExpression(Generate(t)),
+                    Enum e => HandleEnum(e),
 
-            Type t => TypeOfExpression(Generate(t)),
-            Enum e => HandleEnum(e),
+                    Guid g => ObjectCreationExpression(IdentifierName(nameof(Guid)))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList(
+                                    Argument(
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(g.ToString())))))),
 
-            Guid g => ObjectCreationExpression(IdentifierName(nameof(Guid)))
-                .WithArgumentList(
-                    ArgumentList(
-                        SingletonSeparatedList(
-                            Argument(
-                                LiteralExpression(
-                                    SyntaxKind.StringLiteralExpression,
-                                    Literal(g.ToString())))))),
+                    ITuple tuple
+                        when tuple.GetType() is { IsGenericType: true } tupleType
+                        && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
+                        && tupleType.Namespace == "System"
+                        => HandleValueTuple(tuple),
 
-            ITuple tuple
-                when tuple.GetType() is { IsGenericType: true } tupleType
-                && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
-                && tupleType.Namespace == "System"
-                => HandleValueTuple(tuple),
+                    ReferenceEqualityComparer equalityComparer
+                        when equalityComparer == ReferenceEqualityComparer.Instance
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(ReferenceEqualityComparer)),
+                            IdentifierName(nameof(ReferenceEqualityComparer.Instance))),
 
-            ReferenceEqualityComparer equalityComparer
-                when equalityComparer == ReferenceEqualityComparer.Instance
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(ReferenceEqualityComparer)),
-                    IdentifierName(nameof(ReferenceEqualityComparer.Instance))),
+                    IEqualityComparer c
+                        when c == StructuralComparisons.StructuralEqualityComparer
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(StructuralComparisons)),
+                            IdentifierName(nameof(StructuralComparisons.StructuralEqualityComparer))),
 
-            IEqualityComparer c
-                when c == StructuralComparisons.StructuralEqualityComparer
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(StructuralComparisons)),
-                    IdentifierName(nameof(StructuralComparisons.StructuralEqualityComparer))),
+                    CultureInfo cultureInfo when cultureInfo == CultureInfo.InvariantCulture
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(CultureInfo)),
+                            IdentifierName(nameof(CultureInfo.InvariantCulture))),
 
-            CultureInfo cultureInfo when cultureInfo == CultureInfo.InvariantCulture
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(CultureInfo)),
-                    IdentifierName(nameof(CultureInfo.InvariantCulture))),
+                    CultureInfo cultureInfo when cultureInfo == CultureInfo.InstalledUICulture
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(CultureInfo)),
+                            IdentifierName(nameof(CultureInfo.InstalledUICulture))),
 
-            CultureInfo cultureInfo when cultureInfo == CultureInfo.InstalledUICulture
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(CultureInfo)),
-                    IdentifierName(nameof(CultureInfo.InstalledUICulture))),
+                    CultureInfo cultureInfo when cultureInfo == CultureInfo.CurrentCulture
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(CultureInfo)),
+                            IdentifierName(nameof(CultureInfo.CurrentCulture))),
 
-            CultureInfo cultureInfo when cultureInfo == CultureInfo.CurrentCulture
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(CultureInfo)),
-                    IdentifierName(nameof(CultureInfo.CurrentCulture))),
+                    CultureInfo cultureInfo when cultureInfo == CultureInfo.CurrentUICulture
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(CultureInfo)),
+                            IdentifierName(nameof(CultureInfo.CurrentUICulture))),
 
-            CultureInfo cultureInfo when cultureInfo == CultureInfo.CurrentUICulture
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(CultureInfo)),
-                    IdentifierName(nameof(CultureInfo.CurrentUICulture))),
+                    CultureInfo cultureInfo when cultureInfo == CultureInfo.DefaultThreadCurrentCulture
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(CultureInfo)),
+                            IdentifierName(nameof(CultureInfo.DefaultThreadCurrentCulture))),
 
-            CultureInfo cultureInfo when cultureInfo == CultureInfo.DefaultThreadCurrentCulture
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(CultureInfo)),
-                    IdentifierName(nameof(CultureInfo.DefaultThreadCurrentCulture))),
+                    CultureInfo cultureInfo when cultureInfo == CultureInfo.DefaultThreadCurrentUICulture
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(CultureInfo)),
+                            IdentifierName(nameof(CultureInfo.DefaultThreadCurrentUICulture))),
 
-            CultureInfo cultureInfo when cultureInfo == CultureInfo.DefaultThreadCurrentUICulture
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(CultureInfo)),
-                    IdentifierName(nameof(CultureInfo.DefaultThreadCurrentUICulture))),
+                    Encoding encoding when encoding == Encoding.ASCII
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(Encoding)),
+                            IdentifierName(nameof(Encoding.ASCII))),
 
-            Encoding encoding when encoding == Encoding.ASCII
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(Encoding)),
-                    IdentifierName(nameof(Encoding.ASCII))),
+                    Encoding encoding when encoding == Encoding.Unicode
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(Encoding)),
+                            IdentifierName(nameof(Encoding.Unicode))),
 
-            Encoding encoding when encoding == Encoding.Unicode
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(Encoding)),
-                    IdentifierName(nameof(Encoding.Unicode))),
+                    Encoding encoding when encoding == Encoding.BigEndianUnicode
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(Encoding)),
+                            IdentifierName(nameof(Encoding.BigEndianUnicode))),
 
-            Encoding encoding when encoding == Encoding.BigEndianUnicode
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(Encoding)),
-                    IdentifierName(nameof(Encoding.BigEndianUnicode))),
+                    Encoding encoding when encoding == Encoding.UTF8
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(Encoding)),
+                            IdentifierName(nameof(Encoding.UTF8))),
 
-            Encoding encoding when encoding == Encoding.UTF8
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(Encoding)),
-                    IdentifierName(nameof(Encoding.UTF8))),
+                    Encoding encoding when encoding == Encoding.UTF32
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(Encoding)),
+                            IdentifierName(nameof(Encoding.UTF32))),
 
-            Encoding encoding when encoding == Encoding.UTF32
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(Encoding)),
-                    IdentifierName(nameof(Encoding.UTF32))),
+                    Encoding encoding when encoding == Encoding.Latin1
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(Encoding)),
+                            IdentifierName(nameof(Encoding.Latin1))),
 
-            Encoding encoding when encoding == Encoding.Latin1
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(Encoding)),
-                    IdentifierName(nameof(Encoding.Latin1))),
+                    Encoding encoding when encoding == Encoding.Default
+                        => MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            Generate(typeof(Encoding)),
+                            IdentifierName(nameof(Encoding.Default))),
 
-            Encoding encoding when encoding == Encoding.Default
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Generate(typeof(Encoding)),
-                    IdentifierName(nameof(Encoding.Default))),
-
-            _ => GenerateUnknownValue(value)
-        };
+                    _ => GenerateUnknownValue(value)
+                };
 
         ExpressionSyntax HandleEnum(Enum e)
         {
@@ -1156,22 +1257,16 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
     protected virtual ExpressionSyntax GenerateUnknownValue(object value)
     {
         var type = value.GetType();
-        if (type.IsValueType
-            && value.Equals(type.GetDefaultValue()))
-        {
-            return DefaultExpression(Generate(type));
-        }
-
-        if (value is IRelationalQuotableExpression relationalQuotableExpression
-            && Translate(relationalQuotableExpression.Quote()) is ExpressionSyntax expressionSyntax)
-        {
-            return expressionSyntax;
-        }
-
-        throw new NotSupportedException(
-            $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported."
-            + Environment.NewLine
-            + value);
+        return type.IsValueType
+            && value.Equals(type.GetDefaultValue())
+                ? DefaultExpression(Generate(type))
+                : value is IRelationalQuotableExpression relationalQuotableExpression
+                && Translate(relationalQuotableExpression.Quote()) is ExpressionSyntax expressionSyntax
+                    ? expressionSyntax
+                    : throw new NotSupportedException(
+                        $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported."
+                        + Environment.NewLine
+                        + value);
     }
 
     /// <inheritdoc />
@@ -1221,6 +1316,9 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
                 var parameter = Expression.Parameter(argument.Type, name);
                 _liftedState.Statements.Add(GenerateVarDeclaration(name, Translate<ExpressionSyntax>(argument)));
                 _liftedState.VariableNames.Add(name);
+                // The body references this parameter in place of the lambda's; registering it means those references resolve to
+                // the lifted local by identity rather than by its name happening to match
+                _liftedState.Variables[parameter] = name;
                 arguments[i] = parameter;
             }
 
@@ -1446,6 +1544,12 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
             return true;
         }
 
+        if (IsNameInScope(type.Name))
+        {
+            result = GloballyQualified(type.Namespace, IdentifierName(type.Name));
+            return true;
+        }
+
         if (type.Namespace != null)
         {
             _collectedNamespaces.Add(type.Namespace);
@@ -1459,13 +1563,19 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
             var offset = type.DeclaringType != null ? type.DeclaringType.GetGenericArguments().Length : 0;
 
             var genericPartIndex = type.Name.IndexOf('`');
+            var simpleName = genericPartIndex <= 0 ? type.Name : type.Name[..genericPartIndex];
             SimpleNameSyntax nameSyntax = genericPartIndex <= 0
                 ? IdentifierName(type.Name)
                 : GenericName(
-                    Identifier(type.Name[..genericPartIndex]),
+                    Identifier(simpleName),
                     TypeArgumentList(SeparatedList(genericArguments.Skip(offset).Take(length - offset))));
             if (type.DeclaringType == null)
             {
+                if (IsNameInScope(simpleName))
+                {
+                    return GloballyQualified(type.Namespace, nameSyntax);
+                }
+
                 AddNamespace(type);
 
                 return nameSyntax;
@@ -1488,9 +1598,29 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         var stackFrame = PushNewStackFrame();
 
         var localUnnamedParameterCounter = 0;
+        var lambdaParameterNames = new HashSet<string>();
         foreach (var parameter in lambda.Parameters)
         {
-            var name = parameter.Name ?? "unnamed" + (++localUnnamedParameterCounter);
+            var name = parameter.Name is null
+                ? "unnamed" + (++localUnnamedParameterCounter)
+                : SanitizeIdentifierName(parameter.Name);
+
+            // A parameter that already had the same name as a variable in scope keeps shadowing it, as before
+            // (Variable_with_same_name_in_lambda_does_not_get_renamed). What must not happen is a collision that sanitization
+            // itself creates, or one with a lifted variable, whose declaration is emitted inside the lambda body: either would
+            // rebind references to that variable. The same goes for the caller's own declarations and for captured variables,
+            // which the lambda body refers to by name.
+            if (IsCallerDeclaredName(name)
+                || !lambdaParameterNames.Add(name)
+                || _liftedState.VariableNames.Contains(name)
+                || _capturedVariableNames.Contains(name)
+                || (stackFrame.VariableNames.Contains(name)
+                    && !stackFrame.Variables.Any(v => v.Value == name && v.Key.Name == parameter.Name)))
+            {
+                name = UniquifyVariableName(name);
+                lambdaParameterNames.Add(name);
+            }
+
             stackFrame.Variables[parameter] = name;
             stackFrame.VariableNames.Add(name);
         }
@@ -1863,6 +1993,15 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
             .WithBody(null)
             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
+        // DeclarationModifiers has no representation for the "safe" contextual keyword, so it's added here by
+        // hand. This is only emitted when the compilation uses C#'s updated memory safety rules and the "safe"
+        // keyword is actually recognized by the referenced Roslyn version (see MemorySafetyRules.SafeKeyword).
+        if (_useUpdatedMemorySafetyRules && MemorySafetyRules.SafeKeyword != SyntaxKind.None)
+        {
+            unsafeAccessorDeclaration = unsafeAccessorDeclaration.WithModifiers(
+                unsafeAccessorDeclaration.Modifiers.Add(Token(MemorySafetyRules.SafeKeyword)));
+        }
+
         switch (member)
         {
             case FieldInfo field:
@@ -1964,23 +2103,18 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
                 _ => Translate<ExpressionSyntax>(call.Object)
             };
 
-            if (call.Method.Name.StartsWith("get_", StringComparison.Ordinal)
+            Result = call.Method.Name.StartsWith("get_", StringComparison.Ordinal)
                 && call.Method.GetParameters().Length == 1
-                && call.Method is { IsHideBySig: true, IsSpecialName: true })
-            {
-                Result = ElementAccessExpression(
-                    expression,
-                    BracketedArgumentList(SeparatedList(arguments)));
-            }
-            else
-            {
-                Result = InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
+                && call.Method is { IsHideBySig: true, IsSpecialName: true }
+                    ? ElementAccessExpression(
                         expression,
-                        methodIdentifier),
-                    ArgumentList(SeparatedList(arguments)));
-            }
+                        BracketedArgumentList(SeparatedList(arguments)))
+                    : InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            expression,
+                            methodIdentifier),
+                        ArgumentList(SeparatedList(arguments)));
         }
 
         AddNamespace(call.Method.DeclaringType);
@@ -2023,6 +2157,31 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
                 ParenthesizedExpressionSyntax parenthesized => IsNull(parenthesized.Expression),
                 _ => false
             };
+    }
+
+    private Expression LiftTryExpression(TryExpression tryExpression)
+    {
+        using var _ = ChangeContext(ExpressionContext.Statement);
+
+        var name = UniquifyVariableName("temp");
+        var variable = Expression.Parameter(tryExpression.Type, name);
+
+        // Register the temp variable before translating, so it isn't treated as captured and its name is reserved for uniquification.
+        var currentStack = _stack.Peek();
+        currentStack.Variables[variable] = name;
+        currentStack.VariableNames.Add(name);
+
+        _liftedState.Variables[variable] = name;
+        _liftedState.VariableNames.Add(name);
+
+        var newBody = Expression.Assign(variable, tryExpression.Body);
+        var newHandlers = tryExpression.Handlers.Select(h => h.Update(h.Variable, h.Filter, Expression.Assign(variable, h.Body)));
+        var newTry = tryExpression.Update(newBody, newHandlers, tryExpression.Finally, tryExpression.Fault);
+
+        _liftedState.Statements.Add(GenerateVarDeclaration(name, DefaultExpression(Generate(variable.Type))));
+        _liftedState.Statements.Add(Translate<TryStatementSyntax>(newTry));
+
+        return variable;
     }
 
     /// <inheritdoc />
@@ -2080,8 +2239,8 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         // just generate a regular instantiation expression (won't compile). Generate an unsafe accessor instead.
         if (node.Constructor is { } constructor
             && (!constructor.IsPublic
-                || node.Type.GetCustomAttribute<RequiredMemberAttribute>() is not null
-                && constructor.GetCustomAttribute<SetsRequiredMembersAttribute>() is null))
+                || (node.Type.GetCustomAttribute<RequiredMemberAttribute>() is not null
+                    && constructor.GetCustomAttribute<SetsRequiredMembersAttribute>() is null)))
         {
             var unsafeAccessorDeclaration = GetUnsafeAccessorDeclaration(constructor);
 
@@ -2122,6 +2281,19 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
         {
             throw new NotSupportedException("Unnamed captured variable");
         }
+
+        // Since the name is emitted as-is, anything we generated under that same name would capture the reference instead. That
+        // includes generated locals, which exist in these scopes by name only. Constant replacement names are excluded: they are
+        // the caller's own declarations, and referencing them is exactly what a captured variable of that name means to do.
+        var comparableName = WithoutFormattingCharacters(parameter.Name);
+        if ((_stack.Peek().VariableNames.Contains(comparableName) || _liftedState.VariableNames.Contains(comparableName))
+            && !IsCallerDeclaredName(comparableName))
+        {
+            throw new NotSupportedException(
+                $"Captured variable '{parameter.Name}' is shadowed by a variable generated for the translated expression");
+        }
+
+        _capturedVariableNames.Add(comparableName);
 
         Result = IdentifierName(parameter.Name);
         return parameter;
@@ -2396,8 +2568,9 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
 
             case ExpressionContext.Expression:
             case ExpressionContext.ExpressionLambda:
-                throw new NotImplementedException();
-
+                var liftedVariable = LiftTryExpression(tryNode);
+                Result = Translate(liftedVariable);
+                return tryNode;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -2730,10 +2903,10 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
     {
         var previousFrame = _stack.Peek();
         var newFrame = new StackFrame(
-            new Dictionary<ParameterExpression, string>(previousFrame.Variables),
-            [..previousFrame.VariableNames],
-            new Dictionary<LabelTarget, string>(previousFrame.Labels),
-            [..previousFrame.UniqueLabelNames]);
+            [with(previousFrame.Variables)],
+            [.. previousFrame.VariableNames],
+            [with(previousFrame.Labels)],
+            [.. previousFrame.UniqueLabelNames]);
 
         _stack.Push(newFrame);
 
@@ -2745,25 +2918,185 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
             ? name
             : _liftedState.Variables[parameter];
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [return: NotNullIfNotNull(nameof(name))]
+    public static string? SanitizeIdentifierName(string? name)
+    {
+        if (name == null)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "_";
+        }
+
+        // Formatting characters (Unicode category Cf, such as a zero-width joiner) are valid inside an identifier but ignored when
+        // identifiers are compared, so two names that differ only by one would declare the same identifier twice. They become
+        // underscores like any other unusable character, so comparing sanitized names as strings is exact.
+        var result = new string(
+            [.. name.Select(c => SyntaxFacts.IsIdentifierPartCharacter(c) && !IsFormattingCharacter(c) ? c : '_')]);
+
+        // Reserved keywords are lexically valid identifiers; prefix them so that generated identifiers never need to be verbatim
+        // (@class). Contextual keywords such as var or async are valid identifiers where generated names are used, so they are kept.
+        if (!SyntaxFacts.IsValidIdentifier(result) || SyntaxFacts.GetKeywordKind(result) != SyntaxKind.None)
+        {
+            result = "_" + result;
+        }
+
+        Check.DebugAssert(SyntaxFacts.IsValidIdentifier(result));
+
+        return result;
+    }
+
+    // A type is referred to by its simple name unless that name is in use in the scope the code is emitted into, as a name the
+    // caller declares or as a variable, where the simple name would resolve to that declaration instead of the type. The type is
+    // then written out fully qualified. Any identifier can name a type, so no naming convention on the caller's side can rule
+    // this out; qualifying the reference can.
+    private bool IsNameInScope(string name)
+        => IsCallerDeclaredName(name)
+            || _capturedVariableNames.Contains(name)
+            || _liftedState.VariableNames.Contains(name)
+            || _stack.Any(frame => frame.VariableNames.Contains(name));
+
+    private static NameSyntax GloballyQualified(string? @namespace, SimpleNameSyntax name)
+    {
+        var globalAlias = IdentifierName(Token(SyntaxKind.GlobalKeyword));
+        if (string.IsNullOrEmpty(@namespace))
+        {
+            return AliasQualifiedName(globalAlias, name);
+        }
+
+        var parts = @namespace.Split('.');
+        NameSyntax qualified = AliasQualifiedName(globalAlias, IdentifierName(parts[0]));
+        for (var i = 1; i < parts.Length; i++)
+        {
+            qualified = QualifiedName(qualified, IdentifierName(parts[i]));
+        }
+
+        return QualifiedName(qualified, name);
+    }
+
+    private static bool IsFormattingCharacter(char c)
+        => CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.Format;
+
+    // A captured variable's name is emitted as the caller wrote it, formatting characters included, since the reference has to match
+    // the caller's declaration. For comparing it against names generated here, which never contain one, it is recorded without them.
+    private static string WithoutFormattingCharacters(string name)
+        => name.Any(IsFormattingCharacter) ? new string([.. name.Where(c => !IsFormattingCharacter(c))]) : name;
+
+    // The names the caller declares in the scope the translation is emitted into: the constant replacements and whatever else it
+    // says is declared there. References to them are the caller's business; nothing generated here may take one of them.
+    private bool IsCallerDeclaredName(string name)
+        => ConstantReplacementsContain(name) || _declaredNames?.Contains(name) == true;
+
+    private bool ConstantReplacementsContain(string name)
+        => _constantReplacements is BidirectionalDictionary<object, string> bidirectionalDictionary
+            ? bidirectionalDictionary.ContainsValue(name)
+            : _constantReplacements?.Values.Contains(name) == true;
+
     private string UniquifyVariableName(string? name)
     {
         var isUnnamed = name is null;
-        name ??= "unnamed";
+        // Expression tree variable names are arbitrary strings (e.g. derived from JSON property names) and must become valid identifiers.
+        name = name is null ? "unnamed" : SanitizeIdentifierName(name);
 
         var parameterNames = _stack.Peek().VariableNames;
 
-        if (parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name))
+        var baseName = name;
+        for (var j = isUnnamed ? _unnamedParameterCounter++ : 0;
+             parameterNames.Contains(name)
+             || _liftedState.VariableNames.Contains(name)
+             || IsCallerDeclaredName(name)
+             // A captured variable already emitted under this name would be rebound by a local we declare now
+             || _capturedVariableNames.Contains(name);
+             j++)
         {
-            var baseName = name;
-            for (var j = isUnnamed ? _unnamedParameterCounter++ : 0;
-                 parameterNames.Contains(name) || _liftedState.VariableNames.Contains(name);
-                 j++)
-            {
-                name = baseName + j;
-            }
+            name = baseName + j;
         }
 
         return name;
+    }
+
+    /// <summary>
+    ///     Collects the names of the variables an expression references without declaring, which belong to the code the translation
+    ///     is emitted into.
+    /// </summary>
+    private sealed class FreeVariableNameCollector(HashSet<string> names) : ExpressionVisitor
+    {
+        private readonly Dictionary<ParameterExpression, int> _declared = new(ReferenceEqualityComparer.Instance);
+
+        public static void Collect(Expression node, HashSet<string> names)
+            => new FreeVariableNameCollector(names).Visit(node);
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            if (node.Name is not null && !_declared.ContainsKey(node))
+            {
+                names.Add(WithoutFormattingCharacters(node.Name));
+            }
+
+            return node;
+        }
+
+        protected override Expression VisitBlock(BlockExpression node)
+        {
+            Declare(node.Variables);
+            base.VisitBlock(node);
+            Undeclare(node.Variables);
+
+            return node;
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            Declare(node.Parameters);
+            base.VisitLambda(node);
+            Undeclare(node.Parameters);
+
+            return node;
+        }
+
+        protected override CatchBlock VisitCatchBlock(CatchBlock node)
+        {
+            ParameterExpression[] variable = node.Variable is null ? [] : [node.Variable];
+
+            Declare(variable);
+            base.VisitCatchBlock(node);
+            Undeclare(variable);
+
+            return node;
+        }
+
+        private void Declare(IReadOnlyList<ParameterExpression> variables)
+        {
+            foreach (var variable in variables)
+            {
+                _declared[variable] = _declared.TryGetValue(variable, out var count) ? count + 1 : 1;
+            }
+        }
+
+        private void Undeclare(IReadOnlyList<ParameterExpression> variables)
+        {
+            foreach (var variable in variables)
+            {
+                var count = _declared[variable];
+                if (count == 1)
+                {
+                    _declared.Remove(variable);
+                }
+                else
+                {
+                    _declared[variable] = count - 1;
+                }
+            }
+        }
     }
 
     private static LocalDeclarationStatementSyntax GenerateVarDeclaration(string variableIdentifier, ExpressionSyntax initializer)

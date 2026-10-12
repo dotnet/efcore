@@ -8,55 +8,55 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+[EntityFrameworkInternal]
+public partial class DependentDerivedEntityType
 {
-    [EntityFrameworkInternal]
-    public partial class DependentDerivedEntityType
+    public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
-        {
-            var runtimeEntityType = model.AddEntityType(
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<byte?>",
-                typeof(CompiledModelTestBase.DependentDerived<byte?>),
-                baseEntityType,
-                discriminatorProperty: "EnumDiscriminator",
-                discriminatorValue: CompiledModelTestBase.Enum1.Two,
-                propertyCount: 2);
+        var runtimeEntityType = model.AddEntityType(
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<byte?>",
+            typeof(CompiledModelTestBase.DependentDerived<byte?>),
+            baseEntityType,
+            discriminatorProperty: "EnumDiscriminator",
+            propertyCount: 2);
 
-            var data = runtimeEntityType.AddProperty(
-                "Data",
-                typeof(string),
-                propertyInfo: typeof(CompiledModelTestBase.DependentDerived<byte?>).GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.DependentDerived<byte?>).GetField("<Data>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true,
-                maxLength: 20,
-                unicode: false);
-            data.AddAnnotation("Relational:IsFixedLength", true);
-            data.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+        runtimeEntityType.SetDiscriminatorValueFromProviderValue(2);
 
-            var money = runtimeEntityType.AddProperty(
-                "Money",
-                typeof(decimal),
-                precision: 9,
-                scale: 3,
-                sentinel: 0m);
-            money.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+        var data = runtimeEntityType.AddProperty(
+            "Data",
+            typeof(string),
+            propertyInfo: typeof(CompiledModelTestBase.DependentDerived<byte?>).GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(CompiledModelTestBase.DependentDerived<byte?>).GetField("<Data>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true,
+            maxLength: 20,
+            unicode: false);
+        data.AddAnnotation("Relational:IsFixedLength", true);
+        data.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            return runtimeEntityType;
-        }
+        var money = runtimeEntityType.AddProperty(
+            "Money",
+            typeof(decimal),
+            precision: 9,
+            scale: 3,
+            sentinel: 0m);
+        money.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-        public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
-        {
-            runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
-            runtimeEntityType.AddAnnotation("Relational:Schema", null);
-            runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
-            runtimeEntityType.AddAnnotation("Relational:TableName", "DependentBase<byte?>");
-            runtimeEntityType.AddAnnotation("Relational:ViewName", null);
-            runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
-
-            Customize(runtimeEntityType);
-        }
-
-        static partial void Customize(RuntimeEntityType runtimeEntityType);
+        return runtimeEntityType;
     }
+
+    public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
+    {
+        runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
+        runtimeEntityType.AddAnnotation("Relational:Schema", null);
+        runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
+        runtimeEntityType.AddAnnotation("Relational:TableName", "DependentBase<byte?>");
+        runtimeEntityType.AddAnnotation("Relational:ViewName", null);
+        runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
+
+        Customize(runtimeEntityType);
+    }
+
+    static partial void Customize(RuntimeEntityType runtimeEntityType);
 }

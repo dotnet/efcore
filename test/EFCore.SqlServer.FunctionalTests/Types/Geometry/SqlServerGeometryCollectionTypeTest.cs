@@ -2,11 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using NetTopologySuite.Geometries;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geometry;
 
-public class SqlServerGeometryCollectionTypeTest(SqlServerGeometryCollectionTypeTest.GeometryCollectionTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : SqlServerGeometryTypeTestBase<GeometryCollection, SqlServerGeometryCollectionTypeTest.GeometryCollectionTypeFixture>(fixture, testOutputHelper)
+public class SqlServerGeometryCollectionTypeTest(
+    SqlServerGeometryCollectionTypeTest.GeometryCollectionTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : SqlServerGeometryTypeTestBase<GeometryCollection, SqlServerGeometryCollectionTypeTest.GeometryCollectionTypeFixture>(
+        fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
     {
@@ -33,6 +37,9 @@ FROM [TypeEntity] AS [t]
 WHERE [t].[Value].STEquals('GEOMETRYCOLLECTION (POINT (1 1), LINESTRING (2 2, 3 3), POLYGON ((4 4, 4 6, 6 6, 6 4, 4 4)))') = CAST(1 AS bit)
 """);
     }
+
+    public override async Task Primitive_collection_in_query()
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -102,6 +109,7 @@ WHERE [Id] = @p1;
 LINESTRING (11 11, 12 12)
 POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -115,6 +123,7 @@ FROM [JsonTypeEntity] AS [j]
 LINESTRING (11 11, 12 12)
 POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -130,6 +139,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', N'GEOMETRYCOLLECTION (POINT (10 10), LINESTRING (11 11, 12 12), POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))')
 FROM [JsonTypeEntity] AS [j]
@@ -139,6 +149,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'GEOMETRYCOLLECTION (POINT (10 10), LINESTRING (11 11, 12 12), POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))')
 FROM [JsonTypeEntity] AS [j]
@@ -154,6 +165,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING nvarchar(max)))
 FROM [JsonTypeEntity] AS [j]
@@ -163,6 +175,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue'))
 FROM [JsonTypeEntity] AS [j]
@@ -170,13 +183,13 @@ FROM [JsonTypeEntity] AS [j]
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    // TODO: Currently failing on Helix only, see #36746
+    [SkipOnCI("Test does not run on Helix")]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // TODO: Currently failing on Helix only, see #36746
-        if (Environment.GetEnvironmentVariable("HELIX_WORKITEM_ROOT") is not null)
+        if (!SqlServerTestEnvironment.IsFunctions2022Supported)
         {
-            return;
+            throw SkipException.ForSkip("Requires IsFunctions2022Supported");
         }
 
         await base.ExecuteUpdate_within_json_to_nonjson_column();
@@ -185,6 +198,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
@@ -194,6 +208,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
@@ -205,40 +220,46 @@ FROM [JsonTypeEntity] AS [j]
 
     public class GeometryCollectionTypeFixture : GeometryTypeFixture
     {
-        public override GeometryCollection Value { get; } = new GeometryCollection(
+        public override GeometryCollection Value { get; } = new(
         [
             new Point(1, 1),
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(2, 2),
                 new Coordinate(3, 3)
             ]),
-            new Polygon(new LinearRing([
-                new Coordinate(4, 4),    // NW
-                new Coordinate(4, 6),    // SW
-                new Coordinate(6, 6),    // SE
-                new Coordinate(6, 4),    // NE
-                new Coordinate(4, 4)
-            ]))
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(4, 4), // NW
+                    new Coordinate(4, 6), // SW
+                    new Coordinate(6, 6), // SE
+                    new Coordinate(6, 4), // NE
+                    new Coordinate(4, 4)
+                ]))
         ]);
 
-        public override GeometryCollection OtherValue { get; } = new GeometryCollection(
+        public override GeometryCollection OtherValue { get; } = new(
         [
             new Point(10, 10),
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(11, 11),
                 new Coordinate(12, 12)
             ]),
-            new Polygon(new LinearRing([
-                new Coordinate(13, 13),  // NW
-                new Coordinate(13, 15),  // SW
-                new Coordinate(15, 15),  // SE
-                new Coordinate(15, 13),  // NE
-                new Coordinate(13, 13)
-            ]))
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(13, 13), // NW
+                    new Coordinate(13, 15), // SW
+                    new Coordinate(15, 15), // SE
+                    new Coordinate(15, 13), // NE
+                    new Coordinate(13, 13)
+                ]))
         ]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

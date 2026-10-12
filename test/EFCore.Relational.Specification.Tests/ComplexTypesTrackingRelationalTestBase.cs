@@ -21,28 +21,18 @@ public abstract class ComplexTypesTrackingRelationalTestBase<TFixture> : Complex
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<PubWithCollections>(b =>
-            {
-                b.ComplexCollection(
-                    e => e.Activities, b => b.ToJson());
-            });
+            modelBuilder.Entity<PubWithCollections>(b => b.ComplexCollection(
+                e => e.Activities, b => b.ToJson()));
 
-            modelBuilder.Entity<PubWithRecordCollections>(b =>
-            {
-                b.ComplexCollection(
-                    e => e.Activities, b => b.ToJson());
-            });
+            modelBuilder.Entity<PubWithRecordCollections>(b => b.ComplexCollection(
+                e => e.Activities, b => b.ToJson()));
 
-            modelBuilder.Entity<PubWithArrayCollections>(b =>
-            {
-                b.ComplexCollection(
-                    e => e.Activities, b => b.ToJson());
-            });
+            modelBuilder.Entity<PubWithArrayCollections>(b => b.ComplexCollection(
+                e => e.Activities, b => b.ToJson()));
 
             // TODO: Issue #31411
             //modelBuilder.Entity<PubWithStructArrayCollections>(
@@ -59,33 +49,20 @@ public abstract class ComplexTypesTrackingRelationalTestBase<TFixture> : Complex
             //            e => e.Activities, b => b.ToJson());
             //    });
 
-            modelBuilder.Entity<PubWithRecordArrayCollections>(b =>
-            {
-                b.ComplexCollection(
-                    e => e.Activities, b => b.ToJson());
-            });
+            modelBuilder.Entity<PubWithRecordArrayCollections>(b => b.ComplexCollection(
+                e => e.Activities, b => b.ToJson()));
 
-            modelBuilder.Entity<PubWithPropertyBagCollections>(b =>
-            {
-                b.ComplexCollection(
-                    e => e.Activities, b => b.ToJson());
-            });
+            modelBuilder.Entity<PubWithPropertyBagCollections>(b => b.ComplexCollection(
+                e => e.Activities, b => b.ToJson()));
 
             if (!UseProxies)
             {
-                modelBuilder.Entity<FieldPubWithCollections>(b =>
-                {
-                    b.ComplexCollection(
-                        e => e.Activities, b => b.ToJson());
-                });
+                modelBuilder.Entity<FieldPubWithCollections>(b => b.ComplexCollection(
+                    e => e.Activities, b => b.ToJson()));
 
-                modelBuilder.Entity<FieldPubWithRecordCollections>(b =>
-                {
-                    b.ComplexCollection(
-                        e => e.Activities, b => b.ToJson());
-                });
+                modelBuilder.Entity<FieldPubWithRecordCollections>(b => b.ComplexCollection(
+                    e => e.Activities, b => b.ToJson()));
             }
         }
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
     }
 }

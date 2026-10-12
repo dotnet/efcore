@@ -14,7 +14,7 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task SaveChanges()
     {
         await using var context = Fixture.CreateContext();
@@ -39,7 +39,7 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
 
     #region JSON
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_property_within_json()
     {
         await using var context = Fixture.CreateContext();
@@ -51,7 +51,7 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
         Assert.Equal(Fixture.Value, result.JsonContainer.Value, Fixture.Comparer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SaveChanges_within_json()
         => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
             Fixture.CreateContext,
@@ -74,7 +74,7 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ExecuteUpdate_within_json_to_parameter()
         => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
             Fixture.CreateContext,
@@ -83,7 +83,8 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
             {
                 Fixture.TestSqlLoggerFactory.Clear();
 
-                await context.Set<JsonTypeEntity<T>>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => Fixture.OtherValue));
+                await context.Set<JsonTypeEntity<T>>()
+                    .ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => Fixture.OtherValue));
 
                 using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
                 {
@@ -92,7 +93,7 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ExecuteUpdate_within_json_to_constant()
         => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
             Fixture.CreateContext,
@@ -116,7 +117,7 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ExecuteUpdate_within_json_to_another_json_property()
         => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
             Fixture.CreateContext,
@@ -125,7 +126,8 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
             {
                 Fixture.TestSqlLoggerFactory.Clear();
 
-                await context.Set<JsonTypeEntity<T>>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => e.JsonContainer.OtherValue));
+                await context.Set<JsonTypeEntity<T>>().ExecuteUpdateAsync(s => s.SetProperty(
+                    e => e.JsonContainer.Value, e => e.JsonContainer.OtherValue));
 
                 using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
                 {
@@ -134,7 +136,7 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ExecuteUpdate_within_json_to_nonjson_column()
         => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
             Fixture.CreateContext,
@@ -143,7 +145,8 @@ public abstract class RelationalTypeTestBase<T, TFixture> : TypeTestBase<T, TFix
             {
                 Fixture.TestSqlLoggerFactory.Clear();
 
-                await context.Set<JsonTypeEntity<T>>().ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => e.OtherValue));
+                await context.Set<JsonTypeEntity<T>>()
+                    .ExecuteUpdateAsync(s => s.SetProperty(e => e.JsonContainer.Value, e => e.OtherValue));
 
                 using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
                 {

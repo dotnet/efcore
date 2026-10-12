@@ -13,9 +13,8 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable PossibleInvalidOperationException
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
-[SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.SupportsUtf8)]
+[ConditionalClass(
+    typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql), nameof(SqlServerTestEnvironment.IsUtf8Supported))]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
     private static readonly string _eol = Environment.NewLine;
@@ -27,7 +26,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_BuiltInDataTypes()
     {
         using var context = CreateContext();
@@ -163,7 +162,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum8 == param30));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MaxLengthDataTypes()
     {
         using var context = CreateContext();
@@ -198,7 +197,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.ByteArray9000 == longBinary));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_UnicodeDataTypes()
     {
         using var context = CreateContext();
@@ -229,7 +228,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi9000 == longString));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MappedDataTypesWithIdentity()
     {
         using var context = CreateContext();
@@ -435,7 +434,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MappedSizedDataTypes()
     {
         using var context = CreateContext();
@@ -526,7 +525,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharacterVarying3 == charAsNationalCharacterVarying3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MappedScaledDataTypes()
     {
         using var context = CreateContext();
@@ -576,7 +575,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.TimeSpanAsTime3 == timeSpanAsTime3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MappedPrecisionAndScaledDataTypes()
     {
         using var context = CreateContext();
@@ -602,7 +601,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric52 == decimalAsNumeric52));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_for_non_integer_values()
     {
         using var context = CreateContext();
@@ -645,7 +644,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         reader.Close();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sql_translation_uses_type_mapper_when_constant()
     {
         using var context = CreateContext();
@@ -665,7 +664,7 @@ WHERE [m].[TimeSpanAsTime] = '00:01:02'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sql_translation_uses_type_mapper_when_parameter()
     {
         using var context = CreateContext();
@@ -688,7 +687,7 @@ WHERE [m].[TimeSpanAsTime] = @timeSpan
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void String_indexOf_over_varchar_max()
     {
         using (var context = CreateContext())
@@ -705,7 +704,7 @@ WHERE [m].[TimeSpanAsTime] = @timeSpan
         {
             var results = context.Set<MappedNullableDataTypes>()
                 .Where(e => e.Int == 81)
-                .Select(m => m.StringAsVarcharMax.IndexOf("a"))
+                .Select(m => m.StringAsVarcharMax!.IndexOf("a"))
                 .ToList();
 
             Assert.Equal(-1, Assert.Single(results));
@@ -718,7 +717,7 @@ WHERE [m].[Int] = 81
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffHour_using_TimeSpan()
     {
         using var context = CreateContext();
@@ -741,7 +740,7 @@ WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffMinute_using_TimeSpan()
     {
         using var context = CreateContext();
@@ -764,7 +763,7 @@ WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffSecond_using_TimeSpan()
     {
         using var context = CreateContext();
@@ -787,7 +786,7 @@ WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffMillisecond_using_TimeSpan()
     {
         using var context = CreateContext();
@@ -810,11 +809,11 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffMicrosecond_using_TimeSpan()
     {
         using var context = CreateContext();
-        var timeSpan = new TimeSpan(2, 1, 0);
+        var timeSpan = new TimeSpan(11, 15, 13);
 
         var results
             = context.Set<MappedNullableDataTypes>()
@@ -825,7 +824,7 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@timeSpan='02:01:00' (Nullable = true)
+@timeSpan='11:15:13' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
@@ -833,11 +832,11 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffNanosecond_using_TimeSpan()
     {
         using var context = CreateContext();
-        var timeSpan = new TimeSpan(2, 1, 0);
+        var timeSpan = new TimeSpan(11, 15, 13);
 
         var results
             = context.Set<MappedNullableDataTypes>()
@@ -848,7 +847,7 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@timeSpan='02:01:00' (Nullable = true)
+@timeSpan='11:15:13' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
@@ -856,7 +855,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_any_mapped_data_type()
     {
         using (var context = CreateContext())
@@ -1082,14 +1081,14 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsVarcharMax == param60));
 
             object param61 = "Bang!";
-            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantString.Equals(param61)));
+            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantString!.Equals(param61)));
 
             object param62 = 887876;
-            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantInt.Equals(param62)));
+            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantInt!.Equals(param62)));
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_any_mapped_data_types_with_nulls()
     {
         using (var context = CreateContext())
@@ -1160,49 +1159,49 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             TimeSpan? param13b = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.TimeSpanAsTime == param13b));
 
-            string param19 = null;
+            string? param19 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsVarcharMax == param19));
 
-            string param20 = null;
+            string? param20 = null;
             Assert.Same(
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsCharVaryingMax == param20));
 
-            string param21 = null;
+            string? param21 = null;
             Assert.Same(
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsCharacterVaryingMax == param21));
 
-            string param27 = null;
+            string? param27 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNvarcharMax == param27));
 
-            string param28 = null;
+            string? param28 = null;
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNationalCharVaryingMax == param28));
 
-            string param29 = null;
+            string? param29 = null;
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNationalCharacterVaryingMax == param29));
 
-            string param30 = null;
+            string? param30 = null;
 
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsText == param30));
 
-            string param31 = null;
+            string? param31 = null;
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNtext == param31));
 
-            byte[] param35 = null;
+            byte[]? param35 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsVarbinaryMax == param35));
 
-            byte[] param36 = null;
+            byte[]? param36 = null;
             Assert.Same(
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsBinaryVaryingMax == param36));
 
-            byte[] param37 = null;
+            byte[]? param37 = null;
             Assert.Same(
                 entity,
                 context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsImage == param37));
@@ -1282,14 +1281,14 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             StringEnum16? param60 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.EnumAsVarcharMax == param60));
 
-            object param61 = null;
+            object? param61 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantString == param61));
-            object param62 = null;
+            object? param62 = null;
             Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantInt == param62));
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types()
     {
         var entity = CreateMappedDataTypes(77);
@@ -1499,7 +1498,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_square_brackets()
     {
         var entity = CreateMappedSquareDataTypes(77);
@@ -1667,7 +1666,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types()
     {
         using (var context = CreateContext())
@@ -1751,8 +1750,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
     {
         Assert.Equal(id, entity.Int);
         Assert.Equal(78, entity.LongAsBigint);
-        Assert.Equal(79, entity.ShortAsSmallint.Value);
-        Assert.Equal(80, entity.ByteAsTinyint.Value);
+        Assert.Equal(79, entity.ShortAsSmallint!.Value);
+        Assert.Equal(80, entity.ByteAsTinyint!.Value);
         Assert.Equal(uint.MaxValue, entity.UintAsInt);
         Assert.Equal(ulong.MaxValue, entity.UlongAsBigint);
         Assert.Equal(ushort.MaxValue, entity.UShortAsSmallint);
@@ -1869,7 +1868,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null()
     {
         using (var context = CreateContext())
@@ -2007,7 +2006,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Null(entity.SqlVariantInt);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_sized_data_types()
     {
         using (var context = CreateContext())
@@ -2112,7 +2111,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             CharAsNationalCharacterVarying3 = 'F'
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types()
     {
         using (var context = CreateContext())
@@ -2187,7 +2186,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Null(entity.CharAsNationalCharacterVarying3);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_sized_separately()
     {
         using (var context = CreateContext())
@@ -2287,7 +2286,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             CharAsNationalCharacterVarying3 = 'F'
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale()
     {
         using (var context = CreateContext())
@@ -2356,7 +2355,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture)
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_separately()
     {
         using (var context = CreateContext())
@@ -2425,7 +2424,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.789", CultureInfo.InvariantCulture)
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_double_types_with_precision()
     {
         using (var context = CreateContext())
@@ -2464,7 +2463,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             Double25 = 83.33f
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale()
     {
         using (var context = CreateContext())
@@ -2506,7 +2505,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             DecimalAsNumeric52 = 103.3m
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_separately()
     {
         using (var context = CreateContext())
@@ -2549,7 +2548,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             DecimalAsNumeric52 = 103.3m
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_identity()
     {
         using (var context = CreateContext())
@@ -2754,7 +2753,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_identity()
     {
         using (var context = CreateContext())
@@ -2838,8 +2837,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
     {
         Assert.Equal(id, entity.Int);
         Assert.Equal(78, entity.LongAsBigint);
-        Assert.Equal(79, entity.ShortAsSmallint.Value);
-        Assert.Equal(80, entity.ByteAsTinyint.Value);
+        Assert.Equal(79, entity.ShortAsSmallint!.Value);
+        Assert.Equal(80, entity.ByteAsTinyint!.Value);
         Assert.Equal(uint.MaxValue, entity.UintAsInt);
         Assert.Equal(ulong.MaxValue, entity.UlongAsBigint);
         Assert.Equal(ushort.MaxValue, entity.UshortAsSmallint);
@@ -2956,7 +2955,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_identity()
     {
         using (var context = CreateContext())
@@ -3097,7 +3096,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Null(entity.SqlVariantInt);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_identity()
     {
         using (var context = CreateContext())
@@ -3202,7 +3201,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             CharAsNationalCharacterVarying3 = 'F'
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_identity()
     {
         using (var context = CreateContext())
@@ -3277,7 +3276,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Null(entity.CharAsNationalCharacterVarying3);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_identity()
     {
         using (var context = CreateContext())
@@ -3346,7 +3345,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture)
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_identity()
     {
         using (var context = CreateContext())
@@ -3392,7 +3391,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             DecimalAsNumeric52 = 103.3m
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_in_batch()
     {
         using (var context = CreateContext())
@@ -3412,7 +3411,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_in_batch()
     {
         using (var context = CreateContext())
@@ -3432,7 +3431,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_in_batch()
     {
         using (var context = CreateContext())
@@ -3452,7 +3451,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_in_batch()
     {
         using (var context = CreateContext())
@@ -3472,7 +3471,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_in_batch()
     {
         using (var context = CreateContext())
@@ -3492,7 +3491,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_in_batch()
     {
         using (var context = CreateContext())
@@ -3512,7 +3511,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_in_batch()
     {
         using (var context = CreateContext())
@@ -3532,7 +3531,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3552,7 +3551,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3575,7 +3574,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3598,7 +3597,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3618,7 +3617,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3638,7 +3637,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3658,7 +3657,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3681,7 +3680,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_column_types_from_built_model()
     {
         using var context = CreateContext();
@@ -3696,7 +3695,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             {
                 Assert.Equal(
                     columnType.ToLowerInvariant(),
-                    typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
+                    typeMapper.FindMapping(property)!.StoreType.ToLowerInvariant());
             }
         }
     }
@@ -3816,6 +3815,95 @@ FROM INFORMATION_SCHEMA.COLUMNS
         return actual;
     }
 
+    // The grinning-face emoji is outside the BMP (a UTF-16 surrogate pair, four UTF-8 bytes) and the euro sign
+    // is a single UTF-16 code unit but three UTF-8 bytes; both are represented differently in UTF-16 than in
+    // UTF-8 and are lost when an xml value is sent to the server as a non-Unicode string, which makes them good
+    // probes for the SqlDbType.Xml parameter path.
+    private const string XmlEmoji = "\U0001F600";
+    private const string XmlEuro = "\u20AC";
+
+    [Theory]
+    [InlineData(
+        "<root>" + XmlEmoji + XmlEuro + "</root>",
+        "<root>" + XmlEmoji + XmlEuro + "</root>",
+        "<root>" + XmlEmoji + XmlEuro + "</root>")]
+    // Only the XML declaration is removed; a following stylesheet PI and the rest of the value are sent verbatim.
+    [InlineData(
+        "<?xml version=\"1.0\" encoding=\"utf-8\" standalone='yes' ?> <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>"
+        + XmlEmoji
+        + "</root>",
+        " <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>" + XmlEmoji + "</root>",
+        "<?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?><root>" + XmlEmoji + "</root>")]
+    // The leading whitespace and the declaration are removed when the value is sent.
+    [InlineData(
+        " <?xml version=\"1.1\" encoding=\"utf-16\"?> <root>" + XmlEuro + "</root>",
+        " <root>" + XmlEuro + "</root>",
+        "<root>" + XmlEuro + "</root>")]
+    // Content forms that the 'xml' store type accepts beyond a single well-formed document.
+    [InlineData("", "", "")]
+    [InlineData("text fragment", "text fragment", "text fragment")]
+    // The content is sent verbatim, but the server expands self-closing tags when the xml column is read back.
+    [InlineData("<a/><b/>", "<a/><b/>", "<a /><b />")]
+    public async Task Xml_value_round_trips(string value, string expected, string roundTripped)
+    {
+        await using var context = CreateContext();
+
+        var document = new XmlTestDocument { Content = value };
+        context.Add(document);
+        await context.SaveChangesAsync();
+
+        var id = document.Id;
+        context.ChangeTracker.Clear();
+
+        // xml columns cannot be compared directly in a WHERE clause, so the row is fetched by its key. Coalescing
+        // the column with the original value sends that value as an 'xml' parameter, exercising the prolog-removal
+        // parameter path in a query in addition to the insert above.
+        var query = context.Set<XmlTestDocument>()
+            .Where(d => d.Id == id)
+            .Select(d => d.Content ?? value);
+
+        Assert.Equal(
+            $"""
+DECLARE @value xml = N'{expected}';
+DECLARE @id int = {id};
+
+SELECT COALESCE([x].[Content], @value)
+FROM [XmlTestDocument] AS [x]
+WHERE [x].[Id] = @id
+""",
+            query.ToQueryString(),
+            ignoreLineEndingDifferences: true);
+
+        var actual = await query.SingleAsync();
+        Assert.Equal(roundTripped, actual);
+
+        AssertSql(
+            $"""
+@p0='{expected}' (Size = -1) (DbType = Xml)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [XmlTestDocument] ([Content])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+            //
+            $"""
+@value='{expected}' (Size = -1) (DbType = Xml)
+@id='{id}'
+
+SELECT TOP(2) COALESCE([x].[Content], @value)
+FROM [XmlTestDocument] AS [x]
+WHERE [x].[Id] = @id
+""");
+    }
+
+    private class XmlTestDocument
+    {
+        public int Id { get; set; }
+        public string? Content { get; set; }
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -3877,9 +3965,10 @@ FROM INFORMATION_SCHEMA.COLUMNS
             modelBuilder.Entity<MappedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedNullableDataTypesWithIdentity>();
 
-            modelBuilder.Entity<MappedSizedDataTypes>()
-                .Property(e => e.Id)
-                .ValueGeneratedNever();
+            modelBuilder.Entity<MappedSizedDataTypes>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
             modelBuilder.Entity<MappedScaledDataTypes>(b =>
             {
@@ -3897,6 +3986,8 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 b.Property(e => e.DecimalAsDec52).HasPrecision(7, 3);
             });
 
+            modelBuilder.Entity<XmlTestDocument>().Property(e => e.Content).HasColumnType("xml");
+
             MakeRequired<MappedDataTypes>(modelBuilder);
             MakeRequired<MappedSquareDataTypes>(modelBuilder);
             MakeRequired<MappedDataTypesWithIdentity>(modelBuilder);
@@ -3907,10 +3998,8 @@ FROM INFORMATION_SCHEMA.COLUMNS
             modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
 
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b =>
-            {
-                b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3);
-            });
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b
+                => b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3));
 
             modelBuilder.Entity<MappedSizedSeparatelyDataTypes>(b =>
             {
@@ -3969,6 +4058,25 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 b.Property(e => e.DecimalAsDec52).HasPrecision(5, 2);
                 b.Property(e => e.DecimalAsNumeric52).HasPrecision(5, 2);
             });
+
+            MakeReferencePropertiesOptional<MappedNullableDataTypes>(modelBuilder);
+            MakeReferencePropertiesOptional<MappedNullableDataTypesWithIdentity>(modelBuilder);
+            MakeReferencePropertiesOptional<MappedSizedDataTypes>(modelBuilder);
+            MakeReferencePropertiesOptional<MappedSizedDataTypesWithIdentity>(modelBuilder);
+            MakeReferencePropertiesOptional<MappedSizedSeparatelyDataTypes>(modelBuilder);
+            MakeReferencePropertiesOptional<XmlTestDocument>(modelBuilder);
+        }
+
+        private static void MakeReferencePropertiesOptional<TEntity>(ModelBuilder modelBuilder)
+            where TEntity : class
+        {
+            foreach (var property in modelBuilder.Entity<TEntity>().Metadata.GetDeclaredProperties())
+            {
+                if (!property.ClrType.IsValueType)
+                {
+                    property.IsNullable = true;
+                }
+            }
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -4072,46 +4180,46 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public TimeSpan TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "varchar(max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string StringAsVarcharMax { get; set; } = null!;
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsCharVaryingMax { get; set; }
+        public string StringAsCharVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "character varying(max)")]
-        public string StringAsCharacterVaryingMax { get; set; }
+        public string StringAsCharacterVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "nvarchar(max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string StringAsNvarcharMax { get; set; } = null!;
 
         [Column(TypeName = "national char varying(max)")]
-        public string StringAsNationalCharVaryingMax { get; set; }
+        public string StringAsNationalCharVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "national character varying(max)")]
-        public string StringAsNationalCharacterVaryingMax { get; set; }
+        public string StringAsNationalCharacterVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "varchar(max)"), Unicode]
-        public string StringAsVarcharMaxUtf8 { get; set; }
+        public string StringAsVarcharMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "char varying(max)"), Unicode]
-        public string StringAsCharVaryingMaxUtf8 { get; set; }
+        public string StringAsCharVaryingMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "character varying(max)"), Unicode]
-        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+        public string StringAsCharacterVaryingMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "text")]
-        public string StringAsText { get; set; }
+        public string StringAsText { get; set; } = null!;
 
         [Column(TypeName = "ntext")]
-        public string StringAsNtext { get; set; }
+        public string StringAsNtext { get; set; } = null!;
 
         [Column(TypeName = "varbinary(max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[] BytesAsVarbinaryMax { get; set; } = null!;
 
         [Column(TypeName = "binary varying(max)")]
-        public byte[] BytesAsBinaryVaryingMax { get; set; }
+        public byte[] BytesAsBinaryVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "image")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[] BytesAsImage { get; set; } = null!;
 
         [Column(TypeName = "decimal")]
         public decimal Decimal { get; set; }
@@ -4171,10 +4279,10 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public StringEnumU16 EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantString { get; set; }
+        public object SqlVariantString { get; set; } = null!;
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantInt { get; set; }
+        public object SqlVariantInt { get; set; } = null!;
     }
 
     protected class MappedSquareDataTypes
@@ -4243,22 +4351,22 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public TimeSpan TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "[varchar](max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string StringAsVarcharMax { get; set; } = null!;
 
         [Column(TypeName = "[nvarchar](max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string StringAsNvarcharMax { get; set; } = null!;
 
         [Column(TypeName = "[text]")]
-        public string StringAsText { get; set; }
+        public string StringAsText { get; set; } = null!;
 
         [Column(TypeName = "[ntext]")]
-        public string StringAsNtext { get; set; }
+        public string StringAsNtext { get; set; } = null!;
 
         [Column(TypeName = "[varbinary](max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[] BytesAsVarbinaryMax { get; set; } = null!;
 
         [Column(TypeName = "[image]")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[] BytesAsImage { get; set; } = null!;
 
         [Column(TypeName = "[decimal]")]
         public decimal Decimal { get; set; }
@@ -4306,10 +4414,10 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public StringEnumU16 EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "[sql_variant]")]
-        public object SqlVariantString { get; set; }
+        public object SqlVariantString { get; set; } = null!;
 
         [Column(TypeName = "[sql_variant]")]
-        public object SqlVariantInt { get; set; }
+        public object SqlVariantInt { get; set; } = null!;
     }
 
     protected class MappedSizedDataTypes
@@ -4317,58 +4425,58 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public int Id { get; set; }
 
         [Column(TypeName = "char(3)")]
-        public string StringAsChar3 { get; set; }
+        public string? StringAsChar3 { get; set; }
 
         [Column(TypeName = "character(3)")]
-        public string StringAsCharacter3 { get; set; }
+        public string? StringAsCharacter3 { get; set; }
 
         [Column(TypeName = "varchar(3)")]
-        public string StringAsVarchar3 { get; set; }
+        public string? StringAsVarchar3 { get; set; }
 
         [Column(TypeName = "char varying(3)")]
-        public string StringAsCharVarying3 { get; set; }
+        public string? StringAsCharVarying3 { get; set; }
 
         [Column(TypeName = "character varying(3)")]
-        public string StringAsCharacterVarying3 { get; set; }
+        public string? StringAsCharacterVarying3 { get; set; }
 
         [Column(TypeName = "nchar(3)")]
-        public string StringAsNchar3 { get; set; }
+        public string? StringAsNchar3 { get; set; }
 
         [Column(TypeName = "national character(3)")]
-        public string StringAsNationalCharacter3 { get; set; }
+        public string? StringAsNationalCharacter3 { get; set; }
 
         [Column(TypeName = "nvarchar(3)")]
-        public string StringAsNvarchar3 { get; set; }
+        public string? StringAsNvarchar3 { get; set; }
 
         [Column(TypeName = "national char varying(3)")]
-        public string StringAsNationalCharVarying3 { get; set; }
+        public string? StringAsNationalCharVarying3 { get; set; }
 
         [Column(TypeName = "national character varying(3)")]
-        public string StringAsNationalCharacterVarying3 { get; set; }
+        public string? StringAsNationalCharacterVarying3 { get; set; }
 
         [Column(TypeName = "char(3)"), Unicode]
-        public string StringAsChar3Utf8 { get; set; }
+        public string? StringAsChar3Utf8 { get; set; }
 
         [Column(TypeName = "character(3)"), Unicode]
-        public string StringAsCharacter3Utf8 { get; set; }
+        public string? StringAsCharacter3Utf8 { get; set; }
 
         [Column(TypeName = "varchar(3)"), Unicode]
-        public string StringAsVarchar3Utf8 { get; set; }
+        public string? StringAsVarchar3Utf8 { get; set; }
 
         [Column(TypeName = "char varying(3)"), Unicode]
-        public string StringAsCharVarying3Utf8 { get; set; }
+        public string? StringAsCharVarying3Utf8 { get; set; }
 
         [Column(TypeName = "character varying(3)"), Unicode]
-        public string StringAsCharacterVarying3Utf8 { get; set; }
+        public string? StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary(3)")]
-        public byte[] BytesAsBinary3 { get; set; }
+        public byte[]? BytesAsBinary3 { get; set; }
 
         [Column(TypeName = "varbinary(3)")]
-        public byte[] BytesAsVarbinary3 { get; set; }
+        public byte[]? BytesAsVarbinary3 { get; set; }
 
         [Column(TypeName = "binary varying(3)")]
-        public byte[] BytesAsBinaryVarying3 { get; set; }
+        public byte[]? BytesAsBinaryVarying3 { get; set; }
 
         [Column(TypeName = "varchar(3)")]
         public char? CharAsVarchar3 { get; set; }
@@ -4394,58 +4502,58 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public int Id { get; set; }
 
         [Column(TypeName = "char")]
-        public string StringAsChar3 { get; set; }
+        public string? StringAsChar3 { get; set; }
 
         [Column(TypeName = "character")]
-        public string StringAsCharacter3 { get; set; }
+        public string? StringAsCharacter3 { get; set; }
 
         [Column(TypeName = "varchar")]
-        public string StringAsVarchar3 { get; set; }
+        public string? StringAsVarchar3 { get; set; }
 
         [Column(TypeName = "char varying")]
-        public string StringAsCharVarying3 { get; set; }
+        public string? StringAsCharVarying3 { get; set; }
 
         [Column(TypeName = "character varying")]
-        public string StringAsCharacterVarying3 { get; set; }
+        public string? StringAsCharacterVarying3 { get; set; }
 
         [Column(TypeName = "nchar")]
-        public string StringAsNchar3 { get; set; }
+        public string? StringAsNchar3 { get; set; }
 
         [Column(TypeName = "national character")]
-        public string StringAsNationalCharacter3 { get; set; }
+        public string? StringAsNationalCharacter3 { get; set; }
 
         [Column(TypeName = "nvarchar")]
-        public string StringAsNvarchar3 { get; set; }
+        public string? StringAsNvarchar3 { get; set; }
 
         [Column(TypeName = "national char varying")]
-        public string StringAsNationalCharVarying3 { get; set; }
+        public string? StringAsNationalCharVarying3 { get; set; }
 
         [Column(TypeName = "national character varying")]
-        public string StringAsNationalCharacterVarying3 { get; set; }
+        public string? StringAsNationalCharacterVarying3 { get; set; }
 
         [Column(TypeName = "char")]
-        public string StringAsChar3Utf8 { get; set; }
+        public string? StringAsChar3Utf8 { get; set; }
 
         [Column(TypeName = "character")]
-        public string StringAsCharacter3Utf8 { get; set; }
+        public string? StringAsCharacter3Utf8 { get; set; }
 
         [Column(TypeName = "varchar")]
-        public string StringAsVarchar3Utf8 { get; set; }
+        public string? StringAsVarchar3Utf8 { get; set; }
 
         [Column(TypeName = "char varying")]
-        public string StringAsCharVarying3Utf8 { get; set; }
+        public string? StringAsCharVarying3Utf8 { get; set; }
 
         [Column(TypeName = "character varying")]
-        public string StringAsCharacterVarying3Utf8 { get; set; }
+        public string? StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary")]
-        public byte[] BytesAsBinary3 { get; set; }
+        public byte[]? BytesAsBinary3 { get; set; }
 
         [Column(TypeName = "varbinary")]
-        public byte[] BytesAsVarbinary3 { get; set; }
+        public byte[]? BytesAsVarbinary3 { get; set; }
 
         [Column(TypeName = "binary varying")]
-        public byte[] BytesAsBinaryVarying3 { get; set; }
+        public byte[]? BytesAsBinaryVarying3 { get; set; }
 
         [Column(TypeName = "varchar")]
         public char? CharAsVarchar3 { get; set; }
@@ -4647,46 +4755,46 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public TimeSpan? TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "varchar(max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string? StringAsVarcharMax { get; set; }
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsCharVaryingMax { get; set; }
+        public string? StringAsCharVaryingMax { get; set; }
 
         [Column(TypeName = "character varying(max)")]
-        public string StringAsCharacterVaryingMax { get; set; }
+        public string? StringAsCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "nvarchar(max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string? StringAsNvarcharMax { get; set; }
 
         [Column(TypeName = "national char varying(max)"), MaxLength(100)]
-        public string StringAsNationalCharVaryingMax { get; set; }
+        public string? StringAsNationalCharVaryingMax { get; set; }
 
         [Column(TypeName = "national character varying(max)"), StringLength(100)]
-        public string StringAsNationalCharacterVaryingMax { get; set; }
+        public string? StringAsNationalCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "varchar(max)"), Unicode]
-        public string StringAsVarcharMaxUtf8 { get; set; }
+        public string? StringAsVarcharMaxUtf8 { get; set; }
 
         [Column(TypeName = "char varying(max)"), Unicode]
-        public string StringAsCharVaryingMaxUtf8 { get; set; }
+        public string? StringAsCharVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "character varying(max)"), Unicode]
-        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+        public string? StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
-        public string StringAsText { get; set; }
+        public string? StringAsText { get; set; }
 
         [Column(TypeName = "ntext")]
-        public string StringAsNtext { get; set; }
+        public string? StringAsNtext { get; set; }
 
         [Column(TypeName = "varbinary(max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[]? BytesAsVarbinaryMax { get; set; }
 
         [Column(TypeName = "binary varying(max)")]
-        public byte[] BytesAsBinaryVaryingMax { get; set; }
+        public byte[]? BytesAsBinaryVaryingMax { get; set; }
 
         [Column(TypeName = "image")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[]? BytesAsImage { get; set; }
 
         [Column(TypeName = "decimal")]
         public decimal? Decimal { get; set; }
@@ -4746,10 +4854,10 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public StringEnumU16? EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantString { get; set; }
+        public object? SqlVariantString { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantInt { get; set; }
+        public object? SqlVariantInt { get; set; }
     }
 
     protected class MappedDataTypesWithIdentity
@@ -4823,46 +4931,46 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public TimeSpan TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "varchar(max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string StringAsVarcharMax { get; set; } = null!;
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsCharVaryingMax { get; set; }
+        public string StringAsCharVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "character varying(max)")]
-        public string StringAsCharacterVaryingMax { get; set; }
+        public string StringAsCharacterVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "nvarchar(max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string StringAsNvarcharMax { get; set; } = null!;
 
         [Column(TypeName = "national char varying(max)")]
-        public string StringAsNationalCharVaryingMax { get; set; }
+        public string StringAsNationalCharVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "national character varying(max)")]
-        public string StringAsNationalCharacterVaryingMax { get; set; }
+        public string StringAsNationalCharacterVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "varchar(max)"), Unicode]
-        public string StringAsVarcharMaxUtf8 { get; set; }
+        public string StringAsVarcharMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "char varying(max)"), Unicode]
-        public string StringAsCharVaryingMaxUtf8 { get; set; }
+        public string StringAsCharVaryingMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "character varying(max)"), Unicode]
-        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+        public string StringAsCharacterVaryingMaxUtf8 { get; set; } = null!;
 
         [Column(TypeName = "text")]
-        public string StringAsText { get; set; }
+        public string StringAsText { get; set; } = null!;
 
         [Column(TypeName = "ntext")]
-        public string StringAsNtext { get; set; }
+        public string StringAsNtext { get; set; } = null!;
 
         [Column(TypeName = "varbinary(max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[] BytesAsVarbinaryMax { get; set; } = null!;
 
         [Column(TypeName = "binary varying(max)")]
-        public byte[] BytesAsBinaryVaryingMax { get; set; }
+        public byte[] BytesAsBinaryVaryingMax { get; set; } = null!;
 
         [Column(TypeName = "image")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[] BytesAsImage { get; set; } = null!;
 
         [Column(TypeName = "decimal")]
         public decimal Decimal { get; set; }
@@ -4922,10 +5030,10 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public StringEnumU16 EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantString { get; set; }
+        public object SqlVariantString { get; set; } = null!;
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantInt { get; set; }
+        public object SqlVariantInt { get; set; } = null!;
     }
 
     protected class MappedSizedDataTypesWithIdentity
@@ -4934,58 +5042,58 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public int Int { get; set; }
 
         [Column(TypeName = "char(3)")]
-        public string StringAsChar3 { get; set; }
+        public string? StringAsChar3 { get; set; }
 
         [Column(TypeName = "character(3)")]
-        public string StringAsCharacter3 { get; set; }
+        public string? StringAsCharacter3 { get; set; }
 
         [Column(TypeName = "varchar(3)")]
-        public string StringAsVarchar3 { get; set; }
+        public string? StringAsVarchar3 { get; set; }
 
         [Column(TypeName = "char varying(3)")]
-        public string StringAsCharVarying3 { get; set; }
+        public string? StringAsCharVarying3 { get; set; }
 
         [Column(TypeName = "character varying(3)")]
-        public string StringAsCharacterVarying3 { get; set; }
+        public string? StringAsCharacterVarying3 { get; set; }
 
         [Column(TypeName = "nchar(3)")]
-        public string StringAsNchar3 { get; set; }
+        public string? StringAsNchar3 { get; set; }
 
         [Column(TypeName = "national character(3)")]
-        public string StringAsNationalCharacter3 { get; set; }
+        public string? StringAsNationalCharacter3 { get; set; }
 
         [Column(TypeName = "nvarchar(3)")]
-        public string StringAsNvarchar3 { get; set; }
+        public string? StringAsNvarchar3 { get; set; }
 
         [Column(TypeName = "national char varying(3)")]
-        public string StringAsNationalCharVarying3 { get; set; }
+        public string? StringAsNationalCharVarying3 { get; set; }
 
         [Column(TypeName = "national character varying(3)")]
-        public string StringAsNationalCharacterVarying3 { get; set; }
+        public string? StringAsNationalCharacterVarying3 { get; set; }
 
         [Column(TypeName = "char(3)"), Unicode]
-        public string StringAsChar3Utf8 { get; set; }
+        public string? StringAsChar3Utf8 { get; set; }
 
         [Column(TypeName = "character(3)"), Unicode]
-        public string StringAsCharacter3Utf8 { get; set; }
+        public string? StringAsCharacter3Utf8 { get; set; }
 
         [Column(TypeName = "varchar(3)"), Unicode]
-        public string StringAsVarchar3Utf8 { get; set; }
+        public string? StringAsVarchar3Utf8 { get; set; }
 
         [Column(TypeName = "char varying(3)"), Unicode]
-        public string StringAsCharVarying3Utf8 { get; set; }
+        public string? StringAsCharVarying3Utf8 { get; set; }
 
         [Column(TypeName = "character varying(3)"), Unicode]
-        public string StringAsCharacterVarying3Utf8 { get; set; }
+        public string? StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary(3)")]
-        public byte[] BytesAsBinary3 { get; set; }
+        public byte[]? BytesAsBinary3 { get; set; }
 
         [Column(TypeName = "varbinary(3)")]
-        public byte[] BytesAsVarbinary3 { get; set; }
+        public byte[]? BytesAsVarbinary3 { get; set; }
 
         [Column(TypeName = "binary varying(3)")]
-        public byte[] BytesAsBinaryVarying3 { get; set; }
+        public byte[]? BytesAsBinaryVarying3 { get; set; }
 
         [Column(TypeName = "varchar(3)")]
         public char? CharAsVarchar3 { get; set; }
@@ -5131,46 +5239,46 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public TimeSpan? TimeSpanAsTime { get; set; }
 
         [Column(TypeName = "varchar(max)")]
-        public string StringAsVarcharMax { get; set; }
+        public string? StringAsVarcharMax { get; set; }
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsCharVaryingMax { get; set; }
+        public string? StringAsCharVaryingMax { get; set; }
 
         [Column(TypeName = "character varying(max)")]
-        public string StringAsCharacterVaryingMax { get; set; }
+        public string? StringAsCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "nvarchar(max)")]
-        public string StringAsNvarcharMax { get; set; }
+        public string? StringAsNvarcharMax { get; set; }
 
         [Column(TypeName = "national char varying(max)")]
-        public string StringAsNationalCharVaryingMax { get; set; }
+        public string? StringAsNationalCharVaryingMax { get; set; }
 
         [Column(TypeName = "national character varying(max)")]
-        public string StringAsNationalCharacterVaryingMax { get; set; }
+        public string? StringAsNationalCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "varchar(max)"), Unicode]
-        public string StringAsVarcharMaxUtf8 { get; set; }
+        public string? StringAsVarcharMaxUtf8 { get; set; }
 
         [Column(TypeName = "char varying(max)"), Unicode]
-        public string StringAsCharVaryingMaxUtf8 { get; set; }
+        public string? StringAsCharVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "character varying(max)"), Unicode]
-        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+        public string? StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
-        public string StringAsText { get; set; }
+        public string? StringAsText { get; set; }
 
         [Column(TypeName = "ntext")]
-        public string StringAsNtext { get; set; }
+        public string? StringAsNtext { get; set; }
 
         [Column(TypeName = "varbinary(max)")]
-        public byte[] BytesAsVarbinaryMax { get; set; }
+        public byte[]? BytesAsVarbinaryMax { get; set; }
 
         [Column(TypeName = "binary varying(max)")]
-        public byte[] BytesAsVaryingMax { get; set; }
+        public byte[]? BytesAsVaryingMax { get; set; }
 
         [Column(TypeName = "image")]
-        public byte[] BytesAsImage { get; set; }
+        public byte[]? BytesAsImage { get; set; }
 
         [Column(TypeName = "decimal")]
         public decimal? Decimal { get; set; }
@@ -5230,17 +5338,17 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public StringEnumU16? EnumAsNvarchar20 { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantString { get; set; }
+        public object? SqlVariantString { get; set; }
 
         [Column(TypeName = "sql_variant")]
-        public object SqlVariantInt { get; set; }
+        public object? SqlVariantInt { get; set; }
     }
 
     public class ColumnInfo
     {
-        public string TableName { get; set; }
-        public string ColumnName { get; set; }
-        public string DataType { get; set; }
+        public string TableName { get; set; } = null!;
+        public string ColumnName { get; set; } = null!;
+        public string DataType { get; set; } = null!;
         public bool? IsNullable { get; set; }
         public int? MaxLength { get; set; }
         public int? NumericPrecision { get; set; }
