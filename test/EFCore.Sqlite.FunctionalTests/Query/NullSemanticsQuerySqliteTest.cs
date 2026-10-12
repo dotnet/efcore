@@ -1857,6 +1857,38 @@ WHERE NOT (COALESCE("e"."StringA" IN (
 """);
     }
 
+    public override async Task Null_semantics_contains_with_subquery_projecting_nullable_comparison(bool async)
+    {
+        await base.Null_semantics_contains_with_subquery_projecting_nullable_comparison(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE 0 IN (
+    SELECT CASE
+        WHEN "e0"."NullableIntA" > 1 THEN 1
+        ELSE 0
+    END
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id"
+)
+""",
+            //
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolA" IN (
+    SELECT CASE
+        WHEN "e0"."NullableIntA" > 1 THEN 1
+        ELSE 0
+    END
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id"
+)
+""");
+    }
+
     public override async Task Null_semantics_contains_nullable_item_with_nullable_subquery(bool async)
     {
         await base.Null_semantics_contains_nullable_item_with_nullable_subquery(async);

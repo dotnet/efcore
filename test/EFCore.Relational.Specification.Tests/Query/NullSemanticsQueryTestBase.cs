@@ -1419,6 +1419,22 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             assertEmpty: true);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Null_semantics_contains_with_subquery_projecting_nullable_comparison(bool async)
+    {
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => ss.Set<NullSemanticsEntity2>().Where(x => x.Id == e.Id).Select(x => x.NullableIntA > 1).Contains(false))
+                .Select(e => e.Id));
+
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => ss.Set<NullSemanticsEntity2>().Where(x => x.Id == e.Id).Select(x => x.NullableIntA > 1).Contains(e.BoolA))
+                .Select(e => e.Id));
+    }
+
     #endregion Contains with subquery
 
     // For more tests on Contains with parameterized collections, see PrimitiveCollectionsqueryTestBase
