@@ -6,7 +6,7 @@ user-invocable: false
 
 # Run ApiChief
 
-Use the [ApiChief tool](../../../eng/Tools/ApiChief/README.md) to inspect or refresh EF Core public API baselines for projects under `src/`.
+Use the ApiChief tool documented at `eng/Tools/ApiChief/README.md` to inspect or refresh EF Core public API baselines for projects under `src/`.
 
 ApiChief can run against either a compiled assembly or a previously emitted baseline JSON file. Prefer the repo-local `.dotnet` SDK and the checked-in build scripts in this repo.
 

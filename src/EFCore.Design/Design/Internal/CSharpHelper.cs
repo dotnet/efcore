@@ -364,6 +364,9 @@ public class CSharpHelper : ICSharpHelper
                 .Replace("\n", @"\n")
                 .Replace("\r", @"\r")
                 .Replace("\"", "\\\"")
+                .Replace("\u2028", "\\u2028")
+                .Replace("\u2029", "\\u2029")
+                .Replace("\u0085", "\\u0085")
                 .Insert(0, '"')
                 .Append('"')
                 .ToString()
@@ -402,6 +405,9 @@ public class CSharpHelper : ICSharpHelper
                 '\n' => @"\n",
                 '\r' => @"\r",
                 '\'' => @"\'",
+                '\u2028' => "\\u2028",
+                '\u2029' => "\\u2029",
+                '\u0085' => "\\u0085",
                 _ => value.ToString()
             }
             + "\'";
@@ -496,7 +502,24 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(float value)
-        => value.ToString(CultureInfo.InvariantCulture) + "f";
+    {
+        if (float.IsNaN(value))
+        {
+            return $"float.{nameof(float.NaN)}";
+        }
+
+        if (float.IsNegativeInfinity(value))
+        {
+            return $"float.{nameof(float.NegativeInfinity)}";
+        }
+
+        if (float.IsPositiveInfinity(value))
+        {
+            return $"float.{nameof(float.PositiveInfinity)}";
+        }
+
+        return value.ToString(CultureInfo.InvariantCulture) + "f";
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -679,6 +702,12 @@ public class CSharpHelper : ICSharpHelper
             else if (type == typeof(object))
             {
                 builder.Append(" object");
+            }
+            else if (Nullable.GetUnderlyingType(type) != null)
+            {
+                // Elements are emitted as their underlying type, so an implicitly-typed array would be inferred as
+                // the non-nullable type; emit the element type explicitly to keep the array type correct.
+                builder.Append(' ').Append(Reference(type));
             }
 
             if (vertical)

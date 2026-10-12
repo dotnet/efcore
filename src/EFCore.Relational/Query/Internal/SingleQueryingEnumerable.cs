@@ -93,7 +93,10 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     /// </summary>
     public virtual IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
-        _relationalQueryContext.CancellationToken = cancellationToken;
+        if (cancellationToken != default)
+        {
+            _relationalQueryContext.CancellationToken = cancellationToken;
+        }
 
         return new AsyncEnumerator(this);
     }

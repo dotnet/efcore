@@ -620,4 +620,90 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 38700
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Split_query_with_inline_collection_Max_over_related_columns(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38700>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: Configure38700);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // Same shape as #38700 comment (jk-aau): Max over an inline array of related DateTimes,
+        // combined with AsSplitQuery + Skip/Take. On providers without GREATEST (e.g. SQL Server
+        // compat < 160), this becomes VALUES + MAX and hits the PruneValues column-registration bug.
+        var query = context.Parents
+            .OrderBy(p => p.Id)
+            .Select(p => new
+            {
+                p.Id,
+                Children = p.Children.Select(c => c.Id).ToList(),
+                LatestModified = new[]
+                {
+                    p.ModifiedAt,
+                    p.Address!.ModifiedAt,
+                    p.Children.Max(c => c.ModifiedAt)
+                }.Max()
+            })
+            .AsSplitQuery()
+            .Skip(0)
+            .Take(50);
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Single(results);
+        Assert.Single(results[0].Children);
+        Assert.Equal(new DateTime(2024, 3, 1), results[0].LatestModified);
+    }
+
+    protected virtual void Configure38700(DbContextOptionsBuilder optionsBuilder)
+        => SetQuerySplittingBehavior(optionsBuilder, QuerySplittingBehavior.SplitQuery);
+
+    protected class Context38700(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent38700> Parents
+            => Set<Parent38700>();
+
+        public Task SeedAsync()
+        {
+            Parents.Add(
+                new Parent38700
+                {
+                    ModifiedAt = new DateTime(2024, 1, 1),
+                    Address = new Address38700 { ModifiedAt = new DateTime(2024, 2, 1) },
+                    Children = [new Child38700 { ModifiedAt = new DateTime(2024, 3, 1) }]
+                });
+
+            return SaveChangesAsync();
+        }
+
+        public class Parent38700
+        {
+            public int Id { get; set; }
+            public DateTime ModifiedAt { get; set; }
+            public Address38700? Address { get; set; }
+            public List<Child38700> Children { get; set; } = [];
+        }
+
+        public class Address38700
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public DateTime ModifiedAt { get; set; }
+        }
+
+        public class Child38700
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public DateTime ModifiedAt { get; set; }
+        }
+    }
+
+    #endregion
 }

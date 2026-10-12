@@ -1,0 +1,13 @@
+name: efcore-agent-harness
+evals:
+  - '{instructions,skills,agents,workflows,prompts}/**/eval.yaml'
+vary:
+  - /environment/files
+  - /environment/skills
+baseline: control
+variants:
+  control:
+    environment:
+      files: []
+      skills: []
+  treatment: {}

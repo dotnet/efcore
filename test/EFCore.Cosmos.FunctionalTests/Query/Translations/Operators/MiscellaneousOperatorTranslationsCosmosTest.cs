@@ -108,6 +108,42 @@ WHERE (((c["String"] = "Seattle") ? null : c["String"]) = "London")
 """);
     }
 
+    public override async Task Conditional_uncoalesce_is_null()
+    {
+        await base.Conditional_uncoalesce_is_null();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["Int"] = 8) OR (c["Int"] = null))
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_is_not_null_with_nullable_column()
+    {
+        await base.Conditional_uncoalesce_is_not_null_with_nullable_column();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (((c["Int"] = 8) ? null : c["Int"]) != null)
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_coalesce()
+    {
+        await base.Conditional_uncoalesce_with_coalesce();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (((((c["Int"] = 0) ? null : c["Int"]) != null) ? ((c["Int"] = 0) ? null : c["Int"]) : -1) < 0)
+""");
+    }
+
     public override async Task Coalesce()
     {
         await base.Coalesce();
