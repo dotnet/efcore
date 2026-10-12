@@ -3,10 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 
-#nullable disable
-
 public class ShoppingCartViewModel
 {
-    public List<CartItem> CartItems { get; set; }
+    public List<CartItem> CartItems { get; set; } = null!;
     public decimal CartTotal { get; set; }
 }

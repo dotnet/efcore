@@ -14,7 +14,7 @@ public class CrossStoreContext : DbContext
     {
     }
 
-    public virtual DbSet<SimpleEntity> SimpleEntities { get; set; }
+    public virtual DbSet<SimpleEntity> SimpleEntities { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         => modelBuilder.Entity<SimpleEntity>(eb =>

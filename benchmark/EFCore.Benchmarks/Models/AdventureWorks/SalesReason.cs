@@ -13,8 +13,8 @@ public class SalesReason
 
     public int SalesReasonID { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
-    public string ReasonType { get; set; }
+    public string Name { get; set; } = null!;
+    public string ReasonType { get; set; } = null!;
 
     public virtual ICollection<SalesOrderHeaderSalesReason> SalesOrderHeaderSalesReason { get; set; }
 }

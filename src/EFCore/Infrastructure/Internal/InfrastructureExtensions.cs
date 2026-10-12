@@ -39,12 +39,8 @@ public static class InfrastructureExtensions
                 ?.ApplicationServiceProvider
                 ?.GetService(serviceType);
 
-        if (service == null)
-        {
-            throw new InvalidOperationException(
+        return service
+            ?? throw new InvalidOperationException(
                 CoreStrings.NoProviderConfiguredFailedToResolveService(serviceType.DisplayName()));
-        }
-
-        return service;
     }
 }

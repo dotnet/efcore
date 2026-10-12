@@ -16,7 +16,7 @@ public class DefaultValueBinding : InstantiationBinding
     /// </summary>
     /// <param name="runtimeType">The CLR type of the instance created by the factory method.</param>
     public DefaultValueBinding(Type runtimeType)
-        : base(new List<ParameterBinding>())
+        : base([])
     {
         Check.NotNull(runtimeType);
 

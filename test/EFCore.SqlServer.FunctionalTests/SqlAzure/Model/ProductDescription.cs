@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 [Table("ProductDescription", Schema = "SalesLT")]
 public class ProductDescription
 {
@@ -17,7 +15,7 @@ public class ProductDescription
     public int ProductDescriptionID { get; set; }
 
     [Required, MaxLength(400)]
-    public string Description { get; set; }
+    public string Description { get; set; } = null!;
 
     public DateTime ModifiedDate { get; set; }
     public Guid rowguid { get; set; }

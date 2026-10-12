@@ -26,8 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// </remarks>
 public class RelationalDatabase : Database
 {
-    private IUpdateAdapter? _updateAdapter;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="RelationalDatabase" /> class.
     /// </summary>
@@ -40,7 +38,7 @@ public class RelationalDatabase : Database
         => RelationalDependencies = relationalDependencies;
 
     private IUpdateAdapter UpdateAdapter
-        => _updateAdapter ??= Dependencies.UpdateAdapterFactory.Create();
+        => field ??= Dependencies.UpdateAdapterFactory.Create();
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

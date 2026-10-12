@@ -342,11 +342,6 @@ public class SqliteParameterCollection : DbParameterCollection
     private int IndexOfChecked(string parameterName)
     {
         var index = IndexOf(parameterName);
-        if (index == -1)
-        {
-            throw new IndexOutOfRangeException(Resources.ParameterNotFound(parameterName));
-        }
-
-        return index;
+        return index == -1 ? throw new IndexOutOfRangeException(Resources.ParameterNotFound(parameterName)) : index;
     }
 }

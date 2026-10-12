@@ -82,25 +82,17 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalEntityEntry? FindEntry<TKey>(TKey keyValue)
-    {
-        if (_primaryKeyPropertiesCount != 1)
-        {
-            throw new ArgumentException(
-                CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), _primaryKeyPropertiesCount, 1));
-        }
-
-        if (typeof(TKey) != _primaryKeyType)
-        {
-            throw new ArgumentException(
-                CoreStrings.WrongGenericPropertyType(
-                    _primaryKey.Properties[0].Name,
-                    _primaryKey.Properties[0].DeclaringType.DisplayName(),
-                    _primaryKeyType.ShortDisplayName(),
-                    typeof(TKey).ShortDisplayName()));
-        }
-
-        return _stateManager.TryGetEntryTyped(_primaryKey, keyValue);
-    }
+        => _primaryKeyPropertiesCount != 1
+            ? throw new ArgumentException(
+                CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), _primaryKeyPropertiesCount, 1))
+            : typeof(TKey) != _primaryKeyType
+                ? throw new ArgumentException(
+                    CoreStrings.WrongGenericPropertyType(
+                        _primaryKey.Properties[0].Name,
+                        _primaryKey.Properties[0].DeclaringType.DisplayName(),
+                        _primaryKeyType.ShortDisplayName(),
+                        typeof(TKey).ShortDisplayName()))
+                : _stateManager.TryGetEntryTyped(_primaryKey, keyValue);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -172,12 +164,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     {
         ValidateProperties(_primaryKey.Properties, keyValues, out _, out var valuesList);
 
-        if (valuesList.Any(v => v == null))
-        {
-            return null;
-        }
-
-        return _stateManager.TryGetEntry(_primaryKey, valuesList);
+        return valuesList.Any(v => v == null) ? null : _stateManager.TryGetEntry(_primaryKey, valuesList);
     }
 
     /// <summary>
@@ -190,17 +177,11 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     {
         ValidateProperties(properties, propertyValues, out var propertiesList, out var valuesList);
 
-        if (TryFindByKey(propertiesList, valuesList, out var entry))
-        {
-            return entry;
-        }
-
-        if (TryGetByForeignKey(propertiesList, valuesList, out var entries))
-        {
-            return entries!.FirstOrDefault();
-        }
-
-        return GetEntries(propertiesList, valuesList).FirstOrDefault();
+        return TryFindByKey(propertiesList, valuesList, out var entry)
+            ? entry
+            : TryGetByForeignKey(propertiesList, valuesList, out var entries)
+                ? entries!.FirstOrDefault()
+                : GetEntries(propertiesList, valuesList).FirstOrDefault();
     }
 
     /// <summary>
@@ -213,19 +194,13 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     {
         ValidateProperties(properties, propertyValues, out var propertiesList, out var valuesList);
 
-        if (TryFindByKey(propertiesList, valuesList, out var entry))
-        {
-            return entry != null
+        return TryFindByKey(propertiesList, valuesList, out var entry)
+            ? entry != null
                 ? [entry]
-                : [];
-        }
-
-        if (TryGetByForeignKey(propertiesList, valuesList, out var entries))
-        {
-            return entries!;
-        }
-
-        return GetEntriesByScan(propertiesList, valuesList);
+                : []
+            : TryGetByForeignKey(propertiesList, valuesList, out var entries)
+                ? entries!
+                : GetEntriesByScan(propertiesList, valuesList);
     }
 
     private IEnumerable<InternalEntityEntry> GetEntriesByScan(IReadOnlyList<IProperty> propertiesList, IReadOnlyList<object?> valuesList)
@@ -243,7 +218,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             }
 
             yield return entry;
-            next: ;
+            next:;
         }
     }
 
@@ -858,16 +833,32 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         foreach (var property in entityType.GetFlattenedProperties())
         {
             var path = new List<IPropertyBase> { property };
+            var isInNullableComplexProperty = false;
             while (path[^1].DeclaringType is IComplexType complexType)
             {
-                path.Add(complexType.ComplexProperty);
+                var complexProperty = complexType.ComplexProperty;
+                path.Add(complexProperty);
+
+                if (!complexProperty.IsCollection && complexProperty.IsNullable)
+                {
+                    isInNullableComplexProperty = true;
+                }
+            }
+
+            var readType = property.ClrType;
+            if (readType.IsValueType
+                && !readType.IsNullableType()
+                && isInNullableComplexProperty)
+            {
+                readType = typeof(Nullable<>).MakeGenericType(readType);
             }
 
             Expression instanceExpression = entityParameter;
             for (var i = path.Count - 1; i >= 0; i--)
             {
+                var currentType = i == 0 ? readType : path[i].ClrType;
                 instanceExpression = Expression.Call(
-                    EF.PropertyMethod.MakeGenericMethod(path[i].ClrType),
+                    EF.PropertyMethod.MakeGenericMethod(currentType),
                     instanceExpression,
                     Expression.Constant(path[i].Name, typeof(string)));
 
@@ -877,12 +868,11 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
                 }
             }
 
-            projections.Add(
-                Expression.Convert(
-                    Expression.Convert(
-                        instanceExpression,
-                        property.ClrType),
-                    typeof(object)));
+            var projection = instanceExpression.Type == property.ClrType
+                ? Expression.Convert(Expression.Convert(instanceExpression, property.ClrType), typeof(object))
+                : Expression.Convert(instanceExpression, typeof(object));
+
+            projections.Add(projection);
         }
 
         return Expression.Lambda<Func<object, object[]>>(

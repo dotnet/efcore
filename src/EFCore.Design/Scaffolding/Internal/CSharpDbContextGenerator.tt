@@ -283,12 +283,10 @@ public partial class <#= Options.ContextName #> : DbContext
             foreach (var property in joinEntityType.GetProperties())
             {
                 var propertyFluentApiCalls = property.GetFluentApiCalls(annotationCodeGenerator);
-                if (propertyFluentApiCalls == null)
+                if (propertyFluentApiCalls != null)
                 {
-                    continue;
+                    usings.AddRange(propertyFluentApiCalls.GetRequiredUsings());
                 }
-
-                usings.AddRange(propertyFluentApiCalls.GetRequiredUsings());
 #>
                         j.IndexerProperty<<#= code.Reference(property.ClrType) #>>(<#= code.Literal(property.Name) #>)<#= code.Fragment(propertyFluentApiCalls, indent: 7) #>;
 <#

@@ -3,9 +3,6 @@
 
 using System.Net;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -16,17 +13,7 @@ public class AdHocCosmosTestHelpers
         string json,
         CancellationToken cancellationToken)
     {
-        var document = JObject.Parse(json);
-
-        var stream = new MemoryStream();
-        await using var __ = stream.ConfigureAwait(false);
-        var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
-        await using var ___ = writer.ConfigureAwait(false);
-        using var jsonWriter = new JsonTextWriter(writer);
-
-        CosmosClientWrapper.Serializer.Serialize(jsonWriter, document);
-        await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
-
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
         var response = await container.CreateItemStreamAsync(
                 stream,
                 PartitionKey.None,

@@ -124,6 +124,20 @@ public interface IConventionForeignKey : IReadOnlyForeignKey, IConventionAnnotat
     ConfigurationSource? GetIsRequiredConfigurationSource();
 
     /// <summary>
+    ///     Sets a value indicating whether the relationship is constrained.
+    /// </summary>
+    /// <param name="constrained">A value indicating whether the relationship is constrained.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    bool? SetIsConstrained(bool? constrained, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.IsConstrained" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyForeignKey.IsConstrained" />.</returns>
+    ConfigurationSource? GetIsConstrainedConfigurationSource();
+
+    /// <summary>
     ///     Sets a value indicating whether the dependent entity is required.
     ///     If <see langword="true" />, the principal entity must always have a valid dependent entity assigned.
     /// </summary>

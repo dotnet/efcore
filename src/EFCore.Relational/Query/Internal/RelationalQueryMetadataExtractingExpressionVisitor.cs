@@ -31,24 +31,24 @@ public class RelationalQueryMetadataExtractingExpressionVisitor : ExpressionVisi
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
-        if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() == RelationalQueryableExtensions.AsSplitQueryMethodInfo)
+        if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions))
         {
-            var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+            switch (methodCallExpression.Method.Name)
+            {
+                case nameof(RelationalQueryableExtensions.AsSplitQuery):
+                {
+                    var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+                    _relationalQueryCompilationContext.QuerySplittingBehavior = QuerySplittingBehavior.SplitQuery;
+                    return innerQueryable;
+                }
 
-            _relationalQueryCompilationContext.QuerySplittingBehavior = QuerySplittingBehavior.SplitQuery;
-
-            return innerQueryable;
-        }
-
-        if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() == RelationalQueryableExtensions.AsSingleQueryMethodInfo)
-        {
-            var innerQueryable = Visit(methodCallExpression.Arguments[0]);
-
-            _relationalQueryCompilationContext.QuerySplittingBehavior = QuerySplittingBehavior.SingleQuery;
-
-            return innerQueryable;
+                case nameof(RelationalQueryableExtensions.AsSingleQuery):
+                {
+                    var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+                    _relationalQueryCompilationContext.QuerySplittingBehavior = QuerySplittingBehavior.SingleQuery;
+                    return innerQueryable;
+                }
+            }
         }
 
         return base.VisitMethodCall(methodCallExpression);

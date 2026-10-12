@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class FieldsOnlyLoadSqlServerTest(FieldsOnlyLoadSqlServerTest.FieldsOnlyLoadSqlServerFixture fixture)
     : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqlServerTest.FieldsOnlyLoadSqlServerFixture>(fixture)
 {

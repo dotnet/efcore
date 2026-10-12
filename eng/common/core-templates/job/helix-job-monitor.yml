@@ -63,13 +63,7 @@ parameters:
   type: boolean
   default: false
 
-# Explicit Entra scope for a custom Helix API host (--helix-entra-scope).
-# Production and staging scopes are inferred when omitted.
-- name: helixEntraScope
-  type: string
-  default: ''
-
-# Workload identity federation service connection name authorized for Helix. Required when
+# Azure service connection ID authorized for Helix. Required when
 # useEntraAuthentication is true.
 - name: azureSubscription
   type: string
@@ -245,26 +239,72 @@ jobs:
     - bash: ./eng/common/dotnet.sh tool restore
       displayName: Restore Helix Job Monitor
 
-  - ${{ if eq(parameters.useEntraAuthentication, true) }}:
-    - task: AzureCLI@2
-      displayName: Monitor Helix Jobs
-      inputs:
-        azureSubscription: ${{ parameters.azureSubscription }}
-        keepAzSessionActive: true
-        scriptType: bash
-        scriptLocation: inlineScript
-        inlineScript: |
-          set -euo pipefail
+  - bash: |
+      set -euo pipefail
 
-          # AzureCLI@2 replaces SYSTEM_ACCESSTOKEN with the service connection token.
-          export SYSTEM_ACCESSTOKEN="$HELIX_AZDO_ACCESSTOKEN"
-          bash "$BUILD_SOURCESDIRECTORY/eng/common/run-helix-job-monitor.sh"
-      env:
-        HELIX_AZDO_ACCESSTOKEN: $(System.AccessToken)
+      toolArgs=(
+        --helix-base-uri              '${{ parameters.helixBaseUri }}'
+        --use-entra-authentication    '${{ parameters.useEntraAuthentication }}'
+        --polling-interval-seconds    '${{ parameters.pollingIntervalSeconds }}'
+        --fail-on-failed-tests        '${{ parameters.failWorkItemsWithFailedTests }}'
+        --allow-no-helix-jobs         '${{ parameters.allowNoHelixJobs }}'
+        --use-fully-qualified-test-name '${{ parameters.useFullyQualifiedTestName }}'
+        --max-wait-minutes            "$((${{ parameters.timeoutInMinutes }} - 5))" # Set the tool's timeout slightly lower than the Azure DevOps job timeout to allow it to exit gracefully.
+        --stage-name                  '$(System.StageName)'
+        --stage-attempt               '$(System.StageAttempt)'
+        --job-attempt                 '$(System.JobAttempt)'
+        --test-result-upload-parallelism '${{ parameters.testResultUploadParallelism }}'
+      )
 
-  - ${{ if eq(parameters.useEntraAuthentication, false) }}:
-    - bash: bash "$BUILD_SOURCESDIRECTORY/eng/common/run-helix-job-monitor.sh"
-      displayName: Monitor Helix Jobs
-      env:
-        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      organization='${{ parameters.organization }}'
+      repository='${{ parameters.repository }}'
+      testResultAttachmentMode='${{ parameters.testResultAttachmentMode }}'
+
+      # Fall back to Azure DevOps-provided environment variables when the caller did not
+      # supply organization / repository explicitly. BUILD_REPOSITORY_NAME is typically
+      # 'owner/repo' for GitHub-backed builds and 'owner-repo' for internal builds.
+      if [ -z "$organization" ] || [ -z "$repository" ]; then
+        buildRepoName="${BUILD_REPOSITORY_NAME:-}"
+        if [ -n "$buildRepoName" ] && [[ "$buildRepoName" == */* ]]; then
+          repoOwner="${buildRepoName%%/*}"
+          repoName="${buildRepoName#*/}"
+        elif [ -n "$buildRepoName" ] && [[ "$buildRepoName" == *-* ]]; then
+          repoOwner="${buildRepoName%%-*}"
+          repoName="${buildRepoName#*-}"
+        fi
+
+        if [ -n "${repoOwner:-}" ] && [ -n "${repoName:-}" ]; then
+          if [ -z "$organization" ]; then organization="$repoOwner"; fi
+          if [ -z "$repository" ];   then repository="$repoName";   fi
+        fi
+      fi
+
+      if [ -n "$organization" ]; then toolArgs+=( --organization "$organization" ); fi
+      if [ -n "$repository" ];   then toolArgs+=( --repository   "$repository" );   fi
+      if [ -n "$testResultAttachmentMode" ]; then
+        toolArgs+=( --test-result-attachment-mode "$testResultAttachmentMode" )
+      fi
+
+      # Build.Reason and Build.SourceBranch are required to derive the Helix source filter
+      # the same way the Helix SDK submitter does (PR -> 'pr', internal -> 'official',
+      # otherwise -> 'ci'). Without these, manually-queued / scheduled / CI builds would
+      # be looked up under the wrong source prefix and find zero jobs.
+      toolArgs+=( --build-reason  "$(Build.Reason)" )
+      toolArgs+=( --source-branch "$(Build.SourceBranch)" )
+
+      if [ -n '${{ parameters.toolNupkgArtifactName }}' ]; then
+        # Tool was installed from a local nupkg; run the DLL via the repo-local dotnet.
+        export DOTNET_ROOT="$(Build.SourcesDirectory)/.dotnet"
+        ./eng/common/dotnet.sh exec "$(HelixJobMonitorDll)" "${toolArgs[@]}"
+      else
+        # Tool was restored from the local .config/dotnet-tools.json manifest; invoke it
+        # through the manifest from the repo root.
+        pushd "$BUILD_SOURCESDIRECTORY" > /dev/null
+        trap 'popd > /dev/null' EXIT
+        ./eng/common/dotnet.sh tool run '${{ parameters.toolCommand }}' -- "${toolArgs[@]}"
+      fi
+    displayName: Monitor Helix Jobs
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      ${{ if eq(parameters.useEntraAuthentication, false) }}:
         HELIX_ACCESSTOKEN: ${{ parameters.helixAccessToken }}

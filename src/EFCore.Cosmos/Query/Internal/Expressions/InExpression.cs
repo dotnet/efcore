@@ -108,10 +108,7 @@ public class InExpression : SqlExpression
                     }
                 }
 
-                if (values is not null)
-                {
-                    values[i] = newValue;
-                }
+                values?[i] = newValue;
             }
         }
 
@@ -211,13 +208,13 @@ public class InExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is InExpression inExpression
-                && Equals(inExpression));
+                || (obj is InExpression inExpression
+                    && Equals(inExpression)));
 
     private bool Equals(InExpression inExpression)
         => base.Equals(inExpression)
             && Item.Equals(inExpression.Item)
-            && (ValuesParameter?.Equals(inExpression.ValuesParameter) ?? inExpression.ValuesParameter == null)
+            && (ValuesParameter?.Equals(inExpression.ValuesParameter) ?? (inExpression.ValuesParameter == null))
             && (ReferenceEquals(Values, inExpression.Values)
                 || (Values is not null && inExpression.Values is not null && Values.SequenceEqual(inExpression.Values)));
 

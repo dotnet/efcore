@@ -15,7 +15,7 @@ public class TransactionHistory
     public int ReferenceOrderID { get; set; }
     public int ReferenceOrderLineID { get; set; }
     public DateTime TransactionDate { get; set; }
-    public string TransactionType { get; set; }
+    public string TransactionType { get; set; } = null!;
 
-    public virtual Product Product { get; set; }
+    public virtual Product Product { get; set; } = null!;
 }

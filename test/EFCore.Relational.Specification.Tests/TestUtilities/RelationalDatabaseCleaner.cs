@@ -30,7 +30,7 @@ public abstract class RelationalDatabaseCleaner
     protected virtual void OpenConnection(IRelationalConnection connection)
         => connection.Open();
 
-    public virtual void Clean(DatabaseFacade facade)
+    public virtual void Clean(DatabaseFacade facade, bool createTables = true)
     {
         var creator = facade.GetService<IRelationalDatabaseCreator>();
         var sqlGenerator = facade.GetService<IMigrationsSqlGenerator>();
@@ -102,7 +102,10 @@ public abstract class RelationalDatabaseCleaner
             }
         }
 
-        creator.CreateTables();
+        if (createTables)
+        {
+            creator.CreateTables();
+        }
     }
 
     private static void ExecuteScript(IRelationalConnection connection, IRawSqlCommandBuilder sqlBuilder, string customSql)

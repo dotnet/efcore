@@ -15,7 +15,7 @@ public class BusinessEntityAddress
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
-    public virtual Address Address { get; set; }
-    public virtual AddressType AddressType { get; set; }
-    public virtual BusinessEntity BusinessEntity { get; set; }
+    public virtual Address Address { get; set; } = null!;
+    public virtual AddressType AddressType { get; set; } = null!;
+    public virtual BusinessEntity BusinessEntity { get; set; } = null!;
 }

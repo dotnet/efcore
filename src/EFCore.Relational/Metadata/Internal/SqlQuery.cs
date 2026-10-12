@@ -25,10 +25,12 @@ public class SqlQuery : TableBase, ISqlQuery
     public virtual string Sql { get; set; }
 
     /// <inheritdoc />
-    public override IColumnBase? FindColumn(IProperty property)
+    protected override IColumnBase? FindColumn(IProperty property)
         => property.GetSqlQueryColumnMappings()
-            .FirstOrDefault(cm => cm.TableMapping.Table == this)
-            ?.Column;
+                .FirstOrDefault(cm => cm.TableMapping.Table == this)
+                ?.Column
+            ?? property.GetJsonElementMappings()
+                .FirstOrDefault(m => m.TableMapping.Table == this)?.Element.ContainingColumn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,6 +71,6 @@ public class SqlQuery : TableBase, ISqlQuery
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    ISqlQueryColumn? ISqlQuery.FindColumn(IProperty property)
-        => (ISqlQueryColumn?)FindColumn(property);
+    ISqlQueryColumn? ISqlQuery.FindColumn(IPropertyBase propertyBase)
+        => (ISqlQueryColumn?)FindColumn(propertyBase);
 }

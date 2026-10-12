@@ -14,7 +14,7 @@ public abstract class RelationalTestStore(string name, bool shared, DbConnection
     public ConnectionState ConnectionState
         => Connection.State;
 
-    public void CloseConnection()
+    public virtual void CloseConnection()
         => Connection.Close();
 
     public virtual void OpenConnection()

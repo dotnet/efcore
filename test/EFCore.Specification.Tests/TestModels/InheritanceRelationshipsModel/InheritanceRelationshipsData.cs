@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
 public class InheritanceRelationshipsData : ISetSource
@@ -114,22 +117,16 @@ public class InheritanceRelationshipsData : ISetSource
             return (IQueryable<TEntity>)NestedCollections.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(PrincipalEntity))
-        {
-            return (IQueryable<TEntity>)PrincipalEntities.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(ReferencedEntity))
-        {
-            return (IQueryable<TEntity>)ReferencedEntities.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(PrincipalEntity)
+            ? (IQueryable<TEntity>)PrincipalEntities.AsQueryable()
+            : typeof(TEntity) == typeof(ReferencedEntity)
+                ? (IQueryable<TEntity>)ReferencedEntities.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     public static IReadOnlyList<BaseInheritanceRelationshipEntity> CreateBaseEntities()
-        => new List<BaseInheritanceRelationshipEntity>
-        {
+        =>
+        [
             new()
             {
                 Id = 1,
@@ -199,11 +196,11 @@ public class InheritanceRelationshipsData : ISetSource
                 OwnedCollectionOnBase = [],
                 OwnedCollectionOnDerived = [],
             },
-        };
+        ];
 
     public static IReadOnlyList<BaseReferenceOnBase> CreateBaseReferencesOnBase()
-        => new List<BaseReferenceOnBase>
-        {
+        =>
+        [
             new()
             {
                 Id = 1,
@@ -252,39 +249,39 @@ public class InheritanceRelationshipsData : ISetSource
                 Name = "DROB5 (dangling)",
                 NestedCollection = []
             },
-        };
+        ];
 
     public static IReadOnlyList<BaseReferenceOnDerived> CreateBaseReferencesOnDerived()
-        => new List<BaseReferenceOnDerived>
-        {
+        =>
+        [
             new() { Id = 1, Name = "BROD1" },
             new() { Id = 2, Name = "BROD2 (dangling)" },
             new() { Id = 3, Name = "BROD3 (dangling)" },
             new DerivedReferenceOnDerived { Id = 4, Name = "DROD1" },
             new DerivedReferenceOnDerived { Id = 5, Name = "DROD2" },
             new DerivedReferenceOnDerived { Id = 6, Name = "DROD3 (dangling)" },
-        };
+        ];
 
     public static IReadOnlyList<ReferenceOnBase> CreateReferencesOnBase()
-        => new List<ReferenceOnBase>
-        {
+        =>
+        [
             new() { Id = 1, Name = "ROB1" },
             new() { Id = 2, Name = "ROB2" },
             new() { Id = 3, Name = "ROB3" },
             new() { Id = 4, Name = "ROB4" },
-        };
+        ];
 
     public static IReadOnlyList<ReferenceOnDerived> CreateReferencesOnDerived()
-        => new List<ReferenceOnDerived>
-        {
+        =>
+        [
             new() { Id = 1, Name = "ROD1" },
             new() { Id = 2, Name = "ROD2" },
             new() { Id = 3, Name = "ROD3 (dangling)" },
-        };
+        ];
 
     public static IReadOnlyList<NestedReferenceBase> CreateNestedReferences()
-        => new List<NestedReferenceBase>
-        {
+        =>
+        [
             new() { Id = 1, Name = "NRB1" },
             new() { Id = 2, Name = "NRB2" },
             new() { Id = 3, Name = "NRB3" },
@@ -294,11 +291,11 @@ public class InheritanceRelationshipsData : ISetSource
             new NestedReferenceDerived { Id = 7, Name = "NRD3" },
             new NestedReferenceDerived { Id = 8, Name = "NRD4" },
             new NestedReferenceDerived { Id = 9, Name = "NRD4 (dangling)" },
-        };
+        ];
 
     public static IReadOnlyList<BaseCollectionOnBase> CreateBaseCollectionsOnBase()
-        => new List<BaseCollectionOnBase>
-        {
+        =>
+        [
             new()
             {
                 Id = 1,
@@ -385,11 +382,11 @@ public class InheritanceRelationshipsData : ISetSource
                 DerivedProperty = 8,
                 NestedCollection = []
             },
-        };
+        ];
 
     public static IReadOnlyList<BaseCollectionOnDerived> CreateBaseCollectionsOnDerived()
-        => new List<BaseCollectionOnDerived>
-        {
+        =>
+        [
             new() { Id = 1, Name = "BCOD11" },
             new() { Id = 2, Name = "BCOD21 (dangling)" },
             new() { Id = 3, Name = "BCOD22 (dangling)" },
@@ -397,11 +394,11 @@ public class InheritanceRelationshipsData : ISetSource
             new DerivedCollectionOnDerived { Id = 5, Name = "DCOD12" },
             new DerivedCollectionOnDerived { Id = 6, Name = "DCOD21" },
             new DerivedCollectionOnDerived { Id = 7, Name = "DCOD31 (dangling)" },
-        };
+        ];
 
     public static IReadOnlyList<CollectionOnBase> CreateCollectionsOnBase()
-        => new List<CollectionOnBase>
-        {
+        =>
+        [
             new() { Id = 1, Name = "COB11" },
             new() { Id = 2, Name = "COB12" },
             new() { Id = 3, Name = "COB21" },
@@ -411,20 +408,20 @@ public class InheritanceRelationshipsData : ISetSource
             new() { Id = 7, Name = "COB41" },
             new() { Id = 8, Name = "COB51 (dangling)" },
             new() { Id = 9, Name = "COB52 (dangling)" },
-        };
+        ];
 
     public static IReadOnlyList<CollectionOnDerived> CreateCollectionsOnDerived()
-        => new List<CollectionOnDerived>
-        {
+        =>
+        [
             new() { Id = 1, Name = "COD11" },
             new() { Id = 2, Name = "COD21" },
             new() { Id = 3, Name = "COD22" },
             new() { Id = 4, Name = "COD31 (dangling)" },
-        };
+        ];
 
     public static IReadOnlyList<NestedCollectionBase> CreateNestedCollections()
-        => new List<NestedCollectionBase>
-        {
+        =>
+        [
             new() { Id = 1, Name = "NCB11" },
             new() { Id = 2, Name = "NCB21" },
             new() { Id = 3, Name = "NCB22" },
@@ -438,30 +435,30 @@ public class InheritanceRelationshipsData : ISetSource
             new NestedCollectionDerived { Id = 11, Name = "NCD42" },
             new NestedCollectionDerived { Id = 12, Name = "NCD52 (dangling)" },
             new NestedCollectionDerived { Id = 13, Name = "NCD52 (dangling)" },
-        };
+        ];
 
     public static IReadOnlyList<PrincipalEntity> CreatePrincipalEntities()
-        => new List<PrincipalEntity>
-        {
+        =>
+        [
             new() { Id = 1, Name = "PE1" }, new() { Id = 2, Name = "PE2" },
-        };
+        ];
 
     public static IReadOnlyList<ReferencedEntity> CreateReferencedEntities()
-        => new List<ReferencedEntity>
-        {
+        =>
+        [
             new()
             {
                 Id = 1,
                 Name = "RE1",
-                Principals = new List<PrincipalEntity>()
+                Principals = []
             },
             new()
             {
                 Id = 2,
                 Name = "RE2",
-                Principals = new List<PrincipalEntity>()
+                Principals = []
             },
-        };
+        ];
 
     public static void WireUp(
         IReadOnlyList<BaseInheritanceRelationshipEntity> baseEntities,

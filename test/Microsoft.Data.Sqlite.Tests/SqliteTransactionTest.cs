@@ -27,11 +27,7 @@ public class SqliteTransactionTest
             connection.Open();
         }
 
-#if NET5_0_OR_GREATER
         using var transaction = async ? await connection.BeginTransactionAsync() : connection.BeginTransaction();
-#else
-        using var transaction = connection.BeginTransaction();
-#endif
 
         await AddNewTable("Table1");
 
@@ -39,7 +35,6 @@ public class SqliteTransactionTest
 
         try
         {
-#if NET5_0_OR_GREATER
             if (async)
             {
                 await transaction.DisposeAsync();
@@ -48,9 +43,6 @@ public class SqliteTransactionTest
             {
                 transaction.Dispose();
             }
-#else
-            transaction.Dispose();
-#endif
 
             Assert.Fail();
         }
@@ -63,15 +55,10 @@ public class SqliteTransactionTest
 
         connection.SimulateFailureOnRollback = false;
 
-#if NET5_0_OR_GREATER
         using var transaction2 = async ? await connection.BeginTransactionAsync() : connection.BeginTransaction();
-#else
-        using var transaction2 = connection.BeginTransaction();
-#endif
 
         await AddNewTable("Table2");
 
-#if NET5_0_OR_GREATER
         if (async)
         {
             await transaction2.DisposeAsync();
@@ -80,9 +67,6 @@ public class SqliteTransactionTest
         {
             transaction2.Dispose();
         }
-#else
-        transaction2.Dispose();
-#endif
 
         Assert.Null(connection.Transaction);
 
@@ -100,12 +84,9 @@ public class SqliteTransactionTest
         {
             var result = realCommand.ExecuteNonQuery();
 
-            if (connection.SimulateFailureOnRollback && CommandText.Contains("ROLLBACK"))
-            {
-                throw new SqliteException("Simulated failure", 1);
-            }
-
-            return result;
+            return connection.SimulateFailureOnRollback && CommandText.Contains("ROLLBACK")
+                ? throw new SqliteException("Simulated failure", 1)
+                : result;
         }
 
         [AllowNull]
@@ -295,7 +276,7 @@ public class SqliteTransactionTest
         var transaction = connection.BeginTransaction();
         transaction.Dispose();
 
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Commit);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -309,7 +290,7 @@ public class SqliteTransactionTest
         using var transaction = connection.BeginTransaction();
         connection.ExecuteNonQuery("ROLLBACK;");
 
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Commit);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -323,7 +304,7 @@ public class SqliteTransactionTest
         using var transaction = connection.BeginTransaction();
         connection.Close();
 
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Commit);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -358,7 +339,7 @@ public class SqliteTransactionTest
         connection.ExecuteNonQuery("ROLLBACK;");
 
         transaction.Rollback();
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Rollback);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }
@@ -372,7 +353,7 @@ public class SqliteTransactionTest
         var transaction = connection.BeginTransaction();
         transaction.Dispose();
 
-        var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
+        var ex = Assert.Throws<InvalidOperationException>(transaction.Rollback);
 
         Assert.Equal(Resources.TransactionCompleted, ex.Message);
     }

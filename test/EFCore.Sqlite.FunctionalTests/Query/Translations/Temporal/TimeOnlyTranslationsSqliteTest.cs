@@ -14,32 +14,44 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
 
     public override async Task Hour()
     {
-        // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Hour());
+        await base.Hour();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(strftime('%H', "b"."TimeOnly") AS INTEGER) = 15
+""");
     }
 
     public override async Task Minute()
     {
-        // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Minute());
+        await base.Minute();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(strftime('%M', "b"."TimeOnly") AS INTEGER) = 30
+""");
     }
 
     public override async Task Second()
     {
-        // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Second());
+        await base.Second();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
+""");
     }
 
     public override async Task Millisecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Millisecond());
+        await AssertTranslationFailed(base.Millisecond);
 
         AssertSql();
     }
@@ -47,7 +59,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task Microsecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Microsecond());
+        await AssertTranslationFailed(base.Microsecond);
 
         AssertSql();
     }
@@ -55,7 +67,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task Nanosecond()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Nanosecond());
+        await AssertTranslationFailed(base.Nanosecond);
 
         AssertSql();
     }
@@ -63,7 +75,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task AddHours()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.AddHours());
+        await AssertTranslationFailed(base.AddHours);
 
         AssertSql();
     }
@@ -71,7 +83,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task AddMinutes()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.AddMinutes());
+        await AssertTranslationFailed(base.AddMinutes);
 
         AssertSql();
     }
@@ -79,7 +91,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task Add_TimeSpan()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Add_TimeSpan());
+        await AssertTranslationFailed(base.Add_TimeSpan);
 
         AssertSql();
     }
@@ -87,7 +99,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task IsBetween()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.IsBetween());
+        await AssertTranslationFailed(base.IsBetween);
 
         AssertSql();
     }
@@ -95,7 +107,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task Subtract()
     {
         // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(() => base.Subtract());
+        await AssertTranslationFailed(base.Subtract);
 
         AssertSql();
     }
@@ -103,7 +115,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task FromDateTime_compared_to_property()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_property());
+        await AssertTranslationFailed(base.FromDateTime_compared_to_property);
 
         AssertSql();
     }
@@ -111,7 +123,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task FromDateTime_compared_to_parameter()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_parameter());
+        await AssertTranslationFailed(base.FromDateTime_compared_to_parameter);
 
         AssertSql();
     }
@@ -119,7 +131,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task FromDateTime_compared_to_constant()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromDateTime_compared_to_constant());
+        await AssertTranslationFailed(base.FromDateTime_compared_to_constant);
 
         AssertSql();
     }
@@ -127,7 +139,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task FromTimeSpan_compared_to_property()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromTimeSpan_compared_to_property());
+        await AssertTranslationFailed(base.FromTimeSpan_compared_to_property);
 
         AssertSql();
     }
@@ -135,7 +147,7 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task FromTimeSpan_compared_to_parameter()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.FromTimeSpan_compared_to_parameter());
+        await AssertTranslationFailed(base.FromTimeSpan_compared_to_parameter);
 
         AssertSql();
     }
@@ -143,12 +155,12 @@ public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<Basic
     public override async Task Order_by_FromTimeSpan()
     {
         // TimeOnly/DateOnly is not supported. Issue #25103.
-        await AssertTranslationFailed(() => base.Order_by_FromTimeSpan());
+        await AssertTranslationFailed(base.Order_by_FromTimeSpan);
 
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

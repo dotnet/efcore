@@ -10,7 +10,7 @@ public class SqliteMetadataBuilderExtensionsTest
     private IConventionModelBuilder CreateBuilder()
         => new InternalModelBuilder(new Model());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_change_entity_type_UseSqlReturningClause()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot))!;

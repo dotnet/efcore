@@ -183,15 +183,12 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
 
         var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
             ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
-        if (navigation != null)
-        {
-            return navigation.IsCollection
+        return navigation != null
+            ? navigation.IsCollection
                 ? new CollectionEntry(InternalEntry, navigation)
-                : new ReferenceEntry(InternalEntry, (INavigation)navigation);
-        }
-
-        throw new InvalidOperationException(
-            CoreStrings.PropertyNotFound(propertyName, InternalEntry.EntityType.DisplayName()));
+                : new ReferenceEntry(InternalEntry, (INavigation)navigation)
+            : throw new InvalidOperationException(
+                CoreStrings.PropertyNotFound(propertyName, InternalEntry.EntityType.DisplayName()));
     }
 
     /// <summary>
@@ -379,7 +376,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexCollectionEntry ComplexCollection(IComplexProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new ComplexCollectionEntry(InternalEntry, property);
     }
@@ -395,7 +392,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexCollectionEntry ComplexCollection(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ComplexCollectionEntry(InternalEntry, Metadata.GetComplexProperty(propertyName));
     }
@@ -603,7 +600,8 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         var values = Finder.GetDatabaseValues(InternalEntry);
 
-        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, null);
+        // ArrayPropertyValues will compute null-complex-property flags from the returned value buffer.
+        return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
     }
 
     /// <summary>
@@ -634,7 +632,8 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
 
-        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, null);
+        // ArrayPropertyValues will compute null-complex-property flags from the returned value buffer.
+        return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
     }
 
     /// <summary>

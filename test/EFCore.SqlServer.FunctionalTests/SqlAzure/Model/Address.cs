@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 [Table("Address", Schema = "SalesLT")]
 public class Address
 {
@@ -17,20 +15,20 @@ public class Address
     public int AddressID { get; set; }
 
     [Required, MaxLength(60)]
-    public string AddressLine1 { get; set; }
+    public string AddressLine1 { get; set; } = null!;
 
     [MaxLength(60)]
-    public string AddressLine2 { get; set; }
+    public string? AddressLine2 { get; set; }
 
     [Required, MaxLength(30)]
-    public string City { get; set; }
+    public string City { get; set; } = null!;
 
     public DateTime ModifiedDate { get; set; }
-    public string CountryRegion { get; set; }
-    public string StateProvince { get; set; }
+    public string? CountryRegion { get; set; }
+    public string? StateProvince { get; set; }
 
     [Required, MaxLength(15)]
-    public string PostalCode { get; set; }
+    public string PostalCode { get; set; } = null!;
 
     public Guid rowguid { get; set; }
 

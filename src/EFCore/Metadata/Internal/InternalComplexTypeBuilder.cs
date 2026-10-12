@@ -192,14 +192,11 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
         {
             if (property.DeclaringType != Metadata)
             {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
+                return shouldThrow
+                    ? throw new InvalidOperationException(
                         CoreStrings.InheritedPropertyCannotBeIgnored(
-                            name, Metadata.DisplayName(), property.DeclaringType.DisplayName()));
-                }
-
-                return false;
+                            name, Metadata.DisplayName(), property.DeclaringType.DisplayName()))
+                    : false;
             }
 
             if (!property.DeclaringType.Builder.CanRemoveProperty(
@@ -215,14 +212,11 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
             {
                 if (complexProperty.DeclaringType != Metadata)
                 {
-                    if (shouldThrow)
-                    {
-                        throw new InvalidOperationException(
+                    return shouldThrow
+                        ? throw new InvalidOperationException(
                             CoreStrings.InheritedPropertyCannotBeIgnored(
-                                name, Metadata.DisplayName(), complexProperty.DeclaringType.DisplayName()));
-                    }
-
-                    return false;
+                                name, Metadata.DisplayName(), complexProperty.DeclaringType.DisplayName()))
+                        : false;
                 }
 
                 if (!configurationSource.Overrides(complexProperty.GetConfigurationSource()))
@@ -500,9 +494,6 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
         => configurationSource.Overrides(Metadata.GetServiceOnlyConstructorBindingConfigurationSource())
             || Metadata.ServiceOnlyConstructorBinding == constructorBinding;
 
-    internal static readonly bool UseOldBehavior38119 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38119", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -516,10 +507,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
         ConfigurationSource configurationSource)
     {
         var builder = base.GetOrCreateDiscriminatorProperty(type, name, memberInfo, configurationSource);
-        if (!UseOldBehavior38119)
-        {
-            builder?.AfterSave(PropertySaveBehavior.Save, ConfigurationSource.Convention);
-        }
+        builder?.AfterSave(PropertySaveBehavior.Save, ConfigurationSource.Convention);
 
         return builder;
     }

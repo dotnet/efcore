@@ -6,7 +6,7 @@
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Indicates type of data compression used on a index.
+///     Indicates type of data compression used on an index.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://docs.microsoft.com/sql/relational-databases/data-compression">Data Compression</see> for more information on

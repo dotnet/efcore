@@ -12,7 +12,7 @@ public class ShoppingCartItem
     public DateTime ModifiedDate { get; set; }
     public int ProductID { get; set; }
     public int Quantity { get; set; }
-    public string ShoppingCartID { get; set; }
+    public string ShoppingCartID { get; set; } = null!;
 
-    public virtual Product Product { get; set; }
+    public virtual Product Product { get; set; } = null!;
 }

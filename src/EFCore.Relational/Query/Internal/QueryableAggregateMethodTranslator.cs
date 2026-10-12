@@ -165,7 +165,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
             }
 
             sqlExpression = _sqlExpressionFactory.Case(
-                new List<CaseWhenClause> { new(enumerableExpression.Predicate, sqlExpression) },
+                [new CaseWhenClause(enumerableExpression.Predicate, sqlExpression)],
                 elseResult: null);
         }
 

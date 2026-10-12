@@ -65,17 +65,14 @@ public static class ExpressionExtensions
         this MemberExpression memberExpression,
         Expression valueExpression)
     {
-        if (memberExpression.Member is FieldInfo { IsInitOnly: true })
-        {
-            return (BinaryExpression)Activator.CreateInstance(
+        return memberExpression.Member is FieldInfo { IsInitOnly: true }
+            ? (BinaryExpression)Activator.CreateInstance(
                 GetAssignBinaryExpressionType(),
                 BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
                 [memberExpression, valueExpression],
-                null)!;
-        }
-
-        return Expression.Assign(memberExpression, valueExpression);
+                null)!
+            : Expression.Assign(memberExpression, valueExpression);
 
         [UnconditionalSuppressMessage(
             "ReflectionAnalysis", "IL2026",
@@ -146,7 +143,7 @@ public static class ExpressionExtensions
     /// <param name="propertyAccessExpression">The expression.</param>
     /// <returns>The <see cref="PropertyInfo" />.</returns>
     public static PropertyInfo GetPropertyAccess(this LambdaExpression propertyAccessExpression)
-        => GetInternalMemberAccess<PropertyInfo>(propertyAccessExpression);
+        => propertyAccessExpression.GetInternalMemberAccess<PropertyInfo>();
 
     /// <summary>
     ///     Gets the <see cref="MemberInfo" /> represented by a simple member-access expression.
@@ -157,7 +154,7 @@ public static class ExpressionExtensions
     /// <param name="memberAccessExpression">The expression.</param>
     /// <returns>The <see cref="MemberInfo" />.</returns>
     public static MemberInfo GetMemberAccess(this LambdaExpression memberAccessExpression)
-        => GetInternalMemberAccess<MemberInfo>(memberAccessExpression);
+        => memberAccessExpression.GetInternalMemberAccess<MemberInfo>();
 
     private static TMemberInfo GetInternalMemberAccess<TMemberInfo>(this LambdaExpression memberAccessExpression)
         where TMemberInfo : MemberInfo
@@ -169,36 +166,11 @@ public static class ExpressionExtensions
         var parameterExpression = memberAccessExpression.Parameters[0];
         var memberInfo = parameterExpression.MatchSimpleMemberAccess<TMemberInfo>(memberAccessExpression.Body);
 
-        if (memberInfo == null)
-        {
-            throw new ArgumentException(
+        return memberInfo == null
+            ? throw new ArgumentException(
                 CoreStrings.InvalidMemberExpression(memberAccessExpression),
-                nameof(memberAccessExpression));
-        }
-
-        var declaringType = memberInfo.DeclaringType;
-        var parameterType = parameterExpression.Type;
-
-        if (declaringType != null
-            && declaringType != parameterType
-            && declaringType.IsInterface
-            && declaringType.IsAssignableFrom(parameterType)
-            && memberInfo is PropertyInfo propertyInfo)
-        {
-            var propertyGetter = propertyInfo.GetMethod;
-            var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
-            var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => p.Equals(propertyGetter));
-            var targetMethod = interfaceMapping.TargetMethods[index];
-            foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
-            {
-                if (targetMethod.Equals(runtimeProperty.GetMethod))
-                {
-                    return (TMemberInfo)(object)runtimeProperty;
-                }
-            }
-        }
-
-        return memberInfo;
+                nameof(memberAccessExpression))
+            : (TMemberInfo)memberInfo.ResolveMemberForType(parameterExpression.Type);
     }
 
     /// <summary>
@@ -228,14 +200,10 @@ public static class ExpressionExtensions
         var propertyPaths = propertyAccessExpression
             .MatchMemberAccessList((p, e) => e.MatchSimpleMemberAccess<PropertyInfo>(p));
 
-        if (propertyPaths == null)
-        {
-            throw new ArgumentException(
+        return propertyPaths
+            ?? throw new ArgumentException(
                 CoreStrings.InvalidMembersExpression(propertyAccessExpression),
                 nameof(propertyAccessExpression));
-        }
-
-        return propertyPaths;
     }
 
     /// <summary>
@@ -258,14 +226,10 @@ public static class ExpressionExtensions
         var memberPaths = memberAccessExpression
             .MatchMemberAccessList((p, e) => e.MatchSimpleMemberAccess<MemberInfo>(p));
 
-        if (memberPaths == null)
-        {
-            throw new ArgumentException(
+        return memberPaths
+            ?? throw new ArgumentException(
                 CoreStrings.InvalidMembersExpression(memberAccessExpression),
                 nameof(memberAccessExpression));
-        }
-
-        return memberPaths;
     }
 
     /// <summary>

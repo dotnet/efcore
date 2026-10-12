@@ -21,7 +21,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
     private Dictionary<EntityProjectionExpression, ProjectionBindingExpression>? _entityProjectionCache;
 
-    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = [];
     private List<Expression>? _clientProjections;
     private readonly Stack<ProjectionMember> _projectionMembers = new();
 
@@ -58,7 +58,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             _indexBasedBinding = true;
             _projectionMapping.Clear();
-            _entityProjectionCache = new Dictionary<EntityProjectionExpression, ProjectionBindingExpression>();
+            _entityProjectionCache = [];
             _clientProjections = [];
 
             result = Visit(expression);
@@ -252,18 +252,10 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     {
         if (extensionExpression is StructuralTypeShaperExpression shaper)
         {
-            EntityProjectionExpression entityProjectionExpression;
-            if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
-            {
-                entityProjectionExpression =
-                    (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                    .GetProjection(projectionBindingExpression);
-            }
-            else
-            {
-                entityProjectionExpression = (EntityProjectionExpression)shaper.ValueBufferExpression;
-            }
-
+            var entityProjectionExpression = shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression
+                ? (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
+                .GetProjection(projectionBindingExpression)
+                : (EntityProjectionExpression)shaper.ValueBufferExpression;
             if (_indexBasedBinding)
             {
                 if (!_entityProjectionCache!.TryGetValue(entityProjectionExpression, out var entityProjectionBinding))
@@ -281,14 +273,11 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
                 new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
         }
 
-        if (extensionExpression is IncludeExpression includeExpression)
-        {
-            return _indexBasedBinding
+        return extensionExpression is IncludeExpression includeExpression
+            ? _indexBasedBinding
                 ? base.VisitExtension(includeExpression)
-                : QueryCompilationContext.NotTranslatedExpression;
-        }
-
-        throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
+                : QueryCompilationContext.NotTranslatedExpression
+            : throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
     }
 
     /// <summary>
