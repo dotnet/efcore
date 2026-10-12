@@ -430,6 +430,10 @@ WHERE (c["$type"] = "CustomNaming")
         => base.Group_by_on_json_scalar_using_collection_indexer(async);
 
     [Theory(Skip = "issue #17313")]
+    public override Task Group_by_on_json_scalar_with_multiple_aggregates(bool async)
+        => base.Group_by_on_json_scalar_with_multiple_aggregates(async);
+
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_Skip_Take_on_json_scalar(bool async)
         => base.Group_by_Skip_Take_on_json_scalar(async);
 
@@ -2364,7 +2368,9 @@ WHERE (c["Id"] = 4)
 
         // Same as in 10.0
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Context21006.Entity>().Where(x => x.Id == 4).Select(x => x.RequiredReference.Number).ToListAsync());
-        Assert.Equal("Nullable object must have a value.", ex.Message);
+        Assert.Equal(
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
+            ex.Message);
     }
 
     public override Task Project_root_entity_with_missing_required_navigation(bool async)

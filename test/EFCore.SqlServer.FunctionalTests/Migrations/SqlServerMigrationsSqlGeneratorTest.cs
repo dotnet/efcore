@@ -156,6 +156,215 @@ ALTER TABLE [CustomersHistory] ADD [Number] int NOT NULL DEFAULT 0;
     }
 
     [Fact]
+    public virtual void AddColumnOperation_default_constraint_name_not_propagated_to_history_table()
+    {
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<int>("Number");
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("CustomersHistory");
+                            ttb.HasPeriodStart("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd");
+                        }));
+                }),
+            new DropColumnOperation
+            {
+                Table = "Customers",
+                Name = "Name"
+            },
+            new AddColumnOperation
+            {
+                Table = "Customers",
+                Name = "Number",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                IsNullable = false,
+                DefaultValue = 0,
+                [RelationalAnnotationNames.DefaultConstraintName] = "DF_Customers_Number"
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
+
+GO
+
+DECLARE @var1 nvarchar(max);
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name';
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
+ALTER TABLE [Customers] DROP COLUMN [Name];
+GO
+
+DECLARE @var2 nvarchar(max);
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[CustomersHistory]') AND [c].[name] = N'Name';
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [CustomersHistory] DROP CONSTRAINT ' + @var2 + ';');
+ALTER TABLE [CustomersHistory] DROP COLUMN [Name];
+GO
+
+ALTER TABLE [Customers] ADD [Number] int NOT NULL CONSTRAINT [DF_Customers_Number] DEFAULT 0;
+GO
+
+ALTER TABLE [CustomersHistory] ADD [Number] int NOT NULL DEFAULT 0;
+GO
+
+DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomersHistory]))')
+""");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_default_constraint_name_not_propagated_to_history_table()
+    {
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<int>("Number");
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("CustomersHistory");
+                            ttb.HasPeriodStart("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd");
+                        }));
+                }),
+            new AlterColumnOperation
+            {
+                Table = "Customers",
+                Name = "Number",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                IsNullable = false,
+                OldColumn = new AddColumnOperation
+                {
+                    Table = "Customers",
+                    Name = "Number",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = false,
+                    DefaultValue = 1,
+                    [RelationalAnnotationNames.DefaultConstraintName] = "DF_Customers_Number"
+                },
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
+
+GO
+
+ALTER TABLE [Customers] DROP CONSTRAINT [DF_Customers_Number];
+ALTER TABLE [Customers] ALTER COLUMN [Number] int NOT NULL;
+GO
+
+DECLARE @var1 nvarchar(max);
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[CustomersHistory]') AND [c].[name] = N'Number';
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [CustomersHistory] DROP CONSTRAINT ' + @var1 + ';');
+ALTER TABLE [CustomersHistory] ALTER COLUMN [Number] int NOT NULL;
+GO
+
+DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomersHistory]))')
+""");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_new_default_constraint_name_not_propagated_to_history_table()
+    {
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<int>("Number");
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("CustomersHistory");
+                            ttb.HasPeriodStart("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd");
+                        }));
+                }),
+            new AlterColumnOperation
+            {
+                Table = "Customers",
+                Name = "Number",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                IsNullable = false,
+                DefaultValue = 0,
+                OldColumn = new AddColumnOperation
+                {
+                    Table = "Customers",
+                    Name = "Number",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = true
+                },
+                [RelationalAnnotationNames.DefaultConstraintName] = "DF_Customers_Number",
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
+
+GO
+
+DECLARE @var1 nvarchar(max);
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Number';
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
+UPDATE [Customers] SET [Number] = 0 WHERE [Number] IS NULL;
+ALTER TABLE [Customers] ALTER COLUMN [Number] int NOT NULL;
+ALTER TABLE [Customers] ADD CONSTRAINT [DF_Customers_Number] DEFAULT 0 FOR [Number];
+GO
+
+DECLARE @var2 nvarchar(max);
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[CustomersHistory]') AND [c].[name] = N'Number';
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [CustomersHistory] DROP CONSTRAINT ' + @var2 + ';');
+UPDATE [CustomersHistory] SET [Number] = 0 WHERE [Number] IS NULL;
+ALTER TABLE [CustomersHistory] ALTER COLUMN [Number] int NOT NULL;
+ALTER TABLE [CustomersHistory] ADD DEFAULT 0 FOR [Number];
+GO
+
+DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomersHistory]))')
+""");
+    }
+
+    [Fact]
     public virtual void AddColumnOperation_identity_legacy_not_propagated_to_history_table()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
@@ -575,6 +784,58 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
     }
 
     [Fact]
+    public virtual void AlterColumnOperation_change_identity_seed()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "10.0.0"),
+            new AlterColumnOperation
+            {
+                Table = "Person",
+                Name = "Id",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                [SqlServerAnnotationNames.Identity] = "100, 1",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    [SqlServerAnnotationNames.Identity] = "10, 1"
+                }
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[Person]', RESEED, 100);
+""");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_change_identity_seed_above_int_range()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "10.0.0"),
+            new AlterColumnOperation
+            {
+                Table = "Person",
+                Name = "Id",
+                ClrType = typeof(long),
+                ColumnType = "bigint",
+                [SqlServerAnnotationNames.Identity] = "3000000000, 1",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(long),
+                    ColumnType = "bigint",
+                    [SqlServerAnnotationNames.Identity] = "1, 1"
+                }
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[Person]', RESEED, 3000000000);
+""");
+    }
+
+    [Fact]
     public virtual void AlterColumnOperation_add_identity_legacy()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => Generate(
@@ -829,6 +1090,75 @@ ALTER SCHEMA [hr] TRANSFER [dbo].[People];
 """);
     }
 
+    [Fact] // Issue #38601
+    public virtual void RenameTableOperation_temporal_table_moved_into_model_default_schema()
+    {
+        Generate(
+            modelBuilder =>
+            {
+                modelBuilder.HasDefaultSchema("dbo");
+                modelBuilder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                        e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                        e.HasKey("Id");
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(ttb =>
+                            {
+                                ttb.UseHistoryTable("CustomersHistory");
+                                ttb.HasPeriodStart("PeriodStart");
+                                ttb.HasPeriodEnd("PeriodEnd");
+                            }));
+                    });
+            },
+            new EnsureSchemaOperation { Name = "dbo" },
+            new RenameTableOperation
+            {
+                Name = "Customers",
+                Schema = null,
+                NewName = "Customers",
+                NewSchema = "dbo",
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalHistoryTableSchema] = null,
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+            },
+            new AlterTableOperation
+            {
+                Name = "Customers",
+                Schema = "dbo",
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalHistoryTableSchema] = "dbo",
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd",
+                OldTable =
+                {
+                    [SqlServerAnnotationNames.IsTemporal] = true,
+                    [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                    [SqlServerAnnotationNames.TemporalHistoryTableSchema] = null,
+                    [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                    [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+                }
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [dbo].[Customers] SET (SYSTEM_VERSIONING = OFF)
+
+GO
+
+ALTER SCHEMA [dbo] TRANSFER [Customers];
+GO
+
+ALTER TABLE [dbo].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[CustomersHistory]))
+""");
+    }
+
     [Fact]
     public virtual void RenameIndexOperations_throws_when_no_table()
     {
@@ -944,6 +1274,26 @@ GO
         AssertSql(
             """
 -- I GO 2
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_ignores_line_starting_with_go_identifier()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "SELECT" + EOL + "    ColumnA," + EOL + "    GoodColumn," + EOL + "    ColumnC" + EOL + "FROM" + EOL + "   [Table]"
+            });
+
+        AssertSql(
+            """
+SELECT
+    ColumnA,
+    GoodColumn,
+    ColumnC
+FROM
+   [Table]
 """);
     }
 
@@ -2124,6 +2474,61 @@ WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Settings';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Settings] json NOT NULL;
 """);
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual void Create_json_index_over_complex_property_member()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+
+        // Scaffolded migration code cannot contain the non-literal RelationalJsonIndex annotation;
+        // removing this filter would make CSharpMigrationOperationGenerator throw here.
+        var migrationCode = TestHelpers.CreateDesignServiceProvider().GetRequiredService<IMigrationsCodeGenerator>()
+            .GenerateMigration("Migrations", "AddJsonIndex", [operation], []);
+        Assert.DoesNotContain(RelationalAnnotationNames.JsonIndex, migrationCode);
+
+        operation.RemoveAnnotation(RelationalAnnotationNames.JsonIndex);
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_Blogs_Details_Slug] ON [Blogs]([Details]) FOR (N'$.Slug');
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonIndexBlog>(
+                e =>
+                {
+                    e.ToTable("Blogs");
+                    e.ComplexProperty(
+                        b => b.Details, cb =>
+                        {
+                            cb.ToJson().HasColumnType("json");
+                            cb.Property(i => i.Slug);
+                            cb.Property(i => i.Owner);
+                        });
+                    e.HasIndex(b => b.Details.Slug);
+                });
+    }
+
+    private class JsonIndexBlog
+    {
+        public int Id { get; set; }
+        public JsonIndexBlogDetails Details { get; set; } = null!;
+    }
+
+    private class JsonIndexBlogDetails
+    {
+        public string Slug { get; set; } = null!;
+        public string Owner { get; set; } = null!;
     }
 
     private static void CreateGotModel(ModelBuilder b)

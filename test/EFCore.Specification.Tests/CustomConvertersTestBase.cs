@@ -680,7 +680,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     {
         using var context = CreateContext();
         Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(()
                 => context.Set<Parent>().Select(e => new { e.OwnedWithConverter!.Value }).ToListAsync()))
             .Message);

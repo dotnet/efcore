@@ -535,8 +535,8 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                                 _sqlExpressionFactory.Constant(
                                     methodType switch
                                     {
-                                        StartsEndsWithContains.StartsWith => s + '%',
-                                        StartsEndsWithContains.EndsWith => '%' + s,
+                                        StartsEndsWithContains.StartsWith => $"{s}%",
+                                        StartsEndsWithContains.EndsWith => $"%{s}",
                                         StartsEndsWithContains.Contains => $"%{s}%",
 
                                         _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
@@ -552,8 +552,8 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                             _sqlExpressionFactory.Constant(
                                 methodType switch
                                 {
-                                    StartsEndsWithContains.StartsWith => EscapeLikePattern(s) + '%',
-                                    StartsEndsWithContains.EndsWith => '%' + EscapeLikePattern(s),
+                                    StartsEndsWithContains.StartsWith => $"{EscapeLikePattern(s)}%",
+                                    StartsEndsWithContains.EndsWith => $"%{EscapeLikePattern(s)}",
                                     StartsEndsWithContains.Contains => $"%{EscapeLikePattern(s)}%",
 
                                     _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
@@ -566,20 +566,27 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                                 _sqlExpressionFactory.Constant(
                                     methodType switch
                                     {
-                                        StartsEndsWithContains.StartsWith => s + "%",
-                                        StartsEndsWithContains.EndsWith => "%" + s,
+                                        StartsEndsWithContains.StartsWith => $"{s}%",
+                                        StartsEndsWithContains.EndsWith => $"%{s}",
                                         StartsEndsWithContains.Contains => $"%{s}%",
 
                                         _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
                                     })),
+
+                        // Azure Synapse does not support ESCAPE clause in LIKE
+                        // fallback to translation like with column/expression
+                        char s when _sqlServerSingletonOptions.EngineType is SqlServerEngineType.AzureSynapse
+                            => TranslateWithoutLike(
+                                patternIsNonEmptyConstantString: true,
+                                pattern: _sqlExpressionFactory.Constant(s.ToString(), stringTypeMapping)),
 
                         char s => _sqlExpressionFactory.Like(
                             translatedInstance,
                             _sqlExpressionFactory.Constant(
                                 methodType switch
                                 {
-                                    StartsEndsWithContains.StartsWith => LikeEscapeChar + s + "%",
-                                    StartsEndsWithContains.EndsWith => "%" + LikeEscapeChar + s,
+                                    StartsEndsWithContains.StartsWith => $"{LikeEscapeChar}{s}%",
+                                    StartsEndsWithContains.EndsWith => $"%{LikeEscapeChar}{s}",
                                     StartsEndsWithContains.Contains => $"%{LikeEscapeChar}{s}%",
 
                                     _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
@@ -621,8 +628,10 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                     return TranslateWithoutLike();
             }
 
-            SqlExpression TranslateWithoutLike(bool patternIsNonEmptyConstantString = false)
+            SqlExpression TranslateWithoutLike(bool patternIsNonEmptyConstantString = false, SqlExpression? pattern = null)
             {
+                pattern ??= translatedPattern;
+
                 return methodType switch
                 {
                     // For StartsWith/EndsWith, use LEFT or RIGHT instead to extract substring and compare:
@@ -634,7 +643,7 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                         => _sqlExpressionFactory.AndAlso(
                             _sqlExpressionFactory.IsNotNull(translatedInstance),
                             _sqlExpressionFactory.AndAlso(
-                                _sqlExpressionFactory.IsNotNull(translatedPattern),
+                                _sqlExpressionFactory.IsNotNull(pattern),
                                 _sqlExpressionFactory.Equal(
                                     _sqlExpressionFactory.Function(
                                         methodType is StartsEndsWithContains.StartsWith ? "LEFT" : "RIGHT",
@@ -642,7 +651,7 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                                             translatedInstance,
                                             _sqlExpressionFactory.Function(
                                                 "LEN",
-                                                [translatedPattern],
+                                                [pattern],
                                                 nullable: true,
                                                 argumentsPropagateNullability: Statics.TrueArrays[1],
                                                 typeof(int))
@@ -651,7 +660,7 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                                         argumentsPropagateNullability: Statics.TrueArrays[2],
                                         typeof(string),
                                         stringTypeMapping),
-                                    translatedPattern))),
+                                    pattern))),
 
                     // For Contains, just use CHARINDEX and check if the result is greater than 0.
                     StartsEndsWithContains.Contains when patternIsNonEmptyConstantString
@@ -665,11 +674,11 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                         => _sqlExpressionFactory.AndAlso(
                             _sqlExpressionFactory.IsNotNull(translatedInstance),
                             _sqlExpressionFactory.AndAlso(
-                                _sqlExpressionFactory.IsNotNull(translatedPattern),
+                                _sqlExpressionFactory.IsNotNull(pattern),
                                 _sqlExpressionFactory.OrElse(
                                     CharIndexGreaterThanZero(),
                                     _sqlExpressionFactory.Like(
-                                        translatedPattern,
+                                        pattern,
                                         _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping))))),
 
                     _ => throw new UnreachableException()
@@ -679,7 +688,7 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                     => _sqlExpressionFactory.GreaterThan(
                         _sqlExpressionFactory.Function(
                             "CHARINDEX",
-                            [translatedPattern, translatedInstance],
+                            [pattern, translatedInstance],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[2],
                             typeof(int)),
@@ -746,24 +755,24 @@ public class SqlServerSqlTranslatingExpressionVisitor(
 
             string s => methodType switch
             {
-                StartsEndsWithContains.StartsWith => EscapeLikePattern(s) + '%',
-                StartsEndsWithContains.EndsWith => '%' + EscapeLikePattern(s),
+                StartsEndsWithContains.StartsWith => $"{EscapeLikePattern(s)}%",
+                StartsEndsWithContains.EndsWith => $"%{EscapeLikePattern(s)}",
                 StartsEndsWithContains.Contains => $"%{EscapeLikePattern(s)}%",
                 _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
             },
 
             char s when !IsLikeWildChar(s) => methodType switch
             {
-                StartsEndsWithContains.StartsWith => s + "%",
-                StartsEndsWithContains.EndsWith => "%" + s,
+                StartsEndsWithContains.StartsWith => $"{s}%",
+                StartsEndsWithContains.EndsWith => $"%{s}",
                 StartsEndsWithContains.Contains => $"%{s}%",
                 _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
             },
 
             char s => methodType switch
             {
-                StartsEndsWithContains.StartsWith => LikeEscapeChar + s + "%",
-                StartsEndsWithContains.EndsWith => "%" + LikeEscapeChar + s,
+                StartsEndsWithContains.StartsWith => $"{LikeEscapeChar}{s}%",
+                StartsEndsWithContains.EndsWith => $"%{LikeEscapeChar}{s}",
                 StartsEndsWithContains.Contains => $"%{LikeEscapeChar}{s}%",
                 _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
             },

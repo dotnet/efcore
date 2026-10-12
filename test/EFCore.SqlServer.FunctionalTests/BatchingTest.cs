@@ -202,16 +202,17 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             await context.SaveChangesAsync();
         }
 
-        var tasks = new List<Task>();
-        for (var i = 0; i < 10; i++)
+        try
         {
-            foreach (var blog in blogs)
+            for (var i = 0; i < 10; i++)
             {
-                tasks.Add(RemoveAndAddPosts(blog));
+                await Task.WhenAll(blogs.Select(RemoveAndAddPosts));
             }
         }
-
-        Task.WaitAll(tasks.ToArray());
+        finally
+        {
+            await Fixture.ReseedAsync();
+        }
 
         async Task RemoveAndAddPosts(Blog blog)
         {
@@ -226,8 +227,6 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
             await context.SaveChangesAsync();
         }
-
-        await Fixture.ReseedAsync();
     }
 
     [Fact]
@@ -268,20 +267,23 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             await context.SaveChangesAsync();
         }
 
-        var tasks = new List<Task>();
-        foreach (var owner in owners)
+        try
         {
-            tasks.Add(Action(owner));
-        }
+            var tasks = new List<Task>();
+            foreach (var owner in owners)
+            {
+                tasks.Add(Action(owner));
+            }
 
-        Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks);
 
-        using (var context = CreateContext())
-        {
+            using var context = CreateContext();
             Assert.Empty(await context.Blogs.ToListAsync());
         }
-
-        await Fixture.ReseedAsync();
+        finally
+        {
+            await Fixture.ReseedAsync();
+        }
     }
 
     [Fact]

@@ -295,7 +295,7 @@ FROM [EntityOne] AS [e]
 INNER JOIN [SplitEntityOnePart3] AS [s] ON [e].[Id] = [s].[Id]
 INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e].[Id] = [s0].[Id]
 LEFT JOIN [OwnedCollection] AS [o] ON [e].[Id] = [o].[EntityOneId]
-ORDER BY [e].[Id], [o].[EntityOneId]
+ORDER BY [e].[Id], [o].[EntityOneId], [o].[Id]
 """);
     }
 
@@ -719,7 +719,7 @@ LEFT JOIN (
     INNER JOIN [OwnedReferencePart4] AS [o0] ON [o].[BaseEntityId] = [o0].[BaseEntityId] AND [o].[Id] = [o0].[Id]
     INNER JOIN [OwnedReferencePart3] AS [o1] ON [o].[BaseEntityId] = [o1].[BaseEntityId] AND [o].[Id] = [o1].[Id]
 ) AS [s0] ON [u].[Id] = [s0].[BaseEntityId]
-ORDER BY [u].[Id], [s0].[BaseEntityId]
+ORDER BY [u].[Id], [s0].[BaseEntityId], [s0].[Id]
 """);
     }
 
@@ -765,7 +765,7 @@ LEFT JOIN (
     INNER JOIN [OwnedReferencePart4] AS [o0] ON [o].[MiddleEntityId] = [o0].[MiddleEntityId] AND [o].[Id] = [o0].[Id]
     INNER JOIN [OwnedReferencePart3] AS [o1] ON [o].[MiddleEntityId] = [o1].[MiddleEntityId] AND [o].[Id] = [o1].[Id]
 ) AS [s0] ON [u].[Id] = [s0].[MiddleEntityId]
-ORDER BY [u].[Id], [s0].[MiddleEntityId]
+ORDER BY [u].[Id], [s0].[MiddleEntityId], [s0].[Id]
 """);
     }
 

@@ -681,6 +681,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         // array rather than an empty string (which isn't valid JSON).
         return ElementTypeMapping is not null
             && JsonValueReaderWriter != null
+            && providerType == typeof(string)
                 ? "[]"
                 : providerType == typeof(string)
                     ? string.Empty

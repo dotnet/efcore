@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable ClassNeverInstantiated.Local
@@ -484,6 +486,57 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     x => Assert.Equal("E", x.Name),
                     x => Assert.Equal("D_B", x.Name),
                     x => Assert.Equal("D_C", x.Name),
+                    x => Assert.Equal("A", x.Name));
+            });
+
+    [Fact]
+    public void Create_table_columns_uses_complex_property_order()
+        => Execute(
+            _ => { },
+            modelBuilder => modelBuilder.Entity<CreateTableEntity2>().ComplexProperty(e => e.D),
+            operations =>
+            {
+                var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                Assert.Collection(
+                    operation.Columns,
+                    x => Assert.Equal("Id", x.Name),
+                    x => Assert.Equal("E", x.Name),
+                    x => Assert.Equal("D_B", x.Name),
+                    x => Assert.Equal("D_C", x.Name),
+                    x => Assert.Equal("A", x.Name));
+            });
+
+    private class CreateTableEntity3
+    {
+        public int Id { get; set; }
+        public int Z { get; set; }
+        public CreateTableEntity3B Y { get; set; } = null!;
+        public int A { get; set; }
+    }
+
+    private class CreateTableEntity3B
+    {
+        public int D { get; set; }
+        public CreateTableEntity2B C { get; set; } = null!;
+        public int B { get; set; }
+    }
+
+    [Fact]
+    public void Create_table_columns_uses_nested_complex_property_order()
+        => Execute(
+            _ => { },
+            modelBuilder => modelBuilder.Entity<CreateTableEntity3>().ComplexProperty(e => e.Y, y => y.ComplexProperty(e => e.C)),
+            operations =>
+            {
+                var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                Assert.Collection(
+                    operation.Columns,
+                    x => Assert.Equal("Id", x.Name),
+                    x => Assert.Equal("Z", x.Name),
+                    x => Assert.Equal("Y_D", x.Name),
+                    x => Assert.Equal("Y_C_B", x.Name),
+                    x => Assert.Equal("Y_C_C", x.Name),
+                    x => Assert.Equal("Y_B", x.Name),
                     x => Assert.Equal("A", x.Name));
             });
 
@@ -1520,6 +1573,215 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     var m = Assert.IsType<DropTableOperation>(o);
                     Assert.Equal("Company", m.Name);
+                }));
+
+    [Fact]
+    public void Detects_entity_splitting_fragment_optionality_change()
+    {
+        var (sourceModel, targetModel) = BuildCustomerModels(sourceIsOptional: false, targetIsOptional: true);
+
+        var listLoggerFactory = new ListLoggerFactory(_ => true);
+        var modelDiffer = CreateModelDifferWithLogger(targetModel, listLoggerFactory);
+
+        modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
+
+        var warning = Assert.Single(
+            listLoggerFactory.Log,
+            l => l.Id == RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning);
+        Assert.Contains("CustomerDetails", warning.Message);
+        Assert.Contains("Customer", warning.Message);
+        Assert.Contains("optional", warning.Message);
+    }
+
+    [Fact]
+    public void Does_not_warn_when_entity_splitting_fragment_optionality_is_unchanged()
+    {
+        var (sourceModel, targetModel) = BuildCustomerModels(sourceIsOptional: false, targetIsOptional: false);
+
+        var listLoggerFactory = new ListLoggerFactory(_ => true);
+        var modelDiffer = CreateModelDifferWithLogger(targetModel, listLoggerFactory);
+
+        modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
+
+        Assert.DoesNotContain(
+            listLoggerFactory.Log,
+            l => l.Id == RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning);
+    }
+
+    private (IModel Source, IModel Target) BuildCustomerModels(bool sourceIsOptional, bool targetIsOptional)
+    {
+        IModel BuildModel(bool isOptional)
+        {
+            var modelBuilder = CreateModelBuilder(skipConventions: false);
+            modelBuilder.Entity(
+                "Customer", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("Name");
+                    x.SplitToTable(
+                        "CustomerDetails", t =>
+                        {
+                            if (isOptional)
+                            {
+                                t.IsOptional();
+                            }
+
+                            t.Property<string>("Description");
+                        });
+                });
+
+            return modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
+        }
+
+        return (BuildModel(sourceIsOptional), BuildModel(targetIsOptional));
+    }
+
+    private MigrationsModelDiffer CreateModelDifferWithLogger(IModel targetModel, ListLoggerFactory listLoggerFactory)
+    {
+        var options = new LoggingOptions();
+        options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging().Options);
+        var logger = new DiagnosticsLogger<DbLoggerCategory.Migrations>(
+            listLoggerFactory,
+            options,
+            new DiagnosticListener("Fake"),
+            TestHelpers.LoggingDefinitions,
+            new NullDbContextLogger());
+
+        var targetOptions = TestHelpers.AddProviderOptions(new DbContextOptionsBuilder()).UseModel(targetModel).Options;
+
+        return new MigrationsModelDiffer(
+            new TestRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+            new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+            new RelationalAnnotationProvider(new RelationalAnnotationProviderDependencies()),
+            TestServiceFactory.Instance.Create<IRowIdentityMapFactory>(),
+            TestHelpers.CreateContext(targetOptions).GetService<CommandBatchPreparerDependencies>(),
+            logger);
+    }
+
+    [Fact]
+    public void Optional_entity_splitting_does_not_seed_absent_fragment_row()
+        => Execute(
+            _ => { },
+            _ => { },
+            modelBuilder => modelBuilder.Entity(
+                "Animal",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("MouseId");
+                    x.Property<string>("BoneId").HasDefaultValue("default");
+                    x.HasData(
+                        new
+                        {
+                            Id = 42,
+                            MouseId = "1",
+                            BoneId = (string?)null
+                        });
+                    x.SplitToTable(
+                        "AnimalDetails", t =>
+                        {
+                            t.IsOptional();
+                            t.Property<string>("BoneId");
+                        });
+                }),
+            upOps => Assert.Collection(
+                upOps,
+                o => Assert.Equal("Animal", Assert.IsType<CreateTableOperation>(o).Name),
+                o => Assert.Equal("AnimalDetails", Assert.IsType<CreateTableOperation>(o).Name),
+                o => Assert.Equal("Animal", Assert.IsType<InsertDataOperation>(o).Table)),
+            downOps => Assert.Collection(
+                downOps,
+                o => Assert.Equal("AnimalDetails", Assert.IsType<DropTableOperation>(o).Name),
+                o => Assert.Equal("Animal", Assert.IsType<DropTableOperation>(o).Name)));
+
+    [Fact]
+    public void Optional_entity_splitting_seed_data_adds_and_removes_fragment_row()
+        => Execute(
+            modelBuilder => modelBuilder.Entity(
+                "Animal",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("MouseId");
+                    x.Property<string>("BoneId");
+                    x.SplitToTable(
+                        "AnimalDetails", t =>
+                        {
+                            t.IsOptional();
+                            t.Property<string>("BoneId");
+                        });
+                }),
+            source => source.Entity("Animal").HasData(
+                new
+                {
+                    Id = 42,
+                    MouseId = "1",
+                    BoneId = (string?)null
+                }),
+            target => target.Entity("Animal").HasData(
+                new
+                {
+                    Id = 42,
+                    MouseId = "1",
+                    BoneId = "2"
+                }),
+            upOps =>
+            {
+                var operation = Assert.IsType<InsertDataOperation>(Assert.Single(upOps));
+                Assert.Equal("AnimalDetails", operation.Table);
+            },
+            downOps =>
+            {
+                var operation = Assert.IsType<DeleteDataOperation>(Assert.Single(downOps));
+                Assert.Equal("AnimalDetails", operation.Table);
+            });
+
+    [Fact]
+    public void Remove_entity_splitting_from_excluded_table()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("City");
+                        x.SplitToTable(
+                            "Address", t => t.Property<string>("City"));
+                        x.ToTable("Company", tb => tb.ExcludeFromMigrations());
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("City");
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Company", fk.PrincipalTable);
                 }));
 
     [Fact]
@@ -3637,6 +3899,58 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     v => Assert.Equal("42", v));
             },
             skipSourceConventions: true);
+
+    [Fact]
+    public void Alter_primary_key_column_count_with_seed_data()
+    => Execute(
+        common => common.Entity(
+            "Raven",
+            x =>
+            {
+                x.ToTable("Raven", "dbo");
+                x.Property<int>("Id");
+                x.Property<int>("RavenId");
+                x.HasData(
+                    new { Id = 42, RavenId = 42 });
+            }),
+        source => source.Entity(
+            "Raven",
+            x => x.HasKey("Id")),
+        target => target.Entity(
+            "Raven",
+            x => x.HasKey("Id", "RavenId")),
+        operations =>
+        {
+            Assert.Equal(4, operations.Count);
+
+            var dropOperation = Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+            Assert.Equal("dbo", dropOperation.Schema);
+            Assert.Equal("Raven", dropOperation.Table);
+            Assert.Equal("PK_Raven", dropOperation.Name);
+
+            var deleteDataOperation = Assert.IsType<DeleteDataOperation>(operations[1]);
+            Assert.Null(deleteDataOperation.KeyColumnTypes);
+            Assert.Equal(new[] { "Id" }, deleteDataOperation.KeyColumns);
+            AssertMultidimensionalArray(
+                deleteDataOperation.KeyValues,
+                v => Assert.Equal(42, v));
+
+            var addOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
+            Assert.Equal("dbo", addOperation.Schema);
+            Assert.Equal("Raven", addOperation.Table);
+            Assert.Equal("PK_Raven", addOperation.Name);
+            Assert.Equal(new[] { "Id", "RavenId" }, addOperation.Columns);
+
+            var insertDataOperation = Assert.IsType<InsertDataOperation>(operations[3]);
+            Assert.Equal("dbo", insertDataOperation.Schema);
+            Assert.Equal("Raven", insertDataOperation.Table);
+            Assert.Equal(new[] { "Id", "RavenId" }, insertDataOperation.Columns);
+            AssertMultidimensionalArray(
+                insertDataOperation.Values,
+                v => Assert.Equal(42, v),
+                v => Assert.Equal(42, v));
+        },
+        skipSourceConventions: true);
 
     [Fact]
     public void Add_foreign_key()

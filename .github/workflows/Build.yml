@@ -49,26 +49,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Restore
+      - name: Build
         if: runner.os != 'Windows'
-        run: ./restore.sh
+        run: ./build.sh
 
-      - name: Restore
+      - name: Build
         if: runner.os == 'Windows'
         shell: cmd
-        run: restore.cmd
+        run: build.cmd
 
       - name: Test
+        env:
+          CollectCoverage: true
         run: |
           mkdir -p artifacts/coverage
           pattern=$(echo "$SQLSERVER_TEST_PROJECTS $ADDITIONAL_EXCLUDED_PROJECTS" | xargs -n1 | tr '\n' '|' | sed 's/|$//')
           failed=0
           for proj in $(find test -maxdepth 2 \( -name '*.csproj' -o -name '*.fsproj' -o -name '*.vbproj' \) \
             | grep -v -E "$pattern"); do
-            dotnet test "$proj" \
-              -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
-              --coverage-settings eng/efcore.coverage.xml || failed=1
+            dotnet test "$proj" || failed=1
           done
           exit $failed
 
@@ -120,11 +119,9 @@ jobs:
       - name: Test on Cosmos
         run: |
           mkdir -p artifacts/coverage
-          dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj \
-            -- --coverage --coverage-output-format cobertura \
-            --coverage-output "$PWD/artifacts/coverage/EFCore.Cosmos.FunctionalTests.cobertura.xml" \
-            --coverage-settings eng/efcore.coverage.xml
+          dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
         env:
+          CollectCoverage: true
           Test__Cosmos__DefaultConnection: ${{ runner.os == 'Windows' && 'https://localhost:8081' || '' }}
           Test__Cosmos__SkipConnectionCheck: ${{ runner.os == 'Windows' && 'true' || '' }}
 
@@ -178,15 +175,13 @@ jobs:
 
       - name: Test on SQL Server
         env:
+          CollectCoverage: true
           Test__SqlServer__DefaultConnection: 'Server=localhost;Database=master;User=SA;Password=${{ env.MSSQL_SA_PASSWORD }};Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true'
         run: |
           mkdir -p artifacts/coverage
           failed=0
           for proj in $SQLSERVER_TEST_PROJECTS; do
-            dotnet test "$proj" \
-              -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
-              --coverage-settings eng/efcore.coverage.xml || failed=1
+            dotnet test "$proj" || failed=1
           done
           exit $failed
 
@@ -229,14 +224,13 @@ jobs:
         run: restore.cmd
 
       - name: Test EF Core Sqlite
+        env:
+          CollectCoverage: true
         run: |
           mkdir -p artifacts/coverage
           failed=0
           for proj in test/EFCore.Sqlite.FunctionalTests test/EFCore.Sqlite.Tests test/EFCore.AspNet.Sqlite.FunctionalTests; do
-            dotnet test "$proj" \
-              -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
-              --coverage-settings eng/efcore.coverage.xml || failed=1
+            dotnet test "$proj" || failed=1
           done
           exit $failed
 
@@ -280,15 +274,24 @@ jobs:
         run: restore.cmd
 
       - name: Test Microsoft.Data.Sqlite
+        env:
+          CollectCoverage: true
         run: |
           mkdir -p artifacts/coverage
           failed=0
           for proj in $(find test/Microsoft.Data.Sqlite.Tests -name '*.csproj' \
             | if [ "$RUNNER_OS" != "Windows" ]; then grep -v winsqlite3; else cat; fi); do
-            dotnet test "$proj" \
-              -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
-              --coverage-settings eng/efcore.coverage.xml || failed=1
+            if dotnet test "$proj"; then
+              continue
+            else
+              test_exit_code=$?
+            fi
+
+            # The SDK aggregate runner reports zero-test exit code 8 after application-level
+            # ignored exit codes are applied.
+            if [ "$test_exit_code" -ne 8 ]; then
+              failed=1
+            fi
           done
           exit $failed
 
@@ -332,6 +335,17 @@ jobs:
       code-quality: write
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          sparse-checkout: eng/
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        with:
+          dotnet-version: latest
+          dotnet-quality: ga
+
       - name: Download coverage artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
@@ -339,20 +353,15 @@ jobs:
           path: artifacts/coverage
 
       - name: Merge coverage reports
-        continue-on-error: true
-        run: |
-          mapfile -d '' files < <(find artifacts/coverage -name '*.cobertura.xml' -print0 2>/dev/null)
-          if [ ${#files[@]} -gt 0 ]; then
-            export PATH="$PATH:$HOME/.dotnet/tools"
-            dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
-            dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
-          fi
+        shell: pwsh
+        working-directory: ${{ runner.temp }}
+        run: . ${{ github.workspace }}/eng/merge-coverage.ps1 -CoverageDirectory ${{ github.workspace }}/artifacts/coverage -OutputFile ${{ github.workspace }}/artifacts/coverage/coverage.cobertura.xml
 
       - name: Upload coverage report
         if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && hashFiles('artifacts/coverage/coverage.cobertura.xml') != ''
-        uses: actions/upload-code-coverage@d8e329117199404bba6fc81efe8093dc7c015e34
+        uses: actions/upload-code-coverage@2b21a77928be8d5168c2b9581a67f2adbebacc52
         with:
           file: artifacts/coverage/coverage.cobertura.xml
           language: C#
           label: code-coverage
-          fail-on-error: false
+          fail-on-error: true

@@ -297,6 +297,14 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
         var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
+        if (blobDatabaseName == null
+            || blobTableName == null)
+        {
+            // The value came from an expression, so there is no row to open a blob on. Looking for a rowid
+            // column would also hand these nulls to sqlite3_table_column_metadata, which is misuse
+            return new MemoryStream(GetCachedBlob(ordinal), false);
+        }
+
         var rowidkey = $"{blobDatabaseName}_{blobTableName}";
         if (!RowIds.TryGetValue(rowidkey, out var rowIdForOrdinal))
         {
@@ -345,8 +353,14 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
                     if (pkColumns < 0L)
                     {
                         using var command = connection.CreateCommand();
-                        command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
+
+                        // SQLite only creates an index for a primary key that is not an alias for the rowid, for example
+                        // in WITHOUT ROWID tables or with INTEGER PRIMARY KEY DESC, so the key columns count only without one
+                        command.CommandText =
+                            "SELECT COUNT(*) FROM pragma_table_info($table, $schema) WHERE pk != 0 "
+                            + "AND NOT EXISTS (SELECT 1 FROM pragma_index_list($table, $schema) WHERE origin = 'pk');";
                         command.Parameters.AddWithValue("$table", tableName);
+                        command.Parameters.AddWithValue("$schema", databaseName);
 
                         pkColumns = (long)command.ExecuteScalar()!;
                     }
@@ -434,21 +448,33 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
         var timer = SharedStopwatch.StartNew();
 
-        while (IsBusy(rc = sqlite3_reset(Handle)))
+        // A write that has not been stepped to the end commits when it is reset. If that commit is busy,
+        // sqlite3_reset reports it only once: resetting again returns SQLITE_OK while the write has been
+        // rolled back. So retry by stepping, which retries the commit, and reset only once at the end.
+        if (timeout != -1
+            && !_alreadyThrown
+            && sqlite3_stmt_readonly(Handle) == 0
+            && sqlite3_stmt_busy(Handle) != 0)
         {
-            if (timeout == -1)
+            while ((rc = sqlite3_step(Handle)) == SQLITE_ROW
+                || IsBusy(rc))
             {
-                break;
-            }
+                if (rc == SQLITE_ROW)
+                {
+                    continue;
+                }
 
-            if (timeout != 0
-                && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= timeout * 1000L)
-            {
-                break;
-            }
+                if (timeout != 0
+                    && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= timeout * 1000L)
+                {
+                    break;
+                }
 
-            Thread.Sleep(150);
+                Thread.Sleep(150);
+            }
         }
+
+        rc = sqlite3_reset(Handle);
 
         if (!_alreadyThrown)
         {

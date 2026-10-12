@@ -123,6 +123,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 continue;
             }
 
+            if (modificationCommand.EntityState == EntityState.Added
+                && modificationCommand is ModificationCommand { IsOptionalSplitFragment: true }
+                && modificationCommand.ColumnModifications.Where(m => !m.IsKey).All(m => m.Value is null))
+            {
+                continue;
+            }
+
+            if (modificationCommand.EntityState == EntityState.Deleted
+                && modificationCommand is ModificationCommand { IsOptionalSplitFragmentRowAssumedAbsent: true })
+            {
+                continue;
+            }
+
             if (!batch.TryAddCommand(modificationCommand))
             {
                 if (batch.ModificationCommands.Count == 1
@@ -1078,7 +1091,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     }
 
                     AfterLoop:
-                    _modificationCommandGraph.AddEdge(predecessor, command, new CommandDependency(foreignKey), requiresBatchingBoundary);
+                    _modificationCommandGraph.AddEdge(
+                        predecessor,
+                        command,
+                        new CommandDependency(foreignKey, Breakable: !foreignKey.IsConstrained && !requiresBatchingBoundary),
+                        requiresBatchingBoundary);
                 }
             }
         }
@@ -1264,15 +1281,12 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
                     var (value, hasNullValue) = rowIndexValueFactory.CreateEquatableIndexValue(command);
 
-                    if (command.EntityState == EntityState.Modified)
-                    {
-                        var (originalValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
-                        if (Equals(originalValue, value))
-                        {
-                            continue;
-                        }
-                    }
-
+                    // Note: unlike the predecessor (first) pass above, we don't skip creating an edge here when the
+                    // command's own index value appears unchanged. A predecessor is only ever registered in
+                    // indexPredecessorsMap for a value it is actually releasing (see the check above), so if this
+                    // command's value matches one, it genuinely needs to wait for that release, regardless of whether
+                    // its own current/original value comparison (which can be unreliable, e.g. for attached entities
+                    // whose original value was snapshotted after being modified) suggests no change occurred.
                     if (value != null)
                     {
                         AddMatchingPredecessorEdge(

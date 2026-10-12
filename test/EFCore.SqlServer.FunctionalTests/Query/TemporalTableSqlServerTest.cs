@@ -283,7 +283,7 @@ FROM [MainEntitiesSameTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000'
 SELECT [m].[Id], [m].[Name], [m].[PeriodEnd], [m].[PeriodStart], [o].[MainEntityManyId], [o].[Id], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart]
 FROM [MainEntitiesMany] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [m]
 LEFT JOIN [OwnedEntityMany] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [o] ON [m].[Id] = [o].[MainEntityManyId]
-ORDER BY [m].[Id], [o].[MainEntityManyId]
+ORDER BY [m].[Id], [o].[MainEntityManyId], [o].[Id]
 """);
     }
 
@@ -312,7 +312,7 @@ FROM (
     WHERE [m0].[Id] < 30
 ) AS [u]
 LEFT JOIN [OwnedEntityMany] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [o] ON [u].[Id] = [o].[MainEntityManyId]
-ORDER BY [u].[Id], [o].[MainEntityManyId]
+ORDER BY [u].[Id], [o].[MainEntityManyId], [o].[Id]
 """);
     }
 

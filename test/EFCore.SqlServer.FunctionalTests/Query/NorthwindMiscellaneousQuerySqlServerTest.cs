@@ -5227,7 +5227,7 @@ FROM (
     OFFSET @p ROWS
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5247,7 +5247,7 @@ FROM (
     ORDER BY [o].[OrderID]
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5269,7 +5269,7 @@ FROM (
     OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5353,7 +5353,7 @@ FROM (
     OFFSET @p ROWS
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5373,7 +5373,7 @@ FROM (
     ORDER BY [o].[OrderID]
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5395,7 +5395,7 @@ FROM (
     OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 

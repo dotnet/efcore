@@ -39,6 +39,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly SqlAliasManager _sqlAliasManager;
 
     internal bool IsMutable { get; private set; } = true;
+    internal bool HasClientProjections
+        => _clientProjections.Count > 0;
     private Dictionary<ProjectionMember, Expression> _projectionMapping = [];
     private List<Expression> _clientProjections = [];
     private readonly List<string?> _aliasForClientProjections = [];
@@ -573,7 +575,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 shaperExpression = new RelationalGroupByShaperExpression(
                     relationalGroupByShaperExpression.KeySelector,
                     innerShaperExpression,
-                    relationalGroupByShaperExpression.GroupingEnumerable);
+                    relationalGroupByShaperExpression.GroupingEnumerable,
+                    relationalGroupByShaperExpression.ResultSelector);
             }
 
             // Convert GroupBy to OrderBy
@@ -659,9 +662,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                     this, newClientProjections, projectionBindingMap, groupByShaper.KeySelector);
                 var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(
                     this, newClientProjections, projectionBindingMap, _identifier);
-                _identifier.Clear();
-                _identifier.AddRange(_preGroupByIdentifier!);
-                _preGroupByIdentifier!.Clear();
+                // ApplyGrouping only sets this aside when it replaced the identifier with the grouping terms; when the identifier was
+                // already part of the key (e.g. grouping by the primary key) it left it alone, and there's nothing to restore.
+                if (_preGroupByIdentifier is not null)
+                {
+                    _identifier.Clear();
+                    _identifier.AddRange(_preGroupByIdentifier);
+                    _preGroupByIdentifier.Clear();
+                }
 
                 Expression AddGroupByKeySelectorToProjection(
                     SelectExpression selectExpression,
@@ -683,14 +691,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 existingIndex = clientProjectionList.Count - 1;
                             }
 
-                            var projectionBindingExpression = sqlExpression.Type.IsNullableType()
-                                ? (Expression)new ProjectionBindingExpression(selectExpression, existingIndex, sqlExpression.Type)
-                                : Convert(
-                                    new ProjectionBindingExpression(
-                                        selectExpression, existingIndex, sqlExpression.Type.MakeNullable()),
-                                    sqlExpression.Type);
+                            // The key identifier reads the value as nullable so that a null key doesn't throw.
+                            var projectionBindingExpression = new ProjectionBindingExpression(
+                                selectExpression, existingIndex, sqlExpression.Type.MakeNullable());
                             projectionBindingMap[sqlExpression] = projectionBindingExpression;
-                            return projectionBindingExpression;
+                            return sqlExpression.Type.IsNullableType()
+                                ? projectionBindingExpression
+                                : Convert(projectionBindingExpression, sqlExpression.Type);
                         }
 
                         case NewExpression newExpression:
@@ -724,9 +731,22 @@ public sealed partial class SelectExpression : TableExpressionBase
                             return memberInitExpression.Update((NewExpression)updatedNewExpression, newBindings);
 
                         case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression:
-                            return unaryExpression.Update(
-                                AddGroupByKeySelectorToProjection(
-                                    selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand));
+                        {
+                            // Also adds the operand to projectionBindingMap, which the nullable read below comes from.
+                            var operand = AddGroupByKeySelectorToProjection(
+                                selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand);
+
+                            // A nullable or reference-type (e.g. object) key over a SQL expression with a non-nullable CLR type;
+                            // converting through the non-nullable operand would throw for a null key.
+                            if (unaryExpression is { Operand: SqlExpression sqlOperand, Method: null }
+                                && (unaryExpression.Type == sqlOperand.Type.MakeNullable() || !unaryExpression.Type.IsValueType))
+                            {
+                                var nullableRead = projectionBindingMap[sqlOperand];
+                                return nullableRead.Type == unaryExpression.Type ? nullableRead : unaryExpression.Update(nullableRead);
+                            }
+
+                            return unaryExpression.Update(operand);
+                        }
 
                         case StructuralTypeShaperExpression
                         {
@@ -789,7 +809,8 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                 remappingRequired = true;
                 shaperExpression = new RelationalGroupByResultExpression(
-                    keyIdentifier, keyIdentifierValueComparers, keySelector, groupByShaper.ElementSelector);
+                    keyIdentifier, keyIdentifierValueComparers, keySelector, groupByShaper.ElementSelector,
+                    groupByShaper.ResultSelector);
             }
 
             SelectExpression? baseSelectExpression = null;
@@ -1077,6 +1098,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     .Except(innerSelectExpression._childIdentifiers, IdentifierComparerInstance)
                                     .Select(e => (e.Column.MakeNullable(), e.Comparer)));
 
+                            var collectionJoinPredicate = (_tables[^1] as PredicateJoinExpressionBase)?.JoinPredicate;
+                            var hasOrderingForJoinKey = false;
+                            var hasOrderingForNonJoinKey = false;
                             OrderingExpression? pendingOrdering = null;
                             foreach (var (identifierColumn, identifierComparer) in innerSelectExpression._identifier)
                             {
@@ -1096,11 +1120,53 @@ public sealed partial class SelectExpression : TableExpressionBase
                                         }
 
                                         AppendOrderingInternal(pendingOrdering);
+                                        TrackOrdering(pendingOrdering.Expression);
                                     }
 
                                     pendingOrdering = orderingExpression;
                                 }
+                                else
+                                {
+                                    TrackOrdering(updatedColumn);
+                                }
                             }
+
+                            if (pendingOrdering is not null
+                                && hasOrderingForJoinKey
+                                && !hasOrderingForNonJoinKey)
+                            {
+                                // The pending identifier is the only ordering that discriminates elements within the collection.
+                                AppendOrderingInternal(pendingOrdering);
+                            }
+
+                            void TrackOrdering(SqlExpression ordering)
+                            {
+                                if (collectionJoinPredicate is not null
+                                    && IsJoinKeyColumn(collectionJoinPredicate, ordering))
+                                {
+                                    hasOrderingForJoinKey = true;
+                                }
+                                else
+                                {
+                                    hasOrderingForNonJoinKey = true;
+                                }
+                            }
+
+                            static bool IsJoinKeyColumn(SqlExpression joinPredicate, SqlExpression column)
+                                => joinPredicate switch
+                                {
+                                    SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary
+                                        => IsSameColumn(binary.Left, column) || IsSameColumn(binary.Right, column),
+                                    SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary
+                                        => IsJoinKeyColumn(binary.Left, column) || IsJoinKeyColumn(binary.Right, column),
+                                    _ => false
+                                };
+
+                            static bool IsSameColumn(SqlExpression left, SqlExpression right)
+                                => left is ColumnExpression leftColumn
+                                    && right is ColumnExpression rightColumn
+                                    && leftColumn.TableAlias == rightColumn.TableAlias
+                                    && leftColumn.Name == rightColumn.Name;
 
                             var result = new SingleCollectionInfo(
                                 parentIdentifier, outerIdentifier, selfIdentifier,
@@ -2568,18 +2634,24 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public StructuralTypeShaperExpression GenerateOwnedReferenceEntityProjectionExpression(
+    public StructuralTypeShaperExpression? GenerateOwnedReferenceEntityProjectionExpression(
         StructuralTypeProjectionExpression principalEntityProjection,
         INavigation navigation,
         ISqlExpressionFactory sqlExpressionFactory,
-        SqlAliasManager sqlAliasManager)
+        SqlAliasManager sqlAliasManager,
+        bool allowOwnerJoin = true)
     {
         // We first find the select expression where principal tableExpressionBase is located
         // That is where we find shared tableExpressionBase to pull columns from or add joins
         var identifyingColumn = principalEntityProjection.BindProperty(
             navigation.DeclaringEntityType.FindPrimaryKey()!.Properties.First());
 
-        var expressions = GetPropertyExpressions(sqlExpressionFactory, sqlAliasManager, navigation, this, identifyingColumn);
+        var expressions = GetPropertyExpressions(
+            sqlExpressionFactory, sqlAliasManager, navigation, this, identifyingColumn, allowOwnerJoin);
+        if (expressions is null)
+        {
+            return null;
+        }
 
         // TODO: support for complex types on owned entity types, #33170
         var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
@@ -2595,12 +2667,13 @@ public sealed partial class SelectExpression : TableExpressionBase
         // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
         // So there is no handling for dependent having hierarchy
         // TODO: The following code should also handle Function and SqlQuery mappings when supported on owned type
-        static IReadOnlyDictionary<IProperty, ColumnExpression> GetPropertyExpressions(
+        static IReadOnlyDictionary<IProperty, ColumnExpression>? GetPropertyExpressions(
             ISqlExpressionFactory sqlExpressionFactory,
             SqlAliasManager sqlAliasManager,
             INavigation navigation,
             SelectExpression selectExpression,
-            ColumnExpression identifyingColumn)
+            ColumnExpression identifyingColumn,
+            bool allowOwnerJoin)
         {
             var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
             var tableExpressionBase = selectExpression.GetTable(identifyingColumn).UnwrapJoin();
@@ -2614,7 +2687,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                     .Expression;
 
                 var subqueryPropertyExpressions = GetPropertyExpressions(
-                    sqlExpressionFactory, sqlAliasManager, navigation, subquery, subqueryIdentifyingColumn);
+                    sqlExpressionFactory, sqlAliasManager, navigation, subquery, subqueryIdentifyingColumn, allowOwnerJoin);
+                if (subqueryPropertyExpressions is null)
+                {
+                    return null;
+                }
+
                 var changeNullability = identifyingColumn.IsNullable && !subqueryIdentifyingColumn.IsNullable;
                 foreach (var (property, columnExpression) in subqueryPropertyExpressions)
                 {
@@ -2711,6 +2789,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     .Zip(innerColumns, sqlExpressionFactory.Equal)
                                     .Aggregate(sqlExpressionFactory.AndAlso);
 
+                                // Safe to append even after grouping: the fragment is joined on the dependent's own key,
+                                // so it matches at most one row and adds no identifier.
                                 selectExpression._tables.Add(new LeftJoinExpression(tableExpression, joinPredicate, prunable: true));
                             }
                         }
@@ -2737,7 +2817,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
 
             // Either we encountered a custom table source or dependent is not sharing table
-            // In either case we need to generate join to owner
+            // In either case we need to generate join to owner. The join and the identifier below are appended directly rather
+            // than going through AddJoin, so the caller has to know that the select can still take them.
+            if (!allowOwnerJoin)
+            {
+                return null;
+            }
+
             var ownerJoinColumns = new List<ColumnExpression>();
             foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
             {

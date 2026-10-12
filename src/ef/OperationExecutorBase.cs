@@ -178,7 +178,8 @@ internal abstract class OperationExecutorBase : IOperationExecutor
         string? suffix,
         bool scaffoldModel,
         bool precompileQueries,
-        bool nativeAot)
+        bool nativeAot,
+        string? langVersion)
         => InvokeOperation<IEnumerable<string>>(
             "OptimizeContext",
             new Dictionary<string, object?>
@@ -189,7 +190,8 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["suffix"] = suffix,
                 ["scaffoldModel"] = scaffoldModel,
                 ["precompileQueries"] = precompileQueries,
-                ["nativeAot"] = nativeAot
+                ["nativeAot"] = nativeAot,
+                ["langVersion"] = langVersion
             });
 
     public IDictionary ScaffoldContext(

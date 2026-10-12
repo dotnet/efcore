@@ -16,6 +16,188 @@ public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase
         .OptionsBuilder).Options)
 {
     [Fact]
+    public virtual void Create_unique_json_index_over_complex_property_member()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+
+        var migrationCode = TestHelpers.CreateDesignServiceProvider().GetRequiredService<IMigrationsCodeGenerator>()
+            .GenerateMigration("Migrations", "AddJsonIndex", [operation], []);
+        Assert.DoesNotContain(RelationalAnnotationNames.JsonIndex, migrationCode);
+
+        operation.RemoveAnnotation(RelationalAnnotationNames.JsonIndex);
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE UNIQUE INDEX "IX_Blogs_Details_Slug" ON "Blogs" ("Details" ->> 'Slug');
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonIndexBlog>(
+                e =>
+                {
+                    e.ToTable("Blogs");
+                    e.ComplexProperty(
+                        b => b.Details, cb =>
+                        {
+                            cb.ToJson();
+                            cb.Property(i => i.Slug);
+                            cb.Property(i => i.Owner);
+                        });
+                    e.HasIndex(b => b.Details.Slug).IsUnique();
+                });
+    }
+
+    [Fact]
+    public virtual void Create_json_index_over_root_collection_element()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+        var jsonIndex = Assert.IsType<RelationalJsonIndex>(operation[RelationalAnnotationNames.JsonIndex]);
+        Assert.Empty(Assert.IsAssignableFrom<IRelationalJsonArray>(Assert.Single(jsonIndex.Elements)).Path);
+        Assert.Equal(new int?[] { 0 }, Assert.Single(jsonIndex.CollectionIndices!));
+
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE INDEX "IX_JsonCollectionIndexBlog_Items" ON "JsonCollectionIndexBlog" ("Items" ->> 0);
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonCollectionIndexBlog>(
+                e =>
+                {
+                    e.ComplexCollection(b => b.Items).ToJson();
+                    e.Ignore(b => b.Posts);
+                    e.HasIndex("Items[0]");
+                });
+    }
+
+    [Fact]
+    public virtual void Create_json_index_over_nested_collection_element()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+        var jsonIndex = Assert.IsType<RelationalJsonIndex>(operation[RelationalAnnotationNames.JsonIndex]);
+        var element = Assert.IsAssignableFrom<IRelationalJsonArray>(Assert.Single(jsonIndex.Elements));
+        Assert.Collection(
+            element.Path,
+            segment => Assert.True(segment.IsArray),
+            segment => Assert.Equal("Comments", segment.PropertyName));
+        Assert.Equal(new int?[] { 0, 1 }, Assert.Single(jsonIndex.CollectionIndices!));
+
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE INDEX "IX_JsonCollectionIndexBlog_Posts_Comments" ON "JsonCollectionIndexBlog" ("Posts" ->> '$[0].Comments[1]');
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonCollectionIndexBlog>(
+                e =>
+                {
+                    e.ComplexCollection(
+                        b => b.Posts, cb =>
+                        {
+                            cb.ToJson();
+                            cb.ComplexCollection(p => p.Comments);
+                        });
+                    e.Ignore(b => b.Items);
+                    e.HasIndex("Posts[0].Comments[1]");
+                });
+    }
+
+    [Fact]
+    public virtual void Create_json_index_with_mixed_sort_directions_over_shared_container()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+        Assert.Null(operation.IsDescending);
+
+        var jsonIndex = Assert.IsType<RelationalJsonIndex>(operation[RelationalAnnotationNames.JsonIndex]);
+        Assert.Equal(2, jsonIndex.Elements.Count);
+        Assert.False(jsonIndex.IsElementDescending(0));
+        Assert.True(jsonIndex.IsElementDescending(1));
+
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE INDEX "IX_Blogs_Details_Slug_Details_Owner" ON "Blogs" ("Details" ->> 'Slug', "Details" ->> 'Owner' DESC);
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonIndexBlog>(
+                e =>
+                {
+                    e.ToTable("Blogs");
+                    e.ComplexProperty(
+                        b => b.Details, cb =>
+                        {
+                            cb.ToJson();
+                            cb.Property(i => i.Slug);
+                            cb.Property(i => i.Owner);
+                        });
+                    e.HasIndex(b => new { b.Details.Slug, b.Details.Owner }).IsDescending(false, true);
+                });
+    }
+
+    private class JsonIndexBlog
+    {
+        public int Id { get; set; }
+        public JsonIndexDetails Details { get; set; } = new();
+    }
+
+    private class JsonIndexDetails
+    {
+        public string Slug { get; set; } = null!;
+        public string Owner { get; set; } = null!;
+    }
+
+    private class JsonCollectionIndexBlog
+    {
+        public int Id { get; set; }
+        public List<JsonIndexDetails> Items { get; set; } = [];
+        public List<JsonCollectionIndexDetails> Posts { get; set; } = [];
+    }
+
+    private class JsonCollectionIndexDetails
+    {
+        public List<JsonIndexDetails> Comments { get; set; } = [];
+    }
+
+    [Fact]
     public virtual void It_lifts_foreign_key_additions()
     {
         Generate(

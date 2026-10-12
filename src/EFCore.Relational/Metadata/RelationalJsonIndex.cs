@@ -21,6 +21,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///         specific element. A <see langword="null" /> top-level entry indicates the property is
 ///         not reached through any complex collection.
 ///     </para>
+///     <para>
+///         The <see cref="IsDescending" /> list, when present, runs parallel to <see cref="Elements" />
+///         and indicates the sort order requested for each indexed JSON element. Sort order for a JSON
+///         index can only be represented per element (since all elements may share the same JSON
+///         container column, which is exposed as a single, deduplicated operation column), so it is
+///         carried here rather than on the containing <see cref="CreateIndexOperation" />/<see cref="ITableIndex" />,
+///         whose column-level <see cref="ITableIndex.IsDescending" /> is <see langword="null" /> for JSON indexes.
+///     </para>
 /// </remarks>
 public sealed class RelationalJsonIndex : IEquatable<RelationalJsonIndex>
 {
@@ -32,9 +40,14 @@ public sealed class RelationalJsonIndex : IEquatable<RelationalJsonIndex>
     ///     The complex-collection indices traversed to reach each indexed property, parallel to
     ///     <paramref name="elements" />.
     /// </param>
+    /// <param name="isDescending">
+    ///     The sort order requested for each indexed JSON element, parallel to <paramref name="elements" />,
+    ///     or <see langword="null" /> if every element uses ascending order.
+    /// </param>
     public RelationalJsonIndex(
         IReadOnlyList<IRelationalJsonElement> elements,
-        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices)
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices,
+        IReadOnlyList<bool>? isDescending = null)
     {
         Check.NotNull(elements);
 
@@ -45,8 +58,16 @@ public sealed class RelationalJsonIndex : IEquatable<RelationalJsonIndex>
                 nameof(collectionIndices));
         }
 
+        if (isDescending is not null && isDescending.Count != 0 && elements.Count != isDescending.Count)
+        {
+            throw new ArgumentException(
+                RelationalStrings.JsonPathIndexElementsIsDescendingMismatch(elements.Count, isDescending.Count),
+                nameof(isDescending));
+        }
+
         Elements = elements;
         CollectionIndices = collectionIndices;
+        IsDescending = isDescending;
     }
 
     /// <summary>
@@ -59,6 +80,22 @@ public sealed class RelationalJsonIndex : IEquatable<RelationalJsonIndex>
     /// </summary>
     public IReadOnlyList<IReadOnlyList<int?>?>? CollectionIndices { get; }
 
+    /// <summary>
+    ///     Gets the sort order requested for each indexed JSON element, parallel to <see cref="Elements" />,
+    ///     or <see langword="null" /> if every element uses ascending order.
+    /// </summary>
+    public IReadOnlyList<bool>? IsDescending { get; }
+
+    /// <summary>
+    ///     Resolves whether the element at <paramref name="index" /> should be sorted in descending order,
+    ///     honoring the shorthand where an empty <see cref="IsDescending" /> list means every element is
+    ///     descending.
+    /// </summary>
+    /// <param name="index">The index of the element in <see cref="Elements" />.</param>
+    /// <returns><see langword="true" /> if the element should be sorted in descending order.</returns>
+    public bool IsElementDescending(int index)
+        => IsDescending is not null && (IsDescending.Count == 0 || IsDescending[index]);
+
     /// <inheritdoc />
     public bool Equals(RelationalJsonIndex? other)
     {
@@ -69,7 +106,8 @@ public sealed class RelationalJsonIndex : IEquatable<RelationalJsonIndex>
 
         if (other is null
             || Elements.Count != other.Elements.Count
-            || (CollectionIndices is null) != (other.CollectionIndices is null))
+            || (CollectionIndices is null) != (other.CollectionIndices is null)
+            || (IsDescending is null) != (other.IsDescending is null))
         {
             return false;
         }
@@ -83,6 +121,11 @@ public sealed class RelationalJsonIndex : IEquatable<RelationalJsonIndex>
             }
 
             if (!CollectionIndicesEntryEqual(CollectionIndices?[i], other.CollectionIndices?[i]))
+            {
+                return false;
+            }
+
+            if (IsDescending is not null && IsElementDescending(i) != other.IsElementDescending(i))
             {
                 return false;
             }
@@ -121,6 +164,8 @@ public sealed class RelationalJsonIndex : IEquatable<RelationalJsonIndex>
                     hash.Add(entry.HasValue ? entry.Value : -1);
                 }
             }
+
+            hash.Add(IsDescending is null ? (bool?)null : IsElementDescending(i));
         }
 
         return hash.ToHashCode();

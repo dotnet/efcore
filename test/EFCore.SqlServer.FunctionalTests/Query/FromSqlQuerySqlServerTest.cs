@@ -688,7 +688,7 @@ INNER JOIN (
     SELECT * FROM "Orders" WHERE "OrderID" <> 1
 ) AS [m0] ON [m].[CustomerID] = [m0].[CustomerID]
 LEFT JOIN [Order Details] AS [o] ON [m0].[OrderID] = [o].[OrderID]
-ORDER BY [m].[CustomerID], [m0].[OrderID], [o].[OrderID]
+ORDER BY [m].[CustomerID], [m0].[OrderID], [o].[OrderID], [o].[ProductID]
 """);
     }
 

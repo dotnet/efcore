@@ -475,10 +475,10 @@ public class NumberToStringConverterTest
 
         Assert.Equal("79228162514264337593543950335", converter(decimal.MaxValue));
         Assert.Equal("-79228162514264337593543950335", converter(decimal.MinValue));
-        Assert.Equal("-792264.3375935", converter((decimal)-792264.3375935));
-        Assert.Equal("0.000000001", converter((decimal)0.000000001));
-        Assert.Equal("0.00000000000000000001", converter((decimal)0.00000000000000000001));
-        Assert.Equal("-0.00000000000000000001", converter((decimal)-0.00000000000000000001));
+        Assert.Equal("-792264.3375935", converter(-792264.3375935m));
+        Assert.Equal("0.000000001", converter(0.000000001m));
+        Assert.Equal("0.00000000000000000001", converter(0.00000000000000000001m));
+        Assert.Equal("-0.00000000000000000001", converter(-0.00000000000000000001m));
     }
 
     [Fact]
@@ -488,10 +488,10 @@ public class NumberToStringConverterTest
 
         Assert.Equal(decimal.MaxValue, converter("79228162514264337593543950335"));
         Assert.Equal(decimal.MinValue, converter("-79228162514264337593543950335"));
-        Assert.Equal((decimal)-792264.3375935, converter("-792264.3375935"));
-        Assert.Equal((decimal)0.000000001, converter("0.000000001"));
-        Assert.Equal((decimal)0.00000000000000000001, converter("0.00000000000000000001"));
-        Assert.Equal((decimal)-0.00000000000000000001, converter("-0.00000000000000000001"));
+        Assert.Equal(-792264.3375935m, converter("-792264.3375935"));
+        Assert.Equal(0.000000001m, converter("0.000000001"));
+        Assert.Equal(0.00000000000000000001m, converter("0.00000000000000000001"));
+        Assert.Equal(-0.00000000000000000001m, converter("-0.00000000000000000001"));
 
         Assert.Throws<OverflowException>(() => converter("-79228162514264337593543950336"));
         Assert.Throws<OverflowException>(() => converter("79228162514264337593543950336"));
@@ -506,10 +506,10 @@ public class NumberToStringConverterTest
 
         Assert.Equal("79228162514264337593543950335", converter(decimal.MaxValue));
         Assert.Equal("-79228162514264337593543950335", converter(decimal.MinValue));
-        Assert.Equal("-792264.3375935", converter((decimal)-792264.3375935));
-        Assert.Equal("0.000000001", converter((decimal)0.000000001));
-        Assert.Equal("0.00000000000000000001", converter((decimal)0.00000000000000000001));
-        Assert.Equal("-0.00000000000000000001", converter((decimal)-0.00000000000000000001));
+        Assert.Equal("-792264.3375935", converter(-792264.3375935m));
+        Assert.Equal("0.000000001", converter(0.000000001m));
+        Assert.Equal("0.00000000000000000001", converter(0.00000000000000000001m));
+        Assert.Equal("-0.00000000000000000001", converter(-0.00000000000000000001m));
     }
 
     [Fact]
@@ -519,10 +519,10 @@ public class NumberToStringConverterTest
 
         Assert.Equal(decimal.MaxValue, converter("79228162514264337593543950335"));
         Assert.Equal(decimal.MinValue, converter("-79228162514264337593543950335"));
-        Assert.Equal((decimal)-792264.3375935, converter("-792264.3375935"));
-        Assert.Equal((decimal)0.000000001, converter("0.000000001"));
-        Assert.Equal((decimal)0.00000000000000000001, converter("0.00000000000000000001"));
-        Assert.Equal((decimal)-0.00000000000000000001, converter("-0.00000000000000000001"));
+        Assert.Equal(-792264.3375935m, converter("-792264.3375935"));
+        Assert.Equal(0.000000001m, converter("0.000000001"));
+        Assert.Equal(0.00000000000000000001m, converter("0.00000000000000000001"));
+        Assert.Equal(-0.00000000000000000001m, converter("-0.00000000000000000001"));
 
         Assert.Throws<OverflowException>(() => converter("-79228162514264337593543950336"));
         Assert.Throws<OverflowException>(() => converter("79228162514264337593543950336"));

@@ -49,7 +49,7 @@ LEFT JOIN (
     INNER JOIN "OwnedCollectionExtras2" AS "o0" ON "o"."EntityOneId" = "o0"."EntityOneId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedCollectionExtras1" AS "o1" ON "o"."EntityOneId" = "o1"."EntityOneId" AND "o"."Id" = "o1"."Id"
 ) AS "s" ON "e"."Id" = "s"."EntityOneId"
-ORDER BY "e"."Id", "s"."EntityOneId"
+ORDER BY "e"."Id", "s"."EntityOneId", "s"."Id"
 """);
     }
 
@@ -85,7 +85,7 @@ LEFT JOIN (
     INNER JOIN "OwnedCollectionExtras2" AS "o0" ON "o"."EntityOneId" = "o0"."EntityOneId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedCollectionExtras1" AS "o1" ON "o"."EntityOneId" = "o1"."EntityOneId" AND "o"."Id" = "o1"."Id"
 ) AS "s1" ON "e"."Id" = "s1"."EntityOneId"
-ORDER BY "e"."Id", "s1"."EntityOneId"
+ORDER BY "e"."Id", "s1"."EntityOneId", "s1"."Id"
 """);
     }
 
@@ -249,7 +249,7 @@ LEFT JOIN (
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."BaseEntityId" = "o0"."BaseEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."BaseEntityId" = "o1"."BaseEntityId" AND "o"."Id" = "o1"."Id"
 ) AS "s" ON "b"."Id" = "s"."BaseEntityId"
-ORDER BY "b"."Id", "s"."BaseEntityId"
+ORDER BY "b"."Id", "s"."BaseEntityId", "s"."Id"
 """);
     }
 
@@ -274,7 +274,7 @@ LEFT JOIN (
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."BaseEntityId" = "o0"."BaseEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."BaseEntityId" = "o1"."BaseEntityId" AND "o"."Id" = "o1"."Id"
 ) AS "s0" ON "b"."Id" = "s0"."BaseEntityId"
-ORDER BY "b"."Id", "s0"."BaseEntityId"
+ORDER BY "b"."Id", "s0"."BaseEntityId", "s0"."Id"
 """);
     }
 
@@ -292,7 +292,7 @@ LEFT JOIN (
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."MiddleEntityId" = "o0"."MiddleEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."MiddleEntityId" = "o1"."MiddleEntityId" AND "o"."Id" = "o1"."Id"
 ) AS "s" ON "b"."Id" = "s"."MiddleEntityId"
-ORDER BY "b"."Id", "s"."MiddleEntityId"
+ORDER BY "b"."Id", "s"."MiddleEntityId", "s"."Id"
 """);
     }
 
@@ -317,7 +317,7 @@ LEFT JOIN (
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."MiddleEntityId" = "o0"."MiddleEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."MiddleEntityId" = "o1"."MiddleEntityId" AND "o"."Id" = "o1"."Id"
 ) AS "s0" ON "b"."Id" = "s0"."MiddleEntityId"
-ORDER BY "b"."Id", "s0"."MiddleEntityId"
+ORDER BY "b"."Id", "s0"."MiddleEntityId", "s0"."Id"
 """);
     }
 
@@ -335,7 +335,7 @@ LEFT JOIN (
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."LeafEntityId" = "o0"."LeafEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntityId" AND "o"."Id" = "o1"."Id"
 ) AS "s" ON "b"."Id" = "s"."LeafEntityId"
-ORDER BY "b"."Id", "s"."LeafEntityId"
+ORDER BY "b"."Id", "s"."LeafEntityId", "s"."Id"
 """);
     }
 
@@ -360,7 +360,7 @@ LEFT JOIN (
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."LeafEntityId" = "o0"."LeafEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntityId" AND "o"."Id" = "o1"."Id"
 ) AS "s0" ON "b"."Id" = "s0"."LeafEntityId"
-ORDER BY "b"."Id", "s0"."LeafEntityId"
+ORDER BY "b"."Id", "s0"."LeafEntityId", "s0"."Id"
 """);
     }
 
@@ -390,7 +390,7 @@ LEFT JOIN (
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."LeafEntityId" = "o0"."LeafEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntityId" AND "o"."Id" = "o1"."Id"
 ) AS "s0" ON "u"."Id" = "s0"."LeafEntityId"
-ORDER BY "u"."Id", "s0"."LeafEntityId"
+ORDER BY "u"."Id", "s0"."LeafEntityId", "s0"."Id"
 """);
     }
 }

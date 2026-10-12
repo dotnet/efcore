@@ -161,8 +161,9 @@ internal class SqliteConnectionInternal
 
     public void Activate(SqliteConnection outerConnection)
     {
-        _active = true;
+        // Publish the owner before making this connection eligible for leak reclamation.
         _outerConnection.SetTarget(outerConnection);
+        _active = true;
     }
 
     public void Close()
@@ -186,6 +187,12 @@ internal class SqliteConnectionInternal
             if (_outerConnection.TryGetTarget(out var outerConnection))
             {
                 outerConnection!.Deactivate();
+            }
+
+            // A failed rollback can detach the managed transaction without ending the native transaction.
+            if (sqlite3_get_autocommit(_db) == 0)
+            {
+                _canBePooled = false;
             }
         }
         else

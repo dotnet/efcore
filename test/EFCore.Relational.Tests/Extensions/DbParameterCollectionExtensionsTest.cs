@@ -300,21 +300,21 @@ public class DbParameterCollectionExtensionsTest
         => Assert.Equal(
             "@param='77.7' (Precision = 18)",
             DbParameterCollectionExtensions.FormatParameter(
-                "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 18, 0));
+                "@param", 77.7m, true, ParameterDirection.Input, DbType.Decimal, false, 0, 18, 0));
 
     [Fact]
     public void Formats_decimal_parameter_with_scale()
         => Assert.Equal(
             "@param='77.7' (Scale = 2)",
             DbParameterCollectionExtensions.FormatParameter(
-                "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 0, 2));
+                "@param", 77.7m, true, ParameterDirection.Input, DbType.Decimal, false, 0, 0, 2));
 
     [Fact]
     public void Formats_decimal_parameter_with_precision_and_scale()
         => Assert.Equal(
             "@param='77.7' (Precision = 18) (Scale = 2)",
             DbParameterCollectionExtensions.FormatParameter(
-                "@param", (decimal)77.7, true, ParameterDirection.Input, DbType.Decimal, false, 0, 18, 2));
+                "@param", 77.7m, true, ParameterDirection.Input, DbType.Decimal, false, 0, 18, 2));
 
     [Fact]
     public void Formats_double_parameter()

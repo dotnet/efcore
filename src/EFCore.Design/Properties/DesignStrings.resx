@@ -328,6 +328,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="MultipleContextsWithQualifiedName" xml:space="preserve">
     <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.</value>
   </data>
+  <data name="InvalidCSharpLanguageVersion" xml:space="preserve">
+    <value>The C# language version '{languageVersion}' is not supported. Specify a valid C# language version, such as 'latest' or '15.0'.</value>
+  </data>
   <data name="NoAnonymousSymbol" xml:space="preserve">
     <value>Could not find symbol for anonymous object creation initializer:</value>
   </data>

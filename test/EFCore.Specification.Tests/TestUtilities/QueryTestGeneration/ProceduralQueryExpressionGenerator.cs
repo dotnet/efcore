@@ -175,7 +175,9 @@ public class ProcedurallyGeneratedQueryExecutor
         AddExpectedFailure("GroupBy_optional_navigation_member_Aggregate", "Incorrect syntax near '+'."); // 12656
         AddExpectedFailure("GroupBy_Property_Select_Key_Max", "Incorrect syntax near '+'."); // 12656
 
-        AddExpectedFailure("Collection_select_nav_prop_sum", "Nullable object must have a value."); // 12657
+        AddExpectedFailure(
+            "Collection_select_nav_prop_sum",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value."); // 12657
 
         AddExpectedFailure("Simple_owned_level1_level2_GroupBy_Having_Count", "Incorrect syntax near '+'."); // 12658
 

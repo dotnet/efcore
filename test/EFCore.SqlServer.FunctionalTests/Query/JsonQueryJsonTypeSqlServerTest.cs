@@ -2254,6 +2254,23 @@ GROUP BY [j0].[Key]
 """);
     }
 
+    public override async Task Group_by_on_json_scalar_with_multiple_aggregates(bool async)
+    {
+        await base.Group_by_on_json_scalar_with_multiple_aggregates(async);
+
+        AssertSql(
+            """
+SELECT [j0].[Key], ISNULL(SUM(JSON_VALUE([j0].[c0], '$.Number' RETURNING int)), 0) AS [Sum], MAX(JSON_VALUE([j0].[c0], '$.OwnedReferenceBranch.Fraction' RETURNING decimal(18,2))) AS [Max], COUNT(CASE
+    WHEN JSON_VALUE([j0].[c0], '$.Number' RETURNING int) > 5 THEN 1
+END) AS [Above]
+FROM (
+    SELECT [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
+    FROM [JsonEntitiesBasic] AS [j]
+) AS [j0]
+GROUP BY [j0].[Key]
+""");
+    }
+
     public override async Task Group_by_on_json_scalar_using_collection_indexer(bool async)
     {
         await base.Group_by_on_json_scalar_using_collection_indexer(async);
@@ -4203,7 +4220,7 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
     }
 
     [Fact]
-    public virtual async Task Materialize_json_null_required_primitive_collection_in_json_throws()
+    public virtual async Task Materialize_json_null_required_primitive_collection_in_json_is_empty()
     {
         var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInJson>(
             onModelCreating: OnModelCreatingPrimitiveCollectionInJson,
@@ -4212,12 +4229,13 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
 
         using var context = contextFactory.CreateDbContext();
 
-        // A required primitive collection nested in a JSON document whose value is a 'null' token yields a clear,
-        // property-named error rather than the cryptic reader/writer "Invalid token type: 'Null'".
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
-            => context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
+        // A required primitive collection nested in a JSON document whose value is a 'null' token materializes as empty, the
+        // same as an absent key and as the Cosmos provider does; the optional one next to it keeps its value.
+        var entity = Assert.Single(
+            await context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
 
-        Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredStrings"), exception.Message);
+        Assert.Empty(entity.Reference!.RequiredStrings);
+        Assert.Equal(["x", "y"], entity.Reference.NullableStrings);
     }
 
     protected virtual async Task SeedPrimitiveCollectionInJson(DbContext ctx)
@@ -4236,7 +4254,7 @@ INSERT INTO [Entities] ([Id], [Reference])
 VALUES(2, '{"NullableStrings":["x","y"],"RequiredStrings":["c","d"]}')
 """);
 
-        // required collection is JSON null (materialization throws)
+        // required collection is JSON null (materializes as empty)
         await ctx.Database.ExecuteSqlAsync(
             $$"""
 INSERT INTO [Entities] ([Id], [Reference])

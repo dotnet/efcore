@@ -316,9 +316,7 @@ public abstract class TestHelpers
             .GetRuntimeMethods()
             .Where(m => m.DeclaringType != testClass
                 && (Attribute.IsDefined(m, typeof(FactAttribute))
-                    || Attribute.IsDefined(m, typeof(TheoryAttribute))
-                    || Attribute.IsDefined(m, typeof(ConditionalFactAttribute))
-                    || Attribute.IsDefined(m, typeof(ConditionalTheoryAttribute))))
+                    || Attribute.IsDefined(m, typeof(TheoryAttribute))))
             .ToList();
 
         var methodCalls = new StringBuilder();

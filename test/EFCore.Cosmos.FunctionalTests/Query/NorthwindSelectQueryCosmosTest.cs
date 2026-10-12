@@ -286,6 +286,30 @@ FROM root c
 """);
             });
 
+    public override Task Select_anonymous_non_numeric_constants(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_anonymous_non_numeric_constants(a);
+                AssertSql(
+                    """
+@MinValue='0001-01-01'
+@MinValue1='00:00:00'
+
+SELECT VALUE
+{
+    "CustomerID" : c["id"],
+    "ConstantGuid" : "00000000-0000-0000-0000-000000000000",
+    "ConstantDateTime" : "0001-01-01T00:00:00",
+    "ConstantDateOnly" : @MinValue,
+    "ConstantTimeSpan" : "00:00:00",
+    "ConstantTimeOnly" : @MinValue1,
+    "ConstantDateTimeOffset" : "0001-01-01T00:00:00+00:00"
+}
+FROM root c
+""");
+            });
+
     public override Task Select_anonymous_constant_in_expression(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2141,6 +2165,55 @@ FROM root c
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Set_operation_in_pending_collection(async));
+
+        AssertSql();
+    }
+
+    public override async Task Multiple_members_of_single_result_subquery_with_non_equi_correlation_lift_to_single_join(bool async)
+    {
+        await AssertTranslationFailed(() => base.Multiple_members_of_single_result_subquery_with_non_equi_correlation_lift_to_single_join(async));
+
+        AssertSql();
+    }
+
+    public override async Task Members_through_navigation_of_repeated_single_result_subquery_lift_to_single_join(bool async)
+    {
+        await AssertTranslationFailed(() => base.Members_through_navigation_of_repeated_single_result_subquery_lift_to_single_join(async));
+
+        AssertSql();
+    }
+
+    public override async Task Single_result_subquery_read_whole_and_null_checked_lift_to_single_join(bool async)
+    {
+        await AssertTranslationFailed(() => base.Single_result_subquery_read_whole_and_null_checked_lift_to_single_join(async));
+
+        AssertSql();
+    }
+
+    public override async Task Repeated_single_result_subqueries_that_are_not_lifted(bool async)
+    {
+        await AssertTranslationFailed(() => base.Repeated_single_result_subqueries_that_are_not_lifted(async));
+
+        AssertSql();
+    }
+
+    public override async Task Repeated_non_deterministic_single_result_subquery_is_not_lifted(bool async)
+    {
+        await AssertTranslationFailed(() => base.Repeated_non_deterministic_single_result_subquery_is_not_lifted(async));
+
+        AssertSql();
+    }
+
+    public override async Task Single_result_subquery_null_check_over_keyless_entity(bool async)
+    {
+        await AssertTranslationFailed(() => base.Single_result_subquery_null_check_over_keyless_entity(async));
+
+        AssertSql();
+    }
+
+    public override async Task Single_result_subquery_null_check_preserves_type_as(bool async)
+    {
+        await AssertTranslationFailed(() => base.Single_result_subquery_null_check_preserves_type_as(async));
 
         AssertSql();
     }

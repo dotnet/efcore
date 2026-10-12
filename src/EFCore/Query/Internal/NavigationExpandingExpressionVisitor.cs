@@ -52,6 +52,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private readonly HashSet<string> _parameterNames = [];
     private readonly ExpressionTreeFuncletizer _funcletizer;
     private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
+    private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
     private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
     private readonly Dictionary<QueryFiltersCacheKey, LambdaExpression> _parameterizedQueryFilterPredicateCache = [];
@@ -73,6 +74,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         _queryTranslationPreprocessor = queryTranslationPreprocessor;
         _queryCompilationContext = queryCompilationContext;
         _extensibilityHelper = extensibilityHelper;
+        _evaluatableExpressionFilter = evaluatableExpressionFilter;
         _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this, extensibilityHelper);
         _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor(queryCompilationContext.Model);
         _nullCheckRemovingExpressionVisitor = new NullCheckRemovingExpressionVisitor();
@@ -1766,12 +1768,44 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // selector is idempotent with respect to joins already applied by ProcessGroupBy.
         var keyBody = ExpandNavigationsForSource(parent, RemapLambdaExpression(parent, originalKeySelector));
         var aggregateBodies = new Expression?[scanner.Aggregates.Count];
+
+        // Guard bodies are generated into lambdas below, with the selectors, once every expansion has been
+        // applied: each join widens the parent's element shape, so a lambda built here would bind to a
+        // parameter type that a later aggregate's join invalidates.
+        var aggregateGuardBodies = new Expression?[scanner.Aggregates.Count];
+
+        // Shared across the aggregates: a principal relaxed while expanding one of them is joined once, and
+        // the others reuse that join and need the same guard.
+        var relaxation = new FilteredPrincipalRelaxation();
+
+        // An aggregate reads a column, it doesn't materialize the principal, so a filtered-out principal
+        // should make the aggregate empty rather than delete the source row from the grouping (#38965).
+        // Expand the aggregate selectors with required navigations to filtered principals joined as outer
+        // joins, so no row - and therefore no group - is lost. The key selector keeps the normal join,
+        // since grouping by a filtered principal's column has always removed those rows.
         for (var i = 0; i < scanner.Aggregates.Count; i++)
         {
             var aggregateSelector = scanner.Aggregates[i].Selector;
-            aggregateBodies[i] = aggregateSelector == null
-                ? null
-                : ExpandNavigationsForSource(parent, RemapLambdaExpression(parent, aggregateSelector));
+            if (aggregateSelector == null)
+            {
+                continue;
+            }
+
+            relaxation.Recorded.Clear();
+            aggregateBodies[i] = ExpandNavigationsForSource(
+                parent, RemapLambdaExpression(parent, aggregateSelector), relaxation);
+            var relaxedPrincipals = relaxation.Recorded.ToList();
+
+            // The row an outer join keeps for a filtered-out principal has to be kept away from the
+            // aggregate, unless the aggregate cannot observe it anyway: a selector that only reads a column
+            // off a relaxed principal reads null there, and every aggregate except All() folds a null away.
+            // All() counts the rows whose predicate is not true, and a null predicate is not true.
+            if (relaxedPrincipals.Count > 0
+                && (scanner.Aggregates[i].IsAll
+                    || !IsColumnReadOffPrincipal(aggregateBodies[i]!, relaxedPrincipals)))
+            {
+                aggregateGuardBodies[i] = BuildFilteredPrincipalGuard(relaxedPrincipals);
+            }
         }
 
         var keySelector = GenerateLambda(keyBody, parent.CurrentParameter);
@@ -1791,8 +1825,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             var newSelector = aggregateBodies[i] == null
                 ? null
                 : GenerateLambda(aggregateBodies[i]!, parent.CurrentParameter);
+            var guard = aggregateGuardBodies[i] == null
+                ? null
+                : GenerateLambda(aggregateGuardBodies[i]!, parent.CurrentParameter);
             aggregateReplacements[aggregate.Call] = RebuildLiftedAggregate(
-                aggregate, groupingParameter, originalElementType, elementType, newSelector);
+                aggregate, groupingParameter, originalElementType, elementType, newSelector, guard);
         }
 
         var resultBody = new LiftedResultSelectorRebinder(selector.Parameters[0], groupingParameter, aggregateReplacements)
@@ -1805,6 +1842,67 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var navigationTree = new NavigationTreeExpression(Expression.Default(result.Type.GetSequenceType()));
 
         return new NavigationExpansionExpression(result, navigationTree, navigationTree, GetParameterName("e"));
+    }
+
+    /// <summary>
+    ///     Whether the selector is nothing but a column read off one of the filtered principals, modulo
+    ///     casts - "e => e.Principal.Value". Anything else may turn the null of an unmatched outer join row
+    ///     into a value ("?? 0", "== null") and has to be guarded.
+    /// </summary>
+    private static bool IsColumnReadOffPrincipal(Expression selectorBody, IReadOnlyList<Expression> relaxedPrincipals)
+    {
+        while (selectorBody is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } cast)
+        {
+            selectorBody = cast.Operand;
+        }
+
+        return selectorBody is MemberExpression { Expression: { } instance }
+            && relaxedPrincipals.Any(principal => ExpressionEqualityComparer.Instance.Equals(principal, instance));
+    }
+
+    /// <summary>
+    ///     Builds "every filtered principal this aggregate reaches was matched", the predicate which keeps an
+    ///     aggregate from observing the row an outer join keeps for a filtered-out principal.
+    /// </summary>
+    private static Expression BuildFilteredPrincipalGuard(IReadOnlyList<Expression> relaxedPrincipals)
+    {
+        Expression? guard = null;
+        var seen = new HashSet<Expression>(ExpressionEqualityComparer.Instance);
+
+        foreach (var principal in relaxedPrincipals)
+        {
+            if (!seen.Add(principal))
+            {
+                continue;
+            }
+
+            // The principal is already expanded, so comparing it to null here reaches the joined side rather
+            // than being folded into a test of the required foreign key, which is never null.
+            var matched = Expression.NotEqual(principal, Expression.Constant(null, principal.Type));
+            guard = guard == null ? matched : Expression.AndAlso(guard, matched);
+        }
+
+        return guard!;
+    }
+
+    /// <summary>
+    ///     Whether this query applies any query filter to <paramref name="entityType" />, so that a join onto
+    ///     it can fail to match a row the foreign key guarantees exists.
+    /// </summary>
+    private bool HasApplicableQueryFilters(IEntityType entityType)
+        => GetApplicableQueryFilters(entityType.GetRootType()).Count > 0;
+
+    /// <summary>
+    ///     The principals a lifted GroupBy's aggregate expansion outer-joined because their query filter
+    ///     could otherwise remove rows, so that the aggregates reading them can exclude the rows those joins
+    ///     keep. <see cref="Recorded" /> is per aggregate; <see cref="RelaxedReferences" /> spans the lift,
+    ///     since a join made for one aggregate is reused by the rest.
+    /// </summary>
+    private sealed class FilteredPrincipalRelaxation
+    {
+        public List<Expression> Recorded { get; } = [];
+
+        public HashSet<EntityReference> RelaxedReferences { get; } = new(ReferenceEqualityComparer.Instance);
     }
 
     /// <summary>
@@ -1833,25 +1931,44 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             if (current is NavigationTreeExpression { Value: EntityReference entityReference }
-                && chain.Count > 1
-                && entityReference.EntityType.FindNavigation(chain[0].Name) is INavigation { IsCollection: false })
+                && chain.Count > 1)
             {
-                Found = true;
-                return memberExpression;
+                var entityType = entityReference.EntityType;
+
+                foreach (var member in chain)
+                {
+                    if (entityType.FindNavigation(member) is not { IsCollection: false } navigation)
+                    {
+                        break;
+                    }
+
+                    Found = true;
+                    entityType = navigation.TargetEntityType;
+                }
+
+                if (Found)
+                {
+                    return memberExpression;
+                }
             }
 
             return base.VisitMember(memberExpression);
         }
     }
 
-    private sealed record GroupingAggregateCall(MethodCallExpression Call, LambdaExpression? Selector, bool SourceAsQueryable);
+    private sealed record GroupingAggregateCall(
+        MethodCallExpression Call,
+        LambdaExpression? Selector,
+        bool SourceAsQueryable,
+        bool IsAll);
 
     private static MethodCallExpression RebuildLiftedAggregate(
         GroupingAggregateCall aggregate,
         ParameterExpression groupingParameter,
         Type originalElementType,
         Type newElementType,
-        LambdaExpression? newSelector)
+        LambdaExpression? newSelector,
+        LambdaExpression? guard)
     {
         var method = aggregate.Call.Method;
         var newMethod = method.GetGenericMethodDefinition().MakeGenericMethod(
@@ -1860,6 +1977,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         Expression newSource = aggregate.SourceAsQueryable
             ? Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(newElementType), groupingParameter)
             : groupingParameter;
+
+        if (guard != null)
+        {
+            // The outer join keeps a null-extended row where the correlated subquery had no row at all.
+            // Filtering it out of this aggregate keeps selectors and predicates which turn null into a value
+            // ("?? 0", "== null") from observing a row that should not exist, and leaves All() vacuously true
+            // over a group whose principals were all filtered out.
+            newSource = method.DeclaringType == typeof(Queryable)
+                ? Expression.Call(
+                    QueryableMethods.Where.MakeGenericMethod(newElementType), newSource, Expression.Quote(guard))
+                : Expression.Call(EnumerableMethods.Where.MakeGenericMethod(newElementType), newSource, guard);
+        }
 
         return newSelector == null
             ? Expression.Call(newMethod, newSource)
@@ -1879,7 +2008,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             [nameof(Enumerable.Sum), nameof(Enumerable.Min), nameof(Enumerable.Max), nameof(Enumerable.Average)];
 
         private static readonly string[] PredicateAggregateMethodNames =
-            [nameof(Enumerable.Count), nameof(Enumerable.LongCount)];
+            [nameof(Enumerable.Any), nameof(Enumerable.All), nameof(Enumerable.Count), nameof(Enumerable.LongCount)];
 
         public List<GroupingAggregateCall> Aggregates { get; } = [];
         public bool HasUnsupportedUsage { get; private set; }
@@ -1971,7 +2100,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 return false;
             }
 
-            aggregate = new GroupingAggregateCall(methodCallExpression, selector, sourceAsQueryable);
+            aggregate = new GroupingAggregateCall(
+                methodCallExpression, selector, sourceAsQueryable, method.Name == nameof(Enumerable.All));
             return true;
         }
     }
@@ -2416,10 +2546,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
     }
 
-    private Expression ExpandNavigationsForSource(NavigationExpansionExpression source, Expression expression)
+    private Expression ExpandNavigationsForSource(
+        NavigationExpansionExpression source,
+        Expression expression,
+        FilteredPrincipalRelaxation? relaxation = null)
     {
         expression = _removeRedundantNavigationComparisonExpressionVisitor.Visit(expression);
-        expression = new ExpandingExpressionVisitor(this, source, _extensibilityHelper).Visit(expression);
+        expression = new ExpandingExpressionVisitor(this, source, _extensibilityHelper, relaxation).Visit(expression);
         expression = _subqueryMemberPushdownExpressionVisitor.Visit(expression);
         expression = Visit(expression);
         expression = _pendingSelectorExpandingExpressionVisitor.Visit(expression);

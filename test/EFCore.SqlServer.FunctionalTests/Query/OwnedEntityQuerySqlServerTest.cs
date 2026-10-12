@@ -156,7 +156,7 @@ FROM (
 ) AS [s1]
 LEFT JOIN [FungibleBag_Currencies] AS [f0] ON [s1].[MasterTrunk22340Id] = [f0].[CurrencyBag22340MasterTrunk22340Id]
 LEFT JOIN [StaticBag_Currencies] AS [s0] ON [s1].[MasterTrunk22340Id0] = [s0].[CurrencyBag22340MasterTrunk22340Id]
-ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id]
+ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id]
 """);
     }
 
@@ -484,7 +484,7 @@ LEFT JOIN (
     FROM [JoinEntity] AS [j]
     INNER JOIN [OtherSide] AS [o] ON [j].[OtherSideId] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[ParentId]
-ORDER BY [p].[Id], [c].[Id], [s].[ParentId]
+ORDER BY [p].[Id], [c].[Id], [s].[ParentId], [s].[OtherSideId]
 """,
             //
             """
@@ -545,7 +545,7 @@ SELECT [b].[Id], (
     WHERE [b].[Id] = [p].[BlogId]), [p0].[Title], [p0].[CommentsCount], [p0].[BlogId], [p0].[Id]
 FROM [Blog] AS [b]
 LEFT JOIN [Post] AS [p0] ON [b].[Id] = [p0].[BlogId]
-ORDER BY [b].[Id], [p0].[BlogId]
+ORDER BY [b].[Id], [p0].[BlogId], [p0].[Id]
 """);
     }
 
@@ -558,7 +558,7 @@ ORDER BY [b].[Id], [p0].[BlogId]
 SELECT [w].[WarehouseCode], [w].[Id], [w0].[CountryCode], [w0].[WarehouseCode], [w0].[Id]
 FROM [Warehouses] AS [w]
 LEFT JOIN [WarehouseDestinationCountry] AS [w0] ON [w].[WarehouseCode] = [w0].[WarehouseCode]
-ORDER BY [w].[Id], [w0].[WarehouseCode]
+ORDER BY [w].[Id], [w0].[WarehouseCode], [w0].[Id]
 """);
     }
 
@@ -710,6 +710,37 @@ INNER JOIN (
     LEFT JOIN [MagicTools] AS [m2] ON [m0].[Id] = [m2].[MagusId]
     WHERE [m0].[Name] LIKE N'%Bayaz%'
 ) AS [m1] ON [m].[RulerOf] = [m1].[Affiliation]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(async);
+
+        AssertSql(
+            """
+SELECT [i].[Region] AS [Key], (
+    SELECT ISNULL(SUM([s].[Amount]), 0)
+    FROM [Invoice] AS [i0]
+    LEFT JOIN [Summaries] AS [s] ON [i0].[Id] = [s].[InvoiceId]
+    WHERE [i].[Region] = [i0].[Region]) AS [Total]
+FROM [Invoice] AS [i]
+GROUP BY [i].[Region]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_split_over_two_tables(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_split_over_two_tables(async);
+
+        AssertSql(
+            """
+SELECT [o].[Region] AS [Key], ISNULL(SUM([o].[Total_Net]), 0) AS [Total], ISNULL(SUM(CASE
+    WHEN [o].[Total_Net] IS NOT NULL THEN [o0].[Tax]
+END), 0) AS [Tax]
+FROM [Order] AS [o]
+LEFT JOIN [OrderTotalTax] AS [o0] ON [o].[Id] = [o0].[OrderId]
+GROUP BY [o].[Region]
 """);
     }
 }

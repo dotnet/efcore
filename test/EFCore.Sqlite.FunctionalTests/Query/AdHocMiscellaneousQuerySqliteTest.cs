@@ -900,4 +900,55 @@ ORDER BY "s0"."PickupStatusId"
     }
 
     #endregion
+
+    #region 33663
+
+    public override async Task GroupBy_nullable_foreign_key_in_anonymous_key(bool async)
+    {
+        await base.GroupBy_nullable_foreign_key_in_anonymous_key(async);
+
+        AssertSql(
+            """
+SELECT "c"."CountryId", "c"."Id"
+FROM "Companies" AS "c"
+ORDER BY "c"."CountryId"
+""",
+            //
+            """
+SELECT "c"."CountryId", "c"."Id"
+FROM "Companies" AS "c"
+ORDER BY "c"."CountryId", "c"."Id"
+""",
+            //
+            """
+SELECT "c"."CountryId", "c"."Id"
+FROM "Companies" AS "c"
+ORDER BY "c"."CountryId"
+""",
+            //
+            """
+SELECT "c"."CountryId", "c"."Id"
+FROM "Companies" AS "c"
+ORDER BY "c"."CountryId", "c"."Id"
+""");
+    }
+
+    #endregion
+
+    #region 30233
+
+    public override async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
+    {
+        await base.Sum_over_property_with_value_converter_that_converts_nulls(async);
+
+        AssertSql(
+            """
+SELECT "e"."Group" AS "Key", COALESCE(SUM("e"."LongValue"), 0) AS "SumLong", COALESCE(ef_sum("e"."DecimalValue"), '0.0') AS "SumDecimal"
+FROM "Entity" AS "e"
+GROUP BY "e"."Group"
+ORDER BY "e"."Group"
+""");
+    }
+
+    #endregion
 }

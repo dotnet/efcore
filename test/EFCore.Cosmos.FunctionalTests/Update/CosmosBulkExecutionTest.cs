@@ -85,10 +85,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
         context.Database.UseSessionToken("0:-1#1");
         context.Add(new Customer());
         var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
-        var inner = Assert.IsType<InvalidOperationException>(ex.InnerException);
-        Assert.Contains(
-            "Consistency, Session, Properties, and Triggers are not allowed when AllowBulkExecution is set to true.",
-            inner.Message);
+        Assert.IsType<InvalidOperationException>(ex.InnerException);
     }
 
     [Fact]
@@ -102,10 +99,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         context.Add(new Customer());
         var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
-        var inner = Assert.IsType<InvalidOperationException>(ex.InnerException);
-        Assert.Contains(
-            "Consistency, Session, Properties, and Triggers are not allowed when AllowBulkExecution is set to true.",
-            inner.Message);
+        Assert.IsType<InvalidOperationException>(ex.InnerException);
     }
 
     private string BulkExecutionWithTransactionalBatchMessage

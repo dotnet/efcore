@@ -967,7 +967,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .OrderBy(e => e.PickupStatusId);
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
@@ -1004,25 +1004,32 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = contextFactory.CreateDbContext();
 
             var categories = context.Requests
-                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+                .GroupBy(
+                    r => r.PickupStatusId,
+                    (k, els) => new Context30915.CountDto30915
+                    {
+                        PickupStatusId = k,
+                        Count = els.Count()
+                    });
 
             var first = from s in context.Statuses
-                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        join c in categories on s.PickupStatusId equals c.PickupStatusId into g
                         from countInfo in g.DefaultIfEmpty()
                         select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count };
 
             var second = from s in context.Statuses
-                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         join c in categories on s.PickupStatusId equals c.PickupStatusId into g
                          from countInfo in g.DefaultIfEmpty()
                          select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count };
 
             var query = first.Union(second);
 
-            // The client-side null-check projection forces a client projection on each operand,
-            // which then can't participate in the set operation.
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Unable to translate set operation", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.OrderBy(e => e.PickupStatusId).ToListAsync();
+
+            Assert.Equal(3, result.Count);
+            Assert.Equal((1, 2), (result[0].PickupStatusId, result[0].Count));
+            Assert.Equal((2, 0), (result[1].PickupStatusId, result[1].Count));
+            Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
         [Fact]
@@ -1428,7 +1435,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // marker is injected for the INNER nullable side of LEFT JOIN / DefaultIfEmpty only, so this
             // RIGHT JOIN whole-object shape is not covered and still fails during materialization.
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
             // #30915 TODO: RightJoin (outer-nullable) whole-object not yet covered; flip to assert results if/when fixed.
         }
 
@@ -2025,6 +2032,130 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public record struct CountRecordStruct30915(int PickupStatusId, int Count);
+        }
+
+        #endregion
+
+        #region 33663
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_foreign_key_in_anonymous_key(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context33663>(seed: async c =>
+            {
+                var country = new Context33663.Country();
+                c.AddRange(
+                    new Context33663.Company { Country = country },
+                    new Context33663.Company { Country = country },
+                    new Context33663.Company());
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var group = context.Companies.GroupBy(x => new { x.CountryId });
+            var group1 = context.Companies.GroupBy(x => new { x.CountryId, x.Id });
+            var select2 = group.Select(x => new { x.Key, C = x.ToArray() });
+            var select4 = group1.Select(x => new { x.Key, C = x.ToArray() });
+
+            var groupRes = async ? await group.ToListAsync() : group.ToList();
+            var groupres1 = async ? await group1.ToListAsync() : group1.ToList();
+            var select2Res = async ? await select2.ToListAsync() : select2.ToList();
+            var select4Res = async ? await select4.ToListAsync() : select4.ToList();
+
+            Assert.Equal([1, 2], groupRes.Select(g => g.Count()).Order());
+            Assert.Single(groupRes, g => g.Key.CountryId == null);
+            Assert.Equal([1, 1, 1], groupres1.Select(g => g.Count()));
+            Assert.Equal([1, 2], select2Res.Select(g => g.C.Length).Order());
+            Assert.Single(select2Res, g => g.Key.CountryId == null);
+            Assert.Equal([1, 1, 1], select4Res.Select(g => g.C.Length));
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context33663(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Company> Companies
+                => Set<Company>();
+
+            public class Country
+            {
+                public int Id { get; set; }
+            }
+
+            public class Company
+            {
+                public int Id { get; set; }
+                public int? CountryId { get; set; }
+                public Country? Country { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region 30233
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30233>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context30233.Entity { Id = 1, Group = 1, LongValue = 5, DecimalValue = 1.5m },
+                    new Context30233.Entity { Id = 2, Group = 1 },
+                    new Context30233.Entity { Id = 3, Group = 2, LongValue = 3, DecimalValue = 2.5m });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Set<Context30233.Entity>()
+                .GroupBy(e => e.Group)
+                .Select(g => new
+                {
+                    g.Key,
+                    SumLong = g.Sum(e => e.LongValue),
+                    SumDecimal = g.Sum(e => e.DecimalValue)
+                })
+                .OrderBy(x => x.Key);
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Collection(
+                result,
+                r =>
+                {
+                    Assert.Equal(5, r.SumLong);
+                    Assert.Equal(1.5m, r.SumDecimal);
+                },
+                r =>
+                {
+                    Assert.Equal(3, r.SumLong);
+                    Assert.Equal(2.5m, r.SumDecimal);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context30233(DbContextOptions options) : DbContext(options)
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Entity>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.LongValue).HasConversion<LongConverter>();
+                    b.Property(e => e.DecimalValue).HasConversion<DecimalConverter>().HasPrecision(18, 2);
+                });
+
+            public class Entity
+            {
+                public int Id { get; set; }
+                public int Group { get; set; }
+                public long? LongValue { get; set; }
+                public decimal? DecimalValue { get; set; }
+            }
+
+            public class LongConverter() : ValueConverter<long?, long>(v => v ?? 0L, v => v == 0L ? null : v, convertsNulls: true);
+
+            public class DecimalConverter() : ValueConverter<decimal?, decimal>(v => v ?? 0m, v => v == 0m ? null : v, convertsNulls: true);
         }
 
         #endregion

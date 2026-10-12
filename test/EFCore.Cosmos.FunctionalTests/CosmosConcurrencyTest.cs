@@ -4,13 +4,9 @@
 namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
-    : IClassFixture<CosmosConcurrencyTest.CosmosFixture>, IAsyncLifetime
+    : IClassFixture<CosmosConcurrencyTest.CosmosFixture>
 {
     private const string DatabaseName = "CosmosConcurrencyTest";
-
-    protected ServiceProvider ServiceProvider { get; } = new ServiceCollection()
-        .AddEntityFrameworkCosmos()
-        .BuildServiceProvider();
 
     protected CosmosFixture Fixture { get; } = fixture;
 
@@ -72,7 +68,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
 #pragma warning restore CS0618 // Type or member is obsolete
                             }
                         })))
-            .UseInternalServiceProvider(ServiceProvider)
+            .EnableServiceProviderCaching(false)
             .Options;
 
         var customer = new Customer
@@ -137,7 +133,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
 #pragma warning restore CS0618 // Type or member is obsolete
                             }
                         })))
-            .UseInternalServiceProvider(ServiceProvider)
+            .EnableServiceProviderCaching(false)
             .Options;
 
         var customer = new PremiumCustomer
@@ -253,12 +249,6 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
 
     protected virtual ConcurrencyContext CreateContext(DbContextOptions options)
         => new(options);
-
-    public virtual ValueTask InitializeAsync()
-        => ValueTask.CompletedTask;
-
-    public virtual async ValueTask DisposeAsync()
-        => await ServiceProvider.DisposeAsync();
 
     public class CosmosFixture : SharedStoreFixtureBase<ConcurrencyContext>
     {

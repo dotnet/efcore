@@ -449,6 +449,50 @@ ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
                 .Message);
     }
 
+    [Fact]
+    public void Batch_command_breaks_cycle_for_unconstrained_foreign_key()
+    {
+        var model = CreateCyclicFKModel(unconstrained: true);
+        var configuration = CreateContextServices(model);
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var fakeEntry = stateManager.GetOrCreateEntry(
+            new FakeEntity { RelatedId = 1 });
+        fakeEntry.SetEntityState(EntityState.Added);
+
+        var temporaryIdValue = fakeEntry.GetCurrentValue<int>(fakeEntry.EntityType.GetProperty(nameof(FakeEntity.Id)));
+        var relatedFakeEntry = stateManager.GetOrCreateEntry(
+            new RelatedFakeEntity { Id = 1, RelatedId = temporaryIdValue });
+        relatedFakeEntry.SetEntityState(EntityState.Added);
+
+        var batches = CreateBatches([relatedFakeEntry, fakeEntry], new UpdateAdapter(stateManager));
+
+        Assert.Collection(
+            batches,
+            b => Assert.Same(fakeEntry, b.ModificationCommands.Single().Entries.Single()),
+            b => Assert.Same(relatedFakeEntry, b.ModificationCommands.Single().Entries.Single()));
+    }
+
+    [Fact]
+    public void Batch_command_does_not_break_cycle_for_unconstrained_foreign_key_with_store_generated_principal_key()
+    {
+        var model = CreateCyclicFKModel(unconstrainedPrincipalGenerated: true);
+        var configuration = CreateContextServices(model);
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var fakeEntry = stateManager.GetOrCreateEntry(
+            new FakeEntity { RelatedId = 1 });
+        fakeEntry.SetEntityState(EntityState.Added);
+
+        var temporaryIdValue = fakeEntry.GetCurrentValue<int>(fakeEntry.EntityType.GetProperty(nameof(FakeEntity.Id)));
+        var relatedFakeEntry = stateManager.GetOrCreateEntry(
+            new RelatedFakeEntity { Id = 1, RelatedId = temporaryIdValue });
+        relatedFakeEntry.SetEntityState(EntityState.Added);
+
+        Assert.Throws<InvalidOperationException>(
+            () => CreateBatches([fakeEntry, relatedFakeEntry], new UpdateAdapter(stateManager)));
+    }
+
     [InlineData(true), InlineData(false), Theory]
     public void Batch_command_throws_on_commands_with_circular_dependencies_including_indexes(bool sensitiveLogging)
     {
@@ -597,6 +641,40 @@ FakeEntity [Deleted]"
         var batch = Assert.Single(batches);
 
         Assert.Equal(2, batch.ModificationCommands.Count);
+    }
+
+    [Fact] // Issue #38917
+    public void BatchCommands_orders_unique_index_release_before_reacquisition_with_unreliable_original_value()
+    {
+        var model = CreateModelWithUniqueIndexOnly();
+        var configuration = CreateContextServices(model);
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        // Releases "Test" by changing UniqueValue away from it. Uses a higher Id than the acquiring entry below so
+        // that the default (primary-key-based) command ordering alone would produce the wrong (unsafe) order,
+        // and only the dependency edge asserted by this test can produce the correct order.
+        var releasingEntry = stateManager.GetOrCreateEntry(
+            new FakeEntity { Id = 2, UniqueValue = "Other" });
+        releasingEntry.SetEntityState(EntityState.Modified);
+        releasingEntry.SetOriginalValue(releasingEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue))!, "Test");
+
+        // Simulates an attached entity whose original value snapshot ends up matching its (newly assigned) current
+        // value; it still needs to wait for another command to release "Test" before it can claim it.
+        var acquiringEntry = stateManager.GetOrCreateEntry(
+            new FakeEntity { Id = 1, UniqueValue = "Test" });
+        acquiringEntry.SetEntityState(EntityState.Modified);
+        acquiringEntry.SetOriginalValue(acquiringEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue))!, "Test");
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        var batches = CreateBatches([acquiringEntry, releasingEntry], modelData);
+        var batch = Assert.Single(batches);
+
+        // The command releasing "Test" must be ordered before the command acquiring it, otherwise we'd get a
+        // unique constraint violation.
+        Assert.Equal(
+            [releasingEntry, acquiringEntry],
+            batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
     [Fact]
@@ -1063,6 +1141,19 @@ FakeEntity [Deleted]"
         return modelBuilder.Model.FinalizeModel();
     }
 
+    private static IModel CreateModelWithUniqueIndexOnly()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<FakeEntity>(b =>
+        {
+            b.Ignore(c => c.RelatedId);
+            b.HasIndex(c => c.UniqueValue).IsUnique();
+        });
+
+        return modelBuilder.Model.FinalizeModel();
+    }
+
     private static IModel CreateFKOneToManyModelWithGeneratedIds()
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
@@ -1083,7 +1174,7 @@ FakeEntity [Deleted]"
         return modelBuilder.Model.FinalizeModel();
     }
 
-    private static IModel CreateCyclicFKModel()
+    private static IModel CreateCyclicFKModel(bool unconstrained = false, bool unconstrainedPrincipalGenerated = false)
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
@@ -1093,15 +1184,33 @@ FakeEntity [Deleted]"
             b.HasIndex(c => c.UniqueValue).IsUnique();
         });
 
-        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
-            .WithOne()
-            .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId));
+        modelBuilder.Entity<RelatedFakeEntity>(b =>
+        {
+            var foreignKeyBuilder = b.HasOne<FakeEntity>()
+                .WithOne()
+                .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
 
-        modelBuilder
+            if (unconstrainedPrincipalGenerated)
+            {
+                foreignKeyBuilder.IsConstrained(false);
+            }
+
+            if (unconstrained || unconstrainedPrincipalGenerated)
+            {
+                b.Property(c => c.Id).ValueGeneratedNever();
+            }
+        });
+
+        var foreignKeyBuilder = modelBuilder
             .Entity<FakeEntity>()
             .HasOne<RelatedFakeEntity>()
             .WithOne()
             .HasForeignKey<FakeEntity>(c => c.RelatedId);
+
+        if (unconstrained)
+        {
+            foreignKeyBuilder.IsConstrained(false);
+        }
 
         return modelBuilder.Model.FinalizeModel();
     }
