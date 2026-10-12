@@ -151,6 +151,43 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.AggregateFunctionExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression",
+      "Methods": [
+        {
+          "Member": "AggregateFunctionExpression(string name, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> arguments, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.OrderingExpression> orderings, bool nullable, System.Collections.Generic.IEnumerable<bool> argumentsPropagateNullability, System.Type type, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.AggregateFunctionExpression ApplyTypeMapping(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.AggregateFunctionExpression Create(string name, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> arguments, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.OrderingExpression> orderings, bool nullable, System.Collections.Generic.IEnumerable<bool> argumentsPropagateNullability, System.Type type, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression> QuoteConstructorArguments();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.AggregateFunctionExpression Update(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> arguments, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.OrderingExpression> orderings);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> Arguments { get; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<bool> ArgumentsPropagateNullability { get; }"
+        },
+        {
+          "Member": "virtual bool IsNullable { get; }"
+        },
+        {
+          "Member": "virtual string Name { get; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.OrderingExpression> Orderings { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Migrations.Operations.AlterColumnOperation : Microsoft.EntityFrameworkCore.Migrations.Operations.ColumnOperation, Microsoft.EntityFrameworkCore.Migrations.Operations.IAlterMigrationOperation",
       "Methods": [
         {
@@ -8789,6 +8826,9 @@
           "Member": "virtual void CheckComposableSqlTrimmed(System.ReadOnlySpan<char> sql);"
         },
         {
+          "Member": "virtual void GenerateAggregateFunctionOrderings(Microsoft.EntityFrameworkCore.Query.SqlExpressions.AggregateFunctionExpression aggregateFunctionExpression, bool insideArgumentList);"
+        },
+        {
           "Member": "virtual void GenerateEmptyProjection(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression);"
         },
         {
@@ -8847,6 +8887,9 @@
         },
         {
           "Member": "virtual bool TryGetOperatorInfo(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression expression, out int precedence, out bool isAssociative);"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.Expression VisitAggregateFunction(Microsoft.EntityFrameworkCore.Query.SqlExpressions.AggregateFunctionExpression aggregateFunctionExpression);"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression VisitAtTimeZone(Microsoft.EntityFrameworkCore.Query.SqlExpressions.AtTimeZoneExpression atTimeZoneExpression);"
@@ -17842,6 +17885,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression? Visit(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression? sqlExpression, bool allowOptimizedExpansion, out bool nullable);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitAggregateFunction(Microsoft.EntityFrameworkCore.Query.SqlExpressions.AggregateFunctionExpression aggregateFunctionExpression, bool allowOptimizedExpansion, out bool nullable);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitAtTimeZone(Microsoft.EntityFrameworkCore.Query.SqlExpressions.AtTimeZoneExpression atTimeZoneExpression, bool allowOptimizedExpansion, out bool nullable);"
