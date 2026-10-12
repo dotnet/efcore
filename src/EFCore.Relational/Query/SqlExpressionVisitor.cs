@@ -22,6 +22,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
         {
             ShapedQueryExpression shapedQueryExpression
                 => shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression)),
+            AggregateFunctionExpression aggregateFunctionExpression => VisitAggregateFunction(aggregateFunctionExpression),
             AtTimeZoneExpression atTimeZoneExpression => VisitAtTimeZone(atTimeZoneExpression),
             CaseExpression caseExpression => VisitCase(caseExpression),
             CollateExpression collateExpression => VisitCollate(collateExpression),
@@ -60,6 +61,14 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             ValuesExpression valuesExpression => VisitValues(valuesExpression),
             _ => base.VisitExtension(extensionExpression),
         };
+
+    /// <summary>
+    ///     Visits the children of the aggregate function expression.
+    /// </summary>
+    /// <param name="aggregateFunctionExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected virtual Expression VisitAggregateFunction(AggregateFunctionExpression aggregateFunctionExpression)
+        => base.VisitExtension(aggregateFunctionExpression);
 
     /// <summary>
     ///     Visits the children of the sql "at time zone" expression.

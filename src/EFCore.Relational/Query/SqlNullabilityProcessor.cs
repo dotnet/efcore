@@ -345,6 +345,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         var nullValueColumnsCount = _nullValueColumns.Count;
         var result = sqlExpression switch
         {
+            AggregateFunctionExpression aggregateFunctionExpression
+                => VisitAggregateFunction(aggregateFunctionExpression, allowOptimizedExpansion, out nullable),
             AtTimeZoneExpression sqlAtTimeZoneExpression
                 => VisitAtTimeZone(sqlAtTimeZoneExpression, allowOptimizedExpansion, out nullable),
             CaseExpression caseExpression
@@ -406,6 +408,68 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         out bool nullable)
         => throw new InvalidOperationException(
             RelationalStrings.UnhandledExpressionInVisitor(sqlExpression, sqlExpression.GetType(), nameof(SqlNullabilityProcessor)));
+
+    /// <summary>
+    ///     Visits an <see cref="AggregateFunctionExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="aggregateFunctionExpression">An aggregate function expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitAggregateFunction(
+        AggregateFunctionExpression aggregateFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        nullable = aggregateFunctionExpression.IsNullable;
+
+        SqlExpression[]? arguments = null;
+        for (var i = 0; i < aggregateFunctionExpression.Arguments.Count; i++)
+        {
+            var visitedArgument = Visit(aggregateFunctionExpression.Arguments[i], out _);
+            if (visitedArgument != aggregateFunctionExpression.Arguments[i] && arguments is null)
+            {
+                arguments = new SqlExpression[aggregateFunctionExpression.Arguments.Count];
+
+                for (var j = 0; j < i; j++)
+                {
+                    arguments[j] = aggregateFunctionExpression.Arguments[j];
+                }
+            }
+
+            if (arguments is not null)
+            {
+                arguments[i] = visitedArgument;
+            }
+        }
+
+        OrderingExpression[]? orderings = null;
+        for (var i = 0; i < aggregateFunctionExpression.Orderings.Count; i++)
+        {
+            var ordering = aggregateFunctionExpression.Orderings[i];
+            var visitedOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            if (visitedOrdering != aggregateFunctionExpression.Orderings[i] && orderings is null)
+            {
+                orderings = new OrderingExpression[aggregateFunctionExpression.Orderings.Count];
+
+                for (var j = 0; j < i; j++)
+                {
+                    orderings[j] = aggregateFunctionExpression.Orderings[j];
+                }
+            }
+
+            if (orderings is not null)
+            {
+                orderings[i] = visitedOrdering;
+            }
+        }
+
+        return arguments is not null || orderings is not null
+            ? aggregateFunctionExpression.Update(
+                arguments ?? aggregateFunctionExpression.Arguments,
+                orderings ?? aggregateFunctionExpression.Orderings)
+            : aggregateFunctionExpression;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
