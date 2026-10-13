@@ -82,6 +82,42 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             RelationalStrings.ExecuteMergeMatchColumnNotInserted(nameof(Account.Id)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_match_column_from_other_source_member_throws(bool async)
+        => AssertMergeThrows(
+            // ON CONFLICT compares the inserted Id, so inserting s.Id would silently match on s.Id rather than s.ExternalId.
+            context => Merge(
+                async, context.Accounts,
+                [new Account { Id = 999, ExternalId = 1, Balance = 50 }],
+                merge => merge
+                    .Match(t => t.Id, s => s.ExternalId)
+                    .WhenNotMatched(insert => insert
+                        .SetProperty(t => t.Id, s => s.Id)
+                        .SetProperty(t => t.Balance, s => s.Balance))),
+            RelationalStrings.ExecuteMergeMatchColumnInsertMismatch(nameof(Account.Id), nameof(Account.ExternalId)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_primary_key_from_other_source_member_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Accounts,
+                [new Account { Id = 999, ExternalId = 1, Balance = 50 }],
+                merge => merge.WhenNotMatched(insert => insert
+                    .SetProperty(t => t.Id, s => s.ExternalId)
+                    .SetProperty(t => t.Balance, s => s.Balance))),
+            RelationalStrings.ExecuteMergeMatchColumnInsertMismatch(nameof(Account.Id), nameof(Account.Id)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_match_column_from_constant_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Accounts,
+                [new Account { Id = 999, ExternalId = 1, Balance = 50 }],
+                merge => merge.WhenNotMatched(insert => insert
+                    .SetProperty(t => t.Id, 5)
+                    .SetProperty(t => t.Balance, s => s.Balance))),
+            RelationalStrings.ExecuteMergeMatchColumnInsertMismatch(nameof(Account.Id), nameof(Account.Id)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_matched_source_member_not_inserted_unchanged_throws(bool async)
         => AssertMergeThrows(
             // WhenMatched can only read source values through the inserted row, and s.Name isn't inserted.

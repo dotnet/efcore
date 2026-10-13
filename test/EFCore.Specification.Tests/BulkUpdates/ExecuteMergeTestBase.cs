@@ -95,6 +95,25 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_reads_custom_match_source_member(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                // s.ExternalId is inserted unchanged into the Id match column, so WhenMatched can read it.
+                var affected = await Merge(
+                    async, context.Accounts,
+                    [new Account { Id = 999, ExternalId = 1, Balance = 50 }, new Account { Id = 888, ExternalId = 2, Balance = 70 }],
+                    merge => merge
+                        .Match(t => t.Id, s => s.ExternalId)
+                        .WhenMatched(u => u.SetProperty(t => t.ExternalId, (t, s) => s.ExternalId)));
+
+                Assert.Equal(2, affected);
+                var accounts = await context.Accounts.OrderBy(a => a.Id).ToListAsync();
+                Assert.Equal([1, 2], accounts.Select(a => a.Id));
+                Assert.Equal([1, 2], accounts.Select(a => a.ExternalId));
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_not_matched_uses_explicit_insert_setters(bool async)
         => AssertMerge(
             async context =>

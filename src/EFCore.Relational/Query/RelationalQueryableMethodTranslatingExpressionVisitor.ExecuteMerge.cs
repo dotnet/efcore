@@ -97,11 +97,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         // the match, not the same-named source member, so that Match(t => t.Id, s => s.ExternalId) actually matches on ExternalId.
         string[] conflictColumns;
         var conflictSourceMembers = new Dictionary<string, MemberInfo>();
-        var conflictProperties = new List<IProperty>();
+        var conflictProperties = new List<(IProperty Property, string SourceMember)>();
         if (matches.Count == 0)
         {
             (conflictColumns, var pkProperties) = ResolvePrimaryKeyColumnsAndProperties(entityType, table);
-            conflictProperties.AddRange(pkProperties);
+            conflictProperties.AddRange(pkProperties.Select(p => (p, p.Name)));
         }
         else
         {
@@ -120,7 +120,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     }
 
                     columns.Add(targetColumns[i]);
-                    conflictProperties.Add(targetProperties[i]);
+                    conflictProperties.Add((targetProperties[i], sourceMembers[i].Name));
                 }
             }
 
@@ -173,6 +173,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 // No explicit insert setter: use the match source selector for conflict columns, otherwise the same-named source member.
                 case null when conflictSourceMembers.TryGetValue(column.Name, out var conflictSourceMember):
                     valueMembers[i] = conflictSourceMember;
+                    sourceMember = conflictSourceMember.Name;
                     break;
 
                 // Read the same-named member off the source row. The source type may differ from the target entity (e.g. a DTO), so
@@ -356,7 +357,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         IEntityType entityType,
         ITableBase table,
         IReadOnlyList<ExecuteUpdateSetter>? whenNotMatchedSetters,
-        IReadOnlyList<IProperty> conflictProperties)
+        IReadOnlyList<(IProperty Property, string SourceMember)> conflictProperties)
     {
         if (whenNotMatchedSetters is null)
         {
@@ -370,20 +371,28 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
 
         var result = new List<(IProperty, Expression?)>(whenNotMatchedSetters.Count);
-        var explicitProperties = new HashSet<IProperty>();
+        var explicitValues = new Dictionary<IProperty, Expression>();
         foreach (var setter in whenNotMatchedSetters)
         {
             var property = ResolveProperty(setter.PropertySelector, entityType);
             result.Add((property, setter.ValueExpression));
-            explicitProperties.Add(property);
+            explicitValues[property] = setter.ValueExpression;
         }
 
-        // Without its conflict-column values, an inserted row could never be matched by a subsequent merge.
-        foreach (var property in conflictProperties)
+        // Without its conflict-column values, an inserted row could never be matched by a subsequent merge. The value must also be the
+        // match's source member: ON CONFLICT compares the inserted value, so anything else would silently match on a different value.
+        foreach (var (property, sourceMember) in conflictProperties)
         {
-            if (!explicitProperties.Contains(property))
+            if (!explicitValues.TryGetValue(property, out var value))
             {
                 throw new InvalidOperationException(RelationalStrings.ExecuteMergeMatchColumnNotInserted(property.Name));
+            }
+
+            if (value is not LambdaExpression valueSelector
+                || GetDirectSourceMemberName(valueSelector.Body, valueSelector.Parameters[0]) != sourceMember)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteMergeMatchColumnInsertMismatch(property.Name, sourceMember));
             }
         }
 

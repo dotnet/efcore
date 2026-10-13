@@ -439,6 +439,9 @@
   <data name="ExecuteMergeInvalidPropertySelector" xml:space="preserve">
     <value>Invalid property selector '{selector}' in ExecuteMerge.</value>
   </data>
+  <data name="ExecuteMergeMatchColumnInsertMismatch" xml:space="preserve">
+    <value>The match property '{property}' must be set in 'WhenNotMatched' to the source member '{sourceMember}' it is matched on.</value>
+  </data>
   <data name="ExecuteMergeMatchColumnNotInserted" xml:space="preserve">
     <value>The match property '{property}' must be set in 'WhenNotMatched'.</value>
   </data>

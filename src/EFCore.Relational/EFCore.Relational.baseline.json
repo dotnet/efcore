@@ -15346,6 +15346,9 @@
           "Member": "static string ExecuteMergeInvalidPropertySelector(object? selector);"
         },
         {
+          "Member": "static string ExecuteMergeMatchColumnInsertMismatch(object? property, object? sourceMember);"
+        },
+        {
           "Member": "static string ExecuteMergeMatchColumnNotInserted(object? property);"
         },
         {

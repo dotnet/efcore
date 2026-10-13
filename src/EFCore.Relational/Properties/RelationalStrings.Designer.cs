@@ -860,6 +860,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 selector);
 
         /// <summary>
+        ///     The match property '{property}' must be set in 'WhenNotMatched' to the source member '{sourceMember}' it is matched on.
+        /// </summary>
+        public static string ExecuteMergeMatchColumnInsertMismatch(object? property, object? sourceMember)
+            => string.Format(
+                GetString("ExecuteMergeMatchColumnInsertMismatch", nameof(property), nameof(sourceMember)),
+                property, sourceMember);
+
+        /// <summary>
         ///     The match property '{property}' must be set in 'WhenNotMatched'.
         /// </summary>
         public static string ExecuteMergeMatchColumnNotInserted(object? property)
