@@ -30,37 +30,9 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public int Compare(IColumnMappingBase? x, IColumnMappingBase? y)
-    {
-        if (ReferenceEquals(x, y))
-        {
-            return 0;
-        }
-
-        if (x is null)
-        {
-            return -1;
-        }
-
-        if (y is null)
-        {
-            return 1;
-        }
-
-        var result = y.Property.IsPrimaryKey().CompareTo(x.Property.IsPrimaryKey());
-        if (result != 0)
-        {
-            return result;
-        }
-
-        result = TableMappingBaseComparer.Instance.Compare(x.TableMapping, y.TableMapping);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        result = StringComparer.Ordinal.Compare(x.Property.Name, y.Property.Name);
-        return result != 0 ? result : StringComparer.Ordinal.Compare(x.Column.Name, y.Column.Name);
-    }
+        => x is null
+            ? y is null ? 0 : -1
+            : y is null ? 1 : x.CompareTo(y);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
