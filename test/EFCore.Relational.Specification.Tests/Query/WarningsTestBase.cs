@@ -53,6 +53,76 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
         using var context = CreateContext();
         var query = context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.FirstOrDefault()!.OrderID > 1000).ToList();
         Assert.Single(query);
+
+        Assert.Contains(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_without_orderby_and_filter_issues_warning_subquery_in_projection()
+    {
+        using var context = CreateContext();
+        var query = context.Customers
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.Orders.FirstOrDefault()!.OrderDate)
+            .ToList();
+        Assert.Equal(91, query.Count);
+
+        Assert.Contains(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_without_orderby_but_with_filter_doesnt_issue_warning_subquery()
+    {
+        using var context = CreateContext();
+        var query = context.Customers
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.Orders.FirstOrDefault(o => o.OrderID > 10300)!.OrderDate)
+            .ToList();
+        Assert.Equal(91, query.Count);
+
+        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_with_orderby_doesnt_issue_warning_subquery()
+    {
+        using var context = CreateContext();
+        var query = context.Customers
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()!.OrderDate)
+            .ToList();
+        Assert.Equal(91, query.Count);
+
+        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_without_orderby_doesnt_issue_warning_subquery_correlated_by_non_key()
+    {
+        using var context = CreateContext();
+        var query = context.Customers
+            .OrderBy(c => c.CustomerID)
+            .Select(c => context.Employees
+                .Where(e => c.City != null && c.City == e.City)
+                .Select(e => e.FirstName)
+                .FirstOrDefault())
+            .ToList();
+        Assert.Equal(91, query.Count);
+
+        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_without_orderby_doesnt_issue_warning_subquery_with_filter_correlated_by_non_key()
+    {
+        using var context = CreateContext();
+        var query = context.Customers
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.Orders.FirstOrDefault(o => c.City != null && c.City == o.CustomerID)!.OrderDate)
+            .ToList();
+        Assert.Equal(91, query.Count);
+
+        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
     }
 
     [Fact]
