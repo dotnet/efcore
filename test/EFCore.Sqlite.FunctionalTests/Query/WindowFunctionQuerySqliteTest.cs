@@ -82,6 +82,22 @@ ORDER BY "e1"."DepartmentName"
 """);
     }
 
+    public override async Task Elements_and_predicate_counts()
+    {
+        await base.Elements_and_predicate_counts();
+
+        AssertSql(
+            """
+SELECT "e"."DepartmentName", DENSE_RANK() OVER(ORDER BY "e"."DepartmentName"), "e"."Name", COUNT(CASE
+    WHEN "e"."Salary" > 100 THEN 1
+END) OVER(PARTITION BY "e"."DepartmentName"), COUNT(CASE
+    WHEN "e"."Salary" > 100 THEN 1
+END) OVER(PARTITION BY "e"."DepartmentName")
+FROM "Employees" AS "e"
+ORDER BY "e"."DepartmentName"
+""");
+    }
+
     public override async Task Projected_elements_and_aggregate()
     {
         await base.Projected_elements_and_aggregate();
@@ -215,6 +231,13 @@ SELECT "e"."DepartmentName", DENSE_RANK() OVER(ORDER BY "e"."DepartmentName"), "
 FROM "Employees" AS "e"
 ORDER BY "e"."DepartmentName"
 """);
+    }
+
+    public override async Task Grouping_itself_and_aggregate_is_not_translated(bool useWindowFunctionAggregates)
+    {
+        await base.Grouping_itself_and_aggregate_is_not_translated(useWindowFunctionAggregates);
+
+        AssertSql();
     }
 
     public override async Task Distinct_aggregate_is_not_lifted()

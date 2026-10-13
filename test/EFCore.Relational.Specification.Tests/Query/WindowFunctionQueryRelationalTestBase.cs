@@ -190,6 +190,44 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
             });
     }
 
+    /// <summary>
+    ///     Count and LongCount with a predicate: the predicate goes into the aggregate rather than filtering the rows, which the grouping
+    ///     still carries all of.
+    /// </summary>
+    [Fact]
+    public virtual async Task Elements_and_predicate_counts()
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Employees
+            .GroupBy(e => e.DepartmentName)
+            .Select(
+                g => new
+                {
+                    g.Key,
+                    Names = g.Select(e => e.Name).ToList(),
+                    HighEarners = g.Count(e => e.Salary > 100),
+                    LongHighEarners = g.LongCount(e => e.Salary > 100)
+                })
+            .ToListAsync();
+
+        Assert.Collection(
+            results.OrderBy(r => r.Key),
+            engineering =>
+            {
+                Assert.Equal(["Alice", "Bob", "Cheng"], engineering.Names.Order());
+                Assert.Equal(2, engineering.HighEarners);
+                Assert.Equal(2L, engineering.LongHighEarners);
+            },
+            sales =>
+            {
+                Assert.Equal(["Dara", "Emre"], sales.Names.Order());
+                Assert.Equal(0, sales.HighEarners);
+                Assert.Equal(0L, sales.LongHighEarners);
+            });
+    }
+
     [Fact]
     public virtual async Task Projected_elements_and_aggregate()
     {
@@ -448,6 +486,27 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
             results,
             engineering => Assert.Equal(3, engineering.Employees.Count),
             sales => Assert.Equal(2, sales.Employees.Count));
+    }
+
+    /// <summary>
+    ///     The grouping projected as itself alongside an aggregate has no translation, with or without the opt-in: there are no
+    ///     elements to carry window values on, and exposing the grouping would mean exposing the rows which carry them.
+    /// </summary>
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Grouping_itself_and_aggregate_is_not_translated(bool useWindowFunctionAggregates)
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates);
+        await using var context = contextFactory.CreateDbContext();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Employees
+                .GroupBy(e => e.DepartmentName)
+                .Select(g => new { Group = g, Count = g.Count() })
+                .ToListAsync());
+
+        Assert.Contains(
+            CoreStrings.TranslationFailedWithDetails("", CoreStrings.QuerySelectContainsGrouping)[21..],
+            exception.Message);
     }
 
     /// <summary>
