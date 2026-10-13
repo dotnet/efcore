@@ -41,6 +41,18 @@ ORDER BY "e"."DepartmentName"
 """);
     }
 
+    public override async Task Elements_and_long_count()
+    {
+        await base.Elements_and_long_count();
+
+        AssertSql(
+            """
+SELECT "e"."DepartmentName", "e"."Name", COUNT(*) OVER(PARTITION BY "e"."DepartmentName")
+FROM "Employees" AS "e"
+ORDER BY "e"."DepartmentName"
+""");
+    }
+
     public override async Task Projected_elements_and_aggregate()
     {
         await base.Projected_elements_and_aggregate();
