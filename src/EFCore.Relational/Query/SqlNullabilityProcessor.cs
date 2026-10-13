@@ -386,6 +386,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
             JsonScalarExpression jsonScalarExpression
                 => VisitJsonScalar(jsonScalarExpression, allowOptimizedExpansion, out nullable),
+#pragma warning disable EF9001 // Window function support is experimental
+            WindowFunctionExpression windowFunctionExpression
+                => VisitWindowFunction(windowFunctionExpression, allowOptimizedExpansion, out nullable),
+#pragma warning restore EF9001
             _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
@@ -1294,6 +1298,84 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     }
 
     /// <summary>
+    ///     Visits a <see cref="WindowFunctionExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="windowFunctionExpression">A window function expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
+    protected virtual SqlExpression VisitWindowFunction(
+        WindowFunctionExpression windowFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        // The window is what the function is evaluated over; it never makes a non-nullable function nullable (an aggregate always has
+        // at least the current row in its partition), nor a nullable one non-nullable. So the nullability is the function's own:
+        // COUNT(...) OVER (...) is never null, while AVG(x) OVER (...) is null for a partition in which every x is null.
+        //
+        // The aggregate's arguments are visited, but the aggregate node itself is not: SQL applies OVER to the aggregate, so nothing
+        // may come between the two, whereas a provider is free to rewrite an aggregate into an expression which wraps it. Any such
+        // wrapping has to go around the whole window function instead, as it does for SUM below.
+        SqlExpression function;
+        if (windowFunctionExpression.Function is SqlFunctionExpression sqlFunctionExpression)
+        {
+            var instance = sqlFunctionExpression.Instance is null ? null : Visit(sqlFunctionExpression.Instance, out _);
+
+            List<SqlExpression>? visitedArguments = null;
+            if (sqlFunctionExpression.Arguments is not null)
+            {
+                visitedArguments = [];
+                foreach (var argument in sqlFunctionExpression.Arguments)
+                {
+                    visitedArguments.Add(Visit(argument, out _));
+                }
+            }
+
+            function = sqlFunctionExpression.Update(instance, visitedArguments);
+            nullable = sqlFunctionExpression.IsNullable;
+        }
+        else
+        {
+            function = Visit(windowFunctionExpression.Function, allowOptimizedExpansion: false, out nullable);
+        }
+
+        var changed = function != windowFunctionExpression.Function;
+
+        var partitions = new List<SqlExpression>();
+        foreach (var partition in windowFunctionExpression.Partitions)
+        {
+            var newPartition = Visit(partition, out _);
+            changed |= newPartition != partition;
+            partitions.Add(newPartition);
+        }
+
+        var orderings = new List<OrderingExpression>();
+        foreach (var ordering in windowFunctionExpression.Orderings)
+        {
+            var newOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            changed |= newOrdering != ordering;
+            orderings.Add(newOrdering);
+        }
+
+        var result = changed
+            ? windowFunctionExpression.Update(function, partitions, orderings)
+            : windowFunctionExpression;
+
+        // SUM is null over a partition in which every value is null - the current row being in it doesn't help - whereas LINQ's Sum is
+        // zero. So it gets the same COALESCE as a grouped SUM, around the window function rather than inside it.
+        if (function is SqlFunctionExpression { IsBuiltIn: true } sumFunction
+            && string.Equals(sumFunction.Name, "SUM", StringComparison.OrdinalIgnoreCase))
+        {
+            nullable = false;
+
+            return CoalesceToZero(result);
+        }
+
+        return result;
+    }
+
+    /// <summary>
     ///     Visits a <see cref="RowValueExpression" /> and computes its nullability.
     /// </summary>
     /// <param name="rowValueExpression">A row value expression to visit.</param>
@@ -1640,18 +1722,23 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             nullable = false;
 
-            // The zero must be of the function's CLR type, since the type mapping's value converter (if any) is applied to it.
-            var resultType = sqlFunctionExpression.Type.UnwrapNullableType();
-            return _sqlExpressionFactory.Coalesce(
-                sqlFunctionExpression,
-                _sqlExpressionFactory.Constant(resultType.GetDefaultValue(), resultType, sqlFunctionExpression.TypeMapping),
-                sqlFunctionExpression.TypeMapping);
+            return CoalesceToZero(sqlFunctionExpression);
         }
 
         // if some of the {Instance,Arguments}PropagateNullability are true, use
         // the computed nullability information; otherwise rely only on IsNullable
         nullable = sqlFunctionExpression.IsNullable && (!useNullabilityPropagation || hasNullableArgument);
         return sqlFunctionExpression;
+    }
+
+    private SqlExpression CoalesceToZero(SqlExpression sum)
+    {
+        // The zero must be of the function's CLR type, since the type mapping's value converter (if any) is applied to it.
+        var resultType = sum.Type.UnwrapNullableType();
+        return _sqlExpressionFactory.Coalesce(
+            sum,
+            _sqlExpressionFactory.Constant(resultType.GetDefaultValue(), resultType, sum.TypeMapping),
+            sum.TypeMapping);
     }
 
     /// <summary>
