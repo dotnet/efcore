@@ -32,14 +32,24 @@ public class SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpression
             && arguments is [var source, var item]
             && source.Type == typeof(byte[]))
         {
+            // A non-constant byte has to be turned into a one-byte BLOB. char() would produce TEXT (the UTF-8 encoding of
+            // the code point), which makes instr() compare as text and gives wrong results for values above 0x7F.
             var value = item is SqlConstantExpression constantValue
                 ? sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
                 : sqlExpressionFactory.Function(
-                    "char",
-                    [item],
-                    nullable: false,
-                    argumentsPropagateNullability: Statics.FalseArrays[1],
-                    typeof(string));
+                    "unhex",
+                    [
+                        sqlExpressionFactory.Function(
+                            "printf",
+                            [sqlExpressionFactory.Constant("%02X"), item],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.FalseTrue,
+                            typeof(string))
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    typeof(byte[]),
+                    source.TypeMapping);
 
             return sqlExpressionFactory.GreaterThan(
                 sqlExpressionFactory.Function(

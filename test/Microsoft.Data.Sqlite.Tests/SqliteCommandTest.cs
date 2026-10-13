@@ -15,6 +15,8 @@ namespace Microsoft.Data.Sqlite;
 
 public class SqliteCommandTest
 {
+    private const string InfiniteQuery = "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c) SELECT count(*) FROM c;";
+
     [Theory, InlineData(true), InlineData(false)]
     public async Task Correct_error_code_is_returned_when_parameter_is_too_long(bool async) // Issue #27597
     {
@@ -601,6 +603,45 @@ CREATE TABLE "Products" (
     }
 
     [Fact]
+    public void ExecuteNonQuery_throws_when_statement_after_query_fails()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Id INTEGER PRIMARY KEY); INSERT INTO Data VALUES (1);");
+
+        var ex = Assert.Throws<SqliteException>(
+            () => connection.ExecuteNonQuery("SELECT 1; INSERT INTO Data VALUES (1);"));
+
+        Assert.Equal(SQLITE_CONSTRAINT, ex.SqliteErrorCode);
+    }
+
+    [Fact]
+    public void ExecuteNonQuery_does_not_lose_rows_silently_when_statement_after_query_fails()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Id INTEGER PRIMARY KEY); INSERT INTO Data VALUES (1);");
+
+        // The COMMIT never runs, so the insert of 2 is rolled back. That must not look like success
+        Assert.Throws<SqliteException>(
+            () => connection.ExecuteNonQuery(
+                "BEGIN; SELECT 1; INSERT INTO Data VALUES (2); INSERT INTO Data VALUES (1); COMMIT;"));
+    }
+
+    [Fact]
+    public void ExecuteScalar_throws_when_statement_after_query_fails()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Id INTEGER PRIMARY KEY); INSERT INTO Data VALUES (1);");
+
+        var ex = Assert.Throws<SqliteException>(
+            () => connection.ExecuteScalar<long>("SELECT 1; INSERT INTO Data VALUES (1);"));
+
+        Assert.Equal(SQLITE_CONSTRAINT, ex.SqliteErrorCode);
+    }
+
+    [Fact]
     public void ExecuteReader_works_on_EXPLAIN()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
@@ -678,8 +719,214 @@ CREATE TABLE "Products" (
     }
 
     [Fact]
-    public void Cancel_does_nothing()
+    public void Cancel_does_nothing_when_no_connection()
         => new SqliteCommand().Cancel();
+
+    [Fact]
+    public void Cancel_does_nothing_when_not_executing()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1;";
+
+        command.Cancel();
+
+        Assert.Equal(1L, command.ExecuteScalar());
+    }
+
+    [Fact]
+    public async Task Cancel_interrupts_running_command()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = InfiniteQuery;
+
+        var task = Task.Run(() => command.ExecuteScalar());
+
+        // Cancel is a no-op if called before the statement starts running, so keep calling it
+        while (!task.IsCompleted)
+        {
+            command.Cancel();
+            await Task.Delay(50);
+        }
+
+        var ex = await Assert.ThrowsAsync<SqliteException>(() => task);
+        Assert.Equal(SQLITE_INTERRUPT, ex.SqliteErrorCode);
+
+        command.CommandText = "SELECT 1;";
+        Assert.Equal(1L, command.ExecuteScalar());
+    }
+
+    [Fact]
+    public async Task ExecuteScalarAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = InfiniteQuery;
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => command.ExecuteScalarAsync(cts.Token));
+        Assert.Equal(cts.Token, ex.CancellationToken);
+        Assert.Equal(SQLITE_INTERRUPT, Assert.IsType<SqliteException>(ex.InnerException).SqliteErrorCode);
+
+        command.CommandText = "SELECT 1;";
+        Assert.Equal(1L, await command.ExecuteScalarAsync());
+    }
+
+    [Fact]
+    public async Task ExecuteNonQueryAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = InfiniteQuery;
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => command.ExecuteNonQueryAsync(cts.Token));
+    }
+
+    [Fact]
+    public async Task ExecuteReaderAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = InfiniteQuery;
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => command.ExecuteReaderAsync(cts.Token));
+
+        Assert.Null(command.DataReader);
+    }
+
+    [Fact]
+    public async Task ExecuteNonQueryAsync_does_not_run_remaining_statements_when_canceled()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        using var cts = new CancellationTokenSource();
+        connection.CreateFunction(
+            "cancel", () =>
+            {
+                cts.Cancel();
+                return 1;
+            });
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT cancel(); CREATE TABLE Data (Value);";
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => command.ExecuteNonQueryAsync(cts.Token));
+
+        command.CommandText = "SELECT count(*) FROM sqlite_master WHERE name = 'Data';";
+        Assert.Equal(0L, command.ExecuteScalar());
+    }
+
+    [Fact]
+    public async Task ExecuteNonQueryAsync_throws_when_already_canceled()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "CREATE TABLE Data (Value);";
+
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => command.ExecuteNonQueryAsync(new CancellationToken(canceled: true)));
+
+        command.CommandText = "SELECT count(*) FROM sqlite_master WHERE name = 'Data';";
+        Assert.Equal(0L, command.ExecuteScalar());
+    }
+
+    [Fact]
+    public async Task ReadAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c) "
+            + "SELECT 1 UNION ALL SELECT count(*) FROM c;";
+
+        using var reader = await command.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync());
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+        await Assert.ThrowsAsync<OperationCanceledException>(() => reader.ReadAsync(cts.Token));
+    }
+
+    [Fact]
+    public async Task NextResultAsync_throws_when_canceled_while_running()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1; " + InfiniteQuery;
+
+        using var reader = await command.ExecuteReaderAsync();
+        Assert.True(await reader.ReadAsync());
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => reader.NextResultAsync(cts.Token));
+        Assert.Equal(cts.Token, ex.CancellationToken);
+        Assert.Equal(SQLITE_INTERRUPT, Assert.IsType<SqliteException>(ex.InnerException).SqliteErrorCode);
+        Assert.True(reader.IsClosed);
+
+        command.CommandText = "SELECT 1;";
+        Assert.Equal(1L, await command.ExecuteScalarAsync());
+    }
+
+    [Fact]
+    public async Task NextResultAsync_does_not_run_later_statements_when_canceled_between_statements()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Log (Value);");
+        using var cts = new CancellationTokenSource();
+        connection.CreateFunction(
+            "cancel", () =>
+            {
+                cts.Cancel();
+                return 1;
+            });
+
+        // Cancel() doesn't interrupt, so the statement calling cancel() completes and only the check before the
+        // next statement can stop the batch
+        using var command = new NonInterruptingCommand
+        {
+            Connection = connection,
+            CommandText = "SELECT 1; INSERT INTO Log VALUES (cancel()); CREATE TABLE Data (Value);"
+        };
+
+        using var reader = await command.ExecuteReaderAsync();
+        var ex = await Assert.ThrowsAsync<OperationCanceledException>(() => reader.NextResultAsync(cts.Token));
+        Assert.Equal(cts.Token, ex.CancellationToken);
+        Assert.True(reader.IsClosed);
+        Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT count(*) FROM Log;"));
+        Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT count(*) FROM sqlite_master WHERE name = 'Data';"));
+    }
+
+    [Fact]
+    public async Task NextResultAsync_throws_when_already_canceled()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1; CREATE TABLE Data (Value);";
+
+        using var reader = await command.ExecuteReaderAsync();
+        await Assert.ThrowsAsync<OperationCanceledException>(() => reader.NextResultAsync(new CancellationToken(canceled: true)));
+        Assert.False(reader.IsClosed);
+
+        Assert.False(await reader.NextResultAsync());
+        Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT count(*) FROM sqlite_master WHERE name = 'Data';"));
+    }
+
+    private class NonInterruptingCommand : SqliteCommand
+    {
+        public override void Cancel()
+        {
+        }
+    }
 
     [Fact]
     public void ExecuteReader_supports_SequentialAccess()
@@ -833,6 +1080,9 @@ CREATE TABLE "Products" (
     public Task ExecuteScalar_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(command =>
         {
+            // Shorter than the five seconds the reader is held for, so this still times out
+            command.CommandTimeout = 1;
+
             var ex = Assert.Throws<SqliteException>(() => command.ExecuteScalar());
 
             AssertBusy(ex.SqliteErrorCode);
@@ -842,6 +1092,9 @@ CREATE TABLE "Products" (
     public Task ExecuteNonQuery_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(command =>
         {
+            // Shorter than the five seconds the reader is held for, so this still times out
+            command.CommandTimeout = 1;
+
             var ex = Assert.Throws<SqliteException>(() => command.ExecuteNonQuery());
 
             AssertBusy(ex.SqliteErrorCode);
@@ -879,6 +1132,125 @@ CREATE TABLE "Products" (
 
             AssertBusy(ex.SqliteErrorCode);
         });
+
+    [Fact]
+    public void NextResult_throws_instead_of_losing_the_write_when_commit_stays_busy_with_returning()
+        => Execute_with_returning_while_reader_is_open(
+            releaseReader: false,
+            (command, startRelease) =>
+            {
+                command.CommandTimeout = 1;
+
+                using var reader = command.ExecuteReader();
+                Assert.True(reader.Read());
+
+                startRelease();
+                var timer = Stopwatch.StartNew();
+
+                var ex = Assert.Throws<SqliteException>(() => reader.NextResult());
+
+                AssertBusy(ex.SqliteErrorCode);
+
+                // It waited for the command timeout instead of giving up on the first busy
+                Assert.True(timer.Elapsed >= TimeSpan.FromSeconds(1), $"Threw after {timer.Elapsed}");
+            },
+            expectedCount: 1);
+
+    [Fact]
+    public void NextResult_waits_for_the_commit_when_busy_with_returning()
+        => Execute_with_returning_while_reader_is_open(
+            releaseReader: true,
+            (command, startRelease) =>
+            {
+                using var reader = command.ExecuteReader();
+                Assert.True(reader.Read());
+
+                startRelease();
+                var timer = Stopwatch.StartNew();
+
+                Assert.False(reader.NextResult());
+
+                // The commit could only succeed once the reader was gone, so it has to have waited for it
+                Assert.True(timer.Elapsed >= ReaderReleaseDelay, $"Returned after {timer.Elapsed}");
+            },
+            expectedCount: 2);
+
+    [Fact]
+    public void ExecuteNonQuery_waits_for_the_commit_when_busy_with_returning()
+        => Execute_with_returning_while_reader_is_open(
+            releaseReader: true,
+            (command, startRelease) =>
+            {
+                startRelease();
+                var timer = Stopwatch.StartNew();
+
+                Assert.Equal(1, command.ExecuteNonQuery());
+
+                Assert.True(timer.Elapsed >= ReaderReleaseDelay, $"Returned after {timer.Elapsed}");
+            },
+            expectedCount: 2);
+
+    private static readonly TimeSpan ReaderReleaseDelay = TimeSpan.FromMilliseconds(500);
+
+    private static void Execute_with_returning_while_reader_is_open(
+        bool releaseReader,
+        Action<SqliteCommand, Action> action,
+        long expectedCount)
+    {
+        var connectionString = $"Data Source={Guid.NewGuid()}.db";
+
+        try
+        {
+            using var readerConnection = new SqliteConnection(connectionString);
+            if (new Version(readerConnection.ServerVersion) < new Version(3, 35, 0))
+            {
+                // Skip. RETURNING clause not supported
+                return;
+            }
+
+            readerConnection.Open();
+            readerConnection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+            // An open reader keeps a read lock, so the insert below can run but cannot commit
+            var reader = readerConnection.ExecuteReader("SELECT * FROM Data;");
+            Assert.True(reader.Read());
+
+            // The action starts this just before the call that has to wait, so the wait is not spent
+            // opening the second connection
+            Task? release = null;
+            var startRelease = () =>
+            {
+                if (releaseReader)
+                {
+                    release = Task.Run(
+                        async () =>
+                        {
+                            await Task.Delay(ReaderReleaseDelay);
+                            reader.Dispose();
+                        });
+                }
+            };
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO Data VALUES (1) RETURNING rowid;";
+
+                action(command, startRelease);
+            }
+
+            release?.Wait();
+            reader.Dispose();
+
+            Assert.Equal(expectedCount, readerConnection.ExecuteScalar<long>("SELECT COUNT(*) FROM Data;"));
+        }
+        finally
+        {
+            SqliteConnection.ClearPool(new SqliteConnection(connectionString));
+            File.Delete(connectionString["Data Source=".Length..]);
+        }
+    }
 
     private static void AssertBusy(int rc)
         => Assert.True(rc is SQLITE_LOCKED or SQLITE_BUSY or SQLITE_LOCKED_SHAREDCACHE);

@@ -1,6 +1,6 @@
 ---
 name: make-instructions
-description: 'Create VS Code file-based instructions (.instructions.md files). Use when asked to create, scaffold, or add file-based instructions for Copilot. Generates .instructions.md with YAML frontmatter and background knowledge content.'
+description: 'Create and evaluate VS Code file-based instructions (.instructions.md files). Use when asked to create, scaffold, or add file-based instructions for Copilot. Generates scoped instructions and a paired Vally harness eval.'
 ---
 
 # Create File-Based Instructions
@@ -23,6 +23,8 @@ Build understanding of the area the instructions should cover. Identify:
 - [ ] Key conventions, patterns, or architectural rules for that area
 - [ ] Common pitfalls that Copilot should avoid
 - [ ] Non-obvious domain knowledge that isn't discoverable from code alone
+
+Read the repository-wide instruction files that apply to the same paths and make an explicit exclusion list. Do not repeat those rules in the new file, even when they are relevant examples for the scoped area; include only guidance that becomes more specific or materially different at the narrower scope.
 
 If the scope is unclear or overlaps with existing instructions, ask the user for clarification.
 
@@ -73,7 +75,11 @@ Recommended sections (adapt as needed):
 5. **Key Files** — table of important files for orientation (optional)
 6. **Common Pitfalls** — traps to avoid (optional)
 
-### Step 5: Validate
+### Step 5: Author and validate the harness evaluation
+
+Create `eng/harness-evaluation/instructions/<id>/eval.yaml`, where `<id>` is the instruction path relative to `.github/instructions/` with its suffix removed and nested path separators replaced by `--`.
+
+Follow the authoring and validation rules in `eng/harness-evaluation/README.md`. Exercise guidance distinctive to the instruction and ensure the treatment meaningfully outperforms the omitted-instruction control.
 
 After creating the file, verify:
 
@@ -84,6 +90,7 @@ After creating the file, verify:
 - [ ] Content is concise (aim for under 500 lines or 5000 tokens) — long instructions dilute effectiveness
 - [ ] No secrets, tokens, or internal URLs included
 - [ ] Instructions don't duplicate what's already in `.github/copilot-instructions.md` or under `.agents/skills/`
+- [ ] The paired eval demonstrates behavior that the omitted-instruction control does not provide reliably
 
 ## Common Pitfalls
 

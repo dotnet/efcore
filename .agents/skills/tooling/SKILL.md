@@ -20,6 +20,14 @@ PowerShell module: `Add-Migration`, `Update-Database`, `Scaffold-DbContext`, `Op
 
 NuGet package `Microsoft.EntityFrameworkCore.Tasks` provides build/publish-time compiled model and precompiled query generation. Targets in `buildTransitive/Microsoft.EntityFrameworkCore.Tasks.targets`.
 
+## Command Option Ownership
+
+Trace an option to the code that consumes it before changing command or operation contracts. The outer `dotnet-ef` launcher builds the project and forwards remaining command-line arguments to `ef.dll`; the inner command under `src/ef/Commands/` parses command-specific options.
+
+- Keep presentation-only behavior in the inner command. For example, suppressing the completion message from `MigrationsAddCommand.Execute()` should guard its `Reporter.WriteInformation()` call and must not change `IOperationExecutor.AddMigration()`.
+- Forward a value through `OperationExecutorBase` only when the design-time operation in `Microsoft.EntityFrameworkCore.Design` needs it.
+- Treat PMC and `EFCore.Tasks` as separate entry points. Change them only when the requested behavior applies to those surfaces too.
+
 ## Testing
 
 - CLI tests: `test/dotnet-ef.Tests/`, `test/ef.Tests/`

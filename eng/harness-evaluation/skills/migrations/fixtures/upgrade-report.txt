@@ -1,0 +1,30 @@
+Scenario
+--------
+A project created on EF Core 9.0.3 has a Customer entity with a required struct Address complex property. After updating the tools and runtime to EF Core 10, `dotnet ef migrations add CheckUpgrade` emits a migration although the application model was not changed.
+
+Generated operation
+-------------------
+AlterColumnOperation
+  Table: Customers
+  Name: Address_ZipCode
+  ClrType: System.Int32
+  IsNullable: false
+  OldColumn.ClrType: System.Int32
+  OldColumn.IsNullable: true
+
+Legacy snapshot model observed before relational-model diff
+-----------------------------------------------------------
+ProductVersion: 9.0.3
+Path: Customer.Address
+Metadata CLR type: System.Collections.Generic.Dictionary<System.String, System.Object>
+IsNullable: true
+IsNullable configuration source: <null>
+
+Current design-time model observed before relational-model diff
+---------------------------------------------------------------
+ProductVersion: 10.0.4
+Path: Customer.Address
+Application CLR type: Address (struct)
+IsNullable: false
+
+The legacy snapshot contains no explicit required/optional call for Customer.Address. The application model and database schema are otherwise unchanged.

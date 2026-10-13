@@ -484,7 +484,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                                 typeBase, resolverPrm),
                                             EntityTypeFindPrimaryKeyMethod),
                                         resolverPrm),
-                                    /*typeBase.Name +*/ "key",
+                                    typeBase.ShortName() + "Key",
                                     typeof(IKey))
                                 : Constant(primaryKey),
                             NewArrayInit(
@@ -558,7 +558,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                             ? liftableConstantFactory.CreateLiftableConstant(
                                                 typeBase,
                                                 LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForStructuralType(typeBase),
-                                                typeBase.Name + "EntityType",
+                                                typeBase.ShortName() + "EntityType",
                                                 typeof(IEntityType))
                                             : Constant(typeBase),
                                         supportsPrecompiledQuery
@@ -572,7 +572,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                                             EntityTypeFindPrimaryKeyMethod),
                                                         nameof(IKey.Properties)),
                                                     resolverPrm),
-                                                typeBase.Name + "PrimaryKeyProperties",
+                                                typeBase.ShortName() + "PrimaryKeyProperties",
                                                 typeof(IReadOnlyList<IProperty>))
                                             : Constant(primaryKey.Properties),
                                         keyValuesVariable))));

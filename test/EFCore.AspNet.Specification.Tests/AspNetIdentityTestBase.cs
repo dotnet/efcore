@@ -20,7 +20,7 @@ public abstract class
     where TUserLogin : IdentityUserLogin<TKey>, new()
     where TUserToken : IdentityUserToken<TKey>, new()
     where TRoleClaim : IdentityRoleClaim<TKey>, new()
-    where TContext : IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, TUserToken>
+    where TContext : DbContext
 {
     protected virtual bool HasForeignKeyIndexes
         => true;

@@ -272,6 +272,88 @@ FROM [FunkyCustomers] AS [f]
 """);
     }
 
+    public override async Task String_starts_with_on_argument_with_wildcard_char_constant(bool async)
+    {
+        await base.String_starts_with_on_argument_with_wildcard_char_constant(async);
+
+        AssertSql(
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE N'\%%' ESCAPE N'\'
+""",
+            //
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE N'\_%' ESCAPE N'\'
+""",
+            //
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE N'\[%' ESCAPE N'\'
+""",
+            //
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE N'B%'
+""",
+            //
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] NOT LIKE N'\_%' ESCAPE N'\' OR [f].[FirstName] IS NULL
+""");
+    }
+
+    public override async Task String_starts_with_on_argument_with_wildcard_char_parameter(bool async)
+    {
+        await base.String_starts_with_on_argument_with_wildcard_char_parameter(async);
+
+        AssertSql(
+            """
+@prm1_startswith='\%%' (Size = 4000)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE @prm1_startswith ESCAPE N'\'
+""",
+            //
+            """
+@prm2_startswith='\_%' (Size = 4000)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE @prm2_startswith ESCAPE N'\'
+""",
+            //
+            """
+@prm3_startswith='\[%' (Size = 4000)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE @prm3_startswith ESCAPE N'\'
+""",
+            //
+            """
+@prm4_startswith='B%' (Size = 4000)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE @prm4_startswith ESCAPE N'\'
+""",
+            //
+            """
+@prm5_startswith='\_%' (Size = 4000)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] NOT LIKE @prm5_startswith ESCAPE N'\' OR [f].[FirstName] IS NULL
+""");
+    }
+
     public override async Task String_starts_with_on_argument_with_bracket(bool async)
     {
         await base.String_starts_with_on_argument_with_bracket(async);

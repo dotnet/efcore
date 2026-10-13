@@ -39,26 +39,15 @@ internal sealed class FullyQualifiedTypeNameVisitor : CSharpOutputVisitor
 
             node.AcceptVisitor(this);
 
-            if (node.Role == Roles.TypeParameter && node.ToString().EndsWith('?'))
+            if (node.Slot == Slots.TypeParameter && node.ToString().EndsWith('?'))
             {
-                WriteToken(ComposedType.NullableRole);
+                WriteToken(ComposedType.NullableToken);
             }
         }
     }
 
-    protected override void WriteModifiers(IEnumerable<CSharpModifierToken> modifierTokens)
-    {
-        foreach (CSharpModifierToken modifier in modifierTokens)
-        {
-            if (modifier.Modifier == Modifiers.Public)
-            {
-                continue;
-            }
-
-            modifier.AcceptVisitor(this);
-            Space();
-        }
-    }
+    protected override void WriteModifiers(Modifiers modifiers)
+        => base.WriteModifiers(modifiers & ~Modifiers.Public);
 
     public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
     {
@@ -75,24 +64,24 @@ internal sealed class FullyQualifiedTypeNameVisitor : CSharpOutputVisitor
     public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
     {
         StartNode(typeDeclaration);
-        WriteModifiers(typeDeclaration.ModifierTokens);
+        WriteModifiers(typeDeclaration.Modifiers);
 
         switch (typeDeclaration.ClassType)
         {
             case ClassType.Enum:
-                WriteKeyword(Roles.EnumKeyword);
+                WriteKeyword(Tokens.EnumKeyword);
                 break;
             case ClassType.Interface:
-                WriteKeyword(Roles.InterfaceKeyword);
+                WriteKeyword(Tokens.InterfaceKeyword);
                 break;
             case ClassType.Struct:
-                WriteKeyword(Roles.StructKeyword);
+                WriteKeyword(Tokens.StructKeyword);
                 break;
             case ClassType.RecordClass:
-                WriteKeyword(Roles.RecordKeyword);
+                WriteKeyword(Tokens.RecordKeyword);
                 break;
             default:
-                WriteKeyword(Roles.ClassKeyword);
+                WriteKeyword(Tokens.ClassKeyword);
                 break;
         }
 
@@ -119,7 +108,7 @@ internal sealed class FullyQualifiedTypeNameVisitor : CSharpOutputVisitor
         if (typeDeclaration.BaseTypes.Any())
         {
             Space();
-            WriteToken(Roles.Colon);
+            WriteToken(Tokens.Colon);
             Space();
 
             WriteCommaSeparatedList(typeDeclaration.BaseTypes);

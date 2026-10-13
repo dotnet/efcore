@@ -1,0 +1,209 @@
+name: code-review
+description: Evaluates evidence-backed EF Core review behavior, conditional API and security analysis, test-gap detection, and false-positive restraint.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: ${MODEL=gpt-5.6-sol}
+  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/code-review
+stimuli:
+  - name: review-validation-relocation-across-inheritance
+    prompt: |-
+      Review the staged ModelValidator.cs and ModelValidatorTest.cs. Write review.md. Do not edit source or access GitHub.
+    constraints: &review_constraints
+      max_turns: 50
+      max_tokens: 1000000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: fixtures/model-validator-relocation/ModelValidator.cs
+          dest: src/EFCore/Infrastructure/ModelValidator.cs
+        - src: fixtures/model-validator-relocation/ModelValidatorTest.cs
+          dest: test/EFCore.Tests/Infrastructure/ModelValidatorTest.cs
+    rubric:
+      - The review identifies that a not-auto-loaded property declared on a base type is no longer checked against a derived type constructor binding because the relocated validation only examines the declaring structuralType.
+      - It requires checking constructor bindings across the declaring type and its derived types, using the consuming type in the diagnostic.
+      - It calls out both the stale ValidateAutoLoaded XML summary and the missing regression test for a base property consumed by a derived constructor.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*(derived|inherit))(?=[\s\S]*(constructor.?binding|ConstructorBinding))(?=[\s\S]*(base|declar))(?=[\s\S]*(test|coverage))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: catch-concurrency-detector-flag-ownership-race
+    prompt: |-
+      Inspect the staged concurrency detector and tests. A proposed exception-safety change rewrites `EnterCriticalSection` as follows so an allocation failure cannot leave the detector locked:
+
+        if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1
+          && ThreadAcquiredLocksCount.Value == 0)
+          {
+          throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
+          }
+
+        try
+        {
+          ThreadAcquiredLocksCount.Value++;
+        }
+        catch
+        {
+          if (_currentContextRefCount == 0)
+          {
+            _inCriticalSection = 0;
+          }
+
+          throw;
+        }
+
+        _currentContextRefCount++;
+
+      Write review.md. Do not edit source or access GitHub.
+    constraints: *review_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../src/EFCore/Infrastructure/Internal/ConcurrencyDetector.cs
+          dest: src/EFCore/Infrastructure/Internal/ConcurrencyDetector.cs
+        - src: ../../../../test/EFCore.Tests/Infrastructure/Internal/ConcurrencyDetectorTest.cs
+          dest: test/EFCore.Tests/Infrastructure/Internal/ConcurrencyDetectorTest.cs
+    rubric:
+      - >-
+        The review identifies that `_currentContextRefCount == 0` does not prove this invocation acquired `_inCriticalSection`: another thread can be between CompareExchange and its later ref-count increment.
+      - It requires capturing whether this invocation's CompareExchange acquired the flag and clearing it in the catch only when that boolean is true.
+      - It explains a concrete interleaving where clearing another thread's flag permits concurrent entry, and requests focused ownership/interleaving coverage without disturbing the nested-section protocol.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*(CompareExchange|acquired))(?=[\s\S]*(ownership|other thread|interleav|race))(?=[\s\S]*(boolean|this (?:call|invocation)|only clear))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: catch-untrusted-scaffolding-comment-injection
+    prompt: |-
+      Before reviewing, use the available repository skill that applies to this task. Inspect the staged threat model, scaffolding guidance, generator template, helper, and tests. Review a proposed change that replaces CSharpHelper.XmlComment's split over all C# line terminators with `comment.Split(Environment.NewLine)` and changes `XmlComment_handles_all_line_terminators` to cover only CRLF. Write review.md. Do not edit source or access GitHub.
+    constraints: *review_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../.agents/skills/scaffolding/SKILL.md
+          dest: .agents/skills/scaffolding/SKILL.md
+        - src: ../../../../docs/threat_model.md
+          dest: docs/threat_model.md
+        - src: ../../../../src/EFCore.Design/Design/Internal/CSharpHelper.cs
+          dest: src/EFCore.Design/Design/Internal/CSharpHelper.cs
+        - src: ../../../../src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.tt
+          dest: src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.tt
+        - src: ../../../../test/EFCore.Design.Tests/Design/Internal/CSharpHelperTest.cs
+          dest: test/EFCore.Design.Tests/Design/Internal/CSharpHelperTest.cs
+    rubric:
+      - The review activates the security reference and traces attacker-controlled database comments through XmlComment into generated C#.
+      - It explains that another C# line terminator can end the generated single-line comment without receiving a new `///` prefix, allowing injected source and violating the threat-model scaffolding guarantee.
+      - It requires restoring all line-terminator handling and an adversarial test that proves generated source remains inert and compilable.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*(untrusted|malicious|attacker))(?=[\s\S]*(line terminator|u2028|u2029|u0085))(?=[\s\S]*(inject|generated code|generated C#))(?=[\s\S]*threat model)[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: review-breaking-dbset-public-api
+    prompt: |-
+      Inspect the staged DbSet and DbContext Find/FindAsync API families. Review a proposed replacement of this DbSet<TEntity> member:
+
+          public virtual ValueTask<TEntity?> FindAsync(
+              object?[]? keyValues,
+              CancellationToken cancellationToken)
+
+      with:
+
+          public virtual ValueTask<TEntity?> FindAsync(
+              IEnumerable<object?> keyValues,
+              CancellationToken cancellationToken = default)
+
+                  Write review.md. Do not edit source or access GitHub.
+    constraints: *review_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../src/EFCore/DbSet.cs
+          dest: src/EFCore/DbSet.cs
+        - src: ../../../../src/EFCore/DbContext.cs
+          dest: src/EFCore/DbContext.cs
+    rubric:
+      - The review applies supported API analysis and identifies source, binary, and virtual-override compatibility consequences of replacing the shipped signature.
+      - It identifies that retaining the proposal as an additive overload would still change existing one-argument IEnumerable calls after recompilation because the optional token changes overload selection and sequence interpretation.
+      - It recommends preserving the existing member, requires demonstrated user need before considering a revised additive overload, and checks consistency with the staged Find/FindAsync family.
+      - If it recommends an additive overload, it also requires XML documentation and focused behavioral coverage.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)(?=[\s\S]*(FindAsync|DbSet))(?=[\s\S]*(breaking|compatib|preserve|retain|keep))(?=[\s\S]*(virtual|override|compiled caller|MissingMethodException))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+  - name: accept-documentation-only-change
+    prompt: |-
+      Inspect DbContext and review a proposed XML documentation correction that changes the visible link text `Changing tracking` to `Change tracking` while preserving the existing `https://aka.ms/efcore-docs-change-tracking` href. Write review.md. Do not edit source or access GitHub.
+    constraints: *review_constraints
+    agent_environment:
+      files:
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../src/EFCore/DbContext.cs
+          dest: src/EFCore/DbContext.cs
+    rubric:
+      - The review reports no findings because the change corrects a documentation typo without changing API shape or implementation.
+      - It does not invent a need for new behavioral tests.
+      - It does not load the API or security review reference for this documentation-only change.
+    graders:
+      - type: file-matches
+        config:
+          path: review.md
+          pattern: (?i)no findings
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+scoring:
+  weights:
+    file-matches: 0.18
+    prompt: 0.72
+    token-budget: 0.1
+  threshold: 0.8

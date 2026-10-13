@@ -1885,6 +1885,23 @@ DBCC CHECKIDENT(N'[People]', RESEED, 100);
     }
 
     [Fact]
+    public virtual async Task Alter_column_change_identity_seed_above_int_range()
+    {
+        await Test(
+            builder => builder.Entity("People", e => e.Property<long>("Id").UseIdentityColumn(seed: 10)),
+            builder => builder.Entity("People", e => e.Property<long>("Id").UseIdentityColumn(seed: 3_000_000_000L)),
+            model =>
+            {
+                // DBCC CHECKIDENT RESEED doesn't change the table definition, so the seed can't be checked via scaffolding.
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[People]', RESEED, 3000000000);
+""");
+    }
+
+    [Fact]
     public virtual async Task Alter_column_change_default()
     {
         await Test(
@@ -4870,10 +4887,10 @@ CREATE TABLE [Contacts] (
     [Name] nvarchar(max) NULL,
     [Number] int NULL,
     [MyComplex_Prop] nvarchar(max) NULL,
-    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
-    [MyComplex_MyNestedComplex_Foo] int NULL,
-    [MyComplex_Nested_Bar] datetime2 NULL,
     [MyComplex_Nested_Foo] int NULL,
+    [MyComplex_Nested_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
     [NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
 );
@@ -4890,10 +4907,10 @@ CREATE TABLE [Suppliers] (
     [Id] int NOT NULL IDENTITY,
     [Number] int NOT NULL,
     [MyComplex_Prop] nvarchar(max) NULL,
-    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
-    [MyComplex_MyNestedComplex_Foo] int NULL,
-    [MyComplex_Nested_Bar] datetime2 NULL,
     [MyComplex_Nested_Foo] int NULL,
+    [MyComplex_Nested_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
     [NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Suppliers] PRIMARY KEY ([Id])
 );

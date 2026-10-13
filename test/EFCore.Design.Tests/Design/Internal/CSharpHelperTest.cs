@@ -48,6 +48,12 @@ public class CSharpHelperTest
          "-3.402823E+38f"), InlineData(
          3.402823E+38f, // Single MaxValue
          "3.402823E+38f"), InlineData(
+         float.NegativeInfinity,
+         "float.NegativeInfinity"), InlineData(
+         float.PositiveInfinity,
+         "float.PositiveInfinity"), InlineData(
+         float.NaN,
+         "float.NaN"), InlineData(
          42,
          "42"), InlineData(
          42L,
@@ -77,6 +83,24 @@ public class CSharpHelperTest
     }
 
     [Fact]
+    public void Literal_escapes_unicode_newline_characters_in_string()
+    {
+        // U+2028 (LINE SEPARATOR), U+2029 (PARAGRAPH SEPARATOR) and U+0085 (NEXT LINE) are treated as
+        // new-line characters by the C# compiler, so leaving them unescaped produces code that does not compile.
+        Assert.Equal("\"a\\u2028b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x2028 + "b"));
+        Assert.Equal("\"a\\u2029b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x2029 + "b"));
+        Assert.Equal("\"a\\u0085b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x0085 + "b"));
+    }
+
+    [Fact]
+    public void Literal_escapes_unicode_newline_characters_in_char()
+    {
+        Assert.Equal("'\\u2028'", new CSharpHelper(TypeMappingSource).Literal((char)0x2028));
+        Assert.Equal("'\\u2029'", new CSharpHelper(TypeMappingSource).Literal((char)0x2029));
+        Assert.Equal("'\\u0085'", new CSharpHelper(TypeMappingSource).Literal((char)0x0085));
+    }
+
+    [Fact]
     public void Literal_works_when_empty_ByteArray()
         => Literal_works(
             Array.Empty<byte>(),
@@ -93,6 +117,18 @@ public class CSharpHelperTest
         => Literal_works(
             new byte[] { 1, 2 },
             "new byte[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array()
+        => Literal_works(
+            new int?[] { 1, 2 },
+            "new int?[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array_with_null_element()
+        => Literal_works(
+            new int?[] { 1, null, 3 },
+            "new int?[] { 1, null, 3 }");
 
     [Fact]
     public void Literal_works_when_empty_list()

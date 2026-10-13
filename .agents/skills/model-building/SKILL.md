@@ -20,11 +20,25 @@ Covers model construction (conventions, fluent API, metadata hierarchy) and mode
 
 Override `ConfigureConventions(ModelConfigurationBuilder)` to add/remove conventions.
 
+Convention fixes must preserve dispatcher behavior and ambiguity information. For inverse-navigation attributes, do not solve recursion by permanently ignoring an ambiguous navigation: removing one candidate can make another ambiguity appear unique and configure the wrong relationship. `InversePropertyAttributeConvention` records inverse candidates and uses `AddInverseNavigation`, `TryRemoveIfAmbiguous`, and `FindAmbiguousInverse` while still allowing convention processing to continue.
+
+Test the state transitions, not only the initially ambiguous model: first verify that multiple interacting candidates configure no relationship; then genuinely remove ambiguity both by ignoring/removing one competing navigation and by removing a competing entity type, and verify that the remaining inverse relationship is configured. These cases distinguish candidate bookkeeping from a permanent-ignore workaround.
+
 ## Metadata Interface Hierarchy
 
 `IReadOnly*` → `IMutable*` → `IConvention*` → `IRuntime*`
 
 Applies to: Model, EntityType, Property, Key, ForeignKey, Navigation, Index, etc. Builders follow: `*Builder` → `IConvention*Builder`.
+
+## Adding A Configurable Metadata Facet
+
+Follow the nearest existing facet end to end rather than stopping at the public interface:
+
+1. Add the read-only, mutable, and convention metadata contracts, concrete storage, default, configuration source, convention setter, and builder precedence checks. Preserve the facet when metadata is replaced or a relationship is rebuilt.
+2. If changes are observable to conventions, add the convention interface, every `ConventionSet` add/replace/remove path, and immediate plus delayed dispatcher scopes and nodes.
+3. Carry the value into the optimized runtime metadata through `RuntimeModelConvention`, runtime constructors/builders, and `CSharpRuntimeModelCodeGenerator` so compiled models preserve it.
+4. If snapshots persist the facet, update the fluent builder API and `CSharpSnapshotGenerator`; keep the old absence equivalent to the historical default.
+5. Update public API baselines and cover configuration-source precedence, convention dispatch, runtime/compiled model propagation, and snapshot round trips.
 
 ## Model Lifecycle
 
