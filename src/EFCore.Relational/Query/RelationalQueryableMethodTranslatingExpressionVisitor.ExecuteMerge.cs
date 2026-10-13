@@ -374,9 +374,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         if (whenNotMatchedSetters is null)
         {
             // Default: insert every property that maps to a column on the target table. Computed columns are populated by the database
-            // and cannot be inserted into, so they're excluded.
+            // and cannot be inserted into, so they're excluded; as in SaveChanges, so are properties ignored before save (e.g. a row
+            // version), unless they're match columns, whose values ON CONFLICT needs.
             return entityType.GetProperties()
-                .Where(p => table.FindColumn(p) is not null && p.GetComputedColumnSql(storeObject) is null)
+                .Where(p => table.FindColumn(p) is not null
+                    && p.GetComputedColumnSql(storeObject) is null
+                    && (p.GetBeforeSaveBehavior() != PropertySaveBehavior.Ignore || conflictProperties.Any(c => c.Property == p)))
                 .Select(p => (p, (Expression?)null))
                 .ToList();
         }

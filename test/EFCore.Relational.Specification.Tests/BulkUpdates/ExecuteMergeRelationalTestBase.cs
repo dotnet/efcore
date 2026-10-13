@@ -232,6 +232,19 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Default_insert_skips_properties_generated_on_add_or_update(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<StampedContext>();
+        await using var context = contextFactory.CreateDbContext();
+
+        // Like SaveChanges, the default insert must leave Version to the database.
+        var affected = await Merge(async, context.Set<Stamped>(), [new Stamped { Id = 1, Name = "a", Version = 7 }], merge => { });
+
+        Assert.Equal(1, affected);
+        Assert.Equal(42, (await context.Set<Stamped>().SingleAsync()).Version);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task On_entity_with_owned_type_throws(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OrderContext>();
@@ -278,6 +291,24 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
+    }
+
+    protected class StampedContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Stamped>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Version).HasDefaultValue(42).ValueGeneratedOnAddOrUpdate();
+                });
+    }
+
+    protected class Stamped
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int Version { get; set; }
     }
 
     protected class OrderContext(DbContextOptions options) : DbContext(options)
