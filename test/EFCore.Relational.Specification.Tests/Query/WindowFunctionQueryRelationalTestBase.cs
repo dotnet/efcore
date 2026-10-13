@@ -99,6 +99,36 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
             });
     }
 
+    /// <summary>
+    ///     LongCount, which providers may translate to a function of their own (COUNT_BIG on SQL Server) rather than to COUNT.
+    /// </summary>
+    [Fact]
+    public virtual async Task Elements_and_long_count()
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Employees
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => new { g.Key, Names = g.Select(e => e.Name).ToList(), Count = g.LongCount() })
+            .ToListAsync();
+
+        Assert.Collection(
+            results,
+            engineering =>
+            {
+                Assert.Equal("Engineering", engineering.Key);
+                Assert.Equal(["Alice", "Bob", "Cheng"], engineering.Names.Order());
+                Assert.Equal(3L, engineering.Count);
+            },
+            sales =>
+            {
+                Assert.Equal("Sales", sales.Key);
+                Assert.Equal(["Dara", "Emre"], sales.Names.Order());
+                Assert.Equal(2L, sales.Count);
+            });
+    }
+
     [Fact]
     public virtual async Task Projected_elements_and_aggregate()
     {
