@@ -2150,6 +2150,52 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region 39241
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_elements_with_keys_differing_only_in_case(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context39241>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context39241.Employee { Name = "Alice", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Bob", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Cheng", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Fen", DepartmentName = "engineering" },
+                    new Context39241.Employee { Name = "Dara", DepartmentName = "Sales" });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            // Whether keys differing only in case are one group depends on the database's collation; either way, the groupings have to
+            // be the database's groups.
+            var databaseGroups = context.Employees.GroupBy(e => e.DepartmentName).Select(g => g.Count());
+            var groupings = context.Employees.GroupBy(e => e.DepartmentName).Select(g => g.Select(e => e.Name).ToList());
+
+            var databaseGroupsRes = async ? await databaseGroups.ToListAsync() : databaseGroups.ToList();
+            ClearLog();
+            var groupingsRes = async ? await groupings.ToListAsync() : groupings.ToList();
+
+            Assert.Equal(databaseGroupsRes.Order(), groupingsRes.Select(g => g.Count).Order());
+            Assert.Equal(["Alice", "Bob", "Cheng", "Dara", "Fen"], groupingsRes.SelectMany(g => g).Order());
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context39241(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Employee> Employees
+                => Set<Employee>();
+
+            public class Employee
+            {
+                public int Id { get; set; }
+                public string Name { get; set; } = null!;
+                public string DepartmentName { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
         #region 30233
 
         [Theory, MemberData(nameof(IsAsyncData))]

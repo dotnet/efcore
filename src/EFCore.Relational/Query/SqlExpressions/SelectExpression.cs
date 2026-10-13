@@ -69,6 +69,12 @@ public sealed partial class SelectExpression : TableExpressionBase
     // Pushdown should null it out as if GroupBy was present was pushed down.
     private List<(ColumnExpression Column, ValueComparer Comparer)>? _preGroupByIdentifier;
 
+    // A value computed by the database which identifies each row's group for a final GroupBy, used in place of the grouping terms when
+    // the groupings are assembled on the client. Comparing the grouping terms on the client uses CLR equality, which can disagree with
+    // the database's (a case-insensitive collation, trailing spaces); the database's own value can't. Same lifetime as
+    // _preGroupByIdentifier: not cloned, and dropped by a pushdown.
+    private SqlExpression? _groupIdentifier;
+
     private static ConstructorInfo? _quotingConstructor;
 
     /// <summary>
@@ -661,7 +667,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var keySelector = AddGroupByKeySelectorToProjection(
                     this, newClientProjections, projectionBindingMap, groupByShaper.KeySelector);
                 var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(
-                    this, newClientProjections, projectionBindingMap, _identifier);
+                    this, newClientProjections, projectionBindingMap,
+                    _groupIdentifier is null
+                        ? _identifier.Select(e => ((SqlExpression)e.Column, e.Comparer))
+                        : [(_groupIdentifier, _groupIdentifier.TypeMapping!.KeyComparer)]);
                 // ApplyGrouping only sets this aside when it replaced the identifier with the grouping terms; when the identifier was
                 // already part of the key (e.g. grouping by the primary key) it left it alone, and there's nothing to restore.
                 if (_preGroupByIdentifier is not null)
@@ -776,7 +785,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     SelectExpression selectExpression,
                     List<Expression> clientProjectionList,
                     Dictionary<SqlExpression, Expression> projectionBindingMap,
-                    IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
+                    IEnumerable<(SqlExpression Column, ValueComparer Comparer)> identifyingProjection)
                 {
                     var updatedExpressions = new List<Expression>();
                     var comparers = new List<ValueComparer>();
@@ -1957,6 +1966,18 @@ public sealed partial class SelectExpression : TableExpressionBase
             : identifier.Count > 0
                 ? identifier.Select(e => new OrderingExpression(e.Column, true)).ToList()
                 : [new OrderingExpression(new SqlFragmentExpression("(SELECT 1)", typeof(int)), true)];
+
+    /// <summary>
+    ///     Identifies the groups of a final GroupBy by the given value, computed by the database, rather than by comparing the grouping
+    ///     terms on the client.
+    /// </summary>
+    /// <param name="groupIdentifier">A value which is equal for rows of the same group, and differs between consecutive groups.</param>
+    internal void ApplyGroupIdentifier(SqlExpression groupIdentifier)
+    {
+        Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
+
+        _groupIdentifier = groupIdentifier;
+    }
 
     private static void PopulateGroupByTerms(
         Expression keySelector,
@@ -4122,6 +4143,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         Offset = null;
         Limit = null;
         _preGroupByIdentifier = null;
+        _groupIdentifier = null;
 
         _tables.Add(subquery);
 

@@ -427,7 +427,7 @@ ORDER BY [b].[Name]
 
         AssertSql(
             """
-SELECT [b].[Name], [b].[Id]
+SELECT [b].[Name], DENSE_RANK() OVER(ORDER BY [b].[Name]), [b].[Id]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Name]
 """);
