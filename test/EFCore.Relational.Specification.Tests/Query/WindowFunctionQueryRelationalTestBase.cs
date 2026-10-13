@@ -462,11 +462,10 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
         var results = await context.Employees
             .GroupBy(e => e.DepartmentName)
             .Select(g => new { g.Key, Employees = g.ToList(), Salaries = g.Select(e => e.Salary).Distinct().Count() })
-            .OrderBy(x => x.Key)
             .ToListAsync();
 
         Assert.Collection(
-            results,
+            results.OrderBy(r => r.Key),
             engineering => Assert.Equal(3, engineering.Salaries),
             sales => Assert.Equal(2, sales.Salaries));
     }
@@ -483,11 +482,10 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
         var results = await context.Employees
             .GroupBy(e => e.DepartmentName)
             .Select(g => new { g.Key, Employees = g.ToList(), HighEarners = g.Where(e => e.Salary > 100).Count() })
-            .OrderBy(x => x.Key)
             .ToListAsync();
 
         Assert.Collection(
-            results,
+            results.OrderBy(r => r.Key),
             engineering => Assert.Equal(2, engineering.HighEarners),
             sales => Assert.Equal(0, sales.HighEarners));
     }
