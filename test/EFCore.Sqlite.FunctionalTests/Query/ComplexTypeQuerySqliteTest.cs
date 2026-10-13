@@ -203,6 +203,13 @@ FROM "Customer" AS "c"
 """);
     }
 
+    public override async Task Include_complex_property(bool async)
+    {
+        await base.Include_complex_property(async);
+
+        AssertSql();
+    }
+
     public override async Task Complex_type_equals_complex_type(bool async)
     {
         await base.Complex_type_equals_complex_type(async);
