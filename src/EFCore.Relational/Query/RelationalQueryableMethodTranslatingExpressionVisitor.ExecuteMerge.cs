@@ -127,11 +127,22 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             conflictColumns = [.. columns];
         }
 
+        // The conflict check compares the value the database computes for the inserted row, not the source's match value, so a computed
+        // match column would silently match on a different value.
+        var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
+        foreach (var (property, _) in conflictProperties)
+        {
+            if (property.GetComputedColumnSql(storeObject) is not null)
+            {
+                throw new InvalidOperationException(RelationalStrings.ExecuteMergeComputedMatchColumn(property.Name));
+            }
+        }
+
         // Determine the columns (and per-row values) to insert. When WhenNotMatched isn't specified, insert every mapped column using
         // the same-named source member (except for conflict columns, which use the match source selector); otherwise use the explicit
         // insert setters. The source rows are a query parameter, so a single template row is built here and expanded into the actual
         // rows when the query is executed.
-        var insertProperties = ResolveInsertProperties(entityType, table, whenNotMatchedSetters, conflictProperties);
+        var insertProperties = ResolveInsertProperties(entityType, table, storeObject, whenNotMatchedSetters, conflictProperties);
         var sourceType = sourceRows.Type.TryGetSequenceType() ?? typeof(object);
         var insertColumns = new string[insertProperties.Count];
         var valueMembers = new MemberInfo?[insertProperties.Count];
@@ -356,6 +367,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     private static List<(IProperty Property, Expression? ValueExpression)> ResolveInsertProperties(
         IEntityType entityType,
         ITableBase table,
+        StoreObjectIdentifier storeObject,
         IReadOnlyList<ExecuteUpdateSetter>? whenNotMatchedSetters,
         IReadOnlyList<(IProperty Property, string SourceMember)> conflictProperties)
     {
@@ -363,7 +375,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             // Default: insert every property that maps to a column on the target table. Computed columns are populated by the database
             // and cannot be inserted into, so they're excluded.
-            var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
             return entityType.GetProperties()
                 .Where(p => table.FindColumn(p) is not null && p.GetComputedColumnSql(storeObject) is null)
                 .Select(p => (p, (Expression?)null))

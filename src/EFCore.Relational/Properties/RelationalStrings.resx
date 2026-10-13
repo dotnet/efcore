@@ -433,6 +433,9 @@
   <data name="ExecuteDeleteOnTableSplitting" xml:space="preserve">
     <value>The operation 'ExecuteDelete' is being applied on the table '{tableName}' which contains data for multiple entity types. Applying this delete operation will also delete data for other entity type(s), hence it is not supported.</value>
   </data>
+  <data name="ExecuteMergeComputedMatchColumn" xml:space="preserve">
+    <value>The property '{property}' cannot be matched on in ExecuteMerge because it is mapped to a computed column.</value>
+  </data>
   <data name="ExecuteMergeDuplicateMatchColumn" xml:space="preserve">
     <value>The column '{column}' is matched more than once in ExecuteMerge.</value>
   </data>

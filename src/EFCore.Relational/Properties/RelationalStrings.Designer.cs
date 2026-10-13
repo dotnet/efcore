@@ -844,6 +844,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 tableName);
 
         /// <summary>
+        ///     The property '{property}' cannot be matched on in ExecuteMerge because it is mapped to a computed column.
+        /// </summary>
+        public static string ExecuteMergeComputedMatchColumn(object? property)
+            => string.Format(
+                GetString("ExecuteMergeComputedMatchColumn", nameof(property)),
+                property);
+
+        /// <summary>
         ///     The column '{column}' is matched more than once in ExecuteMerge.
         /// </summary>
         public static string ExecuteMergeDuplicateMatchColumn(object? column)

@@ -32,6 +32,15 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Match_on_computed_column_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Gadgets,
+                [new Gadget { Id = 1, Price = 200, Tax = 10 }],
+                merge => merge.Match(t => t.Tax, s => s.Tax)),
+            RelationalStrings.ExecuteMergeComputedMatchColumn(nameof(Gadget.Tax)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_not_matched_with_computed_value_throws(bool async)
     {
         var prefix = "INS-";
