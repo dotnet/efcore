@@ -48,6 +48,32 @@ public class DatabaseOperationsTest
     }
 
     [Fact]
+    public void ScaffoldContext_throws_when_provider_assembly_lacks_design_time_attribute()
+    {
+        var operations = CreateOperations([]);
+
+        var ex = Assert.Throws<OperationException>(() => operations.ScaffoldContext(
+            "Microsoft.EntityFrameworkCore",
+            "connectionstring",
+            "",
+            "",
+            dbContextClassName: nameof(TestContext),
+            null!,
+            null!,
+            "FakeNamespace",
+            contextNamespace: null,
+            useDataAnnotations: false,
+            overwriteFiles: true,
+            useDatabaseNames: false,
+            suppressOnConfiguring: true,
+            noPluralize: false));
+
+        Assert.Equal(
+            DesignStrings.CannotScaffoldProvider("Microsoft.EntityFrameworkCore"),
+            ex.Message);
+    }
+
+    [Fact]
     public void ScaffoldContext_throws_when_provider_assembly_not_found()
     {
         var operations = CreateOperations([]);
