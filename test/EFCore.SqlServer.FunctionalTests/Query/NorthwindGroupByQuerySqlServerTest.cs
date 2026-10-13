@@ -25,10 +25,10 @@ public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationa
 
         AssertSql(
             """
-SELECT [p].[ProductID], [o0].[Key], COALESCE([o0].[Sum], 0) AS [Sum]
+SELECT [p].[ProductID], [o0].[Key], ISNULL([o0].[Sum], 0) AS [Sum]
 FROM [Products] AS [p]
 LEFT JOIN (
-    SELECT [o].[ProductID] AS [Key], COALESCE(SUM(CAST([o].[Quantity] AS int)), 0) AS [Sum], [o].[ProductID]
+    SELECT [o].[ProductID] AS [Key], ISNULL(SUM(CAST([o].[Quantity] AS int)), 0) AS [Sum], [o].[ProductID]
     FROM [Order Details] AS [o]
     WHERE [o].[ProductID] < 10
     GROUP BY [o].[ProductID]
@@ -42,7 +42,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [p].[ProductID], [o0].[Key], COALESCE(CAST([o0].[Quantity] AS int), 0) AS [Quantity]
+SELECT [p].[ProductID], [o0].[Key], COALESCE([o0].[Quantity], CAST(0 AS smallint)) AS [Quantity]
 FROM [Products] AS [p]
 LEFT JOIN (
     SELECT DISTINCT [o].[ProductID] AS [Key], [o].[Quantity], 1 AS [marker], [o].[ProductID]
