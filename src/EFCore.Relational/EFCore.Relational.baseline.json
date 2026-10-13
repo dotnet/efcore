@@ -15340,6 +15340,9 @@
           "Member": "static string ExecuteDeleteOnTableSplitting(object? tableName);"
         },
         {
+          "Member": "static string ExecuteMergeComputedMatchColumn(object? property);"
+        },
+        {
           "Member": "static string ExecuteMergeDuplicateMatchColumn(object? column);"
         },
         {
