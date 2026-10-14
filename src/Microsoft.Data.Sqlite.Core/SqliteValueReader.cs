@@ -105,7 +105,16 @@ internal abstract class SqliteValueReader
     }
 
     public virtual TimeOnly GetTimeOnly(int ordinal)
-        => TimeOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+    {
+        var sqliteType = GetSqliteType(ordinal);
+        return sqliteType switch
+        {
+            // A fraction of a day, as written by SqliteValueBinder for SqliteType.Real
+            SQLITE_FLOAT or SQLITE_INTEGER
+                => TimeOnly.FromTimeSpan(TimeSpan.FromMilliseconds(Math.Round(GetDouble(ordinal) * 86400000.0))),
+            _ => TimeOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture),
+        };
+    }
 
     public virtual decimal GetDecimal(int ordinal)
         => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
