@@ -27,8 +27,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 {
     internal const string DiscriminatorColumnAlias = "Discriminator";
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
-    private static readonly bool UseOldBehavior39220 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39220", out var enabled) && enabled;
 
     private readonly List<ProjectionExpression> _projection = [];
     private readonly List<TableExpressionBase> _tables = [];
@@ -3474,7 +3472,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 foreach (var innerColumn in innerKeyColumns)
                 {
                     if (!projectionColumns.Contains(innerColumn)
-                        && (UseOldBehavior39220 || !projectionColumns.Contains(innerColumn.MakeNullable())))
+                        && !projectionColumns.Contains(innerColumn.MakeNullable()))
                     {
                         return null;
                     }
