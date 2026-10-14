@@ -268,6 +268,33 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
 """);
     }
 
+    public override async Task IndexOf_with_empty_string_and_constant_starting_position()
+    {
+        await base.IndexOf_with_empty_string_and_constant_starting_position();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "", 2) = 2))
+""");
+    }
+
+    public override async Task IndexOf_with_empty_string_parameter_and_parameter_starting_position()
+    {
+        await base.IndexOf_with_empty_string_parameter_and_parameter_starting_position();
+
+        AssertSql(
+            """
+@pattern=''
+@start='2'
+
+SELECT VALUE c
+FROM root c
+WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], @pattern, @start) = 2))
+""");
+    }
+
     public override Task IndexOf_after_ToString()
         => AssertTranslationFailed(base.IndexOf_after_ToString);
 

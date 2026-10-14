@@ -176,6 +176,19 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     }
 
     [Fact]
+    public virtual Task IndexOf_with_empty_string_and_constant_starting_position()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf(string.Empty, 2) == 2));
+
+    [Fact]
+    public virtual Task IndexOf_with_empty_string_parameter_and_parameter_starting_position()
+    {
+        var pattern = string.Empty;
+        var start = 2;
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf(pattern, start) == 2));
+    }
+
+    [Fact]
     public virtual Task IndexOf_after_ToString()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => x.Int.ToString().IndexOf("55") == 1));
 
