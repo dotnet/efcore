@@ -19,6 +19,39 @@ public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationa
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task SelectMany_DefaultIfEmpty_over_GroupBy(bool async)
+    {
+        await base.SelectMany_DefaultIfEmpty_over_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT [p].[ProductID], [o0].[Key], ISNULL([o0].[Sum], 0) AS [Sum]
+FROM [Products] AS [p]
+LEFT JOIN (
+    SELECT [o].[ProductID] AS [Key], ISNULL(SUM(CAST([o].[Quantity] AS int)), 0) AS [Sum], [o].[ProductID]
+    FROM [Order Details] AS [o]
+    WHERE [o].[ProductID] < 10
+    GROUP BY [o].[ProductID]
+) AS [o0] ON [p].[ProductID] = [o0].[ProductID]
+""");
+    }
+
+    public override async Task SelectMany_DefaultIfEmpty_over_Distinct(bool async)
+    {
+        await base.SelectMany_DefaultIfEmpty_over_Distinct(async);
+
+        AssertSql(
+            """
+SELECT [p].[ProductID], [o0].[Key], COALESCE([o0].[Quantity], CAST(0 AS smallint)) AS [Quantity]
+FROM [Products] AS [p]
+LEFT JOIN (
+    SELECT DISTINCT [o].[ProductID] AS [Key], [o].[Quantity], 1 AS [marker], [o].[ProductID]
+    FROM [Order Details] AS [o]
+    WHERE [o].[ProductID] < 10
+) AS [o0] ON [p].[ProductID] = [o0].[ProductID]
+""");
+    }
+
     public override async Task GroupBy_ValueTuple_projection_joined_on_tuple_member(bool async)
     {
         await base.GroupBy_ValueTuple_projection_joined_on_tuple_member(async);
