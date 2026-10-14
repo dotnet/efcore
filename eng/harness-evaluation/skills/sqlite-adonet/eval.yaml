@@ -1,0 +1,51 @@
+name: sqlite-adonet
+description: Evaluates Microsoft.Data.Sqlite guidance against its command and connection implementation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: ${MODEL=gpt-5.6-sol}
+  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/sqlite-adonet
+stimuli:
+  - name: distinguish-commit-and-dispose-cleanup
+    prompt: |-
+      Inspect the staged transaction implementation and tests. A rollback failure during transaction disposal leaves the connection unable to start a new transaction. A proposed fix calls `Complete()` from a `finally` block around both `COMMIT` and `ROLLBACK` so cleanup always runs. Write analysis.md with the corrected implementation and focused tests. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../src/Microsoft.Data.Sqlite.Core/SqliteTransaction.cs
+          dest: src/Microsoft.Data.Sqlite.Core/SqliteTransaction.cs
+        - src: ../../../../src/Microsoft.Data.Sqlite.Core/SqliteCommand.cs
+          dest: src/Microsoft.Data.Sqlite.Core/SqliteCommand.cs
+        - src: ../../../../test/Microsoft.Data.Sqlite.Tests/SqliteTransactionTest.cs
+          dest: test/Microsoft.Data.Sqlite.Tests/SqliteTransactionTest.cs
+    rubric:
+      - The analysis rejects unconditional completion after a failed commit because `SQLITE_BUSY` can leave the transaction active and retryable; it recognizes that ExecuteNonQuery already uses the driver's busy/locked retry path.
+      - It keeps `Complete()` in rollback/disposal cleanup's finally so managed transaction state is detached even when rollback throws, while commit completes only after success.
+      - Tests distinguish failed commit from failed disposal rollback, cover sync and async disposal, surface the original error, and prove a new transaction can start after rollback cleanup.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*(SQLITE_BUSY|busy))(?=[\s\S]*(commit|COMMIT))(?=[\s\S]*(rollback|ROLLBACK))(?=[\s\S]*(retry|retryable))(?=[\s\S]*(finally|Complete))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  weights:
+    file-matches: 0.27
+    prompt: 0.63
+    token-budget: 0.1
+  threshold: 0.75

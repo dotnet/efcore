@@ -717,7 +717,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 return _sqlExpressionFactory.Constant(false, inExpression.TypeMapping);
             }
 
-            var projectionExpression = Visit(subqueryProjection, allowOptimizedExpansion, out var projectionNullable);
+            // The projection is a value compared against the item rather than a predicate, so NULL can't be treated as false there
+            // (e.g. FALSE IN (SELECT x > 1 ...) must match rows where x is NULL).
+            var projectionExpression = Visit(subqueryProjection, allowOptimizedExpansion: false, out var projectionNullable);
             inExpression = inExpression.Update(
                 item, subquery.Update(
                     subquery.Tables,
@@ -1559,9 +1561,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             nullable = false;
 
+            // The zero must be of the function's CLR type, since the type mapping's value converter (if any) is applied to it.
+            var resultType = sqlFunctionExpression.Type.UnwrapNullableType();
             return _sqlExpressionFactory.Coalesce(
                 sqlFunctionExpression,
-                _sqlExpressionFactory.Constant(0, sqlFunctionExpression.TypeMapping),
+                _sqlExpressionFactory.Constant(resultType.GetDefaultValue(), resultType, sqlFunctionExpression.TypeMapping),
                 sqlFunctionExpression.TypeMapping);
         }
 

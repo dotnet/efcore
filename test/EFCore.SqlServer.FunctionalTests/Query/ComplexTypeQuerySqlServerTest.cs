@@ -204,6 +204,13 @@ FROM [Customer] AS [c]
 """);
     }
 
+    public override async Task Include_complex_property(bool async)
+    {
+        await base.Include_complex_property(async);
+
+        AssertSql();
+    }
+
     public override async Task Complex_type_equals_complex_type(bool async)
     {
         await base.Complex_type_equals_complex_type(async);
@@ -1630,25 +1637,25 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT TOP(2) [p].[Id], [p].[Items]
-FROM [Parent] AS [p]
-ORDER BY [p].[Id]
-""",
+            SELECT TOP(2) [p].[Id], [p].[Items]
+            FROM [Parent] AS [p]
+            ORDER BY [p].[Id]
+            """,
             //
             """
-SELECT [s].[Id], [p3].[Id]
-FROM (
-    SELECT TOP(1) [p].[Id]
-    FROM [Parent] AS [p]
-    ORDER BY [p].[Id]
-) AS [p3]
-INNER JOIN (
-    SELECT [l1].[Id], [p2].[ParentsId]
-    FROM [ParentLinks] AS [p2]
-    INNER JOIN [Link] AS [l1] ON [p2].[LinksId] = [l1].[Id]
-) AS [s] ON [p3].[Id] = [s].[ParentsId]
-ORDER BY [p3].[Id]
-""");
+            SELECT [s].[Id], [p3].[Id]
+            FROM (
+                SELECT TOP(1) [p].[Id]
+                FROM [Parent] AS [p]
+                ORDER BY [p].[Id]
+            ) AS [p3]
+            INNER JOIN (
+                SELECT [l1].[Id], [p2].[ParentsId]
+                FROM [ParentLinks] AS [p2]
+                INNER JOIN [Link] AS [l1] ON [p2].[LinksId] = [l1].[Id]
+            ) AS [s] ON [p3].[Id] = [s].[ParentsId]
+            ORDER BY [p3].[Id]
+            """);
     }
 
     #endregion Non-shared test resources

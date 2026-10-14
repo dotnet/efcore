@@ -111,6 +111,42 @@ WHERE NULLIF("b"."String", 'Seattle') = 'London'
 """);
     }
 
+    public override async Task Conditional_uncoalesce_is_null()
+    {
+        await base.Conditional_uncoalesce_is_null();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."Int" = 8
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_is_not_null_with_nullable_column()
+    {
+        await base.Conditional_uncoalesce_is_not_null_with_nullable_column();
+
+        AssertSql(
+            """
+SELECT "n"."Id", "n"."Bool", "n"."Byte", "n"."ByteArray", "n"."DateOnly", "n"."DateTime", "n"."DateTimeOffset", "n"."Decimal", "n"."Double", "n"."Enum", "n"."FlagsEnum", "n"."Float", "n"."Guid", "n"."Int", "n"."Long", "n"."Short", "n"."String", "n"."TimeOnly", "n"."TimeSpan"
+FROM "NullableBasicTypesEntities" AS "n"
+WHERE NULLIF("n"."Int", 8) IS NOT NULL
+""");
+    }
+
+    public override async Task Conditional_uncoalesce_with_coalesce()
+    {
+        await base.Conditional_uncoalesce_with_coalesce();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE COALESCE(NULLIF("b"."Int", 0), -1) < 0
+""");
+    }
+
     public override async Task Coalesce()
     {
         await base.Coalesce();

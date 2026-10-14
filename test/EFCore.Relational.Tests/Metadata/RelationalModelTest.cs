@@ -22,6 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<InvalidOperationException>(() => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
         }
 
+        [Fact]
+        public void GetRelationalModel_does_not_throw_if_relational_model_is_created_concurrently()
+        {
+            var model = new ConcurrentlyInitializedModel();
+            var relationalModel = new RelationalModel(model);
+            model.AddRuntimeAnnotation(
+                RelationalAnnotationNames.RelationalModelFactory, (Func<IRelationalModel>)(() => relationalModel));
+
+            Assert.Same(relationalModel, model.GetRelationalModel());
+        }
+
         [Theory]
         [InlineData(DeleteBehavior.Cascade, ReferentialAction.Cascade)]
         [InlineData(DeleteBehavior.SetNull, ReferentialAction.SetNull)]
@@ -3988,6 +3999,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public static void AssertEqual(IRelationalModel expectedModel, IRelationalModel actualModel)
             => RelationalModelAsserter.Instance.AssertEqual(expectedModel, actualModel);
+
+        private class ConcurrentlyInitializedModel() : RuntimeModel(skipDetectChanges: false, modelId: Guid.Empty, entityTypeCount: 0)
+        {
+            private bool _concurrentCallMade;
+
+            public override Annotation? FindRuntimeAnnotation(string name)
+            {
+                var annotation = base.FindRuntimeAnnotation(name);
+                if (name == RelationalAnnotationNames.RelationalModel
+                    && annotation == null
+                    && !_concurrentCallMade)
+                {
+                    // Simulates another thread creating the relational model right after this lookup didn't find it
+                    _concurrentCallMade = true;
+                    this.GetRelationalModel();
+                }
+
+                return annotation;
+            }
+        }
 
         public enum Mapping
         {

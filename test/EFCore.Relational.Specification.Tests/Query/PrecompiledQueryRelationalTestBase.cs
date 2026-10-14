@@ -210,11 +210,11 @@ await context.Blogs.ToListAsync();
             interceptorCodeAsserter: code =>
             {
                 Assert.Matches(
-                    @"\bprivate\s+static\s+readonly\b(?=[^;]*\bNumberBytes\b)[^;=]*\bNumberBytes\s*=\s*[^;]+;",
-                    code); // Expected a private static readonly field named NumberBytes with an initializer.
+                    @"\bprivate\s+static\s+readonly\b(?=[^;]*\b_NumberBytes\b)[^;=]*\b_NumberBytes\s*=\s*[^;]+;",
+                    code); // Expected a private static readonly field named _NumberBytes with an initializer.
                 Assert.True(
-                    Regex.Matches(code, @"\bNumberBytes\b").Count > 1,
-                    "Expected at least 1 reference to NumberBytes excluding the initializer.");
+                    Regex.Matches(code, @"\b_NumberBytes\b").Count > 1,
+                    "Expected at least 1 reference to _NumberBytes excluding the initializer.");
             });
 
     #endregion Expression types
@@ -268,6 +268,10 @@ _ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
     [Fact]
     public virtual Task Final_GroupBy()
         => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).ToListAsync();""");
+
+    [Fact]
+    public virtual Task Final_GroupBy_projecting_grouping_elements()
+        => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.Select(b => b.Id).ToList()).ToListAsync();""");
 
     #endregion Regular operators
 
@@ -1061,6 +1065,16 @@ _ = foo();
 """);
 
     [Fact]
+    public virtual Task DbContext_as_captured_parameter()
+        => Test(
+            """
+var blogs = await GetBlogs(context);
+
+static async Task<List<Blog>> GetBlogs(PrecompiledQueryContext parameterContext)
+    => await parameterContext.Blogs.ToListAsync();
+""");
+
+    [Fact]
     public virtual Task DbContext_as_method_invocation_result()
         => FullSourceTest(
             """
@@ -1088,6 +1102,17 @@ public static class TestContainer
     #endregion Different DbContext expressions
 
     #region Captured variable handling
+
+    [Fact]
+    public virtual Task Captured_method_parameter_in_lambda()
+        => Test(
+            """
+var outerId = 7;
+var blogs = await GetBlogsById(context, outerId);
+
+static async Task<List<Blog>> GetBlogsById(PrecompiledQueryContext parameterContext, int id)
+    => await parameterContext.Blogs.Where(b => b.Id == id).ToListAsync();
+""");
 
     [Fact]
     public virtual Task Two_captured_variables_in_same_lambda()

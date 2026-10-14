@@ -1,0 +1,62 @@
+name: update-pipeline
+description: Evaluates SaveChanges update-pipeline guidance against EF Core batching and SQL generation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  timeout: 10m
+  model: ${MODEL=gpt-5.6-sol}
+  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/update-pipeline
+stimuli:
+  - name: review-shared-identity-column-access
+    prompt: |-
+      Inspect the staged update implementation and tests. A proposed fix redirects an Added entry to its `SharedIdentityEntry` after resolving the column mapping:
+
+        var property = column.FindColumnMapping(entry.EntityType)?.Property;
+        if (entry.EntityState == EntityState.Added
+          && entry.SharedIdentityEntry != null)
+        {
+          entry = entry.SharedIdentityEntry;
+        }
+
+        var providerValue = entry.GetOriginalProviderValue(property!);
+
+      Write analysis.md reviewing the implementation and focused regression test for replacing a row-sharing owned entity whose required foreign key points to another table. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 1000000
+      max_duration: 10m
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Relational/Update/Internal/ColumnAccessorsFactory.cs
+          dest: src/EFCore.Relational/Update/Internal/ColumnAccessorsFactory.cs
+        - src: ../../../../src/EFCore.Relational/Update/Internal/CommandBatchPreparer.cs
+          dest: src/EFCore.Relational/Update/Internal/CommandBatchPreparer.cs
+        - src: ../../../../test/EFCore.Relational.Specification.Tests/Update/NonSharedModelUpdatesTestBase.cs
+          dest: test/EFCore.Relational.Specification.Tests/Update/NonSharedModelUpdatesTestBase.cs
+    rubric:
+      - The analysis identifies that `property` belongs to the original entry's entity type and must be resolved again after selecting a shared entry of a different type.
+      - It moves shared-entry selection before `column.FindColumnMapping(entry.EntityType)` or otherwise explicitly remaps the property, preserving original-value lookup used by dependency ordering.
+      - The regression replaces the owned row, changes its required FK, deletes the old principal in the same SaveChanges, and verifies the principal/update/delete ordering through observable success and final state.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*SharedIdentityEntry)(?=[\s\S]*FindColumnMapping)(?=[\s\S]*(different entity type|EntityType.*different|remap|re-resolv))(?=[\s\S]*(foreign key|dependency|ordering))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+scoring:
+  weights:
+    file-matches: 0.27
+    prompt: 0.63
+    token-budget: 0.1
+  threshold: 0.75

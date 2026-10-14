@@ -3431,7 +3431,7 @@ ORDER BY [g].[Nickname]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 GROUP BY [m].[CodeName]
 """);
@@ -4179,71 +4179,6 @@ SELECT CASE
     ELSE CAST(0 AS bit)
 END AS [IsEradicated]
 FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
-""");
-    }
-
-    public override async Task ToString_enum_property_projection(bool async)
-    {
-        await base.ToString_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [g].[Rank]
-    WHEN 0 THEN N'None'
-    WHEN 1 THEN N'Private'
-    WHEN 2 THEN N'Corporal'
-    WHEN 4 THEN N'Sergeant'
-    WHEN 8 THEN N'Lieutenant'
-    WHEN 16 THEN N'Captain'
-    WHEN 32 THEN N'Major'
-    WHEN 64 THEN N'Colonel'
-    WHEN 128 THEN N'General'
-    ELSE CAST([g].[Rank] AS nvarchar(max))
-END
-FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-""");
-    }
-
-    public override async Task ToString_nullable_enum_property_projection(bool async)
-    {
-        await base.ToString_nullable_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END
-FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-""");
-    }
-
-    public override async Task ToString_enum_contains(bool async)
-    {
-        await base.ToString_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [m].[CodeName]
-FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
-WHERE [m].[Difficulty] LIKE N'%Med%'
-""");
-    }
-
-    public override async Task ToString_nullable_enum_contains(bool async)
-    {
-        await base.ToString_nullable_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [w].[Name]
-FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-WHERE CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END LIKE N'%Cart%'
 """);
     }
 
@@ -6352,16 +6287,16 @@ FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 
         AssertSql(
             """
-SELECT ISNULL((
-    SELECT TOP(1) [w].[Id]
-    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), (
-    SELECT TOP(1) [w0].[Id]
-    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w0]
-    WHERE [g].[FullName] = [w0].[OwnerFullName]
-    ORDER BY [w0].[Id]))
+SELECT [w1].[Id]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+LEFT JOIN (
+    SELECT [w0].[Id], [w0].[OwnerFullName]
+    FROM (
+        SELECT [w].[Id], [w].[OwnerFullName], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
+        FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+    ) AS [w0]
+    WHERE [w0].[row] <= 1
+) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]
 """);
     }
 
@@ -8117,7 +8052,7 @@ WHERE [m].[Rating] IS NULL
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE [m].[CodeName] = N'Operation Foobar'
 """);

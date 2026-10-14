@@ -3019,7 +3019,7 @@ ORDER BY [s].[PickupStatusId]
 SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Total], [r0].[marker]
 FROM [Statuses] AS [s]
 LEFT JOIN (
-    SELECT [r].[PickupStatusId] AS [pickupStatusId], COALESCE(SUM(CAST([r].[PickupStatusId] AS decimal(18,2))), 0.0) AS [Total], 1 AS [marker]
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], ISNULL(SUM(CAST([r].[PickupStatusId] AS decimal(18,2))), 0.0) AS [Total], 1 AS [marker]
     FROM [Requests] AS [r]
     GROUP BY [r].[PickupStatusId]
 ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
@@ -3594,6 +3594,57 @@ FROM (
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
 ) AS [s0]
 ORDER BY [s0].[PickupStatusId]
+""");
+    }
+
+    #endregion
+
+    #region 33663
+
+    public override async Task GroupBy_nullable_foreign_key_in_anonymous_key(bool async)
+    {
+        await base.GroupBy_nullable_foreign_key_in_anonymous_key(async);
+
+        AssertSql(
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId]
+""",
+            //
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId], [c].[Id]
+""",
+            //
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId]
+""",
+            //
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId], [c].[Id]
+""");
+    }
+
+    #endregion
+
+    #region 30233
+
+    public override async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
+    {
+        await base.Sum_over_property_with_value_converter_that_converts_nulls(async);
+
+        AssertSql(
+            """
+SELECT [e].[Group] AS [Key], COALESCE(SUM([e].[LongValue]), CAST(0 AS bigint)) AS [SumLong], COALESCE(SUM([e].[DecimalValue]), 0.0) AS [SumDecimal]
+FROM [Entity] AS [e]
+GROUP BY [e].[Group]
+ORDER BY [e].[Group]
 """);
     }
 

@@ -203,6 +203,13 @@ FROM "Customer" AS "c"
 """);
     }
 
+    public override async Task Include_complex_property(bool async)
+    {
+        await base.Include_complex_property(async);
+
+        AssertSql();
+    }
+
     public override async Task Complex_type_equals_complex_type(bool async)
     {
         await base.Complex_type_equals_complex_type(async);
@@ -1090,13 +1097,9 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT "c1"."BillingAddress_ZipCode"
+SELECT "c0"."BillingAddress_ZipCode"
 FROM "CustomerGroup" AS "c"
-LEFT JOIN (
-    SELECT "c0"."Id", "c0"."BillingAddress_ZipCode"
-    FROM "Customer" AS "c0"
-    WHERE "c0"."Id" > 5
-) AS "c1" ON "c"."Id" = "c1"."Id"
+LEFT JOIN "Customer" AS "c0" ON "c"."Id" = "c0"."Id" AND "c0"."Id" > 5
 """);
     }
 
@@ -1460,27 +1463,27 @@ INNER JOIN "HookMetadata" AS "h0" ON "h"."Id" = "h0"."HookId"
 
         AssertSql(
             """
-SELECT "p"."Id", "p"."Items"
-FROM "Parent" AS "p"
-ORDER BY "p"."Id"
-LIMIT 2
-""",
+            SELECT "p"."Id", "p"."Items"
+            FROM "Parent" AS "p"
+            ORDER BY "p"."Id"
+            LIMIT 2
+            """,
             //
             """
-SELECT "s"."Id", "p3"."Id"
-FROM (
-    SELECT "p"."Id"
-    FROM "Parent" AS "p"
-    ORDER BY "p"."Id"
-    LIMIT 1
-) AS "p3"
-INNER JOIN (
-    SELECT "l1"."Id", "p2"."ParentsId"
-    FROM "ParentLinks" AS "p2"
-    INNER JOIN "Link" AS "l1" ON "p2"."LinksId" = "l1"."Id"
-) AS "s" ON "p3"."Id" = "s"."ParentsId"
-ORDER BY "p3"."Id"
-""");
+            SELECT "s"."Id", "p3"."Id"
+            FROM (
+                SELECT "p"."Id"
+                FROM "Parent" AS "p"
+                ORDER BY "p"."Id"
+                LIMIT 1
+            ) AS "p3"
+            INNER JOIN (
+                SELECT "l1"."Id", "p2"."ParentsId"
+                FROM "ParentLinks" AS "p2"
+                INNER JOIN "Link" AS "l1" ON "p2"."LinksId" = "l1"."Id"
+            ) AS "s" ON "p3"."Id" = "s"."ParentsId"
+            ORDER BY "p3"."Id"
+            """);
     }
 
     #endregion Non-shared test resources

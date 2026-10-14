@@ -12,4 +12,11 @@
     <ProjectReference Include="..\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj" />
   </ItemGroup>
 
+  <!-- Workaround for EnablePreviewFeatures setting LangVersion to Preview -->
+  <Target Name="RestoreLangVersion" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+  </Target>
+
 </Project>

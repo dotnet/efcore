@@ -13,6 +13,6 @@
     <ProjectReference Include="..\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj" />
   </ItemGroup>
 
-  <Import Project="..\..\src\EFCore.SqlServer.HierarchyId\build\$(DefaultNetCoreTargetFramework)\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.targets" />
+  <Import Project="..\..\src\EFCore.SqlServer.HierarchyId\build\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.targets" />
 
 </Project>

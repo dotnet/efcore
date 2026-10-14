@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 
 #
 # Add-Migration
@@ -1262,17 +1262,103 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
 
     if (!$skipBuild)
     {
-        Write-Host 'Build started...'
+        $projectsToRevert = @()
 
-        # TODO: Only build startup project. Don't use BuildProject, you can't specify platform
-        $solutionBuild = $DTE.Solution.SolutionBuild
-        $solutionBuild.Build(<# WaitForBuildToFinish: #> $true)
-        if ($solutionBuild.LastBuildInfo)
+        try
         {
-            throw 'Build failed.'
-        }
+            $projectsToAdjust = @()
+            try
+            {
+                $projectsToAdjust = GetSolutionProjects
+            }
+            catch
+            {
+            }
 
-        Write-Host 'Build succeeded.'
+            if (!$projectsToAdjust -or $projectsToAdjust.Count -eq 0)
+            {
+                $projectsToAdjust = @($startupProject, $project)
+            }
+
+            foreach ($p in $projectsToAdjust)
+            {
+                try
+                {
+                    if ($p -and (IsCpsProject $p))
+                    {
+                        $publishAot = GetCpsProperty $p 'PublishAot'
+                        if ($publishAot -and [string]::Equals($publishAot.Trim(), 'true', [StringComparison]::OrdinalIgnoreCase))
+                        {
+                            $unevaluated = GetUnevaluatedCpsProperty $p 'PublishAot'
+                            SetCpsProperty $p 'PublishAot' 'false'
+                            $projectsToRevert += [pscustomobject]@{
+                                Project = $p
+                                OriginalValue = $unevaluated
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    Write-Verbose "Unable to set PublishAot=false on project '$($p.ProjectName)': $_"
+                }
+            }
+
+            Write-Host 'Build started...'
+
+            # TODO: Only build startup project. Don't use BuildProject, you can't specify platform
+            $solutionBuild = $DTE.Solution.SolutionBuild
+            $solutionBuild.Build(<# WaitForBuildToFinish: #> $true)
+            if ($solutionBuild.LastBuildInfo)
+            {
+                throw 'Build failed.'
+            }
+
+            Write-Host 'Build succeeded.'
+        }
+        finally
+        {
+            $restorationErrors = @()
+            foreach ($item in $projectsToRevert)
+            {
+                $restored = $false
+                for ($attempt = 1; $attempt -le 2; $attempt++)
+                {
+                    try
+                    {
+                        if (![string]::IsNullOrEmpty($item.OriginalValue))
+                        {
+                            SetCpsProperty $item.Project 'PublishAot' $item.OriginalValue
+                        }
+                        else
+                        {
+                            SetCpsProperty $item.Project 'PublishAot' $null
+                        }
+
+                        $restored = $true
+                        break
+                    }
+                    catch
+                    {
+                        if ($attempt -eq 1)
+                        {
+                            Start-Sleep -Milliseconds 100
+                        }
+                        else
+                        {
+                            $msg = "Unable to restore original PublishAot property on project '$($item.Project.ProjectName)'. Please verify PublishAot in your project file. Error: $_"
+                            Write-Warning $msg
+                            $restorationErrors += $msg
+                        }
+                    }
+                }
+            }
+
+            if ($restorationErrors.Count -gt 0)
+            {
+                Write-Verbose ($restorationErrors -join "`n")
+            }
+        }
     }
 
     $activeConfiguration = $startupProject.ConfigurationManager.ActiveConfiguration
@@ -1633,14 +1719,71 @@ function GetProperty($properties, $propertyName)
     }
 }
 
+function GetCpsCommonProperties($project)
+{
+    try
+    {
+        $browseObjectContext = Get-Interface $project 'Microsoft.VisualStudio.ProjectSystem.Properties.IVsBrowseObjectContext'
+        if (!$browseObjectContext)
+        {
+            return $null
+        }
+
+        $unconfiguredProject = $browseObjectContext.UnconfiguredProject
+        $configuredProject = $unconfiguredProject.GetSuggestedConfiguredProjectAsync().Result
+        return $configuredProject.Services.ProjectPropertiesProvider.GetCommonProperties()
+    }
+    catch
+    {
+        return $null
+    }
+}
+
 function GetCpsProperty($project, $propertyName)
 {
-    $browseObjectContext = Get-Interface $project 'Microsoft.VisualStudio.ProjectSystem.Properties.IVsBrowseObjectContext'
-    $unconfiguredProject = $browseObjectContext.UnconfiguredProject
-    $configuredProject = $unconfiguredProject.GetSuggestedConfiguredProjectAsync().Result
-    $properties = $configuredProject.Services.ProjectPropertiesProvider.GetCommonProperties()
+    $properties = GetCpsCommonProperties $project
+    if (!$properties)
+    {
+        return $null
+    }
 
     return $properties.GetEvaluatedPropertyValueAsync($propertyName).Result
+}
+
+function GetUnevaluatedCpsProperty($project, $propertyName)
+{
+    $properties = GetCpsCommonProperties $project
+    if (!$properties)
+    {
+        return $null
+    }
+
+    return $properties.GetUnevaluatedPropertyValueAsync($propertyName).Result
+}
+
+function SetCpsProperty($project, $propertyName, $value)
+{
+    $properties = GetCpsCommonProperties $project
+    if (!$properties)
+    {
+        return
+    }
+
+    if ($value -ne $null)
+    {
+        $properties.SetPropertyValueAsync($propertyName, $value, $null).GetAwaiter().GetResult()
+    }
+    else
+    {
+        try
+        {
+            $properties.DeletePropertyAsync($propertyName, $null).GetAwaiter().GetResult()
+        }
+        catch
+        {
+            $properties.SetPropertyValueAsync($propertyName, '', $null).GetAwaiter().GetResult()
+        }
+    }
 }
 
 function GetMSBuildProperty($project, $propertyName)

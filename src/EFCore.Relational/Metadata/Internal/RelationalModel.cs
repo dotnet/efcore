@@ -462,7 +462,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                     databaseModel,
                     tableMappings,
                     includesDerivedTypes: includesDerivedTypes,
-                    isSplitEntityTypePrincipal: false);
+                    isSplitEntityTypePrincipal: false,
+                    isSplitFragmentOptional: fragment.IsOptional);
             }
 
             CreateTableMapping(
@@ -494,7 +495,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         RelationalModel databaseModel,
         List<TableMapping> tableMappings,
         bool? includesDerivedTypes,
-        bool? isSplitEntityTypePrincipal = null)
+        bool? isSplitEntityTypePrincipal = null,
+        bool isSplitFragmentOptional = false)
     {
         if (!databaseModel.Tables.TryGetValue((mappedTable.Name, mappedTable.Schema), out var table))
         {
@@ -505,7 +507,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         var tableMapping = new TableMapping(typeBase, table, includesDerivedTypes)
         {
-            IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal
+            IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal,
+            IsSplitFragmentOptional = isSplitFragmentOptional
         };
 
         var containerColumnName = mappedType.GetContainerColumnName(mappedTable);
@@ -570,7 +573,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 databaseModel,
                 complexTableMappings,
                 includesDerivedTypes: true,
-                isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal);
+                isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal,
+                isSplitFragmentOptional: isSplitFragmentOptional);
         }
 
         if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
@@ -978,7 +982,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                     databaseModel,
                     viewMappings,
                     includesDerivedTypes: includesDerivedTypes,
-                    isSplitEntityTypePrincipal: false);
+                    isSplitEntityTypePrincipal: false,
+                    isSplitFragmentOptional: fragment.IsOptional);
             }
 
             CreateViewMapping(
@@ -1010,7 +1015,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         RelationalModel databaseModel,
         List<ViewMapping> viewMappings,
         bool? includesDerivedTypes,
-        bool? isSplitEntityTypePrincipal = null)
+        bool? isSplitEntityTypePrincipal = null,
+        bool isSplitFragmentOptional = false)
     {
         if (!databaseModel.Views.TryGetValue((mappedView.Name, mappedView.Schema), out var view))
         {
@@ -1021,7 +1027,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         var viewMapping = new ViewMapping(entityType, view, includesDerivedTypes)
         {
-            IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal
+            IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal,
+            IsSplitFragmentOptional = isSplitFragmentOptional
         };
 
         var containerColumnName = mappedType.GetContainerColumnName(mappedView);
@@ -1085,7 +1092,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 databaseModel,
                 complexViewMappings,
                 includesDerivedTypes: true,
-                isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal);
+                isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal,
+                isSplitFragmentOptional: isSplitFragmentOptional);
         }
 
         if (((ITableMappingBase)viewMapping).ColumnMappings.Any()

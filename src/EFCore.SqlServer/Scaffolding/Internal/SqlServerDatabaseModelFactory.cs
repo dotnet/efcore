@@ -687,6 +687,10 @@ AND [v].[is_date_correlation_view] = 0
         IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases,
         string? databaseCollation)
     {
+        // The vector type is available under all database compatibility levels, so check whether the server knows
+        // the type rather than checking the compatibility level.
+        var supportsVectorType = typeAliases.ContainsKey("[sys].[vector]");
+
         using var command = connection.CreateCommand();
         var builder = new StringBuilder(
             $"""
@@ -700,7 +704,7 @@ SELECT
     CAST([c].[max_length] AS int) AS [max_length],
     CAST([c].[precision] AS int) AS [precision],
     CAST([c].[scale] AS int) AS [scale],
-    {(_compatibilityLevel is >= 170 ? "[c].[vector_dimensions]" : "NULL as [vector_dimensions]")},
+    {(supportsVectorType ? "[c].[vector_dimensions]" : "NULL as [vector_dimensions]")},
     [c].[is_nullable],
     [c].[is_identity],
     [dc].[definition] AS [default_sql],
@@ -913,7 +917,8 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
             && defaultValueSql.EndsWith('\''))
         {
             var startIndex = defaultValueSql.IndexOf('\'');
-            defaultValueSql = defaultValueSql.Substring(startIndex + 1, defaultValueSql.Length - (startIndex + 2));
+            defaultValueSql = defaultValueSql.Substring(startIndex + 1, defaultValueSql.Length - (startIndex + 2))
+                .Replace("''", "'");
 
             if (type == typeof(string))
             {
@@ -933,25 +938,25 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
             }
 
             if (type == typeof(DateTime)
-                && DateTime.TryParse(defaultValueSql, out var dateTime))
+                && DateTime.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTime))
             {
                 return dateTime;
             }
 
             if (type == typeof(DateOnly)
-                && DateOnly.TryParse(defaultValueSql, out var dateOnly))
+                && DateOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateOnly))
             {
                 return dateOnly;
             }
 
             if (type == typeof(TimeOnly)
-                && TimeOnly.TryParse(defaultValueSql, out var timeOnly))
+                && TimeOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var timeOnly))
             {
                 return timeOnly;
             }
 
             if (type == typeof(DateTimeOffset)
-                && DateTimeOffset.TryParse(defaultValueSql, out var dateTimeOffset))
+                && DateTimeOffset.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTimeOffset))
             {
                 return dateTimeOffset;
             }
