@@ -1283,6 +1283,17 @@ ORDER BY "w"."Name", "w"."Id", "s0"."FullName" DESC, "s0"."Nickname", "s0"."Squa
 """);
     }
 
+    public override async Task New_Date_Expressions_in_projection(bool async)
+    {
+        await base.New_Date_Expressions_in_projection(async);
+
+        AssertSql(
+            """
+SELECT "m"."Date", CAST('08:00:00' AS TEXT), CAST('2020-01-02' AS TEXT), "m"."Time", CAST('2020-01-02 08:00:00' AS TEXT)
+FROM "Missions" AS "m"
+""");
+    }
+
     public override async Task GetValueOrDefault_in_projection(bool async)
     {
         await base.GetValueOrDefault_in_projection(async);
