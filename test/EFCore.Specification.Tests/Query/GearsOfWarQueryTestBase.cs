@@ -4286,7 +4286,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             {
                 MorningOfMission = new DateTime(m.Date, new TimeOnly(8, 0, 0)),
                 OnSpacificDate = new DateTime(new DateOnly(2020, 1, 2), m.Time),
-                ConstantDateTime = new DateTime(2020, 1, 2, 8, 0, 0)
+                ConstantDateTime = new DateTime(2020, 1, 2, 8, 0, 0),
+                ConstantGuid = Guid.Empty
             }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
