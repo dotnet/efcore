@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -365,6 +366,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitLike(likeExpression, allowOptimizedExpansion, out nullable),
             RowNumberExpression rowNumberExpression
                 => VisitRowNumber(rowNumberExpression, allowOptimizedExpansion, out nullable),
+            DenseRankExpression denseRankExpression
+                => VisitDenseRank(denseRankExpression, out nullable),
             RowValueExpression rowValueExpression
                 => VisitRowValue(rowValueExpression, allowOptimizedExpansion, out nullable),
             ScalarSubqueryExpression scalarSubqueryExpression
@@ -1270,6 +1273,24 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         return changed
             ? rowNumberExpression.Update(partitions, orderings)
             : rowNumberExpression;
+    }
+
+    private SqlExpression VisitDenseRank(DenseRankExpression denseRankExpression, out bool nullable)
+    {
+        var changed = false;
+        var orderings = new List<OrderingExpression>();
+        foreach (var ordering in denseRankExpression.Orderings)
+        {
+            var newOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            changed |= newOrdering != ordering;
+            orderings.Add(newOrdering);
+        }
+
+        nullable = false;
+
+        return changed
+            ? denseRankExpression.Update(orderings)
+            : denseRankExpression;
     }
 
     /// <summary>

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -140,6 +141,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             RightJoinExpression e => VisitRightJoin(e),
             FullJoinExpression e => VisitFullJoin(e),
             RowNumberExpression e => VisitRowNumber(e),
+            DenseRankExpression e => VisitDenseRank(e),
             RowValueExpression e => VisitRowValue(e),
             ScalarSubqueryExpression e => VisitScalarSubquery(e),
             SelectExpression e => VisitSelect(e),
@@ -1395,6 +1397,15 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         _relationalCommandBuilder.Append(")");
 
         return rowNumberExpression;
+    }
+
+    private Expression VisitDenseRank(DenseRankExpression denseRankExpression)
+    {
+        _relationalCommandBuilder.Append("DENSE_RANK() OVER(ORDER BY ");
+        GenerateList(denseRankExpression.Orderings, e => Visit(e));
+        _relationalCommandBuilder.Append(")");
+
+        return denseRankExpression;
     }
 
     /// <summary>

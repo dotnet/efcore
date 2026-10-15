@@ -907,15 +907,31 @@ ORDER BY "c"."CountryId", "c"."Id"
 """,
             //
             """
-SELECT "c"."CountryId", "c"."Id"
+SELECT "c"."CountryId", DENSE_RANK() OVER(ORDER BY "c"."CountryId"), "c"."Id"
 FROM "Companies" AS "c"
 ORDER BY "c"."CountryId"
 """,
             //
             """
-SELECT "c"."CountryId", "c"."Id"
+SELECT "c"."CountryId", "c"."Id", DENSE_RANK() OVER(ORDER BY "c"."CountryId", "c"."Id")
 FROM "Companies" AS "c"
 ORDER BY "c"."CountryId", "c"."Id"
+""");
+    }
+
+    #endregion
+
+    #region 39241
+
+    public override async Task GroupBy_elements_with_keys_differing_only_in_case(bool async)
+    {
+        await base.GroupBy_elements_with_keys_differing_only_in_case(async);
+
+        AssertSql(
+            """
+SELECT "e"."DepartmentName", DENSE_RANK() OVER(ORDER BY "e"."DepartmentName"), "e"."Name"
+FROM "Employees" AS "e"
+ORDER BY "e"."DepartmentName"
 """);
     }
 
