@@ -3211,7 +3211,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>",
       "Methods": [
         {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
@@ -3227,7 +3227,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>",
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IColumnBase Column { get; }"
@@ -4288,7 +4288,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IFunctionColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IFunctionColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>",
       "Methods": [
         {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
@@ -4304,7 +4304,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IFunctionMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IFunctionMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase>",
       "Properties": [
         {
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IFunctionColumnMapping> ColumnMappings { get; }"
@@ -6342,7 +6342,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ISqlQueryColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ISqlQueryColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>",
       "Methods": [
         {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
@@ -6358,7 +6358,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ISqlQueryMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ISqlQueryMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase>",
       "Properties": [
         {
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.ISqlQueryColumnMapping> ColumnMappings { get; }"
@@ -6412,7 +6412,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase>",
       "Properties": [
         {
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureParameterMapping> ParameterMappings { get; }"
@@ -6446,7 +6446,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureParameterMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureParameterMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>",
       "Methods": [
         {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
@@ -6476,7 +6476,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureResultColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureResultColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>",
       "Methods": [
         {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
@@ -6765,7 +6765,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ITableMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ITableMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase>",
       "Properties": [
         {
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IColumnMapping> ColumnMappings { get; }"
@@ -6785,7 +6785,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase>",
       "Methods": [
         {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
@@ -6934,7 +6934,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IViewColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IViewColumnMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>",
       "Methods": [
         {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
@@ -6950,7 +6950,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IViewMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IViewMapping : Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.ITableMappingBase>",
       "Properties": [
         {
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IViewColumnMapping> ColumnMappings { get; }"

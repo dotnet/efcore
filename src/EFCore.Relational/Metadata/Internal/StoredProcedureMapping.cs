@@ -104,4 +104,45 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
         [DebuggerStepThrough]
         get => ParameterMappings;
     }
+
+    /// <inheritdoc />
+    protected override int CompareTableDetails(ITableMappingBase other)
+    {
+        if (other is IFunctionMapping)
+        {
+            return -1;
+        }
+
+        if (other is not IStoredProcedureMapping otherSprocMapping)
+        {
+            return 1;
+        }
+
+        var xSproc = StoreStoredProcedure;
+        var ySproc = otherSprocMapping.StoreStoredProcedure;
+        var result = xSproc.Parameters.Count.CompareTo(ySproc.Parameters.Count);
+        if (result != 0)
+        {
+            return result;
+        }
+
+        for (var i = 0; i < xSproc.Parameters.Count; i++)
+        {
+            var xp = xSproc.Parameters[i];
+            var yp = ySproc.Parameters[i];
+            result = StringComparer.Ordinal.Compare(xp.StoreType, yp.StoreType);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = StringComparer.Ordinal.Compare(xp.Name, yp.Name);
+            if (result != 0)
+            {
+                return result;
+            }
+        }
+
+        return 0;
+    }
 }
