@@ -3671,6 +3671,12 @@ LEFT JOIN (
 SELECT [c].[CityName]
 FROM [Cities] AS [c]
 ORDER BY [c].[CityId]
+""",
+            //
+            """
+SELECT [c].[CityName]
+FROM [Cities] AS [c]
+ORDER BY [c].[CityId]
 """);
     }
 

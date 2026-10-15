@@ -137,7 +137,7 @@ public class QueryRootProcessor : ExpressionVisitor
             case NewArrayExpression newArray when ShouldConvertToInlineQueryRoot(newArray):
                 return new InlineQueryRootExpression(newArray.Expressions, elementClrType);
 
-            case QueryParameterExpression queryParameter when ShouldConvertToParameterQueryRoot(queryParameter):
+            case QueryParameterExpression queryParameter when ShouldConvertToParameterQueryRoot(queryParameter) && queryParameter.Type != typeof(string):
                 return new ParameterQueryRootExpression(queryParameter.Type.GetSequenceType(), queryParameter);
 
             case ListInitExpression listInit
