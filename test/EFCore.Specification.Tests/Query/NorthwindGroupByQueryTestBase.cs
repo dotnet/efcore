@@ -3252,6 +3252,37 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_select_grouping_list_ordered_by_key_descending(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .OrderByDescending(g => g.Key)
+                .Select(g => new { g.Key, List = g.Select(o => o.OrderID).ToList() }),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertCollection(e.List, a.List, elementSorter: i => i);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_select_grouping_list_with_composite_key_ordered_out_of_key_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new { o.CustomerID, o.EmployeeID })
+                .OrderBy(g => g.Key.EmployeeID)
+                .ThenByDescending(g => g.Key.CustomerID)
+                .Select(g => new { g.Key, List = g.Select(o => o.OrderID).ToList() }),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertCollection(e.List, a.List, elementSorter: i => i);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_select_grouping_composed_list(bool async)
         => AssertQuery(
             async,

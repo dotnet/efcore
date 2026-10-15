@@ -2866,6 +2866,30 @@ ORDER BY [c].[City]
 """);
     }
 
+    public override async Task GroupBy_select_grouping_list_ordered_by_key_descending(bool async)
+    {
+        await base.GroupBy_select_grouping_list_ordered_by_key_descending(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], DENSE_RANK() OVER(ORDER BY [o].[CustomerID] DESC), [o].[OrderID]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID] DESC
+""");
+    }
+
+    public override async Task GroupBy_select_grouping_list_with_composite_key_ordered_out_of_key_order(bool async)
+    {
+        await base.GroupBy_select_grouping_list_with_composite_key_ordered_out_of_key_order(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[EmployeeID], DENSE_RANK() OVER(ORDER BY [o].[EmployeeID], [o].[CustomerID] DESC), [o].[OrderID]
+FROM [Orders] AS [o]
+ORDER BY [o].[EmployeeID], [o].[CustomerID] DESC
+""");
+    }
+
     public override async Task GroupBy_select_grouping_composed_list(bool async)
     {
         await base.GroupBy_select_grouping_composed_list(async);

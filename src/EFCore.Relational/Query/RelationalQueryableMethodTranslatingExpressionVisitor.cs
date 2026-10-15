@@ -922,11 +922,20 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // With the GROUP BY gone, the groupings are assembled on the client from rows ordered by the grouping key, starting a new one
         // whenever the key changes. Comparing the key on the client would use CLR equality, which can disagree with the database's: under
         // a case-insensitive collation "Sales" and "sales" are one group to the database, but two to the client. So the database numbers
-        // the groups itself, ranking the rows by the very terms it groups them by.
+        // the groups itself, ranking the rows by the very terms it groups them by. The rank orders the rows as the query will - the
+        // existing orderings (over grouping terms only, per the check above), then the remaining terms as ApplyProjection appends them -
+        // so the database can rank the rows it is already sorting, rather than sorting them a second time.
+        var rankOrderings = selectExpression.Orderings.ToList();
+        foreach (var groupingTerm in selectExpression.GroupBy)
+        {
+            if (!rankOrderings.Any(o => o.Expression.Equals(groupingTerm)))
+            {
+                rankOrderings.Add(new OrderingExpression(groupingTerm, ascending: true));
+            }
+        }
+
         selectExpression.ApplyGroupIdentifier(
-            new DenseRankExpression(
-                selectExpression.GroupBy.Select(t => new OrderingExpression(t, ascending: true)).ToArray(),
-                _typeMappingSource.FindMapping(typeof(long))));
+            new DenseRankExpression(rankOrderings, _typeMappingSource.FindMapping(typeof(long))));
 
         return source.UpdateShaperExpression(
             new RelationalGroupByShaperExpression(
