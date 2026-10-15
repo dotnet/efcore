@@ -770,8 +770,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.Predicate == null
-            && selectExpression.Orderings.Count == 0)
+        if (selectExpression.Orderings.Count == 0
+            && (selectExpression.Predicate == null
+                || (_subquery && IsFilteredOnlyByForeignKeyCorrelation(selectExpression))))
         {
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
@@ -2485,6 +2486,97 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ShapedQueryExpression shapedQueryExpression,
         LambdaExpression lambdaExpression)
         => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
+
+    // Expanding a collection navigation produces a subquery filtered only by the correlation to the outer query, i.e. an equality
+    // between the foreign key columns and the principal key columns, optionally with a null check on the principal key. That doesn't
+    // determine which of the related rows is returned.
+    private static bool IsFilteredOnlyByForeignKeyCorrelation(SelectExpression selectExpression)
+    {
+        var tableAliases = new HashSet<string>();
+        foreach (var table in selectExpression.Tables)
+        {
+            if (table.UnwrapJoin().Alias is { } alias)
+            {
+                tableAliases.Add(alias);
+            }
+        }
+
+        var keyComparisons = new List<(ColumnExpression Outer, ColumnExpression Inner)>();
+        if (!IsCorrelation(selectExpression.Predicate!)
+            || keyComparisons.Count == 0
+            || keyComparisons[0].Inner.Column is not IColumn { Table: var dependentTable })
+        {
+            return false;
+        }
+
+        // A unique foreign key matches at most one row, so there is nothing arbitrary about the row returned.
+        return dependentTable.ForeignKeyConstraints.Any(IsCompared)
+            && !dependentTable.UniqueConstraints.Any(c => c.Columns.All(IsComparedColumn))
+            && !dependentTable.Indexes.Any(i => i.IsUnique && i.Columns.All(IsComparedColumn));
+
+        bool IsCorrelation(SqlExpression predicate)
+        {
+            switch (predicate)
+            {
+                case SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } andAlso:
+                    return IsCorrelation(andAlso.Left) && IsCorrelation(andAlso.Right);
+
+                case SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.NotEqual, Left: ColumnExpression column, Right: SqlConstantExpression { Value: null }
+                }:
+                    return IsOuter(column);
+
+                case SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.Equal, Left: ColumnExpression left, Right: ColumnExpression right
+                }:
+                    if (IsOuter(left) == IsOuter(right))
+                    {
+                        return false;
+                    }
+
+                    if (IsOuter(left))
+                    {
+                        keyComparisons.Add((left, right));
+                        return true;
+                    }
+
+                    keyComparisons.Add((right, left));
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        bool IsOuter(ColumnExpression column)
+            => !tableAliases.Contains(column.TableAlias);
+
+        bool IsCompared(IForeignKeyConstraint foreignKey)
+        {
+            if (foreignKey.Columns.Count != keyComparisons.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < foreignKey.Columns.Count; i++)
+            {
+                var column = foreignKey.Columns[i];
+                var principalColumn = foreignKey.PrincipalColumns[i];
+
+                if (!keyComparisons.Any(c => c.Inner.Column == column && c.Outer.Column == principalColumn))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        bool IsComparedColumn(IColumn column)
+            => keyComparisons.Any(c => c.Inner.Column == column);
+    }
 
     /// <summary>
     ///     Determines whether the given <see cref="SelectExpression" /> is ordered, typically because orderings have been added to it.
