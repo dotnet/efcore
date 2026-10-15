@@ -3511,7 +3511,8 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                 foreach (var innerColumn in innerKeyColumns)
                 {
-                    if (!projectionColumns.Contains(innerColumn))
+                    if (!projectionColumns.Contains(innerColumn)
+                        && !projectionColumns.Contains(innerColumn.MakeNullable()))
                     {
                         return null;
                     }
