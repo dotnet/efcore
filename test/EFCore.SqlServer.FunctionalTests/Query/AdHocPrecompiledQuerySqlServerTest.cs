@@ -113,6 +113,17 @@ FROM [Books] AS [b]
 """);
     }
 
+    public override async Task Projecting_entity_with_value_converter_subclass_does_not_cast_to_the_subclass()
+    {
+        await base.Projecting_entity_with_value_converter_subclass_does_not_cast_to_the_subclass();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Rating]
+FROM [Posts] AS [p]
+""");
+    }
+
     public override async Task Invalid_identifier_json_property_name()
     {
         await base.Invalid_identifier_json_property_name();

@@ -340,6 +340,61 @@ var books = await context.Books.ToListAsync();
         }
     }
 
+    [Fact]
+    public virtual async Task Projecting_entity_with_value_converter_subclass_does_not_cast_to_the_subclass()
+    {
+        var contextFactory = await InitializeNonSharedTest<PrecompiledContext39174>();
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.PrecompiledContext39174(dbContextOptions);
+var posts = await context.Posts.ToListAsync();
+""",
+            typeof(PrecompiledContext39174),
+            options,
+            interceptorCodeAsserter: code =>
+            {
+                // The precompiled shaper must cast the type mapping's converter to the ValueConverter<TModel, TProvider> it
+                // implements, not to the design-time converter class. The compiled model reconstructs the base
+                // ValueConverter<...>, so casting to the subclass produces invalid code that throws InvalidCastException
+                // at run time (#39174).
+                Assert.DoesNotContain(nameof(PrecompiledContext39174.RatingConverter), code);
+                Assert.Contains("ValueConverter<", code);
+            });
+    }
+
+    public class PrecompiledContext39174(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Post> Posts { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Post>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Post>().Property(e => e.Rating).HasConversion<RatingConverter>();
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(new Post { Id = 1, Rating = new Rating(5) });
+
+            return SaveChangesAsync();
+        }
+
+        public class Post
+        {
+            public int Id { get; set; }
+
+            public Rating Rating { get; set; }
+        }
+
+        public readonly record struct Rating(int Value);
+
+        public class RatingConverter() : ValueConverter<Rating, int>(
+            r => r.Value,
+            v => new Rating(v));
+    }
+
     #region Invalid runtime constant name
 
     [Fact]
