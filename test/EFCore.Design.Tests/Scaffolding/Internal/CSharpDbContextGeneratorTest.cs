@@ -4,6 +4,7 @@
 using CustomTestNamespace;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -327,6 +328,61 @@ optionsBuilder
                     Assert.Null(entityType.GetViewSchema());
                     Assert.Null(entityType.GetTableName());
                     Assert.Null(entityType.GetSchema());
+                });
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public Task View_comments_are_preserved(bool useDataAnnotations)
+            => TestAsync(
+                serviceProvider =>
+                {
+                    var database = new DatabaseModel();
+                    var view = new DatabaseView
+                    {
+                        Database = database,
+                        Name = "TestView",
+                        Schema = "dbo",
+                        Comment = "A view comment"
+                    };
+                    view.Columns.Add(
+                        new DatabaseColumn
+                        {
+                            Table = view,
+                            Name = "Id",
+                            StoreType = "int",
+                            Comment = "A column comment"
+                        });
+                    database.Tables.Add(view);
+
+                    var model = serviceProvider.GetRequiredService<IScaffoldingModelFactory>()
+                        .Create(database, new ModelReverseEngineerOptions());
+                    Assert.Equal("A view comment", model.FindEntityType("TestView")!.GetComment());
+
+                    return model;
+                },
+                new ModelCodeGenerationOptions { UseDataAnnotations = useDataAnnotations },
+                code =>
+                {
+                    Assert.Contains(
+                        """
+/// <summary>
+/// A view comment
+/// </summary>
+""",
+                        code.AdditionalFiles.Single().Code.ReplaceLineEndings());
+                    Assert.Contains(".HasComment(\"A view comment\")", code.ContextFile.Code);
+                    Assert.Contains(".HasComment(\"A column comment\")", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.TestView")!;
+                    Assert.Equal("A view comment", entityType.GetComment());
+                    Assert.Equal("A column comment", entityType.GetProperty("Id").GetComment());
+                    Assert.Equal("TestView", entityType.GetViewName());
+                    Assert.Equal("dbo", entityType.GetViewSchema());
+                    Assert.Null(entityType.GetTableName());
+                    Assert.Empty(entityType.GetKeys());
                 });
 
         [Fact]
