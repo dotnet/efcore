@@ -210,6 +210,50 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
                 .FirstOrDefault(r => r != 0);
     }
 
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => ReferenceEquals(this, obj)
+            || (obj is ITableMappingBase other
+                && TypeBase == other.TypeBase
+                && Table == other.Table
+                && IncludesDerivedTypes == other.IncludesDerivedTypes
+                && ((ITableMappingBase)this).ColumnMappings.SequenceEqual(
+                    other.ColumnMappings, ReferenceEqualityComparer.Instance));
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(TypeBase, TypeBaseNameComparer.Instance);
+        hashCode.Add(Table.Name);
+        hashCode.Add(Table.Schema);
+        if (Table is IStoreFunction function)
+        {
+            foreach (var parameter in function.Parameters)
+            {
+                hashCode.Add(parameter.StoreType);
+                hashCode.Add(parameter.Name);
+            }
+        }
+        else if (Table is IStoreStoredProcedure sproc)
+        {
+            foreach (var parameter in sproc.Parameters)
+            {
+                hashCode.Add(parameter.StoreType);
+                hashCode.Add(parameter.Name);
+            }
+        }
+
+        foreach (var columnMapping in ((ITableMappingBase)this).ColumnMappings)
+        {
+            hashCode.Add(columnMapping.Property.Name);
+            hashCode.Add(columnMapping.Column.Name);
+        }
+
+        hashCode.Add(IncludesDerivedTypes);
+        return hashCode.ToHashCode();
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

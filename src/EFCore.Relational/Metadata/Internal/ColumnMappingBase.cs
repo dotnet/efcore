@@ -103,4 +103,23 @@ public class ColumnMappingBase : Annotatable, IColumnMappingBase
         result = StringComparer.Ordinal.Compare(Property.Name, other.Property.Name);
         return result != 0 ? result : StringComparer.Ordinal.Compare(Column.Name, other.Column.Name);
     }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => ReferenceEquals(this, obj)
+            || (obj is IColumnMappingBase other
+                && Property == other.Property
+                && Column == other.Column
+                && TableMapping.Equals(other.TableMapping));
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(Property);
+        hashCode.Add(Column);
+        hashCode.Add(TableMapping);
+
+        return hashCode.ToHashCode();
+    }
 }
