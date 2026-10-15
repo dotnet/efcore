@@ -307,14 +307,12 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         }
         else
         {
-            builder.ToTable(
-                table.Name, table.Schema, tb =>
-                {
-                    if (table.Comment != null)
-                    {
-                        tb.HasComment(table.Comment);
-                    }
-                });
+            builder.ToTable(table.Name, table.Schema);
+        }
+
+        if (table.Comment != null)
+        {
+            builder.Metadata.SetComment(table.Comment);
         }
 
         VisitColumns(builder, table.Columns);
