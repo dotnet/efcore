@@ -2090,8 +2090,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 var column = foreignKey.Columns[i];
                 var principalColumn = foreignKey.PrincipalColumns[i];
 
-                // The outer column has no metadata when it is projected out of a subquery.
-                if (!keyComparisons.Any(c => c.Inner.Column == column && (c.Outer.Column is null || c.Outer.Column == principalColumn)))
+                if (!keyComparisons.Any(c => c.Inner.Column == column && c.Outer.Column == principalColumn))
                 {
                     return false;
                 }

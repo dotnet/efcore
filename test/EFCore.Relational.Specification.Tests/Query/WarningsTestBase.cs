@@ -126,6 +126,23 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [Fact]
+    public virtual void FirstOrDefault_without_orderby_doesnt_issue_warning_subquery_correlated_by_computed_column()
+    {
+        using var context = CreateContext();
+        var query = context.Customers
+            .Select(c => new { Key = c.City ?? c.CustomerID })
+            .Distinct()
+            .Select(x => context.Orders
+                .Where(o => o.CustomerID == x.Key)
+                .Select(o => o.OrderDate)
+                .FirstOrDefault())
+            .ToList();
+        Assert.NotEmpty(query);
+
+        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
+    }
+
+    [Fact]
     public virtual void FirstOrDefault_without_orderby_but_with_filter_doesnt_issue_warning()
     {
         using var context = CreateContext();
