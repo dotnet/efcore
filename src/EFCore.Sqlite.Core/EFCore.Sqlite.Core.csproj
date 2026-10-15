@@ -11,6 +11,7 @@
     <PackageTags>$(PackageTags);SQLite</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
+    <NoWarn>$(NoWarn);EF9107</NoWarn> <!-- ExecuteMerge is experimental -->
   </PropertyGroup>
 
   <ItemGroup>

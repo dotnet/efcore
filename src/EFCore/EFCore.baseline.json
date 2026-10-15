@@ -4735,6 +4735,9 @@
           "Member": "static string ErrorInvalidQueryable { get; }"
         },
         {
+          "Member": "static string ExecuteMergeEmptyMatch { get; }"
+        },
+        {
           "Member": "static string ExpressionParameterizationException { get; }"
         },
         {
@@ -7143,6 +7146,22 @@
         },
         {
           "Member": "static System.Threading.Tasks.Task<int> ExecuteDeleteAsync<TSource>(this System.Linq.IQueryable<TSource> source, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "static int ExecuteMerge<TTarget, TSource>(this System.Linq.IQueryable<TTarget> target, System.Collections.Generic.IEnumerable<TSource> source, System.Action<Microsoft.EntityFrameworkCore.Query.MergeBuilder<TTarget, TSource>> buildMerge);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "static System.Threading.Tasks.Task<int> ExecuteMergeAsync<TTarget, TSource>(this System.Linq.IQueryable<TTarget> target, System.Collections.Generic.IEnumerable<TSource> source, System.Action<Microsoft.EntityFrameworkCore.Query.MergeBuilder<TTarget, TSource>> buildMerge, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<TResult> ExecuteMergeReturning<TTarget, TSource, TResult>(this System.Linq.IQueryable<TTarget> target, System.Collections.Generic.IEnumerable<TSource> source, System.Action<Microsoft.EntityFrameworkCore.Query.MergeBuilder<TTarget, TSource>> buildMerge, System.Linq.Expressions.Expression<System.Func<TTarget, TResult>> returning);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "static System.Collections.Generic.IAsyncEnumerable<TResult> ExecuteMergeReturningAsync<TTarget, TSource, TResult>(this System.Linq.IQueryable<TTarget> target, System.Collections.Generic.IEnumerable<TSource> source, System.Action<Microsoft.EntityFrameworkCore.Query.MergeBuilder<TTarget, TSource>> buildMerge, System.Linq.Expressions.Expression<System.Func<TTarget, TResult>> returning, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));",
+          "Stage": "Experimental"
         },
         {
           "Member": "static int ExecuteUpdate<TSource>(this System.Linq.IQueryable<TSource> source, System.Action<Microsoft.EntityFrameworkCore.Query.UpdateSettersBuilder<TSource>> setPropertyCalls);"
@@ -17370,6 +17389,62 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.MergeBuilder<TTarget, TSource>",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.MergeBuilder<TTarget, TSource> Match<TKey>(System.Linq.Expressions.Expression<System.Func<TTarget, TKey>> targetKey, System.Linq.Expressions.Expression<System.Func<TSource, TKey>> sourceKey);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.MergeBuilder<TTarget, TSource> WhenMatched(System.Action<Microsoft.EntityFrameworkCore.Query.MergeUpdateSettersBuilder<TTarget, TSource>> setPropertyCalls);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.MergeBuilder<TTarget, TSource> WhenNotMatched(System.Action<Microsoft.EntityFrameworkCore.Query.MergeInsertSettersBuilder<TTarget, TSource>> setPropertyCalls);",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Query.MergeInsertSettersBuilder<TTarget, TSource> : Microsoft.EntityFrameworkCore.Query.MergeSettersBuilder",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Query.MergeInsertSettersBuilder<TTarget, TSource> SetProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TTarget, TProperty>> propertyExpression, System.Linq.Expressions.Expression<System.Func<TSource, TProperty>> valueExpression);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Query.MergeInsertSettersBuilder<TTarget, TSource> SetProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TTarget, TProperty>> propertyExpression, TProperty valueExpression);",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "abstract class Microsoft.EntityFrameworkCore.Query.MergeSettersBuilder",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "MergeSettersBuilder();",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Query.MergeUpdateSettersBuilder<TTarget, TSource> : Microsoft.EntityFrameworkCore.Query.MergeSettersBuilder",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Query.MergeUpdateSettersBuilder<TTarget, TSource> SetProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TTarget, TProperty>> propertyExpression, System.Linq.Expressions.Expression<System.Func<TTarget, TSource, TProperty>> valueExpression);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Query.MergeUpdateSettersBuilder<TTarget, TSource> SetProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TTarget, TProperty>> propertyExpression, TProperty valueExpression);",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
       "Type": "enum Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions",
       "Methods": [
         {
@@ -20068,6 +20143,10 @@
           "Member": "virtual System.Linq.Expressions.Expression TranslateExecuteDelete(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source);"
         },
         {
+          "Member": "virtual System.Linq.Expressions.Expression TranslateExecuteMerge(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, Microsoft.EntityFrameworkCore.Query.QueryParameterExpression sourceRows, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch> matches, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter>? whenMatchedSetters, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter>? whenNotMatchedSetters, System.Linq.Expressions.LambdaExpression? returningSelector);",
+          "Stage": "Experimental"
+        },
+        {
           "Member": "virtual System.Linq.Expressions.Expression TranslateExecuteUpdate(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteUpdateSetter> setters);"
         },
         {
@@ -20173,6 +20252,46 @@
         },
         {
           "Member": "virtual string? TranslationErrorDetails { get; private set; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "ExecuteMergeMatch(System.Linq.Expressions.LambdaExpression TargetKeySelector, System.Linq.Expressions.LambdaExpression SourceKeySelector);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch <Clone>$();",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "void Deconstruct(out System.Linq.Expressions.LambdaExpression TargetKeySelector, out System.Linq.Expressions.LambdaExpression SourceKeySelector);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch? other);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch? left, Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch? right);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch? left, Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.ExecuteMergeMatch? right);",
+          "Stage": "Experimental"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "System.Linq.Expressions.LambdaExpression SourceKeySelector { get; init; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "System.Linq.Expressions.LambdaExpression TargetKeySelector { get; init; }",
+          "Stage": "Experimental"
         }
       ]
     },

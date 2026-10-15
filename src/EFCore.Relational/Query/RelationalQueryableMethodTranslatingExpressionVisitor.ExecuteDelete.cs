@@ -130,25 +130,26 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             Expression.Quote(Expression.Lambda(predicateBody, entityParameter)));
 
         return TranslateExecuteDelete((ShapedQueryExpression)Visit(newSource));
+    }
 
-        static bool AreOtherNonOwnedEntityTypesInTheTable(IEntityType rootType, ITableBase table)
+    // Detects table splitting: other non-owned entity types (outside this entity's own hierarchy) mapped to the same table.
+    private static bool AreOtherNonOwnedEntityTypesInTheTable(IEntityType rootType, ITableBase table)
+    {
+        foreach (var entityTypeMapping in table.EntityTypeMappings)
         {
-            foreach (var entityTypeMapping in table.EntityTypeMappings)
+            var typeBase = entityTypeMapping.TypeBase;
+            if ((entityTypeMapping.IsSharedTablePrincipal == true
+                    && typeBase != rootType)
+                || (entityTypeMapping.IsSharedTablePrincipal == false
+                    && typeBase is IEntityType entityType
+                    && entityType.GetRootType() != rootType
+                    && !entityType.IsOwned()))
             {
-                var typeBase = entityTypeMapping.TypeBase;
-                if ((entityTypeMapping.IsSharedTablePrincipal == true
-                        && typeBase != rootType)
-                    || (entityTypeMapping.IsSharedTablePrincipal == false
-                        && typeBase is IEntityType entityType
-                        && entityType.GetRootType() != rootType
-                        && !entityType.IsOwned()))
-                {
-                    return true;
-                }
+                return true;
             }
-
-            return false;
         }
+
+        return false;
     }
 
     /// <summary>

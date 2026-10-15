@@ -1445,6 +1445,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, expectedType, actualType);
 
         /// <summary>
+        ///     The 'Match' call in 'ExecuteMerge' must select at least one property.
+        /// </summary>
+        public static string ExecuteMergeEmptyMatch
+            => GetString("ExecuteMergeEmptyMatch");
+
+        /// <summary>
         ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information.
         /// </summary>
         public static string ExecuteQueriesNotSupported(object? methodName, object? asyncMethodName)
