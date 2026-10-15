@@ -223,41 +223,6 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
         public Half Half { get; set; }
     }
 
-    public override Task Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
-        => Can_read_and_write_JSON_value<EnumU64Type, EnumU64>(nameof(EnumU64Type.EnumU64), value, json);
-
-    public override Task Can_read_write_nullable_ulong_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnumU64Type, EnumU64?>(
-            nameof(NullableEnumU64Type.EnumU64),
-            value == null ? default(EnumU64?) : (EnumU64)value, json);
-
-    public override Task Can_read_write_collection_of_ulong_enum_JSON_values()
-        => Can_read_and_write_JSON_value<EnumU64CollectionType, List<EnumU64>>(
-            nameof(EnumU64CollectionType.EnumU64),
-            [
-                EnumU64.Min,
-                EnumU64.Max,
-                EnumU64.Default,
-                EnumU64.One,
-                (EnumU64)8
-            ],
-            """{"Prop":[0,18446744073709551615,0,1,8]}""",
-            mappedCollection: true);
-
-    public override Task Can_read_write_collection_of_nullable_ulong_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnumU64CollectionType, List<EnumU64?>>(
-            nameof(NullableEnumU64CollectionType.EnumU64),
-            [
-                EnumU64.Min,
-                null,
-                EnumU64.Max,
-                EnumU64.Default,
-                EnumU64.One,
-                (EnumU64?)8
-            ],
-            """{"Prop":[0,null,18446744073709551615,0,1,8]}""",
-            mappedCollection: true);
-
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 

@@ -94,7 +94,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
         return Expression.Lambda<Func<TEnum, TNumber>>(
             Expression.Convert(
                 typeof(TNumber) == typeof(decimal)
-                    ? Expression.Convert(param, typeof(long))
+                    ? Expression.Convert(param, typeof(TEnum).GetEnumUnderlyingType())
                     : param,
                 typeof(TNumber)), param);
     }
@@ -105,7 +105,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
         return Expression.Lambda<Func<TNumber, TEnum>>(
             Expression.Convert(
                 typeof(TNumber) == typeof(decimal)
-                    ? Expression.Convert(param, typeof(long))
+                    ? Expression.Convert(param, typeof(TEnum).GetEnumUnderlyingType())
                     : param,
                 typeof(TEnum)), param);
     }
