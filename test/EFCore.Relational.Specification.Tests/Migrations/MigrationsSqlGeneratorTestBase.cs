@@ -6,19 +6,17 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 public abstract class MigrationsSqlGeneratorTestBase(
     TestHelpers testHelpers,
-    IServiceCollection customServices = null,
-    DbContextOptions options = null)
+    IServiceCollection? customServices = null,
+    DbContextOptions? options = null)
 {
     protected static string EOL
         => Environment.NewLine;
 
-    protected virtual string Sql { get; set; }
+    protected virtual string Sql { get; set; } = null!;
 
-    [ConditionalFact]
+    [Fact]
     public void All_tests_must_be_overriden()
     {
         var baseTests = GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
@@ -31,7 +29,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
             + string.Join(EOL, baseTests.Select(m => m.Name)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_without_column_type()
         => Generate(
             new AddColumnOperation
@@ -41,7 +39,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 ClrType = typeof(string)
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_unicode_overridden()
         => Generate(
             modelBuilder => modelBuilder.Entity<Person>().Property<string>("Name").IsUnicode(false),
@@ -54,7 +52,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 IsNullable = true
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_unicode_no_model()
         => Generate(
             new AddColumnOperation
@@ -66,7 +64,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 IsNullable = true
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_fixed_length_no_model()
         => Generate(
             new AddColumnOperation
@@ -80,7 +78,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 MaxLength = 100
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_maxLength_overridden()
         => Generate(
             modelBuilder => modelBuilder.Entity<Person>().Property<string>("Name").HasMaxLength(30),
@@ -93,7 +91,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 IsNullable = true
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_maxLength_no_model()
         => Generate(
             new AddColumnOperation
@@ -105,7 +103,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 IsNullable = true
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_precision_and_scale_overridden()
         => Generate(
             modelBuilder => modelBuilder.Entity<Person>().Property<decimal>("Pi").HasPrecision(30, 17),
@@ -118,7 +116,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Scale = 10
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_precision_and_scale_no_model()
         => Generate(
             new AddColumnOperation
@@ -130,7 +128,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Scale = 7
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddForeignKeyOperation_without_principal_columns()
         => Generate(
             new AddForeignKeyOperation
@@ -140,7 +138,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 PrincipalTable = "People"
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterColumnOperation_without_column_type()
         => Generate(
             new AlterColumnOperation
@@ -150,7 +148,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 ClrType = typeof(int)
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void RenameTableOperation_legacy()
         => Generate(
             new RenameTableOperation
@@ -160,7 +158,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 NewName = "Person"
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void RenameTableOperation()
         => Generate(
             modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
@@ -172,23 +170,27 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 NewSchema = "dbo"
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlOperation()
         => Generate(
             new SqlOperation { Sql = "-- I <3 DDL" });
 
     private static readonly LineString _lineString1 = new(
-        [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)]) { SRID = 4326 };
+        [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)])
+    { SRID = 4326 };
 
     private static readonly LineString _lineString2 = new(
-        [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)]) { SRID = 4326 };
+        [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)])
+    { SRID = 4326 };
 
     private static readonly MultiPoint _multiPoint = new(
-        [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)]) { SRID = 4326 };
+        [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)])
+    { SRID = 4326 };
 
     private static readonly Polygon _polygon1 = new(
         new LinearRing(
-            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)])) { SRID = 4326 };
+            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]))
+    { SRID = 4326 };
 
     private static readonly Polygon _polygon2 = new(
         new LinearRing(
@@ -200,15 +202,18 @@ public abstract class MigrationsSqlGeneratorTestBase(
     private static readonly Point _point1 = new(1.1, 2.2, 3.3) { SRID = 4326 };
 
     private static readonly MultiLineString _multiLineString = new(
-        [_lineString1, _lineString2]) { SRID = 4326 };
+        [_lineString1, _lineString2])
+    { SRID = 4326 };
 
     private static readonly MultiPolygon _multiPolygon = new(
-        [_polygon2, _polygon1]) { SRID = 4326 };
+        [_polygon2, _polygon1])
+    { SRID = 4326 };
 
     private static readonly GeometryCollection _geometryCollection = new(
-        [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon]) { SRID = 4326 };
+        [_lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon])
+    { SRID = 4326 };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void InsertDataOperation_all_args_spatial()
         => Generate(
             new InsertDataOperation
@@ -219,20 +224,20 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 ColumnTypes = ["int", "varchar(40)", GetGeometryCollectionStoreType()],
                 Values = new object[,]
                 {
-                    { 0, null, null },
-                    { 1, "Daenerys Targaryen", null },
-                    { 2, "John Snow", null },
-                    { 3, "Arya Stark", null },
-                    { 4, "Harry Strickland", null },
-                    { 5, "The Imp", null },
-                    { 6, "The Kingslayer", null },
+                    { 0, null!, null! },
+                    { 1, "Daenerys Targaryen", null! },
+                    { 2, "John Snow", null! },
+                    { 3, "Arya Stark", null! },
+                    { 4, "Harry Strickland", null! },
+                    { 5, "The Imp", null! },
+                    { 6, "The Kingslayer", null! },
                     { 7, "Aemon Targaryen", _geometryCollection }
                 }
             });
 
     protected abstract string GetGeometryCollectionStoreType();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void InsertDataOperation_required_args()
         => Generate(
             CreateGotModel,
@@ -243,7 +248,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "John" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void InsertDataOperation_required_args_composite()
         => Generate(
             CreateGotModel,
@@ -254,7 +259,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "John", "Snow" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void InsertDataOperation_required_args_multiple_rows()
         => Generate(
             CreateGotModel,
@@ -265,7 +270,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "John" }, { "Daenerys" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_throws_for_missing_column_types()
         => Assert.Equal(
             RelationalStrings.InsertDataOperationNoModel("dbo.People"),
@@ -279,7 +284,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "John" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void InsertDataOperation_throws_for_unsupported_column_types()
         => Assert.Equal(
             RelationalStrings.UnsupportedDataOperationStoreType("char[]", "dbo.People.First Name"),
@@ -291,10 +296,10 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Schema = "dbo",
                         Columns = ["First Name"],
                         ColumnTypes = ["char[]"],
-                        Values = new object[,] { { null } }
+                        Values = new object[,] { { null! } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_throws_for_values_count_mismatch()
         => Assert.Equal(
             RelationalStrings.InsertDataOperationValuesCountMismatch(1, 2, "dbo.People"),
@@ -308,7 +313,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "John" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_throws_for_types_count_mismatch()
         => Assert.Equal(
             RelationalStrings.InsertDataOperationTypesCountMismatch(2, 1, "People"),
@@ -322,7 +327,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "John" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_throws_for_missing_entity_type()
         => Assert.Equal(
             RelationalStrings.DataOperationNoTable("dbo1.People"),
@@ -337,7 +342,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "John" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void InsertDataOperation_throws_for_missing_property()
         => Assert.Equal(
             RelationalStrings.DataOperationNoProperty("People", "Name"),
@@ -351,7 +356,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "John" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DeleteDataOperation_all_args()
         => Generate(
             CreateGotModel,
@@ -362,7 +367,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 KeyValues = new object[,] { { "Hodor" }, { "Daenerys" }, { "John" }, { "Arya" }, { "Harry" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DeleteDataOperation_all_args_composite()
         => Generate(
             CreateGotModel,
@@ -372,11 +377,11 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 KeyColumns = ["First Name", "Last Name"],
                 KeyValues = new object[,]
                 {
-                    { "Hodor", null }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
+                    { "Hodor", null! }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DeleteDataOperation_required_args()
         => Generate(
             CreateGotModel,
@@ -387,7 +392,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 KeyValues = new object[,] { { "Snow" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DeleteDataOperation_required_args_composite()
         => Generate(
             CreateGotModel,
@@ -398,7 +403,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 KeyValues = new object[,] { { "John", "Snow" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteDataOperation_throws_for_missing_column_types()
         => Assert.Equal(
             RelationalStrings.DeleteDataOperationNoModel("People"),
@@ -411,7 +416,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         KeyValues = new object[,] { { "John" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteDataOperation_throws_for_values_count_mismatch()
         => Assert.Equal(
             RelationalStrings.DeleteDataOperationValuesCountMismatch(1, 2, "People"),
@@ -425,7 +430,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         KeyValues = new object[,] { { "John" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteDataOperation_throws_for_types_count_mismatch()
         => Assert.Equal(
             RelationalStrings.DeleteDataOperationTypesCountMismatch(2, 1, "People"),
@@ -439,7 +444,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         KeyValues = new object[,] { { "John" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_all_args()
         => Generate(
             CreateGotModel,
@@ -452,7 +457,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_all_args_composite()
         => Generate(
             CreateGotModel,
@@ -460,12 +465,12 @@ public abstract class MigrationsSqlGeneratorTestBase(
             {
                 Table = "People",
                 KeyColumns = ["First Name", "Last Name"],
-                KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } },
+                KeyValues = new object[,] { { "Hodor", null! }, { "Daenerys", "Targaryen" } },
                 Columns = ["House Allegiance"],
                 Values = new object[,] { { "Stark" }, { "Targaryen" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_all_args_composite_multi()
         => Generate(
             CreateGotModel,
@@ -473,12 +478,12 @@ public abstract class MigrationsSqlGeneratorTestBase(
             {
                 Table = "People",
                 KeyColumns = ["First Name", "Last Name"],
-                KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } },
+                KeyValues = new object[,] { { "Hodor", null! }, { "Daenerys", "Targaryen" } },
                 Columns = ["Birthplace", "House Allegiance", "Culture"],
                 Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_all_args_multi()
         => Generate(
             CreateGotModel,
@@ -491,7 +496,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_required_args()
         => Generate(
             CreateGotModel,
@@ -504,7 +509,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "Targaryen" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_required_args_multiple_rows()
         => Generate(
             CreateGotModel,
@@ -517,7 +522,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "Stark" }, { "Targaryen" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_required_args_composite()
         => Generate(
             CreateGotModel,
@@ -530,7 +535,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "Targaryen" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_required_args_composite_multi()
         => Generate(
             CreateGotModel,
@@ -543,7 +548,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UpdateDataOperation_required_args_multi()
         => Generate(
             CreateGotModel,
@@ -556,7 +561,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
             });
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_throws_for_missing_column_types()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationNoModel("People"),
@@ -571,7 +576,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "Targaryen" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_throws_for_row_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationRowCountMismatch(1, 2, "People"),
@@ -588,7 +593,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "Targaryen" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_throws_for_key_values_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationKeyValuesCountMismatch(1, 2, "People"),
@@ -604,7 +609,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "Targaryen" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_throws_for_key_types_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationKeyTypesCountMismatch(2, 1, "People"),
@@ -620,7 +625,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "Targaryen" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_throws_for_values_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationValuesCountMismatch(1, 2, "People"),
@@ -636,7 +641,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "Targaryen" } }
                     })).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void UpdateDataOperation_throws_for_types_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationTypesCountMismatch(2, 1, "People"),
@@ -652,7 +657,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                         Values = new object[,] { { "Targaryen" } }
                     })).Message);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void DefaultValue_with_line_breaks(bool isUnicode)
         => Generate(
             new CreateTableOperation
@@ -673,7 +678,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 }
             });
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void DefaultValue_with_line_breaks_2(bool isUnicode)
     {
         var defaultValue = Enumerable.Range(0, 300).Select(e => e.ToString())
@@ -700,7 +705,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
             });
     }
 
-    [ConditionalTheory, InlineData(3L), InlineData(null)]
+    [Theory, InlineData(3L), InlineData(null)]
     public virtual void Sequence_restart_operation(long? startsAt)
         => Generate(
             new RestartSequenceOperation
@@ -724,8 +729,8 @@ public abstract class MigrationsSqlGeneratorTestBase(
             });
 
     protected TestHelpers TestHelpers { get; } = testHelpers;
-    protected DbContextOptions ContextOptions { get; } = options;
-    protected IServiceCollection CustomServices { get; } = customServices;
+    protected DbContextOptions? ContextOptions { get; } = options;
+    protected IServiceCollection? CustomServices { get; } = customServices;
 
     protected virtual void Generate(MigrationOperation operation, MigrationsSqlGenerationOptions options)
         => Generate(null, [operation], options);
@@ -734,7 +739,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
         => Generate(null, operation);
 
     protected virtual void Generate(
-        Action<ModelBuilder> buildAction,
+        Action<ModelBuilder>? buildAction,
         Action<MigrationBuilder> migrateAction,
         MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
     {
@@ -744,19 +749,19 @@ public abstract class MigrationsSqlGeneratorTestBase(
         Generate(buildAction, migrationBuilder.Operations.ToArray(), options);
     }
 
-    protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
+    protected virtual void Generate(Action<ModelBuilder>? buildAction, params MigrationOperation[] operation)
         => Generate(buildAction, operation, MigrationsSqlGenerationOptions.Default);
 
     protected virtual void Generate(
-        Action<ModelBuilder> buildAction,
+        Action<ModelBuilder>? buildAction,
         MigrationOperation[] operation,
         MigrationsSqlGenerationOptions options)
     {
         var services = ContextOptions != null
-            ? TestHelpers.CreateContextServices(CustomServices, ContextOptions)
-            : TestHelpers.CreateContextServices(CustomServices);
+            ? TestHelpers.CreateContextServices(CustomServices!, ContextOptions)
+            : TestHelpers.CreateContextServices(CustomServices!);
 
-        IModel model = null;
+        IModel? model = null;
         if (buildAction != null)
         {
             var modelBuilder = TestHelpers.CreateConventionBuilder(services);
@@ -779,7 +784,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
     protected class Person
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public decimal Pi { get; set; }
     }
 }

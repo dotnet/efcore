@@ -7,13 +7,11 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqlServerValueGenerationStrategyThrowTest(
     SqlServerValueGenerationStrategyFixture<SqlServerValueGenerationStrategyThrowTest.ThrowContext> fixture) :
     SqlServerValueGenerationConflictTest<SqlServerValueGenerationStrategyThrowTest.ThrowContext>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlServerValueGeneration_conflicting_with_existing_ValueGeneration_strategy_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -32,7 +30,7 @@ public class SqlServerValueGenerationStrategyThrowTest(
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlServerValueGeneration_conflicting_with_existing_default_value_strategy_throws()
     {
         var modelBuilder = CreateModelBuilder();
@@ -53,7 +51,7 @@ public class SqlServerValueGenerationStrategyThrowTest(
 
     public class ThrowContext(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<Fred> Freds { get; set; }
+        public virtual DbSet<Fred> Freds { get; set; } = null!;
 
         // use the normal behavior of ConflictingValueGenerationStrategiesWarning
         // defined in UseSqlServer()
@@ -66,7 +64,7 @@ public class SqlServerValueGenerationStrategyNoThrowTest(
     SqlServerValueGenerationStrategyFixture<SqlServerValueGenerationStrategyNoThrowTest.NoThrowContext> fixture) :
     SqlServerValueGenerationConflictTest<SqlServerValueGenerationStrategyNoThrowTest.NoThrowContext>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void SqlServerValueGeneration_conflicting_with_existing_ValueGeneration_strategy_warns()
     {
         var modelBuilder = CreateModelBuilder();
@@ -89,7 +87,7 @@ public class SqlServerValueGenerationStrategyNoThrowTest(
 
     public class NoThrowContext(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<Fred> Freds { get; set; }
+        public virtual DbSet<Fred> Freds { get; set; } = null!;
 
         // override the normal behavior of ConflictingValueGenerationStrategiesWarning
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -9,14 +9,14 @@ public class SqlServerMigrationsAnnotationProviderTest
 {
     private readonly SqlServerAnnotationProvider _annotations = new(new RelationalAnnotationProviderDependencies());
 
-    [ConditionalFact]
+    [Fact]
     public void For_property_handles_identity_annotations()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity<Entity>().Property<int>("Id").UseIdentityColumn(2, 3);
 
         var model = modelBuilder.FinalizeModel(designTime: true);
-        var property = model.FindEntityType(typeof(Entity)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(Entity))!.FindProperty("Id")!;
 
         var migrationAnnotations = _annotations.For(property.GetTableColumnMappings().Single().Column, true).ToList();
 
@@ -24,7 +24,7 @@ public class SqlServerMigrationsAnnotationProviderTest
         Assert.Equal("2, 3", identity.Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Resolves_column_names_for_Index_with_included_properties()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
@@ -33,14 +33,14 @@ public class SqlServerMigrationsAnnotationProviderTest
         var model = modelBuilder.FinalizeModel(designTime: true);
 
         Assert.Contains(
-            _annotations.For(model.FindEntityType(typeof(Entity)).GetIndexes().Single().GetMappedTableIndexes().Single(), true),
-            a => a.Name == SqlServerAnnotationNames.Include && ((string[])a.Value).Contains("IncludedColumn"));
+            _annotations.For(model.FindEntityType(typeof(Entity))!.GetIndexes().Single().GetMappedTableIndexes().Single(), true),
+            a => a.Name == SqlServerAnnotationNames.Include && ((string[])a.Value!).Contains("IncludedColumn"));
     }
 
     private class Entity
     {
         public int Id { get; set; }
-        public string IndexedProp { get; set; }
-        public string IncludedProp { get; set; }
+        public string IndexedProp { get; set; } = null!;
+        public string IncludedProp { get; set; } = null!;
     }
 }

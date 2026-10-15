@@ -3,18 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
-#nullable disable
-
 public class BaseCollectionOnBase
 {
     public int Id { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public int? BaseParentId { get; set; }
-    public BaseInheritanceRelationshipEntity BaseParent { get; set; }
+    public BaseInheritanceRelationshipEntity? BaseParent { get; set; }
 
-    public NestedReferenceBase NestedReference { get; set; }
+    public NestedReferenceBase? NestedReference { get; set; }
 
-    public List<NestedCollectionBase> NestedCollection { get; set; }
+    public List<NestedCollectionBase> NestedCollection { get; set; } = null!;
 }

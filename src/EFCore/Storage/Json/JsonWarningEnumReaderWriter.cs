@@ -35,22 +35,13 @@ public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<T
             }
 
             var value = manager.CurrentReader.GetString();
-            if (Enum.TryParse<TEnum>(value, out var result))
-            {
-                return result;
-            }
-
-            if (_isSigned && long.TryParse(value, out var longValue))
-            {
-                return (TEnum)Convert.ChangeType(longValue, typeof(TEnum).GetEnumUnderlyingType());
-            }
-
-            if (!_isSigned && !ulong.TryParse(value, out var ulongValue))
-            {
-                return (TEnum)Convert.ChangeType(ulongValue, typeof(TEnum).GetEnumUnderlyingType());
-            }
-
-            throw new InvalidOperationException(CoreStrings.BadEnumValue(value, typeof(TEnum).ShortDisplayName()));
+            return Enum.TryParse<TEnum>(value, out var result)
+                ? result
+                : _isSigned && long.TryParse(value, out var longValue)
+                    ? (TEnum)Convert.ChangeType(longValue, typeof(TEnum).GetEnumUnderlyingType())
+                    : !_isSigned && !ulong.TryParse(value, out var ulongValue)
+                        ? (TEnum)Convert.ChangeType(ulongValue, typeof(TEnum).GetEnumUnderlyingType())
+                        : throw new InvalidOperationException(CoreStrings.BadEnumValue(value, typeof(TEnum).ShortDisplayName()));
         }
 
         return (TEnum)Convert.ChangeType(

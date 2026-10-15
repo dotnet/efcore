@@ -93,7 +93,7 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                     {
                         var sequence = modelBuilder.HasSequence(
                             property.GetSequenceName(declaringTable)
-                            ?? entityType.GetRootType().ShortName() + modelBuilder.Metadata.GetSequenceNameSuffix(),
+                            ?? (entityType.GetRootType().ShortName() + modelBuilder.Metadata.GetSequenceNameSuffix()),
                             property.GetSequenceSchema(declaringTable)
                             ?? modelBuilder.Metadata.GetSequenceSchema()).Metadata;
 

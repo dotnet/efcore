@@ -119,82 +119,6 @@ public static class CosmosEntityTypeExtensions
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Returns the name of the property that is used to store the partition key.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property name for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    [Obsolete("Use SetPartitionKeyPropertyNames")]
-    public static string? GetPartitionKeyPropertyName(this IReadOnlyEntityType entityType)
-        => entityType.GetPartitionKeyPropertyNames().FirstOrDefault();
-
-    /// <summary>
-    ///     Sets the name of the property that is used to store the partition key key.
-    /// </summary>
-    /// <param name="entityType">The entity type to set the partition key property name for.</param>
-    /// <param name="name">The name to set.</param>
-    [Obsolete("Use SetPartitionKeyPropertyNames")]
-    public static void SetPartitionKeyPropertyName(this IMutableEntityType entityType, string? name)
-        => entityType.SetPartitionKeyPropertyNames(name == null ? null : [name]);
-
-    /// <summary>
-    ///     Sets the name of the property that is used to store the partition key.
-    /// </summary>
-    /// <param name="entityType">The entity type to set the partition key property name for.</param>
-    /// <param name="name">The name to set.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    [Obsolete("Use SetPartitionKeyPropertyNames")]
-    public static string? SetPartitionKeyPropertyName(
-        this IConventionEntityType entityType,
-        string? name,
-        bool fromDataAnnotation = false)
-        => entityType.SetPartitionKeyPropertyNames(name is null ? null : [name], fromDataAnnotation)?.FirstOrDefault();
-
-    /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the property that is used to store the partition key.
-    /// </summary>
-    /// <param name="entityType">The entity type to find configuration source for.</param>
-    /// <returns>The <see cref="ConfigurationSource" /> for the partition key property.</returns>
-    [Obsolete("Use GetPartitionKeyPropertyNamesConfigurationSource")]
-    public static ConfigurationSource? GetPartitionKeyPropertyNameConfigurationSource(this IConventionEntityType entityType)
-        => entityType.GetPartitionKeyPropertyNamesConfigurationSource();
-
-    /// <summary>
-    ///     Returns the property that is used to store the partition key.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    [Obsolete("Use GetPartitionKeyProperties")]
-    public static IReadOnlyProperty? GetPartitionKeyProperty(this IReadOnlyEntityType entityType)
-        => entityType.GetPartitionKeyProperties().FirstOrDefault();
-
-    /// <summary>
-    ///     Returns the property that is used to store the partition key.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    [Obsolete("Use GetPartitionKeyProperties")]
-    public static IMutableProperty? GetPartitionKeyProperty(this IMutableEntityType entityType)
-        => entityType.GetPartitionKeyProperties().FirstOrDefault();
-
-    /// <summary>
-    ///     Returns the property that is used to store the partition key.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    [Obsolete("Use GetPartitionKeyProperties")]
-    public static IConventionProperty? GetPartitionKeyProperty(this IConventionEntityType entityType)
-        => entityType.GetPartitionKeyProperties().FirstOrDefault();
-
-    /// <summary>
-    ///     Returns the property that is used to store the partition key.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    [Obsolete("Use GetPartitionKeyProperties")]
-    public static IProperty? GetPartitionKeyProperty(this IEntityType entityType)
-        => entityType.GetPartitionKeyProperties().FirstOrDefault();
-
-    /// <summary>
     ///     Returns the names of the properties that are used to store the hierarchical partition key, if any.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
@@ -401,6 +325,121 @@ public static class CosmosEntityTypeExtensions
     /// <returns>The <see cref="ConfigurationSource" />.</returns>
     public static ConfigurationSource? GetHasShadowIdConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(CosmosAnnotationNames.HasShadowId)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the list of paths to exclude from the container's indexing policy when automatic indexing is configured for
+    ///     the container via <c>HasAutomaticIndexing</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>
+    ///     The list of excluded indexing-policy paths, or <see langword="null" /> if no exceptions were configured or automatic
+    ///     indexing is disabled.
+    /// </returns>
+    public static IReadOnlyList<string>? GetAutomaticIndexingExceptions(this IReadOnlyEntityType entityType)
+        => entityType.BaseType != null
+            ? entityType.GetRootType().GetAutomaticIndexingExceptions()
+            : entityType.GetAutomaticIndexingEnabled() == false
+                ? null
+                : (IReadOnlyList<string>?)entityType[CosmosAnnotationNames.AutomaticIndexingExceptions];
+
+    /// <summary>
+    ///     Configures the list of paths to exclude from the container's indexing policy when automatic indexing is configured for
+    ///     the container.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="exceptions">
+    ///     The excluded paths, or <see langword="null" /> to remove the setting.
+    /// </param>
+    public static void SetAutomaticIndexingExceptions(this IMutableEntityType entityType, IReadOnlyList<string>? exceptions)
+        => entityType.SetOrRemoveAnnotation(CosmosAnnotationNames.AutomaticIndexingExceptions, exceptions);
+
+    /// <summary>
+    ///     Configures the list of paths to exclude from the container's indexing policy when automatic indexing is configured for
+    ///     the container.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="exceptions">
+    ///     The excluded paths, or <see langword="null" /> to remove the setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static IReadOnlyList<string>? SetAutomaticIndexingExceptions(
+        this IConventionEntityType entityType,
+        IReadOnlyList<string>? exceptions,
+        bool fromDataAnnotation = false)
+        => (IReadOnlyList<string>?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.AutomaticIndexingExceptions, exceptions, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetAutomaticIndexingExceptions" />.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetAutomaticIndexingExceptionsConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingExceptions)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether Cosmos automatic indexing (the default <c>/*</c> included path) is enabled
+    ///     for the container. <see langword="null" /> means that no explicit choice has been made; the Cosmos default is to
+    ///     emit <c>/*</c>.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>
+    ///     <see langword="true" /> when automatic indexing is explicitly enabled, <see langword="false" /> when explicitly
+    ///     disabled, or <see langword="null" /> when not configured.
+    /// </returns>
+    public static bool? GetAutomaticIndexingEnabled(this IReadOnlyEntityType entityType)
+        => entityType.BaseType != null
+            ? entityType.GetRootType().GetAutomaticIndexingEnabled()
+            : (bool?)entityType[CosmosAnnotationNames.AutomaticIndexingEnabled];
+
+    /// <summary>
+    ///     Configures whether Cosmos automatic indexing (the default <c>/*</c> included path) is enabled for the container.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="enabled">
+    ///     <see langword="true" /> to enable automatic indexing, <see langword="false" /> to disable it,
+    ///     <see langword="null" /> to remove the setting.
+    /// </param>
+    public static void SetAutomaticIndexingEnabled(this IMutableEntityType entityType, bool? enabled)
+        => entityType.SetOrRemoveAnnotation(CosmosAnnotationNames.AutomaticIndexingEnabled, enabled);
+
+    /// <summary>
+    ///     Configures whether Cosmos automatic indexing (the default <c>/*</c> included path) is enabled for the container.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="enabled">
+    ///     <see langword="true" /> to enable automatic indexing, <see langword="false" /> to disable it,
+    ///     <see langword="null" /> to remove the setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? SetAutomaticIndexingEnabled(
+        this IConventionEntityType entityType,
+        bool? enabled,
+        bool fromDataAnnotation = false)
+        => (bool?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.AutomaticIndexingEnabled, enabled, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetAutomaticIndexingEnabled" />.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetAutomaticIndexingEnabledConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingEnabled)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns a value indicating whether the entity type discriminator should be included in the JSON "id" value.

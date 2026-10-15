@@ -30,11 +30,11 @@ public abstract class PrecompiledSqlPregenerationQueryRelationalTestBase
     protected virtual bool AlwaysPrintGeneratedSources
         => false;
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task No_parameters()
         => Test("""var blogs = await context.Blogs.Where(b => b.Name == "foo").ToListAsync();""");
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Non_nullable_value_type()
         => Test(
             """
@@ -42,7 +42,7 @@ int id = 8;
 var blogs = await context.Blogs.Where(b => b.Id == id).ToListAsync();
 """);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nullable_value_type()
         => Test(
             """
@@ -66,7 +66,7 @@ else
 """, code);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nullable_reference_type()
         => Test(
             """
@@ -90,7 +90,7 @@ else
 """, code);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Non_nullable_reference_type()
         => Test(
             """
@@ -98,7 +98,7 @@ string name = "bar";
 var blogs = await context.Blogs.Where(b => b.Name == name).ToListAsync();
 """);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nullable_and_non_nullable_value_types()
         => Test(
             """
@@ -123,7 +123,7 @@ else
 """, code);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Two_nullable_reference_types()
         => Test(
             """
@@ -162,7 +162,7 @@ else
 """, code);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Two_non_nullable_reference_types()
         => Test(
             """
@@ -171,7 +171,7 @@ string name2 = "bar";
 var blogs = await context.Blogs.Where(b => b.Name == name1 || b.Name == name2).ToListAsync();
 """);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nullable_and_non_nullable_reference_types()
         => Test(
             """
@@ -196,7 +196,7 @@ else
 """, code);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Too_many_nullable_parameters_prevent_pregeneration()
         => Test(
             """
@@ -208,7 +208,7 @@ var blogs = await context.Blogs.Where(b => b.Name == name1 || b.Name == name2 ||
 """,
             interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Many_non_nullable_parameters_do_not_prevent_pregeneration()
         => Test(
             """
@@ -221,7 +221,7 @@ var blogs = await context.Blogs.Where(b => b.Name == name1 || b.Name == name2 ||
 
     #region Tests for the different querying enumerables
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Include_single_query()
         => Test(
             """
@@ -230,7 +230,7 @@ var blogs = await context.Blogs
     .ToListAsync();
 """);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Include_split_query()
         => Test(
             """
@@ -240,7 +240,7 @@ var blogs = await context.Blogs
     .ToListAsync();
 """);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Final_GroupBy()
         => Test("var blogs = await context.Blogs.GroupBy(b => b.Name).ToListAsync();");
 

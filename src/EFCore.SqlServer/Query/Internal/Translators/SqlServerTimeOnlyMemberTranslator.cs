@@ -28,21 +28,18 @@ public class SqlServerTimeOnlyMemberTranslator(ISqlExpressionFactory sqlExpressi
     {
         var declaringType = member.DeclaringType;
 
-        if (declaringType != typeof(TimeOnly))
-        {
-            return null;
-        }
-
-        return member.Name switch
-        {
-            nameof(TimeOnly.Hour) => DatePart("hour"),
-            nameof(TimeOnly.Minute) => DatePart("minute"),
-            nameof(TimeOnly.Second) => DatePart("second"),
-            nameof(TimeOnly.Millisecond) => DatePart("millisecond"),
-            nameof(TimeOnly.Microsecond) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
-            nameof(TimeOnly.Nanosecond) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
-            _ => null,
-        };
+        return declaringType != typeof(TimeOnly)
+            ? null
+            : member.Name switch
+            {
+                nameof(TimeOnly.Hour) => DatePart("hour"),
+                nameof(TimeOnly.Minute) => DatePart("minute"),
+                nameof(TimeOnly.Second) => DatePart("second"),
+                nameof(TimeOnly.Millisecond) => DatePart("millisecond"),
+                nameof(TimeOnly.Microsecond) => sqlExpressionFactory.Modulo(DatePart("microsecond"), sqlExpressionFactory.Constant(1000)),
+                nameof(TimeOnly.Nanosecond) => sqlExpressionFactory.Modulo(DatePart("nanosecond"), sqlExpressionFactory.Constant(1000)),
+                _ => null,
+            };
 
         SqlExpression DatePart(string part)
             => sqlExpressionFactory.Function(

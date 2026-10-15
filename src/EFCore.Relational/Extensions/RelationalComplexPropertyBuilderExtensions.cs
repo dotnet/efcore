@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Relational database specific extension methods for <see cref="ComplexPropertyBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 public static class RelationalComplexPropertyBuilderExtensions
 {
@@ -40,7 +40,7 @@ public static class RelationalComplexPropertyBuilderExtensions
         this ComplexPropertyBuilder<TComplex> complexPropertyBuilder,
         string? jsonColumnName = null)
         where TComplex : class
-        => (ComplexPropertyBuilder<TComplex>)ToJson((ComplexPropertyBuilder)complexPropertyBuilder, jsonColumnName);
+        => (ComplexPropertyBuilder<TComplex>)((ComplexPropertyBuilder)complexPropertyBuilder).ToJson(jsonColumnName);
 
     /// <summary>
     ///     Configures the complex property of an entity mapped to a JSON column, mapping the complex property to a specific JSON property,
@@ -71,7 +71,7 @@ public static class RelationalComplexPropertyBuilderExtensions
         this ComplexPropertyBuilder<TComplex> complexPropertyBuilder,
         string? name)
         where TComplex : notnull
-        => (ComplexPropertyBuilder<TComplex>)HasJsonPropertyName((ComplexPropertyBuilder)complexPropertyBuilder, name);
+        => (ComplexPropertyBuilder<TComplex>)((ComplexPropertyBuilder)complexPropertyBuilder).HasJsonPropertyName(name);
 
     /// <summary>
     ///     Configures the column type for the JSON column that stores the complex property.
@@ -98,5 +98,5 @@ public static class RelationalComplexPropertyBuilderExtensions
         this ComplexPropertyBuilder<TComplex> complexPropertyBuilder,
         string? columnType)
         where TComplex : notnull
-        => (ComplexPropertyBuilder<TComplex>)HasColumnType((ComplexPropertyBuilder)complexPropertyBuilder, columnType);
+        => (ComplexPropertyBuilder<TComplex>)((ComplexPropertyBuilder)complexPropertyBuilder).HasColumnType(columnType);
 }

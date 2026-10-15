@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -14,7 +12,7 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
 {
     public class InMemoryGenericNonRelationship(InMemoryModelBuilderFixture fixture) : InMemoryNonRelationship(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public void Can_discover_large_models_through_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -24,7 +22,7 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
             Assert.Equal(2000, modelBuilder.Model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Changing_propertyInfo_updates_Property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -43,7 +41,7 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
 
     public class InMemoryGenericComplexType(InMemoryModelBuilderFixture fixture) : InMemoryComplexType(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Changing_propertyInfo_updates_Property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -65,7 +63,7 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
 
     public class InMemoryGenericComplexCollection(InMemoryModelBuilderFixture fixture) : InMemoryComplexCollection(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Changing_propertyInfo_updates_Property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -93,7 +91,7 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
 
     public class InMemoryGenericOneToMany(InMemoryModelBuilderFixture fixture) : InMemoryOneToMany(fixture)
     {
-        [ConditionalFact] // Issue #3376
+        [Fact] // Issue #3376
         public virtual void Can_use_self_referencing_overlapping_FK_PK()
         {
             var modelBuilder = CreateModelBuilder();
@@ -215,7 +213,7 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
 
     public class InMemoryGenericOneToOne(InMemoryModelBuilderFixture fixture) : InMemoryOneToOne(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_use_self_referencing_overlapping_FK_PK()
         {
             var modelBuilder = CreateModelBuilder();

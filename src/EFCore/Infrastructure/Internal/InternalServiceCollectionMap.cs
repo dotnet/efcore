@@ -51,7 +51,7 @@ public class InternalServiceCollectionMap : IInternalServiceCollectionMap
     {
         if (!_serviceMap.TryGetValue(serviceType, out var indexes))
         {
-            indexes = new List<int>();
+            indexes = [];
             _serviceMap[serviceType] = indexes;
         }
 

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class IntegerValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Each_property_gets_its_own_generator()
     {
         var macs = new Mac[4];
@@ -77,7 +77,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(4, toasts[3].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Each_property_gets_its_own_generator_with_seeding()
     {
         var macs = new Mac[4];
@@ -166,7 +166,7 @@ public class IntegerValueGeneratorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Generators_are_associated_with_database_root()
     {
         var serviceProvider1 = new ServiceCollection()
@@ -210,7 +210,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(2, toasts[1].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Mixing_explicit_values_with_generated_values_with_care_works()
     {
         var macs = new Mac[4];
@@ -248,7 +248,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(201, toasts[3].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Each_database_gets_its_own_generators()
     {
         var macs = new List<Mac>();
@@ -282,7 +282,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(1, toasts[1].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Each_root_gets_its_own_generators()
     {
         var macs = new List<Mac>();
@@ -316,7 +316,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(1, toasts[1].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EnsureDeleted_resets_generators()
     {
         var macs = new List<Mac>();
@@ -354,12 +354,12 @@ public class IntegerValueGeneratorTest
 
     private class PetsContext(
         string databaseName,
-        InMemoryDatabaseRoot root = null,
-        IServiceProvider internalServiceProvider = null) : DbContext
+        InMemoryDatabaseRoot? root = null,
+        IServiceProvider? internalServiceProvider = null) : DbContext
     {
         private readonly string _databaseName = databaseName;
-        private readonly InMemoryDatabaseRoot _root = root;
-        private readonly IServiceProvider _internalServiceProvider = internalServiceProvider;
+        private readonly InMemoryDatabaseRoot? _root = root;
+        private readonly IServiceProvider? _internalServiceProvider = internalServiceProvider;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -382,19 +382,19 @@ public class IntegerValueGeneratorTest
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Toast> CookedBreads { get; set; }
-        public DbSet<Olive> Olives { get; set; }
+        public DbSet<Toast> CookedBreads { get; set; } = null!;
+        public DbSet<Olive> Olives { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Mac> Macs { get; set; }
-        public DbSet<Smokey> Smokeys { get; set; }
-        public DbSet<Alice> Alices { get; set; }
+        public DbSet<Mac> Macs { get; set; } = null!;
+        public DbSet<Smokey> Smokeys { get; set; } = null!;
+        public DbSet<Alice> Alices { get; set; } = null!;
     }
 
     private class PetsContextWithData(
         string databaseName,
-        InMemoryDatabaseRoot root = null,
-        IServiceProvider internalServiceProvider = null) : PetsContext(databaseName, root, internalServiceProvider)
+        InMemoryDatabaseRoot? root = null,
+        IServiceProvider? internalServiceProvider = null) : PetsContext(databaseName, root, internalServiceProvider)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

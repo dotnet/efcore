@@ -5,11 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
-#nullable disable
-
 public class TransportationContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public DbSet<Vehicle> Vehicles { get; set; }
+    public DbSet<Vehicle> Vehicles { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,10 +36,7 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
         });
         modelBuilder.Entity<LicensedOperator>();
 
-        modelBuilder.Entity<Vehicle>(vb =>
-        {
-            vb.Navigation(v => v.Operator).IsRequired();
-        });
+        modelBuilder.Entity<Vehicle>(vb => vb.Navigation(v => v.Operator).IsRequired());
 
         modelBuilder.Entity<FuelTank>(eb =>
         {
@@ -54,17 +49,11 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
                 .HasForeignKey<FuelTank>(e => e.VehicleName);
         });
 
-        modelBuilder.Entity<SolidFuelTank>(eb =>
-        {
-            eb.HasOne(e => e.Rocket)
-                .WithOne(e => e.SolidFuelTank)
-                .HasForeignKey<SolidFuelTank>(e => e.VehicleName);
-        });
+        modelBuilder.Entity<SolidFuelTank>(eb => eb.HasOne(e => e.Rocket)
+            .WithOne(e => e.SolidFuelTank)
+            .HasForeignKey<SolidFuelTank>(e => e.VehicleName));
 
-        modelBuilder.Entity<OperatorDetails>(eb =>
-        {
-            eb.HasKey(e => e.VehicleName);
-        });
+        modelBuilder.Entity<OperatorDetails>(eb => eb.HasKey(e => e.VehicleName));
     }
 
     public Task SeedAsync()
@@ -80,15 +69,15 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
             .Include(v => v.Operator)
             .ThenInclude(v => v.Details)
             .Include(v => ((PoweredVehicle)v).Engine)
-            .ThenInclude(e => (e as CombustionEngine).FuelTank)
+            .ThenInclude(e => (e as CombustionEngine)!.FuelTank)
             .OrderBy(v => v.Name).ToList();
 
         Assert.Equal(expected, actual);
     }
 
     protected IEnumerable<Vehicle> CreateVehicles()
-        => new List<Vehicle>
-        {
+        =>
+        [
             new()
             {
                 Name = "Trek Pro Fit Madone 6 Series",
@@ -167,5 +156,5 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
                     VehicleName = "AIM-9M Sidewinder"
                 }
             }
-        };
+        ];
 }

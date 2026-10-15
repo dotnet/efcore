@@ -6,22 +6,21 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class DbContextModel
 {
-    public partial class DbContextModel
+    private DbContextModel()
+        : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 1)
     {
-        private DbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 1)
-        {
-        }
+    }
 
-        partial void Initialize()
-        {
-            var dependentDerived = DependentDerivedEntityType.Create(this);
+    partial void Initialize()
+    {
+        var dependentDerived = DependentDerivedEntityType.Create(this);
 
-            DependentDerivedEntityType.CreateAnnotations(dependentDerived);
+        DependentDerivedEntityType.CreateAnnotations(dependentDerived);
 
-            AddAnnotation("Cosmos:ContainerName", "DbContext");
-        }
+        AddAnnotation("Cosmos:ContainerName", "DbContext");
     }
 }

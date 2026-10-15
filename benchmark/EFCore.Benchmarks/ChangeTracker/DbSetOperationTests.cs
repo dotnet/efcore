@@ -14,11 +14,11 @@ public class DbSetOperationTests
 {
     public abstract class DbSetOperationBase
     {
-        private OrdersFixtureBase _fixture;
+        private OrdersFixtureBase _fixture = null!;
 
-        protected List<Customer> _customersWithoutPk;
-        protected List<Customer> _customersWithPk;
-        protected OrdersContextBase _context;
+        protected List<Customer> _customersWithoutPk = null!;
+        protected List<Customer> _customersWithPk = null!;
+        protected OrdersContextBase _context = null!;
 
         public abstract OrdersFixtureBase CreateFixture();
 

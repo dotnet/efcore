@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class FieldMappingSqlServerTest(FieldMappingSqlServerTest.FieldMappingSqlServerFixture fixture)
     : FieldMappingTestBase<FieldMappingSqlServerTest.FieldMappingSqlServerFixture>(fixture)
 {

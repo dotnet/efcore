@@ -12,8 +12,6 @@ using System.Runtime.CompilerServices;
 // ReSharper disable NonReadonlyMemberInGetHashCode
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
@@ -190,7 +188,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                         v => v.Value,
                         v => new MyDiscriminator(v),
                         new ValueComparer<MyDiscriminator>(
-                            (l, r) => l.Value == r.Value,
+                            (l, r) => l!.Value == r!.Value,
                             v => v.Value.GetHashCode(),
                             v => new MyDiscriminator(v.Value)))
                     .Metadata
@@ -383,13 +381,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<SharedFkParent>(builder =>
-            {
-                builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
-                    .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
-                    .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-            });
+            modelBuilder.Entity<SharedFkParent>(builder => builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                .OnDelete(DeleteBehavior.ClientSetNull));
 
             modelBuilder.Entity<SharedFkDependant>();
 
@@ -565,10 +560,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                 b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
             });
 
-            modelBuilder.Entity<StableChild32084>(b =>
-            {
-                b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
-            });
+            modelBuilder.Entity<StableChild32084>(b => b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>());
 
             modelBuilder.Entity<SneakyUncle32084>(b =>
             {
@@ -619,6 +611,38 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             {
                 b.HasKey(e => e.PrimaryGroup);
                 b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+            });
+
+            modelBuilder.Entity<Group37310>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.HasOne(e => e.GroupOwner)
+                    .WithMany()
+                    .HasForeignKey(e => new { e.Id, e.GroupOwnerId });
+            });
+
+            modelBuilder.Entity<GroupMember37310>(b =>
+            {
+                b.HasKey(e => new { e.GroupId, e.UserId });
+                b.HasOne(e => e.User)
+                    .WithMany(e => e.Groups)
+                    .HasForeignKey(e => e.UserId);
+                b.HasOne(e => e.Group)
+                    .WithMany(e => e.Members)
+                    .HasForeignKey(e => e.GroupId);
+            });
+
+            modelBuilder.Entity<User37310>(b => b.Property(e => e.Id).ValueGeneratedNever());
+
+            modelBuilder.Entity<ParentWithClientSetDefault>(b => b.Property(e => e.Id).ValueGeneratedNever());
+
+            modelBuilder.Entity<ChildWithClientSetDefault>(b =>
+            {
+                b.Property(e => e.ParentId).HasSentinel(667);
+                b.HasOne(e => e.Parent)
+                    .WithMany(e => e.Children)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.ClientSetDefault);
             });
         }
 
@@ -741,17 +765,20 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                 OptionalSingleAkDerived =
                     new OptionalSingleAk1Derived
                     {
-                        AlternateId = Guid.NewGuid(), Single = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() }
+                        AlternateId = Guid.NewGuid(),
+                        Single = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() }
                     },
                 OptionalSingleAkMoreDerived =
                     new OptionalSingleAk1MoreDerived
                     {
-                        AlternateId = Guid.NewGuid(), Single = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() }
+                        AlternateId = Guid.NewGuid(),
+                        Single = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() }
                     },
                 RequiredNonPkSingleAk =
                     new RequiredNonPkSingleAk1
                     {
-                        AlternateId = Guid.NewGuid(), Single = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() }
+                        AlternateId = Guid.NewGuid(),
+                        Single = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() }
                     },
                 RequiredNonPkSingleAkDerived =
                     new RequiredNonPkSingleAk1Derived
@@ -881,7 +908,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
     protected IOrderedQueryable<Root> QueryRequiredGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
             .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
-            .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
+            .Include(e => e.RequiredSingle).ThenInclude(e => e!.Single)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadOptionalGraphAsync(DbContext context)
@@ -892,9 +919,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         => ModifyQueryRoot(context.Set<Root>())
             .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
             .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
-            .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleDerived).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingle!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleDerived!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleMoreDerived!).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadRequiredNonPkGraphAsync(DbContext context)
@@ -919,8 +946,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         => ModifyQueryRoot(context.Set<Root>())
             .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.Children)
             .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.CompositeChildren)
-            .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
-            .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
+            .Include(e => e.RequiredSingleAk).ThenInclude(e => e!.Single)
+            .Include(e => e.RequiredSingleAk).ThenInclude(e => e!.SingleComposite)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadOptionalAkGraphAsync(DbContext context)
@@ -931,10 +958,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         => ModifyQueryRoot(context.Set<Root>())
             .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
             .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
-            .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleAk).ThenInclude(e => e.SingleComposite)
-            .Include(e => e.OptionalSingleAkDerived).ThenInclude(e => e.Single)
-            .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAk!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAk!).ThenInclude(e => e.SingleComposite)
+            .Include(e => e.OptionalSingleAkDerived!).ThenInclude(e => e.Single)
+            .Include(e => e.OptionalSingleAkMoreDerived!).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
     protected Task<Root> LoadRequiredNonPkAkGraphAsync(DbContext context)
@@ -1122,11 +1149,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         if (root.OptionalSingle != null)
         {
             Assert.Same(root, root.OptionalSingle.Root);
-            Assert.Same(root, root.OptionalSingleDerived.DerivedRoot);
-            Assert.Same(root, root.OptionalSingleMoreDerived.MoreDerivedRoot);
-            Assert.Same(root.OptionalSingle, root.OptionalSingle.Single.Back);
-            Assert.Same(root.OptionalSingleDerived, root.OptionalSingleDerived.Single.Back);
-            Assert.Same(root.OptionalSingleMoreDerived, root.OptionalSingleMoreDerived.Single.Back);
+            Assert.Same(root, root.OptionalSingleDerived!.DerivedRoot);
+            Assert.Same(root, root.OptionalSingleMoreDerived!.MoreDerivedRoot);
+            Assert.Same(root.OptionalSingle, root.OptionalSingle.Single!.Back);
+            Assert.Same(root.OptionalSingleDerived, root.OptionalSingleDerived.Single!.Back);
+            Assert.Same(root.OptionalSingleMoreDerived, root.OptionalSingleMoreDerived.Single!.Back);
         }
 
         if (root.RequiredNonPkSingle != null)
@@ -1163,12 +1190,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         if (root.OptionalSingleAk != null)
         {
             Assert.Same(root, root.OptionalSingleAk.Root);
-            Assert.Same(root, root.OptionalSingleAkDerived.DerivedRoot);
-            Assert.Same(root, root.OptionalSingleAkMoreDerived.MoreDerivedRoot);
-            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.Single.Back);
-            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.SingleComposite.Back);
-            Assert.Same(root.OptionalSingleAkDerived, root.OptionalSingleAkDerived.Single.Back);
-            Assert.Same(root.OptionalSingleAkMoreDerived, root.OptionalSingleAkMoreDerived.Single.Back);
+            Assert.Same(root, root.OptionalSingleAkDerived!.DerivedRoot);
+            Assert.Same(root, root.OptionalSingleAkMoreDerived!.MoreDerivedRoot);
+            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.Single!.Back);
+            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.SingleComposite!.Back);
+            Assert.Same(root.OptionalSingleAkDerived, root.OptionalSingleAkDerived.Single!.Back);
+            Assert.Same(root.OptionalSingleAkMoreDerived, root.OptionalSingleAkMoreDerived.Single!.Back);
         }
 
         if (root.RequiredNonPkSingleAk != null)
@@ -1211,7 +1238,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         if (root.OptionalSingle != null)
         {
             Assert.Same(root, root.OptionalSingle.Root);
-            Assert.Same(root.OptionalSingle, root.OptionalSingle.Single.Back);
+            Assert.Same(root.OptionalSingle, root.OptionalSingle.Single!.Back);
         }
 
         if (root.RequiredNonPkSingle != null)
@@ -1244,8 +1271,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         if (root.OptionalSingleAk != null)
         {
             Assert.Same(root, root.OptionalSingleAk.Root);
-            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.Single.Back);
-            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.SingleComposite.Back);
+            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.Single!.Back);
+            Assert.Same(root.OptionalSingleAk, root.OptionalSingleAk.SingleComposite!.Back);
         }
 
         if (root.RequiredNonPkSingleAk != null)
@@ -1257,215 +1284,181 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Root : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private IEnumerable<Required1> _requiredChildren = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance);
-        private IEnumerable<Optional1> _optionalChildren = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance);
-        private RequiredSingle1 _requiredSingle;
-        private RequiredNonPkSingle1 _requiredNonPkSingle;
-        private RequiredNonPkSingle1Derived _requiredNonPkSingleDerived;
-        private RequiredNonPkSingle1MoreDerived _requiredNonPkSingleMoreDerived;
-        private OptionalSingle1 _optionalSingle;
-        private OptionalSingle1Derived _optionalSingleDerived;
-        private OptionalSingle1MoreDerived _optionalSingleMoreDerived;
-
-        private IEnumerable<RequiredAk1> _requiredChildrenAk =
-            new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance);
-
-        private IEnumerable<OptionalAk1> _optionalChildrenAk =
-            new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance);
-
-        private RequiredSingleAk1 _requiredSingleAk;
-        private RequiredNonPkSingleAk1 _requiredNonPkSingleAk;
-        private RequiredNonPkSingleAk1Derived _requiredNonPkSingleAkDerived;
-        private RequiredNonPkSingleAk1MoreDerived _requiredNonPkSingleAkMoreDerived;
-        private OptionalSingleAk1 _optionalSingleAk;
-        private OptionalSingleAk1Derived _optionalSingleAkDerived;
-        private OptionalSingleAk1MoreDerived _optionalSingleAkMoreDerived;
-
-        private IEnumerable<RequiredComposite1> _requiredCompositeChildren
-            = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance);
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public IEnumerable<Required1> RequiredChildren
         {
-            get => _requiredChildren;
-            set => SetWithNotify(value, ref _requiredChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance);
 
         public IEnumerable<Optional1> OptionalChildren
         {
-            get => _optionalChildren;
-            set => SetWithNotify(value, ref _optionalChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance);
 
-        public RequiredSingle1 RequiredSingle
+        public RequiredSingle1? RequiredSingle
         {
-            get => _requiredSingle;
-            set => SetWithNotify(value, ref _requiredSingle);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredNonPkSingle1 RequiredNonPkSingle
         {
-            get => _requiredNonPkSingle;
-            set => SetWithNotify(value, ref _requiredNonPkSingle);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredNonPkSingle1Derived RequiredNonPkSingleDerived
         {
-            get => _requiredNonPkSingleDerived;
-            set => SetWithNotify(value, ref _requiredNonPkSingleDerived);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredNonPkSingle1MoreDerived RequiredNonPkSingleMoreDerived
         {
-            get => _requiredNonPkSingleMoreDerived;
-            set => SetWithNotify(value, ref _requiredNonPkSingleMoreDerived);
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
+
+        public OptionalSingle1? OptionalSingle
+        {
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingle1 OptionalSingle
+        public OptionalSingle1Derived? OptionalSingleDerived
         {
-            get => _optionalSingle;
-            set => SetWithNotify(value, ref _optionalSingle);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingle1Derived OptionalSingleDerived
+        public OptionalSingle1MoreDerived? OptionalSingleMoreDerived
         {
-            get => _optionalSingleDerived;
-            set => SetWithNotify(value, ref _optionalSingleDerived);
-        }
-
-        public OptionalSingle1MoreDerived OptionalSingleMoreDerived
-        {
-            get => _optionalSingleMoreDerived;
-            set => SetWithNotify(value, ref _optionalSingleMoreDerived);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public IEnumerable<RequiredAk1> RequiredChildrenAk
         {
-            get => _requiredChildrenAk;
-            set => SetWithNotify(value, ref _requiredChildrenAk);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance);
 
         public IEnumerable<OptionalAk1> OptionalChildrenAk
         {
-            get => _optionalChildrenAk;
-            set => SetWithNotify(value, ref _optionalChildrenAk);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance);
 
-        public RequiredSingleAk1 RequiredSingleAk
+        public RequiredSingleAk1? RequiredSingleAk
         {
-            get => _requiredSingleAk;
-            set => SetWithNotify(value, ref _requiredSingleAk);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredNonPkSingleAk1 RequiredNonPkSingleAk
         {
-            get => _requiredNonPkSingleAk;
-            set => SetWithNotify(value, ref _requiredNonPkSingleAk);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredNonPkSingleAk1Derived RequiredNonPkSingleAkDerived
         {
-            get => _requiredNonPkSingleAkDerived;
-            set => SetWithNotify(value, ref _requiredNonPkSingleAkDerived);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredNonPkSingleAk1MoreDerived RequiredNonPkSingleAkMoreDerived
         {
-            get => _requiredNonPkSingleAkMoreDerived;
-            set => SetWithNotify(value, ref _requiredNonPkSingleAkMoreDerived);
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
+
+        public OptionalSingleAk1? OptionalSingleAk
+        {
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk1 OptionalSingleAk
+        public OptionalSingleAk1Derived? OptionalSingleAkDerived
         {
-            get => _optionalSingleAk;
-            set => SetWithNotify(value, ref _optionalSingleAk);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk1Derived OptionalSingleAkDerived
+        public OptionalSingleAk1MoreDerived? OptionalSingleAkMoreDerived
         {
-            get => _optionalSingleAkDerived;
-            set => SetWithNotify(value, ref _optionalSingleAkDerived);
-        }
-
-        public OptionalSingleAk1MoreDerived OptionalSingleAkMoreDerived
-        {
-            get => _optionalSingleAkMoreDerived;
-            set => SetWithNotify(value, ref _optionalSingleAkMoreDerived);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public IEnumerable<RequiredComposite1> RequiredCompositeChildren
         {
-            get => _requiredCompositeChildren;
-            set => SetWithNotify(value, ref _requiredCompositeChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Root;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class Required1 : NotifyingEntity
     {
-        private int _id;
-        private int _parentId;
-        private Root _parent;
-        private IEnumerable<Required2> _children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance);
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Root Parent
+        public Root? Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public IEnumerable<Required2> Children
         {
-            get => _children;
-            set => SetWithNotify(value, ref _children);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Required1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class Required1Derived : Required1
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required1Derived);
 
         public override int GetHashCode()
@@ -1474,7 +1467,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Required1MoreDerived : Required1Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required1MoreDerived);
 
         public override int GetHashCode()
@@ -1483,41 +1476,37 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Required2 : NotifyingEntity
     {
-        private int _id;
-        private int _parentId;
-        private Required1 _parent;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Required1 Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Required2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class Required2Derived : Required2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required2Derived);
 
         public override int GetHashCode()
@@ -1526,7 +1515,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Required2MoreDerived : Required2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Required2MoreDerived);
 
         public override int GetHashCode()
@@ -1535,57 +1524,49 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Optional1 : NotifyingEntity
     {
-        private int _id;
-        private int? _parentId;
-        private Root _parent;
-        private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance);
-
-        private ICollection<OptionalComposite2> _compositeChildren =
-            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public IEnumerable<Optional2> Children
         {
-            get => _children;
-            set => SetWithNotify(value, ref _children);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance);
 
         public ICollection<OptionalComposite2> CompositeChildren
         {
-            get => _compositeChildren;
-            set => SetWithNotify(value, ref _compositeChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Optional1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class Optional1Derived : Optional1
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional1Derived);
 
         public override int GetHashCode()
@@ -1594,7 +1575,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Optional1MoreDerived : Optional1Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional1MoreDerived);
 
         public override int GetHashCode()
@@ -1603,41 +1584,37 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Optional2 : NotifyingEntity
     {
-        private int _id;
-        private int? _parentId;
-        private Optional1 _parent;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Optional1 Parent
+        public Optional1? Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as Optional2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class Optional2Derived : Optional2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional2Derived);
 
         public override int GetHashCode()
@@ -1646,7 +1623,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Optional2MoreDerived : Optional2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as Optional2MoreDerived);
 
         public override int GetHashCode()
@@ -1655,138 +1632,121 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredSingle1 : NotifyingEntity
     {
-        private int _id;
-        private bool _bool;
-        private Root _root;
-        private RequiredSingle2 _single;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public bool Bool
         {
-            get => _bool;
-            set => SetWithNotify(value, ref _bool);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredSingle2 Single
         {
-            get => _single;
-            set => SetWithNotify(value, ref _single);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingle1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredSingle2 : NotifyingEntity
     {
-        private int _id;
-        private bool _bool;
-        private RequiredSingle1 _back;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public bool Bool
         {
-            get => _bool;
-            set => SetWithNotify(value, ref _bool);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredSingle1 Back
         {
-            get => _back;
-            set => SetWithNotify(value, ref _back);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingle2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredNonPkSingle1 : NotifyingEntity
     {
-        private int _id;
-        private int _rootId;
-        private Root _root;
-        private RequiredNonPkSingle2 _single;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int RootId
         {
-            get => _rootId;
-            set => SetWithNotify(value, ref _rootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredNonPkSingle2 Single
         {
-            get => _single;
-            set => SetWithNotify(value, ref _single);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingle1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredNonPkSingle1Derived : RequiredNonPkSingle1
     {
-        private int _derivedRootId;
-        private Root _derivedRoot;
-
         public int DerivedRootId
         {
-            get => _derivedRootId;
-            set => SetWithNotify(value, ref _derivedRootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root DerivedRoot
         {
-            get => _derivedRoot;
-            set => SetWithNotify(value, ref _derivedRoot);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle1Derived);
 
         public override int GetHashCode()
@@ -1795,22 +1755,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingle1MoreDerived : RequiredNonPkSingle1Derived
     {
-        private int _moreDerivedRootId;
-        private Root _moreDerivedRoot;
-
         public int MoreDerivedRootId
         {
-            get => _moreDerivedRootId;
-            set => SetWithNotify(value, ref _moreDerivedRootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root MoreDerivedRoot
         {
-            get => _moreDerivedRoot;
-            set => SetWithNotify(value, ref _moreDerivedRoot);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle1MoreDerived);
 
         public override int GetHashCode()
@@ -1819,41 +1776,37 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingle2 : NotifyingEntity
     {
-        private int _id;
-        private int _backId;
-        private RequiredNonPkSingle1 _back;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int BackId
         {
-            get => _backId;
-            set => SetWithNotify(value, ref _backId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredNonPkSingle1 Back
         {
-            get => _back;
-            set => SetWithNotify(value, ref _back);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingle2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredNonPkSingle2Derived : RequiredNonPkSingle2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle2Derived);
 
         public override int GetHashCode()
@@ -1862,7 +1815,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingle2MoreDerived : RequiredNonPkSingle2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingle2MoreDerived);
 
         public override int GetHashCode()
@@ -1871,63 +1824,55 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingle1 : NotifyingEntity
     {
-        private int _id;
-        private int? _rootId;
-        private Root _root;
-        private OptionalSingle2 _single;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? RootId
         {
-            get => _rootId;
-            set => SetWithNotify(value, ref _rootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Root Root
+        public Root? Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingle2 Single
+        public OptionalSingle2? Single
         {
-            get => _single;
-            set => SetWithNotify(value, ref _single);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingle1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class OptionalSingle1Derived : OptionalSingle1
     {
-        private int? _derivedRootId;
-        private Root _derivedRoot;
-
         public int? DerivedRootId
         {
-            get => _derivedRootId;
-            set => SetWithNotify(value, ref _derivedRootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Root DerivedRoot
+        public Root? DerivedRoot
         {
-            get => _derivedRoot;
-            set => SetWithNotify(value, ref _derivedRoot);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle1Derived);
 
         public override int GetHashCode()
@@ -1936,22 +1881,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingle1MoreDerived : OptionalSingle1Derived
     {
-        private Root _moreDerivedRoot;
-        private int? _moreDerivedRootId;
-
         public int? MoreDerivedRootId
         {
-            get => _moreDerivedRootId;
-            set => SetWithNotify(value, ref _moreDerivedRootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Root MoreDerivedRoot
+        public Root? MoreDerivedRoot
         {
-            get => _moreDerivedRoot;
-            set => SetWithNotify(value, ref _moreDerivedRoot);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle1MoreDerived);
 
         public override int GetHashCode()
@@ -1960,50 +1902,45 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingle2 : NotifyingEntity
     {
-        private int _id;
-        private int? _backId;
-        private MyDiscriminator _disc;
-        private OptionalSingle1 _back;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? BackId
         {
-            get => _backId;
-            set => SetWithNotify(value, ref _backId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public MyDiscriminator Disc
         {
-            get => _disc;
-            set => SetWithNotify(value, ref _disc);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public OptionalSingle1 Back
+        public OptionalSingle1? Back
         {
-            get => _back;
-            set => SetWithNotify(value, ref _back);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingle2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class MyDiscriminator(int value)
     {
         public int Value { get; } = value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => throw new InvalidOperationException();
 
         public override int GetHashCode()
@@ -2012,7 +1949,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingle2Derived : OptionalSingle2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle2Derived);
 
         public override int GetHashCode()
@@ -2021,7 +1958,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingle2MoreDerived : OptionalSingle2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingle2MoreDerived);
 
         public override int GetHashCode()
@@ -2030,64 +1967,55 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredAk1 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid _parentId;
-        private Root _parent;
-        private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance);
-
-        private IEnumerable<RequiredComposite2> _compositeChildren =
-            new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public IEnumerable<RequiredAk2> Children
         {
-            get => _children;
-            set => SetWithNotify(value, ref _children);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance);
 
         public IEnumerable<RequiredComposite2> CompositeChildren
         {
-            get => _compositeChildren;
-            set => SetWithNotify(value, ref _compositeChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredAk1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredAk1Derived : RequiredAk1
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk1Derived);
 
         public override int GetHashCode()
@@ -2096,7 +2024,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredAk1MoreDerived : RequiredAk1Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk1MoreDerived);
 
         public override int GetHashCode()
@@ -2105,180 +2033,157 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredAk2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid _parentId;
-        private RequiredAk1 _parent;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredAk1 Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredAk2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredComposite1 : NotifyingEntity
     {
-        private int _id;
-        private Guid _parentAlternateId;
-        private Root _parent;
-
-        private ICollection<OptionalOverlapping2> _compositeChildren =
-            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance);
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentAlternateId
         {
-            get => _parentAlternateId;
-            set => SetWithNotify(value, ref _parentAlternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredComposite1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public ICollection<OptionalOverlapping2> CompositeChildren
         {
-            get => _compositeChildren;
-            set => SetWithNotify(value, ref _compositeChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance);
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class OptionalOverlapping2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _parentAlternateId;
-        private int? _parentId;
-        private RequiredComposite1 _parent;
-        private Root _root;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentAlternateId
         {
-            get => _parentAlternateId;
-            set => SetWithNotify(value, ref _parentAlternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public RequiredComposite1 Parent
+        public RequiredComposite1? Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalOverlapping2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredComposite2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private int _parentId;
-        private RequiredAk1 _parent;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentAlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredAk1 Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredComposite2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredAk2Derived : RequiredAk2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk2Derived);
 
         public override int GetHashCode()
@@ -2287,7 +2192,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredAk2MoreDerived : RequiredAk2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredAk2MoreDerived);
 
         public override int GetHashCode()
@@ -2296,64 +2201,55 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalAk1 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid? _parentId;
-        private Root _parent;
-        private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance);
-
-        private ICollection<OptionalComposite2> _compositeChildren =
-            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid? ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Root Parent
+        public Root? Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public IEnumerable<OptionalAk2> Children
         {
-            get => _children;
-            set => SetWithNotify(value, ref _children);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance);
 
         public ICollection<OptionalComposite2> CompositeChildren
         {
-            get => _compositeChildren;
-            set => SetWithNotify(value, ref _compositeChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalAk1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class OptionalAk1Derived : OptionalAk1
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk1Derived);
 
         public override int GetHashCode()
@@ -2362,7 +2258,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalAk1MoreDerived : OptionalAk1Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk1MoreDerived);
 
         public override int GetHashCode()
@@ -2371,103 +2267,91 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalAk2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid? _parentId;
-        private OptionalAk1 _parent;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid? ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalAk1 Parent
+        public OptionalAk1? Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalAk2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class OptionalComposite2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private int? _parentId;
-        private int? _parent2Id;
-        private OptionalAk1 _parent;
-        private Optional1 _parent2;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentAlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalAk1 Parent
+        public OptionalAk1? Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? Parent2Id
         {
-            get => _parent2Id;
-            set => SetWithNotify(value, ref _parent2Id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Optional1 Parent2
+        public Optional1? Parent2
         {
-            get => _parent2;
-            set => SetWithNotify(value, ref _parent2);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalComposite2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class OptionalAk2Derived : OptionalAk2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk2Derived);
 
         public override int GetHashCode()
@@ -2476,7 +2360,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalAk2MoreDerived : OptionalAk2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalAk2MoreDerived);
 
         public override int GetHashCode()
@@ -2485,207 +2369,181 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredSingleAk1 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid _rootId;
-        private Root _root;
-        private RequiredSingleAk2 _single;
-        private RequiredSingleComposite2 _singleComposite;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid RootId
         {
-            get => _rootId;
-            set => SetWithNotify(value, ref _rootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredSingleAk2 Single
         {
-            get => _single;
-            set => SetWithNotify(value, ref _single);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredSingleComposite2 SingleComposite
         {
-            get => _singleComposite;
-            set => SetWithNotify(value, ref _singleComposite);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleAk1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredSingleAk2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid _backId;
-        private RequiredSingleAk1 _back;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid BackId
         {
-            get => _backId;
-            set => SetWithNotify(value, ref _backId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredSingleAk1 Back
         {
-            get => _back;
-            set => SetWithNotify(value, ref _back);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleAk2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredSingleComposite2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private int _backId;
-        private RequiredSingleAk1 _back;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid BackAlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int BackId
         {
-            get => _backId;
-            set => SetWithNotify(value, ref _backId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredSingleAk1 Back
         {
-            get => _back;
-            set => SetWithNotify(value, ref _back);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredSingleComposite2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredNonPkSingleAk1 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid _rootId;
-        private Root _root;
-        private RequiredNonPkSingleAk2 _single;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid RootId
         {
-            get => _rootId;
-            set => SetWithNotify(value, ref _rootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public RequiredNonPkSingleAk2 Single
         {
-            get => _single;
-            set => SetWithNotify(value, ref _single);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingleAk1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredNonPkSingleAk1Derived : RequiredNonPkSingleAk1
     {
-        private Guid _derivedRootId;
-        private Root _derivedRoot;
-
         public Guid DerivedRootId
         {
-            get => _derivedRootId;
-            set => SetWithNotify(value, ref _derivedRootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root DerivedRoot
         {
-            get => _derivedRoot;
-            set => SetWithNotify(value, ref _derivedRoot);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk1Derived);
 
         public override int GetHashCode()
@@ -2694,22 +2552,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingleAk1MoreDerived : RequiredNonPkSingleAk1Derived
     {
-        private Guid _moreDerivedRootId;
-        private Root _moreDerivedRoot;
-
         public Guid MoreDerivedRootId
         {
-            get => _moreDerivedRootId;
-            set => SetWithNotify(value, ref _moreDerivedRootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Root MoreDerivedRoot
         {
-            get => _moreDerivedRoot;
-            set => SetWithNotify(value, ref _moreDerivedRoot);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk1MoreDerived);
 
         public override int GetHashCode()
@@ -2718,48 +2573,43 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingleAk2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid _backId;
-        private RequiredNonPkSingleAk1 _back;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid BackId
         {
-            get => _backId;
-            set => SetWithNotify(value, ref _backId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public RequiredNonPkSingleAk1 Back
         {
-            get => _back;
-            set => SetWithNotify(value, ref _back);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as RequiredNonPkSingleAk2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class RequiredNonPkSingleAk2Derived : RequiredNonPkSingleAk2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk2Derived);
 
         public override int GetHashCode()
@@ -2768,7 +2618,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class RequiredNonPkSingleAk2MoreDerived : RequiredNonPkSingleAk2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as RequiredNonPkSingleAk2MoreDerived);
 
         public override int GetHashCode()
@@ -2777,77 +2627,67 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingleAk1 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid? _rootId;
-        private Root _root;
-        private OptionalSingleAk2 _single;
-        private OptionalSingleComposite2 _singleComposite;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid? RootId
         {
-            get => _rootId;
-            set => SetWithNotify(value, ref _rootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Root Root
+        public Root? Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleComposite2 SingleComposite
+        public OptionalSingleComposite2? SingleComposite
         {
-            get => _singleComposite;
-            set => SetWithNotify(value, ref _singleComposite);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk2 Single
+        public OptionalSingleAk2? Single
         {
-            get => _single;
-            set => SetWithNotify(value, ref _single);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleAk1;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class OptionalSingleAk1Derived : OptionalSingleAk1
     {
-        private Guid? _derivedRootId;
-        private Root _derivedRoot;
-
         public Guid? DerivedRootId
         {
-            get => _derivedRootId;
-            set => SetWithNotify(value, ref _derivedRootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Root DerivedRoot
+        public Root? DerivedRoot
         {
-            get => _derivedRoot;
-            set => SetWithNotify(value, ref _derivedRoot);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk1Derived);
 
         public override int GetHashCode()
@@ -2856,22 +2696,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingleAk1MoreDerived : OptionalSingleAk1Derived
     {
-        private Guid? _moreDerivedRootId;
-        private Root _moreDerivedRoot;
-
         public Guid? MoreDerivedRootId
         {
-            get => _moreDerivedRootId;
-            set => SetWithNotify(value, ref _moreDerivedRootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Root MoreDerivedRoot
+        public Root? MoreDerivedRoot
         {
-            get => _moreDerivedRoot;
-            set => SetWithNotify(value, ref _moreDerivedRoot);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk1MoreDerived);
 
         public override int GetHashCode()
@@ -2880,89 +2717,79 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingleAk2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private Guid? _backId;
-        private OptionalSingleAk1 _back;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid? BackId
         {
-            get => _backId;
-            set => SetWithNotify(value, ref _backId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk1 Back
+        public OptionalSingleAk1? Back
         {
-            get => _back;
-            set => SetWithNotify(value, ref _back);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleAk2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class OptionalSingleComposite2 : NotifyingEntity
     {
-        private int _id;
-        private Guid _alternateId;
-        private int? _backId;
-        private OptionalSingleAk1 _back;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentAlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? BackId
         {
-            get => _backId;
-            set => SetWithNotify(value, ref _backId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public OptionalSingleAk1 Back
+        public OptionalSingleAk1? Back
         {
-            get => _back;
-            set => SetWithNotify(value, ref _back);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             var other = obj as OptionalSingleComposite2;
-            return _id == other?.Id;
+            return Id == other?.Id;
         }
 
         public override int GetHashCode()
-            => _id;
+            => Id;
     }
 
     protected class OptionalSingleAk2Derived : OptionalSingleAk2
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk2Derived);
 
         public override int GetHashCode()
@@ -2971,7 +2798,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OptionalSingleAk2MoreDerived : OptionalSingleAk2Derived
     {
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj as OptionalSingleAk2MoreDerived);
 
         public override int GetHashCode()
@@ -2980,214 +2807,180 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class OwnerRoot : NotifyingEntity
     {
-        private int _id;
-        private ICollection<OwnedRequired1> _requiredChildren = new ObservableHashSet<OwnedRequired1>(ReferenceEqualityComparer.Instance);
-        private ICollection<OwnedOptional1> _optionalChildren = new ObservableHashSet<OwnedOptional1>(ReferenceEqualityComparer.Instance);
-        private OwnedRequiredSingle1 _requiredSingle;
-        private OwnedOptionalSingle1 _optionalSingle;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public OwnedRequiredSingle1 RequiredSingle
         {
-            get => _requiredSingle;
-            set => SetWithNotify(value, ref _requiredSingle);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public OwnedOptionalSingle1 OptionalSingle
+        public OwnedOptionalSingle1? OptionalSingle
         {
-            get => _optionalSingle;
-            set => SetWithNotify(value, ref _optionalSingle);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public ICollection<OwnedRequired1> RequiredChildren
         {
-            get => _requiredChildren;
-            set => SetWithNotify(value, ref _requiredChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OwnedRequired1>(ReferenceEqualityComparer.Instance);
 
         public ICollection<OwnedOptional1> OptionalChildren
         {
-            get => _optionalChildren;
-            set => SetWithNotify(value, ref _optionalChildren);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OwnedOptional1>(ReferenceEqualityComparer.Instance);
     }
 
     protected class OwnedRequired1 : NotifyingEntity
     {
-        private ICollection<OwnedRequired2> _children = new ObservableHashSet<OwnedRequired2>(ReferenceEqualityComparer.Instance);
-        private string _name;
-
         [Required]
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public ICollection<OwnedRequired2> Children
         {
-            get => _children;
-            set => SetWithNotify(value, ref _children);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OwnedRequired2>(ReferenceEqualityComparer.Instance);
     }
 
     protected class OwnedRequired2 : NotifyingEntity
     {
-        private string _name;
-
         [Required]
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class OwnedOptional1 : NotifyingEntity
     {
-        private ICollection<OwnedOptional2> _children = new ObservableHashSet<OwnedOptional2>(ReferenceEqualityComparer.Instance);
-        private string _name;
-
         [Required]
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public ICollection<OwnedOptional2> Children
         {
-            get => _children;
-            set => SetWithNotify(value, ref _children);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OwnedOptional2>(ReferenceEqualityComparer.Instance);
     }
 
     protected class OwnedOptional2 : NotifyingEntity
     {
-        private string _name;
-
         [Required]
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class OwnedRequiredSingle1 : NotifyingEntity
     {
-        private OwnedRequiredSingle2 _single;
-        private string _name;
-
         [Required]
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public OwnedRequiredSingle2 Single
         {
-            get => _single;
-            set => SetWithNotify(value, ref _single);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class OwnedRequiredSingle2 : NotifyingEntity
     {
-        private string _name;
-
         [Required]
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class OwnedOptionalSingle1 : NotifyingEntity
     {
-        private string _name;
-        private OwnedOptionalSingle2 _single;
-
         [Required]
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public OwnedOptionalSingle2 Single
+        public OwnedOptionalSingle2? Single
         {
-            get => _single;
-            set => SetWithNotify(value, ref _single);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class OwnedOptionalSingle2 : NotifyingEntity
     {
-        private string _name;
-
         [Required]
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class BadCustomer : NotifyingEntity
     {
-        private int _id;
-        private int _status;
-        private ICollection<BadOrder> _badOrders = new ObservableHashSet<BadOrder>(ReferenceEqualityComparer.Instance);
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int Status
         {
-            get => _status;
-            set => SetWithNotify(value, ref _status);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public ICollection<BadOrder> BadOrders
         {
-            get => _badOrders;
-            set => SetWithNotify(value, ref _badOrders);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<BadOrder>(ReferenceEqualityComparer.Instance);
     }
 
     protected class BadOrder : NotifyingEntity
     {
-        private int _id;
-        private int? _badCustomerId;
-        private BadCustomer _badCustomer;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? BadCustomerId
         {
-            get => _badCustomerId;
-            set => SetWithNotify(value, ref _badCustomerId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public BadCustomer BadCustomer
+        public BadCustomer? BadCustomer
         {
-            get => _badCustomer;
-            set => SetWithNotify(value, ref _badCustomer);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
@@ -3195,12 +2988,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected abstract class QuestTask : NotifyingEntity
     {
-        private int _id;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
@@ -3208,596 +2999,498 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class TaskChoice : NotifyingEntity
     {
-        private int _id;
-        private int _questTaskId;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int QuestTaskId
         {
-            get => _questTaskId;
-            set => SetWithNotify(value, ref _questTaskId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class ParentAsAChild : NotifyingEntity
     {
-        private int _id;
-        private int? _childAsAParentId;
-        private ChildAsAParent _childAsAParent;
-
         public bool Filler { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? ChildAsAParentId
         {
-            get => _childAsAParentId;
-            set => SetWithNotify(value, ref _childAsAParentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public ChildAsAParent ChildAsAParent
+        public ChildAsAParent? ChildAsAParent
         {
-            get => _childAsAParent;
-            set => SetWithNotify(value, ref _childAsAParent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class ChildAsAParent : NotifyingEntity
     {
-        private int _id;
-        private ParentAsAChild _parentAsAChild;
-
         public bool Filler { get; set; }
 
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public ParentAsAChild ParentAsAChild
+        public ParentAsAChild? ParentAsAChild
         {
-            get => _parentAsAChild;
-            set => SetWithNotify(value, ref _parentAsAChild);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected abstract class TaskWithChoices : QuestTask
     {
-        private ICollection<TaskChoice> _choices = new ObservableHashSet<TaskChoice>(ReferenceEqualityComparer.Instance);
-
         public ICollection<TaskChoice> Choices
         {
-            get => _choices;
-            set => SetWithNotify(value, ref _choices);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<TaskChoice>(ReferenceEqualityComparer.Instance);
     }
 
     protected class Produce : NotifyingEntity
     {
-        private Guid _produceId;
-        private string _name;
-        private int _barCode;
-
         public Guid ProduceId
         {
-            get => _produceId;
-            set => SetWithNotify(value, ref _produceId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public int BarCode
         {
-            get => _barCode;
-            set => SetWithNotify(value, ref _barCode);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class Bloog : NotifyingEntity
     {
-        private int _id;
-        private IEnumerable<Poost> _poosts = new ObservableHashSet<Poost>(ReferenceEqualityComparer.Instance);
-
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public IEnumerable<Poost> Poosts
         {
-            get => _poosts;
-            set => SetWithNotify(value, ref _poosts);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<Poost>(ReferenceEqualityComparer.Instance);
     }
 
     protected class Poost : NotifyingEntity
     {
-        private int _id;
-        private int? _bloogId;
-        private Bloog _bloog;
-
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int? BloogId
         {
-            get => _bloogId;
-            set => SetWithNotify(value, ref _bloogId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Bloog Bloog
+        public Bloog? Bloog
         {
-            get => _bloog;
-            set => SetWithNotify(value, ref _bloog);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class SharedFkRoot : NotifyingEntity
     {
-        private long _id;
-
-        private ICollection<SharedFkDependant> _dependants
-            = new ObservableHashSet<SharedFkDependant>(ReferenceEqualityComparer.Instance);
-
-        private ICollection<SharedFkParent> _parents
-            = new ObservableHashSet<SharedFkParent>(ReferenceEqualityComparer.Instance);
-
         public long Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public ICollection<SharedFkDependant> Dependants
         {
-            get => _dependants;
-            set => SetWithNotify(value, ref _dependants);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<SharedFkDependant>(ReferenceEqualityComparer.Instance);
 
         public ICollection<SharedFkParent> Parents
         {
-            get => _parents;
-            set => SetWithNotify(value, ref _parents);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<SharedFkParent>(ReferenceEqualityComparer.Instance);
     }
 
     protected class SharedFkParent : NotifyingEntity
     {
-        private long _id;
-        private long? _dependantId;
-        private long _rootId;
-        private SharedFkRoot _root = null!;
-        private SharedFkDependant _dependant;
-
         public long Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public long? DependantId
         {
-            get => _dependantId;
-            set => SetWithNotify(value, ref _dependantId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public long RootId
         {
-            get => _rootId;
-            set => SetWithNotify(value, ref _rootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public SharedFkRoot Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public SharedFkDependant Dependant
+        public SharedFkDependant? Dependant
         {
-            get => _dependant;
-            set => SetWithNotify(value, ref _dependant);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class SharedFkDependant : NotifyingEntity
     {
-        private long _id;
-        private long _rootId;
-        private SharedFkRoot _root = null!;
-        private SharedFkParent _parent = null!;
-
         public long Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public long RootId
         {
-            get => _rootId;
-            set => SetWithNotify(value, ref _rootId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public SharedFkRoot Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
-        public SharedFkParent Parent
+        public SharedFkParent? Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class Owner : NotifyingEntity
     {
-        private int _id;
-        private Owned _owned;
-        private ICollection<Owned> _ownedCollection = new ObservableHashSet<Owned>();
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Owned Owned
         {
-            get => _owned;
-            set => SetWithNotify(value, ref _owned);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public ICollection<Owned> OwnedCollection
         {
-            get => _ownedCollection;
-            set => SetWithNotify(value, ref _ownedCollection);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<Owned>();
     }
 
     [Owned]
     protected class Owned : NotifyingEntity
     {
-        private int _foo;
-        private string _bar;
-
         public int Foo
         {
-            get => _foo;
-            set => SetWithNotify(value, ref _foo);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public string Bar
+        public string? Bar
         {
-            get => _bar;
-            set => SetWithNotify(value, ref _bar);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class OwnerWithKeyedCollection : NotifyingEntity
     {
-        private int _id;
-        private Owned _owned;
-        private OwnedWithKey _ownedWithKey;
-        private ICollection<OwnedWithKey> _ownedCollection = new ObservableHashSet<OwnedWithKey>();
-        private ICollection<OwnedWithPrivateKey> _ownedCollectionPrivateKey = new ObservableHashSet<OwnedWithPrivateKey>();
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Owned Owned
         {
-            get => _owned;
-            set => SetWithNotify(value, ref _owned);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public OwnedWithKey OwnedWithKey
         {
-            get => _ownedWithKey;
-            set => SetWithNotify(value, ref _ownedWithKey);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public ICollection<OwnedWithKey> OwnedCollection
         {
-            get => _ownedCollection;
-            set => SetWithNotify(value, ref _ownedCollection);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OwnedWithKey>();
 
         public ICollection<OwnedWithPrivateKey> OwnedCollectionPrivateKey
         {
-            get => _ownedCollectionPrivateKey;
-            set => SetWithNotify(value, ref _ownedCollectionPrivateKey);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OwnedWithPrivateKey>();
     }
 
     [Owned]
     protected class OwnedWithKey : NotifyingEntity
     {
-        private int _foo;
-        private string _bar;
-        private int _ownedWithKeyId;
-
         public int OwnedWithKeyId
         {
-            get => _ownedWithKeyId;
-            set => SetWithNotify(value, ref _ownedWithKeyId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int Foo
         {
-            get => _foo;
-            set => SetWithNotify(value, ref _foo);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public string Bar
+        public string? Bar
         {
-            get => _bar;
-            set => SetWithNotify(value, ref _bar);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     [Owned]
     protected class OwnedWithPrivateKey : NotifyingEntity
     {
-        private int _foo;
-        private string _bar;
-        private int _privateKey;
-
         private int PrivateKey
         {
-            get => _privateKey;
-            set => SetWithNotify(value, ref _privateKey);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int Foo
         {
-            get => _foo;
-            set => SetWithNotify(value, ref _foo);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public string Bar
+        public string? Bar
         {
-            get => _bar;
-            set => SetWithNotify(value, ref _bar);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class OwnerWithNonCompositeOwnedCollection : NotifyingEntity
     {
-        private int _id;
-        private ICollection<NonCompositeOwnedCollection> _owned = new ObservableHashSet<NonCompositeOwnedCollection>();
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public ICollection<NonCompositeOwnedCollection> Owned
         {
-            get => _owned;
-            set => SetWithNotify(value, ref _owned);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<NonCompositeOwnedCollection>();
     }
 
     protected class NonCompositeOwnedCollection : NotifyingEntity
     {
-        private string _foo;
-
         public string Foo
         {
-            get => _foo;
-            set => SetWithNotify(value, ref _foo);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class OwnerNoKeyGeneration : NotifyingEntity
     {
-        private int _id;
-        private OwnedNoKeyGeneration _owned;
-        private ICollection<OwnedNoKeyGeneration> _ownedCollection = new ObservableHashSet<OwnedNoKeyGeneration>();
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public OwnedNoKeyGeneration Owned
         {
-            get => _owned;
-            set => SetWithNotify(value, ref _owned);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public ICollection<OwnedNoKeyGeneration> OwnedCollection
         {
-            get => _ownedCollection;
-            set => SetWithNotify(value, ref _ownedCollection);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<OwnedNoKeyGeneration>();
     }
 
     [Owned]
     protected class OwnedNoKeyGeneration : NotifyingEntity
     {
-        private int _foo;
-        private string _bar;
-
         public int Foo
         {
-            get => _foo;
-            set => SetWithNotify(value, ref _foo);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public string Bar
+        public string? Bar
         {
-            get => _bar;
-            set => SetWithNotify(value, ref _bar);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     [PrimaryKey("PartnerId", "ProviderId")]
     protected abstract class ProviderContract : NotifyingEntity
     {
-        private Partner _partner;
-
         public Partner Partner
         {
-            get => _partner;
-            set => SetWithNotify(value, ref _partner);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class ProviderContract1 : ProviderContract
     {
-        private string _details;
-
         public string Details
         {
-            get => _details;
-            set => SetWithNotify(value, ref _details);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class ProviderContract2 : ProviderContract
     {
-        private string _details;
-
         public string Details
         {
-            get => _details;
-            set => SetWithNotify(value, ref _details);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class Partner : NotifyingEntity
     {
-        private string _id;
-
         public string Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class Provider : NotifyingEntity
     {
-        private string _id;
-
         public string Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class EventDescriptorZ : NotifyingEntity
     {
-        private int _id;
-        private EntityZ _entityZ;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public EntityZ EntityZ
         {
-            get => _entityZ;
-            set => SetWithNotify(value, ref _entityZ);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class EntityZ : NotifyingEntity
     {
-        private long _id;
-
         public long Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class City : NotifyingEntity
     {
-        private int _id;
-        private ICollection<College> _colleges = new ObservableHashSet<College>();
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public ICollection<College> Colleges
         {
-            get => _colleges;
-            set => SetWithNotify(value, ref _colleges);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<College>();
     }
 
     protected class College : NotifyingEntity
     {
-        private int _id;
-        private int _cityId;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int CityId
         {
-            get => _cityId;
-            set => SetWithNotify(value, ref _cityId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class Cruiser : NotifyingEntity
     {
-        private int _cruiserId;
-        private int _idUserState;
-        private AccessState _userState;
+        private AccessState _userState = null!;
 
         public int CruiserId
         {
-            get => _cruiserId;
-            set => SetWithNotify(value, ref _cruiserId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int IdUserState
         {
-            get => _idUserState;
-            set => SetWithNotify(value, ref _idUserState);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual AccessState UserState
@@ -3809,13 +3502,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class AccessState : NotifyingEntity
     {
-        private int _accessStateId;
         private ICollection<Cruiser> _users = new ObservableHashSet<Cruiser>();
 
         public int AccessStateId
         {
-            get => _accessStateId;
-            set => SetWithNotify(value, ref _accessStateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual ICollection<Cruiser> Users
@@ -3827,20 +3519,18 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class CruiserWithSentinel : NotifyingEntity
     {
-        private int _cruiserWithSentinelId;
-        private int _idUserState;
-        private AccessStateWithSentinel _userState;
+        private AccessStateWithSentinel _userState = null!;
 
         public int CruiserWithSentinelId
         {
-            get => _cruiserWithSentinelId;
-            set => SetWithNotify(value, ref _cruiserWithSentinelId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int IdUserState
         {
-            get => _idUserState;
-            set => SetWithNotify(value, ref _idUserState);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual AccessStateWithSentinel UserState
@@ -3852,13 +3542,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class AccessStateWithSentinel : NotifyingEntity
     {
-        private int _accessStateWithSentinelId;
         private ICollection<CruiserWithSentinel> _users = new ObservableHashSet<CruiserWithSentinel>();
 
         public int AccessStateWithSentinelId
         {
-            get => _accessStateWithSentinelId;
-            set => SetWithNotify(value, ref _accessStateWithSentinelId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual ICollection<CruiserWithSentinel> Users
@@ -3868,50 +3557,84 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    protected class SomethingCategory : NotifyingEntity
+    protected class ParentWithClientSetDefault : NotifyingEntity
     {
-        private int _id;
-        private string _name;
+        private ICollection<ChildWithClientSetDefault> _children = new ObservableHashSet<ChildWithClientSetDefault>();
 
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
+        }
+
+        public virtual ICollection<ChildWithClientSetDefault> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class ChildWithClientSetDefault : NotifyingEntity
+    {
+        private ParentWithClientSetDefault _parent = null!;
+
+        public int Id
+        {
+            get;
+            set => SetWithNotify(value, ref field);
+        }
+
+        public int ParentId
+        {
+            get;
+            set => SetWithNotify(value, ref field);
+        }
+
+        public virtual ParentWithClientSetDefault Parent
+        {
+            get => _parent;
+            set => SetWithNotify(value, ref _parent);
+        }
+    }
+
+    protected class SomethingCategory : NotifyingEntity
+    {
+        public int Id
+        {
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class Something : NotifyingEntity
     {
-        private int _id;
-        private int _categoryId;
-        private string _name;
-        private SomethingCategory _somethingCategory;
-        private SomethingOfCategoryA _somethingOfCategoryA;
-        private SomethingOfCategoryB _somethingOfCategoryB;
+        private SomethingCategory _somethingCategory = null!;
+        private SomethingOfCategoryA _somethingOfCategoryA = null!;
+        private SomethingOfCategoryB _somethingOfCategoryB = null!;
 
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int CategoryId
         {
-            get => _categoryId;
-            set => SetWithNotify(value, ref _categoryId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public virtual SomethingCategory SomethingCategory
         {
@@ -3934,21 +3657,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class SomethingOfCategoryA : NotifyingEntity
     {
-        private int _somethingId;
-        private string _name;
-        private Something _something;
+        private Something _something = null!;
 
         public int SomethingId
         {
-            get => _somethingId;
-            set => SetWithNotify(value, ref _somethingId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public virtual Something Something
         {
@@ -3959,29 +3680,26 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class SomethingOfCategoryB : NotifyingEntity
     {
-        private int _somethingId;
-        private int _categoryId;
-        private string _name;
-        private SomethingCategory _somethingCategory;
-        private Something _something;
+        private SomethingCategory _somethingCategory = null!;
+        private Something _something = null!;
 
         public int SomethingId
         {
-            get => _somethingId;
-            set => SetWithNotify(value, ref _somethingId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int CategoryId
         {
-            get => _categoryId;
-            set => SetWithNotify(value, ref _categoryId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string Name
         {
-            get => _name;
-            set => SetWithNotify(value, ref _name);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public virtual SomethingCategory SomethingCategory
         {
@@ -3998,175 +3716,149 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class Parsnip : NotifyingEntity
     {
-        private int _id;
-        private Carrot _carrot;
-        private Swede _swede;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Carrot Carrot
+        public Carrot? Carrot
         {
-            get => _carrot;
-            set => SetWithNotify(value, ref _carrot);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Swede Swede
+        public Swede? Swede
         {
-            get => _swede;
-            set => SetWithNotify(value, ref _swede);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class Carrot : NotifyingEntity
     {
-        private int _id;
-        private int _parsnipId;
-        private Parsnip _parsnip;
-        private ICollection<Turnip> _turnips = new ObservableHashSet<Turnip>();
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int ParsnipId
         {
-            get => _parsnipId;
-            set => SetWithNotify(value, ref _parsnipId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Parsnip Parsnip
         {
-            get => _parsnip;
-            set => SetWithNotify(value, ref _parsnip);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public ICollection<Turnip> Turnips
         {
-            get => _turnips;
-            set => SetWithNotify(value, ref _turnips);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<Turnip>();
     }
 
     protected class Turnip : NotifyingEntity
     {
-        private int _id;
-        private int _carrotsId;
-        private Carrot _carrot;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int CarrotsId
         {
-            get => _carrotsId;
-            set => SetWithNotify(value, ref _carrotsId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Carrot Carrot
+        public Carrot? Carrot
         {
-            get => _carrot;
-            set => SetWithNotify(value, ref _carrot);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class Swede : NotifyingEntity
     {
-        private int _id;
-        private int _parsnipId;
-        private Parsnip _parsnip;
-        private ICollection<TurnipSwede> _turnipSwede = new ObservableHashSet<TurnipSwede>();
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int ParsnipId
         {
-            get => _parsnipId;
-            set => SetWithNotify(value, ref _parsnipId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Parsnip Parsnip
         {
-            get => _parsnip;
-            set => SetWithNotify(value, ref _parsnip);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public ICollection<TurnipSwede> TurnipSwedes
         {
-            get => _turnipSwede;
-            set => SetWithNotify(value, ref _turnipSwede);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<TurnipSwede>();
     }
 
     protected class TurnipSwede : NotifyingEntity
     {
-        private int _id;
-        private int _swedesId;
-        private Swede _swede;
-        private int _turnipId;
-        private Turnip _turnip;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int SwedesId
         {
-            get => _swedesId;
-            set => SetWithNotify(value, ref _swedesId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public Swede Swede
+        public Swede? Swede
         {
-            get => _swede;
-            set => SetWithNotify(value, ref _swede);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int TurnipId
         {
-            get => _turnipId;
-            set => SetWithNotify(value, ref _turnipId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Turnip Turnip
         {
-            get => _turnip;
-            set => SetWithNotify(value, ref _turnip);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class Bayaz : NotifyingEntity
     {
-        private int _bayazId;
-        private string _bayazName;
         private ICollection<FirstLaw> _firstLaw = new ObservableHashSet<FirstLaw>();
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int BayazId
         {
-            get => _bayazId;
-            set => SetWithNotify(value, ref _bayazId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string BayazName
         {
-            get => _bayazName;
-            set => SetWithNotify(value, ref _bayazName);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public virtual ICollection<FirstLaw> FirstLaw
         {
@@ -4177,29 +3869,26 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class FirstLaw : NotifyingEntity
     {
-        private int _firstLawId;
-        private string _firstLawName;
-        private int _bayazId;
         private Bayaz _bayaz = null!;
         private readonly ICollection<SecondLaw> _secondLaw = new ObservableHashSet<SecondLaw>();
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int FirstLawId
         {
-            get => _firstLawId;
-            set => SetWithNotify(value, ref _firstLawId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string FirstLawName
         {
-            get => _firstLawName;
-            set => SetWithNotify(value, ref _firstLawName);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public int BayazId
         {
-            get => _bayazId;
-            set => SetWithNotify(value, ref _bayazId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual Bayaz Bayaz
@@ -4214,29 +3903,26 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class SecondLaw : NotifyingEntity
     {
-        private int _secondLawId;
-        private string _secondLawName;
-        private int _firstLawId;
         private FirstLaw _firstLaw = null!;
         private readonly ICollection<ThirdLaw> _thirdLaw = new ObservableHashSet<ThirdLaw>();
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int SecondLawId
         {
-            get => _secondLawId;
-            set => SetWithNotify(value, ref _secondLawId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string SecondLawName
         {
-            get => _secondLawName;
-            set => SetWithNotify(value, ref _secondLawName);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public int FirstLawId
         {
-            get => _firstLawId;
-            set => SetWithNotify(value, ref _firstLawId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual FirstLaw FirstLaw
@@ -4251,28 +3937,25 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class ThirdLaw : NotifyingEntity
     {
-        private int _thirdLawId;
-        private string _thirdLawName;
-        private int _secondLawId;
         private SecondLaw _secondLaw = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int ThirdLawId
         {
-            get => _thirdLawId;
-            set => SetWithNotify(value, ref _thirdLawId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string ThirdLawName
         {
-            get => _thirdLawName;
-            set => SetWithNotify(value, ref _thirdLawName);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
 
         public int SecondLawId
         {
-            get => _secondLawId;
-            set => SetWithNotify(value, ref _secondLawId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual SecondLaw SecondLaw
@@ -4284,13 +3967,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class NaiveParent : NotifyingEntity
     {
-        private Guid _id;
         private readonly ICollection<SneakyChild> _children = new ObservableHashSet<SneakyChild>();
 
         public Guid Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual ICollection<SneakyChild> Children
@@ -4299,20 +3981,18 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected class SneakyChild : NotifyingEntity
     {
-        private Guid _id;
-        private Guid _parentId;
         private NaiveParent _parent = null!;
 
         public Guid Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual NaiveParent Parent
@@ -4324,208 +4004,174 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected abstract class Parsnip2 : NotifyingEntity
     {
-        private int _id;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class Lettuce2 : Parsnip2
     {
-        private Beetroot2 _root;
-
-        public Beetroot2 Root
+        public Beetroot2? Root
         {
-            get => _root;
-            set => SetWithNotify(value, ref _root);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class RootStructure : NotifyingEntity
     {
-        private Guid _radish2Id;
-        private int _parsnip2Id;
-
         public Guid Radish2Id
         {
-            get => _radish2Id;
-            set => SetWithNotify(value, ref _radish2Id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int Parsnip2Id
         {
-            get => _parsnip2Id;
-            set => SetWithNotify(value, ref _parsnip2Id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class Radish2 : NotifyingEntity
     {
-        private Guid _id;
-        private ICollection<Parsnip2> _entities = new ObservableHashSet<Parsnip2>();
-
         public Guid Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public ICollection<Parsnip2> Entities
         {
-            get => _entities;
-            set => SetWithNotify(value, ref _entities);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = new ObservableHashSet<Parsnip2>();
     }
 
     protected class Beetroot2 : Parsnip2;
 
     protected class ParentEntity32084 : NotifyingEntity
     {
-        private Guid _id;
-        private ChildBaseEntity32084 _child;
-
         public Guid Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public ChildBaseEntity32084 Child
         {
-            get => _child;
-            set => SetWithNotify(value, ref _child);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected abstract class ChildBaseEntity32084 : NotifyingEntity
     {
-        private Guid _id;
-        private Guid _parentId;
-
         public Guid Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class ChildEntity32084 : ChildBaseEntity32084
     {
-        private string _childValue;
-
         public string ChildValue
         {
-            get => _childValue;
-            set => SetWithNotify(value, ref _childValue);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class StableParent32084 : NotifyingEntity
     {
-        private Guid _id;
-        private StableChild32084 _child;
-
         public Guid Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public StableChild32084 Child
         {
-            get => _child;
-            set => SetWithNotify(value, ref _child);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = null!;
     }
 
     protected class StableChild32084 : NotifyingEntity
     {
-        private Guid _id;
-        private Guid _parentId;
-
         public Guid Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class SneakyUncle32084 : NotifyingEntity
     {
-        private Guid _id;
-        private Guid? _brotherId;
-        private StableParent32084 _brother;
-
         public Guid Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid? BrotherId
         {
-            get => _brotherId;
-            set => SetWithNotify(value, ref _brotherId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
-        public StableParent32084 Brother
+        public StableParent32084? Brother
         {
-            get => _brother;
-            set => SetWithNotify(value, ref _brother);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class CompositeKeyWith<T> : NotifyingEntity
         where T : new()
     {
-        private Guid _targetId;
-        private Guid _sourceId;
-        private T _primaryGroup;
-
         public Guid TargetId
         {
-            get => _targetId;
-            set => SetWithNotify(value, ref _targetId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Guid SourceId
         {
-            get => _sourceId;
-            set => SetWithNotify(value, ref _sourceId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public T PrimaryGroup
         {
-            get => _primaryGroup;
-            set => SetWithNotify(value, ref _primaryGroup);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = default!;
     }
 
     protected class BoolOnlyKey<T> : NotifyingEntity
         where T : new()
     {
-        private T _primaryGroup;
-
         public T PrimaryGroup
         {
-            get => _primaryGroup;
-            set => SetWithNotify(value, ref _primaryGroup);
-        }
+            get;
+            set => SetWithNotify(value, ref field);
+        } = default!;
     }
 
     protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged
@@ -4537,8 +4183,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             NotifyChanged(propertyName);
         }
 
-        public event PropertyChangingEventHandler PropertyChanging;
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private void NotifyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -4552,9 +4198,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
-        Func<DbContext, Task> nestedTestOperation1 = null,
-        Func<DbContext, Task> nestedTestOperation2 = null,
-        Func<DbContext, Task> nestedTestOperation3 = null)
+        Func<DbContext, Task>? nestedTestOperation1 = null,
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);

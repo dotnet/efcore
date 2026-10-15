@@ -3,14 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class TwoDatabasesSqlServerTest(SqlServerFixture fixture) : TwoDatabasesTestBase(fixture), IClassFixture<SqlServerFixture>
 {
     protected new SqlServerFixture Fixture
         => (SqlServerFixture)base.Fixture;
 
-    [ConditionalTheory(
+    [Theory(
         Skip = "In SQL Server specifically, injection of Application Name into the connection string causes this test to fail (#36548)")]
     public override void Can_set_connection_string_in_interceptor(bool withConnectionString, bool withNullConnectionString)
         => base.Can_set_connection_string_in_interceptor(withConnectionString, withNullConnectionString);
@@ -21,7 +19,7 @@ public class TwoDatabasesSqlServerTest(SqlServerFixture fixture) : TwoDatabasesT
         bool withNullConnectionString = false)
         => withConnectionString
             ? withNullConnectionString
-                ? optionsBuilder.UseSqlServer((string)null)
+                ? optionsBuilder.UseSqlServer((string)null!)
                 : optionsBuilder.UseSqlServer(DummyConnectionString)
             : optionsBuilder.UseSqlServer();
 

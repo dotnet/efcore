@@ -101,8 +101,8 @@ public sealed class TableValuedFunctionQueryRootExpression : EntityQueryRootExpr
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TableValuedFunctionQueryRootExpression queryRootExpression
-                && Equals(queryRootExpression));
+                || (obj is TableValuedFunctionQueryRootExpression queryRootExpression
+                    && Equals(queryRootExpression)));
 
     private bool Equals(TableValuedFunctionQueryRootExpression queryRootExpression)
         => base.Equals(queryRootExpression)

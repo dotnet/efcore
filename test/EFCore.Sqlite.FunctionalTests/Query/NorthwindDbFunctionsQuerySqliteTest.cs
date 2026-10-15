@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRelationalTestBase<
     NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
@@ -16,15 +14,15 @@ public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRela
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Glob(bool async)
     {
         await AssertCount(
             async,
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
-            c => EF.Functions.Glob(c.ContactName, "*M*"),
-            c => c.ContactName.Contains("M"));
+            c => EF.Functions.Glob(c.ContactName!, "*M*"),
+            c => c.ContactName!.Contains("M"));
 
         AssertSql(
             """
@@ -34,7 +32,7 @@ WHERE "c"."ContactName" GLOB '*M*'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Glob_negated(bool async)
     {
         await AssertCount(

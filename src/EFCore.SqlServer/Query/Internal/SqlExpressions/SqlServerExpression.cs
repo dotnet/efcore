@@ -87,7 +87,7 @@ public static class SqlServerExpression
                 if (enumerableExpression.Predicate != null)
                 {
                     modifiedArgument = sqlExpressionFactory.Case(
-                        new List<CaseWhenClause> { new(enumerableExpression.Predicate, modifiedArgument) },
+                        [new CaseWhenClause(enumerableExpression.Predicate, modifiedArgument)],
                         elseResult: null);
                 }
 

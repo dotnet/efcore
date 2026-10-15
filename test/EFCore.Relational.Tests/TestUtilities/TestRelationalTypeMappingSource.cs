@@ -148,7 +148,7 @@ public class TestRelationalTypeMappingSource(
                     : storeType;
     }
 
-    protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+    protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType;
         var storeTypeName = mappingInfo.StoreTypeName;
@@ -163,7 +163,7 @@ public class TestRelationalTypeMappingSource(
                 var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
 
                 return new TestStringTypeMapping(
-                    storeTypeName ?? baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
+                    storeTypeName ?? (baseName + "(" + (size == null ? "max" : size.ToString()) + ")"),
                     isAnsi ? DbType.AnsiString : null,
                     !isAnsi,
                     size,
@@ -182,7 +182,7 @@ public class TestRelationalTypeMappingSource(
 
                 return new ByteArrayTypeMapping(
                     storeTypeName
-                    ?? (isFixedLength ? "just_binary_fixed(" : "just_binary(") + (size == null ? "max" : size.ToString()) + ")",
+                    ?? ((isFixedLength ? "just_binary_fixed(" : "just_binary(") + (size == null ? "max" : size.ToString()) + ")"),
                     DbType.Binary,
                     size);
             }
@@ -192,23 +192,17 @@ public class TestRelationalTypeMappingSource(
             {
                 var precision = mappingInfo.Precision;
                 var scale = mappingInfo.Scale;
-                if (precision == _defaultDecimalMapping.Precision
-                    && scale == _defaultDecimalMapping.Scale)
-                {
-                    return _defaultDecimalMapping;
-                }
-
-                if (scale is null or 0)
-                {
-                    return new DecimalTypeMapping(
-                        "decimal_mapping(" + precision + ")",
-                        precision: precision);
-                }
-
-                return new DecimalTypeMapping(
-                    "decimal_mapping(" + precision + "," + scale + ")",
-                    precision: precision,
-                    scale: scale);
+                return precision == _defaultDecimalMapping.Precision
+                    && scale == _defaultDecimalMapping.Scale
+                        ? _defaultDecimalMapping
+                        : scale is null or 0
+                            ? new DecimalTypeMapping(
+                                "decimal_mapping(" + precision + ")",
+                                precision: precision)
+                            : new DecimalTypeMapping(
+                                "decimal_mapping(" + precision + "," + scale + ")",
+                                precision: precision,
+                                scale: scale);
             }
 
             if (_simpleMappings.TryGetValue(clrType, out var mapping))
@@ -227,8 +221,8 @@ public class TestRelationalTypeMappingSource(
                 : null;
     }
 
-    protected override string ParseStoreTypeName(
-        string storeTypeName,
+    protected override string? ParseStoreTypeName(
+        string? storeTypeName,
         ref bool? unicode,
         ref int? size,
         ref int? precision,

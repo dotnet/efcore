@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
-#nullable disable
-
 public class OperatorsData : ISetSource
 {
     public static readonly OperatorsData Instance = new();
@@ -130,17 +128,11 @@ public class OperatorsData : ISetSource
             return (IQueryable<TEntity>)OperatorEntitiesNullableBool.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(OperatorEntityDateTimeOffset))
-        {
-            return (IQueryable<TEntity>)OperatorEntitiesDateTimeOffset.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(OperatorEntityNullableDateTimeOffset))
-        {
-            return (IQueryable<TEntity>)OperatorEntitiesNullableDateTimeOffset.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(OperatorEntityDateTimeOffset)
+            ? (IQueryable<TEntity>)OperatorEntitiesDateTimeOffset.AsQueryable()
+            : typeof(TEntity) == typeof(OperatorEntityNullableDateTimeOffset)
+                ? (IQueryable<TEntity>)OperatorEntitiesNullableDateTimeOffset.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     public IReadOnlyList<OperatorEntityString> CreateStrings()

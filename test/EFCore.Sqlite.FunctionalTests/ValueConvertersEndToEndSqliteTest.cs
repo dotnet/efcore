@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class ValueConvertersEndToEndSqliteTest(ValueConvertersEndToEndSqliteTest.ValueConvertersEndToEndSqliteFixture fixture)
     : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndSqliteTest.ValueConvertersEndToEndSqliteFixture>(fixture)
 {
-    [ConditionalTheory,
+    [Theory,
      InlineData(nameof(ConvertingEntity.BoolAsChar), "TEXT", false),
      InlineData(nameof(ConvertingEntity.BoolAsNullableChar), "TEXT", false),
      InlineData(nameof(ConvertingEntity.BoolAsString), "TEXT", false),

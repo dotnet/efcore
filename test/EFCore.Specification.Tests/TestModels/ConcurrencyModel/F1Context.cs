@@ -3,19 +3,17 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public class F1Context(DbContextOptions options) : PoolableDbContext(options)
 {
-    public DbSet<Team> Teams { get; set; }
-    public DbSet<Driver> Drivers { get; set; }
-    public DbSet<Sponsor> Sponsors { get; set; }
-    public DbSet<Engine> Engines { get; set; }
-    public DbSet<EngineSupplier> EngineSuppliers { get; set; }
-    public DbSet<Fan> Fans { get; set; }
-    public DbSet<FanTpt> FanTpts { get; set; }
-    public DbSet<FanTpc> FanTpcs { get; set; }
-    public DbSet<Circuit> Circuits { get; set; }
+    public DbSet<Team> Teams { get; set; } = null!;
+    public DbSet<Driver> Drivers { get; set; } = null!;
+    public DbSet<Sponsor> Sponsors { get; set; } = null!;
+    public DbSet<Engine> Engines { get; set; } = null!;
+    public DbSet<EngineSupplier> EngineSuppliers { get; set; } = null!;
+    public DbSet<Fan> Fans { get; set; } = null!;
+    public DbSet<FanTpt> FanTpts { get; set; } = null!;
+    public DbSet<FanTpc> FanTpcs { get; set; } = null!;
+    public DbSet<Circuit> Circuits { get; set; } = null!;
 
     public static void AddSeedData(F1Context context)
     {

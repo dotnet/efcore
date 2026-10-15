@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ConcurrencyDetectorEnabledSqlServerTest : ConcurrencyDetectorEnabledRelationalTestBase<
     ConcurrencyDetectorEnabledSqlServerTest.ConcurrencyDetectorSqlServerFixture>
 {

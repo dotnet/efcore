@@ -10,7 +10,7 @@ public class BufferedDataReaderTest
 {
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Metadata_methods_return_expected_results(bool async)
     {
         var reader = new FakeDbDataReader(["columnName"], [[new object()], [new object()]]);
@@ -35,7 +35,7 @@ public class BufferedDataReaderTest
         Assert.Equal(2, bufferedDataReader.RecordsAffected);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Manipulation_methods_perform_expected_actions(bool async)
     {
         var reader = new FakeDbDataReader(
@@ -105,7 +105,7 @@ public class BufferedDataReaderTest
         Assert.True(bufferedDataReader.IsClosed);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Initialize_is_idempotent(bool async)
     {
         var reader = new FakeDbDataReader(["name"], [[new object()]]);
@@ -136,7 +136,7 @@ public class BufferedDataReaderTest
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Data_methods_return_expected_results(bool async)
     {
         await Verify_get_method_returns_supplied_value(true, async);
@@ -177,7 +177,7 @@ public class BufferedDataReaderTest
             columnType = typeof(object);
         }
 
-        var getFieldValueMethod = typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetFieldValue)).MakeGenericMethod(columnType);
+        var getFieldValueMethod = typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetFieldValue))!.MakeGenericMethod(columnType);
         var prm = Expression.Parameter(typeof(DbDataReader), "r");
         var getFieldValueLambda = Expression.Lambda(
             Expression.Call(prm, getFieldValueMethod, Expression.Constant(0)),
@@ -213,7 +213,7 @@ public class BufferedDataReaderTest
         // use the specific reader.GetXXX method
         var readerMethod = GetReaderMethod(typeof(T));
         return Verify_method_result(
-            r => (T)readerMethod.Invoke(r, [0]), async, value, [value]);
+            r => (T)readerMethod.Invoke(r, [0])!, async, value, [value!]);
     }
 
     private static MethodInfo GetReaderMethod(Type type)

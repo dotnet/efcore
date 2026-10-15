@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class MigrationCommandListBuilderTest
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void MigrationCommandListBuilder_groups_multiple_statements_into_one_batch(bool suppressTransaction)
     {
         var commandListBuilder = CreateBuilder();
@@ -35,7 +35,7 @@ Statement3
             ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void MigrationCommandListBuilder_correctly_produces_multiple_batches(bool suppressTransaction)
     {
         var commandListBuilder = CreateBuilder();
@@ -81,7 +81,7 @@ Statement6
             ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void MigrationCommandListBuilder_ignores_empty_batches(bool suppressTransaction)
     {
         var commandListBuilder = CreateBuilder();

@@ -22,25 +22,25 @@ internal class DatabaseColumnRef : DatabaseColumn
         set => throw new NotImplementedException();
     }
 
-    public override string StoreType
+    public override string? StoreType
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override string DefaultValueSql
+    public override string? DefaultValueSql
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override string ComputedColumnSql
+    public override string? ComputedColumnSql
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override string Comment
+    public override string? Comment
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();

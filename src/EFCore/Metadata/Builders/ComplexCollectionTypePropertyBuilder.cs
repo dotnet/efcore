@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///         and it is not designed to be directly constructed in your application code.
 ///     </para>
 ///     <para>
-///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling complex types and relationships</see> for more information and
+///         See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and
 ///         examples.
 ///     </para>
 /// </remarks>
@@ -298,7 +298,7 @@ public class ComplexCollectionTypePropertyBuilder : IInfrastructure<IConventionP
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexCollectionTypePropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion>()
+    TConversion>()
         => HasConversion(typeof(TConversion));
 
     /// <summary>
@@ -341,7 +341,7 @@ public class ComplexCollectionTypePropertyBuilder : IInfrastructure<IConventionP
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexCollectionTypePropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion>(
+    TConversion>(
         ValueComparer? valueComparer)
         => HasConversion(typeof(TConversion), valueComparer);
 
@@ -442,9 +442,9 @@ public class ComplexCollectionTypePropertyBuilder : IInfrastructure<IConventionP
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexCollectionTypePropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer>()
+    TComparer>()
         where TComparer : ValueComparer
         => HasConversion(typeof(TConversion), typeof(TComparer));
 
@@ -458,11 +458,11 @@ public class ComplexCollectionTypePropertyBuilder : IInfrastructure<IConventionP
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexCollectionTypePropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer,
+    TComparer,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TProviderComparer>()
+    TProviderComparer>()
         where TComparer : ValueComparer
         where TProviderComparer : ValueComparer
         => HasConversion(typeof(TConversion), typeof(TComparer), typeof(TProviderComparer));

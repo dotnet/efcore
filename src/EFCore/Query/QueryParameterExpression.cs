@@ -79,8 +79,8 @@ public class QueryParameterExpression : Expression, IPrintableExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is QueryParameterExpression queryParameterExpression
-                && Equals(queryParameterExpression));
+                || (obj is QueryParameterExpression queryParameterExpression
+                    && Equals(queryParameterExpression)));
 
     private bool Equals(QueryParameterExpression queryParameterExpression)
         => Name == queryParameterExpression.Name
