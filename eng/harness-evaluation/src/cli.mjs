@@ -4,7 +4,7 @@ import { rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { loadEvalWithParams } from '@microsoft/vally';
 import { prepareComparison } from './comparison.mjs';
-import { defaultJudgeTimeoutMs, judgeTimeoutLimits } from './judge-timeout.mjs';
+import { judgeTimeoutLimits } from './judge-timeout.mjs';
 import {
   defaultRepoRoot,
   findExperimentRunDirectory,
@@ -117,15 +117,13 @@ async function evaluate(args) {
     EVAL_TIMEOUT: evalTimeout,
   }).filter(([, value]) => value !== undefined));
   const { spec: treatmentSpec } = await loadEvalWithParams(evalPath, { cliParams });
-  const resolvedJudgeTimeout = treatmentSpec.defaults?.judge_timeout ?? `${defaultJudgeTimeoutMs}ms`;
+  const resolvedJudgeTimeout = treatmentSpec.defaults?.judge_timeout;
   judgeTimeoutLimits(timeoutMilliseconds(resolvedJudgeTimeout, 'defaults.judge_timeout'));
-  if (judgeTimeout !== undefined && treatmentSpec.defaults?.judge_timeout !== judgeTimeout) {
+  if (judgeTimeout !== undefined && resolvedJudgeTimeout !== judgeTimeout) {
     throw new Error('defaults.judge_timeout must use the JUDGE_TIMEOUT parameter to support --judge-timeout.');
   }
-  if (treatmentSpec.scoring?.timeout !== undefined) {
-    timeoutMilliseconds(treatmentSpec.scoring.timeout, 'scoring.timeout');
-  }
-  if (scoringTimeout !== undefined && treatmentSpec.scoring?.timeout !== scoringTimeout) {
+  timeoutMilliseconds(treatmentSpec.scoring?.timeout, 'scoring.timeout');
+  if (scoringTimeout !== undefined && treatmentSpec.scoring.timeout !== scoringTimeout) {
     throw new Error('scoring.timeout must use the SCORING_TIMEOUT parameter to support --scoring-timeout.');
   }
   if (evalTimeout !== undefined
