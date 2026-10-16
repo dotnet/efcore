@@ -125,6 +125,8 @@ After creating the workflow:
 - [ ] Error handling doesn't silently swallow failures
 - [ ] No secrets or tokens are hardcoded
 - [ ] Workflow doesn't create infinite loops (e.g., a workflow that triggers itself)
+- [ ] Artifact discovery uses the owning run manifest, not recursive filename counts that include derived copies
+- [ ] Trusted default-branch tooling accepts older candidate configurations that omit newly optional settings
 
 ## Existing Workflows in This Repository
 

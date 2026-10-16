@@ -760,10 +760,16 @@ childProcess.spawnSync = (executable, args, options) => {
 };
 syncBuiltinESMExports();
 `);
-    await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'),
-      evalYaml('example').replace('${SCORING_TIMEOUT=10m}', '${SCORING_TIMEOUT=12m}')
-        .replace('${JUDGE_TIMEOUT=10m}', '${JUDGE_TIMEOUT=11m}'));
-    for (const options of [[], ['--judge-timeout', '20m'], ['--scoring-timeout', '15m', '--timeout', '30m']]) {
+    const spec = evalYaml('example').replace('${SCORING_TIMEOUT=10m}', '${SCORING_TIMEOUT=12m}')
+      .replace('${JUDGE_TIMEOUT=10m}', '${JUDGE_TIMEOUT=11m}');
+    for (const { options, judgeTimeout, legacy = false } of [
+      { options: [], judgeTimeout: '11m' },
+      { options: ['--judge-timeout', '20m'], judgeTimeout: '20m' },
+      { options: ['--scoring-timeout', '15m', '--timeout', '30m'], judgeTimeout: '11m' },
+      { options: [], judgeTimeout: '600000ms', legacy: true },
+    ]) {
+      await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'),
+        legacy ? spec.replace(/^  (?:judge_timeout|timeout):.*\n/gm, '') : spec);
       const result = spawnSync(process.execPath, [
         '--import', pathToFileURL(preloadPath).href,
         fileURLToPath(new URL('../src/cli.mjs', import.meta.url)),
@@ -773,7 +779,7 @@ syncBuiltinESMExports();
       const invocation = JSON.parse(await readFile(capturePath, 'utf8'));
       assert.equal(invocation.executable, process.execPath);
       assert.equal(invocation.args[0], fileURLToPath(new URL('../src/vally.mjs', import.meta.url)));
-      assert.deepEqual(invocation.args.slice(1, 5), ['--judge-timeout', options[0] === '--judge-timeout' ? '20m' : '11m', 'experiment', 'run']);
+      assert.deepEqual(invocation.args.slice(1, 5), ['--judge-timeout', judgeTimeout, 'experiment', 'run']);
       assert.ok(invocation.args.includes('JUDGE_REASONING_EFFORT=high'));
       assert.equal(invocation.effort, 'high');
       if (options[0] === '--judge-timeout') {
@@ -827,6 +833,17 @@ test('eval rejects invalid timeouts and unsupported execution overrides before d
     assert.notEqual(unsupportedJudge.status, 0);
     assert.match(unsupportedJudge.stderr, /defaults.judge_timeout must use the JUDGE_TIMEOUT parameter/);
     assert.equal(await readFile(sentinel, 'utf8'), 'keep');
+    await writeFile(evalPath, evalYaml('example').replace(/^  (?:judge_timeout|timeout):.*\n/gm, ''));
+    for (const [option, value, message] of [
+      ['--judge-timeout', '600000ms', 'defaults.judge_timeout must use the JUDGE_TIMEOUT parameter'],
+      ['--scoring-timeout', '15m', 'scoring.timeout must use the SCORING_TIMEOUT parameter'],
+    ]) {
+      const unsupportedLegacy = spawnSync(process.execPath, [cliPath, 'eval', 'example', '--repo-root', root,
+        '--output', output, option, value], { encoding: 'utf8' });
+      assert.notEqual(unsupportedLegacy.status, 0);
+      assert.ok(unsupportedLegacy.stderr.includes(message), unsupportedLegacy.stderr);
+      assert.equal(await readFile(sentinel, 'utf8'), 'keep');
+    }
     await writeFile(evalPath, evalYaml('example').replace('${SCORING_TIMEOUT=10m}', 'forever'));
     const invalidDefault = spawnSync(process.execPath, [cliPath, 'eval', 'example', '--repo-root', root,
       '--output', output], { encoding: 'utf8' });
