@@ -6446,7 +6446,7 @@
       ]
     },
     {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureParameterMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>",
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureParameterMapping : Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IColumnMappingBase>, System.IComparable<Microsoft.EntityFrameworkCore.Metadata.IStoredProcedureParameterMapping>",
       "Methods": [
         {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
