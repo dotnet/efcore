@@ -15,6 +15,85 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         : base(fixture)
         => TestOutputHelper = testOutputHelper;
 
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, false)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public virtual async Task ThenInclude(bool collection, bool multiple, bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<IncludeContext>();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Nodes.Add(
+                new IncludeNode
+                {
+                    Name = "Root",
+                    Reference = new IncludeNode
+                    {
+                        Name = "Reference",
+                        Reference = new IncludeNode { Name = "Leaf", Reference = new IncludeNode { Name = "End" } }
+                    },
+                    Children =
+                    [
+                        new IncludeNode
+                        {
+                            Name = "Collection",
+                            Reference = new IncludeNode { Name = "Leaf", Reference = new IncludeNode { Name = "End" } }
+                        }
+                    ]
+                });
+            await context.SaveChangesAsync();
+        }
+
+        ClearLog();
+
+        await Test(
+            $$"""
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.IncludeContext(dbContextOptions);
+var root = {{(async ? "await " : "")}}context.Nodes
+    .Include(e => e.{{(collection ? "Children" : "Reference")}})
+    .ThenInclude(e => e.Reference)
+    {{(multiple ? ".ThenInclude(e => e.Reference)" : "")}}
+    .AsNoTracking()
+    .{{(async ? "FirstOrDefaultAsync" : "FirstOrDefault")}}(e => e.Name == "Root");
+
+Assert.NotNull(root);
+var included = {{(collection ? "Assert.Single(root.Children)" : "root.Reference")}};
+Assert.NotNull(included);
+Assert.Equal("{{(collection ? "Collection" : "Reference")}}", included.Name);
+Assert.NotNull(included.Reference);
+Assert.Equal("Leaf", included.Reference.Name);
+{{(multiple ? """Assert.Equal("End", included.Reference.Reference!.Name);""" : "")}}
+Assert.Empty(context.ChangeTracker.Entries());
+""",
+            typeof(IncludeContext),
+            contextFactory.GetOptions());
+    }
+
+    public class IncludeContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<IncludeNode> Nodes { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IncludeNode>().HasOne(e => e.Reference).WithMany().HasForeignKey("ReferenceId");
+            modelBuilder.Entity<IncludeNode>().HasMany(e => e.Children).WithOne().HasForeignKey("ParentId");
+        }
+    }
+
+    public class IncludeNode
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public IncludeNode? Reference { get; set; }
+        public List<IncludeNode> Children { get; set; } = [];
+    }
+
     [Fact]
     public virtual async Task Index_no_evaluatability()
     {
