@@ -169,7 +169,7 @@ FROM (
                 """
 SELECT [m].[Id], [m].[Name], [m].[AssociateCollection], [m].[OptionalAssociate], [m].[RequiredAssociate]
 FROM (
-    SELECT * FROM [RootEntity]
+    SELECT * FROM "RootEntity"
 ) AS [m]
 WHERE JSON_VALUE([m].[RequiredAssociate], '$.Int' RETURNING int) = 8
 """);
@@ -180,7 +180,7 @@ WHERE JSON_VALUE([m].[RequiredAssociate], '$.Int' RETURNING int) = 8
                 """
 SELECT [m].[Id], [m].[Name], [m].[AssociateCollection], [m].[OptionalAssociate], [m].[RequiredAssociate]
 FROM (
-    SELECT * FROM [RootEntity]
+    SELECT * FROM "RootEntity"
 ) AS [m]
 WHERE CAST(JSON_VALUE([m].[RequiredAssociate], '$.Int') AS int) = 8
 """);
