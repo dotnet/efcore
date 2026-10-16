@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ColumnMappingBase : Annotatable, IColumnMappingBase
+public class ColumnMappingBase : Annotatable, IColumnMappingBase, IComparable<ColumnMappingBase>, IComparable
 {
     private RelationalTypeMapping? _typeMapping;
 
@@ -103,6 +103,18 @@ public class ColumnMappingBase : Annotatable, IColumnMappingBase
         result = StringComparer.Ordinal.Compare(Property.Name, other.Property.Name);
         return result != 0 ? result : StringComparer.Ordinal.Compare(Column.Name, other.Column.Name);
     }
+
+    /// <inheritdoc />
+    public virtual int CompareTo(ColumnMappingBase? other)
+        => CompareTo((IColumnMappingBase?)other);
+
+    /// <inheritdoc />
+    int IComparable.CompareTo(object? obj)
+        => obj == null
+            ? 1
+            : obj is IColumnMappingBase other
+                ? CompareTo(other)
+                : throw new ArgumentException($"Object must be of type {nameof(IColumnMappingBase)}.", nameof(obj));
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
