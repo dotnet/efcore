@@ -557,11 +557,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Null(customerView.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerView.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
-                    Assert.Equal(5, customerView.Columns.Count());
+                    Assert.Equal(mapping == Mapping.TPC ? 6 : 5, customerView.Columns.Count());
 
                     Assert.Single(specialCustomerView.EntityTypeMappings);
 
-                    Assert.Equal(9, specialCustomerView.Columns.Count());
+                    Assert.Equal(mapping == Mapping.TPC ? 10 : 9, specialCustomerView.Columns.Count());
 
                     Assert.False(specialtyColumn.IsNullable);
 
@@ -571,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.False(extraSpecialCustomerView.EntityTypeMappings.Last().IsSharedTablePrincipal);
                     Assert.Null(extraSpecialCustomerView.EntityTypeMappings.Last().IsSplitEntityTypePrincipal);
 
-                    Assert.Equal(11, extraSpecialCustomerView.Columns.Count());
+                    Assert.Equal(mapping == Mapping.TPC ? 12 : 11, extraSpecialCustomerView.Columns.Count());
                 }
             }
         }
@@ -2031,7 +2031,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     cb.UseTptMappingStrategy();
                 }
 
-                cb.ComplexProperty(c => c.Tag).IsRequired();
+                var tag = cb.ComplexProperty(c => c.Tag);
+                if (mapping == Mapping.TPC)
+                {
+                    tag.Property(t => t.Name).HasColumnName("Tag_Name");
+                }
+
+                tag.IsRequired();
 
                 // TODO: Don't map it on the base #19811
                 cb.Property<string>("SpecialtyAk");
