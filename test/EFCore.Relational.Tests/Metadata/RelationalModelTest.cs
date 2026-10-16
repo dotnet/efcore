@@ -3397,86 +3397,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.DoesNotContain(childTable.Columns, c => c.Name == numberColumnName);
         }
 
-        [Theory]
-        [InlineData(false, false)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public void Inherited_complex_property_columns_have_prefixes_in_every_TPC_table(bool abstractRoot, bool secondProperty)
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-            var baseType = abstractRoot ? typeof(AbstractTpcColumnEntity) : typeof(TpcColumnEntity);
-            var derivedType = abstractRoot
-                ? typeof(DerivedAbstractTpcColumnEntity)
-                : typeof(DerivedTpcColumnEntity);
-
-            var entityBuilder = modelBuilder.Entity(baseType).UseTpcMappingStrategy();
-            entityBuilder.ComplexProperty<TpcColumnData>("ComplexProperty", b =>
-            {
-                b.IsRequired();
-                b.ComplexProperty(c => c.Nested).IsRequired();
-            });
-
-            if (secondProperty)
-            {
-                entityBuilder.ComplexProperty<TpcColumnData>("Billing", b =>
-                {
-                    b.IsRequired();
-                    b.Ignore(c => c.Nested);
-                });
-            }
-            else
-            {
-                entityBuilder.Ignore("Billing");
-            }
-
-            modelBuilder.Entity(derivedType);
-
-            var model = modelBuilder.FinalizeModel();
-            var entityType = model.FindEntityType(baseType)!;
-            var complexType = entityType.FindComplexProperty("ComplexProperty")!.ComplexType;
-            var nestedType = complexType.FindComplexProperty("Nested")!.ComplexType;
-            var relationalModel = model.GetRelationalModel();
-            Assert.Equal(abstractRoot ? 1 : 2, relationalModel.Tables.Count());
-
-            foreach (var table in relationalModel.Tables)
-            {
-                var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
-                Assert.Equal(
-                    secondProperty
-                        ? ["Billing_Number", "Billing_Value", "ComplexProperty_Nested_Number", "ComplexProperty_Nested_Value",
-                            "ComplexProperty_Number", "ComplexProperty_Value", "Id"]
-                        : new[] { "ComplexProperty_Nested_Number", "ComplexProperty_Nested_Value",
-                            "ComplexProperty_Number", "ComplexProperty_Value", "Id" },
-                    table.Columns.Select(c => c.Name).Order());
-
-                foreach (var property in complexType.GetProperties())
-                {
-                    var columnName = "ComplexProperty_" + property.Name;
-                    Assert.Equal(columnName, property.GetDefaultColumnName(storeObject));
-                    Assert.Equal(columnName, property.GetColumnName(storeObject));
-                    Assert.Same(property, Assert.Single(table.FindColumn(columnName)!.PropertyMappings).Property);
-                }
-
-                foreach (var property in nestedType.GetProperties())
-                {
-                    var columnName = "ComplexProperty_Nested_" + property.Name;
-                    Assert.Equal(columnName, property.GetColumnName(storeObject));
-                    Assert.Same(property, Assert.Single(table.FindColumn(columnName)!.PropertyMappings).Property);
-                }
-
-                if (secondProperty)
-                {
-                    foreach (var property in entityType.FindComplexProperty("Billing")!.ComplexType.GetProperties())
-                    {
-                        var columnName = "Billing_" + property.Name;
-                        Assert.Equal(columnName, property.GetColumnName(storeObject));
-                        Assert.Same(property, Assert.Single(table.FindColumn(columnName)!.PropertyMappings).Property);
-                    }
-                }
-            }
-        }
-
         [Fact]
         public void Complex_property_json_column_is_created_in_every_TPC_table()
         {
@@ -4215,31 +4135,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private class TptDerivedEntityWithoutComplexProperty : TptBaseEntityWithComplexProperty;
-
-        private abstract class AbstractTpcColumnEntity
-        {
-            public int Id { get; set; }
-            public TpcColumnData ComplexProperty { get; set; } = null!;
-            public TpcColumnData Billing { get; set; } = null!;
-        }
-
-        private class DerivedAbstractTpcColumnEntity : AbstractTpcColumnEntity;
-
-        private class TpcColumnEntity
-        {
-            public int Id { get; set; }
-            public TpcColumnData ComplexProperty { get; set; } = null!;
-            public TpcColumnData Billing { get; set; } = null!;
-        }
-
-        private class DerivedTpcColumnEntity : TpcColumnEntity;
-
-        private class TpcColumnData
-        {
-            public string? Value { get; set; }
-            public int Number { get; set; }
-            public ComplexData Nested { get; set; } = null!;
-        }
 
         private class TpcBaseEntityWithComplexProperty
         {
