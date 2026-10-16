@@ -65,13 +65,13 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
     /// </summary>
     public virtual bool AddColumnMapping(TColumnMapping columnMapping)
     {
-        if (ColumnMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance) != -1)
+        if (ColumnMappings.IndexOf(columnMapping) != -1)
         {
             return false;
         }
 
         ColumnMappings.Add(columnMapping);
-        ColumnMappings.Sort(ColumnMappingBaseComparer.Instance);
+        ColumnMappings.Sort();
 
         return true;
     }

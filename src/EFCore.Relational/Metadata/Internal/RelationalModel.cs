@@ -2206,7 +2206,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
             is not SortedSet<ColumnMappingBase> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = [with];
             property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
         }
 
@@ -2229,7 +2229,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableColumnMappings)
             is not SortedSet<ColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = [with];
             property.AddRuntimeAnnotation(RelationalAnnotationNames.TableColumnMappings, columnMappings);
         }
 
@@ -2252,7 +2252,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewColumnMappings)
             is not SortedSet<ViewColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = [with];
             property.AddRuntimeAnnotation(RelationalAnnotationNames.ViewColumnMappings, columnMappings);
         }
 
@@ -2275,7 +2275,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.SqlQueryColumnMappings)
             is not SortedSet<SqlQueryColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = [with];
             property.AddRuntimeAnnotation(RelationalAnnotationNames.SqlQueryColumnMappings, columnMappings);
         }
 
@@ -2298,7 +2298,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionColumnMappings)
             is not SortedSet<FunctionColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = [with];
             property.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionColumnMappings, columnMappings);
         }
 
@@ -2338,7 +2338,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(parameterMappingAnnotationName)
             is not SortedSet<StoredProcedureParameterMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = [with];
             property.AddRuntimeAnnotation(parameterMappingAnnotationName, columnMappings);
         }
 
@@ -2375,7 +2375,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(columnMappingAnnotationName)
             is not SortedSet<StoredProcedureResultColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = [with];
             property.AddRuntimeAnnotation(columnMappingAnnotationName, columnMappings);
         }
 

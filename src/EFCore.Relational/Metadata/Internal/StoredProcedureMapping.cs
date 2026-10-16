@@ -60,13 +60,13 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
     /// </summary>
     public virtual bool AddParameterMapping(IStoredProcedureParameterMapping parameterMapping)
     {
-        if (ParameterMappings.IndexOf(parameterMapping, ColumnMappingBaseComparer.Instance) != -1)
+        if (ParameterMappings.IndexOf(parameterMapping) != -1)
         {
             return false;
         }
 
         ParameterMappings.Add(parameterMapping);
-        ParameterMappings.Sort(ColumnMappingBaseComparer.Instance);
+        ParameterMappings.Sort();
 
         return true;
     }
