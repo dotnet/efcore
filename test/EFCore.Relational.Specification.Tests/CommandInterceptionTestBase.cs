@@ -441,6 +441,69 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
     }
 
     [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task WithCommandTimeout_scope_sets_and_restores_command_timeout(bool async, bool inject)
+    {
+        var (context, interceptor) = await CreateContextAsync<TimeoutCapturingReaderCommandInterceptor>(inject);
+        using (context)
+        {
+            var original = context.Database.GetCommandTimeout();
+
+            _ = async ? await context.Set<Singularity>().ToListAsync() : context.Set<Singularity>().ToList();
+            var defaultTimeout = interceptor.Timeouts[0];
+
+            using (context.Database.WithCommandTimeout(66))
+            {
+                Assert.Equal(66, context.Database.GetCommandTimeout());
+                _ = async ? await context.Set<Singularity>().ToListAsync() : context.Set<Singularity>().ToList();
+
+                using (context.Database.WithCommandTimeout(TimeSpan.FromSeconds(44)))
+                {
+                    Assert.Equal(44, context.Database.GetCommandTimeout());
+                }
+
+                Assert.Equal(66, context.Database.GetCommandTimeout());
+            }
+
+            Assert.Equal(original, context.Database.GetCommandTimeout());
+            _ = async ? await context.Set<Singularity>().ToListAsync() : context.Set<Singularity>().ToList();
+
+            using (context.Database.WithCommandTimeout((int?)null))
+            {
+                Assert.Null(context.Database.GetCommandTimeout());
+            }
+
+            Assert.Equal(original, context.Database.GetCommandTimeout());
+            Assert.Equal([defaultTimeout, 66, defaultTimeout], interceptor.Timeouts);
+        }
+    }
+
+    protected class TimeoutCapturingReaderCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
+    {
+        public List<int> Timeouts { get; } = [];
+
+        public override InterceptionResult<DbDataReader> ReaderExecuting(
+            DbCommand command,
+            CommandEventData eventData,
+            InterceptionResult<DbDataReader> result)
+        {
+            Timeouts.Add(command.CommandTimeout);
+
+            return base.ReaderExecuting(command, eventData, result);
+        }
+
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            DbCommand command,
+            CommandEventData eventData,
+            InterceptionResult<DbDataReader> result,
+            CancellationToken cancellationToken = default)
+        {
+            Timeouts.Add(command.CommandTimeout);
+
+            return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
+        }
+    }
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Intercept_scalar_to_mutate_command(bool async, bool inject)
         => ScalarMutationTest<MutatingScalarCommandInterceptor>(async, inject);
 
