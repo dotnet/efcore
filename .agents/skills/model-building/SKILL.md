@@ -59,6 +59,8 @@ Initialize(model, designTime, validationLogger)
 
 When processing properties in conventions or validation, remember that complex types can contain their own declared properties. Use `GetFlattenedProperties()` to iterate all properties (including on nested non-collection complex types) or manually recurse through `GetDeclaredComplexProperties()` → `complexProperty.ComplexType`.
 
+For shared-column validation, compare the properties' containing entity hierarchy to detect collisions across complex types, retaining the declaring complex paths in diagnostics. Sibling entity types may deliberately share columns. Include inherited members mapped to the current store object (notably with TPC), while skipping repeated visits to the same property metadata.
+
 ## Adding a New Annotation
 
 1. Add constant to `CoreAnnotationNames` and its `AllNames`
