@@ -59,6 +59,17 @@ public class Column : ColumnBase<ColumnMapping>, IColumn
         set => _accessors = value;
     }
 
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => ReferenceEquals(this, obj)
+            || (obj is Column other
+                && TableBaseIdentityComparer.Instance.Equals(Table, other.Table)
+                && Name == other.Name);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+        => HashCode.Combine(TableBaseIdentityComparer.Instance.GetHashCode(Table), Name);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
