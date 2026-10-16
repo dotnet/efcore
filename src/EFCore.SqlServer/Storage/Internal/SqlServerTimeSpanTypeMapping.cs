@@ -116,11 +116,17 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     /// </returns>
     protected override string GenerateNonNullSqlLiteral(object value)
     {
+        // A value converter on the mapping may produce a provider value that isn't a TimeSpan
+        if (value is not TimeSpan timeSpan)
+        {
+            return string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
+        }
+
         var precision = Precision is >= 0 and <= 7 ? Precision.Value : 7;
 
         // The F format specifiers omit trailing zeros, so when no fractional digit is left at this precision the literal would end
         // with a decimal separator, which SQL Server rejects.
-        var fractionTicks = Math.Abs(((TimeSpan)value).Ticks % TimeSpan.TicksPerSecond);
+        var fractionTicks = Math.Abs(timeSpan.Ticks % TimeSpan.TicksPerSecond);
         var ticksPerDigit = TimeSpan.TicksPerSecond / (long)Math.Pow(10, precision);
 
         return string.Format(

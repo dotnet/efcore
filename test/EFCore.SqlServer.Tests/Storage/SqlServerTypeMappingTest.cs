@@ -260,6 +260,10 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 
         var precision1Mapping = GetTypeMappingSource().FindMapping(typeof(TimeSpan), "time(1)")!;
         Test_GenerateSqlLiteral_helper(precision1Mapping, new TimeSpan(0, 13, 10, 15, 50), "'13:10:15'");
+
+        // With a value converter the provider value reaching the type mapping may not be a TimeSpan
+        var convertedMapping = (RelationalTypeMapping)GetMapping(typeof(TimeSpan)).WithComposedConverter(new TimeSpanToStringConverter());
+        Assert.Equal("'13:10:15.5000000'", convertedMapping.GenerateSqlLiteral(new TimeSpan(0, 13, 10, 15, 500)));
     }
 
     public override void DateTime_literal_generated_correctly()
