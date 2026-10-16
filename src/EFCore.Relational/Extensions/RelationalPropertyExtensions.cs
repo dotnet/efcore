@@ -231,7 +231,8 @@ public static class RelationalPropertyExtensions
         else if (StoreObjectIdentifier.Create(property.DeclaringType, currentStoreObject.StoreObjectType) == currentStoreObject
                  || property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType)
                      .Any(f => f.StoreObject == currentStoreObject)
-                 || (property.IsPrimaryKey()
+                 || ((property.IsPrimaryKey()
+                         || property.DeclaringType.ContainingEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                      && property.DeclaringType.ContainingEntityType.GetDerivedTypes()
                          .Any(e => StoreObjectIdentifier.Create(e, currentStoreObject.StoreObjectType) == currentStoreObject)))
         {
