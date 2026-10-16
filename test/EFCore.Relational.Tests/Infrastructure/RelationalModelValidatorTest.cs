@@ -1061,9 +1061,13 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Detects_complex_properties_mapped_to_the_same_column_on_containing_entity(bool complexDuplicate)
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual void Detects_complex_properties_mapped_to_the_same_column_on_containing_entity(
+        bool complexDuplicate,
+        bool concurrencyToken)
     {
         var modelBuilder = CreateConventionModelBuilder();
         var entity = modelBuilder.Entity<B>();
@@ -1072,7 +1076,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             ? entity.ComplexProperty(b => b.AnotherA).Property(a => a.P0).Metadata
             : entity.Property(b => b.P0).Metadata;
         duplicateProperty.SetColumnName("Shared");
-        var property = complex.Property(a => a.P0).HasColumnName("Shared").Metadata;
+        duplicateProperty.IsConcurrencyToken = concurrencyToken;
+        var property = complex.Property(a => a.P0).HasColumnName("Shared").IsConcurrencyToken(concurrencyToken).Metadata;
         var (firstProperty, secondProperty) = complexDuplicate
             ? (property, duplicateProperty)
             : (duplicateProperty, property);
@@ -1082,6 +1087,72 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 firstProperty.DeclaringType.DisplayName(), firstProperty.Name,
                 secondProperty.DeclaringType.DisplayName(), secondProperty.Name, "Shared", nameof(B)),
             modelBuilder);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Passes_for_uniquified_complex_concurrency_columns_on_containing_entity(bool complexDuplicate)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<ConcurrencyColumnBase>();
+        modelBuilder.Entity<ConcurrencyColumnDerived>();
+        var property = entity.ComplexProperty(e => e.First).Property(a => a.P0).IsConcurrencyToken().Metadata;
+        var duplicateProperty = complexDuplicate
+            ? entity.ComplexProperty(e => e.Second).Property(a => a.P0).IsConcurrencyToken().Metadata
+            : entity.Property(e => e.First_P0).IsConcurrencyToken().Metadata;
+        if (complexDuplicate)
+        {
+            entity.UseTpcMappingStrategy().ToTable((string?)null);
+        }
+        else
+        {
+            entity.Ignore(e => e.Second);
+        }
+
+        var table = StoreObjectIdentifier.Table(complexDuplicate ? nameof(ConcurrencyColumnDerived) : nameof(ConcurrencyColumnBase));
+        Assert.Equal(property.GetColumnName(table), duplicateProperty.GetColumnName(table));
+
+        Validate(modelBuilder);
+
+        Assert.NotEqual(property.GetColumnName(table), duplicateProperty.GetColumnName(table));
+    }
+
+    private abstract class ConcurrencyColumnBase
+    {
+        public int Id { get; set; }
+        public int? First_P0 { get; set; }
+        public A First { get; set; } = null!;
+        public A Second { get; set; } = null!;
+    }
+
+    private class ConcurrencyColumnDerived : ConcurrencyColumnBase;
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual void Passes_for_uniquified_inherited_complex_columns(bool tpc, bool concurrencyToken)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<ComplexColumnBase>();
+        var property = entity.ComplexProperty(e => e.Details).Property(e => e.P0)
+            .IsConcurrencyToken(concurrencyToken).Metadata;
+        var duplicateProperty = modelBuilder.Entity<ComplexColumnDerived>().Property<int?>("Duplicate")
+            .IsConcurrencyToken(concurrencyToken).Metadata;
+        ((IConventionProperty)property).Builder.HasColumnName("Shared");
+        ((IConventionProperty)duplicateProperty).Builder.HasColumnName("Shared");
+        if (tpc)
+        {
+            entity.UseTpcMappingStrategy().ToTable((string?)null);
+        }
+
+        Validate(modelBuilder);
+
+        var table = StoreObjectIdentifier.Table(tpc ? nameof(ComplexColumnDerived) : nameof(ComplexColumnBase));
+        Assert.Equal("Shared", property.GetColumnName(table));
+        Assert.Equal("ComplexColumnDerived_Shared", duplicateProperty.GetColumnName(table));
     }
 
     [Theory]
