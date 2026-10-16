@@ -2206,7 +2206,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
             is not SortedSet<ColumnMappingBase> columnMappings)
         {
-            columnMappings = new(Comparer<IColumnMappingBase>.Default);
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
         }
 

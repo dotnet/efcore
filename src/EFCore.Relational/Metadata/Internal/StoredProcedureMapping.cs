@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultColumnMapping>, IStoredProcedureMapping
+public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultColumnMapping>, IStoredProcedureMapping,
+    IComparable<StoredProcedureMapping>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,6 +43,10 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
 
     /// <inheritdoc />
     public virtual ITableMapping? TableMapping { get; }
+
+    /// <inheritdoc />
+    public int CompareTo(StoredProcedureMapping? other)
+        => CompareTo((ITableMappingBase?)other);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

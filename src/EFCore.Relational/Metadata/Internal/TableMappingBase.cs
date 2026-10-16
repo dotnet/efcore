@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
-    where TColumnMapping : class, IColumnMappingBase
+public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase, IComparable<TableMappingBase<TColumnMapping>>
+    where TColumnMapping : class, IColumnMappingBase, IComparable<TColumnMapping>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,7 +71,7 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
         }
 
         ColumnMappings.Add(columnMapping);
-        ColumnMappings.Sort((x, y) => Comparer<IColumnMappingBase>.Default.Compare(x, y));
+        ColumnMappings.Sort();
 
         return true;
     }
@@ -209,6 +209,10 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
                     })
                 .FirstOrDefault(r => r != 0);
     }
+
+    /// <inheritdoc />
+    public int CompareTo(TableMappingBase<TColumnMapping>? other)
+        => CompareTo((ITableMappingBase?)other);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

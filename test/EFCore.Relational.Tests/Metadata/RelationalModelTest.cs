@@ -53,9 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 ((IColumnMappingBase)mappings[0]).CompareTo(mappings[1]),
                 ((IComparable<ColumnMappingBase>)mappings[0]).CompareTo(mappings[1]));
-            Assert.Equal(
-                ((IColumnMappingBase)mappings[0]).CompareTo(mappings[1]),
-                ((IComparable)mappings[0]).CompareTo(mappings[1]));
         }
 
         [Fact]
@@ -78,6 +75,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 ((IColumnMappingBase)mappings[0]).CompareTo(mappings[1]),
                 ((IComparable<IStoredProcedureParameterMapping>)mappings[0]).CompareTo(mappings[1]));
+        }
+
+        [Fact]
+        public void All_mapping_interfaces_and_types_implement_typed_comparison()
+        {
+            var mappingInterfaces = new[]
+            {
+                typeof(IColumnMappingBase),
+                typeof(IColumnMapping),
+                typeof(IFunctionColumnMapping),
+                typeof(ISqlQueryColumnMapping),
+                typeof(IStoredProcedureParameterMapping),
+                typeof(IStoredProcedureResultColumnMapping),
+                typeof(IViewColumnMapping),
+                typeof(ITableMappingBase),
+                typeof(ITableMapping),
+                typeof(IFunctionMapping),
+                typeof(ISqlQueryMapping),
+                typeof(IStoredProcedureMapping),
+                typeof(IViewMapping)
+            };
+
+            foreach (var mappingType in mappingInterfaces)
+            {
+                Assert.Contains(typeof(IComparable<>).MakeGenericType(mappingType), mappingType.GetInterfaces());
+            }
+
+            var mappingTypes = new[]
+            {
+                typeof(ColumnMappingBase),
+                typeof(ColumnMapping),
+                typeof(FunctionColumnMapping),
+                typeof(SqlQueryColumnMapping),
+                typeof(StoredProcedureParameterMapping),
+                typeof(StoredProcedureResultColumnMapping),
+                typeof(ViewColumnMapping),
+                typeof(TableMappingBase<ColumnMapping>),
+                typeof(TableMapping),
+                typeof(FunctionMapping),
+                typeof(SqlQueryMapping),
+                typeof(StoredProcedureMapping),
+                typeof(ViewMapping)
+            };
+
+            foreach (var mappingType in mappingTypes)
+            {
+                Assert.Contains(typeof(IComparable<>).MakeGenericType(mappingType), mappingType.GetInterfaces());
+            }
         }
 
         [Theory]
