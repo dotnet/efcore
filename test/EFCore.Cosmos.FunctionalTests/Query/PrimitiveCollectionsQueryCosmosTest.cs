@@ -958,7 +958,7 @@ WHERE NOT(ARRAY_CONTAINS(@strings, c["NullableString"]))
 
         AssertSql(
             """
-@dateTimes='["2020-01-10T12:30:00Z","9999-01-01T00:00:00Z"]'
+@dateTimes='["2020-01-10T12:30:00.0000000Z","9999-01-01T00:00:00.0000000Z"]'
 
 SELECT VALUE c
 FROM root c
@@ -1434,7 +1434,7 @@ WHERE (c["Strings"][1] = "10")
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00Z")
+WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00.0000000Z")
 """);
     }
 
@@ -2259,7 +2259,7 @@ SELECT VALUE
     "c2" : ARRAY(
         SELECT VALUE d0
         FROM d0 IN c["DateTimes"]
-        WHERE (d0 > "2000-01-01T00:00:00"))
+        WHERE (d0 > "2000-01-01T00:00:00.0000000"))
 }
 FROM root c
 ORDER BY c["Id"]

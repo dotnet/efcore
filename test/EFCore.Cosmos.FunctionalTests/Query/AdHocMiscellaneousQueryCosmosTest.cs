@@ -190,6 +190,52 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #endregion 34911
 
+
+        #region 39113
+
+    [Fact]
+    public virtual async Task DateTime_with_and_without_fractional_seconds_orders_and_filters_correctly()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39113>(
+            seed: async context =>
+            {
+                context.Items.AddRange(
+                    new Context39113.Item
+                    {
+                        Id = 1, Name = "exact-second", Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Context39113.Item
+                    {
+                        Id = 2, Name = "fractional-second", Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc)
+                    });
+                await context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ordered = await context.Items.OrderBy(x => x.Timestamp).ToListAsync();
+        Assert.Equal(new[] { "exact-second", "fractional-second" }, ordered.Select(x => x.Name).ToArray());
+
+        var boundary = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var filtered = await context.Items.Where(x => x.Timestamp > boundary).ToListAsync();
+        Assert.Equal(new[] { "fractional-second" }, filtered.Select(x => x.Name).ToArray());
+    }
+
+    protected class Context39113(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item> Items
+            => Set<Item>();
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+            public DateTime Timestamp { get; set; }
+        }
+    }
+
+    #endregion 39113
+
     #region 35094
 
     // TODO: Move these tests to a better location. They require nullable properties with nulls in the database.
