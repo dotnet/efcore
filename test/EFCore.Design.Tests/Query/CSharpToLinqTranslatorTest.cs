@@ -103,6 +103,34 @@ public class CSharpToLinqTranslatorTest
             () => new[] { 1, 2, 3 }.Where(i => i == 2),
             "new[] { 1, 2, 3 }.Where(i => i == 2);");
 
+    [Theory]
+    [InlineData("int", "8", 8, typeof(int))]
+    [InlineData("string", "\"Blog1\"", "Blog1", typeof(string))]
+    [InlineData("string", "null", null, typeof(string))]
+    [InlineData("object", "null", null, typeof(object))]
+    [InlineData(
+        "Microsoft.EntityFrameworkCore.Query.CSharpToLinqTranslatorTest.SomeEnum",
+        "Microsoft.EntityFrameworkCore.Query.CSharpToLinqTranslatorTest.SomeEnum.One",
+        SomeEnum.One, typeof(SomeEnum))]
+    public void IdentifierName_for_class_constant(string typeName, string initializer, object? value, Type type)
+    {
+        var compilation = Compile(
+            $$"""
+_ = TestContainer.Test();
+
+class TestContainer
+{
+    private const {{typeName}} Value = {{initializer}};
+    public static {{typeName}} Test() => Value;
+}
+""");
+
+        var expression = compilation.SyntaxTrees.Single().GetRoot().DescendantNodes()
+            .OfType<ArrowExpressionClauseSyntax>().Single().Expression;
+
+        Assert.Equal(Constant(value, type), Translate(expression, compilation), ExpressionEqualityComparer.Instance);
+    }
+
     [Fact]
     public void ImplicitArrayCreation()
         => AssertExpression(
