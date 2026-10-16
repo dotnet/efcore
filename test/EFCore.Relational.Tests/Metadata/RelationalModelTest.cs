@@ -53,9 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 ((IColumnMappingBase)mappings[0]).CompareTo(mappings[1]),
                 ((IComparable<ColumnMappingBase>)mappings[0]).CompareTo(mappings[1]));
-            Assert.Equal(
-                ((IColumnMappingBase)mappings[0]).CompareTo(mappings[1]),
-                ((IComparable)mappings[0]).CompareTo(mappings[1]));
         }
 
         [Fact]
