@@ -241,6 +241,29 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             GetMapping(typeof(TimeSpan)),
             new TimeSpan(0, 13, 10, 15, 120, 20),
             "'13:10:15.12002'");
+
+        // Fractional seconds below a millisecond
+        Test_GenerateSqlLiteral_helper(
+            GetMapping(typeof(TimeSpan)),
+            new TimeSpan(0, 13, 10, 15, 0, 20),
+            "'13:10:15.00002'");
+
+        Test_GenerateSqlLiteral_helper(
+            GetMapping(typeof(TimeSpan)),
+            new TimeSpan(13, 10, 15) + TimeSpan.FromTicks(1),
+            "'13:10:15.0000001'");
+
+        // No fractional digit left at the mapping's precision
+        var precision3Mapping = GetTypeMappingSource().FindMapping(typeof(TimeSpan), "time(3)")!;
+        Test_GenerateSqlLiteral_helper(precision3Mapping, new TimeSpan(0, 13, 10, 15, 0, 500), "'13:10:15'");
+        Test_GenerateSqlLiteral_helper(precision3Mapping, new TimeSpan(0, 13, 10, 15, 120, 500), "'13:10:15.12'");
+
+        var precision1Mapping = GetTypeMappingSource().FindMapping(typeof(TimeSpan), "time(1)")!;
+        Test_GenerateSqlLiteral_helper(precision1Mapping, new TimeSpan(0, 13, 10, 15, 50), "'13:10:15'");
+
+        // With a value converter the provider value reaching the type mapping may not be a TimeSpan
+        var convertedMapping = (RelationalTypeMapping)GetMapping(typeof(TimeSpan)).WithComposedConverter(new TimeSpanToStringConverter());
+        Assert.Equal("'13:10:15.5000000'", convertedMapping.GenerateSqlLiteral(new TimeSpan(0, 13, 10, 15, 500)));
     }
 
     public override void DateTime_literal_generated_correctly()
