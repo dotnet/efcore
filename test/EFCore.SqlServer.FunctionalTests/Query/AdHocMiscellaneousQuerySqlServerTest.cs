@@ -3676,6 +3676,28 @@ LEFT JOIN (
 
     #endregion
 
+    #region 33061
+
+    public override async Task Select_concat_on_string()
+    {
+        await base.Select_concat_on_string();
+
+        AssertSql(
+            """
+SELECT [c].[CityName]
+FROM [Cities] AS [c]
+ORDER BY [c].[CityId]
+""",
+            //
+            """
+SELECT [c].[CityName]
+FROM [Cities] AS [c]
+ORDER BY [c].[CityId]
+""");
+    }
+
+    #endregion
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
