@@ -16891,6 +16891,9 @@
           "Member": "JsonCollectionOfNullableStructsReaderWriter(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TElement> elementReaderWriter);"
         },
         {
+          "Member": "JsonCollectionOfNullableStructsReaderWriter(Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TElement?> elementReaderWriter);"
+        },
+        {
           "Member": "override System.Collections.Generic.IEnumerable<TElement?> FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
         },
         {
