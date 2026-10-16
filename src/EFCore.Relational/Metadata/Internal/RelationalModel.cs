@@ -600,7 +600,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         IRelationalTypeMappingSource relationalTypeMappingSource,
         Func<string, string?, TableBase, RelationalTypeMapping, ColumnBase<TColumnMappingBase>> createColumn,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         IForeignKey? ownership = null;
         if (mappedType is IEntityType entityType)
@@ -698,7 +698,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> jsonColumn,
         IForeignKey ownership,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
         => BuildJsonElementTree(
             jsonColumn,
             ownership.DeclaringEntityType,
@@ -711,7 +711,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> jsonColumn,
         IComplexType complexType,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
         => BuildJsonElementTree(
             jsonColumn,
             complexType,
@@ -727,7 +727,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         bool isNullable,
         IPropertyBase propertyBase,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         IRelationalJsonElement rootElement;
         if (jsonColumn.JsonElement == null)
@@ -906,7 +906,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> column,
         IProperty property,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         if (!property.IsPrimitiveCollection)
         {
@@ -1948,7 +1948,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     }
 
     private static void PopulateRowInternalForeignKeys<TColumnMapping>(TableBase table)
-        where TColumnMapping : class, IColumnMappingBase
+        where TColumnMapping : class, IColumnMappingBase, IComparable<TColumnMapping>
     {
         TableMappingBase<TColumnMapping>? mainMapping = null;
         var mappedEntityTypes = new HashSet<IEntityType>();
