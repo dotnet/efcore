@@ -26,8 +26,13 @@ public abstract class OperationTaskBase : ToolTask
     public ITaskItem Assembly { get; set; } = null!;
 
     /// <summary>
-    ///     The startup assembly to use.
+    ///     The optional startup assembly selector, supplied by the EFStartupAssembly MSBuild property.
     /// </summary>
+    /// <remarks>
+    ///     An explicit selector must end in lowercase .exe; the command uses the corresponding .dll path.
+    ///     This does not build or resolve a separate startup project. MSBuild integration requires a
+    ///     self-sufficient context project, with IDesignTimeDbContextFactory&lt;TContext&gt; in that project when necessary.
+    /// </remarks>
     public ITaskItem? StartupAssembly { get; set; }
 
     /// <summary>
