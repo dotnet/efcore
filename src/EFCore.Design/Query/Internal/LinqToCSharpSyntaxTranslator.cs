@@ -2632,8 +2632,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             ExpressionType.Quote => operand,
             ExpressionType.UnaryPlus => PrefixUnaryExpression(SyntaxKind.UnaryPlusExpression, operand),
             ExpressionType.Unbox => operand,
-            ExpressionType.Increment => Translate(Expression.Add(unary.Operand, One(unary.Operand.Type))),
-            ExpressionType.Decrement => Translate(Expression.Subtract(unary.Operand, One(unary.Operand.Type))),
+            ExpressionType.Increment => Translate(IncrementOrDecrement(ExpressionType.Add, unary.Operand)),
+            ExpressionType.Decrement => Translate(IncrementOrDecrement(ExpressionType.Subtract, unary.Operand)),
             ExpressionType.PostIncrementAssign => PostfixUnaryExpression(SyntaxKind.PostIncrementExpression, operand),
             ExpressionType.PostDecrementAssign => PostfixUnaryExpression(SyntaxKind.PostDecrementExpression, operand),
             ExpressionType.PreIncrementAssign => PrefixUnaryExpression(SyntaxKind.PreIncrementExpression, operand),
@@ -2644,8 +2644,22 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         return unary;
 
-        static ConstantExpression One(Type type)
-            => Expression.Constant(Convert.ChangeType(1, type.UnwrapNullableType(), CultureInfo.InvariantCulture), type);
+        // C# promotes short/ushort arithmetic to int, so compute in int and convert back to keep the expression's type
+        static Expression IncrementOrDecrement(ExpressionType binaryType, Expression operand)
+        {
+            var type = operand.Type;
+            if (type.UnwrapNullableType() is var underlyingType && (underlyingType == typeof(short) || underlyingType == typeof(ushort)))
+            {
+                var promotedType = type.IsNullableType() ? typeof(int?) : typeof(int);
+
+                return Expression.Convert(
+                    Expression.MakeBinary(binaryType, Expression.Convert(operand, promotedType), Expression.Constant(1, promotedType)),
+                    type);
+            }
+
+            return Expression.MakeBinary(
+                binaryType, operand, Expression.Constant(Convert.ChangeType(1, underlyingType, CultureInfo.InvariantCulture), type));
+        }
     }
 
     /// <inheritdoc />
