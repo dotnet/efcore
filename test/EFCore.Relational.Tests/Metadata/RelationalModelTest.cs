@@ -33,6 +33,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(relationalModel, model.GetRelationalModel());
         }
 
+        [Fact]
+        public void Can_sort_multiple_column_mappings_with_default_comparers()
+        {
+            var model = CreateTestModel(mapToTables: true, mapToSprocs: true, mapping: Mapping.TPC);
+            var property = model.Model.FindEntityType(typeof(AbstractBase))!.FindProperty(nameof(AbstractBase.Id))!;
+            var mappings = property.GetTableColumnMappings().Cast<ColumnMapping>().ToArray();
+
+            Assert.True(mappings.Length > 1);
+
+            var reversed = mappings.Reverse().ToList();
+            reversed.Sort();
+
+            Assert.Equal(mappings, reversed);
+
+            var sortedSet = new SortedSet<ColumnMappingBase>(mappings.Reverse());
+            Assert.Equal(mappings, sortedSet);
+
+            Assert.Equal(
+                ((IColumnMappingBase)mappings[0]).CompareTo(mappings[1]),
+                ((IComparable<ColumnMappingBase>)mappings[0]).CompareTo(mappings[1]));
+        }
+
+        [Fact]
+        public void Can_sort_multiple_stored_procedure_parameter_mappings_with_default_comparers()
+        {
+            var model = CreateTestModel(mapToTables: true, mapToSprocs: true, mapping: Mapping.TPC);
+            var mappings = model.Model.FindEntityType(typeof(Order))!
+                .GetInsertStoredProcedureMappings().Single().ParameterMappings.ToArray();
+
+            Assert.True(mappings.Length > 1);
+
+            var reversed = mappings.Reverse().ToList();
+            reversed.Sort();
+
+            Assert.Equal(mappings, reversed);
+
+            var sortedSet = new SortedSet<IStoredProcedureParameterMapping>(mappings.Reverse());
+            Assert.Equal(mappings, sortedSet);
+
+            Assert.Equal(
+                ((IColumnMappingBase)mappings[0]).CompareTo(mappings[1]),
+                ((IComparable<IStoredProcedureParameterMapping>)mappings[0]).CompareTo(mappings[1]));
+        }
+
         [Theory]
         [InlineData(DeleteBehavior.Cascade, ReferentialAction.Cascade)]
         [InlineData(DeleteBehavior.SetNull, ReferentialAction.SetNull)]

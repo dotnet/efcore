@@ -600,7 +600,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         IRelationalTypeMappingSource relationalTypeMappingSource,
         Func<string, string?, TableBase, RelationalTypeMapping, ColumnBase<TColumnMappingBase>> createColumn,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         IForeignKey? ownership = null;
         if (mappedType is IEntityType entityType)
@@ -698,7 +698,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> jsonColumn,
         IForeignKey ownership,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
         => BuildJsonElementTree(
             jsonColumn,
             ownership.DeclaringEntityType,
@@ -711,7 +711,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> jsonColumn,
         IComplexType complexType,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
         => BuildJsonElementTree(
             jsonColumn,
             complexType,
@@ -727,7 +727,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         bool isNullable,
         IPropertyBase propertyBase,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         IRelationalJsonElement rootElement;
         if (jsonColumn.JsonElement == null)
@@ -906,7 +906,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> column,
         IProperty property,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         if (!property.IsPrimitiveCollection)
         {
@@ -1948,7 +1948,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     }
 
     private static void PopulateRowInternalForeignKeys<TColumnMapping>(TableBase table)
-        where TColumnMapping : class, IColumnMappingBase
+        where TColumnMapping : class, IColumnMappingBase, IComparable<TColumnMapping>
     {
         TableMappingBase<TColumnMapping>? mainMapping = null;
         var mappedEntityTypes = new HashSet<IEntityType>();
@@ -2206,7 +2206,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
             is not SortedSet<ColumnMappingBase> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
         }
 
@@ -2229,7 +2229,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableColumnMappings)
             is not SortedSet<ColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.TableColumnMappings, columnMappings);
         }
 
@@ -2252,7 +2252,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewColumnMappings)
             is not SortedSet<ViewColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.ViewColumnMappings, columnMappings);
         }
 
@@ -2275,7 +2275,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.SqlQueryColumnMappings)
             is not SortedSet<SqlQueryColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.SqlQueryColumnMappings, columnMappings);
         }
 
@@ -2298,7 +2298,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionColumnMappings)
             is not SortedSet<FunctionColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionColumnMappings, columnMappings);
         }
 
@@ -2338,7 +2338,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(parameterMappingAnnotationName)
             is not SortedSet<StoredProcedureParameterMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(parameterMappingAnnotationName, columnMappings);
         }
 
@@ -2375,7 +2375,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(columnMappingAnnotationName)
             is not SortedSet<StoredProcedureResultColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(columnMappingAnnotationName, columnMappings);
         }
 
