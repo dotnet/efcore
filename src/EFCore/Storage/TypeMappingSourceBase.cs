@@ -160,9 +160,8 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
             {
                 var elementReader = elementMapping.JsonValueReaderWriter!;
 
-                if (elementReader.ValueType != elementType
-                    && (elementReader.ValueType.IsNullableValueType()
-                        || !elementReader.ValueType.IsAssignableFrom(elementType.UnwrapNullableType())))
+                if (elementReader.ValueType.IsNullableValueType()
+                    || !elementReader.ValueType.IsAssignableFrom(elementType.UnwrapNullableType()))
                 {
                     elementReader = (JsonValueReaderWriter)Activator.CreateInstance(
                         typeof(JsonCastValueReaderWriter<>).MakeGenericType(elementType.UnwrapNullableType()), elementReader)!;

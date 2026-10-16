@@ -17,8 +17,7 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
     ICompositeJsonValueReaderWriter
     where TElement : struct
 {
-    private readonly JsonValueReaderWriter<TElement>? _elementReaderWriter;
-    private readonly JsonValueReaderWriter<TElement?>? _nullableElementReaderWriter;
+    private readonly JsonValueReaderWriter<TElement> _elementReaderWriter;
 
     private static readonly bool IsArray = typeof(TConcreteCollection).IsArray;
 
@@ -32,13 +31,6 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
     /// <param name="elementReaderWriter">The reader/writer to use for each element.</param>
     public JsonCollectionOfNullableStructsReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
         => _elementReaderWriter = elementReaderWriter;
-
-    /// <summary>
-    ///     Creates a new instance of this collection reader/writer, using the given reader/writer for its nullable elements.
-    /// </summary>
-    /// <param name="elementReaderWriter">The reader/writer to use for each element.</param>
-    public JsonCollectionOfNullableStructsReaderWriter(JsonValueReaderWriter<TElement?> elementReaderWriter)
-        => _nullableElementReaderWriter = elementReaderWriter;
 
     /// <inheritdoc />
     public override IEnumerable<TElement?> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
@@ -82,9 +74,9 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
                 case JsonTokenType.True:
                 case JsonTokenType.False:
                     collection.Add(
-                        _nullableElementReaderWriter != null
-                            ? _nullableElementReaderWriter.FromJsonTyped(ref manager)
-                            : _elementReaderWriter!.FromJsonTyped(ref manager));
+                        _elementReaderWriter.GetType() == typeof(JsonCastValueReaderWriter<TElement>)
+                            ? (TElement?)((ICompositeJsonValueReaderWriter)_elementReaderWriter).InnerReaderWriter.FromJson(ref manager)
+                            : _elementReaderWriter.FromJsonTyped(ref manager));
                     break;
                 case JsonTokenType.Null:
                     collection.Add(null);
@@ -118,14 +110,7 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
         {
             if (element.HasValue)
             {
-                if (_nullableElementReaderWriter != null)
-                {
-                    _nullableElementReaderWriter.ToJsonTyped(writer, element);
-                }
-                else
-                {
-                    _elementReaderWriter!.ToJsonTyped(writer, element.Value);
-                }
+                _elementReaderWriter.ToJsonTyped(writer, element.Value);
             }
             else
             {
@@ -137,19 +122,13 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
     }
 
     JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
-        => (JsonValueReaderWriter?)_nullableElementReaderWriter ?? _elementReaderWriter!;
+        => _elementReaderWriter;
 
     private readonly ConstructorInfo _constructorInfo =
         typeof(JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TElement>).GetConstructor(
             [typeof(JsonValueReaderWriter<TElement>)])!;
 
-    private readonly ConstructorInfo _nullableConstructorInfo =
-        typeof(JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TElement>).GetConstructor(
-            [typeof(JsonValueReaderWriter<TElement?>)])!;
-
     /// <inheritdoc />
     public override Expression ConstructorExpression
-        => Expression.New(
-            _nullableElementReaderWriter != null ? _nullableConstructorInfo : _constructorInfo,
-            ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
+        => Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
 }
