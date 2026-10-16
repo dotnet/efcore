@@ -1139,7 +1139,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var entity = modelBuilder.Entity<ComplexColumnBase>();
         var property = entity.ComplexProperty(e => e.Details).Property(e => e.P0)
             .IsConcurrencyToken(concurrencyToken).Metadata;
-        var duplicateProperty = modelBuilder.Entity<ComplexColumnDerived>().Property<int?>("Duplicate")
+        var duplicateProperty = modelBuilder.Entity<ComplexColumnDerived>().Property(e => e.Duplicate)
             .IsConcurrencyToken(concurrencyToken).Metadata;
         ((IConventionProperty)property).Builder.HasColumnName("Shared");
         ((IConventionProperty)duplicateProperty).Builder.HasColumnName("Shared");
@@ -1273,7 +1273,10 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         public A Details { get; set; } = null!;
     }
 
-    private class ComplexColumnDerived : ComplexColumnBase;
+    private class ComplexColumnDerived : ComplexColumnBase
+    {
+        public int? Duplicate { get; set; }
+    }
 
     private class ComplexColumnSibling : ComplexColumnBase;
 

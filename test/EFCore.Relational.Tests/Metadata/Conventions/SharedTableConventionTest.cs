@@ -160,6 +160,39 @@ public class SharedTableConventionTest
     }
 
     [Theory]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual void Concurrency_token_columns_are_not_uniquified_when_either_property_is_shadow(
+        bool scalarShadow,
+        bool complexShadow)
+    {
+        var (modelBuilder, context) = GetModelBuilder(keysUniqueAcrossSchemas: false);
+        using (context)
+        {
+            var entity = modelBuilder.Entity<ColumnEntity>().ToTable("Columns");
+            entity.HasKey(e => e.Id);
+            var scalarProperty = (scalarShadow
+                ? entity.Property<int>("Shadow")
+                : entity.Property(e => e.Details_Value)).IsConcurrencyToken().ValueGeneratedOnUpdate().Metadata;
+            var complex = entity.ComplexProperty(e => e.Details).IsRequired();
+            var complexProperty = (complexShadow
+                ? complex.Property<int>("Shadow")
+                : complex.Property(e => e.Value)).IsConcurrencyToken().ValueGeneratedOnUpdate().Metadata;
+            ((IConventionProperty)scalarProperty).Builder.HasColumnName("Shared");
+            ((IConventionProperty)complexProperty).Builder.HasColumnName("Shared");
+
+            modelBuilder.Model.FinalizeModel();
+
+            var table = StoreObjectIdentifier.Table("Columns");
+            Assert.Equal("Shared", scalarProperty.GetColumnName(table));
+            Assert.Equal("Shared", complexProperty.GetColumnName(table));
+            Assert.Equal(ValueGenerated.OnUpdate, scalarProperty.ValueGenerated);
+            Assert.Equal(ValueGenerated.OnUpdate, complexProperty.ValueGenerated);
+        }
+    }
+
+    [Theory]
     [InlineData(false, false)]
     [InlineData(false, true)]
     [InlineData(true, false)]

@@ -276,9 +276,9 @@ public class SharedTableConvention : IModelFinalizingConvention
                 && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo());
 #pragma warning restore EF1001 // Internal EF Core API usage.
             if (isInheritedSharedMember
-                || (!sameHierarchy
-                    && ((property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
-                        || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken)))
+                || (!sameHierarchy && property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
+                || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken
+                    && (!sameHierarchy || property.IsShadowProperty() || otherProperty.IsShadowProperty()))
                 || (!property.Builder.CanSetColumnName(null) && !otherProperty.Builder.CanSetColumnName(null)))
             {
                 // Handle this with a default value convention #9329
