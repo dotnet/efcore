@@ -412,6 +412,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case ILocalSymbol s:
                 typeSymbol = s.Type;
                 break;
+            case IFieldSymbol { HasConstantValue: true } s:
+                var type = ResolveType(s.Type);
+                return Constant(type.IsEnum ? Enum.ToObject(type, s.ConstantValue!) : s.ConstantValue, type);
             case IFieldSymbol s:
                 typeSymbol = s.Type;
                 break;

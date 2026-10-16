@@ -16,6 +16,18 @@ public class PrecompiledQuerySqlServerTest(
 
     #region Expression types
 
+    public override async Task Class_constant_in_predicate()
+    {
+        await base.Class_constant_in_predicate();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8
+""");
+    }
+
     public override async Task BinaryExpression()
     {
         await base.BinaryExpression();
