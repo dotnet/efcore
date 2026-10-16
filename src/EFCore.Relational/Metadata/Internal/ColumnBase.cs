@@ -61,6 +61,17 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     public override bool IsReadOnly
         => Table.Model.IsReadOnly;
 
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => ReferenceEquals(this, obj)
+            || (obj is IColumnBase other
+                && Table.Equals(other.Table)
+                && Name == other.Name);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+        => HashCode.Combine(Table, Name);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

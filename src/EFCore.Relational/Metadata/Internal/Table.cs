@@ -148,16 +148,6 @@ public class Table : TableBase, ITable
             ?? property.GetJsonElementMappings()
                 .FirstOrDefault(m => m.TableMapping.Table == this)?.Element.ContainingColumn;
 
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-        => ReferenceEquals(this, obj)
-            || (obj is Table other
-                && TableBaseIdentityComparer.Instance.Equals(this, other));
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-        => TableBaseIdentityComparer.Instance.GetHashCode(this);
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

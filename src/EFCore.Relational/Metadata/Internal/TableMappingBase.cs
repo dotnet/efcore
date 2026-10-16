@@ -215,7 +215,7 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
         => ReferenceEquals(this, obj)
             || (obj is ITableMappingBase other
                 && TypeBase == other.TypeBase
-                && Table == other.Table
+                && Table.Equals(other.Table)
                 && IncludesDerivedTypes == other.IncludesDerivedTypes
                 && ((ITableMappingBase)this).ColumnMappings.SequenceEqual(
                     other.ColumnMappings, ReferenceEqualityComparer.Instance));
@@ -225,24 +225,7 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
     {
         var hashCode = new HashCode();
         hashCode.Add(TypeBase, TypeBaseNameComparer.Instance);
-        hashCode.Add(Table.Name);
-        hashCode.Add(Table.Schema);
-        if (Table is IStoreFunction function)
-        {
-            foreach (var parameter in function.Parameters)
-            {
-                hashCode.Add(parameter.StoreType);
-                hashCode.Add(parameter.Name);
-            }
-        }
-        else if (Table is IStoreStoredProcedure sproc)
-        {
-            foreach (var parameter in sproc.Parameters)
-            {
-                hashCode.Add(parameter.StoreType);
-                hashCode.Add(parameter.Name);
-            }
-        }
+        hashCode.Add(Table);
 
         foreach (var columnMapping in ((ITableMappingBase)this).ColumnMappings)
         {
