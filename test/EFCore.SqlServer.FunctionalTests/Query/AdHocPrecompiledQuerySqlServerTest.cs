@@ -11,6 +11,135 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    public override async Task ExecuteUpdate_with_value_type_setters(bool async, bool useLambda)
+    {
+        await base.ExecuteUpdate_with_value_type_setters(async, useLambda);
+
+        if (useLambda)
+        {
+            AssertSql(
+                """
+@p0='2025-12-31T00:00:00.0000000' (Nullable = true)
+@p1='True'
+@p2='0001-01-01T00:00:00.0000000'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Keys] ([ExpiresAt], [IsEnabled], [UpdatedAt])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2);
+""",
+                //
+                """
+SET NOCOUNT OFF;
+UPDATE [k]
+SET [k].[IsEnabled] = CAST(0 AS bit)
+FROM [Keys] AS [k]
+""",
+                //
+                """
+SELECT TOP(2) [k].[Id], [k].[ExpiresAt], [k].[IsEnabled], [k].[UpdatedAt]
+FROM [Keys] AS [k]
+""",
+                //
+                """
+@now1='2026-01-01T00:00:00.0000000'
+@now='2026-01-01T00:00:00.0000000' (Nullable = true)
+
+SET NOCOUNT OFF;
+UPDATE [k]
+SET [k].[UpdatedAt] = @now1
+FROM [Keys] AS [k]
+WHERE [k].[ExpiresAt] IS NOT NULL AND [k].[ExpiresAt] < @now
+""",
+                //
+                """
+SELECT TOP(2) [k].[Id], [k].[ExpiresAt], [k].[IsEnabled], [k].[UpdatedAt]
+FROM [Keys] AS [k]
+""",
+                //
+                """
+@now1='2026-01-02T00:00:00.0000000'
+@now='2026-01-02T00:00:00.0000000' (Nullable = true)
+
+SET NOCOUNT OFF;
+UPDATE [k]
+SET [k].[IsEnabled] = CAST(1 AS bit),
+    [k].[UpdatedAt] = @now1
+FROM [Keys] AS [k]
+WHERE [k].[IsEnabled] = CAST(0 AS bit) AND [k].[ExpiresAt] IS NOT NULL AND [k].[ExpiresAt] < @now
+""",
+                //
+                """
+SELECT TOP(2) [k].[Id], [k].[ExpiresAt], [k].[IsEnabled], [k].[UpdatedAt]
+FROM [Keys] AS [k]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='2025-12-31T00:00:00.0000000' (Nullable = true)
+@p1='True'
+@p2='0001-01-01T00:00:00.0000000'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Keys] ([ExpiresAt], [IsEnabled], [UpdatedAt])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2);
+""",
+                //
+                """
+@p='False'
+
+SET NOCOUNT OFF;
+UPDATE [k]
+SET [k].[IsEnabled] = @p
+FROM [Keys] AS [k]
+""",
+                //
+                """
+SELECT TOP(2) [k].[Id], [k].[ExpiresAt], [k].[IsEnabled], [k].[UpdatedAt]
+FROM [Keys] AS [k]
+""",
+                //
+                """
+@now1='2026-01-01T00:00:00.0000000'
+@now='2026-01-01T00:00:00.0000000' (Nullable = true)
+
+SET NOCOUNT OFF;
+UPDATE [k]
+SET [k].[UpdatedAt] = @now1
+FROM [Keys] AS [k]
+WHERE [k].[ExpiresAt] IS NOT NULL AND [k].[ExpiresAt] < @now
+""",
+                //
+                """
+SELECT TOP(2) [k].[Id], [k].[ExpiresAt], [k].[IsEnabled], [k].[UpdatedAt]
+FROM [Keys] AS [k]
+""",
+                //
+                """
+@p='True'
+@now2='2026-01-02T00:00:00.0000000'
+@now='2026-01-02T00:00:00.0000000' (Nullable = true)
+
+SET NOCOUNT OFF;
+UPDATE [k]
+SET [k].[IsEnabled] = @p,
+    [k].[UpdatedAt] = @now2
+FROM [Keys] AS [k]
+WHERE [k].[IsEnabled] = CAST(0 AS bit) AND [k].[ExpiresAt] IS NOT NULL AND [k].[ExpiresAt] < @now
+""",
+                //
+                """
+SELECT TOP(2) [k].[Id], [k].[ExpiresAt], [k].[IsEnabled], [k].[UpdatedAt]
+FROM [Keys] AS [k]
+""");
+        }
+    }
+
     public override async Task Index_no_evaluatability()
     {
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
