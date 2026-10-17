@@ -1817,6 +1817,30 @@ WHERE EXISTS (
 """);
     }
 
+    public override async Task Project_collection_with_identity_select_split_query(bool async)
+    {
+        await base.Project_collection_with_identity_select_split_query(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+ORDER BY [p].[Id]
+""");
+    }
+
+    public override async Task Project_collection_with_identity_select_split_query_with_converter(bool async)
+    {
+        await base.Project_collection_with_identity_select_split_query_with_converter(async);
+
+        AssertSql(
+            """
+SELECT [t].[Id], [t].[Ints]
+FROM [TestEntity] AS [t]
+ORDER BY [t].[Id]
+""");
+    }
+
     public override async Task Project_collection_of_ints_simple()
     {
         await base.Project_collection_of_ints_simple();
