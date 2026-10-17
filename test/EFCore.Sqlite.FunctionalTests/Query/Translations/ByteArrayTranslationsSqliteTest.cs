@@ -84,6 +84,70 @@ WHERE instr("b"."ByteArray", unhex(printf('%02X', @someByte))) > 0
 """);
     }
 
+    public override async Task IndexOf_with_constant()
+    {
+        await base.IndexOf_with_constant();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."ByteArray", X'BE') - 1 = 2
+""");
+    }
+
+    public override async Task IndexOf_with_parameter()
+    {
+        await base.IndexOf_with_parameter();
+
+        AssertSql(
+            """
+@someByte='3'
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."ByteArray", unhex(printf('%02X', @someByte))) - 1 = 2
+""");
+    }
+
+    public override async Task IndexOf_with_column()
+    {
+        await base.IndexOf_with_column();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."ByteArray", unhex(printf('%02X', "b"."Byte"))) - 1 >= 0
+""");
+    }
+
+    public override async Task IndexOf_with_parameter_above_ascii_range()
+    {
+        await base.IndexOf_with_parameter_above_ascii_range();
+
+        AssertSql(
+            """
+@someByte='222'
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."ByteArray", unhex(printf('%02X', @someByte))) - 1 = 0
+""");
+    }
+
+    public override async Task IndexOf_not_found()
+    {
+        await base.IndexOf_not_found();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."ByteArray", X'99') - 1 = -1
+""");
+    }
+
     public override async Task Any()
     {
         await base.Any();
