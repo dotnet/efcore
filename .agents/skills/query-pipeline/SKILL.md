@@ -38,7 +38,6 @@ user-invocable: false
 
 ## Validation
 
-- `PrecompiledQueryTestHelpers` compiles generated interceptors before invoking the test entry point. Put a query in an uninvoked delegate to validate generation and managed compilation without query execution; this does not validate NativeAOT publication.
 - `ToQueryString()` shows generated SQL without executing
 - `ExpressionPrinter` dumps expression trees at any pipeline stage
 - SQL baselines verified via `AssertSql()` in provider functional tests and the generated SQL corresponds to the LINQ query in the base method
