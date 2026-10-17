@@ -69,6 +69,33 @@ public class CSharpToLinqTranslatorTest
             """new[] { "foo", "bar" }.Select(s => s + "foo")""");
 
     [Fact]
+    public void Binary_equality_with_implicit_conversion()
+        => AssertExpression(
+            () => new[] { new ConvertibleName("foo") }.Where(name => (string)name == "foo"),
+            """new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }.Where(name => name == "foo")""");
+
+    [Fact]
+    public void Binary_equality_with_implicit_conversion_on_right()
+        => AssertExpression(
+            () => new[] { new ConvertibleName("foo") }.Where(name => "foo" == (string)name),
+            """new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }.Where(name => "foo" == name)""");
+
+    [Fact]
+    public void Binary_inequality_with_implicit_conversion()
+        => AssertExpression(
+            () => new[] { new ConvertibleName("foo") }.Where(name => (string)name != "bar"),
+            """new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }.Where(name => name != "bar")""");
+
+    [Fact]
+    public void Binary_equality_without_implicit_conversion()
+        => AssertExpression(
+            () => new[] { new ConvertibleName("foo") }.Where(name => name == new ConvertibleName("foo")),
+            """
+new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }
+    .Where(name => name == new CSharpToLinqTranslatorTest.ConvertibleName("foo"))
+""");
+
+    [Fact]
     public void Cast()
         => AssertExpression(
             () => (object)1,
@@ -79,6 +106,32 @@ public class CSharpToLinqTranslatorTest
         => AssertExpression(
             () => (object?)"foo" ?? (object)"bar",
             """(object?)"foo" ?? (object)"bar" """);
+
+    [Theory]
+    [InlineData("condition ? Math.Sqrt(4.0) : null")]
+    [InlineData("condition ? (double?)Math.Sqrt(4.0) : null")]
+    public void Conditional_with_nullable_true_branch(string conditional)
+        => AssertExpression(
+            () => new[] { true, false }.Select(condition => new NullableMetric(condition ? (double?)Math.Sqrt(4.0) : null)),
+            $$"""
+new[] { true, false }.Select(condition => new CSharpToLinqTranslatorTest.NullableMetric({{conditional}}))
+""");
+
+    [Theory]
+    [InlineData("condition ? null : Math.Sqrt(4.0)")]
+    [InlineData("condition ? null : (double?)Math.Sqrt(4.0)")]
+    public void Conditional_with_nullable_false_branch(string conditional)
+        => AssertExpression(
+            () => new[] { true, false }.Select(condition => new NullableMetric(condition ? null : (double?)Math.Sqrt(4.0))),
+            $$"""
+new[] { true, false }.Select(condition => new CSharpToLinqTranslatorTest.NullableMetric({{conditional}}))
+""");
+
+    [Fact]
+    public void Conditional_with_numeric_conversion()
+        => AssertExpression(
+            () => new[] { true, false }.Select(condition => condition ? Math.Abs(8) : Math.Sqrt(4.0)),
+            "new[] { true, false }.Select(condition => condition ? Math.Abs(8) : Math.Sqrt(4.0))");
 
     [Fact]
     public void ElementAccess_over_array()
@@ -488,6 +541,16 @@ _ = {code};
     }
 
     private class BlogContext : DbContext;
+
+    public sealed record NullableMetric(double? Value);
+
+    public class ConvertibleName(string value)
+    {
+        private readonly string _value = value;
+
+        public static implicit operator string(ConvertibleName name)
+            => name._value;
+    }
 
     public class Blog
     {

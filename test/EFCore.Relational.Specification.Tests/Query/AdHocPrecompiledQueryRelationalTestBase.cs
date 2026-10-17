@@ -16,6 +16,85 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         => TestOutputHelper = testOutputHelper;
 
     [Fact]
+    public virtual async Task Implicit_conversions_in_binary_and_conditional_expressions()
+    {
+        var contextFactory = await InitializeNonSharedTest<ImplicitConversionContext>(seed: context => context.SeedAsync());
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.ImplicitConversionContext(dbContextOptions);
+var taskType = "generation";
+var since = new DateTime(2026, 1, 1);
+var metrics = await context.Tasks
+    .AsNoTracking()
+    .Where(task => task.Type == taskType && task.CreatedAt >= since)
+    .GroupBy(task => task.State)
+    .OrderBy(group => group.Key)
+    .Select(group => new AdHocPrecompiledQueryRelationalTestBase.ImplicitConversionContext.Metric(
+        group.Key,
+        group.Count(),
+        group.Where(task => task.CompletedAt.HasValue).Any()
+            ? group.Where(task => task.CompletedAt.HasValue).Average(task => task.Id)
+            : null))
+    .ToListAsync();
+
+Assert.Equal(
+    new[]
+    {
+        new AdHocPrecompiledQueryRelationalTestBase.ImplicitConversionContext.Metric(0, 2, 2.0),
+        new AdHocPrecompiledQueryRelationalTestBase.ImplicitConversionContext.Metric(1, 1, null)
+    },
+    metrics);
+""",
+            typeof(ImplicitConversionContext),
+            contextFactory.GetOptions());
+    }
+
+    public class ImplicitConversionContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<GenerationTask> Tasks { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<GenerationTask>().Property(task => task.Id).ValueGeneratedNever();
+            modelBuilder.Entity<GenerationTask>().Property(task => task.Type)
+                .HasConversion(type => (string)type, value => new TaskType(value));
+        }
+
+        public Task SeedAsync()
+        {
+            var createdAt = new DateTime(2026, 1, 1);
+            AddRange(
+                new GenerationTask { Id = 1, Type = new TaskType("generation"), CreatedAt = createdAt, CompletedAt = createdAt },
+                new GenerationTask { Id = 3, Type = new TaskType("generation"), CreatedAt = createdAt, CompletedAt = createdAt },
+                new GenerationTask { Id = 2, Type = new TaskType("generation"), State = 1, CreatedAt = createdAt },
+                new GenerationTask { Id = 4, Type = new TaskType("other"), CreatedAt = createdAt },
+                new GenerationTask { Id = 5, Type = new TaskType("generation"), CreatedAt = createdAt.AddDays(-1) });
+
+            return SaveChangesAsync();
+        }
+
+        public class GenerationTask
+        {
+            public int Id { get; set; }
+            public TaskType Type { get; set; } = null!;
+            public int State { get; set; }
+            public DateTime CreatedAt { get; set; }
+            public DateTime? CompletedAt { get; set; }
+        }
+
+        public class TaskType(string value)
+        {
+            private readonly string _value = value;
+
+            public static implicit operator string(TaskType type)
+                => type._value;
+        }
+
+        public sealed record Metric(int State, int Count, double? Average);
+    }
+
+    [Fact]
     public virtual async Task Index_no_evaluatability()
     {
         var contextFactory = await InitializeNonSharedTest<JsonContext>();
