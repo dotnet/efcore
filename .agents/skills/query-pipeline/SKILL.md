@@ -15,7 +15,6 @@ user-invocable: false
 
 ## Translation
 
-- SQL Server `OPENJSON` rewrites must type raw JSON columns before use and preserve original element mappings when skipping a `CAST`; equal store types do not imply equal converters.
 - Translation fallback must distinguish established unsupported shapes from unexpected defects. Do not turn arbitrary exceptions into a successful fallback.
 - Check whether a failed rewrite mutated state that fallback will reuse. For test coordination, establish the actual collection, assembly, and async-flow boundaries before claiming shared static state can race; theory rows are not inherently parallel, and reset in `finally` is not mutual exclusion.
 
