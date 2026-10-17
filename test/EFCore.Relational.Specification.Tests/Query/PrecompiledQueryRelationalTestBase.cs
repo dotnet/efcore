@@ -1107,6 +1107,39 @@ public static class TestContainer
 
     #region Captured variable handling
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Captured_object_properties(bool async)
+        => Test(
+            $$"""
+var item = new Blog { Id = 8, Name = "Blog1" };
+var blog = {{(async ? "await context.Blogs.FirstOrDefaultAsync" : "context.Blogs.FirstOrDefault")}}(b => b.Id == item.Id && b.Name == item.Name);
+Assert.NotNull(blog);
+Assert.Equal(8, blog.Id);
+Assert.Equal("Blog1", blog.Name);
+""");
+
+    [Fact]
+    public virtual Task Captured_entity_property()
+        => Test(
+            """
+var item = await context.Blogs.SingleAsync(b => b.Id == 8);
+var blog = await context.Blogs.FirstOrDefaultAsync(b => b.Id == item.Id);
+Assert.Same(item, blog);
+""");
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Captured_foreach_object_properties(bool async)
+        => Test(
+            $$"""
+var items = new[] { new Blog { Id = 8, Name = "Blog1" }, new Blog { Id = 9, Name = "Blog2" } };
+foreach (var item in items)
+{
+    var blog = {{(async ? "await context.Blogs.SingleAsync" : "context.Blogs.Single")}}(b => b.Id == item.Id && b.Name == item.Name);
+    Assert.Equal(item.Id, blog.Id);
+    Assert.Equal(item.Name, blog.Name);
+}
+""");
+
     [Fact]
     public virtual Task Captured_method_parameter_in_lambda()
         => Test(
