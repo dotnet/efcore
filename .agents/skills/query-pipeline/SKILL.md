@@ -15,7 +15,6 @@ user-invocable: false
 
 ## Translation
 
-- C#-to-LINQ reconstruction must preserve Roslyn's semantic operand and branch conversions, including nullable lifting and user-defined conversions, before constructing binary or conditional expression nodes. Type syntax in `is`/`as` is not a value operand.
 - Translation fallback must distinguish established unsupported shapes from unexpected defects. Do not turn arbitrary exceptions into a successful fallback.
 - Check whether a failed rewrite mutated state that fallback will reuse. For test coordination, establish the actual collection, assembly, and async-flow boundaries before claiming shared static state can race; theory rows are not inherently parallel, and reset in `finally` is not mutual exclusion.
 
