@@ -574,7 +574,8 @@ public sealed partial class SelectExpression
                         relationalGroupByResultExpression.KeyIdentifier,
                         relationalGroupByResultExpression.KeyIdentifierValueComparers,
                         relationalGroupByResultExpression.KeyShaper,
-                        Visit(relationalGroupByResultExpression.ElementShaper));
+                        Visit(relationalGroupByResultExpression.ElementShaper),
+                        relationalGroupByResultExpression.ResultSelector);
 
                 default:
                     return base.VisitExtension(expression);

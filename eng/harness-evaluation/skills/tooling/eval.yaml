@@ -1,0 +1,61 @@
+name: tooling
+description: Evaluates dotnet-ef tooling guidance against the EF Core command implementation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/tooling
+stimuli:
+  - name: thread-a-migrations-add-option
+    prompt: |-
+      Inspect the staged command implementation and tests. Add a `--suppress-summary` option to `dotnet ef migrations add`. Without the option, behavior remains unchanged; with it, a successful command omits the final completion message. Write tooling-plan.md identifying the implementation and focused test changes. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 1000000
+      max_duration: ${EVAL_TIMEOUT=10m}
+    agent_environment:
+      files:
+        - src: ../../../../src/dotnet-ef/RootCommand.cs
+          dest: src/dotnet-ef/RootCommand.cs
+        - src: ../../../../src/ef/Commands/MigrationsAddCommand.Configure.cs
+          dest: src/ef/Commands/MigrationsAddCommand.Configure.cs
+        - src: ../../../../src/ef/Commands/MigrationsAddCommand.cs
+          dest: src/ef/Commands/MigrationsAddCommand.cs
+        - src: ../../../../src/ef/IOperationExecutor.cs
+          dest: src/ef/IOperationExecutor.cs
+        - src: ../../../../src/ef/Properties/Resources.resx
+          dest: src/ef/Properties/Resources.resx
+        - src: ../../../../test/dotnet-ef.Tests/CommandsTest.cs
+          dest: test/dotnet-ef.Tests/CommandsTest.cs
+        - src: ../../../../test/ef.Tests/CommandsTest.cs
+          dest: test/ef.Tests/CommandsTest.cs
+    rubric:
+      - The plan configures the resource-backed option in MigrationsAddCommand.Configure and guards the local `Reporter.WriteInformation(Resources.MigrationsAddCompleted)` call in Execute, with the current output as the default.
+      - It explains that RootCommand forwards command arguments to ef.dll but `IOperationExecutor.AddMigration` remains unchanged because the design-time operation does not consume presentation behavior.
+      - It identifies focused inner-command parsing/output tests and does not change PMC or EFCore.Tasks.
+    graders:
+      - type: file-matches
+        config:
+          path: tooling-plan.md
+          pattern: (?i)(?=[\s\S]*suppress-summary)(?=[\s\S]*(MigrationsAddCompleted|Reporter\.WriteInformation))(?=[\s\S]*(IOperationExecutor|OperationExecutor))(?=[\s\S]*(unchanged|not forward|does not (?:need|require|change)))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
+  weights:
+    file-matches: 0.27
+    prompt: 0.63
+    token-budget: 0.1
+  threshold: 0.75

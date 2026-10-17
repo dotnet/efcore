@@ -416,7 +416,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                 .Zip(innerColumns, _sqlExpressionFactory.Equal)
                                 .Aggregate(_sqlExpressionFactory.AndAlso);
 
-                            tables.Add(new InnerJoinExpression(tableExpression, joinPredicate, prunable: true));
+                            tables.Add(
+                                mapping.IsSplitFragmentOptional
+                                    ? new LeftJoinExpression(tableExpression, joinPredicate, prunable: true)
+                                    : new InnerJoinExpression(tableExpression, joinPredicate, prunable: true));
                         }
                     }
 
@@ -427,16 +430,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             continue;
                         }
 
-                        var columnBase = mappings.Select(e => e.Table.FindColumn(property)).First(e => e != null)!;
-                        propertyMap[property] = CreateColumnExpression(property, columnBase, tableMap[columnBase.Table], nullable: false);
+                        var mapping = mappings.First(e => e.Table.FindColumn(property) != null);
+                        var columnBase = mapping.Table.FindColumn(property)!;
+                        propertyMap[property] = CreateColumnExpression(
+                            property, columnBase, tableMap[columnBase.Table], nullable: mapping.IsSplitFragmentOptional);
                     }
 
                     var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
                     foreach (var complexProperty in entityType.GetComplexProperties())
                     {
                         var table = FindTable(complexProperty, mappings);
-                        complexPropertyMap[complexProperty] = ProcessComplexProperty(
-                            complexProperty, table, tableMap[table], containerNullable: false);
+                        var containerNullable = mappings.First(m => m.Table == table).IsSplitFragmentOptional;
+                        complexPropertyMap[complexProperty] =
+                            ProcessComplexProperty(complexProperty, table, tableMap[table], containerNullable: containerNullable);
                     }
 
                     var projection = new StructuralTypeProjectionExpression(

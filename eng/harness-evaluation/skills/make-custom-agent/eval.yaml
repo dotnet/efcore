@@ -1,0 +1,63 @@
+name: make-custom-agent
+description: Evaluates custom-agent review boundaries and isolated behavioral coverage for EF Core API review.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/make-custom-agent
+stimuli:
+  - name: review-read-only-agent-boundaries
+    prompt: |-
+      Inspect the staged API review workflow and root instructions. The intended agent reviews repository evidence without modifying the workspace or GitHub or running commands. Review this proposal for `.github/agents/efcore-api-review.agent.md` and write agent-review.md; do not create or edit the agent.
+
+          ---
+          name: efcore-api-review
+          description: Reviews EF Core API changes.
+          tools: ['*']
+          ---
+
+          Check out the requested PR branch, regenerate or edit API baselines as needed, run commands, and post an APPROVE or REQUEST_CHANGES review with your findings.
+
+      The proposal's paired eval declares both the agent file and `.github/copilot-instructions.md` in its root `agent_environment.files`, and every stimulus begins by telling the agent to invoke `efcore-api-review`.
+    constraints:
+      max_turns: 50
+      max_tokens: 1000000
+      max_duration: ${EVAL_TIMEOUT=10m}
+    agent_environment:
+      files:
+        - src: ../../../../.github/workflows/api-review-baselines.yml
+          dest: .github/workflows/api-review-baselines.yml
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../README.md
+          dest: eng/harness-evaluation/README.md
+    rubric:
+      - The review keeps this as a declarative agent but restricts its tools and behavior to read-only repository evidence; it forbids branch mutation, baseline edits, command execution, and APPROVE/REQUEST_CHANGES events.
+      - It requires a discovery description that says when to use the agent and domain instructions grounded in ApiChief baseline compatibility review without copying root instructions.
+      - The paired eval root contains only the agent file, its prompts are solution-neutral and do not instruct activation, and it includes bounded deterministic, semantic, and token grading with a committed threshold.
+    graders:
+      - type: file-matches
+        config:
+          path: agent-review.md
+          pattern: (?i)(?=[\s\S]*(declarative|\.github/agents))(?=[\s\S]*(read[ -]?only|restrict.*tools))(?=[\s\S]*(APPROVE|REQUEST_CHANGES))(?=[\s\S]*(root[ `]*agent_environment|only[ `]*\.github/agents|only the agent|single.*file))(?=[\s\S]*(activation|invok))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
+  weights:
+    file-matches: 0.4
+    prompt: 0.5
+    token-budget: 0.1
+  threshold: 0.75

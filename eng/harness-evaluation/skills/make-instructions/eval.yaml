@@ -1,0 +1,68 @@
+name: make-instructions
+description: Evaluates file-instruction authoring against EF Core query implementation.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/make-instructions
+stimuli:
+  - name: review-overbroad-query-instructions
+    prompt: |-
+      Inspect the staged relational and Cosmos query implementations plus root instructions. Review this proposal for `.github/instructions/query-implementation.instructions.md` and write instructions-review.md; do not edit the proposal.
+
+          ---
+          name: Query implementation
+          description: Guidance for C# files.
+          applyTo: '**/*.cs'
+          ---
+
+          1. Run restore.cmd and activate.ps1.
+          2. Put package versions in eng/Versions.props.
+          3. Use ConfigureAwait(false).
+          4. Search the repository, implement the requested change, and run all tests.
+
+      Its paired eval declares the instruction file and `.github/copilot-instructions.md` together in the root `agent_environment.files`; its only stimulus asks the agent to repeat the four rules above.
+    constraints:
+      max_turns: 50
+      max_tokens: 1000000
+      max_duration: ${EVAL_TIMEOUT=25m}
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs
+          dest: src/EFCore.Relational/Query/SqlExpressions/SelectExpression.cs
+        - src: ../../../../src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs
+          dest: src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../README.md
+          dest: eng/harness-evaluation/README.md
+    rubric:
+      - The review replaces the broad C# scope and vague description with targeted relational/Cosmos query implementation globs and discovery language.
+      - It removes duplicated repository-wide setup, package, and async rules plus the procedural workflow, replacing them with concise non-obvious guidance grounded in the two staged implementations.
+      - The paired eval root contains only the instruction file; stimuli exercise distinctive query guidance without restating it and use bounded deterministic, semantic, and token grading.
+    graders:
+      - type: file-matches
+        config:
+          path: instructions-review.md
+          pattern: (?i)(?=[\s\S]*(applyTo|glob))(?=[\s\S]*(EFCore\.Relational|SelectExpression))(?=[\s\S]*(EFCore\.Cosmos|CosmosQueryableMethodTranslatingExpressionVisitor))(?=[\s\S]*(duplicat|root instruction))(?=[\s\S]*(procedural|workflow))(?=[\s\S]*(only (?:the )?(?:target |candidate )?instruction|single.*file))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1000000
+scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
+  weights:
+    file-matches: 0.36
+    prompt: 0.54
+    token-budget: 0.1
+  threshold: 0.75

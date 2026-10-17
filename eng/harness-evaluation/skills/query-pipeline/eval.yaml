@@ -1,0 +1,215 @@
+name: query-pipeline
+description: Evaluates optimization safety, translation fallback isolation, split-query completion, and query regression-test ownership.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/query-pipeline
+stimuli:
+  - name: move-provider-query-regression-to-specifications
+    prompt: |-
+      Finish the proposed regression coverage in the staged proposed/test/ snapshots, using before/test/ and source-context.md as context. Update the test classes needed for an integration-ready change and write test-plan.md explaining the placement and focused validation. Preserve the behavior exercised by the proposal. These are reduced offline snapshots: do not install dependencies or run functional tests, and distinguish inspected code from unexecuted validation.
+    constraints:
+      max_turns: 60
+      max_tokens: 750000
+      max_duration: ${EVAL_TIMEOUT=20m}
+    agent_environment:
+      files:
+        - src: fixtures/provider-test-placement/source-context.md
+          dest: source-context.md
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQueryTestBase.cs
+          dest: before/test/EFCore.Specification.Tests/Query/NorthwindMiscellaneousQueryTestBase.cs
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQueryTestBase.cs
+          dest: proposed/test/EFCore.Specification.Tests/Query/NorthwindMiscellaneousQueryTestBase.cs
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQueryRelationalTestBase.cs
+          dest: before/test/EFCore.Relational.Specification.Tests/Query/NorthwindMiscellaneousQueryRelationalTestBase.cs
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQueryRelationalTestBase.cs
+          dest: proposed/test/EFCore.Relational.Specification.Tests/Query/NorthwindMiscellaneousQueryRelationalTestBase.cs
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQuerySqlServerTest.cs
+          dest: before/test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQuerySqliteTest.cs
+          dest: before/test/EFCore.Sqlite.FunctionalTests/Query/NorthwindMiscellaneousQuerySqliteTest.cs
+        - src: fixtures/provider-test-placement/before/NorthwindMiscellaneousQuerySqliteTest.cs
+          dest: proposed/test/EFCore.Sqlite.FunctionalTests/Query/NorthwindMiscellaneousQuerySqliteTest.cs
+        - src: fixtures/provider-test-placement/proposed/NorthwindMiscellaneousQuerySqlServerTest.cs
+          dest: proposed/test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
+        - src: fixtures/provider-test-placement/before/OwnedEntityQueryTestBase.cs
+          dest: before/test/EFCore.Specification.Tests/Query/OwnedEntityQueryTestBase.cs
+        - src: fixtures/provider-test-placement/before/OwnedEntityQueryTestBase.cs
+          dest: proposed/test/EFCore.Specification.Tests/Query/OwnedEntityQueryTestBase.cs
+        - src: fixtures/provider-test-placement/before/OwnedEntityQueryRelationalTestBase.cs
+          dest: before/test/EFCore.Relational.Specification.Tests/Query/OwnedEntityQueryRelationalTestBase.cs
+        - src: fixtures/provider-test-placement/before/OwnedEntityQueryRelationalTestBase.cs
+          dest: proposed/test/EFCore.Relational.Specification.Tests/Query/OwnedEntityQueryRelationalTestBase.cs
+        - src: fixtures/provider-test-placement/before/OwnedEntityQuerySqlServerTest.cs
+          dest: before/test/EFCore.SqlServer.FunctionalTests/Query/OwnedEntityQuerySqlServerTest.cs
+        - src: fixtures/provider-test-placement/before/OwnedEntityQuerySqlServerTest.cs
+          dest: proposed/test/EFCore.SqlServer.FunctionalTests/Query/OwnedEntityQuerySqlServerTest.cs
+        - src: fixtures/provider-test-placement/before/OwnedEntityQuerySqliteTest.cs
+          dest: before/test/EFCore.Sqlite.FunctionalTests/Query/OwnedEntityQuerySqliteTest.cs
+        - src: fixtures/provider-test-placement/before/OwnedEntityQuerySqliteTest.cs
+          dest: proposed/test/EFCore.Sqlite.FunctionalTests/Query/OwnedEntityQuerySqliteTest.cs
+    rubric:
+      - The changed core NorthwindMiscellaneousQueryTestBase owns Convert_to_nullable_on_nullable_value_is_ignored as a shared virtual sync/async theory, preserving the actual nullable Value-access expression rather than replacing it with the expected expression. It supplies a separate null-safe expected query, keyed value and ordering assertions, and retains both null and populated projected values. Using the actual expression as a LINQ-to-Objects oracle throws for the deliberately null even-ID projection. Moving a count-only test or writing only a placement plan is insufficient.
+      - Raw_scalar_query_composes_filter_and_ordering belongs in NorthwindMiscellaneousQueryRelationalTestBase, not the core base or a provider-only class. The changed test preserves SqlQueryRaw composition, the exact ordered keys 10248 and 10249, and both execution modes. The core/InMemory path must not acquire a dependency on the relational raw-SQL API. Putting both new tests in the relational base leaves InMemory's nullable-projection regression uncovered.
+      - Both SQL Server and SQLite snapshots override the new shared tests, call their base implementations, and add provider-specific AssertSql baselines without duplicating query or result assertions. SQL Server's existing Check_all_tests_overridden remains valid, SQLite's lack of an existing guard is respected, and unrelated methods and baseline bodies are preserved. No new guard may force unrelated redundant overrides.
+      - Owned_collection_projection_preserves_rows and its CollectionContext move into the existing core OwnedEntityQueryTestBase, not a Northwind miscellaneous base, a relational-only base, a provider-only class, or a new generic ad-hoc suite. The shared virtual sync/async theory preserves the collection projection and seed order, asserting owner keys 1 and 2, exact ordered codes a/b/c for owner 1, and an empty collection for owner 2. Both owned-query provider classes delegate to base and assert their own SQL without copying model or result assertions. Existing owned-query methods and baselines are preserved, and no new override guard is added. A root-count assertion cannot detect missing children or a lost empty owner.
+      - test-plan.md explains all three ownership decisions from the staged hierarchies and supplies focused Microsoft Testing Platform commands for applicable InMemory, SQL Server, and SQLite suites, covering sync and async and rebuilding changed assemblies. It does not claim execution, invent an unsupported-provider limitation, or use stale --no-build output.
+    graders:
+      - type: file-matches
+        config:
+          path: proposed/test/EFCore.Specification.Tests/Query/NorthwindMiscellaneousQueryTestBase.cs
+          pattern: '(?s)(?=.*virtual\s+(?:async\s+)?Task\s+Convert_to_nullable_on_nullable_value_is_ignored)(?=.*AssertQuery).+'
+      - type: file-matches
+        config:
+          path: proposed/test/EFCore.Relational.Specification.Tests/Query/NorthwindMiscellaneousQueryRelationalTestBase.cs
+          pattern: '(?s)(?=.*virtual\s+(?:async\s+)?Task\s+Raw_scalar_query_composes_filter_and_ordering)(?=.*SqlQueryRaw)(?=.*Assert\.Equal).+'
+      - type: file-matches
+        config:
+          path: proposed/test/EFCore.SqlServer.FunctionalTests/Query/NorthwindMiscellaneousQuerySqlServerTest.cs
+          pattern: '(?s)(?=.*base\.Convert_to_nullable_on_nullable_value_is_ignored)(?=.*base\.Raw_scalar_query_composes_filter_and_ordering)(?=.*AssertSql).+'
+      - type: file-matches
+        config:
+          path: proposed/test/EFCore.Sqlite.FunctionalTests/Query/NorthwindMiscellaneousQuerySqliteTest.cs
+          pattern: '(?s)(?=.*base\.Convert_to_nullable_on_nullable_value_is_ignored)(?=.*base\.Raw_scalar_query_composes_filter_and_ordering)(?=.*AssertSql).+'
+      - type: file-matches
+        config:
+          path: proposed/test/EFCore.Specification.Tests/Query/OwnedEntityQueryTestBase.cs
+          pattern: '(?s)(?=.*virtual\s+(?:async\s+)?Task\s+Owned_collection_projection_preserves_rows)(?=.*OwnsMany)(?=.*Assert\.(?:Equal|Collection)).+'
+      - type: file-matches
+        config:
+          path: proposed/test/EFCore.SqlServer.FunctionalTests/Query/OwnedEntityQuerySqlServerTest.cs
+          pattern: '(?s)(?=.*base\.Owned_collection_projection_preserves_rows)(?=.*AssertSql).+'
+      - type: file-matches
+        config:
+          path: proposed/test/EFCore.Sqlite.FunctionalTests/Query/OwnedEntityQuerySqliteTest.cs
+          pattern: '(?s)(?=.*base\.Owned_collection_projection_preserves_rows)(?=.*AssertSql).+'
+      - type: prompt
+        config:
+          prompt: All rubric criteria are mandatory. Inspect the actual edits in both proposed test hierarchies and test-plan.md. Fail a prose-only plan, a lost query or assertion, incorrect ownership of any regression, or any unmet criterion; do not average away missing coverage.
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 750000
+  - name: review-single-result-subquery-lifting-addition
+    prompt: |-
+      Finish the single-result reuse pass in proposed-optimization.cs for integration into the staged pipeline. Use integration.md and model-and-queries.cs as application context. Update proposed-optimization.cs, create regression-tests.cs, and write analysis.md explaining the changes and validation limits. Preserve useful reuse rather than removing the feature. These are reduced offline snapshots: do not install dependencies or run functional tests, and do not claim that unexecuted tests passed.
+    constraints:
+      max_turns: 60
+      max_tokens: 800000
+      max_duration: ${EVAL_TIMEOUT=20m}
+    agent_environment:
+      files:
+        - src: fixtures/single-result-lifting/proposed-optimization.cs
+          dest: proposed-optimization.cs
+        - src: fixtures/single-result-lifting/model-and-queries.cs
+          dest: model-and-queries.cs
+        - src: fixtures/single-result-lifting/integration.md
+          dest: integration.md
+    rubric:
+      - The changed implementation rejects unsafe required-navigation reuse before mutating the selector. Summary must retain the baseline results (Band 1, Amount 10) and (Band 2, Amount 10); the Amount subquery joins to the filtered Campaign before choosing its first row, independently of the Band subquery. Eligibility inspects every use and applicable navigation-target query filters, not just the immediate member or a hard-coded Campaign name. Prose warning about filters without a working eligibility check is insufficient.
+      - Candidate collection and replacement stay within the current selector's lambda scope. The nested child-correlated shared node in NestedProjection must not become an outer SelectMany source or an unbound parameter. A same-scope node with two scalar uses plus an unsupported navigation or entity use is rejected as a whole; counting only two safe occurrences and globally replacing every occurrence is incorrect.
+      - The implementation consults the configured evaluatable-expression filter and applicable model query filters before reuse, including filters introduced after this pass. It declines RankedSummary's Guid.NewGuid ordering and volatile filter expressions without hard-coded function-name or context-name blacklists. A deterministic tie breaker does not make a volatile expression stable, and SampledPricingContext's Random() >= 0 must not be falsely described as randomly excluding seeded rows.
+      - StableSummary actually remains eligible and is rewritten, including its empty-inner result with nullable scalar shaping and one outer row per input. Ordering precedes the limit; bindings and candidate eligibility remain valid after each rewrite. The shared preprocessor uses the staged provider capability contract instead of assuming every provider supports the SelectMany shape. Terminal methods without an established equivalent rewrite retain their old path. Disabling all reuse, leaving placeholder predicates, or catching arbitrary translation exceptions is insufficient.
+      - regression-tests.cs contains executable-style xUnit test bodies, not a scenario list or pseudocode. They assert the exact seeded Summary result, StableSummary's null and populated rows, current versus nested lambda scope, a mixed safe/unsafe-use node, explicit and filter-introduced volatility, and provider opt-out. Query-result cases cover sync and async; volatility uses deterministic eligibility or expression-shape assertions rather than random-value outcomes. Tests show shared specification ownership and provider baseline or limitation coverage. analysis.md separates static inspection from unexecuted validation and documents any missing integration dependencies.
+    graders:
+      - type: file-matches
+        config:
+          path: proposed-optimization.cs
+          pattern: '(?s)(?=.*SupportsSingleResultLifting)(?=.*IsEvaluatableExpression)(?=.*(?:VisitLambda|LambdaExpression|ExpressionType\.Lambda)).+'
+      - type: file-matches
+        config:
+          path: regression-tests.cs
+          pattern: '(?s)(?=.*\[(Fact|Theory)[^\]]*\])(?=.*Assert\.).+'
+      - type: prompt
+        config:
+          prompt: All rubric criteria are mandatory. Grade the changed implementation and regression-tests.cs, not merely analysis.md. Fail when a required guard or assertion exists only in prose, a helper is a placeholder, or any criterion is unmet; do not average away missing correctness or coverage.
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 800000
+  - name: review-split-query-count-change
+    prompt: |-
+      Inspect the staged fallback-and-tests.cs snapshot. Write analysis.md reviewing the implementation and focused validation. Do not edit source.
+    constraints:
+      max_turns: 35
+      max_tokens: 600000
+      max_duration: ${EVAL_TIMEOUT=10m}
+    agent_environment:
+      files:
+        - src: fixtures/query-pipeline/fallback-and-tests.cs
+          dest: fallback-and-tests.cs
+    rubric:
+      - The analysis rejects the bare catch because it converts unexpected translation defects into a silent streaming fallback and requires fallback to handle only established unsupported-shape failures.
+      - It distinguishes the invariant failure when Count translation returns null from an established unsupported shape, and examines whether fallback reuses the SelectExpression mutated by pushdown, ordering removal, or projection changes. It requires either a proven isolated disposable candidate or a preserved fallback input, not an unsupported assertion that mutation certainly corrupts unrelated state.
+      - It identifies that asserting only two blogs cannot prove their included children survived. Its regression assertions specify the original composite blog keys (10, 2) and (20, 1), child IDs and names 1/A, 2/B and 3/C, 4/D under their correct owners, and exclusion of the concurrently inserted 15/3 blog and 5/Concurrent child. It checks that the materialization-triggered write actually happened and covers sync and async; counting roots or children alone is insufficient.
+      - It evaluates the static callback and flag against actual execution boundaries, acknowledging that reset in finally restores state but is not mutual exclusion. The snapshot does not establish parallel theory rows or shared provider processes, so those must not be asserted as observed races. Any concurrency finding needs a feasible overlapping caller; proposed test-scoped coordination must still reach the materialization callback and writer context deterministically.
+      - The analysis specifies regression cases for expected unsupported-shape fallback, unexpected exception propagation, and the original seeded graph under the synchronized write. It distinguishes concrete evidence from unexecuted validation; executing tests is not required for this snapshot-only review.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*(bare catch|catch[ -]all|unexpected[\s\S]{0,100}(exception|failure)))(?=[\s\S]*(Post|child|collection))(?=[\s\S]*(assert|coverage|regression))[\s\S]+
+      - type: prompt
+        config:
+          prompt: Every rubric criterion is mandatory. Fail unsupported parallelism claims, a root-count-only test plan, generic fallback advice without the invariant and mutation boundaries, or any unmet criterion. Credit evidence-backed conditional risks rather than requiring speculative race findings.
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 600000
+  - name: review-split-query-completion-change
+    prompt: |-
+      Finish the completion proposal in split-enumerables.cs using split-query-review.md as context. Update split-enumerables.cs, create completion-tests.cs, and write analysis.md assessing the implementation and rollout requirements. Preserve the existing enumeration and cleanup contracts. These are reduced offline snapshots: do not install dependencies or run functional tests, and do not claim unexecuted validation passed.
+    constraints:
+      max_turns: 60
+      max_tokens: 750000
+      max_duration: ${EVAL_TIMEOUT=20m}
+    agent_environment:
+      files:
+        - src: fixtures/query-pipeline/split-enumerables.cs
+          dest: split-enumerables.cs
+        - src: fixtures/query-pipeline/split-query-review.md
+          dest: split-query-review.md
+    rubric:
+      - The code fixes both ordinary and grouped consumers in synchronous and asynchronous paths. A grouped key change keeps HasNext true and performs no validation; physical EOF while constructing the final group records HasNext false but still yields that group. Validation occurs when the outer consumer returns false, including empty input, not merely when the final group has been assembled. Repeated terminal moves do not reread a reader known to be exhausted or repeat successful verification. A helper change without correct call-site and lookahead-state changes is insufficient.
+      - The changed implementation removes the CallerBuffersResults exemption and all validation-on-disposal paths. Early disposal, cancellation, and loader failure release resources without interpreting legitimately pending children as orphans or masking the original failure. A verification failure at genuine exhaustion propagates and still permits subsequent cleanup; it is not swallowed or retried as an unsupported shape. Existing sync/async loader invocation and grouping behavior remain intact.
+      - completion-tests.cs contains concrete xUnit setup and assertions exercising the changed coordinator and both consumers, not a second independently implemented state machine or a prose matrix. It covers empty input, multiple groups with a pending later child, the final group's true result followed by false, clean and orphaned exhaustion, repeated terminal moves, list and direct consumers, early disposal, throwing verification, and async cancellation or loader failure. Assertions check verification and read counts, exact groups and child associations, disposed readers, and preserved failure identity where relevant. Test doubles and integration bindings are supplied or explicitly tied to existing fixture APIs, not left as placeholders.
+      - analysis.md accounts separately for caller retention, earlier split result sets buffered under a single-active-reader provider, and retry-strategy buffering. It explains why replacing ToList with an enumerable does not establish the rollout's bounded-memory target and why the final split result need not be buffered solely for the reader limitation. A vague warning to measure memory is insufficient.
+      - 'The consistency argument gives a deterministic two-command counterexample: an atomic writer changes a root value and one of its existing child values between reads, producing a combination that never coexisted while every child key still matches. Orphan verification therefore cannot prove a consistent graph. The recommendation covers all commands with provider-supported snapshot or serializable isolation, addresses version-store or locking costs and retry-strategy transaction handling, and does not confuse statement-level snapshots or caller buffering with a transaction-wide snapshot. Concrete test code uses explicit synchronization rather than timing sleeps; unavailable provider execution is reported honestly.'
+    graders:
+      - type: file-matches
+        config:
+          path: split-enumerables.cs
+          pattern: '(?s)(?=.*CompleteConsumption)(?=.*MoveNextAsync)(?=.*HasNext\s*=\s*false).+'
+      - type: file-matches
+        config:
+          path: completion-tests.cs
+          pattern: '(?s)(?=.*\[(Fact|Theory)[^\]]*\])(?=.*Assert\.).+'
+      - type: prompt
+        config:
+          prompt: All rubric criteria are mandatory. Grade split-enumerables.cs and completion-tests.cs alongside analysis.md. Fail when a lifecycle path remains wrong, a test only duplicates the algorithm, assertions or synchronization exist only in prose, or any criterion is unmet; do not average away missing correctness or coverage.
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 750000
+scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
+  weights:
+    file-matches: 0.2
+    prompt: 0.7
+    token-budget: 0.1
+  threshold: 0.8

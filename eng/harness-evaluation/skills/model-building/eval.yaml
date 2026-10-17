@@ -1,0 +1,91 @@
+name: model-building
+description: Evaluates model-building guidance against EF Core convention ambiguity and metadata-facet implementation planning.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/model-building
+stimuli:
+  - name: preserve-inverse-navigation-ambiguity
+    prompt: |-
+      Review the staged InversePropertyAttributeConvention.cs and NavigationAttributeConventionTest.cs. Write analysis.md with findings and focused regression tests. Do not edit source.
+    constraints: &short_constraints
+      max_turns: 40
+      max_tokens: 750000
+      max_duration: ${EVAL_TIMEOUT=20m}
+    agent_environment:
+      files:
+        - src: fixtures/inverse-ambiguity/InversePropertyAttributeConvention.cs
+          dest: src/EFCore/Metadata/Conventions/InversePropertyAttributeConvention.cs
+        - src: fixtures/inverse-ambiguity/NavigationAttributeConventionTest.cs
+          dest: test/EFCore.Tests/Metadata/Conventions/NavigationAttributeConventionTest.cs
+    rubric:
+      - The analysis rejects permanently ignoring ambiguous navigations because removing candidates can make another ambiguous navigation erroneously appear unique.
+      - It preserves inverse-candidate bookkeeping and continued convention processing rather than converting temporary ambiguity into permanent ignored members; it points to the existing `AddInverseNavigation`, `FindAmbiguousInverse`, and `TryRemoveIfAmbiguous` lifecycle.
+      - Focused tests cover multiple interacting inverse-property candidates, verify no relationship is configured while ambiguity remains, and verify the correct relationship appears when ambiguity is genuinely removed.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*(ignore|ignoring|ignored))(?=[\s\S]*(ambigu|candidate))(?=[\s\S]*(relationship|navigation))(?=[\s\S]*(remove|recover|remain|later))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 750000
+  - name: plan-imaginary-foreign-key-metadata
+    prompt: |-
+      Inspect the staged model-building implementation and analogous foreign-key facets. Plan a core model-building feature named imaginary foreign keys, represented as a boolean flag available on `IForeignKey`. Write implementation-plan.md covering the implementation, compatibility, and focused validation. Do not edit source.
+    constraints:
+      max_turns: 70
+      max_tokens: 1400000
+      max_duration: ${EVAL_TIMEOUT=20m}
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore/Metadata/IReadOnlyForeignKey.cs
+          dest: src/EFCore/Metadata/IReadOnlyForeignKey.cs
+        - src: ../../../../src/EFCore/Metadata/Internal/ForeignKey.cs
+          dest: src/EFCore/Metadata/Internal/ForeignKey.cs
+        - src: ../../../../src/EFCore/Metadata/Internal/InternalForeignKeyBuilder.cs
+          dest: src/EFCore/Metadata/Internal/InternalForeignKeyBuilder.cs
+        - src: ../../../../src/EFCore/Metadata/Conventions/IForeignKeyUniquenessChangedConvention.cs
+          dest: src/EFCore/Metadata/Conventions/IForeignKeyUniquenessChangedConvention.cs
+        - src: ../../../../src/EFCore/Metadata/RuntimeForeignKey.cs
+          dest: src/EFCore/Metadata/RuntimeForeignKey.cs
+        - src: ../../../../src/EFCore.Design/Migrations/Design/CSharpSnapshotGenerator.cs
+          dest: src/EFCore.Design/Migrations/Design/CSharpSnapshotGenerator.cs
+    rubric:
+      - The plan carries `IsImaginary` through the foreign-key metadata hierarchy, concrete `ForeignKey` default/storage/configuration source, convention and explicit setters, `IConventionForeignKeyBuilder`/`InternalForeignKeyBuilder` precedence, relationship-rebuild propagation, and `IReadOnlyForeignKey.ToDebugString`.
+      - It adds a consistently named foreign-key imaginary-state changed convention and wires every required `ConventionSet` add/replace/remove path plus `ConventionDispatcher` abstract, immediate, delayed, and node paths, with dispatcher ordering/termination tests.
+      - It preserves the value in `RuntimeForeignKey`, `RuntimeEntityType.AddForeignKey`, `RuntimeModelConvention`, and `CSharpRuntimeModelCodeGenerator`, including compiled-model baseline coverage.
+      - It defines fluent configuration across the generic and non-generic reference/reference and reference/collection builders so `CSharpSnapshotGenerator` can persist the flag, treats absence in older snapshots as the false default, and adds snapshot round-trip coverage.
+      - It includes public API baseline updates and focused metadata tests for default/reset behavior, configuration-source precedence, convention dispatch, runtime propagation, and snapshot generation.
+    graders:
+      - type: file-matches
+        config:
+          path: implementation-plan.md
+          pattern: (?i)(?=[\s\S]*IsImaginary)(?=[\s\S]*(ConventionSet|ConventionDispatcher))(?=[\s\S]*(RuntimeForeignKey|compiled model))(?=[\s\S]*(CSharpSnapshotGenerator|snapshot))(?=[\s\S]*(API baseline|EFCoreApiBaseline))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1.0
+          evidence: [ trajectory, repo ]
+      - type: token-budget
+        config:
+          max: 1400000
+scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
+  weights:
+    file-matches: 0.27
+    prompt: 0.63
+    token-budget: 0.1
+  threshold: 0.75

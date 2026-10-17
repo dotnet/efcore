@@ -2094,6 +2094,310 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region 33663
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_foreign_key_in_anonymous_key(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context33663>(seed: async c =>
+            {
+                var country = new Context33663.Country();
+                c.AddRange(
+                    new Context33663.Company { Country = country },
+                    new Context33663.Company { Country = country },
+                    new Context33663.Company());
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var group = context.Companies.GroupBy(x => new { x.CountryId });
+            var group1 = context.Companies.GroupBy(x => new { x.CountryId, x.Id });
+            var select2 = group.Select(x => new { x.Key, C = x.ToArray() });
+            var select4 = group1.Select(x => new { x.Key, C = x.ToArray() });
+
+            var groupRes = async ? await group.ToListAsync() : group.ToList();
+            var groupres1 = async ? await group1.ToListAsync() : group1.ToList();
+            var select2Res = async ? await select2.ToListAsync() : select2.ToList();
+            var select4Res = async ? await select4.ToListAsync() : select4.ToList();
+
+            Assert.Equal([1, 2], groupRes.Select(g => g.Count()).Order());
+            Assert.Single(groupRes, g => g.Key.CountryId == null);
+            Assert.Equal([1, 1, 1], groupres1.Select(g => g.Count()));
+            Assert.Equal([1, 2], select2Res.Select(g => g.C.Length).Order());
+            Assert.Single(select2Res, g => g.Key.CountryId == null);
+            Assert.Equal([1, 1, 1], select4Res.Select(g => g.C.Length));
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context33663(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Company> Companies
+                => Set<Company>();
+
+            public class Country
+            {
+                public int Id { get; set; }
+            }
+
+            public class Company
+            {
+                public int Id { get; set; }
+                public int? CountryId { get; set; }
+                public Country? Country { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region 39241
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_elements_with_keys_differing_only_in_case(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context39241>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context39241.Employee { Name = "Alice", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Bob", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Cheng", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Fen", DepartmentName = "engineering" },
+                    new Context39241.Employee { Name = "Dara", DepartmentName = "Sales" });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            // Whether keys differing only in case are one group depends on the database's collation; either way, the groupings have to
+            // be the database's groups.
+            var databaseGroups = context.Employees.GroupBy(e => e.DepartmentName).Select(g => g.Count());
+            var groupings = context.Employees.GroupBy(e => e.DepartmentName).Select(g => g.Select(e => e.Name).ToList());
+
+            var databaseGroupsRes = async ? await databaseGroups.ToListAsync() : databaseGroups.ToList();
+            ClearLog();
+            var groupingsRes = async ? await groupings.ToListAsync() : groupings.ToList();
+
+            Assert.Equal(databaseGroupsRes.Order(), groupingsRes.Select(g => g.Count).Order());
+            Assert.Equal(["Alice", "Bob", "Cheng", "Dara", "Fen"], groupingsRes.SelectMany(g => g).Order());
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context39241(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Employee> Employees
+                => Set<Employee>();
+
+            public class Employee
+            {
+                public int Id { get; set; }
+                public string Name { get; set; } = null!;
+                public string DepartmentName { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
+        #region 30233
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30233>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context30233.Entity { Id = 1, Group = 1, LongValue = 5, DecimalValue = 1.5m },
+                    new Context30233.Entity { Id = 2, Group = 1 },
+                    new Context30233.Entity { Id = 3, Group = 2, LongValue = 3, DecimalValue = 2.5m });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Set<Context30233.Entity>()
+                .GroupBy(e => e.Group)
+                .Select(g => new
+                {
+                    g.Key,
+                    SumLong = g.Sum(e => e.LongValue),
+                    SumDecimal = g.Sum(e => e.DecimalValue)
+                })
+                .OrderBy(x => x.Key);
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Collection(
+                result,
+                r =>
+                {
+                    Assert.Equal(5, r.SumLong);
+                    Assert.Equal(1.5m, r.SumDecimal);
+                },
+                r =>
+                {
+                    Assert.Equal(3, r.SumLong);
+                    Assert.Equal(2.5m, r.SumDecimal);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context30233(DbContextOptions options) : DbContext(options)
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Entity>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.LongValue).HasConversion<LongConverter>();
+                    b.Property(e => e.DecimalValue).HasConversion<DecimalConverter>().HasPrecision(18, 2);
+                });
+
+            public class Entity
+            {
+                public int Id { get; set; }
+                public int Group { get; set; }
+                public long? LongValue { get; set; }
+                public decimal? DecimalValue { get; set; }
+            }
+
+            public class LongConverter() : ValueConverter<long?, long>(v => v ?? 0L, v => v == 0L ? null : v, convertsNulls: true);
+
+            public class DecimalConverter() : ValueConverter<decimal?, decimal>(v => v ?? 0m, v => v == 0m ? null : v, convertsNulls: true);
+        }
+
+        #endregion
+
+        #region 29240
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_key_Select_First_ordered_by_date(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context29240.Category { GroupId = 1, CreationDateTime = new DateTime(2022, 1, 1) },
+                    new Context29240.Category { GroupId = 1, CreationDateTime = new DateTime(2022, 1, 2) },
+                    new Context29240.Category { CreationDateTime = new DateTime(2022, 1, 3) },
+                    new Context29240.Category { CreationDateTime = new DateTime(2022, 1, 4) });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Categories
+                .GroupBy(c => c.GroupId)
+                .Select(g => g.OrderByDescending(c => c.CreationDateTime).First());
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.All(result, Assert.NotNull);
+            Assert.Equal([new DateTime(2022, 1, 2), new DateTime(2022, 1, 4)], result.Select(c => c.CreationDateTime).Order());
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_key_Select_First_ordered_with_owned_types(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context29240.Product
+                    {
+                        GroupId = 1, Rank = 1, Details = new() { Description = "a" }, Tags = [new() { Name = "x" }]
+                    },
+                    new Context29240.Product
+                    {
+                        GroupId = 1, Rank = 2, Details = new() { Description = "b" }, Tags = [new() { Name = "y" }, new() { Name = "z" }]
+                    },
+                    new Context29240.Product { Rank = 3, Details = new() { Description = "c" }, Tags = [] },
+                    new Context29240.Product { Rank = 4, Details = new() { Description = "d" }, Tags = [new() { Name = "w" }] });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Products
+                .GroupBy(p => p.GroupId)
+                .Select(g => g.OrderByDescending(p => p.Rank).First());
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(p => p.Rank),
+                p =>
+                {
+                    Assert.Equal(2, p.Rank);
+                    Assert.Equal("b", p.Details.Description);
+                    Assert.Equal(["y", "z"], p.Tags.Select(t => t.Name));
+                },
+                p =>
+                {
+                    Assert.Equal(4, p.Rank);
+                    Assert.Equal("d", p.Details.Description);
+                    Assert.Equal(["w"], p.Tags.Select(t => t.Name));
+                });
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_Select_First_ordered_with_owned_types_then_DefaultIfEmpty(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.Add(new Context29240.Product { GroupId = 1, Rank = 1, Details = new() { Description = "a" }, Tags = [] });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Products
+                .Where(p => p.Rank > 1)
+                .GroupBy(p => p.GroupId)
+                .Select(g => g.OrderByDescending(p => p.Rank).First())
+                .DefaultIfEmpty();
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Null(Assert.Single(result));
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context29240(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Category> Categories
+                => Set<Category>();
+
+            public DbSet<Product> Products
+                => Set<Product>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Product>(b =>
+                {
+                    b.OwnsOne(p => p.Details);
+                    b.ComplexCollection(p => p.Tags, t => t.ToJson());
+                });
+
+            public class Category
+            {
+                public int Id { get; set; }
+                public int? GroupId { get; set; }
+                public DateTime CreationDateTime { get; set; }
+            }
+
+            public class Product
+            {
+                public int Id { get; set; }
+                public int? GroupId { get; set; }
+                public int Rank { get; set; }
+                public ProductDetails Details { get; set; } = null!;
+                public List<Tag> Tags { get; set; } = null!;
+            }
+
+            public class ProductDetails
+            {
+                public string? Description { get; set; }
+            }
+
+            public class Tag
+            {
+                public string? Name { get; set; }
+            }
+        }
+
+        #endregion
     }
 }
 

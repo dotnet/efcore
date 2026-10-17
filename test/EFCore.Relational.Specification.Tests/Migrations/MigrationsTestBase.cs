@@ -437,8 +437,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     table.Columns,
                     c => Assert.Equal("Id", c.Name),
                     c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("ComplexReference_Date", c.Name),
                     c => Assert.Equal("ComplexReference_Value", c.Name),
+                    c => Assert.Equal("ComplexReference_Date", c.Name),
                     c => Assert.Equal("ComplexCollectionJSON", c.Name),
                     c => Assert.Equal("ComplexReferenceJSON", c.Name));
                 Assert.Same(
@@ -2717,12 +2717,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
-                        Assert.True(c.IsNullable);
-                    },
-                    c =>
-                    {
-                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
                         Assert.True(c.IsNullable);
                     },
                     c =>
@@ -2732,7 +2727,12 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
+                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
                         Assert.True(c.IsNullable);
                     },
                     c =>
@@ -2774,12 +2774,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
-                        Assert.True(c.IsNullable);
-                    },
-                    c =>
-                    {
-                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
                         Assert.True(c.IsNullable);
                     },
                     c =>
@@ -2789,7 +2784,12 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
+                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
                         Assert.True(c.IsNullable);
                     },
                     c =>

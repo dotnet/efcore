@@ -659,10 +659,12 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
             => string.Join("", Enumerable.Repeat(Environment.NewLine, 1001));
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(
-                CoreEventId.MappedEntityTypeIgnoredWarning,
-                CoreEventId.MappedPropertyIgnoredWarning,
-                CoreEventId.MappedNavigationIgnoredWarning));
+            => base.AddOptions(builder).ConfigureWarnings(w => w
+                .Ignore(
+                    CoreEventId.MappedEntityTypeIgnoredWarning,
+                    CoreEventId.MappedPropertyIgnoredWarning,
+                    CoreEventId.MappedNavigationIgnoredWarning)
+                .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

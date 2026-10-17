@@ -14,4 +14,10 @@ public class NorthwindSelectQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noop
 
     public override Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
         => AssertTranslationFailed(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+
+    // InMemory doesn't translate ElementAt in a subquery, and doesn't opt in to lifting it into a join.
+    public override Task Multiple_members_of_correlated_single_result_subquery_lift_to_single_join(bool async, string method)
+        => method is nameof(Queryable.ElementAt) or nameof(Queryable.ElementAtOrDefault)
+            ? AssertTranslationFailed(() => base.Multiple_members_of_correlated_single_result_subquery_lift_to_single_join(async, method))
+            : base.Multiple_members_of_correlated_single_result_subquery_lift_to_single_join(async, method);
 }

@@ -418,6 +418,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case IPropertySymbol s:
                 typeSymbol = s.Type;
                 break;
+            case IParameterSymbol s:
+                typeSymbol = s.Type;
+                break;
             case null:
                 throw new InvalidOperationException($"Identifier without symbol: {identifierName}");
             default:
@@ -453,6 +456,19 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                             ResolveType(localSymbol.Type),
                             localSymbol.Name,
                             localSymbol.NullableAnnotation is NullableAnnotation.NotAnnotated)));
+        }
+
+        if (symbol is IParameterSymbol parameterSymbol && _dataFlowsIn.TryGetValue(parameterSymbol, out memberExpression))
+        {
+            return memberExpression
+                ?? (_dataFlowsIn[parameterSymbol] =
+                    Field(
+                        Constant(new FakeClosureFrameClass()),
+                        new FakeFieldInfo(
+                            typeof(FakeClosureFrameClass),
+                            ResolveType(parameterSymbol.Type),
+                            parameterSymbol.Name,
+                            parameterSymbol.NullableAnnotation is NullableAnnotation.NotAnnotated)));
         }
 
         throw new InvalidOperationException(
