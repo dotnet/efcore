@@ -2098,6 +2098,13 @@ WHERE [b].[Id] = @item_Id
 """);
     }
 
+    public override async Task Captured_null_object_property_throws_at_runtime()
+    {
+        await base.Captured_null_object_property_throws_at_runtime();
+
+        AssertSql();
+    }
+
     public override async Task Captured_foreach_object_properties(bool async)
     {
         await base.Captured_foreach_object_properties(async);

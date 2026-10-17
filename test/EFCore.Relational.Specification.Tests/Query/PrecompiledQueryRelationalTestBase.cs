@@ -1127,6 +1127,14 @@ var blog = await context.Blogs.FirstOrDefaultAsync(b => b.Id == item.Id);
 Assert.Same(item, blog);
 """);
 
+    [Fact]
+    public virtual Task Captured_null_object_property_throws_at_runtime()
+        => Test(
+            """
+Blog item = null!;
+await Assert.ThrowsAsync<NullReferenceException>(() => context.Blogs.AnyAsync(b => b.Id == item.Id));
+""");
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Captured_foreach_object_properties(bool async)
         => Test(

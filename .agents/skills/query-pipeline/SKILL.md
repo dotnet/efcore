@@ -38,6 +38,8 @@ user-invocable: false
 
 ## Validation
 
+- Precompiled-query captured reference locals use synthetic closure fields whose design-time values may be null placeholders. Preserve member-chain parameter naming in both parameter extraction and path calculation without dereferencing those placeholders; actual null dereferences must still fail at runtime.
+- `PrecompiledQueryTestHelpers` compiles the original source, generates interceptors, recompiles, and executes the result. Use shared precompiled-query tests and provider SQL baselines to verify both generation and runtime parameter extraction.
 - `ToQueryString()` shows generated SQL without executing
 - `ExpressionPrinter` dumps expression trees at any pipeline stage
 - SQL baselines verified via `AssertSql()` in provider functional tests and the generated SQL corresponds to the LINQ query in the base method
