@@ -337,6 +337,69 @@ new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
 }
 """);
 
+    [Theory, InlineData(false), InlineData(true)]
+    public void MemberInit_with_required_properties(bool constructorArgument)
+        => AssertExpression(
+            MemberInit(
+                constructorArgument
+                    ? New(typeof(BlogWithRequiredProperties).GetConstructor([typeof(string)])!, Constant("original"))
+                    : New(typeof(BlogWithRequiredProperties).GetConstructor([])!),
+                Bind(typeof(BlogWithRequiredProperties).GetProperty(nameof(BlogWithRequiredProperties.Name))!, Constant("foo")),
+                Bind(typeof(BlogWithRequiredProperties).GetProperty(nameof(BlogWithRequiredProperties.Rating))!, Constant(8))),
+            $$"""
+new LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties({{(constructorArgument ? "\"original\"" : "")}})
+{
+    Name = "foo",
+    Rating = 8
+}
+""");
+
+    [Fact]
+    public void MemberInit_with_inherited_required_field_and_init_only_property()
+        => AssertExpression(
+            (Expression<Func<RequiredBlog>>)(() => new RequiredBlog { Name = "foo", Details = new BlogDetails { Foo = 8 } }),
+            """
+LinqToCSharpSyntaxTranslatorTest.RequiredBlog () => new LinqToCSharpSyntaxTranslatorTest.RequiredBlog()
+{
+    Name = "foo",
+    Details = new LinqToCSharpSyntaxTranslatorTest.BlogDetails()
+    {
+        Foo = 8
+    }
+}
+""");
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void MemberInit_with_non_public_required_property(bool initializeRequiredProperty)
+    {
+        var expression = MemberInit(
+            New(typeof(BlogWithNonPublicRequiredProperty)),
+            initializeRequiredProperty
+                ? [Bind(
+                    typeof(BlogWithNonPublicRequiredProperty).GetProperty(
+                        nameof(BlogWithNonPublicRequiredProperty.Name), BindingFlags.Instance | BindingFlags.NonPublic)!,
+                    Constant("foo"))]
+                : []);
+
+        if (initializeRequiredProperty)
+        {
+            AssertExpression(
+                expression,
+                """
+new LinqToCSharpSyntaxTranslatorTest.BlogWithNonPublicRequiredProperty()
+{
+    Name = "foo"
+}
+""");
+        }
+        else
+        {
+            Assert.Equal(
+                "MemberInit: constructor requires an unsafe accessor",
+                Assert.Throws<NotSupportedException>(() => AssertExpression(expression, "")).Message);
+        }
+    }
+
     [Fact]
     public void MemberInit_with_MemberListBinding()
         => AssertExpression(
@@ -2638,6 +2701,23 @@ catch
             Name = name;
             Rating = rating;
         }
+    }
+
+    public class RequiredBlogBase
+    {
+        public required string Name;
+    }
+
+    public class RequiredBlog : RequiredBlogBase
+    {
+        public required BlogDetails Details { get; init; }
+    }
+
+    internal class BlogWithNonPublicRequiredProperty
+    {
+        internal required string Name { get; init; }
+
+        public BlogWithNonPublicRequiredProperty() { }
     }
 
     [Flags]

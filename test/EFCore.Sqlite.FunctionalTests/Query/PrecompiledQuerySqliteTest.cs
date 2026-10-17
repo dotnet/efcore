@@ -14,6 +14,21 @@ public class PrecompiledQuerySqliteTest(
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    public override async Task MemberInit_with_required_init_only_properties()
+    {
+        await base.MemberInit_with_required_init_only_properties();
+
+        AssertSql(
+            """
+@id='8'
+
+SELECT "b"."Id", "b"."Name"
+FROM "Blogs" AS "b"
+WHERE "b"."Id" = @id
+LIMIT 1
+""");
+    }
+
     [Fact]
     public virtual Task Glob()
         => Test("""_ = context.Blogs.Where(b => EF.Functions.Glob(b.Name, "*foo*")).ToList();""");
