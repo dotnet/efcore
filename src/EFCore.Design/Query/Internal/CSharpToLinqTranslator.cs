@@ -255,6 +255,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var left = Visit(binary.Left);
         var right = Visit(binary.Right);
 
+        if (binary.IsKind(SyntaxKind.CoalesceExpression))
+        {
+            return Coalesce(left, right);
+        }
+
         if (Nullable.GetUnderlyingType(left.Type) == right.Type)
         {
             right = Convert(right, left.Type);
@@ -319,8 +324,6 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                     ? type
                     : throw new InvalidOperationException(
                         $"Encountered {SyntaxKind.AsExpression} with non-constant type right argument: {right}")),
-            SyntaxKind.CoalesceExpression => Coalesce(left, right),
-
             _ => throw new ArgumentOutOfRangeException($"BinaryExpressionSyntax with {binary.Kind()}")
         };
     }
