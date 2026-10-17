@@ -320,9 +320,6 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
     [Theory]
     public override Task SelectMany_with_result_selector(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
