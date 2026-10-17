@@ -16,7 +16,6 @@ user-invocable: false
 ## Translation
 
 - Translation fallback must distinguish established unsupported shapes from unexpected defects. Do not turn arbitrary exceptions into a successful fallback.
-- C# constructor emission must account for the enclosing initializer: assigning every required member permits normal construction, while bare construction may still require an unsafe accessor. Include inherited required fields/properties and preserve init-only assignments inside the initializer.
 - Check whether a failed rewrite mutated state that fallback will reuse. For test coordination, establish the actual collection, assembly, and async-flow boundaries before claiming shared static state can race; theory rows are not inherently parallel, and reset in `finally` is not mutual exclusion.
 
 ## Optimizations
