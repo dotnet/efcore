@@ -11,6 +11,18 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    public override async Task Coalesce_nullable_long_in_anonymous_projection()
+    {
+        await base.Coalesce_nullable_long_in_anonymous_projection();
+
+        AssertSql(
+            """
+SELECT COALESCE([r].[SizeBytes], CAST(0 AS bigint)) AS [SizeBytes]
+FROM [Records] AS [r]
+ORDER BY [r].[Id]
+""");
+    }
+
     public override async Task Index_no_evaluatability()
     {
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
