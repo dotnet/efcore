@@ -57,8 +57,6 @@ When processing properties in conventions or validation, remember that complex t
 
 `RelationalModel` (`src/EFCore.Relational/Metadata/Internal/RelationalModel.cs`) is a database-centric view of the EF model, mapping entity types to physical database objects: `Tables`, `Views`, `Functions`, `Queries`, and `DefaultTables`. `DefaultTables` are pseudo-table objects only used for `FromSql` queries.
 
-Default mappings must create JSON container columns for complex types recursively, without flattening their scalar properties, while preserving mappings for nested complex types.
-
 Created lazily by `RelationalModelRuntimeInitializer`, accessed via `model.GetRelationalModel()`. Used by migrations (`MigrationsModelDiffer`), update and query pipelines.
 
 `RelationalAnnotationProvider` populates annotations on relational model elements. Provider subclasses (e.g., `SqlServerAnnotationProvider`) add provider-specific annotations. `IMigrationsAnnotationProvider` controls annotations used in down-migration operations.
