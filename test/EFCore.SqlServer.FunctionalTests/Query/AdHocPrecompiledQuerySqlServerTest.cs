@@ -17,7 +17,7 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
 
         AssertSql(
             """
-SELECT COALESCE([r].[SizeBytes], CAST(0 AS bigint)) AS [SizeBytes]
+SELECT ISNULL([r].[SizeBytes], CAST(0 AS bigint)) AS [SizeBytes]
 FROM [Records] AS [r]
 ORDER BY [r].[Id]
 """);
