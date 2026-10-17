@@ -2249,7 +2249,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 || (node.Type.GetCustomAttribute<RequiredMemberAttribute>() is not null
                     && constructor.GetCustomAttribute<SetsRequiredMembersAttribute>() is null
                     && (memberBindings is null
-                        || !node.Type.GetMembers()
+                        || !node.Type.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                             .Where(m => m.GetCustomAttribute<RequiredMemberAttribute>() is not null)
                             .All(m => memberBindings.Any(b => b is MemberAssignment && b.Member.Name == m.Name))))))
         {
@@ -2676,7 +2676,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitMemberInit(MemberInitExpression memberInit)
     {
-        var objectCreation = (ObjectCreationExpressionSyntax)TranslateNew(memberInit.NewExpression, memberInit.Bindings);
+        var objectCreation = TranslateNew(memberInit.NewExpression, memberInit.Bindings) as ObjectCreationExpressionSyntax
+            ?? throw new NotSupportedException("MemberInit: constructor requires an unsafe accessor");
 
         List<MemberListBinding>? incompatibleListBindings = null;
 

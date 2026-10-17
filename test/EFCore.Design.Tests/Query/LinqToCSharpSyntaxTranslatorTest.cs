@@ -369,6 +369,37 @@ LinqToCSharpSyntaxTranslatorTest.RequiredBlog () => new LinqToCSharpSyntaxTransl
 }
 """);
 
+    [Theory, InlineData(false), InlineData(true)]
+    public void MemberInit_with_non_public_required_property(bool initializeRequiredProperty)
+    {
+        var expression = MemberInit(
+            New(typeof(BlogWithNonPublicRequiredProperty)),
+            initializeRequiredProperty
+                ? [Bind(
+                    typeof(BlogWithNonPublicRequiredProperty).GetProperty(
+                        nameof(BlogWithNonPublicRequiredProperty.Name), BindingFlags.Instance | BindingFlags.NonPublic)!,
+                    Constant("foo"))]
+                : []);
+
+        if (initializeRequiredProperty)
+        {
+            AssertExpression(
+                expression,
+                """
+new LinqToCSharpSyntaxTranslatorTest.BlogWithNonPublicRequiredProperty()
+{
+    Name = "foo"
+}
+""");
+        }
+        else
+        {
+            Assert.Equal(
+                "MemberInit: constructor requires an unsafe accessor",
+                Assert.Throws<NotSupportedException>(() => AssertExpression(expression, "")).Message);
+        }
+    }
+
     [Fact]
     public void MemberInit_with_MemberListBinding()
         => AssertExpression(
@@ -2680,6 +2711,13 @@ catch
     public class RequiredBlog : RequiredBlogBase
     {
         public required BlogDetails Details { get; init; }
+    }
+
+    internal class BlogWithNonPublicRequiredProperty
+    {
+        internal required string Name { get; init; }
+
+        public BlogWithNonPublicRequiredProperty() { }
     }
 
     [Flags]
