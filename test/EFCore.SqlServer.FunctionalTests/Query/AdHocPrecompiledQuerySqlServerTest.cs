@@ -50,7 +50,7 @@ OUTPUT INSERTED.[Id], i._Position;
 @excluded3='Marketing' (Size = 4000)
 @excluded4='Support' (Size = 4000)
 
-SELECT [e].[DepartmentName], [e].[Id], [e].[Salary], ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0), COUNT_BIG(*) OVER(PARTITION BY [e].[DepartmentName])
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Id], [e].[Salary], ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0), COUNT_BIG(*) OVER(PARTITION BY [e].[DepartmentName])
 FROM [Employees] AS [e]
 WHERE [e].[DepartmentName] <> @excluded1 AND [e].[DepartmentName] <> @excluded2 AND [e].[DepartmentName] <> @excluded3 AND [e].[DepartmentName] <> @excluded4
 ORDER BY [e].[DepartmentName]
