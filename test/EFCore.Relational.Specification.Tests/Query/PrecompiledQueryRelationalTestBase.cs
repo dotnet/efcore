@@ -859,6 +859,31 @@ Assert.Equal("Blog1", (await context.Blogs.Where(b => b.Id == 8).FirstOrDefaultA
 Assert.Null(await context.Blogs.Where(b => b.Id == 7).FirstOrDefaultAsync(token));
 """);
 
+    [Fact]
+    public virtual Task Terminating_with_cancellation_token_parameter()
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        await using var context = new PrecompiledQueryContext(dbContextOptions);
+        using var source = new CancellationTokenSource();
+
+        Assert.Equal("Blog1", (await GetBlog(context, 8, "Blog1", source.Token))!.Name);
+        Assert.Null(await GetBlog(context, 9, "Blog1", source.Token));
+        Assert.Equal(new[] { 8, 9 }, await GetIds(context, source.Token));
+    }
+
+    private static Task<Blog?> GetBlog(
+        PrecompiledQueryContext context, int id, string name, CancellationToken cancellationToken)
+        => context.Blogs.Where(b => b.Id == id && b.Name == name).FirstOrDefaultAsync(cancellationToken);
+
+    private static Task<List<int>> GetIds(PrecompiledQueryContext context, CancellationToken cancellationToken)
+        => context.Blogs.OrderBy(b => b.Id).Select(b => b.Id).ToListAsync(cancellationToken);
+}
+""");
+
     #endregion Reducing terminating operators
 
     #region SQL expression quotability

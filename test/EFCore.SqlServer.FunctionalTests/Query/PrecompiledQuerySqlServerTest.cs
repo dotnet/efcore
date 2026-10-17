@@ -1659,6 +1659,36 @@ WHERE [b].[Id] = 7
 """);
     }
 
+    public override async Task Terminating_with_cancellation_token_parameter()
+    {
+        await base.Terminating_with_cancellation_token_parameter();
+
+        AssertSql(
+            """
+@id='8'
+@name='Blog1' (Size = 4000)
+
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @id AND [b].[Name] = @name
+""",
+            //
+            """
+@id='9'
+@name='Blog1' (Size = 4000)
+
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @id AND [b].[Name] = @name
+""",
+            //
+            """
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Id]
+""");
+    }
+
     #endregion Reducing terminating operators
 
     #region SQL expression quotability
