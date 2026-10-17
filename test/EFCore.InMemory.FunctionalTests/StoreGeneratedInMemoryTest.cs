@@ -1,7 +1,5 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-#nullable enable
 
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class StoreGeneratedInMemoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Value_generation_works_for_common_GUID_conversions()
     {
         ValueGenerationPositive<Guid, GuidToString>();
@@ -173,9 +171,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedIntKeyClass Id { get; set; } = null!;
 
         public WrappedIntClass? NonKey { get; set; }
-        public ICollection<WrappedIntClassDependentShadow> Dependents { get; } = new List<WrappedIntClassDependentShadow>();
-        public ICollection<WrappedIntClassDependentRequired> RequiredDependents { get; } = new List<WrappedIntClassDependentRequired>();
-        public ICollection<WrappedIntClassDependentOptional> OptionalDependents { get; } = new List<WrappedIntClassDependentOptional>();
+        public ICollection<WrappedIntClassDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedIntClassDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<WrappedIntClassDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class WrappedIntClassDependentShadow
@@ -210,9 +208,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedIntKeyStruct Id { get; set; }
 
         public WrappedIntStruct NonKey { get; set; }
-        public ICollection<WrappedIntStructDependentShadow> Dependents { get; } = new List<WrappedIntStructDependentShadow>();
-        public ICollection<WrappedIntStructDependentOptional> OptionalDependents { get; } = new List<WrappedIntStructDependentOptional>();
-        public ICollection<WrappedIntStructDependentRequired> RequiredDependents { get; } = new List<WrappedIntStructDependentRequired>();
+        public ICollection<WrappedIntStructDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedIntStructDependentOptional> OptionalDependents { get; } = [];
+        public ICollection<WrappedIntStructDependentRequired> RequiredDependents { get; } = [];
     }
 
     protected class WrappedIntStructDependentShadow
@@ -247,9 +245,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedIntKeyRecord Id { get; set; } = null!;
 
         public WrappedIntRecord? NonKey { get; set; }
-        public ICollection<WrappedIntRecordDependentShadow> Dependents { get; } = new List<WrappedIntRecordDependentShadow>();
-        public ICollection<WrappedIntRecordDependentOptional> OptionalDependents { get; } = new List<WrappedIntRecordDependentOptional>();
-        public ICollection<WrappedIntRecordDependentRequired> RequiredDependents { get; } = new List<WrappedIntRecordDependentRequired>();
+        public ICollection<WrappedIntRecordDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedIntRecordDependentOptional> OptionalDependents { get; } = [];
+        public ICollection<WrappedIntRecordDependentRequired> RequiredDependents { get; } = [];
     }
 
     protected class WrappedIntRecordDependentShadow
@@ -278,7 +276,7 @@ public class StoreGeneratedInMemoryTest
         public WrappedIntRecordPrincipal Principal { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_wrapped_int_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -563,9 +561,9 @@ public class StoreGeneratedInMemoryTest
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        public ICollection<LongToIntDependentShadow> Dependents { get; } = new List<LongToIntDependentShadow>();
-        public ICollection<LongToIntDependentRequired> RequiredDependents { get; } = new List<LongToIntDependentRequired>();
-        public ICollection<LongToIntDependentOptional> OptionalDependents { get; } = new List<LongToIntDependentOptional>();
+        public ICollection<LongToIntDependentShadow> Dependents { get; } = [];
+        public ICollection<LongToIntDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<LongToIntDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class LongToIntDependentShadow
@@ -594,7 +592,7 @@ public class StoreGeneratedInMemoryTest
         public LongToIntPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_long_to_int_conversion()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -810,13 +808,13 @@ public class StoreGeneratedInMemoryTest
         public WrappedStringKeyClass Id { get; set; } = null!;
 
         public WrappedStringClass? NonKey { get; set; }
-        public ICollection<WrappedStringClassDependentShadow> Dependents { get; } = new List<WrappedStringClassDependentShadow>();
+        public ICollection<WrappedStringClassDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedStringClassDependentRequired> RequiredDependents { get; } =
-            new List<WrappedStringClassDependentRequired>();
+            [];
 
         public ICollection<WrappedStringClassDependentOptional> OptionalDependents { get; } =
-            new List<WrappedStringClassDependentOptional>();
+            [];
     }
 
     protected class WrappedStringClassDependentShadow
@@ -851,13 +849,13 @@ public class StoreGeneratedInMemoryTest
         public WrappedStringKeyStruct Id { get; set; }
 
         public WrappedStringStruct NonKey { get; set; }
-        public ICollection<WrappedStringStructDependentShadow> Dependents { get; } = new List<WrappedStringStructDependentShadow>();
+        public ICollection<WrappedStringStructDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedStringStructDependentOptional> OptionalDependents { get; } =
-            new List<WrappedStringStructDependentOptional>();
+            [];
 
         public ICollection<WrappedStringStructDependentRequired> RequiredDependents { get; } =
-            new List<WrappedStringStructDependentRequired>();
+            [];
     }
 
     protected class WrappedStringStructDependentShadow
@@ -892,13 +890,13 @@ public class StoreGeneratedInMemoryTest
         public WrappedStringKeyRecord Id { get; set; } = null!;
 
         public WrappedStringRecord? NonKey { get; set; }
-        public ICollection<WrappedStringRecordDependentShadow> Dependents { get; } = new List<WrappedStringRecordDependentShadow>();
+        public ICollection<WrappedStringRecordDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedStringRecordDependentOptional> OptionalDependents { get; } =
-            new List<WrappedStringRecordDependentOptional>();
+            [];
 
         public ICollection<WrappedStringRecordDependentRequired> RequiredDependents { get; } =
-            new List<WrappedStringRecordDependentRequired>();
+            [];
     }
 
     protected class WrappedStringRecordDependentShadow
@@ -927,7 +925,7 @@ public class StoreGeneratedInMemoryTest
         public WrappedStringRecordPrincipal Principal { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_wrapped_string_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -1318,9 +1316,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedGuidKeyClass Id { get; set; } = null!;
 
         public WrappedGuidClass? NonKey { get; set; }
-        public ICollection<WrappedGuidClassDependentShadow> Dependents { get; } = new List<WrappedGuidClassDependentShadow>();
-        public ICollection<WrappedGuidClassDependentRequired> RequiredDependents { get; } = new List<WrappedGuidClassDependentRequired>();
-        public ICollection<WrappedGuidClassDependentOptional> OptionalDependents { get; } = new List<WrappedGuidClassDependentOptional>();
+        public ICollection<WrappedGuidClassDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedGuidClassDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<WrappedGuidClassDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class WrappedGuidClassDependentShadow
@@ -1355,9 +1353,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedGuidKeyStruct Id { get; set; }
 
         public WrappedGuidStruct NonKey { get; set; }
-        public ICollection<WrappedGuidStructDependentShadow> Dependents { get; } = new List<WrappedGuidStructDependentShadow>();
-        public ICollection<WrappedGuidStructDependentOptional> OptionalDependents { get; } = new List<WrappedGuidStructDependentOptional>();
-        public ICollection<WrappedGuidStructDependentRequired> RequiredDependents { get; } = new List<WrappedGuidStructDependentRequired>();
+        public ICollection<WrappedGuidStructDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedGuidStructDependentOptional> OptionalDependents { get; } = [];
+        public ICollection<WrappedGuidStructDependentRequired> RequiredDependents { get; } = [];
     }
 
     protected class WrappedGuidStructDependentShadow
@@ -1392,9 +1390,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedGuidKeyRecord Id { get; set; } = null!;
 
         public WrappedGuidRecord? NonKey { get; set; }
-        public ICollection<WrappedGuidRecordDependentShadow> Dependents { get; } = new List<WrappedGuidRecordDependentShadow>();
-        public ICollection<WrappedGuidRecordDependentOptional> OptionalDependents { get; } = new List<WrappedGuidRecordDependentOptional>();
-        public ICollection<WrappedGuidRecordDependentRequired> RequiredDependents { get; } = new List<WrappedGuidRecordDependentRequired>();
+        public ICollection<WrappedGuidRecordDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedGuidRecordDependentOptional> OptionalDependents { get; } = [];
+        public ICollection<WrappedGuidRecordDependentRequired> RequiredDependents { get; } = [];
     }
 
     protected class WrappedGuidRecordDependentShadow
@@ -1423,7 +1421,7 @@ public class StoreGeneratedInMemoryTest
         public WrappedGuidRecordPrincipal Principal { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_wrapped_Guid_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -1786,7 +1784,7 @@ public class StoreGeneratedInMemoryTest
             => obj is WrappedUriKeyStruct other && Equals(other);
 
         public override int GetHashCode()
-            => (Value != null ? Value.GetHashCode() : 0);
+            => Value != null ? Value.GetHashCode() : 0;
 
         public static bool operator ==(WrappedUriKeyStruct left, WrappedUriKeyStruct right)
             => left.Equals(right);
@@ -1814,9 +1812,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedUriKeyClass Id { get; set; } = null!;
 
         public WrappedUriClass? NonKey { get; set; }
-        public ICollection<WrappedUriClassDependentShadow> Dependents { get; } = new List<WrappedUriClassDependentShadow>();
-        public ICollection<WrappedUriClassDependentRequired> RequiredDependents { get; } = new List<WrappedUriClassDependentRequired>();
-        public ICollection<WrappedUriClassDependentOptional> OptionalDependents { get; } = new List<WrappedUriClassDependentOptional>();
+        public ICollection<WrappedUriClassDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedUriClassDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<WrappedUriClassDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class WrappedUriClassDependentShadow
@@ -1851,9 +1849,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedUriKeyStruct Id { get; set; }
 
         public WrappedUriStruct NonKey { get; set; }
-        public ICollection<WrappedUriStructDependentShadow> Dependents { get; } = new List<WrappedUriStructDependentShadow>();
-        public ICollection<WrappedUriStructDependentOptional> OptionalDependents { get; } = new List<WrappedUriStructDependentOptional>();
-        public ICollection<WrappedUriStructDependentRequired> RequiredDependents { get; } = new List<WrappedUriStructDependentRequired>();
+        public ICollection<WrappedUriStructDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedUriStructDependentOptional> OptionalDependents { get; } = [];
+        public ICollection<WrappedUriStructDependentRequired> RequiredDependents { get; } = [];
     }
 
     protected class WrappedUriStructDependentShadow
@@ -1888,9 +1886,9 @@ public class StoreGeneratedInMemoryTest
         public WrappedUriKeyRecord Id { get; set; } = null!;
 
         public WrappedUriRecord? NonKey { get; set; }
-        public ICollection<WrappedUriRecordDependentShadow> Dependents { get; } = new List<WrappedUriRecordDependentShadow>();
-        public ICollection<WrappedUriRecordDependentOptional> OptionalDependents { get; } = new List<WrappedUriRecordDependentOptional>();
-        public ICollection<WrappedUriRecordDependentRequired> RequiredDependents { get; } = new List<WrappedUriRecordDependentRequired>();
+        public ICollection<WrappedUriRecordDependentShadow> Dependents { get; } = [];
+        public ICollection<WrappedUriRecordDependentOptional> OptionalDependents { get; } = [];
+        public ICollection<WrappedUriRecordDependentRequired> RequiredDependents { get; } = [];
     }
 
     protected class WrappedUriRecordDependentShadow
@@ -1919,7 +1917,7 @@ public class StoreGeneratedInMemoryTest
         public WrappedUriRecordPrincipal Principal { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_wrapped_Uri_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2203,9 +2201,9 @@ public class StoreGeneratedInMemoryTest
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Uri Id { get; set; } = null!;
 
-        public ICollection<UriDependentShadow> Dependents { get; } = new List<UriDependentShadow>();
-        public ICollection<UriDependentRequired> RequiredDependents { get; } = new List<UriDependentRequired>();
-        public ICollection<UriDependentOptional> OptionalDependents { get; } = new List<UriDependentOptional>();
+        public ICollection<UriDependentShadow> Dependents { get; } = [];
+        public ICollection<UriDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<UriDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class UriDependentShadow
@@ -2234,7 +2232,7 @@ public class StoreGeneratedInMemoryTest
         public UriPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_Uri_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2326,9 +2324,9 @@ public class StoreGeneratedInMemoryTest
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public KeyEnum Id { get; set; }
 
-        public ICollection<EnumDependentShadow> Dependents { get; } = new List<EnumDependentShadow>();
-        public ICollection<EnumDependentRequired> RequiredDependents { get; } = new List<EnumDependentRequired>();
-        public ICollection<EnumDependentOptional> OptionalDependents { get; } = new List<EnumDependentOptional>();
+        public ICollection<EnumDependentShadow> Dependents { get; } = [];
+        public ICollection<EnumDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<EnumDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class EnumDependentShadow
@@ -2357,7 +2355,7 @@ public class StoreGeneratedInMemoryTest
         public EnumPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_enum_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2439,9 +2437,9 @@ public class StoreGeneratedInMemoryTest
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
-        public ICollection<GuidAsStringDependentShadow> Dependents { get; } = new List<GuidAsStringDependentShadow>();
-        public ICollection<GuidAsStringDependentRequired> RequiredDependents { get; } = new List<GuidAsStringDependentRequired>();
-        public ICollection<GuidAsStringDependentOptional> OptionalDependents { get; } = new List<GuidAsStringDependentOptional>();
+        public ICollection<GuidAsStringDependentShadow> Dependents { get; } = [];
+        public ICollection<GuidAsStringDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<GuidAsStringDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class GuidAsStringDependentShadow
@@ -2470,7 +2468,7 @@ public class StoreGeneratedInMemoryTest
         public GuidAsStringPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_GuidAsString_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2552,9 +2550,9 @@ public class StoreGeneratedInMemoryTest
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; } = null!;
 
-        public ICollection<StringAsGuidDependentShadow> Dependents { get; } = new List<StringAsGuidDependentShadow>();
-        public ICollection<StringAsGuidDependentRequired> RequiredDependents { get; } = new List<StringAsGuidDependentRequired>();
-        public ICollection<StringAsGuidDependentOptional> OptionalDependents { get; } = new List<StringAsGuidDependentOptional>();
+        public ICollection<StringAsGuidDependentShadow> Dependents { get; } = [];
+        public ICollection<StringAsGuidDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<StringAsGuidDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class StringAsGuidDependentShadow
@@ -2583,7 +2581,7 @@ public class StoreGeneratedInMemoryTest
         public StringAsGuidPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_StringAsGuid_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2677,18 +2675,12 @@ public class StoreGeneratedInMemoryTest
 
             modelBuilder.Entity<NonStoreGenDependent>();
 
-            modelBuilder.Entity<WrappedIntClassPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntClassValueGenerator>();
-            });
-            modelBuilder.Entity<WrappedIntStructPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntStructValueGenerator>();
-            });
-            modelBuilder.Entity<WrappedIntRecordPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntRecordValueGenerator>();
-            });
+            modelBuilder.Entity<WrappedIntClassPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntClassValueGenerator>());
+            modelBuilder.Entity<WrappedIntStructPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntStructValueGenerator>());
+            modelBuilder.Entity<WrappedIntRecordPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntRecordValueGenerator>());
 
             modelBuilder.Entity<LongToIntPrincipal>(entity =>
             {
@@ -2699,56 +2691,32 @@ public class StoreGeneratedInMemoryTest
                 entity.Property(e => e.Id).HasConversion(keyConverter);
             });
 
-            modelBuilder.Entity<WrappedGuidClassPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidClassValueGenerator>();
-            });
-            modelBuilder.Entity<WrappedGuidStructPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidStructValueGenerator>();
-            });
-            modelBuilder.Entity<WrappedGuidRecordPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidRecordValueGenerator>();
-            });
+            modelBuilder.Entity<WrappedGuidClassPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidClassValueGenerator>());
+            modelBuilder.Entity<WrappedGuidStructPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidStructValueGenerator>());
+            modelBuilder.Entity<WrappedGuidRecordPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedGuidRecordValueGenerator>());
 
-            modelBuilder.Entity<WrappedStringClassPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringClassValueGenerator>();
-            });
-            modelBuilder.Entity<WrappedStringStructPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringStructValueGenerator>();
-            });
-            modelBuilder.Entity<WrappedStringRecordPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringRecordValueGenerator>();
-            });
+            modelBuilder.Entity<WrappedStringClassPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringClassValueGenerator>());
+            modelBuilder.Entity<WrappedStringStructPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringStructValueGenerator>());
+            modelBuilder.Entity<WrappedStringRecordPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedStringRecordValueGenerator>());
 
-            modelBuilder.Entity<WrappedUriClassPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriClassValueGenerator>();
-            });
-            modelBuilder.Entity<WrappedUriStructPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriStructValueGenerator>();
-            });
-            modelBuilder.Entity<WrappedUriRecordPrincipal>(entity =>
-            {
-                entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriRecordValueGenerator>();
-            });
+            modelBuilder.Entity<WrappedUriClassPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriClassValueGenerator>());
+            modelBuilder.Entity<WrappedUriStructPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriStructValueGenerator>());
+            modelBuilder.Entity<WrappedUriRecordPrincipal>(entity
+                => entity.Property(e => e.NonKey).HasValueGenerator<WrappedUriRecordValueGenerator>());
 
             modelBuilder.Entity<UriPrincipal>();
             modelBuilder.Entity<EnumPrincipal>();
 
-            modelBuilder.Entity<GuidAsStringPrincipal>(entity =>
-            {
-                entity.Property(e => e.Id).HasConversion<string>();
-            });
-            modelBuilder.Entity<GuidAsStringDependentShadow>(entity =>
-            {
-                entity.Property(e => e.Id).HasConversion<string>();
-            });
+            modelBuilder.Entity<GuidAsStringPrincipal>(entity => entity.Property(e => e.Id).HasConversion<string>());
+            modelBuilder.Entity<GuidAsStringDependentShadow>(entity => entity.Property(e => e.Id).HasConversion<string>());
             modelBuilder.Entity<GuidAsStringDependentOptional>(entity =>
             {
                 entity.Property(e => e.Id).HasConversion<string>();
@@ -2764,14 +2732,8 @@ public class StoreGeneratedInMemoryTest
                 v => new Guid(v),
                 v => v.ToString());
 
-            modelBuilder.Entity<StringAsGuidPrincipal>(entity =>
-            {
-                entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
-            });
-            modelBuilder.Entity<StringAsGuidDependentShadow>(entity =>
-            {
-                entity.Property(e => e.Id).HasConversion(stringToGuidConverter);
-            });
+            modelBuilder.Entity<StringAsGuidPrincipal>(entity => entity.Property(e => e.Id).HasConversion(stringToGuidConverter));
+            modelBuilder.Entity<StringAsGuidDependentShadow>(entity => entity.Property(e => e.Id).HasConversion(stringToGuidConverter));
             modelBuilder.Entity<StringAsGuidDependentOptional>(entity =>
             {
                 entity.Property(e => e.Id).HasConversion(stringToGuidConverter);

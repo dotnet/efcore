@@ -1,6 +1,7 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -8,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : JsonQueryTestBase<TFixture>(fixture)
     where TFixture : JsonQueryRelationalFixture, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Project_json_reference_in_tracking_query_fails(bool async)
     {
         var message =
@@ -17,7 +18,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Project_json_collection_in_tracking_query_fails(bool async)
     {
         var message =
@@ -27,7 +28,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory]
     public override async Task Project_json_entity_in_tracking_query_fails_even_when_owner_is_present(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
@@ -36,7 +37,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_on_entity_with_json_basic(bool async)
         => AssertQuery(
             async,
@@ -44,7 +45,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                 Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j")),
             ss => ss.Set<JsonEntityBasic>());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_on_entity_with_json_project_json_reference(bool async)
         => AssertQuery(
             async,
@@ -54,7 +55,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                 .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch),
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_on_entity_with_json_project_json_collection(bool async)
         => AssertQuery(
             async,
@@ -65,7 +66,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch),
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => (ee.Date, ee.Enum, ee.Fraction)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_on_entity_with_json_inheritance_on_base(bool async)
         => AssertQuery(
             async,
@@ -73,7 +74,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                 Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j")),
             ss => ss.Set<JsonEntityInheritanceBase>());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_on_entity_with_json_inheritance_on_derived(bool async)
         => AssertQuery(
             async,
@@ -81,7 +82,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                 Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j")),
             ss => ss.Set<JsonEntityInheritanceDerived>());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_on_entity_with_json_inheritance_project_reference_on_base(bool async)
         => AssertQuery(
             async,
@@ -93,7 +94,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             ss => ss.Set<JsonEntityInheritanceBase>().OrderBy(x => x.Id).Select(x => x.ReferenceOnBase),
             assertOrder: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_on_entity_with_json_inheritance_project_reference_on_derived(bool async)
         => AssertQuery(
             async,
@@ -106,7 +107,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => (ee.Date, ee.Enum, ee.Fraction)),
             assertOrder: true);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_projection_using_queryable_methods_on_top_of_JSON_collection_AsNoTrackingWithIdentityResolution(
         bool async)
     {
@@ -133,7 +134,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_nested_collection_anonymous_projection_in_projection_NoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -171,7 +172,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_projection_nested_collection_and_element_using_parameter_AsNoTrackingWithIdentityResolution(bool async)
     {
         var prm = 0;
@@ -199,7 +200,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_projection_nested_collection_and_element_using_parameter_AsNoTrackingWithIdentityResolution2(bool async)
     {
         var prm1 = 0;
@@ -228,7 +229,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task
         Json_projection_second_element_through_collection_element_parameter_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
             bool async)
@@ -260,7 +261,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task
         Json_projection_second_element_through_collection_element_parameter_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
             bool async)
@@ -291,7 +292,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task
         Json_projection_second_element_through_collection_element_parameter_projected_before_owner_nested_AsNoTrackingWithIdentityResolution2(
             bool async)
@@ -323,7 +324,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task
         Json_projection_second_element_through_collection_element_parameter_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
             bool async)
@@ -354,7 +355,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task
         Json_projection_second_element_through_collection_element_constant_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(
             bool async)
@@ -383,7 +384,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_branch_collection_distinct_and_other_collection_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -393,7 +394,8 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                     .OrderBy(x => x.Id)
                     .Select(x => new
                     {
-                        First = x.EntityCollection.ToList(), Second = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList()
+                        First = x.EntityCollection.ToList(),
+                        Second = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList()
                     })
                     .AsNoTrackingWithIdentityResolution(),
                 assertOrder: true,
@@ -409,7 +411,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_collection_SelectMany_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -426,7 +428,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_projection_deduplication_with_collection_indexer_in_target_AsNoTrackingWithIdentityResolution(bool async)
     {
         var prm = 1;
@@ -438,7 +440,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                     x.Id,
                     Duplicate1 = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
                     Original = x.OwnedReferenceRoot,
-                    Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[prm]
+                    Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[prm]
                 }).AsNoTrackingWithIdentityResolution(),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
@@ -456,7 +458,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_projection_nested_collection_and_element_wrong_order_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -483,7 +485,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_projection_second_element_projected_before_entire_collection_AsNoTrackingWithIdentityResolution(
         bool async)
     {
@@ -511,7 +513,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_projection_second_element_projected_before_owner_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -538,7 +540,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
             message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_projection_second_element_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -547,7 +549,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                 ss => ss.Set<JsonEntityBasic>().Select(x => new
                 {
                     x.Id,
-                    Duplicate = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1],
+                    Duplicate = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[1],
                     Original = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
                     Parent = x.OwnedReferenceRoot.OwnedReferenceBranch,
                 }).AsNoTrackingWithIdentityResolution(),
@@ -565,4 +567,886 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                 nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
             message);
     }
+
+    #region Non-shared test resources
+
+    protected override void ConfigureWarnings(WarningsConfigurationBuilder builder)
+    {
+        base.ConfigureWarnings(builder);
+
+        builder.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning);
+    }
+
+    protected TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    protected virtual string? JsonColumnType
+        => null;
+
+    #region 21006
+
+    public override async Task Project_missing_required_navigation(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_missing_required_navigation(async))).Message;
+
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(typeof(Context21006.JsonEntityNested).Name), message);
+    }
+
+    public override async Task Project_null_required_navigation(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_null_required_navigation(async))).Message;
+
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(typeof(Context21006.JsonEntityNested).Name), message);
+    }
+
+    public override async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
+
+        Assert.Equal("Cannot get the value of a token type 'Null' as a number.", message);
+    }
+
+    protected override void OnModelCreating21006(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating21006(modelBuilder);
+
+        modelBuilder.Entity<Context21006.Entity>(b =>
+        {
+            b.ToTable("Entities");
+            b.OwnsOne(x => x.OptionalReference).ToJson().HasColumnType(JsonColumnType);
+            b.OwnsOne(x => x.RequiredReference).ToJson().HasColumnType(JsonColumnType);
+            b.OwnsMany(x => x.Collection).ToJson().HasColumnType(JsonColumnType);
+        });
+    }
+
+    #endregion
+
+    #region 32310
+
+    protected override void OnModelCreating32310(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating32310(modelBuilder);
+
+        modelBuilder.Entity<Context32310.Pub>().OwnsOne(e => e.Visits).ToJson().HasColumnType(JsonColumnType);
+    }
+
+    #endregion
+
+    #region 29219
+
+    protected override void OnModelCreating29219(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating29219(modelBuilder);
+
+        modelBuilder.Entity<Context29219.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.OwnsOne(x => x.Reference).ToJson().HasColumnType(JsonColumnType);
+            b.OwnsMany(x => x.Collection).ToJson().HasColumnType(JsonColumnType);
+        });
+    }
+
+    #endregion
+
+    #region 30028
+
+    protected override void OnModelCreating30028(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating30028(modelBuilder);
+
+        modelBuilder.Entity<Context30028.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.OwnsOne(
+                x => x.Json, nb => nb.ToJson().HasColumnType(JsonColumnType));
+        });
+    }
+
+    #endregion
+
+    #region 32939
+
+    protected override void OnModelCreating32939(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating32939(modelBuilder);
+
+        modelBuilder.Entity<Context32939.Entity>().OwnsOne(x => x.Empty, b => b.ToJson().HasColumnType(JsonColumnType));
+        modelBuilder.Entity<Context32939.Entity>().OwnsOne(x => x.FieldOnly, b => b.ToJson().HasColumnType(JsonColumnType));
+    }
+
+    #endregion
+
+    #region 33046
+
+    protected override void OnModelCreating33046(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating33046(modelBuilder);
+
+        modelBuilder.Entity<Context33046.Review>(b =>
+        {
+            b.ToTable("Reviews");
+            b.OwnsMany(
+                x => x.Rounds, ownedBuilder => ownedBuilder.ToJson().HasColumnType(JsonColumnType));
+        });
+    }
+
+    #endregion
+
+    #region 34293
+
+    [Fact]
+    public virtual async Task Project_entity_with_optional_json_entity_owned_by_required_json()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateDbContext();
+        var entityProjection = await context.Set<Context34293.Entity>().ToListAsync();
+
+        Assert.Equal(3, entityProjection.Count);
+    }
+
+    [Fact]
+    public virtual async Task Project_required_json_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateDbContext();
+
+        var rootProjection =
+            await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json).ToListAsync();
+        Assert.Equal(2, rootProjection.Count);
+
+        var branchProjection = await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json.Required)
+            .ToListAsync();
+        Assert.Equal(2, rootProjection.Count);
+
+        var badRootProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json).ToListAsync())).Message;
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badRootProjectionMessage);
+
+        var badBranchProjectionMessage = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id == 3).Select(x => x.Json.Required).ToListAsync())).Message;
+        Assert.Equal(RelationalStrings.JsonRequiredEntityWithNullJson(nameof(Context34293.JsonBranch)), badBranchProjectionMessage);
+    }
+
+    [Fact]
+    public virtual async Task Project_optional_json_entity_owned_by_required_json_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
+            onModelCreating: OnModelCreating34293,
+            seed: ctx => ctx.Seed());
+
+        using var context = contextFactory.CreateDbContext();
+        var leafProjection = await context.Set<Context34293.Entity>().AsNoTracking().Select(x => x.Json.Required.Optional).ToListAsync();
+        Assert.Equal(3, leafProjection.Count);
+    }
+
+    protected class Context34293(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities
+            => Set<Entity>();
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonRoot Json { get; set; } = null!;
+        }
+
+        public class JsonRoot
+        {
+            public DateTime Date { get; set; }
+
+            public JsonBranch Required { get; set; } = null!;
+        }
+
+        public class JsonBranch
+        {
+            public int Number { get; set; }
+            public JsonLeaf? Optional { get; set; }
+        }
+
+        public class JsonLeaf
+        {
+            public string Name { get; set; } = null!;
+        }
+
+        public async Task Seed()
+        {
+            // everything - ok
+            var e1 = new Entity
+            {
+                Id = 1,
+                Json = new JsonRoot
+                {
+                    Date = new DateTime(2001, 1, 1),
+                    Required = new JsonBranch { Number = 1, Optional = new JsonLeaf { Name = "optional 1" } }
+                }
+            };
+
+            // null leaf - ok (optional nav)
+            var e2 = new Entity
+            {
+                Id = 2,
+                Json = new JsonRoot { Date = new DateTime(2002, 2, 2), Required = new JsonBranch { Number = 2, Optional = null } }
+            };
+
+            // null branch - invalid (required nav)
+            var e3 = new Entity
+            {
+                Id = 3,
+                Json = new JsonRoot
+                {
+                    Date = new DateTime(2003, 3, 3),
+                    Required = null!,
+                }
+            };
+
+            Entities.AddRange(e1, e2, e3);
+            await SaveChangesAsync();
+        }
+    }
+
+    protected virtual void OnModelCreating34293(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<Context34293.Entity>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                x => x.Json, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.OwnsOne(
+                        x => x.Required, bb =>
+                        {
+                            bb.OwnsOne(x => x.Optional);
+                            bb.Navigation(x => x.Optional).IsRequired(false);
+                        });
+                    b.Navigation(x => x.Required).IsRequired();
+                });
+            b.Navigation(x => x.Json).IsRequired();
+        });
+
+    #endregion
+
+    #region 34960
+
+    public override async Task Try_project_collection_but_JSON_is_entity()
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Try_project_collection_but_JSON_is_entity())).Message;
+
+        Assert.Equal(
+            CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartObject)),
+            message);
+    }
+
+    public override async Task Try_project_reference_but_JSON_is_collection()
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Try_project_reference_but_JSON_is_collection()))
+            .Message;
+
+        Assert.Equal(
+            CoreStrings.JsonReaderInvalidTokenType(nameof(JsonTokenType.StartArray)),
+            message);
+    }
+
+    protected override void OnModelCreating34960(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating34960(modelBuilder);
+
+        modelBuilder.Entity<Context34960.Entity>(b =>
+        {
+            b.ToTable("Entities");
+
+            b.OwnsOne(
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsMany(
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
+
+        modelBuilder.Entity<Context34960.JunkEntity>(b =>
+        {
+            b.ToTable("Junk");
+
+            b.OwnsOne(
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsMany(
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
+    }
+
+    #endregion
+
+    #region ArrayOfPrimitives
+
+    protected override void OnModelCreatingArrayOfPrimitives(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingArrayOfPrimitives(modelBuilder);
+
+        modelBuilder.Entity<ContextArrayOfPrimitives.MyEntity>().OwnsOne(
+            x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+
+        modelBuilder.Entity<ContextArrayOfPrimitives.MyEntity>().OwnsMany(
+            x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+    }
+
+    #endregion
+
+    #region JunkInJson
+
+    protected override void OnModelCreatingJunkInJson(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingJunkInJson(modelBuilder);
+
+        modelBuilder.Entity<ContextJunkInJson.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+
+            b.OwnsOne(
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsOne(
+                x => x.ReferenceWithCtor, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsMany(
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsMany(
+                x => x.CollectionWithCtor, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
+    }
+
+    #endregion
+
+    #region TrickyBuffering
+
+    protected override void OnModelCreatingTrickyBuffering(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingTrickyBuffering(modelBuilder);
+
+        modelBuilder.Entity<ContextTrickyBuffering.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.OwnsOne(
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
+    }
+
+    #endregion
+
+    #region ShadowProperties
+
+    protected override void OnModelCreatingShadowProperties(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingShadowProperties(modelBuilder);
+
+        modelBuilder.Entity<ContextShadowProperties.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+
+            b.OwnsOne(
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsOne(
+                x => x.ReferenceWithCtor, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.Property<int>("Shadow_Int").HasJsonPropertyName("ShadowInt");
+                });
+
+            b.OwnsMany(
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsMany(
+                x => x.CollectionWithCtor, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
+    }
+
+    #endregion
+
+    #region LazyLoadingProxies
+
+    protected override void OnModelCreatingLazyLoadingProxies(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingLazyLoadingProxies(modelBuilder);
+
+        modelBuilder.Entity<ContextLazyLoadingProxies.MyEntity>().OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+        modelBuilder.Entity<ContextLazyLoadingProxies.MyEntity>()
+            .OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+    }
+
+    //protected void OnConfiguringLazyLoadingProxies(DbContextOptionsBuilder optionsBuilder)
+    //    => optionsBuilder.UseLazyLoadingProxies();
+
+    //protected IServiceCollection AddServicesLazyLoadingProxies(IServiceCollection addServices)
+    //    => addServices.AddEntityFrameworkProxies();
+
+    //private Task SeedLazyLoadingProxies(DbContext ctx)
+    //{
+    //    var r1 = new MyJsonEntityLazyLoadingProxiesWithCtor("r1", 1);
+    //    var c11 = new MyJsonEntityLazyLoadingProxies { Name = "c11", Number = 11 };
+    //    var c12 = new MyJsonEntityLazyLoadingProxies { Name = "c12", Number = 12 };
+    //    var c13 = new MyJsonEntityLazyLoadingProxies { Name = "c13", Number = 13 };
+
+    //    var r2 = new MyJsonEntityLazyLoadingProxiesWithCtor("r2", 2);
+    //    var c21 = new MyJsonEntityLazyLoadingProxies { Name = "c21", Number = 21 };
+    //    var c22 = new MyJsonEntityLazyLoadingProxies { Name = "c22", Number = 22 };
+
+    //    var e1 = new MyEntityLazyLoadingProxies
+    //    {
+    //        Id = 1,
+    //        Name = "e1",
+    //        Reference = r1,
+    //        Collection =
+    //        [
+    //            c11,
+    //            c12,
+    //            c13
+    //        ]
+    //    };
+
+    //    var e2 = new MyEntityLazyLoadingProxies
+    //    {
+    //        Id = 2,
+    //        Name = "e2",
+    //        Reference = r2,
+    //        Collection = [c21, c22]
+    //    };
+
+    //    ctx.Set<MyEntityLazyLoadingProxies>().AddRange(e1, e2);
+    //    return ctx.SaveChangesAsync();
+    //}
+
+    #endregion
+
+    #region NotICollection
+
+    protected override void OnModelCreatingNotICollection(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingNotICollection(modelBuilder);
+
+        modelBuilder.Entity<ContextNotICollection.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.OwnsOne(
+                cr => cr.Json, nb => nb.ToJson().HasColumnType(JsonColumnType));
+        });
+    }
+
+    #endregion
+
+    #region BadJsonProperties
+
+    public override async Task Bad_json_properties_duplicated_navigations(bool noTracking)
+    {
+        // tracking returns different results - see #35807
+        if (noTracking)
+        {
+            await base.Bad_json_properties_duplicated_navigations(noTracking);
+        }
+    }
+
+    public override Task Bad_json_properties_null_navigations(bool noTracking)
+        => Assert.ThrowsAnyAsync<JsonException>(() => base.Bad_json_properties_null_navigations(noTracking));
+
+    public override async Task Bad_json_properties_null_scalars(bool noTracking)
+    {
+        var message = (await Assert.ThrowsAnyAsync<JsonException>(() => base.Bad_json_properties_null_scalars(noTracking))).Message;
+
+        Assert.StartsWith("'n' is an invalid start of a property name. Expected a '\"'.", message);
+    }
+
+    protected override void OnModelCreatingBadJsonProperties(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreatingBadJsonProperties(modelBuilder);
+
+        modelBuilder.Entity<ContextBadJsonProperties.Entity>(b =>
+        {
+            b.ToTable("Entities");
+
+            b.OwnsOne(
+                x => x.RequiredReference, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsOne(
+                x => x.OptionalReference, b => b.ToJson().HasColumnType(JsonColumnType));
+
+            b.OwnsMany(
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
+        });
+    }
+
+    #endregion
+
+    #region Entity splitting
+
+    [Fact] // #36145
+    public virtual async Task Entity_splitting_with_owned_json()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextEntitySplitting>(
+            onModelCreating: OnModelCreatingEntitySplitting,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedEntitySplitting);
+
+        using var context = contextFactory.CreateDbContext();
+        var result = await context.Set<ContextEntitySplitting.MyEntity>().SingleAsync();
+
+        Assert.Equal("split content", result.PropertyInOtherTable);
+        var json = Assert.Single(result.Json);
+        Assert.Equal("JSON content", json.Foo);
+    }
+
+    protected virtual void OnModelCreatingEntitySplitting(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<ContextEntitySplitting.MyEntity>(b =>
+        {
+            b.Property(p => p.Id).ValueGeneratedNever();
+            b.OwnsMany(p => p.Json, b => b.ToJson());
+            b.SplitToTable("OtherTable", b => b.Property(p => p.PropertyInOtherTable));
+        });
+
+    protected virtual async Task SeedEntitySplitting(ContextEntitySplitting context)
+    {
+        var e1 = new ContextEntitySplitting.MyEntity
+        {
+            Id = 1,
+            PropertyInOtherTable = "split content",
+            Json = [new ContextEntitySplitting.JsonEntity { Foo = "JSON content" }]
+        };
+
+        context.Add(e1);
+        await context.SaveChangesAsync();
+    }
+
+    protected class ContextEntitySplitting(DbContextOptions options) : DbContext(options)
+    {
+        public class MyEntity
+        {
+            public int Id { get; set; }
+            public string? PropertyInMainTable { get; set; }
+            public string PropertyInOtherTable { get; set; } = null!;
+
+            public List<JsonEntity> Json { get; set; } = null!;
+        }
+
+        public class JsonEntity
+        {
+            public string Foo { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
+    #region HasJsonPropertyName
+
+    [Fact]
+    public virtual async Task HasJsonPropertyName()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37009>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context37009.Entity>().ComplexProperty(
+                e => e.Json, b =>
+                {
+                    b.ToJson();
+
+                    b.Property(j => j.String).HasJsonPropertyName("string");
+
+                    b.ComplexProperty(
+                        j => j.Nested, b =>
+                        {
+                            b.HasJsonPropertyName("nested");
+                            b.Property(x => x.Int).HasJsonPropertyName("int");
+                        });
+
+                    b.ComplexCollection(
+                        a => a.NestedCollection, b =>
+                        {
+                            b.HasJsonPropertyName("nested_collection");
+                            b.Property(x => x.Int).HasJsonPropertyName("int");
+                        });
+                }),
+            seed: context =>
+            {
+                context.Set<Context37009.Entity>().Add(
+                    new Context37009.Entity
+                    {
+                        Json = new Context37009.JsonComplexType
+                        {
+                            String = "foo",
+                            Nested = new Context37009.JsonNestedType { Int = 1 },
+                            NestedCollection = [new Context37009.JsonNestedType { Int = 2 }]
+                        }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.String == "foo"));
+        Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.Nested.Int == 1));
+        Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.NestedCollection.Any(x => x.Int == 2)));
+    }
+
+    protected class Context37009(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities
+            => Set<Entity>();
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonComplexType Json { get; set; } = null!;
+        }
+
+        public class JsonComplexType
+        {
+            public string String { get; set; } = null!;
+
+            public JsonNestedType Nested { get; set; } = null!;
+            public List<JsonNestedType> NestedCollection { get; set; } = null!;
+        }
+
+        public class JsonNestedType
+        {
+            public int Int { get; set; }
+        }
+    }
+
+    #endregion HasJsonPropertyName
+
+    #region 38615
+
+    [Fact]
+    public virtual async Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38615>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context38615.Car>(b =>
+            {
+                b.ToTable("Cars");
+                b.HasKey(e => e.CarId);
+                b.Property(e => e.Vin).IsUnicode(false).HasMaxLength(32);
+                b.Property(e => e.DealerId).IsUnicode(false).HasMaxLength(32);
+                b.HasIndex(e => new { e.Vin, e.DealerId }).IsUnique();
+
+                b.ComplexProperty(
+                    e => e.CarConfiguration, pp =>
+                    {
+                        pp.ToJson("CarConfiguration");
+                        if (JsonColumnType != null)
+                        {
+                            pp.HasColumnType(JsonColumnType);
+                        }
+
+                        pp.Property(p => p.CurrentTrim).HasJsonPropertyName("currentTrim");
+
+                        pp.ComplexCollection(
+                            p => p.OptionPackages, op =>
+                            {
+                                op.HasJsonPropertyName("optionPackages");
+                                op.Property(o => o.PackageId).HasJsonPropertyName("packageId");
+                                op.PrimitiveCollection(o => o.PartNumbers)
+                                    .ElementType(e => e.IsUnicode(false).HasMaxLength(32))
+                                    .HasJsonPropertyName("partNumbers");
+                            });
+                    });
+            }),
+            seed: context =>
+            {
+                context.Set<Context38615.Car>().Add(
+                    new Context38615.Car
+                    {
+                        Vin = "1FA6P8TH8J5123456",
+                        DealerId = "DEALER-001",
+                        CarConfiguration = new Context38615.CarConfiguration
+                        {
+                            CurrentTrim = "GT-Line",
+                            OptionPackages =
+                            [
+                                new Context38615.OptionPackage { PackageId = "PKG-SPORT", PartNumbers = ["SP-100", "SP-101"] },
+                                new Context38615.OptionPackage { PackageId = "PKG-TOW", PartNumbers = ["TW-200"] }
+                            ]
+                        }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var partNumbers = await context.Set<Context38615.Car>()
+            .Where(c => c.Vin == "1FA6P8TH8J5123456" && c.DealerId == "DEALER-001")
+            .SelectMany(c => c.CarConfiguration.OptionPackages)
+            .Where(op => op.PackageId == "PKG-SPORT")
+            .SelectMany(op => op.PartNumbers)
+            .ToListAsync();
+
+        Assert.Equal(["SP-100", "SP-101"], partNumbers.Order().ToList());
+    }
+
+    protected class Context38615(DbContextOptions options) : DbContext(options)
+    {
+        public class Car
+        {
+            public int CarId { get; set; }
+            public string Vin { get; set; } = null!;
+            public string DealerId { get; set; } = null!;
+            public CarConfiguration CarConfiguration { get; set; } = null!;
+        }
+
+        public class CarConfiguration
+        {
+            public string CurrentTrim { get; set; } = null!;
+            public List<OptionPackage> OptionPackages { get; set; } = null!;
+        }
+
+        public class OptionPackage
+        {
+            public string PackageId { get; set; } = null!;
+            public ICollection<string> PartNumbers { get; set; } = null!;
+        }
+    }
+
+    #endregion 38615
+
+    #region Value converter equality null scalar
+
+    [Fact]
+    public virtual async Task Value_converter_equality_null_scalar()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37983>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context37983.Entity>().ComplexProperty(
+                e => e.Json, b =>
+                {
+                    b.ToJson();
+
+                    b.Property(j => j.IntToString).HasConversion(new Context37983_StringToIntConverter());
+                }),
+            seed: context =>
+            {
+                context.Set<Context37983.Entity>()
+                    .Add(new Context37983.Entity { Json = new Context37983.JsonComplexType { IntToString = null, } });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        TestSqlLoggerFactory.Clear();
+
+        var complexType = new Context37983.JsonComplexType { IntToString = null, };
+
+        Assert.Equal(1, await context.Set<Context37983.Entity>().CountAsync(e => e.Json == complexType));
+    }
+
+    protected class Context37983(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities
+            => Set<Entity>();
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonComplexType Json { get; set; } = null!;
+        }
+
+        public class JsonComplexType
+        {
+            public int? IntToString { get; set; }
+        }
+    }
+
+    protected class Context37983_StringToIntConverter : ValueConverter<int?, string>
+    {
+        public Context37983_StringToIntConverter()
+            : base(
+                v => v == null ? "<null>" : v.ToString()!,
+                v => int.Parse(v!))
+        {
+        }
+
+        public override bool ConvertsNulls
+            => true;
+    }
+
+    #endregion
+
+    #region 38315
+
+    [Fact]
+    public virtual async Task Filter_on_complex_json_collection_on_entity_mapped_to_view()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38315>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m =>
+            {
+                m.Entity<Context38315.Person>(e =>
+                {
+                    e.ToTable("Persons");
+                    e.ComplexCollection(p => p.OrderIds, b => b.ToJson());
+                });
+                m.Entity<Context38315.PersonOrdersView>(e =>
+                {
+                    e.ToView("PersonOrdersView");
+                    e.ComplexCollection(p => p.OrderIds, b => b.ToJson());
+                });
+            },
+            seed: async context =>
+            {
+                var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+                await context.Database.ExecuteSqlRawAsync(
+                    $"CREATE VIEW {Q("PersonOrdersView")} AS SELECT {Q("Id")}, {Q("OrderIds")} FROM {Q("Persons")}");
+
+                context.Set<Context38315.Person>().Add(
+                    new Context38315.Person { OrderIds = [new Context38315.ValueJson { Value = 3 }] });
+                await context.SaveChangesAsync();
+
+                string Q(string name)
+                    => sqlGenerationHelper.DelimitIdentifier(name);
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var r = 3;
+        var result = await context.Set<Context38315.PersonOrdersView>()
+            .Where(po => po.OrderIds.Any(oId => oId.Value == r))
+            .ToListAsync();
+
+        Assert.Single(result);
+    }
+
+    protected class Context38315(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Person> Persons
+            => Set<Person>();
+
+        public DbSet<PersonOrdersView> PersonOrdersViews
+            => Set<PersonOrdersView>();
+
+        public class Person
+        {
+            public int Id { get; set; }
+            public List<ValueJson> OrderIds { get; set; } = [];
+        }
+
+        public class PersonOrdersView
+        {
+            public int Id { get; set; }
+            public List<ValueJson> OrderIds { get; set; } = [];
+        }
+
+        public class ValueJson
+        {
+            public int Value { get; set; }
+        }
+    }
+
+    #endregion
+
+    #endregion
 }

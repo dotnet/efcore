@@ -176,14 +176,18 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         Check.NotNull(events);
 
         var eventsArray = events.ToArray();
-
-        return eventsArray.Length switch
+        switch (eventsArray.Length)
         {
-            0 => this,
-            1 => LogTo(action, (eventId, level) => level >= minimumLevel && eventId == eventsArray[0], options),
-            < 6 => LogTo(action, (eventId, level) => level >= minimumLevel && eventsArray.Contains(eventId), options),
-            _ => LogTo(action, (eventId, level) => level >= minimumLevel && eventsArray.ToHashSet().Contains(eventId), options)
-        };
+            case 0:
+                return this;
+            case 1:
+                return LogTo(action, (eventId, level) => level >= minimumLevel && eventId == eventsArray[0], options);
+            case < 6:
+                return LogTo(action, (eventId, level) => level >= minimumLevel && eventsArray.Contains(eventId), options);
+            default:
+                var eventsSet = eventsArray.ToHashSet();
+                return LogTo(action, (eventId, level) => level >= minimumLevel && eventsSet.Contains(eventId), options);
+        }
     }
 
     /// <summary>
@@ -223,16 +227,17 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
 
         var categoriesArray = categories.ToArray();
 
-        if (categoriesArray.Length == 0)
+        // One category is common, but even when there are more the number should be low because
+        // the number of available categories is low. So no HashSet here.
+        return categoriesArray.Length switch
         {
-            return this;
-        }
-
-        if (categoriesArray.Length != 1)
-        {
-            // One category is common, but even when there are more the number should be low because
-            // the number of available categories is low. So no HashSet here.
-            return LogTo(
+            0 => this,
+            1 => LogTo(
+                action,
+                (eventId, level) => level >= minimumLevel
+                    && eventId.Name!.StartsWith(categoriesArray[0], StringComparison.OrdinalIgnoreCase),
+                options),
+            _ => LogTo(
                 action,
                 (eventId, level) =>
                 {
@@ -249,15 +254,8 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
 
                     return false;
                 },
-                options);
-        }
-
-        var singleCategory = categoriesArray[0];
-        return LogTo(
-            action,
-            (eventId, level) => level >= minimumLevel
-                && eventId.Name!.StartsWith(singleCategory, StringComparison.OrdinalIgnoreCase),
-            options);
+                options)
+        };
     }
 
     /// <summary>
@@ -785,6 +783,17 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     /// <param name="extension">The extension to be added.</param>
     void IDbContextOptionsBuilderInfrastructure.AddOrUpdateExtension<TExtension>(TExtension extension)
         => _options = _options.WithExtension(extension);
+
+    /// <summary>
+    ///     Removes the extension of the given type from the options. If no extension of the given type exists, this is a no-op.
+    /// </summary>
+    /// <remarks>
+    ///     This method is intended for use by extension methods to configure the context. It is not intended to be used in
+    ///     application code.
+    /// </remarks>
+    /// <typeparam name="TExtension">The type of extension to be removed.</typeparam>
+    void IDbContextOptionsBuilderInfrastructure.RemoveExtension<TExtension>()
+        => _options = _options.WithoutExtension<TExtension>();
 
     private DbContextOptionsBuilder WithOption(Func<CoreOptionsExtension, CoreOptionsExtension> withFunc)
     {

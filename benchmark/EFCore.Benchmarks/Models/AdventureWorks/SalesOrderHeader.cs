@@ -15,10 +15,10 @@ public class SalesOrderHeader
     }
 
     public int SalesOrderID { get; set; }
-    public string AccountNumber { get; set; }
+    public string? AccountNumber { get; set; }
     public int BillToAddressID { get; set; }
-    public string Comment { get; set; }
-    public string CreditCardApprovalCode { get; set; }
+    public string? Comment { get; set; }
+    public string? CreditCardApprovalCode { get; set; }
     public int? CreditCardID { get; set; }
     public int? CurrencyRateID { get; set; }
     public int CustomerID { get; set; }
@@ -27,12 +27,12 @@ public class SalesOrderHeader
     public DateTime ModifiedDate { get; set; }
     public bool OnlineOrderFlag { get; set; }
     public DateTime OrderDate { get; set; }
-    public string PurchaseOrderNumber { get; set; }
+    public string? PurchaseOrderNumber { get; set; }
     public byte RevisionNumber { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-    public string SalesOrderNumber { get; set; }
+    public string SalesOrderNumber { get; set; } = null!;
     public int? SalesPersonID { get; set; }
     public DateTime? ShipDate { get; set; }
     public int ShipMethodID { get; set; }
@@ -45,12 +45,12 @@ public class SalesOrderHeader
 
     public virtual ICollection<SalesOrderDetail> SalesOrderDetail { get; set; }
     public virtual ICollection<SalesOrderHeaderSalesReason> SalesOrderHeaderSalesReason { get; set; }
-    public virtual Address BillToAddress { get; set; }
-    public virtual CreditCard CreditCard { get; set; }
-    public virtual CurrencyRate CurrencyRate { get; set; }
-    public virtual Customer Customer { get; set; }
-    public virtual SalesPerson SalesPerson { get; set; }
-    public virtual ShipMethod ShipMethod { get; set; }
-    public virtual Address ShipToAddress { get; set; }
-    public virtual SalesTerritory Territory { get; set; }
+    public virtual Address BillToAddress { get; set; } = null!;
+    public virtual CreditCard? CreditCard { get; set; }
+    public virtual CurrencyRate? CurrencyRate { get; set; }
+    public virtual Customer Customer { get; set; } = null!;
+    public virtual SalesPerson? SalesPerson { get; set; }
+    public virtual ShipMethod ShipMethod { get; set; } = null!;
+    public virtual Address ShipToAddress { get; set; } = null!;
+    public virtual SalesTerritory? Territory { get; set; }
 }

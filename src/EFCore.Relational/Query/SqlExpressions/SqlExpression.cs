@@ -61,8 +61,8 @@ public abstract class SqlExpression : Expression, IRelationalQuotableExpression,
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlExpression sqlExpression
-                && Equals(sqlExpression));
+                || (obj is SqlExpression sqlExpression
+                    && Equals(sqlExpression)));
 
     private bool Equals(SqlExpression sqlExpression)
         => Type == sqlExpression.Type

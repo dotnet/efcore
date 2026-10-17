@@ -138,6 +138,9 @@
   <data name="InvalidMigrationOperation" xml:space="preserve">
     <value>SQLite does not support this migration operation ('{operation}'). See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>
+  <data name="JsonIndexAllElementsNotSupported" xml:space="preserve">
+    <value>SQLite does not support indexes over all elements of a JSON array. Specify a collection index in the index property path.</value>
+  </data>
   <data name="LogCompositeKeyWithValueGeneration" xml:space="preserve">
     <value>The entity type '{entityType}' has composite key '{key}' which is configured to use generated values. SQLite does not support generated values on composite keys.</value>
     <comment>Warning SqliteEventId.CompositeKeyWithValueGeneration string? string?</comment>

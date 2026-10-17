@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
@@ -13,18 +13,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class MigrationTests
 {
-    private delegate string MigrationCodeGetter(string migrationName, string rootNamespace);
+    private delegate string MigrationCodeGetter(string migrationId, string rootNamespace);
 
-    private delegate string SnapshotCodeGetter(string rootNamespace);
+    private delegate string SnapshotCodeGetter(string rootNamespace, string migrationId);
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_and_snapshot_generate_with_typed_array()
     {
         using var db = new TypedArraySeedContext();
         ValidateMigrationAndSnapshotCode(db, db.GetExpectedMigrationCode, db.GetExpectedSnapshotCode);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Migration_and_snapshot_generate_with_anonymous_array()
     {
         using var db = new AnonymousArraySeedContext();
@@ -38,9 +38,6 @@ public class MigrationTests
     {
         const string migrationName = "MyMigration";
         const string rootNamespace = "MyApp.Data";
-
-        var expectedMigration = migrationCodeGetter(migrationName, rootNamespace);
-        var expectedSnapshot = snapshotCodeGetter(rootNamespace);
 
         var reporter = new OperationReporter(
             new OperationReportHandler(
@@ -58,6 +55,9 @@ public class MigrationTests
             .Build(context)
             .GetRequiredService<IMigrationsScaffolder>()
             .ScaffoldMigration(migrationName, rootNamespace);
+
+        var expectedMigration = migrationCodeGetter(migration.MigrationId, rootNamespace);
+        var expectedSnapshot = snapshotCodeGetter(rootNamespace, migration.MigrationId);
 
         Assert.Equal(expectedMigration, migration.MigrationCode, ignoreLineEndingDifferences: true);
         Assert.Equal(expectedSnapshot, migration.SnapshotCode, ignoreLineEndingDifferences: true);

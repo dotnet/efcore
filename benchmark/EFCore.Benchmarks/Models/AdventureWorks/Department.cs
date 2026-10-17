@@ -12,9 +12,9 @@ public class Department
         => EmployeeDepartmentHistory = new HashSet<EmployeeDepartmentHistory>();
 
     public short DepartmentID { get; set; }
-    public string GroupName { get; set; }
+    public string GroupName { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<EmployeeDepartmentHistory> EmployeeDepartmentHistory { get; set; }
 }

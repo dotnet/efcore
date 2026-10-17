@@ -41,7 +41,7 @@ public static class RelationalIndexBuilderExtensions
     [Obsolete("Use HasDatabaseName() instead.")] // DO NOT REMOVE
     // Used in model snapshot. See issue#18557
     public static IndexBuilder HasName(this IndexBuilder indexBuilder, string? name)
-        => HasDatabaseName(indexBuilder, name);
+        => indexBuilder.HasDatabaseName(name);
 
     /// <summary>
     ///     Configures the name of the index in the database when targeting a relational database.
@@ -134,7 +134,7 @@ public static class RelationalIndexBuilderExtensions
     /// <param name="sql">The filter expression for the index.</param>
     /// <returns>A builder to further configure the index.</returns>
     public static IndexBuilder<TEntity> HasFilter<TEntity>(this IndexBuilder<TEntity> indexBuilder, string? sql)
-        => (IndexBuilder<TEntity>)HasFilter((IndexBuilder)indexBuilder, sql);
+        => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).HasFilter(sql);
 
     /// <summary>
     ///     Configures the filter expression for the index.

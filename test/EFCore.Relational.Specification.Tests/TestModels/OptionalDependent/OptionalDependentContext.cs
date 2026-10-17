@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
-#nullable disable
-
 public class OptionalDependentContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<OptionalDependentEntityAllOptional> EntitiesAllOptional { get; set; }
-    public DbSet<OptionalDependentEntitySomeRequired> EntitiesSomeRequired { get; set; }
+    public DbSet<OptionalDependentEntityAllOptional> EntitiesAllOptional { get; set; } = null!;
+    public DbSet<OptionalDependentEntitySomeRequired> EntitiesSomeRequired { get; set; } = null!;
 
     public static async Task SeedAsync(OptionalDependentContext context)
     {

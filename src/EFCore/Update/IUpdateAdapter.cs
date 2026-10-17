@@ -117,7 +117,21 @@ public interface IUpdateAdapter
     /// <param name="values">A dictionary of property names to values.</param>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The created entry.</returns>
+    [Obsolete("Use the overload that accepts a dictionary keyed by " + nameof(IProperty) + " instead.")]
     IUpdateEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType);
+
+    /// <summary>
+    ///     Creates a new entry with the given property values for the given entity type.
+    /// </summary>
+    /// <remarks>
+    ///     Keying the values by <see cref="IProperty" /> rather than by name allows distinct values to be
+    ///     supplied for multiple complex properties that share the same complex type. Complex collections
+    ///     are not supported by this overload.
+    /// </remarks>
+    /// <param name="values">A dictionary of properties to values.</param>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The created entry.</returns>
+    IUpdateEntry CreateEntry(IReadOnlyDictionary<IProperty, object?> values, IEntityType entityType);
 
     /// <summary>
     ///     The model with which the data is associated.

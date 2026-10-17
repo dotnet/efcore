@@ -434,6 +434,16 @@ function Script-Migration(
 
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
+    When used with -Add, this is the name of the new migration to create.
+
+.PARAMETER Add
+    Create a new migration with the given name and apply it immediately.
+
+.PARAMETER OutputDir
+    The directory to put files in. Paths are relative to the project directory. Requires -Add.
+
+.PARAMETER Namespace
+    The namespace to use for the migration. Matches the directory by default. Requires -Add.
 
 .PARAMETER Connection
     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
@@ -456,6 +466,9 @@ function Script-Migration(
 #>
 function Update-Database(
     $Migration,
+    [switch] $Add,
+    $OutputDir,
+    $Namespace,
     $Connection,
     $Context,
     $Project,

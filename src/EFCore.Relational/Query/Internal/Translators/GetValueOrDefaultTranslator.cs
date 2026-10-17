@@ -36,19 +36,14 @@ public class GetValueOrDefaultTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.Name == nameof(Nullable<int>.GetValueOrDefault)
+        => method.Name == nameof(Nullable<int>.GetValueOrDefault)
             && instance != null
-            && method.ReturnType.IsNumeric())
-        {
-            return _sqlExpressionFactory.Coalesce(
-                instance,
-                arguments.Count == 0
-                    ? new SqlConstantExpression(method.ReturnType.GetDefaultValue(), method.ReturnType, typeMapping: null)
-                    : arguments[0],
-                instance.TypeMapping);
-        }
-
-        return null;
-    }
+            && method.ReturnType.IsNumeric()
+                ? _sqlExpressionFactory.Coalesce(
+                    instance,
+                    arguments.Count == 0
+                        ? new SqlConstantExpression(method.ReturnType.GetDefaultValue(), method.ReturnType, typeMapping: null)
+                        : arguments[0],
+                    instance.TypeMapping)
+                : null;
 }

@@ -3,25 +3,23 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
-#nullable disable
-
 public class InheritanceRelationshipsContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public static readonly string StoreName = "InheritanceRelationships";
 
-    public DbSet<BaseCollectionOnBase> BaseCollectionsOnBase { get; set; }
-    public DbSet<BaseCollectionOnDerived> BaseCollectionsOnDerived { get; set; }
-    public DbSet<BaseInheritanceRelationshipEntity> BaseEntities { get; set; }
-    public DbSet<BaseReferenceOnBase> BaseReferencesOnBase { get; set; }
-    public DbSet<BaseReferenceOnDerived> BaseReferencesOnDerived { get; set; }
-    public DbSet<CollectionOnBase> CollectionsOnBase { get; set; }
-    public DbSet<CollectionOnDerived> CollectionsOnDerived { get; set; }
-    public DbSet<NestedCollectionBase> NestedCollections { get; set; }
-    public DbSet<NestedReferenceBase> NestedReferences { get; set; }
-    public DbSet<PrincipalEntity> PrincipalEntities { get; set; }
-    public DbSet<ReferencedEntity> ReferencedEntities { get; set; }
-    public DbSet<ReferenceOnBase> ReferencesOnBase { get; set; }
-    public DbSet<ReferenceOnDerived> ReferencesOnDerived { get; set; }
+    public DbSet<BaseCollectionOnBase> BaseCollectionsOnBase { get; set; } = null!;
+    public DbSet<BaseCollectionOnDerived> BaseCollectionsOnDerived { get; set; } = null!;
+    public DbSet<BaseInheritanceRelationshipEntity> BaseEntities { get; set; } = null!;
+    public DbSet<BaseReferenceOnBase> BaseReferencesOnBase { get; set; } = null!;
+    public DbSet<BaseReferenceOnDerived> BaseReferencesOnDerived { get; set; } = null!;
+    public DbSet<CollectionOnBase> CollectionsOnBase { get; set; } = null!;
+    public DbSet<CollectionOnDerived> CollectionsOnDerived { get; set; } = null!;
+    public DbSet<NestedCollectionBase> NestedCollections { get; set; } = null!;
+    public DbSet<NestedReferenceBase> NestedReferences { get; set; } = null!;
+    public DbSet<PrincipalEntity> PrincipalEntities { get; set; } = null!;
+    public DbSet<ReferencedEntity> ReferencedEntities { get; set; } = null!;
+    public DbSet<ReferenceOnBase> ReferencesOnBase { get; set; } = null!;
+    public DbSet<ReferenceOnDerived> ReferencesOnDerived { get; set; } = null!;
 
     public static Task SeedAsync(InheritanceRelationshipsContext context)
     {

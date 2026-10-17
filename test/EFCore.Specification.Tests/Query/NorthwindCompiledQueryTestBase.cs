@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -8,14 +8,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable ConvertToExpressionBodyWhenPossible
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbSet_query()
     {
         var query = EF.CompileQuery((NorthwindContext context) => context.Customers);
@@ -31,7 +29,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbSet_query_first()
     {
         var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>().OrderBy(c => c.CustomerID).First());
@@ -42,7 +40,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Keyless_query()
     {
         var query = EF.CompileQuery((NorthwindContext context) => context.CustomerQueries);
@@ -58,7 +56,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Keyless_query_first()
     {
         var query = EF.CompileQuery((NorthwindContext context) => context.CustomerQueries.OrderBy(c => c.CompanyName).First());
@@ -69,7 +67,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_ending_with_include()
     {
         var query = EF.CompileQuery((NorthwindContext context)
@@ -86,7 +84,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Untyped_context()
     {
         var query = EF.CompileQuery((DbContext context) => context.Set<Customer>());
@@ -102,7 +100,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_with_single_parameter()
     {
         var query = EF.CompileQuery((NorthwindContext context, string customerID)
@@ -119,7 +117,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_with_single_parameter_with_include()
     {
         var query = EF.CompileQuery((NorthwindContext context, string customerID)
@@ -136,7 +134,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void First_query_with_single_parameter()
     {
         var query = EF.CompileQuery((NorthwindContext context, string customerID)
@@ -153,10 +151,10 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_with_two_parameters()
     {
-        var query = EF.CompileQuery((NorthwindContext context, object _, string customerID)
+        var query = EF.CompileQuery((NorthwindContext context, object? _, string customerID)
             => context.Customers.Where(c => c.CustomerID == customerID));
 
         using (var context = CreateContext())
@@ -170,10 +168,10 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_with_three_parameters()
     {
-        var query = EF.CompileQuery((NorthwindContext context, object _, int __, string customerID)
+        var query = EF.CompileQuery((NorthwindContext context, object? _, int __, string customerID)
             => context.Customers.Where(c => c.CustomerID == customerID));
 
         using (var context = CreateContext())
@@ -187,7 +185,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_with_array_parameter()
     {
         var query = EF.CompileQuery((NorthwindContext context, string[] args)
@@ -204,7 +202,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_with_contains()
     {
         var query = EF.CompileQuery((NorthwindContext context, string[] args)
@@ -221,7 +219,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Multiple_queries()
     {
         var query = EF.CompileQuery((NorthwindContext context)
@@ -239,7 +237,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_with_closure()
     {
         var customerID = "ALFKI";
@@ -260,10 +258,10 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Query_with_closure_null()
     {
-        string customerID = null;
+        string? customerID = null;
 
         var query = EF.CompileQuery((NorthwindContext context)
             => context.Customers.Where(c => c.CustomerID == customerID));
@@ -274,7 +272,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task DbSet_query_async()
     {
         var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Customers);
@@ -290,7 +288,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task DbSet_query_first_async()
     {
         var query = EF.CompileAsyncQuery((NorthwindContext context)
@@ -302,7 +300,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Keyless_query_async()
     {
         var query = EF.CompileAsyncQuery((NorthwindContext context) => context.CustomerQueries);
@@ -318,7 +316,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Keyless_query_first_async()
     {
         var query = EF.CompileAsyncQuery((NorthwindContext context)
@@ -330,7 +328,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Untyped_context_async()
     {
         var query = EF.CompileAsyncQuery((DbContext context) => context.Set<Customer>());
@@ -346,7 +344,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_with_single_parameter_async()
     {
         var query = EF.CompileAsyncQuery((NorthwindContext context, string customerID)
@@ -363,7 +361,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task First_query_with_single_parameter_async()
     {
         var query = EF.CompileAsyncQuery((NorthwindContext context, string customerID)
@@ -380,7 +378,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task First_query_with_cancellation_async()
     {
         var query = EF.CompileAsyncQuery((NorthwindContext context, string customerID, CancellationToken ct)
@@ -399,10 +397,10 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_with_two_parameters_async()
     {
-        var query = EF.CompileAsyncQuery((NorthwindContext context, object _, string customerID)
+        var query = EF.CompileAsyncQuery((NorthwindContext context, object? _, string customerID)
             => context.Customers.Where(c => c.CustomerID == customerID));
 
         using (var context = CreateContext())
@@ -416,10 +414,10 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_with_three_parameters_async()
     {
-        var query = EF.CompileAsyncQuery((NorthwindContext context, object _, int __, string customerID)
+        var query = EF.CompileAsyncQuery((NorthwindContext context, object? _, int __, string customerID)
             => context.Customers.Where(c => c.CustomerID == customerID));
 
         using (var context = CreateContext())
@@ -433,7 +431,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_with_array_parameter_async()
     {
         var query = EF.CompileAsyncQuery((NorthwindContext context, string[] args)
@@ -450,7 +448,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_with_closure_async()
     {
         var customerID = "ALFKI";
@@ -471,10 +469,10 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_with_closure_async_null()
     {
-        string customerID = null;
+        string? customerID = null;
 
         var query = EF.CompileAsyncQuery((NorthwindContext context)
             => context.Customers.Where(c => c.CustomerID == customerID));
@@ -485,7 +483,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compiled_query_when_does_not_end_in_query_operator()
     {
         var query = EF.CompileQuery((NorthwindContext context, string customerID)
@@ -497,7 +495,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Compiled_query_when_using_member_on_context()
     {
         var query = EF.CompileQuery((NorthwindContext context)
@@ -516,7 +514,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Compiled_query_with_max_parameters()
     {
         var syncEnumerableQuery = EF.CompileQuery((
@@ -799,6 +797,30 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
             await asyncSingleResultQueryWithCancellationToken(
                 context, "ALFKI", "ANATR", "ANTON", "AROUT", "BERGS", "BLAUS", "BLONP", "BOLID", "BONAP", "BSBEV", "CACTU", "CENTC",
                 "CHOPS", "CONSH", default));
+    }
+
+    [Fact]
+    public virtual void Compiled_query_with_EF_Constant_throws()
+    {
+        var query = EF.CompileQuery((NorthwindContext context) => context.Customers.Where(c => c.CustomerID == EF.Constant("ALFKI")));
+
+        using var context = CreateContext();
+
+        var message = Assert.Throws<InvalidOperationException>(() => query(context).ToList()).Message;
+        Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"), message);
+    }
+
+    [Fact]
+    public virtual void Compiled_query_with_EF_Parameter_throws()
+    {
+        var customerID = "ALFKI";
+
+        var query = EF.CompileQuery((NorthwindContext context) => context.Customers.Where(c => c.CustomerID == EF.Parameter(customerID)));
+
+        using var context = CreateContext();
+
+        var message = Assert.Throws<InvalidOperationException>(() => query(context).ToList()).Message;
+        Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Parameter<T>"), message);
     }
 
     protected async Task<int> CountAsync<T>(IAsyncEnumerable<T> source)

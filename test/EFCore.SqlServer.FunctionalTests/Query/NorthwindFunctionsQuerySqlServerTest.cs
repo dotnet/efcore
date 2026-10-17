@@ -1,11 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
-
-#nullable disable
 
 public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
@@ -19,7 +17,7 @@ public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelat
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -158,7 +156,7 @@ WHERE 0 = 1
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task StandardDeviation(bool async)
     {
         await using var ctx = CreateContext();
@@ -177,8 +175,8 @@ WHERE 0 = 1
             : query.ToList();
 
         var product9 = results.Single(r => r.ProductID == 9);
-        Assert.Equal(8.675943752699023, product9.SampleStandardDeviation.Value, 5);
-        Assert.Equal(7.759999999999856, product9.PopulationStandardDeviation.Value, 5);
+        Assert.Equal(8.675943752699023, product9.SampleStandardDeviation!.Value, 5);
+        Assert.Equal(7.759999999999856, product9.PopulationStandardDeviation!.Value, 5);
 
         AssertSql(
             """
@@ -188,7 +186,7 @@ GROUP BY [o].[ProductID]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Variance(bool async)
     {
         await using var ctx = CreateContext();
@@ -207,8 +205,8 @@ GROUP BY [o].[ProductID]
             : query.ToList();
 
         var product9 = results.Single(r => r.ProductID == 9);
-        Assert.Equal(75.2719999999972, product9.SampleStandardDeviation.Value, 5);
-        Assert.Equal(60.217599999997766, product9.PopulationStandardDeviation.Value, 5);
+        Assert.Equal(75.2719999999972, product9.SampleStandardDeviation!.Value, 5);
+        Assert.Equal(60.217599999997766, product9.PopulationStandardDeviation!.Value, 5);
 
         AssertSql(
             """

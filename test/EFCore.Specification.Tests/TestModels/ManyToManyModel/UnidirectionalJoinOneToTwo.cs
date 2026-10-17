@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class UnidirectionalJoinOneToTwo
 {
     public virtual int OneId { get; set; }
     public virtual int TwoId { get; set; }
 
-    public virtual UnidirectionalEntityOne One { get; set; }
-    public virtual UnidirectionalEntityTwo Two { get; set; }
+    public virtual UnidirectionalEntityOne One { get; set; } = null!;
+    public virtual UnidirectionalEntityTwo Two { get; set; } = null!;
 }

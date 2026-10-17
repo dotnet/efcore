@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
 public abstract class OrdersFixtureBase : OrdersFixtureSeedBase
 {
-    private IServiceProvider _serviceProvider;
+    private IServiceProvider? _serviceProvider;
     private int _productCount;
     private int _customerCount;
     private int _ordersPerCustomer;
@@ -23,7 +23,7 @@ public abstract class OrdersFixtureBase : OrdersFixtureSeedBase
         int customerCount,
         int ordersPerCustomer,
         int linesPerOrder,
-        Action<DbContext> seedAction = null)
+        Action<DbContext>? seedAction = null)
     {
         _productCount = productCount;
         _customerCount = customerCount;
@@ -36,9 +36,9 @@ public abstract class OrdersFixtureBase : OrdersFixtureSeedBase
     public void SetServiceProvider(IServiceProvider serviceProvider)
         => _serviceProvider = serviceProvider;
 
-    public abstract OrdersContextBase CreateContext(IServiceProvider serviceProvider = null, bool disableBatching = false);
+    public abstract OrdersContextBase CreateContext(IServiceProvider? serviceProvider = null, bool disableBatching = false);
 
-    private void EnsureDatabaseCreated(Action<DbContext> seedAction)
+    private void EnsureDatabaseCreated(Action<DbContext>? seedAction)
     {
         using (var context = CreateContext())
         {

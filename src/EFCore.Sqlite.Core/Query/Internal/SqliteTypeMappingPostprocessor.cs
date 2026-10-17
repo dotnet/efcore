@@ -72,7 +72,7 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
                         if (previousSelectInferredTypeMappings is null)
                         {
                             previousSelectInferredTypeMappings = _currentSelectInferredTypeMappings;
-                            _currentSelectInferredTypeMappings = new Dictionary<string, RelationalTypeMapping>();
+                            _currentSelectInferredTypeMappings = [];
                         }
 
                         _currentSelectInferredTypeMappings![jsonEachExpression.Alias] = inferredTypeMapping;

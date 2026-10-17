@@ -3,16 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonEntityHasComplexChildForReference
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     // A is required for sorting
-    public AJsonEntityHasComplexChildForReferenceForReference AEntityReference { get; set; }
+    public AJsonEntityHasComplexChildForReferenceForReference AEntityReference { get; set; } = null!;
 
     public int? ParentId { get; set; }
-    public JsonEntityHasComplexChild Parent { get; set; }
+    public JsonEntityHasComplexChild Parent { get; set; } = null!;
 }

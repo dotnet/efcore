@@ -14,10 +14,8 @@ namespace Microsoft.EntityFrameworkCore;
 ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Method)]
-#pragma warning disable CA1813 // Avoid unsealed attributes
 // Already shipped unsealed
 public class DbFunctionAttribute : Attribute
-#pragma warning restore CA1813 // Avoid unsealed attributes
 {
     private string? _name;
     private string? _schema;

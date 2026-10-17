@@ -16,6 +16,12 @@ internal static class Program
             Console.OutputEncoding = Encoding.UTF8;
         }
 
+        // Redirect Console.Out to stderr so that any user-configured logging providers
+        // (e.g. ConsoleLogger) don't pollute stdout with diagnostic messages.
+        // Actual data output uses the original stdout saved by Reporter.
+        Reporter.SetStdOut(Console.Out);
+        Console.SetOut(Console.Error);
+
         var app = new CommandLineApplication { Name = "ef" };
 
         new RootCommand().Configure(app);

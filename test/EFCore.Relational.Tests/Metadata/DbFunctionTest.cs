@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
@@ -204,17 +204,17 @@ public class DbFunctionTest
     }
 
     private static readonly MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(
-        nameof(TestMethods.MethodA), [typeof(string), typeof(int)]);
+        nameof(TestMethods.MethodA), [typeof(string), typeof(int)])!;
 
     private static readonly MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(
-        nameof(TestMethods.MethodB), [typeof(string), typeof(int)]);
+        nameof(TestMethods.MethodB), [typeof(string), typeof(int)])!;
 
     private static readonly MethodInfo MethodImi = typeof(TestMethods).GetRuntimeMethod(
-        nameof(TestMethods.MethodI), []);
+        nameof(TestMethods.MethodI), [])!;
 
-    private static readonly MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
+    private static readonly MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH))!;
 
-    private static readonly MethodInfo MethodJmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodJ));
+    private static readonly MethodInfo MethodJmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodJ))!;
 
     private class TestMethods
     {
@@ -269,18 +269,18 @@ public class DbFunctionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbFunctions_with_duplicate_names_and_parameters_on_different_types_dont_collide()
     {
         var modelBuilder = GetModelBuilder();
 
         var dup1methodInfo
             = typeof(MyDerivedContext)
-                .GetRuntimeMethod(nameof(MyDerivedContext.DuplicateNameTest), []);
+                .GetRuntimeMethod(nameof(MyDerivedContext.DuplicateNameTest), [])!;
 
         var dup2methodInfo
             = typeof(MyNonDbContext)
-                .GetRuntimeMethod(nameof(MyNonDbContext.DuplicateNameTest), []);
+                .GetRuntimeMethod(nameof(MyNonDbContext.DuplicateNameTest), [])!;
 
         var dbFunc1 = modelBuilder.HasDbFunction(dup1methodInfo).HasName("Dup1").Metadata;
         var dbFunc2 = modelBuilder.HasDbFunction(dup2methodInfo).HasName("Dup2").Metadata;
@@ -291,7 +291,7 @@ public class DbFunctionTest
         Assert.Equal("Dup2", dbFunc2.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Finds_DbFunctions_on_DbContext()
     {
         var model = new MyDerivedContext().Model;
@@ -301,7 +301,7 @@ public class DbFunctionTest
             Assert.NotNull(
                 model.FindDbFunction(
                     typeof(MyBaseContext).GetMethod(
-                        function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
+                        function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)!));
         }
 
         foreach (var function in MyDerivedContext.FunctionNames)
@@ -309,55 +309,55 @@ public class DbFunctionTest
             Assert.NotNull(
                 model.FindDbFunction(
                     typeof(MyDerivedContext).GetMethod(
-                        function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
+                        function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)!));
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_static_function_on_dbcontext_does_not_throw()
     {
         var modelBuilder = GetModelBuilder();
 
         var methodInfo
             = typeof(MyDerivedContext)
-                .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), []);
+                .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), [])!;
 
         var dbFunc = modelBuilder.HasDbFunction(methodInfo).Metadata;
 
         modelBuilder.FinalizeModel();
 
         Assert.Equal("InstancePublicBase", dbFunc.Name);
-        Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        Assert.Equal(typeof(int), dbFunc.MethodInfo!.ReturnType);
         Assert.Equal(typeof(int), dbFunc.ReturnType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Non_static_function_on_non_dbcontext_throws()
     {
         var modelBuilder = GetModelBuilder();
 
         var methodInfo
             = typeof(MyNonDbContext)
-                .GetRuntimeMethod(nameof(MyNonDbContext.NonStatic), []);
+                .GetRuntimeMethod(nameof(MyNonDbContext.NonStatic), [])!;
 
         Assert.Equal(
             RelationalStrings.DbFunctionInvalidInstanceType(methodInfo.DisplayName(), typeof(MyNonDbContext).ShortDisplayName()),
             Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(methodInfo)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_void_return_throws()
     {
         var modelBuilder = GetModelBuilder();
 
-        var methodInfo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), []);
+        var methodInfo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), [])!;
 
         Assert.Equal(
             RelationalStrings.DbFunctionInvalidReturnType(nameof(TestMethods.MethodC), typeof(void).ShortDisplayName()),
             Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(methodInfo)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_fluent_only_convention_defaults()
     {
         var modelBuilder = GetModelBuilder();
@@ -369,25 +369,25 @@ public class DbFunctionTest
 
         Assert.Equal("MethodA", dbFunc.Name);
         Assert.Null(dbFunc.Schema);
-        Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        Assert.Equal(typeof(int), dbFunc.MethodInfo!.ReturnType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_fluent_only_convention_defaults_fluent_method_info()
     {
         var modelBuilder = GetModelBuilder();
 
-        var dbFuncBuilder = modelBuilder.HasDbFunction(() => TestMethods.MethodA(null, default));
+        var dbFuncBuilder = modelBuilder.HasDbFunction(() => TestMethods.MethodA(null!, default));
         var dbFunc = dbFuncBuilder.Metadata;
 
         modelBuilder.FinalizeModel();
 
         Assert.Equal("MethodA", dbFunc.Name);
         Assert.Null(dbFunc.Schema);
-        Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        Assert.Equal(typeof(int), dbFunc.MethodInfo!.ReturnType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_fluent_only_convention_defaults_non_method_call_throws()
     {
         var modelBuilder = GetModelBuilder();
@@ -399,7 +399,7 @@ public class DbFunctionTest
             Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(expression)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_fluent_only_convention_defaults_property_call_throws()
     {
         var modelBuilder = GetModelBuilder();
@@ -411,7 +411,7 @@ public class DbFunctionTest
             Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(expression)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_fluent_only_with_name_schema()
     {
         var modelBuilder = GetModelBuilder();
@@ -426,10 +426,10 @@ public class DbFunctionTest
 
         Assert.Equal("foo", dbFunc.Name);
         Assert.Equal("bar", dbFunc.Schema);
-        Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        Assert.Equal(typeof(int), dbFunc.MethodInfo!.ReturnType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_fluent_only_with_builder()
     {
         var modelBuilder = GetModelBuilder();
@@ -442,10 +442,10 @@ public class DbFunctionTest
 
         Assert.Equal("foo", dbFunc.Name);
         Assert.Equal("bar", dbFunc.Schema);
-        Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        Assert.Equal(typeof(int), dbFunc.MethodInfo!.ReturnType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_with_attribute_only()
     {
         var modelBuilder = GetModelBuilder();
@@ -457,16 +457,16 @@ public class DbFunctionTest
 
         Assert.Equal("MethodFoo", dbFunc.Name);
         Assert.Equal("bar", dbFunc.Schema);
-        Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        Assert.Equal(typeof(int), dbFunc.MethodInfo!.ReturnType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_with_attribute_and_fluent_api_configuration_source()
     {
         var modelBuilder = GetModelBuilder();
 
         var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi)
-            .HasName(null)
+            .HasName(null!)
             .HasSchema(null);
 
         var dbFunc = dbFuncBuilder.Metadata;
@@ -481,15 +481,15 @@ public class DbFunctionTest
 
         Assert.Equal("foo", dbFunc.Name);
         Assert.Equal("BAR", dbFunc.Schema);
-        Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        Assert.Equal(typeof(int), dbFunc.MethodInfo!.ReturnType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_with_attribute_and_fluent_configuration_source()
     {
         var modelBuilder = GetModelBuilder();
 
-        modelBuilder.HasDbFunction(MethodBmi, funcBuilder => funcBuilder.HasName(null).HasSchema(null));
+        modelBuilder.HasDbFunction(MethodBmi, funcBuilder => funcBuilder.HasName(null!).HasSchema(null));
 
         var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
         var dbFunc = dbFuncBuilder.Metadata;
@@ -504,10 +504,10 @@ public class DbFunctionTest
 
         Assert.Equal("foo", dbFunc.Name);
         Assert.Equal("BAR", dbFunc.Schema);
-        Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
+        Assert.Equal(typeof(int), dbFunc.MethodInfo!.ReturnType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_with_relational_schema()
     {
         var modelBuilder = GetModelBuilder();
@@ -521,7 +521,7 @@ public class DbFunctionTest
         Assert.Equal("dbo", dbFuncBuilder.Metadata.Schema);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_with_store_type()
     {
         var modelBuilder = GetModelBuilder();
@@ -533,7 +533,7 @@ public class DbFunctionTest
         Assert.Equal("int(8)", dbFuncBuilder.Metadata.StoreType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_with_relational_schema_fluent_overrides()
     {
         var modelBuilder = GetModelBuilder();
@@ -547,7 +547,7 @@ public class DbFunctionTest
         Assert.Equal("bar", dbFuncBuilder.Metadata.Schema);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_method_with_relational_schema_attribute_overrides()
     {
         var modelBuilder = GetModelBuilder();
@@ -561,7 +561,7 @@ public class DbFunctionTest
         Assert.Equal("bar", dbFuncBuilder.Metadata.Schema);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Changing_default_schema_is_detected_by_dbfunction()
     {
         var modelBuilder = GetModelBuilder();
@@ -579,7 +579,7 @@ public class DbFunctionTest
         Assert.Equal("xyz", dbFuncBuilder.Metadata.Schema);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Add_method_generic_not_supported_throws()
     {
         var modelBuilder = GetModelBuilder();
@@ -589,13 +589,13 @@ public class DbFunctionTest
             Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodHmi)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbFunction_HasName()
     {
         var modelBuilder = GetModelBuilder();
 
-        var methodA = typeof(OuterA.Inner).GetMethod(nameof(OuterA.Inner.Min));
-        var methodB = typeof(OuterB.Inner).GetMethod(nameof(OuterB.Inner.Min));
+        var methodA = typeof(OuterA.Inner).GetMethod(nameof(OuterA.Inner.Min))!;
+        var methodB = typeof(OuterB.Inner).GetMethod(nameof(OuterB.Inner.Min))!;
 
         var funcA = modelBuilder.HasDbFunction(methodA);
         var funcB = modelBuilder.HasDbFunction(methodB);
@@ -609,12 +609,12 @@ public class DbFunctionTest
         Assert.NotEqual(funcA.Metadata.Name, funcB.Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbFunction_IsBuiltIn()
     {
         var modelBuilder = GetModelBuilder();
 
-        var methodA = typeof(OuterA.Inner).GetMethod(nameof(OuterA.Inner.Min));
+        var methodA = typeof(OuterA.Inner).GetMethod(nameof(OuterA.Inner.Min))!;
 
         var funcA = modelBuilder.HasDbFunction(methodA);
 
@@ -625,7 +625,7 @@ public class DbFunctionTest
         Assert.True(funcA.Metadata.IsBuiltIn);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Set_empty_function_name_throws()
     {
         var modelBuilder = GetModelBuilder();
@@ -635,7 +635,7 @@ public class DbFunctionTest
             Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(MethodAmi).HasName("")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbParameters_load_no_parameters()
     {
         var modelBuilder = GetModelBuilder();
@@ -648,20 +648,20 @@ public class DbFunctionTest
         Assert.Equal(0, dbFunc.Parameters.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbFunction_IsQueryable()
     {
         var modelBuilder = GetModelBuilder();
 
         var queryableNoParams
             = typeof(MyDerivedContext)
-                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), []);
+                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), [])!;
 
         var functionName = modelBuilder.HasDbFunction(queryableNoParams).Metadata.ModelName;
 
         var model = modelBuilder.FinalizeModel(skipValidation: true);
 
-        var function = model.FindDbFunction(functionName);
+        var function = model.FindDbFunction(functionName)!;
         var entityType = model.FindEntityType(typeof(Foo));
 
         Assert.False(function.IsScalar);
@@ -671,27 +671,27 @@ public class DbFunctionTest
         Assert.Same(entityType, mapping.TypeBase);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsNullable_throws_for_nonScalar()
     {
         var modelBuilder = GetModelBuilder();
 
         var queryableNoParams
             = typeof(MyDerivedContext)
-                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), []);
+                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), [])!;
 
         Assert.Equal(
             RelationalStrings.NonScalarFunctionCannotBeNullable(nameof(MyDerivedContext.QueryableNoParams)),
             Assert.Throws<InvalidOperationException>(() => modelBuilder.HasDbFunction(queryableNoParams).IsNullable()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropagatesNullability_throws_for_nonScalar()
     {
         var modelBuilder = GetModelBuilder();
 
         var queryableSingleParam = typeof(MyDerivedContext)
-            .GetRuntimeMethod(nameof(MyDerivedContext.QueryableSingleParam), [typeof(int)]);
+            .GetRuntimeMethod(nameof(MyDerivedContext.QueryableSingleParam), [typeof(int)])!;
 
         var function = modelBuilder.HasDbFunction(queryableSingleParam);
         var parameter = function.HasParameter("i");
@@ -701,7 +701,7 @@ public class DbFunctionTest
             Assert.Throws<InvalidOperationException>(() => parameter.PropagatesNullability()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbParameters_invalid_parameter_name_throws()
     {
         var modelBuilder = GetModelBuilder();
@@ -709,11 +709,11 @@ public class DbFunctionTest
         var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
 
         Assert.Equal(
-            RelationalStrings.DbFunctionInvalidParameterName(dbFuncBuilder.Metadata.MethodInfo.DisplayName(), "q"),
+            RelationalStrings.DbFunctionInvalidParameterName(dbFuncBuilder.Metadata.MethodInfo!.DisplayName(), "q"),
             Assert.Throws<ArgumentException>(() => dbFuncBuilder.HasParameter("q")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbParameters_load_with_parameters()
     {
         var modelBuilder = GetModelBuilder();
@@ -732,7 +732,7 @@ public class DbFunctionTest
         Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbParameters_dbfunctionType()
     {
         var modelBuilder = GetModelBuilder();
@@ -753,7 +753,7 @@ public class DbFunctionTest
         Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbParameters_name()
     {
         var modelBuilder = GetModelBuilder();
@@ -774,7 +774,7 @@ public class DbFunctionTest
         Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbParameters_StoreType()
     {
         var modelBuilder = GetModelBuilder();
@@ -796,11 +796,11 @@ public class DbFunctionTest
         Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DbFunction_Queryable_custom_translation()
     {
         var modelBuilder = GetModelBuilder();
-        var methodInfo = typeof(TestMethods).GetMethod(nameof(TestMethods.MethodJ));
+        var methodInfo = typeof(TestMethods).GetMethod(nameof(TestMethods.MethodJ))!;
         var dbFunctionBuilder = modelBuilder.HasDbFunction(methodInfo);
 
         Assert.False(

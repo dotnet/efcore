@@ -124,36 +124,6 @@ public interface IConventionModel : IReadOnlyModel, IConventionAnnotatable
         bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Adds an owned entity type with a defining navigation to the model.
-    /// </summary>
-    /// <param name="name">The name of the entity type to be added.</param>
-    /// <param name="definingNavigationName">The defining navigation.</param>
-    /// <param name="definingEntityType">The defining entity type.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The new entity type.</returns>
-    [Obsolete]
-    IConventionEntityType? AddEntityType(
-        string name,
-        string definingNavigationName,
-        IConventionEntityType definingEntityType,
-        bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Adds an owned entity type with a defining navigation to the model.
-    /// </summary>
-    /// <param name="type">The CLR class that is used to represent instances of this entity type.</param>
-    /// <param name="definingNavigationName">The defining navigation.</param>
-    /// <param name="definingEntityType">The defining entity type.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The new entity type.</returns>
-    [Obsolete]
-    IConventionEntityType? AddEntityType(
-        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
-        string definingNavigationName,
-        IConventionEntityType definingEntityType,
-        bool fromDataAnnotation = false);
-
-    /// <summary>
     ///     Adds an owned entity type of default type to the model.
     /// </summary>
     /// <remarks>

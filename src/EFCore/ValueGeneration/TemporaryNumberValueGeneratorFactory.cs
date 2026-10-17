@@ -92,27 +92,15 @@ public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
                 return new TemporaryUShortValueGenerator();
             }
 
-            if (type == typeof(sbyte))
-            {
-                return new TemporarySByteValueGenerator();
-            }
-
-            if (type == typeof(decimal))
-            {
-                return new TemporaryDecimalValueGenerator();
-            }
-
-            if (type == typeof(float))
-            {
-                return new TemporaryFloatValueGenerator();
-            }
-
-            if (type == typeof(double))
-            {
-                return new TemporaryDoubleValueGenerator();
-            }
-
-            return null;
+            return type == typeof(sbyte)
+                ? new TemporarySByteValueGenerator()
+                : type == typeof(decimal)
+                    ? new TemporaryDecimalValueGenerator()
+                    : type == typeof(float)
+                        ? new TemporaryFloatValueGenerator()
+                        : type == typeof(double)
+                            ? new TemporaryDoubleValueGenerator()
+                            : (ValueGenerator?)null;
         }
     }
 }

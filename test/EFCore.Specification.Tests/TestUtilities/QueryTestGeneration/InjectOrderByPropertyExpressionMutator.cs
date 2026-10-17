@@ -67,7 +67,7 @@ public class InjectOrderByPropertyExpressionMutator(DbContext context) : Express
 
         private bool _insideThenInclude;
 
-        public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = new();
+        public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = [];
 
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)

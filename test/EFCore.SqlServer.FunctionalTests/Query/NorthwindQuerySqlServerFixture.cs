@@ -5,13 +5,14 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindQuerySqlServerFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>
     where TModelCustomizer : ITestModelCustomizer, new()
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerNorthwindTestStoreFactory.Instance;
+
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => SqlServerTestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

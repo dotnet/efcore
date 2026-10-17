@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class CommandInterceptionSqliteTestBase(CommandInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
     : CommandInterceptionTestBase(fixture)
 {
@@ -16,7 +14,7 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
 """,
             await base.Intercept_query_passively(async, inject));
 
-        return null;
+        return null!;
     }
 
     protected override async Task<string> QueryMutationTest<TInterceptor>(bool async, bool inject)
@@ -27,7 +25,7 @@ SELECT "s"."Id", "s"."Type" FROM "Brane" AS "s"
 """,
             await base.QueryMutationTest<TInterceptor>(async, inject));
 
-        return null;
+        return null!;
     }
 
     public override async Task<string> Intercept_query_to_replace_execution(bool async, bool inject)
@@ -38,7 +36,7 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
 """,
             await base.Intercept_query_to_replace_execution(async, inject));
 
-        return null;
+        return null!;
     }
 
     public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase

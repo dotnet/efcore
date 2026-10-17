@@ -39,7 +39,7 @@ public class JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement> 
         IList<TElement> collection;
         if (IsReadOnly)
         {
-            collection = new List<TElement>();
+            collection = [];
         }
         else if (existingObject == null)
         {

@@ -98,19 +98,19 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
     {
         var table = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
         return table.Name != null
-                ? GetValueGenerated(property, table, Dependencies.TypeMappingSource)
-                : property.DeclaringType.IsMappedToJson()
+            ? GetValueGenerated(property, table, Dependencies.TypeMappingSource)
+            : property.DeclaringType.IsMappedToJson()
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                && property.IsOrdinalKeyProperty()
+            && property.IsOrdinalKeyProperty()
 #pragma warning restore EF1001 // Internal EF Core API usage.
-                && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false
-                    ? ValueGenerated.OnAddOrUpdate
-                    : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
-                        ? GetValueGenerated((IReadOnlyProperty)property)
-                        : null;
+            && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false
+                ? ValueGenerated.OnAddOrUpdate
+                : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
+                    ? GetValueGenerated((IReadOnlyProperty)property)
+                    : null;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override bool MappingStrategyAllowsValueGeneration(IConventionProperty property, string? mappingStrategy)
         => true;
 
@@ -137,13 +137,10 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
                 : null);
 
     private static ValueGenerated? GetTemporalValueGenerated(IReadOnlyProperty property)
-    {
-        var entityType = property.DeclaringType as IReadOnlyEntityType;
-        return entityType != null
+        => property.DeclaringType is IReadOnlyEntityType entityType
             && entityType.IsTemporal()
             && (entityType.GetPeriodStartPropertyName() == property.Name
                 || entityType.GetPeriodEndPropertyName() == property.Name)
                 ? ValueGenerated.OnAddOrUpdate
                 : null;
-    }
 }

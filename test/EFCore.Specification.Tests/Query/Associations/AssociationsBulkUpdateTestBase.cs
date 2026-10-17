@@ -10,26 +10,26 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
 {
     #region Delete
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Delete_entity_with_associations()
     {
         // Make sure foreign key constraints don't get in the way
         var deletableEntity = Fixture.Data.RootEntities.Where(e => !Fixture.Data.RootReferencingEntities.Any(re => re.Root == e)).First();
 
         await AssertDelete(
-             ss => ss.Set<RootEntity>().Where(e => e.Name == deletableEntity.Name),
-             rowsAffectedCount: 1);
+            ss => ss.Set<RootEntity>().Where(e => e.Name == deletableEntity.Name),
+            rowsAffectedCount: 1);
     }
 
     // Should always fail (since the association is required), but (at least for now) may fail in different ways depending on the
     // association mapping type.
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_required_associate()
         => AssertDelete(
             ss => ss.Set<RootEntity>().Select(c => c.RequiredAssociate),
             rowsAffectedCount: 0);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_optional_associate()
         => AssertDelete(
             ss => ss.Set<RootEntity>().Select(c => c.OptionalAssociate),
@@ -39,7 +39,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
 
     #region Update properties
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_property_inside_associate()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -47,15 +47,16 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(c => c.RequiredAssociate.String, "foo_updated"),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_property_inside_associate_with_special_chars()
         => AssertUpdate(
-            ss => ss.Set<RootEntity>().Where(c => c.RequiredAssociate.String == "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }"),
+            ss => ss.Set<RootEntity>()
+                .Where(c => c.RequiredAssociate.String == "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }"),
             e => e,
             s => s.SetProperty(c => c.RequiredAssociate.String, c => "{ Some other/JSON:like text though it [isn't]: ממש ממש לאéèéè }"),
             rowsAffectedCount: 1);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_property_inside_nested_associate()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -63,7 +64,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(c => c.RequiredAssociate.RequiredNestedAssociate.String, "foo_updated"),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_property_on_projected_associate()
         => AssertUpdate(
             ss => ss.Set<RootEntity>().Select(c => c.RequiredAssociate),
@@ -71,7 +72,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(c => c.String, "foo_updated"),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_property_on_projected_associate_with_OrderBy_Skip()
         => AssertUpdate(
             ss => ss.Set<RootEntity>().Select(c => c.RequiredAssociate).OrderBy(a => a.String).Skip(1),
@@ -79,7 +80,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(c => c.String, "foo_updated"),
             rowsAffectedCount: 3);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_associate_with_null_required_property()
     {
         using var context = Fixture.CreateContext();
@@ -102,7 +103,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
 
     #region Update associate
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_associate_to_parameter()
     {
         var newAssociate = new AssociateType
@@ -112,7 +113,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             Int = 80,
             String = "Updated nested string",
             Ints = [1, 2, 3],
-
             RequiredNestedAssociate = new NestedAssociateType
             {
                 Id = 1000,
@@ -132,7 +132,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             rowsAffectedCount: 7);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_nested_associate_to_parameter()
     {
         var newNested = new NestedAssociateType
@@ -151,7 +151,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             rowsAffectedCount: 7);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_associate_to_another_associate()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -159,7 +159,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(x => x.OptionalAssociate, x => x.RequiredAssociate),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_nested_associate_to_another_nested_associate()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -167,7 +167,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(x => x.RequiredAssociate.OptionalNestedAssociate, x => x.RequiredAssociate.RequiredNestedAssociate),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_associate_to_inline()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -181,7 +181,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                     Int = 70,
                     String = "Updated associate string",
                     Ints = [1, 2, 4],
-
                     RequiredNestedAssociate = new NestedAssociateType
                     {
                         Id = 1000,
@@ -195,7 +194,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 }),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_associate_to_inline_with_lambda()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -208,22 +207,31 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                     Name = "Updated associate name",
                     Int = 70,
                     String = "Updated associate string",
-                    Ints = new() { 1, 2, 4 },
-
+                    Ints = new()
+                    {
+                        1,
+                        2,
+                        4
+                    },
                     RequiredNestedAssociate = new NestedAssociateType
                     {
                         Id = 1000,
                         Name = "Updated nested name",
                         Int = 80,
                         String = "Updated nested string",
-                        Ints = new() { 1, 2, 4 }
+                        Ints = new()
+                        {
+                            1,
+                            2,
+                            4
+                        }
                     },
                     OptionalNestedAssociate = null,
                     NestedCollection = new List<NestedAssociateType>()
                 }),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_nested_associate_to_inline_with_lambda()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -236,11 +244,16 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                     Name = "Updated nested name",
                     Int = 80,
                     String = "Updated nested string",
-                    Ints = new() { 1, 2, 4 }
+                    Ints = new()
+                    {
+                        1,
+                        2,
+                        4
+                    }
                 }),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_associate_to_null()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -248,7 +261,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(x => x.OptionalAssociate, (AssociateType?)null),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_associate_to_null_with_lambda()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -256,19 +269,19 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             s => s.SetProperty(x => x.OptionalAssociate, x => null),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_associate_to_null_parameter()
     {
         var nullAssociate = (AssociateType?)null;
 
         return AssertUpdate(
-                ss => ss.Set<RootEntity>(),
-                c => c,
-                s => s.SetProperty(x => x.OptionalAssociate, nullAssociate),
-                rowsAffectedCount: 7);
+            ss => ss.Set<RootEntity>(),
+            c => c,
+            s => s.SetProperty(x => x.OptionalAssociate, nullAssociate),
+            rowsAffectedCount: 7);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_required_nested_associate_to_null()
     {
         using var context = Fixture.CreateContext();
@@ -293,7 +306,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
 
     #region Update collection
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_collection_to_parameter()
     {
         List<AssociateType> collection =
@@ -305,7 +318,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 Int = 80,
                 String = "Updated associate string1",
                 Ints = [1, 2, 4],
-
                 RequiredNestedAssociate = new()
                 {
                     Id = 1000,
@@ -324,7 +336,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 Int = 81,
                 String = "Updated associate string2",
                 Ints = [1, 2, 4],
-
                 RequiredNestedAssociate = new()
                 {
                     Id = 1001,
@@ -345,7 +356,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             rowsAffectedCount: 7);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_nested_collection_to_parameter()
     {
         List<NestedAssociateType> collection =
@@ -375,7 +386,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             rowsAffectedCount: 7);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_nested_collection_to_inline_with_lambda()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -390,7 +401,12 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                         Name = "Updated nested name1",
                         Int = 80,
                         String = "Updated nested string1",
-                        Ints = new() { 1, 2, 4 }
+                        Ints = new()
+                        {
+                            1,
+                            2,
+                            4
+                        }
                     },
                     new()
                     {
@@ -398,22 +414,27 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                         Name = "Updated nested name2",
                         Int = 81,
                         String = "Updated nested string2",
-                        Ints = new() { 1, 2, 4 }
+                        Ints = new()
+                        {
+                            1,
+                            2,
+                            4
+                        }
                     }
                 }),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_collection_referencing_the_original_collection()
         => AssertUpdate(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection.Count >= 2),
             c => c,
             s => s.SetProperty(
                 e => e.RequiredAssociate.NestedCollection,
-                e => new List<NestedAssociateType> { e.RequiredAssociate.NestedCollection[1], e.RequiredAssociate.NestedCollection[0]}),
+                e => new List<NestedAssociateType> { e.RequiredAssociate.NestedCollection[1], e.RequiredAssociate.NestedCollection[0] }),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_nested_collection_to_another_nested_collection()
         => AssertUpdate(
             ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate != null),
@@ -423,7 +444,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 x => x.OptionalAssociate!.NestedCollection),
             rowsAffectedCount: 6);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_inside_structural_collection()
     {
         var nested = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredAssociate.NestedCollection[1];
@@ -440,15 +461,21 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
 
     #region Update primitive collection
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_primitive_collection_to_constant()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
             c => c,
-            s => s.SetProperty(x => x.RequiredAssociate.Ints, x => new List<int> { 1, 2, 4 }),
+            s => s.SetProperty(
+                x => x.RequiredAssociate.Ints, x => new List<int>
+                {
+                    1,
+                    2,
+                    4
+                }),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_primitive_collection_to_parameter()
     {
         List<int> ints = [1, 2, 4];
@@ -460,7 +487,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             rowsAffectedCount: 7);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_primitive_collection_to_another_collection()
     {
         List<int> ints = [1, 2, 4];
@@ -468,11 +495,12 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
         await AssertUpdate(
             ss => ss.Set<RootEntity>(),
             c => c,
-            s => s.SetProperty(x => x.RequiredAssociate.OptionalNestedAssociate!.Ints, x => x.RequiredAssociate.RequiredNestedAssociate.Ints),
+            s => s.SetProperty(
+                x => x.RequiredAssociate.OptionalNestedAssociate!.Ints, x => x.RequiredAssociate.RequiredNestedAssociate.Ints),
             rowsAffectedCount: 7);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_inside_primitive_collection()
         => AssertUpdate(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints.Count >= 2),
@@ -484,7 +512,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
 
     #region Multiple updates
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_multiple_properties_inside_same_associate()
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
@@ -494,7 +522,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 .SetProperty(c => c.RequiredAssociate.Int, 20),
             rowsAffectedCount: 7);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_multiple_properties_inside_associates_and_on_entity_type()
         => AssertUpdate(
             ss => ss.Set<RootEntity>().Where(c => c.OptionalAssociate != null),
@@ -505,7 +533,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 .SetProperty(c => c.OptionalAssociate!.RequiredNestedAssociate.String, "foo_updated"),
             rowsAffectedCount: 6);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_multiple_projected_associates_via_anonymous_type()
         => AssertUpdate(
             ss => ss.Set<RootEntity>()
@@ -531,7 +559,10 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             .Message);
 
     protected static async Task AssertTranslationFailedWithDetails(string details, Func<Task> query)
-        => Assert.Contains(
-            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
-            (await Assert.ThrowsAsync<InvalidOperationException>(query)).Message);
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal(details, innerException.Message);
+    }
 }

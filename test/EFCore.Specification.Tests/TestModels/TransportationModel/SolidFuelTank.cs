@@ -3,14 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
-#nullable disable
-
 public class SolidFuelTank : FuelTank
 {
-    public string GrainGeometry { get; set; }
-    public SolidRocket Rocket { get; set; }
+    public string GrainGeometry { get; set; } = null!;
+    public SolidRocket Rocket { get; set; } = null!;
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is SolidFuelTank other
             && base.Equals(other)
             && GrainGeometry == other.GrainGeometry;

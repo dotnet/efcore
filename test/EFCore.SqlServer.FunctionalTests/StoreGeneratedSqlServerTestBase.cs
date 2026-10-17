@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -115,13 +115,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
     protected class WrappedIntHiLoClassPrincipal
     {
         public WrappedIntHiLoKeyClass Id { get; set; } = null!;
-        public ICollection<WrappedIntHiLoClassDependentShadow> Dependents { get; } = new List<WrappedIntHiLoClassDependentShadow>();
+        public ICollection<WrappedIntHiLoClassDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedIntHiLoClassDependentRequired> RequiredDependents { get; } =
-            new List<WrappedIntHiLoClassDependentRequired>();
+            [];
 
         public ICollection<WrappedIntHiLoClassDependentOptional> OptionalDependents { get; } =
-            new List<WrappedIntHiLoClassDependentOptional>();
+            [];
     }
 
     protected class WrappedIntHiLoClassDependentShadow
@@ -147,13 +147,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
     protected class WrappedIntHiLoStructPrincipal
     {
         public WrappedIntHiLoKeyStruct Id { get; set; }
-        public ICollection<WrappedIntHiLoStructDependentShadow> Dependents { get; } = new List<WrappedIntHiLoStructDependentShadow>();
+        public ICollection<WrappedIntHiLoStructDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedIntHiLoStructDependentOptional> OptionalDependents { get; } =
-            new List<WrappedIntHiLoStructDependentOptional>();
+            [];
 
         public ICollection<WrappedIntHiLoStructDependentRequired> RequiredDependents { get; } =
-            new List<WrappedIntHiLoStructDependentRequired>();
+            [];
     }
 
     protected class WrappedIntHiLoStructDependentShadow
@@ -179,13 +179,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
     protected class WrappedIntHiLoRecordPrincipal
     {
         public WrappedIntHiLoKeyRecord Id { get; set; } = null!;
-        public ICollection<WrappedIntHiLoRecordDependentShadow> Dependents { get; } = new List<WrappedIntHiLoRecordDependentShadow>();
+        public ICollection<WrappedIntHiLoRecordDependentShadow> Dependents { get; } = [];
 
         public ICollection<WrappedIntHiLoRecordDependentOptional> OptionalDependents { get; } =
-            new List<WrappedIntHiLoRecordDependentOptional>();
+            [];
 
         public ICollection<WrappedIntHiLoRecordDependentRequired> RequiredDependents { get; } =
-            new List<WrappedIntHiLoRecordDependentRequired>();
+            [];
     }
 
     protected class WrappedIntHiLoRecordDependentShadow
@@ -213,9 +213,9 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        public ICollection<LongToDecimalDependentShadow> Dependents { get; } = new List<LongToDecimalDependentShadow>();
-        public ICollection<LongToDecimalDependentRequired> RequiredDependents { get; } = new List<LongToDecimalDependentRequired>();
-        public ICollection<LongToDecimalDependentOptional> OptionalDependents { get; } = new List<LongToDecimalDependentOptional>();
+        public ICollection<LongToDecimalDependentShadow> Dependents { get; } = [];
+        public ICollection<LongToDecimalDependentRequired> RequiredDependents { get; } = [];
+        public ICollection<LongToDecimalDependentOptional> OptionalDependents { get; } = [];
     }
 
     protected class LongToDecimalDependentShadow
@@ -244,7 +244,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
         public LongToDecimalPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Insert_update_and_delete_with_long_to_decimal_conversion()
     {
         var id1 = 0L;
@@ -345,7 +345,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Insert_update_and_delete_with_wrapped_int_key_using_hi_lo()
     {
         var id1 = 0;
@@ -633,7 +633,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Exception_in_SaveChanges_causes_store_values_to_be_reverted()
     {
         var entities = new List<Darwin>();
@@ -644,13 +644,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
                 {
                     _id = Fixture.NullableIntSentinel,
                     Species = new Species { Id = Fixture.IntSentinel, Name = "Goldfish (with legs)" },
-                    MixedMetaphors = new List<Species>
-                    {
+                    MixedMetaphors =
+                    [
                         new() { Id = Fixture.IntSentinel, Name = "Large ground finch" },
                         new() { Id = Fixture.IntSentinel, Name = "Medium ground finch" },
                         new() { Id = Fixture.IntSentinel, Name = "Small tree finch" },
                         new() { Id = Fixture.IntSentinel, Name = "Green warbler-finch" }
-                    }
+                    ]
                 });
         }
 
@@ -659,13 +659,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
             {
                 Id = 1777,
                 Species = new Species { Id = Fixture.IntSentinel, Name = "Goldfish (with legs)" },
-                MixedMetaphors = new List<Species>
-                {
+                MixedMetaphors =
+                [
                     new() { Id = Fixture.IntSentinel, Name = "Large ground finch" },
                     new() { Id = Fixture.IntSentinel, Name = "Medium ground finch" },
                     new() { Id = Fixture.IntSentinel, Name = "Small tree finch" },
                     new() { Id = Fixture.IntSentinel, Name = "Green warbler-finch" }
-                }
+                ]
             });
 
         for (var i = 0; i < 2; i++)
@@ -760,7 +760,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder
+            => base.AddOptions(builder)
                 .EnableSensitiveDataLogging()
                 .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
                     .Ignore(CoreEventId.SensitiveDataLoggingEnabledWarning)

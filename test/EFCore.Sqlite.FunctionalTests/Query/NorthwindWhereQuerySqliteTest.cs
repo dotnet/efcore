@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindWhereQuerySqliteTest : NorthwindWhereQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
     public NorthwindWhereQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -52,7 +50,7 @@ WHERE "c"."City" = @city
 """,
             queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
 
-        return null;
+        return null!;
     }
 
     public override async Task Decimal_cast_to_double_works(bool async)

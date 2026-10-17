@@ -25,18 +25,13 @@ public class CosmosNullableMemberTranslator(ISqlExpressionFactory sqlExpressionF
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (member.DeclaringType?.IsNullableValueType() == true
-            && instance != null)
-        {
-            return member.Name switch
-            {
-                nameof(Nullable<int>.Value) => instance,
-                nameof(Nullable<int>.HasValue) => sqlExpressionFactory.IsNotNull(instance),
-                _ => null
-            };
-        }
-
-        return null;
-    }
+        => member.DeclaringType?.IsNullableValueType() == true
+            && instance != null
+                ? member.Name switch
+                {
+                    nameof(Nullable<int>.Value) => instance,
+                    nameof(Nullable<int>.HasValue) => sqlExpressionFactory.IsNotNull(instance),
+                    _ => null
+                }
+                : null;
 }

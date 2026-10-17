@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Relational database specific extension methods for <see cref="ComplexCollectionBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 public static class RelationalComplexCollectionBuilderExtensions
 {
@@ -39,7 +39,7 @@ public static class RelationalComplexCollectionBuilderExtensions
         this ComplexCollectionBuilder<TComplex> complexCollectionBuilder,
         string? jsonColumnName = null)
         where TComplex : notnull
-        => (ComplexCollectionBuilder<TComplex>)ToJson((ComplexCollectionBuilder)complexCollectionBuilder, jsonColumnName);
+        => (ComplexCollectionBuilder<TComplex>)((ComplexCollectionBuilder)complexCollectionBuilder).ToJson(jsonColumnName);
 
     /// <summary>
     ///     Configures the complex property contained in a JSON column to map to a specific JSON property,
@@ -70,7 +70,7 @@ public static class RelationalComplexCollectionBuilderExtensions
         this ComplexCollectionBuilder<TComplex> complexCollectionBuilder,
         string? name)
         where TComplex : notnull
-        => (ComplexCollectionBuilder<TComplex>)HasJsonPropertyName((ComplexCollectionBuilder)complexCollectionBuilder, name);
+        => (ComplexCollectionBuilder<TComplex>)((ComplexCollectionBuilder)complexCollectionBuilder).HasJsonPropertyName(name);
 
     /// <summary>
     ///     Configures the column type for the JSON column that stores the complex collection.
@@ -97,5 +97,5 @@ public static class RelationalComplexCollectionBuilderExtensions
         this ComplexCollectionBuilder<TComplex> complexCollectionBuilder,
         string? columnType)
         where TComplex : notnull
-        => (ComplexCollectionBuilder<TComplex>)HasColumnType((ComplexCollectionBuilder)complexCollectionBuilder, columnType);
+        => (ComplexCollectionBuilder<TComplex>)((ComplexCollectionBuilder)complexCollectionBuilder).HasColumnType(columnType);
 }

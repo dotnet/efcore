@@ -1826,8 +1826,16 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
     {
         builder
             .Append(".Sql(")
-            .Append(Code.Literal(operation.Sql))
-            .Append(")");
+            .Append(Code.Literal(operation.Sql));
+
+        if (operation.SuppressTransaction)
+        {
+            builder
+                .Append(", suppressTransaction: ")
+                .Append(Code.Literal(true));
+        }
+
+        builder.Append(")");
 
         using (builder.Indent())
         {
@@ -2136,6 +2144,11 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
     {
         foreach (var annotation in annotations)
         {
+            if (annotation.Name == RelationalAnnotationNames.JsonIndex)
+            {
+                continue;
+            }
+
             // TODO: Give providers an opportunity to render these as provider-specific extension methods
             // Issue #6546
             builder

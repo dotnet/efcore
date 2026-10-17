@@ -25,67 +25,56 @@ public abstract class
     protected virtual bool HasForeignKeyIndexes
         => true;
 
-    [ConditionalFact]
+    [Fact]
     public void Can_build_identity_model()
     {
-        using (var context = CreateContext())
-        {
-            var entityTypeMappings = context.Model.GetEntityTypes().Select(e => new EntityTypeMapping(e)).ToList();
+        using var context = CreateContext();
+        var entityTypeMappings = context.Model.GetEntityTypes().Select(e => new EntityTypeMapping(e)).ToList();
 
-            EntityTypeMapping.AssertEqual(ExpectedMappings, entityTypeMappings);
-        }
+        EntityTypeMapping.AssertEqual(ExpectedMappings, entityTypeMappings);
     }
 
     protected abstract List<EntityTypeMapping> ExpectedMappings { get; }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_FindByNameAsync()
     {
         var user = new TUser { NormalizedUserName = "wendy" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore =
                     new UserStore<TUser, TRole, TContext, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>(context);
 
-                Assert.Equal(user.Id, (await userStore.FindByNameAsync("wendy")).Id);
+                Assert.Equal(user.Id, (await userStore.FindByNameAsync("wendy"))!.Id);
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_FindByEmailAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore =
                     new UserStore<TUser, TRole, TContext, TKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>(context);
 
-                Assert.Equal(user.Id, (await userStore.FindByEmailAsync("wendy@example.com")).Id);
+                Assert.Equal(user.Id, (await userStore.FindByEmailAsync("wendy@example.com"))!.Id);
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetRolesAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore =
@@ -98,16 +87,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_ReplaceClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore =
@@ -133,16 +119,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_RemoveClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore =
@@ -164,16 +147,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetLoginsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore =
@@ -186,16 +166,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetUsersForClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore =
@@ -207,16 +184,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetUsersInRoleAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore =
@@ -228,52 +202,43 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_FindByNameAsync()
     {
         var user = new TUser { NormalizedUserName = "wendy" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore = new UserOnlyStore<TUser, TContext, TKey, TUserClaim, TUserLogin, TUserToken>(context);
 
-                Assert.Equal(user.Id, (await userStore.FindByNameAsync("wendy")).Id);
+                Assert.Equal(user.Id, (await userStore.FindByNameAsync("wendy"))!.Id);
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_FindByEmailAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore = new UserOnlyStore<TUser, TContext, TKey, TUserClaim, TUserLogin, TUserToken>(context);
 
-                Assert.Equal(user.Id, (await userStore.FindByEmailAsync("wendy@example.com")).Id);
+                Assert.Equal(user.Id, (await userStore.FindByEmailAsync("wendy@example.com"))!.Id);
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore = new UserOnlyStore<TUser, TContext, TKey, TUserClaim, TUserLogin, TUserToken>(context);
@@ -289,16 +254,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_ReplaceClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore = new UserOnlyStore<TUser, TContext, TKey, TUserClaim, TUserLogin, TUserToken>(context);
@@ -322,16 +284,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_RemoveClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore = new UserOnlyStore<TUser, TContext, TKey, TUserClaim, TUserLogin, TUserToken>(context);
@@ -351,16 +310,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetLoginsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore = new UserOnlyStore<TUser, TContext, TKey, TUserClaim, TUserLogin, TUserToken>(context);
@@ -372,16 +328,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetUsersForClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var userStore = new UserOnlyStore<TUser, TContext, TKey, TUserClaim, TUserLogin, TUserToken>(context);
@@ -392,16 +345,13 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_RoleStore_GetClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
 
         await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, user);
-            },
+            async context => await CreateUser(context, user),
             async context =>
             {
                 using var roleStore = new RoleStore<TRole, TContext, TKey, TUserRole, TRoleClaim>(context);
@@ -464,9 +414,9 @@ public abstract class
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<TContext, Task> testOperation,
-        Func<TContext, Task> nestedTestOperation1 = null,
-        Func<TContext, Task> nestedTestOperation2 = null,
-        Func<TContext, Task> nestedTestOperation3 = null)
+        Func<TContext, Task>? nestedTestOperation1 = null,
+        Func<TContext, Task>? nestedTestOperation2 = null,
+        Func<TContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
