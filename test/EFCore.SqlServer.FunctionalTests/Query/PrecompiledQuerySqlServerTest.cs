@@ -2063,6 +2063,33 @@ FROM [Blogs] AS [b]
 
     #region Captured variable handling
 
+    public override async Task Captured_nullable_value_in_guarded_query(bool async)
+    {
+        await base.Captured_nullable_value_in_guarded_query(async);
+
+        AssertSql(
+            """
+@queryId_Value='8'
+
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @queryId_Value
+""",
+            //
+            """
+@queryId_Value='9'
+
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @queryId_Value
+""",
+            //
+            """
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+""");
+    }
+
     public override async Task Captured_object_properties(bool async)
     {
         await base.Captured_object_properties(async);

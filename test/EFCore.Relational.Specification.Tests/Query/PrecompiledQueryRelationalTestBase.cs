@@ -1108,6 +1108,32 @@ public static class TestContainer
     #region Captured variable handling
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Captured_nullable_value_in_guarded_query(bool async)
+        => Test(
+            $$"""
+foreach (var suppliedId in new int?[] { 8, 9, null })
+{
+    var id = suppliedId;
+    var queryId = id;
+    var blogs = id.HasValue
+        ? {{(async ? "await " : "")}}context.Blogs.AsNoTracking()
+            .Where(b => b.Id == queryId.Value)
+            .Select(b => new { b.Id, b.Name })
+            .{{(async ? "ToListAsync()" : "ToList()")}}
+        : {{(async ? "await " : "")}}context.Blogs.AsNoTracking()
+            .Select(b => new { b.Id, b.Name })
+            .{{(async ? "ToListAsync()" : "ToList()")}};
+
+    Assert.Equal(
+        id.HasValue ? new[] { id.Value } : new[] { 8, 9 },
+        blogs.OrderBy(b => b.Id).Select(b => b.Id));
+    Assert.Equal(
+        id.HasValue ? new[] { id == 8 ? "Blog1" : "Blog2" } : new[] { "Blog1", "Blog2" },
+        blogs.OrderBy(b => b.Id).Select(b => b.Name));
+}
+""");
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Captured_object_properties(bool async)
         => Test(
             $$"""
