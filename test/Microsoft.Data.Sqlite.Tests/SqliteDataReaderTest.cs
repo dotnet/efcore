@@ -1377,6 +1377,34 @@ public class SqliteDataReaderTest
     }
 
     [Fact]
+    public void GetOrdinal_works_with_repeated_case_insensitive_lookups()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1 AS Id");
+
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+        Assert.Equal(0, reader.GetOrdinal("id"));
+        Assert.Equal(0, reader.GetOrdinal("iD"));
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+    }
+
+    [Fact]
+    public void GetOrdinal_returns_first_ordinal_when_names_are_duplicated()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1 AS Id, 2 AS Id");
+        Assert.True(reader.Read());
+
+        Assert.Equal(0, reader.GetOrdinal("Id"));
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+        Assert.Equal(1L, reader["Id"]);
+    }
+
+    [Fact]
     public void GetOrdinal_throws_when_closed()
         => X_throws_when_closed(r => r.GetOrdinal(null!), nameof(SqliteDataReader.GetOrdinal));
 
