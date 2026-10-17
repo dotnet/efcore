@@ -61,15 +61,22 @@ public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdH
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Read_enum_property_with_legacy_values_core(async));
 
     [ConditionalTheory]
-    [InlineData(false, false, false)]
-    [InlineData(false, false, true)]
-    [InlineData(false, true, false)]
-    [InlineData(false, true, true)]
-    [InlineData(true, false, false)]
-    [InlineData(true, false, true)]
-    [InlineData(true, true, false)]
-    [InlineData(true, true, true)]
-    public async Task Json_collection_Any_with_nested_scalar_predicate(bool complex, bool azureSql, bool async)
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public Task Json_collection_Any_with_nested_scalar_predicate_AzureSql(bool complex, bool async)
+        => Json_collection_Any_with_nested_scalar_predicate(complex, azureSql: true, async);
+
+    [ConditionalTheory, SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public Task Json_collection_Any_with_nested_scalar_predicate_SqlServer(bool complex, bool async)
+        => Json_collection_Any_with_nested_scalar_predicate(complex, azureSql: false, async);
+
+    private async Task Json_collection_Any_with_nested_scalar_predicate(bool complex, bool azureSql, bool async)
     {
         var contextFactory = await InitializeAsync<Context39277>(
             onConfiguring: b => b.UseSqlServerCompatibilityLevel(170),
