@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
 ///     2. Rewrite JsonScalarExpression (JSON_VALUE()) to OPENJSON for when JSON_VALUE() isn't compatible with the type (e.g. binary data
 ///     which needs to be base64-decoded).
+///     3. Cast native json projections from OPENJSON back to json when its WITH clause only supports nvarchar(max).
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,8 +34,10 @@ public sealed class SqlServerJsonPostprocessor(
 {
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = new();
+    private readonly HashSet<(string, string)> _jsonColumnsToCast = [];
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
+    private bool _supportsJsonTypeInOpenJson;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,8 +46,19 @@ public sealed class SqlServerJsonPostprocessor(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public Expression Process(Expression expression)
+        => Process(expression, supportsJsonTypeInOpenJson: true);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    internal Expression Process(Expression expression, bool supportsJsonTypeInOpenJson)
     {
         _columnsToRewrite.Clear();
+        _jsonColumnsToCast.Clear();
+        _supportsJsonTypeInOpenJson = supportsJsonTypeInOpenJson;
 
         return Visit(expression);
     }
@@ -75,6 +89,18 @@ public sealed class SqlServerJsonPostprocessor(
                 for (var i = 0; i < selectExpression.Tables.Count; i++)
                 {
                     var table = selectExpression.Tables[i];
+
+                    if (!_supportsJsonTypeInOpenJson
+                        && table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } jsonColumnInfos } jsonTable)
+                    {
+                        foreach (var columnInfo in jsonColumnInfos)
+                        {
+                            if (columnInfo is { AsJson: true, TypeMapping.StoreType: "json" })
+                            {
+                                _jsonColumnsToCast.Add((jsonTable.Alias, columnInfo.Name));
+                            }
+                        }
+                    }
 
                     if (table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } columnInfos } openJsonExpression
                         // Condition 1: an ordering/projection still refers to the OPENJSON's [key] column - it needs to be preserved.
@@ -185,6 +211,15 @@ public sealed class SqlServerJsonPostprocessor(
             {
                 return RewriteOpenJsonColumn(columnExpression, columnInfo);
             }
+
+            case ColumnExpression { TypeMapping.StoreType: "json" } columnExpression
+                when _jsonColumnsToCast.Contains((columnExpression.TableAlias, columnExpression.Name)):
+                // OPENJSON projects these fragments as nvarchar(max); restore their native json type so that
+                // subsequent JSON_VALUE calls can use RETURNING, including for strings longer than 4000 characters.
+                return sqlExpressionFactory.Convert(
+                    columnExpression.ApplyTypeMapping(columnExpression.TypeMapping.WithStoreTypeAndSize("nvarchar(max)", null)),
+                    columnExpression.Type,
+                    columnExpression.TypeMapping);
 
             // JsonScalarExpression over a column coming out of OPENJSON/WITH; this means that the column represents an owned sub-
             // entity, and therefore must have AS JSON. Rewrite the column and simply collapse the paths together.
