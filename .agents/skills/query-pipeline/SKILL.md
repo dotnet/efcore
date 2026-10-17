@@ -38,8 +38,6 @@ user-invocable: false
 
 ## Validation
 
-- Precompiled-query regressions should use `PrecompiledQueryTestHelpers` to compile and execute generated interceptors, not only assert that generation succeeds.
-- Include chains flow the entity type through `PrecompiledQueryContext<T>`; `ThenInclude` sources are `IIncludableQueryable<TEntity, TPreviousProperty>`, with two generic arguments rather than one.
 - `ToQueryString()` shows generated SQL without executing
 - `ExpressionPrinter` dumps expression trees at any pipeline stage
 - SQL baselines verified via `AssertSql()` in provider functional tests and the generated SQL corresponds to the LINQ query in the base method
