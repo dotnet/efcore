@@ -252,8 +252,14 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     /// </summary>
     public override Expression VisitBinaryExpression(BinaryExpressionSyntax binary)
     {
-        var left = Visit(binary.Left);
-        var right = Visit(binary.Right);
+        // The compiler omits implicit reference conversions in binary expression trees.
+        var typeOperator = binary.Kind() is SyntaxKind.IsExpression or SyntaxKind.AsExpression;
+        var left = typeOperator
+            ? Visit(binary.Left)
+            : VisitWithConversion(binary.Left, convertReferenceTypes: false);
+        var right = typeOperator
+            ? Visit(binary.Right)
+            : VisitWithConversion(binary.Right, convertReferenceTypes: false);
 
         if (Nullable.GetUnderlyingType(left.Type) == right.Type)
         {
@@ -343,8 +349,25 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     public override Expression VisitConditionalExpression(ConditionalExpressionSyntax conditional)
         => Condition(
             Visit(conditional.Condition),
-            Visit(conditional.WhenTrue),
-            Visit(conditional.WhenFalse));
+            VisitWithConversion(conditional.WhenTrue),
+            VisitWithConversion(conditional.WhenFalse));
+
+    private Expression VisitWithConversion(ExpressionSyntax node, bool convertReferenceTypes = true)
+    {
+        var expression = Visit(node);
+
+        if (_semanticModel.GetTypeInfo(node).ConvertedType is { } typeSymbol)
+        {
+            var convertedType = ResolveType(typeSymbol);
+            if (expression.Type != convertedType
+                && (convertReferenceTypes || !_semanticModel.GetConversion(node).IsReference))
+            {
+                return Convert(expression, convertedType);
+            }
+        }
+
+        return expression;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
