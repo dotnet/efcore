@@ -769,9 +769,25 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression VisitLiteralExpression(LiteralExpressionSyntax literal)
-        => _semanticModel.GetTypeInfo(literal) is { ConvertedType: { } type }
-            ? Constant(literal.Token.Value, ResolveType(type))
-            : Constant(literal.Token.Value);
+    {
+        var value = literal.Token.Value;
+        if (_semanticModel.GetTypeInfo(literal) is not { ConvertedType: { } type })
+        {
+            return Constant(value);
+        }
+
+        var clrType = ResolveType(type);
+        if (value is not null
+            && value.GetType() != clrType.UnwrapNullableType()
+            && value.GetType().IsNumeric()
+            && clrType.IsNumeric())
+        {
+            value = System.Convert.ChangeType(
+                value is char c ? (int)c : value, clrType.UnwrapNullableType(), CultureInfo.InvariantCulture);
+        }
+
+        return Constant(value, clrType);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
