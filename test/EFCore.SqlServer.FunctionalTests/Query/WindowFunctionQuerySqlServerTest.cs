@@ -23,7 +23,7 @@ public class WindowFunctionQuerySqlServerTest(NonSharedFixture fixture) : Window
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], AVG(CAST([e].[Salary] AS float)) OVER(PARTITION BY [e].[DepartmentName])
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], AVG(CAST([e].[Salary] AS float)) OVER(PARTITION BY [e].[DepartmentName])
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
 """);
@@ -35,7 +35,7 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], COUNT(*) OVER(PARTITION BY [e].[DepartmentName]), ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0), MAX([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName])
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], COUNT(*) OVER(PARTITION BY [e].[DepartmentName]), ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0), MAX([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName])
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
 """);
@@ -47,9 +47,38 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Name], COUNT_BIG(*) OVER(PARTITION BY [e].[DepartmentName])
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Name], COUNT_BIG(*) OVER(PARTITION BY [e].[DepartmentName])
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
+""");
+    }
+
+    public override async Task Elements_and_aggregate_with_keys_differing_in_case()
+    {
+        await base.Elements_and_aggregate_with_keys_differing_in_case();
+
+        AssertSql(
+            """
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Name], COUNT(*) OVER(PARTITION BY [e].[DepartmentName])
+FROM [Employees] AS [e]
+ORDER BY [e].[DepartmentName]
+""");
+    }
+
+    public override async Task Elements_and_float_sum()
+    {
+        await base.Elements_and_float_sum();
+
+        AssertSql(
+            """
+SELECT [e1].[DepartmentName], [e0].[Name], [e0].[Id], [e1].[c]
+FROM (
+    SELECT [e].[DepartmentName], CAST(ISNULL(SUM(CAST([e].[Salary] AS real)), 0.0E0) AS real) AS [c]
+    FROM [Employees] AS [e]
+    GROUP BY [e].[DepartmentName]
+) AS [e1]
+LEFT JOIN [Employees] AS [e0] ON [e1].[DepartmentName] = [e0].[DepartmentName]
+ORDER BY [e1].[DepartmentName]
 """);
     }
 
@@ -59,7 +88,7 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Name], ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0)
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Name], ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0)
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
 """);
@@ -71,7 +100,7 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], AVG(CAST([e].[Bonus] AS float)) OVER(PARTITION BY [e].[DepartmentName])
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], AVG(CAST([e].[Bonus] AS float)) OVER(PARTITION BY [e].[DepartmentName])
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
 """);
@@ -83,7 +112,7 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Name], ISNULL(SUM([e].[Bonus]) OVER(PARTITION BY [e].[DepartmentName]), 0)
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Name], ISNULL(SUM([e].[Bonus]) OVER(PARTITION BY [e].[DepartmentName]), 0)
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
 """);
@@ -95,7 +124,7 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Name], ISNULL(SUM(CAST([e].[Salary] AS decimal(18,2))) OVER(PARTITION BY [e].[DepartmentName]), 0.0), AVG(CAST([e].[Salary] AS decimal(18,2))) OVER(PARTITION BY [e].[DepartmentName]), MAX(CAST([e].[Salary] AS decimal(18,2))) OVER(PARTITION BY [e].[DepartmentName])
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Name], ISNULL(SUM(CAST([e].[Salary] AS decimal(18,2))) OVER(PARTITION BY [e].[DepartmentName]), 0.0), AVG(CAST([e].[Salary] AS decimal(18,2))) OVER(PARTITION BY [e].[DepartmentName]), MAX(CAST([e].[Salary] AS decimal(18,2))) OVER(PARTITION BY [e].[DepartmentName])
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
 """);
@@ -107,7 +136,7 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Name], ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0), COUNT(*) OVER(PARTITION BY [e].[DepartmentName])
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Name], ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0), COUNT(*) OVER(PARTITION BY [e].[DepartmentName])
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
 """);
@@ -119,7 +148,7 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e0].[Key], [e0].[Id], [e0].[Bonus], [e0].[DepartmentName], [e0].[Name], [e0].[Salary], AVG(CAST([e0].[Salary] AS float)) OVER(PARTITION BY [e0].[Key])
+SELECT [e0].[Key], DENSE_RANK() OVER(ORDER BY [e0].[Key]), [e0].[Id], [e0].[Bonus], [e0].[DepartmentName], [e0].[Name], [e0].[Salary], AVG(CAST([e0].[Salary] AS float)) OVER(PARTITION BY [e0].[Key])
 FROM (
     SELECT [e].[Id], [e].[Bonus], [e].[DepartmentName], [e].[Name], [e].[Salary], 1 AS [Key]
     FROM [Employees] AS [e]
@@ -134,7 +163,7 @@ ORDER BY [e0].[Key]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], AVG(CAST([e].[Salary] AS float)) OVER(PARTITION BY [e].[DepartmentName])
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary], AVG(CAST([e].[Salary] AS float)) OVER(PARTITION BY [e].[DepartmentName])
 FROM [Employees] AS [e]
 WHERE [e].[Salary] > 50
 ORDER BY [e].[DepartmentName]
@@ -177,7 +206,7 @@ ORDER BY [e].[DepartmentName]
 
         AssertSql(
             """
-SELECT [e].[DepartmentName], [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary]
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Id], [e].[Bonus], [e].[Name], [e].[Salary]
 FROM [Employees] AS [e]
 ORDER BY [e].[DepartmentName]
 """);

@@ -19,6 +19,9 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
+    protected void ClearLog()
+        => TestSqlLoggerFactory.Clear();
+
     /// <summary>
     ///     Enables the window function translation on the given options, using the provider's own options builder.
     /// </summary>
@@ -126,6 +129,64 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
                 Assert.Equal("Sales", sales.Key);
                 Assert.Equal(["Dara", "Emre"], sales.Names.Order());
                 Assert.Equal(2L, sales.Count);
+            });
+    }
+
+    /// <summary>
+    ///     Keys which differ only in case are one group under a case-insensitive collation, and two under a case-sensitive one. Either
+    ///     way the groupings, and the window values they carry, have to agree with the database's grouping rather than with CLR string
+    ///     equality.
+    /// </summary>
+    [Fact]
+    public virtual async Task Elements_and_aggregate_with_keys_differing_in_case()
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
+        await using var context = contextFactory.CreateDbContext();
+        context.Employees.Add(new Employee { Name = "Fen", DepartmentName = "engineering", Salary = 400 });
+        await context.SaveChangesAsync();
+
+        var databaseGroups = await context.Employees
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => g.Count())
+            .ToListAsync();
+
+        ClearLog();
+
+        var results = await context.Employees
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => new { Names = g.Select(e => e.Name).ToList(), Count = g.Count() })
+            .ToListAsync();
+
+        Assert.Equal(databaseGroups.Order(), results.Select(r => r.Names.Count).Order());
+        Assert.All(results, r => Assert.Equal(r.Names.Count, r.Count));
+    }
+
+    /// <summary>
+    ///     An aggregate whose translation wraps the function rather than being one - a float sum is a CAST around SUM on SQL Server - can't
+    ///     carry an OVER clause, so it keeps the GROUP BY translation.
+    /// </summary>
+    [Fact]
+    public virtual async Task Elements_and_float_sum()
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Employees
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => new { g.Key, Names = g.Select(e => e.Name).ToList(), Total = g.Sum(e => (float)e.Salary) })
+            .ToListAsync();
+
+        Assert.Collection(
+            results.OrderBy(r => r.Key),
+            engineering =>
+            {
+                Assert.Equal(["Alice", "Bob", "Cheng"], engineering.Names.Order());
+                Assert.Equal(600f, engineering.Total);
+            },
+            sales =>
+            {
+                Assert.Equal(["Dara", "Emre"], sales.Names.Order());
+                Assert.Equal(150f, sales.Total);
             });
     }
 
