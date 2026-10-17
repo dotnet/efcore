@@ -1107,6 +1107,73 @@ public static class TestContainer
 
     #region Captured variable handling
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Captured_nullable_value_in_guarded_query(bool async)
+        => Test(
+            $$"""
+foreach (var suppliedId in new int?[] { 8, 9, null })
+{
+    var id = suppliedId;
+    var queryId = id;
+    var blogs = id.HasValue
+        ? {{(async ? "await " : "")}}context.Blogs.AsNoTracking()
+            .Where(b => b.Id == queryId.Value)
+            .Select(b => new { b.Id, b.Name })
+            .{{(async ? "ToListAsync()" : "ToList()")}}
+        : {{(async ? "await " : "")}}context.Blogs.AsNoTracking()
+            .Select(b => new { b.Id, b.Name })
+            .{{(async ? "ToListAsync()" : "ToList()")}};
+
+    Assert.Equal(
+        id.HasValue ? new[] { id.Value } : new[] { 8, 9 },
+        blogs.OrderBy(b => b.Id).Select(b => b.Id));
+    Assert.Equal(
+        id.HasValue ? new[] { id == 8 ? "Blog1" : "Blog2" } : new[] { "Blog1", "Blog2" },
+        blogs.OrderBy(b => b.Id).Select(b => b.Name));
+}
+""");
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Captured_object_properties(bool async)
+        => Test(
+            $$"""
+var item = new Blog { Id = 8, Name = "Blog1" };
+var blog = {{(async ? "await context.Blogs.FirstOrDefaultAsync" : "context.Blogs.FirstOrDefault")}}(b => b.Id == item.Id && b.Name == item.Name);
+Assert.NotNull(blog);
+Assert.Equal(8, blog.Id);
+Assert.Equal("Blog1", blog.Name);
+""");
+
+    [Fact]
+    public virtual Task Captured_entity_property()
+        => Test(
+            """
+var item = await context.Blogs.SingleAsync(b => b.Id == 8);
+var blog = await context.Blogs.FirstOrDefaultAsync(b => b.Id == item.Id);
+Assert.Same(item, blog);
+""");
+
+    [Fact]
+    public virtual Task Captured_null_object_property_throws_at_runtime()
+        => Test(
+            """
+Blog item = null!;
+await Assert.ThrowsAsync<NullReferenceException>(() => context.Blogs.AnyAsync(b => b.Id == item.Id));
+""");
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Captured_foreach_object_properties(bool async)
+        => Test(
+            $$"""
+var items = new[] { new Blog { Id = 8, Name = "Blog1" }, new Blog { Id = 9, Name = "Blog2" } };
+foreach (var item in items)
+{
+    var blog = {{(async ? "await context.Blogs.SingleAsync" : "context.Blogs.Single")}}(b => b.Id == item.Id && b.Name == item.Name);
+    Assert.Equal(item.Id, blog.Id);
+    Assert.Equal(item.Name, blog.Name);
+}
+""");
+
     [Fact]
     public virtual Task Captured_method_parameter_in_lambda()
         => Test(

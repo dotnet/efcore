@@ -2063,6 +2063,99 @@ FROM [Blogs] AS [b]
 
     #region Captured variable handling
 
+    public override async Task Captured_nullable_value_in_guarded_query(bool async)
+    {
+        await base.Captured_nullable_value_in_guarded_query(async);
+
+        AssertSql(
+            """
+@queryId_Value='8'
+
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @queryId_Value
+""",
+            //
+            """
+@queryId_Value='9'
+
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @queryId_Value
+""",
+            //
+            """
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Captured_object_properties(bool async)
+    {
+        await base.Captured_object_properties(async);
+
+        AssertSql(
+            """
+@item_Id='8'
+@item_Name='Blog1' (Size = 4000)
+
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @item_Id AND [b].[Name] = @item_Name
+""");
+    }
+
+    public override async Task Captured_entity_property()
+    {
+        await base.Captured_entity_property();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8
+""",
+            //
+            """
+@item_Id='8'
+
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @item_Id
+""");
+    }
+
+    public override async Task Captured_null_object_property_throws_at_runtime()
+    {
+        await base.Captured_null_object_property_throws_at_runtime();
+
+        AssertSql();
+    }
+
+    public override async Task Captured_foreach_object_properties(bool async)
+    {
+        await base.Captured_foreach_object_properties(async);
+
+        AssertSql(
+            """
+@item_Id='8'
+@item_Name='Blog1' (Size = 4000)
+
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @item_Id AND [b].[Name] = @item_Name
+""",
+            //
+            """
+@item_Id='9'
+@item_Name='Blog2' (Size = 4000)
+
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @item_Id AND [b].[Name] = @item_Name
+""");
+    }
+
     public override async Task Captured_method_parameter_in_lambda()
     {
         await base.Captured_method_parameter_in_lambda();
