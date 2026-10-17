@@ -306,6 +306,23 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_starts_with_ends_with_contains_on_argument_with_escape_char_parameter(bool async)
+    {
+        var prm = '\\';
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => ("\\" + c.FirstName).StartsWith(prm)).Select(c => c.FirstName));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => (c.FirstName + "\\").EndsWith(prm)).Select(c => c.FirstName));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(c => (c.FirstName + "\\").Contains(prm)).Select(c => c.FirstName));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_starts_with_on_argument_with_bracket(bool async)
     {
         await AssertQuery(
